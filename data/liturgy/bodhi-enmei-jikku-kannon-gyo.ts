@@ -11,10 +11,15 @@
  * Source: Bodhi Sangha Sutras booklet (May 2016), p.4.
  */
 
-import type { LiturgyDoc } from '../../types/liturgy';
+import type { CommunityChant } from '../../types/liturgy';
 import { ungroundedCitation } from './_groundingHelpers';
 
-export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
+export const bodhiEnmeiJikkuKannonGyo: CommunityChant = {
+  // Same chant as MAPLE's (contentId), so English witnesses pool across both
+  // — a Bodhi reader can cycle MAPLE's Literal/Soto/Red Cedar renderings, but
+  // Bodhi's own reading leads. See docs/sutta-studio/COMMUNITY_CHANT_MODEL.md.
+  contentId: 'enmei-jikku-kannon-gyo',
+  defaultWitnessBy: 'Bodhi Sangha',
   slug: 'enmei-jikku-kannon-gyo',
   sangha: 'bodhi-sangha',
   order: 4,
@@ -40,6 +45,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
       segments: [
         {
           id: 'kanzeon',
+          phraseId: 'kan-ze-on',
           pali: 'Kan-ze-on',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Kan-ze-on', tokens: ['Kan', 'ze', 'on'] },
@@ -61,6 +67,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'namu-butsu',
+          phraseId: 'namu-butsu',
           pali: 'Na-mu but-su',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'Na-mu but-su', tokens: ['Na-mu', 'but-su'] },
@@ -81,6 +88,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'yo-butsu-u-in',
+          phraseId: 'yo-butsu-u-in',
           pali: 'yo but-su u in',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'yo but-su u in', tokens: ['yo', 'but-su', 'u', 'in'] },
@@ -103,6 +111,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'yo-butsu-u-en',
+          phraseId: 'yo-butsu-u-en',
           pali: 'yo but-su u en',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'yo but-su u en', tokens: ['yo', 'but-su', 'u', 'en'] },
@@ -125,6 +134,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'buppo-so-en',
+          phraseId: 'buppo-so-en',
           pali: 'bup-pō sō en',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'bup-pō sō en', tokens: ['bup-pō', 'sō', 'en'] },
@@ -146,6 +156,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'joraku-gajo',
+          phraseId: 'joraku-gajo',
           pali: 'jō-raku ga jō',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'jō-raku ga jō', tokens: ['jō', 'raku', 'ga', 'jō'] },
@@ -169,6 +180,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'cho-nen-kanzeon',
+          phraseId: 'cho-nen-kanzeon',
           pali: 'chō nen kan-ze-on',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'chō nen kan-ze-on', tokens: ['chō', 'nen', 'kan-ze-on'] },
@@ -190,6 +202,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'bo-nen-kanzeon',
+          phraseId: 'bo-nen-kanzeon',
           pali: 'bō nen kan-ze-on',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'bō nen kan-ze-on', tokens: ['bō', 'nen', 'kan-ze-on'] },
@@ -211,6 +224,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'nen-nen-ju-shin-ki',
+          phraseId: 'nen-nen-ju-shin-ki',
           pali: 'nen nen jū shin ki',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'nen nen jū shin ki', tokens: ['nen', 'nen', 'jū', 'shin', 'ki'] },
@@ -233,6 +247,7 @@ export const bodhiEnmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'nen-nen-fu-ri-shin',
+          phraseId: 'nen-nen-fu-ri-shin',
           pali: 'nen nen fu ri shin',
           scripts: [
             { lang: 'ja-Jpan', label: 'Sino-Japanese', text: 'nen nen fu ri shin', tokens: ['nen', 'nen', 'fu', 'ri', 'shin'] },

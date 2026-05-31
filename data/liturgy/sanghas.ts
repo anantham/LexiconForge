@@ -50,6 +50,17 @@ export const SANGHAS: Record<string, Sangha> = {
       { time: 'Before sleep', event: 'Oṃ Maṇi Padme Hūṃ', icon: 'rest', chantSlug: 'om-mani-padme-hum' },
     ],
   },
+  'sariputta-ambedkar': {
+    slug: 'sariputta-ambedkar',
+    name: 'Sariputta Ambedkar Monastery',
+    // Description grounded in the community's chant sheets (chants/rinzai zen chants/):
+    // its liturgy blends Theravāda Pali devotion with Rinzai Zen practice.
+    // TODO(curator): fullName / location / founded / url unknown — fill from a
+    // primary source rather than inferring.
+    description:
+      'A monastery whose daily liturgy weaves Theravāda Pali devotion — the refuges, the five precepts, the Itipiso recollections — together with Rinzai Zen practice: the Heart Sutra, the great dharanis, Hakuin\'s Song of Zazen, and the Teidai Dempo ancestral lineage.',
+    primaryTradition: 'mixed',
+  },
 };
 
 export const SANGHA_INDEX = Object.values(SANGHAS);

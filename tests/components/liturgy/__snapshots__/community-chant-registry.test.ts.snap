@@ -1,0 +1,773 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`route topology > every (sangha, slug) route has a stable, ordered section + segment id list 1`] = `
+{
+  "bodhi-sangha/bodhisattva-vow": [
+    {
+      "id": "framing",
+      "segs": [],
+    },
+    {
+      "id": "purification",
+      "segs": [
+        "sange-mon",
+      ],
+    },
+    {
+      "id": "vow-form-of-universe",
+      "segs": [],
+    },
+    {
+      "id": "vow-founders",
+      "segs": [],
+    },
+    {
+      "id": "vow-daily-offerings",
+      "segs": [],
+    },
+    {
+      "id": "vow-gratitude",
+      "segs": [],
+    },
+    {
+      "id": "vow-sworn-enemy",
+      "segs": [],
+    },
+    {
+      "id": "vow-lotus-on-each-thought",
+      "segs": [],
+    },
+    {
+      "id": "vow-pure-land",
+      "segs": [],
+    },
+  ],
+  "bodhi-sangha/dedication-and-evening-call": [
+    {
+      "id": "dedication",
+      "segs": [],
+    },
+    {
+      "id": "dedication-gloss",
+      "segs": [],
+    },
+    {
+      "id": "evening-call",
+      "segs": [
+        "han-gatha",
+      ],
+    },
+    {
+      "id": "closing-line",
+      "segs": [],
+    },
+  ],
+  "bodhi-sangha/enmei-jikku-kannon-gyo": [
+    {
+      "id": "ten-phrases",
+      "segs": [
+        "kanzeon",
+        "namu-butsu",
+        "yo-butsu-u-in",
+        "yo-butsu-u-en",
+        "buppo-so-en",
+        "joraku-gajo",
+        "cho-nen-kanzeon",
+        "bo-nen-kanzeon",
+        "nen-nen-ju-shin-ki",
+        "nen-nen-fu-ri-shin",
+      ],
+    },
+  ],
+  "bodhi-sangha/four-great-vows": [
+    {
+      "id": "four-vows",
+      "segs": [
+        "vow-1-shujo",
+        "vow-2-bonno",
+        "vow-3-homon",
+        "vow-4-butsudo",
+      ],
+    },
+  ],
+  "bodhi-sangha/heart-sutra": [
+    {
+      "id": "bodhi-heart-core",
+      "segs": [
+        "opening-avalokita",
+        "opening-practice",
+        "opening-seeing",
+        "form-not-different-emptiness",
+        "emptiness-not-different-form",
+        "form-is-emptiness",
+        "emptiness-is-form",
+      ],
+    },
+    {
+      "id": "bodhi-heart-middle",
+      "segs": [
+        "middle-shariputra",
+        "middle-all-dharmas-empty",
+        "middle-no-arise-no-cease",
+        "middle-no-defile-no-pure",
+        "middle-no-increase-no-decrease",
+        "middle-emptiness-no-form",
+        "middle-no-other-skandhas",
+        "middle-no-six-faculties",
+        "middle-no-six-objects",
+        "middle-no-dhatus",
+        "middle-no-ignorance",
+        "middle-no-aging-death",
+        "middle-no-four-truths",
+        "middle-no-wisdom-no-attainment",
+        "middle-because-no-attainment",
+      ],
+    },
+    {
+      "id": "bodhi-heart-result",
+      "segs": [
+        "result-no-obstruction",
+        "result-because-no-obstruction",
+        "result-no-fear",
+        "result-far-from-inversion",
+        "result-ultimate-nirvana",
+      ],
+    },
+    {
+      "id": "bodhi-all-buddhas",
+      "segs": [],
+    },
+    {
+      "id": "bodhi-great-mantra",
+      "segs": [],
+    },
+    {
+      "id": "dharani",
+      "segs": [],
+    },
+  ],
+  "bodhi-sangha/hokyo-zanmai": [
+    {
+      "id": "framing",
+      "segs": [],
+    },
+    {
+      "id": "teaching-of-thusness",
+      "segs": [
+        "nyoze-no-hō",
+        "ginwan-jōsetsu",
+        "rui-shi-fusei",
+      ],
+    },
+    {
+      "id": "jewel-mirror",
+      "segs": [
+        "i-fuzai-gen",
+        "nyo-rin-hōkyō",
+        "nyo-fuze-kyo",
+      ],
+    },
+    {
+      "id": "integration",
+      "segs": [
+        "tenshin-myo",
+        "gō-kotsu-shisa",
+      ],
+    },
+    {
+      "id": "colt-and-rat",
+      "segs": [
+        "gai-jaku-chū-yō",
+        "butsudō-suijō",
+      ],
+    },
+    {
+      "id": "wooden-man",
+      "segs": [
+        "boku-jin-hō-ka",
+        "sen-gyō-mitsu-yō",
+        "tan-nō-sōzoku",
+      ],
+    },
+    {
+      "id": "cleary-notes",
+      "segs": [],
+    },
+  ],
+  "bodhi-sangha/precepts": [
+    {
+      "id": "framing",
+      "segs": [],
+    },
+    {
+      "id": "seven-buddhas",
+      "segs": [],
+    },
+    {
+      "id": "three-pure",
+      "segs": [],
+    },
+    {
+      "id": "precept-1",
+      "segs": [],
+    },
+    {
+      "id": "precept-2",
+      "segs": [],
+    },
+    {
+      "id": "precept-3",
+      "segs": [],
+    },
+    {
+      "id": "precept-4",
+      "segs": [],
+    },
+    {
+      "id": "precept-5",
+      "segs": [],
+    },
+    {
+      "id": "precept-6",
+      "segs": [],
+    },
+    {
+      "id": "precept-7",
+      "segs": [],
+    },
+    {
+      "id": "precept-8",
+      "segs": [],
+    },
+    {
+      "id": "precept-9",
+      "segs": [],
+    },
+    {
+      "id": "precept-10",
+      "segs": [],
+    },
+    {
+      "id": "one-precept",
+      "segs": [],
+    },
+  ],
+  "bodhi-sangha/shin-jin-no-mei": [
+    {
+      "id": "framing",
+      "segs": [],
+    },
+    {
+      "id": "opening",
+      "segs": [
+        "shidō-munan",
+        "tan-mo",
+        "gouri-yusa",
+        "yoku-toku",
+        "ijun-sōsō",
+      ],
+    },
+    {
+      "id": "vast-space",
+      "segs": [
+        "en-dō-taikyō",
+        "ryōyū-shusha",
+        "maku-chiku-uen",
+      ],
+    },
+    {
+      "id": "single-way",
+      "segs": [
+        "isshu-futsū",
+        "tagon-tagyo",
+        "kikon-tokushi",
+      ],
+    },
+    {
+      "id": "duality-dissolves",
+      "segs": [
+        "isshin-fushō",
+        "nō-zui-kyō-metsu",
+      ],
+    },
+    {
+      "id": "unified-mind",
+      "segs": [
+        "daido-taikan",
+        "ninjō-gōdō",
+      ],
+    },
+    {
+      "id": "one-dharma",
+      "segs": [
+        "hō-mu-i-hō",
+      ],
+    },
+    {
+      "id": "rest-and-unrest",
+      "segs": [
+        "mei-shō-jakuran",
+        "mugen-kūge",
+        "manbō-ichinyo",
+      ],
+    },
+    {
+      "id": "trusting-mind",
+      "segs": [
+        "shinmyō-jishō",
+        "shinnyo-hōkai",
+        "fuji-kaidō",
+      ],
+    },
+    {
+      "id": "no-yesterday",
+      "segs": [
+        "shinjin-fuji",
+        "gengo-dōdan",
+      ],
+    },
+    {
+      "id": "closing-note",
+      "segs": [],
+    },
+  ],
+  "bodhi-sangha/song-of-zazen": [
+    {
+      "id": "framing",
+      "segs": [],
+    },
+    {
+      "id": "all-beings",
+      "segs": [
+        "shujo-honrai",
+        "mizu-kori",
+        "mizu-hanarete",
+        "shujo-no-hoka",
+      ],
+    },
+    {
+      "id": "searching-near",
+      "segs": [
+        "shujo-chikaki",
+        "toku-motomuru",
+        "tatoeba-mizu",
+        "chouja-ie",
+      ],
+    },
+    {
+      "id": "six-worlds",
+      "segs": [
+        "rokushu-rinne",
+        "guchi-yamiji",
+        "yamiji-itsuka",
+      ],
+    },
+    {
+      "id": "praise-of-zazen",
+      "segs": [
+        "makaen-zenjo",
+        "shotan-suru",
+        "fuse-jikai",
+        "nenbutsu-sange",
+        "mina-kono-uchi",
+        "ichiza-no-ko",
+        "tsumishi-muryo",
+        "jodo-tokarazu",
+      ],
+    },
+    {
+      "id": "self-nature",
+      "segs": [
+        "jiki-jisho",
+        "jisho-musho",
+        "muso-no-so",
+        "munen-no-nen",
+        "utau-mau",
+      ],
+    },
+    {
+      "id": "this-very-body",
+      "segs": [
+        "sanmai-muge",
+        "shichi-enmyo",
+        "tojo-rengekoku",
+        "kono-mi-hotoke",
+      ],
+    },
+  ],
+  "bodhi-sangha/ti-sarana": [
+    {
+      "id": "ti-sarana",
+      "segs": [
+        "buddha-refuge",
+        "dhamma-refuge",
+        "sangha-refuge",
+      ],
+    },
+    {
+      "id": "om-shanti",
+      "segs": [
+        "om-shanti-line",
+      ],
+    },
+    {
+      "id": "namo-tassa",
+      "segs": [
+        "namo-tassa-line",
+      ],
+    },
+  ],
+  "bodhi-sangha/way-of-compassion": [
+    {
+      "id": "verses",
+      "segs": [
+        "verse-1",
+        "verse-2",
+        "verse-3",
+        "verse-4",
+        "verse-5",
+        "verse-6",
+        "verse-7",
+        "verse-8",
+        "verse-9",
+        "verse-10",
+      ],
+    },
+    {
+      "id": "om-tat-sat",
+      "segs": [],
+    },
+  ],
+  "maple/bodhicitta-dedication": [
+    {
+      "id": "framing",
+      "segs": [],
+    },
+    {
+      "id": "dedication",
+      "segs": [
+        "line-1",
+        "line-2",
+        "line-3",
+        "line-4",
+      ],
+    },
+  ],
+  "maple/enmei-jikku-kannon-gyo": [
+    {
+      "id": "title",
+      "segs": [
+        "title-segment",
+      ],
+    },
+    {
+      "id": "ten-phrases",
+      "segs": [
+        "line-1-kan-ze-on",
+        "line-2-namu-butsu",
+        "line-3-yo-butsu-u-in",
+        "line-4-yo-butsu-u-en",
+        "line-5-buppo-so-en",
+        "line-6-jo-raku-ga-jo",
+        "line-7-cho-nen-kan-ze-on",
+        "line-8-bo-nen-kan-ze-on",
+        "line-9-nen-nen-ju-shin-ki",
+        "line-10-nen-nen-fu-ri-shin",
+      ],
+    },
+  ],
+  "maple/heart-sutra": [
+    {
+      "id": "heart-core",
+      "segs": [
+        "opening-avalokita",
+        "opening-practice",
+        "opening-seeing",
+        "form-not-different-emptiness",
+        "emptiness-not-different-form",
+        "form-is-emptiness",
+        "emptiness-is-form",
+      ],
+    },
+    {
+      "id": "heart-middle",
+      "segs": [
+        "middle-shariputra",
+        "middle-all-dharmas-empty",
+        "middle-no-arise-no-cease",
+        "middle-no-defile-no-pure",
+        "middle-no-increase-no-decrease",
+        "middle-emptiness-no-form",
+        "middle-no-other-skandhas",
+        "middle-no-six-faculties",
+        "middle-no-six-objects",
+        "middle-no-dhatus",
+        "middle-no-ignorance",
+        "middle-no-aging-death",
+        "middle-no-four-truths",
+        "middle-no-wisdom-no-attainment",
+        "middle-because-no-attainment",
+      ],
+    },
+    {
+      "id": "heart-result",
+      "segs": [
+        "result-no-obstruction",
+        "result-because-no-obstruction",
+        "result-no-fear",
+        "result-far-from-inversion",
+        "result-ultimate-nirvana",
+      ],
+    },
+    {
+      "id": "heart-buddhas",
+      "segs": [
+        "buddhas-all-three-times",
+        "buddhas-rely-prajna",
+        "buddhas-attain-bodhi",
+      ],
+    },
+    {
+      "id": "heart-great-mantra",
+      "segs": [
+        "mantra-therefore-know",
+        "mantra-great",
+        "mantra-great-knowledge",
+        "mantra-unsurpassed",
+        "mantra-unequaled",
+        "mantra-removes-suffering",
+        "mantra-true-not-false",
+        "mantra-prajna-spoken",
+        "mantra-thus-spoken",
+      ],
+    },
+    {
+      "id": "dharani",
+      "segs": [],
+    },
+    {
+      "id": "dharani-japanese-extended",
+      "segs": [],
+    },
+  ],
+  "maple/jade-method": [
+    {
+      "id": "orienting-question",
+      "segs": [],
+    },
+    {
+      "id": "stage-1",
+      "segs": [],
+    },
+    {
+      "id": "stage-2",
+      "segs": [],
+    },
+    {
+      "id": "stage-3",
+      "segs": [],
+    },
+    {
+      "id": "stage-4",
+      "segs": [],
+    },
+    {
+      "id": "stage-5",
+      "segs": [],
+    },
+    {
+      "id": "stage-6",
+      "segs": [],
+    },
+    {
+      "id": "stage-7",
+      "segs": [],
+    },
+  ],
+  "maple/metta-sutta": [
+    {
+      "id": "verses",
+      "segs": [
+        "v1a-karaniya",
+        "v1b-santam-padam",
+        "v1c-sakko-uju",
+        "v1d-suvaco-mudu",
+        "v2a-santussako",
+        "v2b-appakicco",
+        "v2c-santindriyo",
+        "v2d-appagabbho",
+        "v3a-na-khuddham",
+        "v3b-yena-vinnu",
+        "v3c-sukhino-khemino",
+        "v3d-sabbe-satta",
+        "v4a-ye-keci",
+        "v4b-tasa-thavara",
+        "v4c-digha-mahanta",
+        "v4d-majjhima",
+        "v5a-dittha-adittha",
+        "v5b-dure-avidure",
+        "v5c-bhuta-sambhavesi",
+        "v5d-sabbe-satta",
+        "v6a-na-paro-param",
+        "v6b-natimannetha",
+        "v6c-byarosana-patighasanna",
+        "v6d-aniccheyya",
+        "v7a-mata-yatha",
+        "v7b-ayusa-ekaputta",
+        "v7c-evampi-sabbabhuta",
+        "v7d-manasam-bhavaye",
+        "v8a-metta-sabbaloka",
+        "v8b-manasam-bhavaye",
+        "v8c-uddham-adho",
+        "v8d-asambadham-averam",
+        "v9a-tittham-caram",
+        "v9b-sayano-vigatamiddho",
+        "v9c-etam-satim",
+        "v9d-brahma-vihara",
+        "v10a-ditthi-anupaggamma",
+        "v10b-silava-dassanena",
+        "v10c-kamesu-vineyya",
+        "v10d-na-jatu",
+      ],
+    },
+  ],
+  "maple/morning-chants": [
+    {
+      "id": "homage",
+      "segs": [
+        "homage-1",
+      ],
+    },
+    {
+      "id": "three-refuges",
+      "segs": [
+        "refuge-buddha-1",
+        "refuge-dhamma-1",
+        "refuge-sangha-1",
+        "refuge-buddha-2",
+        "refuge-dhamma-2",
+        "refuge-sangha-2",
+        "refuge-buddha-3",
+        "refuge-dhamma-3",
+        "refuge-sangha-3",
+      ],
+    },
+    {
+      "id": "five-precepts",
+      "segs": [
+        "precept-1",
+        "precept-2",
+        "precept-3",
+        "precept-4",
+        "precept-5",
+      ],
+    },
+    {
+      "id": "ovada-patimokkha",
+      "segs": [
+        "ovada-1",
+        "ovada-2",
+        "ovada-3",
+        "ovada-4",
+      ],
+    },
+  ],
+  "maple/om-mani-padme-hum": [
+    {
+      "id": "sanskrit-mantra",
+      "segs": [
+        "mantra-main",
+      ],
+    },
+  ],
+  "maple/sho-sai-myo-kichijo-darani": [
+    {
+      "id": "dharani",
+      "segs": [
+        "shosai-l1",
+        "shosai-l2",
+        "shosai-l3",
+        "shosai-l4",
+        "shosai-l5",
+        "shosai-l6",
+        "shosai-l7",
+        "shosai-l8",
+        "shosai-l9",
+      ],
+    },
+  ],
+  "maple/vows": [
+    {
+      "id": "four-vows",
+      "segs": [
+        "vow-1-shujo",
+        "vow-2-bonno",
+        "vow-3-homon",
+        "vow-4-butsudo",
+      ],
+    },
+    {
+      "id": "mitakuye-oyasin",
+      "segs": [
+        "mitakuye-segment",
+      ],
+    },
+  ],
+  "sariputta-ambedkar/heart-sutra": [
+    {
+      "id": "sariputta-heart-core",
+      "segs": [
+        "opening-avalokita",
+        "opening-practice",
+        "opening-seeing",
+        "form-not-different-emptiness",
+        "emptiness-not-different-form",
+        "form-is-emptiness",
+        "emptiness-is-form",
+      ],
+    },
+    {
+      "id": "sariputta-heart-middle",
+      "segs": [
+        "middle-shariputra",
+        "middle-all-dharmas-empty",
+        "middle-no-arise-no-cease",
+        "middle-no-defile-no-pure",
+        "middle-no-increase-no-decrease",
+        "middle-emptiness-no-form",
+        "middle-no-other-skandhas",
+        "middle-no-six-faculties",
+        "middle-no-six-objects",
+        "middle-no-dhatus",
+        "middle-no-ignorance",
+        "middle-no-aging-death",
+        "middle-no-four-truths",
+        "middle-no-wisdom-no-attainment",
+        "middle-because-no-attainment",
+      ],
+    },
+    {
+      "id": "sariputta-heart-result",
+      "segs": [
+        "result-no-obstruction",
+        "result-because-no-obstruction",
+        "result-no-fear",
+        "result-far-from-inversion",
+        "result-ultimate-nirvana",
+      ],
+    },
+    {
+      "id": "sariputta-all-buddhas",
+      "segs": [],
+    },
+    {
+      "id": "sariputta-great-mantra",
+      "segs": [],
+    },
+    {
+      "id": "sariputta-dharani",
+      "segs": [],
+    },
+  ],
+}
+`;

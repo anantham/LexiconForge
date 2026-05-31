@@ -13,12 +13,18 @@
  * Bodhi text source: Bodhi Sangha Sutras booklet (May 2016), p.3.
  */
 
-import type { LiturgyDoc } from '../../types/liturgy';
+import type { CommunityChant } from '../../types/liturgy';
 import {
   wikipediaCitation,
 } from './_groundingHelpers';
 
-export const bodhiHeartSutra: LiturgyDoc = {
+export const bodhiHeartSutra: CommunityChant = {
+  // Same Heart Sutra as MAPLE's (shared contentId). Bodhi's own English —
+  // recovered from the Bodhi Sangha Sutras booklet (May 2016, p.3) and
+  // verified against the source photo — leads here; Conze / Red Pine /
+  // Thich Nhat Hanh / MAPLE renderings pool in as comparison witnesses.
+  contentId: 'heart-sutra',
+  defaultWitnessBy: 'Bodhi Sangha',
   slug: 'heart-sutra',
   sangha: 'bodhi-sangha',
   order: 3,
@@ -42,7 +48,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
     ],
   },
   curator:
-    "Curation by Aditya. The primary English witness is the MAPLE community chant sheet, titled \"The Scripture on the Heart of Transcendent Wisdom — Adapted from the translation by Master Sheng-yen.\" Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. The other witnesses (Conze 1958, Red Pine 2004, Thich Nhat Hanh 2014) come from their published translations, sliced per Xuanzang chant-line for comparison.",
+    "Curation by Aditya. The primary English witness is Bodhi Sangha's own rendering (the Aitken-Rochester / Diamond Sangha line), transcribed from the Bodhi Sangha Sutras booklet (May 2016), p.3. Sanskrit follows Conze's short version; Chinese is Xuanzang's T251; Tibetan from the Kangyur short-form. The comparison witnesses — Conze (1958), Red Pine (2004), Thich Nhat Hanh (2014), and the MAPLE chant sheet — come from their published / community sources, sliced per Xuanzang chant-line and cyclable via the witness-dots.",
   sections: [
     // ─────────────────────────────────────────────────────────────────────
     // The body — broken into chant-line segments
@@ -59,6 +65,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 觀自在菩薩 — Avalokiteśvara Bodhisattva ──
         {
           id: 'opening-avalokita',
+          phraseId: 'opening-avalokita',
           pali: 'Āryāvalokiteśvaro bodhisattvo',
           paliDeva: 'आर्यावलोकितेश्वरो बोधिसत्त्वो',
           scripts: [
@@ -96,10 +103,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'Avalokiteśvara Bodhisatva,',
+              by: 'Bodhi Sangha',
+              text: 'Avalokiteshvara Bodhisattva,',
               alignTo: [0, 1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -192,6 +200,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 行深般若波羅蜜多時 — going deep into transcendent wisdom ──
         {
           id: 'opening-practice',
+          phraseId: 'opening-practice',
           pali: 'gambhīrāṃ prajñāpāramitācaryāṃ caramāṇo',
           paliDeva: 'गम्भीरां प्रज्ञापारमिताचर्यां चरमाणो',
           scripts: [
@@ -229,10 +238,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'while going deep into transcendent wisdom,',
-              alignTo: [-1, 2, 0, -1, 1, 1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'practicing deep Prajna Paramita',
+              alignTo: [2, 0, 1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -351,6 +361,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 照見五蘊皆空 度一切苦厄 — saw five skandhas empty; overcame all suffering ──
         {
           id: 'opening-seeing',
+          phraseId: 'opening-seeing',
           pali: 'vyavalokayati sma: pañca skandhāḥ tāṃś ca svabhāvaśūnyān paśyati sma.',
           paliDeva: 'व्यवलोकयति स्म: पञ्च स्कन्धास्तांश्च स्वभावशून्यान्पश्यति स्म॥',
           scripts: [
@@ -388,10 +399,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'clearly saw that all five skandhas are empty, and overcame all suffering.',
-              alignTo: [0, 7, -1, -1, 2, 3, -1, 6, -1, -1, -1, -1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'clearly saw that all five skandhas are empty, transforming all suffering and distress.',
+              alignTo: [0, 7, -1, -1, 2, 3, -1, 6, -1, -1, -1, -1, -1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -532,6 +544,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 色不異空 — Form is not different from emptiness ──
         {
           id: 'form-not-different-emptiness',
+          phraseId: 'form-not-different-emptiness',
           pali: 'Rūpān na pṛthak śūnyatā',
           paliDeva: 'रूपान्न पृथक्शून्यता',
           scripts: [
@@ -569,10 +582,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'Śāriputra, appearance is not different from emptiness.',
+              by: 'Bodhi Sangha',
+              text: 'Shariputra, form is no other than emptiness,',
               alignTo: [-1, 0, -1, 1, 2, -1, 3],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -648,6 +662,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 空不異色 — Emptiness is not different from form ──
         {
           id: 'emptiness-not-different-form',
+          phraseId: 'emptiness-not-different-form',
           pali: 'śūnyatāyā na pṛthag rūpaṃ.',
           paliDeva: 'शून्यताया न पृथग्रूपम्।',
           scripts: [
@@ -685,10 +700,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'Emptiness is not different from appearance.',
-              alignTo: [0, -1, 1, 2, -1, 3],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'emptiness no other than form;',
+              alignTo: [0, 1, 2, -1, 3],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -752,6 +768,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 色即是空 — Form itself is emptiness ──
         {
           id: 'form-is-emptiness',
+          phraseId: 'form-is-emptiness',
           pali: 'Rūpaṃ śūnyatā · yad rūpaṃ sā śūnyatā,',
           paliDeva: 'रूपं शून्यता ॥ यद्रूपं सा शून्यता,',
           scripts: [
@@ -789,10 +806,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'Appearance itself is emptiness.',
-              alignTo: [0, -1, -1, 1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'form is emptiness,',
+              alignTo: [0, -1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -872,6 +890,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 空即是色 — Emptiness itself is form ──
         {
           id: 'emptiness-is-form',
+          phraseId: 'emptiness-is-form',
           pali: 'śūnyataiva rūpaṃ · yā śūnyatā tad rūpaṃ.',
           paliDeva: 'शून्यतैव रूपम् ॥ या शून्यता तद्रूपम्॥',
           scripts: [
@@ -909,10 +928,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'Emptiness itself is appearance. So also are preference, information, patterning and consciousness.',
-              alignTo: [0, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'emptiness is form;',
+              alignTo: [0, -1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1009,6 +1029,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 舍利子 — Śāriputra, addressee ──
         {
           id: 'middle-shariputra',
+          phraseId: 'middle-shariputra',
           pali: 'Iha Śāriputra',
           paliDeva: 'इह शारिपुत्र',
           scripts: [
@@ -1040,10 +1061,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'Śāriputra,',
+              by: 'Bodhi Sangha',
+              text: 'Shariputra,',
               alignTo: [1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1103,6 +1125,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 是諸法空相 — all dharmas characterized by emptiness ──
         {
           id: 'middle-all-dharmas-empty',
+          phraseId: 'middle-all-dharmas-empty',
           pali: 'sarvadharmāḥ śūnyatālakṣaṇāḥ',
           paliDeva: 'सर्वधर्माः शून्यतालक्षणाः',
           scripts: [
@@ -1134,10 +1157,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'all dharmas are characterized by emptiness',
-              alignTo: [0, 0, -1, -1, -1, 1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'all dharmas are essentially empty:',
+              alignTo: [0, 0, -1, 1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1212,6 +1236,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 不生不滅 — neither arising nor ceasing ──
         {
           id: 'middle-no-arise-no-cease',
+          phraseId: 'middle-no-arise-no-cease',
           pali: 'anutpannā aniruddhā',
           paliDeva: 'अनुत्पन्ना अनिरुद्धा',
           scripts: [
@@ -1243,10 +1268,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'that does not arise, is not destroyed,',
-              alignTo: [-1, -1, -1, 0, -1, -1, 1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'not born, not destroyed;',
+              alignTo: [-1, 0, -1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1300,6 +1326,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 不垢不淨 — neither defiled nor pure ──
         {
           id: 'middle-no-defile-no-pure',
+          phraseId: 'middle-no-defile-no-pure',
           pali: 'amalā na vimalā',
           paliDeva: 'अमला न विमला',
           scripts: [
@@ -1331,10 +1358,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'is not defiled, is not pure,',
-              alignTo: [-1, -1, 0, -1, -1, 2],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'not stained, not pure,',
+              alignTo: [-1, 0, 1, 2],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1394,6 +1422,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 不增不減 — neither increasing nor decreasing ──
         {
           id: 'middle-no-increase-no-decrease',
+          phraseId: 'middle-no-increase-no-decrease',
           pali: 'anūnā na paripūrṇāḥ',
           paliDeva: 'अनूना न परिपूर्णाः',
           scripts: [
@@ -1425,10 +1454,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'does not increase, does not decrease.',
-              alignTo: [-1, -1, 2, -1, -1, 0],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'without loss, without gain.',
+              alignTo: [-1, 0, 1, 2],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1492,6 +1522,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 是故空中無色 — therefore in emptiness no form ──
         {
           id: 'middle-emptiness-no-form',
+          phraseId: 'middle-emptiness-no-form',
           pali: 'Tasmāc Chāriputra śūnyatāyāṃ na rūpaṃ',
           paliDeva: 'तस्माच्छारिपुत्र शून्यतायां न रूपम्',
           scripts: [
@@ -1523,10 +1554,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'Therefore, in emptiness there is no appearance.',
-              alignTo: [0, -1, 2, -1, -1, -1, 4],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'Therefore in emptiness there is no form,',
+              alignTo: [0, -1, 2, -1, -1, 3, 4],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1595,6 +1627,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 無受想行識 — no feeling, perception, formation, consciousness ──
         {
           id: 'middle-no-other-skandhas',
+          phraseId: 'middle-no-other-skandhas',
           pali: 'na vedanā na saṃjñā na saṃskārāḥ na vijñānam',
           paliDeva: 'न वेदना न संज्ञा न संस्काराः न विज्ञानम्',
           scripts: [
@@ -1626,10 +1659,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'There is no preference, information, patterning or consciousness;',
-              alignTo: [-1, -1, 0, 2, 4, -1, 6, 7],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'no feeling, no perception, mental reaction, consciousness;',
+              alignTo: [0, 1, 2, 3, 4, 5, 7],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1695,6 +1729,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 無眼耳鼻舌身意 — no eye, ear, nose, tongue, body, mind ──
         {
           id: 'middle-no-six-faculties',
+          phraseId: 'middle-no-six-faculties',
           pali: 'na cakṣur na śrotraṃ na ghrāṇaṃ na jihvā na kāyo na manaḥ',
           paliDeva: 'न चक्षुर्न श्रोत्रं न घ्राणं न जिह्वा न कायो न मनः',
           scripts: [
@@ -1726,10 +1761,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'no eye, ear, nose, tongue, body, or mind;',
-              alignTo: [0, 1, 3, 5, 7, 9, -1, 11],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'no eye, ear, nose, tongue, body, mind;',
+              alignTo: [0, 1, 3, 5, 7, 9, 11],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1771,6 +1807,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 無色聲香味觸法 — no sight, sound, smell, taste, touch, thought ──
         {
           id: 'middle-no-six-objects',
+          phraseId: 'middle-no-six-objects',
           pali: 'na rūpaṃ na śabdo na gandho na raso na spraṣṭavyaṃ na dharmāḥ',
           paliDeva: 'न रूपं न शब्दो न गन्धो न रसो न स्प्रष्टव्यं न धर्माः',
           scripts: [
@@ -1802,10 +1839,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'no sight, sound, smell, taste, touch, or thought;',
-              alignTo: [0, 1, 3, 5, 7, 9, -1, 11],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'no colour, sound, smell, taste, touch, objects of mind;',
+              alignTo: [0, 1, 3, 5, 7, 9, 11, -1, -1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1847,6 +1885,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 無眼界 乃至 無意識界 — no eye-realm... to no mind-consciousness-realm ──
         {
           id: 'middle-no-dhatus',
+          phraseId: 'middle-no-dhatus',
           pali: 'na cakṣurdhātur yāvan na manovijñānadhātuḥ',
           paliDeva: 'न चक्षुर्धातुर्यावन्न मनोविज्ञानधातुः',
           scripts: [
@@ -1878,10 +1917,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'there is no realm of the eye, through to no realm of mental cognition;',
-              alignTo: [-1, -1, 0, -1, -1, -1, 1, 2, 2, 3, -1, -1, 4, 4],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'no seeing and so on to no thinking;',
+              alignTo: [0, 1, 2, 2, 2, 2, 3, 4],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -1939,6 +1979,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 無無明 亦無無明盡 — no ignorance and no end of ignorance ──
         {
           id: 'middle-no-ignorance',
+          phraseId: 'middle-no-ignorance',
           pali: 'na avidyā na avidyākṣayo',
           paliDeva: 'न अविद्या न अविद्याक्षयो',
           scripts: [
@@ -1970,10 +2011,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'there is no ignorance and no end of ignorance,',
-              alignTo: [-1, -1, -1, 1, -1, -1, -1, -1, 1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'no ignorance and also no ending of ignorance',
+              alignTo: [0, 1, -1, -1, 2, 3, 3, 3],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -2025,6 +2067,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 乃至 無老死 亦無老死盡 — through to no aging-death and no end of aging-death ──
         {
           id: 'middle-no-aging-death',
+          phraseId: 'middle-no-aging-death',
           pali: 'yāvan na jarāmaraṇaṃ na jarāmaraṇakṣayaḥ',
           paliDeva: 'यावन्न जरामरणं न जरामरणक्षयः',
           scripts: [
@@ -2056,10 +2099,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'through to no aging and death and no end of aging and death;',
-              alignTo: [0, 0, 1, 2, 2, 2, -1, 3, 4, 4, 4, 4, 4],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'and so on to no old age and death, and also no ending of old age and death;',
+              alignTo: [0, 0, 0, 0, 1, 2, 2, -1, 2, -1, -1, 3, 4, 4, 4, 4, -1, 4],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -2112,6 +2156,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 無苦集滅道 — no suffering, arising, cessation, path ──
         {
           id: 'middle-no-four-truths',
+          phraseId: 'middle-no-four-truths',
           pali: 'na duḥkha-samudaya-nirodha-mārgāḥ',
           paliDeva: 'न दुःखसमुदयनिरोधमार्गाः',
           scripts: [
@@ -2143,10 +2188,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'there is no suffering, no arising, no cessation, and no path;',
-              alignTo: [-1, -1, 0, 1, 0, 2, 0, 3, -1, 0, 4],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'no suffering, cause of suffering, cessation, path;',
+              alignTo: [0, 1, 2, 2, 1, 3, 4],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -2181,6 +2227,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 無智亦無得 — no wisdom no attainment ──
         {
           id: 'middle-no-wisdom-no-attainment',
+          phraseId: 'middle-no-wisdom-no-attainment',
           pali: 'na jñānaṃ na prāptiḥ',
           paliDeva: 'न ज्ञानं न प्राप्तिः',
           scripts: [
@@ -2212,10 +2259,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'there is no attainment and no realization',
-              alignTo: [-1, -1, -1, 3, -1, -1, 1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'no wisdom and no attainment.',
+              alignTo: [0, 1, -1, 2, 3],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -2263,6 +2311,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 以無所得故 — because there is nothing to attain ──
         {
           id: 'middle-because-no-attainment',
+          phraseId: 'middle-because-no-attainment',
           pali: 'tasmād aprāptitvāt',
           paliDeva: 'तस्मादप्राप्तित्वात्',
           scripts: [
@@ -2294,10 +2343,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: '— by practicing no apprehension.',
-              alignTo: [-1, -1, 1, -1, 1],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'Since there is nothing to attain,',
+              alignTo: [0, -1, -1, 1, 1, 1],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -2348,6 +2398,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 心無罣礙 — Mind has no obstruction ──
         {
           id: 'result-no-obstruction',
+          phraseId: 'result-no-obstruction',
           pali: 'Cittāvaraṇa',
           paliDeva: 'चित्तावरण',
           scripts: [
@@ -2380,10 +2431,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'Bodhisatvas rely on transcendent wisdom and their minds have no obstruction;',
-              alignTo: [-1, -1, -1, -1, -1, -1, -1, 0, -1, -1, 0],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'the Bodhisattva lives by Prajna Paramita with no hindrance in the mind;',
+              alignTo: [-1, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -2439,6 +2491,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 無罣礙故 — Because of no obstruction ──
         {
           id: 'result-because-no-obstruction',
+          phraseId: 'result-because-no-obstruction',
           pali: 'nāstitvād',
           paliDeva: 'नास्तित्वाद्',
           scripts: [
@@ -2471,10 +2524,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'with no obstruction',
-              alignTo: [0, -1, 0],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'no hindrance,',
+              alignTo: [0, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -2518,6 +2572,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 無有恐怖 — No fear ──
         {
           id: 'result-no-fear',
+          phraseId: 'result-no-fear',
           pali: 'atrasto',
           paliDeva: 'अत्रस्तो',
           scripts: [
@@ -2550,10 +2605,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'there is no fear.',
-              alignTo: [-1, -1, 0, 0],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'thus no fear;',
+              alignTo: [-1, 0, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -2610,6 +2666,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 遠離顛倒夢想 — Far from inverted dreams ──
         {
           id: 'result-far-from-inversion',
+          phraseId: 'result-far-from-inversion',
           pali: 'viparyāsātikrānto',
           paliDeva: 'विपर्यासातिक्रान्तो',
           scripts: [
@@ -2642,10 +2699,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'Passing far beyond confusion and delusion,',
-              alignTo: [0, 0, 0, 0, -1, 0],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'far beyond delusive thinking',
+              alignTo: [0, 0, 0, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',
@@ -2703,6 +2761,7 @@ export const bodhiHeartSutra: LiturgyDoc = {
         // ── 究竟涅槃 — Ultimate nirvāṇa ──
         {
           id: 'result-ultimate-nirvana',
+          phraseId: 'result-ultimate-nirvana',
           pali: 'niṣṭhānirvāṇaḥ.',
           paliDeva: 'निष्ठानिर्वाणः॥',
           scripts: [
@@ -2735,10 +2794,11 @@ export const bodhiHeartSutra: LiturgyDoc = {
           ],
           witnesses: [
             {
-              by: 'MAPLE chant sheet (after Sheng-yen)',
-              text: 'they reach ultimate nirvana.',
-              alignTo: [-1, -1, 0, 0],
-              license: 'MAPLE community chant sheet, adapted from Master Sheng-yen\'s translation',
+              by: 'Bodhi Sangha',
+              text: 'right here is Nirvana.',
+              alignTo: [-1, -1, -1, 0],
+              url: 'https://en.wikipedia.org/wiki/Heart_Sutra#English_translations',
+              license: 'Bodhi Sangha Sutras booklet (May 2016), p.3 — quoted with attribution',
             },
             {
               by: 'Conze (1958)',

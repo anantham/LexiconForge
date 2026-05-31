@@ -19,10 +19,16 @@
  * "permanent-joy-self-pure" = the four virtues of nirvāṇa).
  */
 
-import type { LiturgyDoc } from '../../types/liturgy';
+import type { CommunityChant } from '../../types/liturgy';
 import { wikipediaCitation } from './_groundingHelpers';
 
-export const enmeiJikkuKannonGyo: LiturgyDoc = {
+export const enmeiJikkuKannonGyo: CommunityChant = {
+  // Pools English witnesses with every other community's version of this
+  // chant (Bodhi Sangha's, etc.) keyed by segment phraseId — see
+  // docs/sutta-studio/COMMUNITY_CHANT_MODEL.md. MAPLE reads its own
+  // "Literal English gloss" by default.
+  contentId: 'enmei-jikku-kannon-gyo',
+  defaultWitnessBy: 'Literal English gloss',
   slug: 'enmei-jikku-kannon-gyo',
   sangha: 'maple',
   order: 2,
@@ -118,6 +124,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
       segments: [
         {
           id: 'line-1-kan-ze-on',
+          phraseId: 'kan-ze-on',
           pali: 'Kan ze on',
           scripts: [
             {
@@ -174,6 +181,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'line-2-namu-butsu',
+          phraseId: 'namu-butsu',
           pali: 'Na mu butsu',
           scripts: [
             {
@@ -235,6 +243,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'line-3-yo-butsu-u-in',
+          phraseId: 'yo-butsu-u-in',
           pali: 'Yo butsu u in',
           scripts: [
             {
@@ -285,6 +294,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'line-4-yo-butsu-u-en',
+          phraseId: 'yo-butsu-u-en',
           pali: 'Yo butsu u en',
           scripts: [
             {
@@ -335,6 +345,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'line-5-buppo-so-en',
+          phraseId: 'buppo-so-en',
           pali: 'Bup pō sō en',
           scripts: [
             {
@@ -380,6 +391,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'line-6-jo-raku-ga-jo',
+          phraseId: 'joraku-gajo',
           pali: 'Jō raku ga jō',
           scripts: [
             {
@@ -425,6 +437,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'line-7-cho-nen-kan-ze-on',
+          phraseId: 'cho-nen-kanzeon',
           pali: 'Chō nen kan ze on',
           scripts: [
             {
@@ -469,6 +482,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'line-8-bo-nen-kan-ze-on',
+          phraseId: 'bo-nen-kanzeon',
           pali: 'Bo nen kan ze on',
           scripts: [
             {
@@ -513,6 +527,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'line-9-nen-nen-ju-shin-ki',
+          phraseId: 'nen-nen-ju-shin-ki',
           pali: 'Nen nen jū shin ki',
           scripts: [
             {
@@ -558,6 +573,7 @@ export const enmeiJikkuKannonGyo: LiturgyDoc = {
         },
         {
           id: 'line-10-nen-nen-fu-ri-shin',
+          phraseId: 'nen-nen-fu-ri-shin',
           pali: 'Nen nen fu ri shin',
           scripts: [
             {
