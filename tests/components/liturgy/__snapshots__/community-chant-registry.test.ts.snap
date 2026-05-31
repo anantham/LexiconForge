@@ -769,6 +769,34 @@ exports[`route topology > every (sangha, slug) route has a stable, ordered secti
       "segs": [],
     },
   ],
+  "sariputta-ambedkar/refuges-and-precepts": [
+    {
+      "id": "vandana",
+      "segs": [
+        "namo-tassa-line",
+      ],
+    },
+    {
+      "id": "trisaranam",
+      "segs": [
+        "buddha-refuge",
+        "dhamma-refuge",
+        "sangha-refuge",
+        "dutiyampi",
+        "tatiyampi",
+      ],
+    },
+    {
+      "id": "pancasil",
+      "segs": [
+        "precept-1-panatipata",
+        "precept-2-adinnadana",
+        "precept-3-kamesu-micchacara",
+        "precept-4-musavada",
+        "precept-5-suramerayamajja",
+      ],
+    },
+  ],
   "sariputta-ambedkar/three-pure-precepts": [
     {
       "id": "ovada-patimokkha",
