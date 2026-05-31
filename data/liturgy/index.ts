@@ -40,6 +40,7 @@ import wayOfCompassion from './way-of-compassion';
 import dedicationAndEveningCall from './dedication-and-evening-call';
 // Sariputta Ambedkar Monastery
 import sariputtaHeartSutra from './sariputta-heart-sutra';
+import sariputtaThreePurePrecepts from './sariputta-three-pure-precepts';
 
 /**
  * Community chants — multiple sanghas chanting the same chant (same
@@ -83,6 +84,7 @@ const ALL_DOCS: LiturgyDoc[] = [
   dedicationAndEveningCall,
   // Sariputta Ambedkar Monastery
   sariputtaHeartSutraDoc,
+  sariputtaThreePurePrecepts,
 ];
 
 /**

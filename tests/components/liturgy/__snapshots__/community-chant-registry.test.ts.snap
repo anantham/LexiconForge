@@ -769,5 +769,16 @@ exports[`route topology > every (sangha, slug) route has a stable, ordered secti
       "segs": [],
     },
   ],
+  "sariputta-ambedkar/three-pure-precepts": [
+    {
+      "id": "ovada-patimokkha",
+      "segs": [
+        "avoid-evil",
+        "cultivate-good",
+        "purify-mind",
+        "teaching-of-buddhas",
+      ],
+    },
+  ],
 }
 `;
