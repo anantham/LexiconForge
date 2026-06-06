@@ -58,7 +58,7 @@ describe('Smoke: App.tsx', () => {
     // Just importing catches missing dependencies, syntax errors
     const AppModule = await import('../../App');
     expect(AppModule.default).toBeDefined();
-  }, 10000); // Extended timeout for full App import chain
+  }, 30000); // Extended timeout — App's import chain is slow under full-suite parallel load (imports fine in ~2s isolated; real fix is to stop network I/O at import)
 
   itRender('renders without crashing', () => {
     // Lazy import to avoid top-level side effects

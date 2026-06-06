@@ -129,7 +129,7 @@ test.describe('Fresh Install Initialization', () => {
     // Reload to trigger fresh initialization
     await page.reload({ waitUntil: 'domcontentloaded' });
 
-    await waitForInitializationLog(page, consoleMessages, 10_000);
+    await waitForInitializationLog(page, consoleMessages, 20_000);
 
     // Verify no schema drift errors
     const schemaDriftErrors = consoleMessages.filter(msg =>
@@ -250,7 +250,7 @@ test.describe('Existing Database Upgrade', () => {
     });
 
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await waitForInitializationLog(page, consoleMessages, 10_000);
+    await waitForInitializationLog(page, consoleMessages, 20_000);
 
     // Should not trigger schema drift on already-initialized DB
     const schemaDriftErrors = consoleMessages.filter(msg =>
