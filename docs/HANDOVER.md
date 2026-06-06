@@ -13,7 +13,7 @@ This handover covers the **liturgy-generator kernel + LLM-authoring-spec + PR #8
 ## Current repo state (verified 2026-06-06)
 - `main` = `origin/main` = **`48e2cf4`**. Working tree clean. **Nothing uncommitted** from this context.
 - **LLM-authoring implementation NOT started** — `services/liturgy-generator/authoring/` does not exist. The spec is on main.
-- Pre-existing reds persist: **`better-sqlite3` still MISSING** (blocks `build:dpd` + `scripts/build-dpd.test.ts`); **`tests/smoke/critical-components.smoke.test.tsx`** flaky 10s timeout under full-suite parallelism (App imports fine in 2.1s isolated).
+- **Full suite GREEN** (208 files, 8705 tests, 0 failed — 2026-06-06). The two former reds were fixed this session: `better-sqlite3` installed (`build-dpd.test.ts` green again) and the load-flaky smoke/init timeouts raised. One deeper item remains: App does network I/O at module import (the raised smoke timeout is a mitigation, not a cure).
 
 ## Commits This Session (all merged to main)
 **PR #80 (merged `7040930`):**
@@ -54,7 +54,7 @@ This handover covers the **liturgy-generator kernel + LLM-authoring-spec + PR #8
 ## Pending Threads
 
 ### Continue Immediately
-1. **LLM-authoring stage — implement (TOP thread).** Spec is on main; next step is the `writing-plans` skill → implementation. **Prereqs first:** (a) install `better-sqlite3` (declared devDep, not installed — native build; blocks `build:dpd` + its test); (b) extend `build:dpd` UID routing for KN/Snp/Khp — it currently routes only MN/SN/AN/DN and sends others to `mn` (`scripts/build-dpd.ts` ~L518). First chant = Metta (Snp 1.8) as a calibration target. Reuse the headless Sutta Studio passes (`dpd-loader-fs.ts`, lexical grounding providers, NO verseBank), not `compileSuttaStudioPacket()`.
+1. **LLM-authoring stage — implement (TOP thread).** Spec is on main; next step is the `writing-plans` skill → implementation. **Prereq:** extend `build:dpd` UID routing for KN/Snp/Khp — it currently routes only MN/SN/AN/DN and sends others to `mn` (`scripts/build-dpd.ts` ~L518). (`better-sqlite3` is **already installed** as of 2026-06-06 — done this session.) First chant = Metta (Snp 1.8) as a calibration target. Reuse the headless Sutta Studio passes (`dpd-loader-fs.ts`, lexical grounding providers, NO verseBank), not `compileSuttaStudioPacket()`.
 2. **Author the 4 remaining Sariputta chants** — `threefold-vandana`, `dai-hi-shu`, `daisegaki`, `teidai-dempo` (still undrafted; only heart-sutra/refuges-and-precepts/three-pure-precepts exist). Resume workflow `wf_d0f5930b-04c` (`Workflow({scriptPath:".../workflows/scripts/sariputta-chants-wf_d0f5930b-04c.js", resumeFromRunId:"wf_d0f5930b-04c"})`, **≤2–3 parallel agents**), OR (better) use the grounded LLM-authoring pipeline once built. Use shared-content pooling for overlapping chants, not naive authoring.
 3. **Buddha Vandana per-word depth** (from #82) — the 9 Itipiso continuation lines were transcribed verbatim but per-word glosses/morphemes are flagged *pending* in `sariputta-refuges-and-precepts.ts`.
 4. **Run the cross-model adversarial review on ANY new sacred-text authoring** before merge (see Calibration). #82 proved a single capable-model read misses real errors.
@@ -82,9 +82,9 @@ This handover covers the **liturgy-generator kernel + LLM-authoring-spec + PR #8
 #### Repo health
 | Item | Sketch |
 |---|---|
-| `better-sqlite3` not installed | Blocks `build:dpd` + `scripts/build-dpd.test.ts`; prereq for LLM-authoring DPD step |
-| Flaky `critical-components.smoke.test.tsx` 10s timeout | Under full-suite load only; raise timeout or stop App doing network I/O at import |
-| `init #1` e2e timeout one-liner | `tests/e2e/initialization.spec.ts:132` still `10_000` (others bumped to `20_000`); trivial tail-risk PR |
+| ~~`better-sqlite3` not installed~~ | **DONE 2026-06-06** — installed; `build-dpd.test.ts` green |
+| App does network I/O at module import | The deeper cause of the smoke flake. Smoke timeout raised to 30s as mitigation (DONE); real fix is to remove network from App's import chain |
+| ~~`init` e2e 10s timeouts~~ | **DONE 2026-06-06** — `initialization.spec.ts` lines 132 + 253 → `20_000` (line 201 left at `15_000`, distinct/not flagged) |
 | Deep-research affordances (`geo` folder, browser-MCP) | Investigated earlier, not wired in; separate concern |
 
 ### Explicit Decisions NOT to Do
@@ -124,7 +124,7 @@ This handover covers the **liturgy-generator kernel + LLM-authoring-spec + PR #8
 ## Resume Instructions
 1. `git -C <main> fetch && git log origin/main -1` — confirm/sync to current main (was `48e2cf4` at handover).
 2. Read the LLM-authoring spec (`docs/superpowers/specs/2026-05-31-liturgy-llm-authoring-design.md`) end-to-end + memory `project_liturgy_generator`.
-3. For LLM-authoring: install `better-sqlite3`, extend `build:dpd` for Snp/Khp, then invoke `writing-plans` from the spec.
+3. For LLM-authoring: extend `build:dpd` for Snp/Khp (`better-sqlite3` already installed), then invoke `writing-plans` from the spec.
 4. For Sariputta content: resume workflow `wf_d0f5930b-04c` (≤3 agents) or use the new pipeline; run a cross-model adversarial review before merging any sacred text.
 5. Liturgy gate for any change: `vitest run tests/components/liturgy tests/services/liturgy-generator` (was 7199 pass at #82) + `tsc --noEmit` (filter to touched files; repo has pre-existing tsc errors).
 
