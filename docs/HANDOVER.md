@@ -19,6 +19,8 @@ Continuation of the liturgy work. The Sariputta Ambedkar Monastery chants are no
 
 ## Pending Threads
 
+> **Scope of this handover:** it inventories the **liturgy / Sariputta** workstream (this session's focus) exhaustively. It is NOT a whole-repo backlog. The broader project's deferred state lives elsewhere and the next instance should consult it directly: **`MEMORY.md`** (other active workstreams — *telemetry v1 branch `fix/codex-telemetry-ux` needs rebase + appScreen mock fix before merge*; *FoJin / Chinese pipeline designed-not-built*; etc.) and the **`issues/`** folder (17+ app/reader UX issues, none liturgy). Treat those as owned by their own sessions/agents.
+
 ### Continue Immediately
 1. **Sariputta's remaining chants.** Source photos `chants/rinzai zen chants/PXL_2026053*.jpg` (small — crop+upscale with PIL). EITHER resume the rate-limited workflow (`Workflow({scriptPath: "<session>/workflows/scripts/sariputta-chants-wf_d0f5930b-04c.js", resumeFromRunId: "wf_d0f5930b-04c"})`, ≤2–3 agents) OR use **Codex's grounded-LLM-authoring pipeline** (spec: `docs/superpowers/specs/2026-05-31-liturgy-llm-authoring-design.md`, generator `scripts/liturgy-generator/`). Then run the cross-model adversarial review before merge ([[feedback_cross_model_review]] in auto-memory).
    - **Dhamma Vandana + Sangha Vandana** (the other two recollections, on photo `PXL_20260530_141420478` below Buddha Vandana) — NOT yet authored; pair with the existing `sariputta-refuges-and-precepts.ts` Buddha Vandana.
@@ -29,7 +31,9 @@ Continuation of the liturgy work. The Sariputta Ambedkar Monastery chants are no
 - None of mine. (Everything merged.)
 
 ### Deferred
+- **Implement the liturgy-generator's LLM-authoring stage** — Codex's PR #80 shipped the deterministic kernel + a *design spec* (`docs/superpowers/specs/2026-05-31-liturgy-llm-authoring-design.md`); the actual grounded-LLM-authoring stage is **specced, not built**. It's the intended replacement for my ad-hoc Workflow when authoring the remaining chants. (Cross-agent — Codex may own this; see `project_liturgy_generator` memory.)
 - **Overlapping Sariputta chants** (Enmē Jikku / Four Vows / Sho Sai / Song of Zazen / Han-nya Shin Gyo): need the shared-content pooling pattern, not naive authoring.
+- **`ChantContent` → shared named-section library** (COMMUNITY_CHANT_MODEL.md "Evolution note") — only worth doing once a 4th/5th community's *section structure* makes per-community authoring repetitive; not needed at 3 communities.
 - **MAPLE/Bodhi source-data retrofit** onto `data/liturgy/heart-sutra-content.ts` (~2k duplicated body lines; guard with a resolved-doc deep-equality test).
 - **`alignTo` for the Sariputta Heart Sutra witness** (currently a plain line).
 - **Unidentified dharani** `PXL_20260530_141412608.jpg` (sideways photo) — not transcribed.
