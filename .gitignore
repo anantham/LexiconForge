@@ -113,11 +113,6 @@ reports/
 # Playwright MCP browser-automation scratch (console logs + screenshots)
 .playwright-mcp/
 
-# Playwright accessibility-tree dumps captured during manual debugging
-# (one-off scratch; safe to delete from disk anytime)
-/issue3-reader-snapshot.md
-/phase-a-initial.yml
-
 # Source material: photos/scans of physical chant books + Google Takeout zips.
 # Kept OUT of git (binary, ~74M; would permanently bloat history and jpg/zip are
 # not routed through LFS). Lives on disk only; transcriptions belong in data/liturgy/.
