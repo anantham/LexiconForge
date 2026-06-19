@@ -15,7 +15,6 @@ export const ConceptAlignLivePage: React.FC = () => {
   const doc = getLiturgyDoc('maple', 'heart-sutra');
   const segments = (doc?.sections.flatMap((s: any) => s.segments ?? []) ?? [])
     .filter((seg: any) => Array.isArray(seg.scripts) && seg.scripts.length > 0)
-    .slice(0, 4)
     .map((seg: any) => deriveAlignSegment(seg));
 
   return (
