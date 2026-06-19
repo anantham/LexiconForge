@@ -151,6 +151,13 @@ export type AlignSegment = {
   id: string;
   /** Display gloss of the whole phrase. */
   gloss?: string;
+  /**
+   * When true, this segment is the work's TITLE, not a chant phrase — the
+   * reader renders it larger and sets it off with a divider. It still flows
+   * through the same rail + cross-script threads (so the title's name aligns
+   * wisdom·perfection·heart across scripts like any phrase).
+   */
+  title?: boolean;
   units: AlignUnit[];
   renderings: AlignRendering[];
 };

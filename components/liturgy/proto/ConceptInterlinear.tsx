@@ -68,7 +68,9 @@ const PhraseBlock: React.FC<{
   segment: AlignSegment;
   shown: Record<string, boolean>;
   mode: Mode;
-}> = ({ segment, shown, mode }) => {
+  /** Title segment — render the glyphs and English a step larger. */
+  large?: boolean;
+}> = ({ segment, shown, mode, large = false }) => {
   const [hot, setHot] = React.useState<string[] | null>(null); // matching unit ids (align mode)
   const [over, setOver] = React.useState<string | null>(null); // hovered piece key
   const [threads, setThreads] = React.useState<{ x: number; y: number }[] | null>(null);
@@ -173,7 +175,7 @@ const PhraseBlock: React.FC<{
                   <span
                     className="transition-colors duration-200 motion-reduce:transition-none"
                     style={{
-                      fontSize: sizeFor(r.lang),
+                      fontSize: large ? `calc(${sizeFor(r.lang)} * 1.3)` : sizeFor(r.lang),
                       fontStyle: english ? 'italic' : 'normal',
                       color: match ? C.match : ghost ? C.faint : english ? C.english : C.ink,
                       opacity: muted ? 0.4 : 1,
@@ -260,7 +262,15 @@ export const ConceptInterlinear: React.FC<{ segments: AlignSegment[] }> = ({ seg
       </div>
 
       <div className="space-y-16">
-        {segments.map((seg) => <PhraseBlock key={seg.id} segment={seg} shown={shown} mode={mode} />)}
+        {segments.map((seg) =>
+          seg.title ? (
+            <div key={seg.id} className="mb-4 border-b border-slate-800/50 pb-14">
+              <PhraseBlock segment={seg} shown={shown} mode={mode} large />
+            </div>
+          ) : (
+            <PhraseBlock key={seg.id} segment={seg} shown={shown} mode={mode} />
+          )
+        )}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { LiturgySettingsProvider, SettingsButton, useLiturgySettings } from './L
 import { WitnessDots } from './shapes/TripleScriptWitness';
 import { ConceptInterlinear } from './proto/ConceptInterlinear';
 import { deriveAlignSegment } from './proto/deriveAlignSegment';
+import { heartSutraTitle } from './proto/heartSutraTitle';
 
 /**
  * Gather every unique English-translation witness used across the doc.
@@ -40,11 +41,14 @@ const ConceptReaderBody: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
   // Re-derive when the witness changes: only the English row's words change;
   // every script row + the cross-script alignment stays put.
   const segments = useMemo(
-    () =>
-      doc.sections
+    () => [
+      // The title leads, as its own aligned segment (name across traditions).
+      heartSutraTitle,
+      ...doc.sections
         .filter((s): s is TripleScriptWitnessSection => s.shape === 'triple-script-witness')
         .flatMap((s) => s.segments)
         .map((seg) => deriveAlignSegment(seg, currentBy)),
+    ],
     [doc, currentBy]
   );
   const soundSections = doc.sections.filter((s) => s.shape === 'sound-formula');
