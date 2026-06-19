@@ -2,6 +2,7 @@ import React from 'react';
 import { SanghaIndex } from './SanghaIndex';
 import { LiturgyIndex } from './LiturgyIndex';
 import { LiturgyChantPage } from './LiturgyChantPage';
+import { ConceptAlignProtoPage } from './proto/ConceptAlignProtoPage';
 import { getLiturgyDoc } from '../../data/liturgy';
 import { getSangha } from '../../data/liturgy/sanghas';
 
@@ -36,6 +37,11 @@ export const LiturgyApp: React.FC<{ pathname: string }> = ({ pathname }) => {
   const trimmed = pathname.replace(/\/$/, '');
   // /liturgy → []; /liturgy/maple → ['maple']; /liturgy/maple/heart-sutra → ['maple', 'heart-sutra']
   const parts = trimmed.replace(/^\/liturgy\/?/, '').split('/').filter(Boolean);
+
+  // /liturgy/_proto → concept-aligned model prototype (not linked from the index)
+  if (parts[0] === '_proto') {
+    return <ConceptAlignProtoPage />;
+  }
 
   // /liturgy → top-level sangha picker
   if (parts.length === 0) {
