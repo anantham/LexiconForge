@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import type { LiturgyDoc, Sangha, Witness } from '../../types/liturgy';
+import type { LiturgyDoc, Sangha, Witness, TripleScriptWitnessSection } from '../../types/liturgy';
 import { SectionRenderer } from './SectionRenderer';
 import { ProseBlock } from './ProseBlock';
 import { LiturgySettingsProvider, SettingsButton, useLiturgySettings } from './LiturgySettings';
 import { WitnessDots } from './shapes/TripleScriptWitness';
+import { ConceptInterlinear } from './proto/ConceptInterlinear';
+import { deriveAlignSegment } from './proto/deriveAlignSegment';
 
 /**
  * Gather every unique English-translation witness used across the doc.
@@ -23,6 +25,37 @@ function uniqueWitnesses(doc: LiturgyDoc): Witness[] {
   }
   return Array.from(seen.values());
 }
+
+/**
+ * Concept-aligned chant body — the cross-script reader. Renders every
+ * triple-script-witness segment through the concept graph (deriveAlignSegment
+ * → ConceptInterlinear: stacked scripts, hover threads, merged Han row), then
+ * any sound-formula sections (the dhāraṇī) after. Gated per-doc upstream
+ * because the concept bindings are chant-specific (Heart Sutra today).
+ */
+const ConceptReaderBody: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
+  const segments = useMemo(
+    () =>
+      doc.sections
+        .filter((s): s is TripleScriptWitnessSection => s.shape === 'triple-script-witness')
+        .flatMap((s) => s.segments)
+        .map((seg) => deriveAlignSegment(seg)),
+    [doc]
+  );
+  const soundSections = doc.sections.filter((s) => s.shape === 'sound-formula');
+  return (
+    <div className="pt-10 pb-8">
+      <ConceptInterlinear segments={segments} />
+      {soundSections.length > 0 && (
+        <div className="max-w-3xl mx-auto mt-4">
+          {soundSections.map((s) => (
+            <SectionRenderer key={s.id} section={s} preferredWitnessBy="" onCycleWitness={() => {}} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 /**
  * Single-chant page.
@@ -64,6 +97,10 @@ const LiturgyChantPageBody: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = ({
   const witnesses = useMemo(() => uniqueWitnesses(doc), [doc]);
   const primaryWitness = witnesses[0]?.by ?? '';
   const { settings } = useLiturgySettings();
+  // Concept-aligned cross-script reader (stacked scripts + hover threads),
+  // replacing the cycle-one-script body. Gated to chants with concept
+  // bindings authored (Heart Sutra today); others keep the classic renderer.
+  const conceptMode = doc.slug === 'heart-sutra';
 
   // Page-level witness picker state. The dots row lives once at the top of
   // the chant body; every triple-script-witness section honors the same
@@ -93,13 +130,13 @@ const LiturgyChantPageBody: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = ({
             ← {backLabel}
           </a>
         </nav>
-        <SettingsButton />
+        {!conceptMode && <SettingsButton />}
 
       {/* Page-level witness picker — one row of dots covering every
           translation used anywhere in the doc. Hidden when there's only
           one source (one dot is noise). Sits above the first section so
           the source choice anchors the whole page, not per-section. */}
-      {witnesses.length > 1 && (
+      {!conceptMode && witnesses.length > 1 && (
         <div className="pt-12 pb-2 flex justify-center">
           <WitnessDots
             witnesses={witnesses}
@@ -109,16 +146,22 @@ const LiturgyChantPageBody: React.FC<{ doc: LiturgyDoc; sangha?: Sangha }> = ({
         </div>
       )}
 
-      {/* Sections — first one gets `isOpening` for the big stone-marker layout */}
-      {doc.sections.map((section, i) => (
-        <SectionRenderer
-          key={section.id}
-          section={section}
-          preferredWitnessBy={preferredWitnessBy}
-          onCycleWitness={cycleWitness}
-          isOpening={i === 0}
-        />
-      ))}
+      {/* Body — the concept-aligned cross-script reader for chants that have
+          it, else the classic section-by-section renderer (first section gets
+          the big stone-marker opening). */}
+      {conceptMode ? (
+        <ConceptReaderBody doc={doc} />
+      ) : (
+        doc.sections.map((section, i) => (
+          <SectionRenderer
+            key={section.id}
+            section={section}
+            preferredWitnessBy={preferredWitnessBy}
+            onCycleWitness={cycleWitness}
+            isOpening={i === 0}
+          />
+        ))
+      )}
 
       {/* Footer — sources, links, attributions. Quiet, after all chants. */}
       <footer className="max-w-3xl mx-auto px-6 py-16 mt-8 border-t border-slate-900">
