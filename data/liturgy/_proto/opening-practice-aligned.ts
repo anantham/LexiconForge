@@ -39,20 +39,33 @@ export const openingPracticeAligned: AlignSegment = {
       lang: 'sa-Deva',
       label: 'Sanskrit',
       tokens: [
-        { text: 'गम्भीरां', units: ['u-deep'], relation: 'semantic', pronunciation: 'gambhīrāṃ' },
-        // ONE compound token realizing THREE units — split into its morphemes,
-        // each aligning to its own unit (the case the 1:1 model can't represent).
+        { text: 'गम्भीरां', units: ['u-deep'], relation: 'semantic', pronunciation: 'gambhīrāṃ', segments: [
+          { text: 'ग', pronunciation: 'ga', akshara: true },
+          { text: 'म्भी', pronunciation: 'mbhī', akshara: true },
+          { text: 'रां', pronunciation: 'rāṃ', akshara: true },
+        ] },
+        // One compound, three meanings — each akshara carries the morpheme it belongs to.
         {
           text: 'प्रज्ञापारमिताचर्यां', units: ['u-wisdom', 'u-perfection', 'u-practice'], relation: 'semantic',
           pronunciation: 'prajñāpāramitācaryāṃ',
           note: 'One compound: wisdom + perfection + practice, the "of" relations folded in.',
           segments: [
-            { text: 'प्रज्ञा', pronunciation: 'prajñā', gloss: 'wisdom', units: ['u-wisdom'] },
-            { text: 'पारमिता', pronunciation: 'pāramitā', gloss: 'perfection', units: ['u-perfection'] },
-            { text: 'चर्यां', pronunciation: 'caryāṃ', gloss: 'practice', units: ['u-practice'] },
+            { text: 'प्र', pronunciation: 'pra', akshara: true, units: ['u-wisdom'] },
+            { text: 'ज्ञा', pronunciation: 'jñā', akshara: true, units: ['u-wisdom'] },
+            { text: 'पा', pronunciation: 'pā', akshara: true, units: ['u-perfection'] },
+            { text: 'र', pronunciation: 'ra', akshara: true, units: ['u-perfection'] },
+            { text: 'मि', pronunciation: 'mi', akshara: true, units: ['u-perfection'] },
+            { text: 'ता', pronunciation: 'tā', akshara: true, units: ['u-perfection'] },
+            { text: 'च', pronunciation: 'ca', akshara: true, units: ['u-practice'] },
+            { text: 'र्यां', pronunciation: 'ryāṃ', akshara: true, units: ['u-practice'] },
           ],
         },
-        { text: 'चरमाणो', units: ['u-practising'], relation: 'semantic', pronunciation: 'caramāṇo' },
+        { text: 'चरमाणो', units: ['u-practising'], relation: 'semantic', pronunciation: 'caramāṇo', segments: [
+          { text: 'च', pronunciation: 'ca', akshara: true },
+          { text: 'र', pronunciation: 'ra', akshara: true },
+          { text: 'मा', pronunciation: 'mā', akshara: true },
+          { text: 'णो', pronunciation: 'ṇo', akshara: true },
+        ] },
       ],
     },
     {
@@ -139,12 +152,22 @@ const invocation: AlignSegment = {
     {
       lang: 'sa-Deva', label: 'Sanskrit',
       tokens: [
-        // Kept whole: ārya + avalokita + īśvara fuse by vowel-sandhi, so a
-        // morpheme split would mis-spell the Devanāgarī surface.
-        { text: 'आर्यावलोकितेश्वरो', units: ['u-noble', 'u-avalokita'], relation: 'semantic', pronunciation: 'Āryāvalokiteśvaro' },
+        // Aksharas recombine to the surface, so the sandhi spelling stays correct.
+        { text: 'आर्यावलोकितेश्वरो', units: ['u-noble', 'u-avalokita'], relation: 'semantic', pronunciation: 'Āryāvalokiteśvaro', segments: [
+          { text: 'आ', pronunciation: 'ā', akshara: true, units: ['u-noble'] },
+          { text: 'र्या', pronunciation: 'ryā', akshara: true, units: ['u-noble'] },
+          { text: 'व', pronunciation: 'va', akshara: true, units: ['u-avalokita'] },
+          { text: 'लो', pronunciation: 'lo', akshara: true, units: ['u-avalokita'] },
+          { text: 'कि', pronunciation: 'ki', akshara: true, units: ['u-avalokita'] },
+          { text: 'ते', pronunciation: 'te', akshara: true, units: ['u-avalokita'] },
+          { text: 'श्व', pronunciation: 'śva', akshara: true, units: ['u-avalokita'] },
+          { text: 'रो', pronunciation: 'ro', akshara: true, units: ['u-avalokita'] },
+        ] },
         { text: 'बोधिसत्त्वो', units: ['u-bodhisattva'], relation: 'semantic', pronunciation: 'bodhisattvo', segments: [
-          { text: 'बोधि', pronunciation: 'bodhi', gloss: 'awakening', units: ['u-bodhisattva'] },
-          { text: 'सत्त्वो', pronunciation: 'sattvo', gloss: 'being', units: ['u-bodhisattva'] },
+          { text: 'बो', pronunciation: 'bo', akshara: true },
+          { text: 'धि', pronunciation: 'dhi', akshara: true },
+          { text: 'स', pronunciation: 'sa', akshara: true },
+          { text: 'त्त्वो', pronunciation: 'ttvo', akshara: true },
         ] },
       ],
     },
@@ -214,20 +237,36 @@ const seeing: AlignSegment = {
     {
       lang: 'sa-Deva', label: 'Sanskrit',
       tokens: [
-        // Kept whole: vi + ava + lok fuse by sandhi (vy-ava-), so a split would mis-spell it.
-        { text: 'व्यवलोकयति', units: ['u-saw'], relation: 'semantic', pronunciation: 'vyavalokayati' },
+        { text: 'व्यवलोकयति', units: ['u-saw'], relation: 'semantic', pronunciation: 'vyavalokayati', segments: [
+          { text: 'व्य', pronunciation: 'vya', akshara: true },
+          { text: 'व', pronunciation: 'va', akshara: true },
+          { text: 'लो', pronunciation: 'lo', akshara: true },
+          { text: 'क', pronunciation: 'ka', akshara: true },
+          { text: 'य', pronunciation: 'ya', akshara: true },
+          { text: 'ति', pronunciation: 'ti', akshara: true },
+        ] },
         { text: 'स्म', units: [], relation: 'ghost', gloss: 'marks it as already done (past)', pronunciation: 'sma' },
-        { text: 'पञ्च', units: ['u-five'], relation: 'semantic', pronunciation: 'pañca' },
-        { text: 'स्कन्धाः', units: ['u-skandhas'], relation: 'semantic', pronunciation: 'skandhāḥ' },
+        { text: 'पञ्च', units: ['u-five'], relation: 'semantic', pronunciation: 'pañca', segments: [
+          { text: 'प', pronunciation: 'pa', akshara: true },
+          { text: 'ञ्च', pronunciation: 'ñca', akshara: true },
+        ] },
+        { text: 'स्कन्धाः', units: ['u-skandhas'], relation: 'semantic', pronunciation: 'skandhāḥ', segments: [
+          { text: 'स्क', pronunciation: 'ska', akshara: true },
+          { text: 'न्धाः', pronunciation: 'ndhāḥ', akshara: true },
+        ] },
         { text: 'तांश्च', units: ['u-those'], relation: 'ghost', pronunciation: 'tāṃś ca' },
         { text: 'स्वभावशून्यान्', units: ['u-own-being', 'u-empty'], relation: 'semantic', pronunciation: 'svabhāvaśūnyān', segments: [
-          { text: 'स्व', pronunciation: 'sva', gloss: 'own', units: ['u-own-being'] },
-          { text: 'भाव', pronunciation: 'bhāva', gloss: 'being, nature', units: ['u-own-being'] },
-          { text: 'शून्यान्', pronunciation: 'śūnyān', gloss: 'empty of', units: ['u-empty'] },
+          { text: 'स्व', pronunciation: 'sva', akshara: true, units: ['u-own-being'] },
+          { text: 'भा', pronunciation: 'bhā', akshara: true, units: ['u-own-being'] },
+          { text: 'व', pronunciation: 'va', akshara: true, units: ['u-own-being'] },
+          { text: 'शू', pronunciation: 'śū', akshara: true, units: ['u-empty'] },
+          { text: 'न्या', pronunciation: 'nyā', akshara: true, units: ['u-empty'] },
+          { text: 'न्', pronunciation: 'n', akshara: true, units: ['u-empty'] },
         ] },
         { text: 'पश्यति', units: ['u-saw2'], relation: 'semantic', pronunciation: 'paśyati', segments: [
-          { text: 'पश्', pronunciation: 'paś', gloss: 'to see' },
-          { text: 'यति', pronunciation: 'yati', gloss: 'sees (happening now)' },
+          { text: 'प', pronunciation: 'pa', akshara: true },
+          { text: 'श्य', pronunciation: 'śya', akshara: true },
+          { text: 'ति', pronunciation: 'ti', akshara: true },
         ] },
         { text: 'स्म', units: [], relation: 'ghost', gloss: 'marks it as already done (past)', pronunciation: 'sma' },
       ],
@@ -318,17 +357,25 @@ const formEmptiness: AlignSegment = {
     {
       lang: 'sa-Deva', label: 'Sanskrit',
       tokens: [
-        { text: 'रूपं', units: ['u-form'], relation: 'semantic', pronunciation: 'rūpaṃ' },
+        { text: 'रूपं', units: ['u-form'], relation: 'semantic', pronunciation: 'rūpaṃ', segments: [
+          { text: 'रू', pronunciation: 'rū', akshara: true },
+          { text: 'पं', pronunciation: 'paṃ', akshara: true },
+        ] },
         { text: 'शून्यता', units: ['u-empty'], relation: 'semantic', pronunciation: 'śūnyatā', segments: [
-          { text: 'शून्य', pronunciation: 'śūnya', gloss: 'empty' },
-          { text: 'ता', pronunciation: 'tā', gloss: 'makes it "emptiness"', faint: true },
+          { text: 'शू', pronunciation: 'śū', akshara: true },
+          { text: 'न्य', pronunciation: 'nya', akshara: true },
+          { text: 'ता', pronunciation: 'tā', akshara: true },
         ] },
         { text: 'यद्', units: ['u-what'], relation: 'ghost', gloss: 'whatever', pronunciation: 'yad' },
-        { text: 'रूपं', units: ['u-form2'], relation: 'semantic', pronunciation: 'rūpaṃ' },
+        { text: 'रूपं', units: ['u-form2'], relation: 'semantic', pronunciation: 'rūpaṃ', segments: [
+          { text: 'रू', pronunciation: 'rū', akshara: true },
+          { text: 'पं', pronunciation: 'paṃ', akshara: true },
+        ] },
         { text: 'सा', units: ['u-that'], relation: 'ghost', gloss: 'that', pronunciation: 'sā' },
         { text: 'शून्यता', units: ['u-empty2'], relation: 'semantic', pronunciation: 'śūnyatā', segments: [
-          { text: 'शून्य', pronunciation: 'śūnya', gloss: 'empty' },
-          { text: 'ता', pronunciation: 'tā', gloss: 'makes it "emptiness"', faint: true },
+          { text: 'शू', pronunciation: 'śū', akshara: true },
+          { text: 'न्य', pronunciation: 'nya', akshara: true },
+          { text: 'ता', pronunciation: 'tā', akshara: true },
         ] },
       ],
     },
@@ -381,16 +428,27 @@ const emptinessForm: AlignSegment = {
     {
       lang: 'sa-Deva', label: 'Sanskrit',
       tokens: [
-        // Kept whole: śūnyatā + eva fuse by sandhi (-ā + e- → -ai-).
-        { text: 'शून्यतैव', units: ['u-empty'], relation: 'semantic', pronunciation: 'śūnyataiva' },
-        { text: 'रूपम्', units: ['u-form'], relation: 'semantic', pronunciation: 'rūpam' },
+        { text: 'शून्यतैव', units: ['u-empty'], relation: 'semantic', pronunciation: 'śūnyataiva', segments: [
+          { text: 'शू', pronunciation: 'śū', akshara: true },
+          { text: 'न्य', pronunciation: 'nya', akshara: true },
+          { text: 'तै', pronunciation: 'tai', akshara: true },
+          { text: 'व', pronunciation: 'va', akshara: true },
+        ] },
+        { text: 'रूपम्', units: ['u-form'], relation: 'semantic', pronunciation: 'rūpam', segments: [
+          { text: 'रू', pronunciation: 'rū', akshara: true },
+          { text: 'पम्', pronunciation: 'pam', akshara: true },
+        ] },
         { text: 'या', units: ['u-what'], relation: 'ghost', gloss: 'whatever', pronunciation: 'yā' },
         { text: 'शून्यता', units: ['u-empty2'], relation: 'semantic', pronunciation: 'śūnyatā', segments: [
-          { text: 'शून्य', pronunciation: 'śūnya', gloss: 'empty' },
-          { text: 'ता', pronunciation: 'tā', gloss: 'makes it "emptiness"', faint: true },
+          { text: 'शू', pronunciation: 'śū', akshara: true },
+          { text: 'न्य', pronunciation: 'nya', akshara: true },
+          { text: 'ता', pronunciation: 'tā', akshara: true },
         ] },
         { text: 'तद्', units: ['u-that'], relation: 'ghost', gloss: 'that', pronunciation: 'tad' },
-        { text: 'रूपम्', units: ['u-form2'], relation: 'semantic', pronunciation: 'rūpam' },
+        { text: 'रूपम्', units: ['u-form2'], relation: 'semantic', pronunciation: 'rūpam', segments: [
+          { text: 'रू', pronunciation: 'rū', akshara: true },
+          { text: 'पम्', pronunciation: 'pam', akshara: true },
+        ] },
       ],
     },
     {

@@ -95,6 +95,14 @@ export type AlignSegmentPiece = {
    * false gloss. `gloss` holds the source syllable it spells (e.g. "pra").
    */
   phonetic?: boolean;
+  /**
+   * An akshara — one orthographic syllable of a meaning-bearing native-script
+   * word (the प्र of प्रज्ञा). It carries SOUND, not its own meaning, so the
+   * tooltip says "the sound X · part of [word]" and never glosses the syllable
+   * as the whole word. Set `units` on the akshara only inside a multi-meaning
+   * compound, so alignment threads stay precise; otherwise it inherits.
+   */
+  akshara?: boolean;
 };
 
 /** One token in one language's rendering of the phrase. */
