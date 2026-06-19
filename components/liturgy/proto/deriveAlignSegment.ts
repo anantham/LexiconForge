@@ -152,7 +152,7 @@ const BIND: Record<string, string[]> = {
 const resolve = (lang: string, script: string, t: string): string[] =>
   BIND[t] ?? conceptsForToken(lang as any, script as any, t);
 
-export function deriveAlignSegment(seg: any, witnessIndex = 0): AlignSegment {
+export function deriveAlignSegment(seg: any, preferredWitnessBy?: string): AlignSegment {
   const units = new Map<string, AlignUnit>();
   const useUnit = (cid: string) => {
     if (!units.has(cid)) {
@@ -214,7 +214,11 @@ export function deriveAlignSegment(seg: any, witnessIndex = 0): AlignSegment {
     renderings.push({ lang: sv.lang, label: sv.label, tokens });
   }
 
-  const w = seg.witnesses?.[witnessIndex] ?? seg.witnesses?.[0];
+  // Select the witness by name (witnesses aren't index-aligned across
+  // segments — some carry only a subset); fall back to the first available.
+  const w =
+    (preferredWitnessBy && seg.witnesses?.find((x: any) => x.by === preferredWitnessBy)) ||
+    seg.witnesses?.[0];
   if (w) {
     const tokens: AlignToken[] = String(w.text).split(/\s+/).filter(Boolean).map((t: string) => {
       const cids = conceptsForToken('en', 'Latn', clean(t), w.by);

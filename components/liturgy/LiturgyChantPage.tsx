@@ -34,17 +34,40 @@ function uniqueWitnesses(doc: LiturgyDoc): Witness[] {
  * because the concept bindings are chant-specific (Heart Sutra today).
  */
 const ConceptReaderBody: React.FC<{ doc: LiturgyDoc }> = ({ doc }) => {
+  const witnesses = useMemo(() => uniqueWitnesses(doc), [doc]);
+  const [witnessIdx, setWitnessIdx] = useState(0);
+  const currentBy = witnesses[witnessIdx]?.by ?? witnesses[0]?.by;
+  // Re-derive when the witness changes: only the English row's words change;
+  // every script row + the cross-script alignment stays put.
   const segments = useMemo(
     () =>
       doc.sections
         .filter((s): s is TripleScriptWitnessSection => s.shape === 'triple-script-witness')
         .flatMap((s) => s.segments)
-        .map((seg) => deriveAlignSegment(seg)),
-    [doc]
+        .map((seg) => deriveAlignSegment(seg, currentBy)),
+    [doc, currentBy]
   );
   const soundSections = doc.sections.filter((s) => s.shape === 'sound-formula');
   return (
     <div className="pt-10 pb-8">
+      {/* Translation picker — cycles the English line across the witnesses
+          (MAPLE / Conze / Red Pine / TNH …) while the cross-script alignment
+          holds. The translator's name is itself the cycle button, so the dots'
+          purpose is self-evident and the reader always knows whose words these are. */}
+      {witnesses.length > 1 && (
+        <div className="flex flex-col items-center gap-2 mb-12">
+          <WitnessDots witnesses={witnesses} activeIdx={witnessIdx} onSelect={setWitnessIdx} />
+          <button
+            type="button"
+            onClick={() => setWitnessIdx((w) => (w + 1) % witnesses.length)}
+            className="text-xs text-slate-500 hover:text-slate-300 transition-colors italic"
+            style={{ fontFamily: "'Cardo', 'Gentium Plus', serif" }}
+            title="Next translation"
+          >
+            {currentBy}
+          </button>
+        </div>
+      )}
       <ConceptInterlinear segments={segments} />
       {soundSections.length > 0 && (
         <div className="max-w-3xl mx-auto mt-4">
