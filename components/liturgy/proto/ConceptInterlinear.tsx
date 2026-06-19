@@ -14,7 +14,7 @@ import { getConcept } from '../../../data/concepts/lookup';
  *    its sound), everything else dims. Sound ↔ script, one piece at a time.
  *
  * Granularity follows what you grab. Progressive disclosure: one source + English
- * by default; the eye adds a language, ɑ its sound (on for non-Latin). The
+ * by default; the eye adds a language, with its sound shown for non-Latin. The
  * shipped liturgy reader is the reference.
  */
 
@@ -67,9 +67,8 @@ function threadPath(pts: { x: number; y: number }[]): string {
 const PhraseBlock: React.FC<{
   segment: AlignSegment;
   shown: Record<string, boolean>;
-  pron: Record<string, boolean>;
   mode: Mode;
-}> = ({ segment, shown, pron, mode }) => {
+}> = ({ segment, shown, mode }) => {
   const [hot, setHot] = React.useState<string[] | null>(null); // matching unit ids (align mode)
   const [over, setOver] = React.useState<string | null>(null); // hovered piece key
   const [threads, setThreads] = React.useState<{ x: number; y: number }[] | null>(null);
@@ -146,7 +145,7 @@ const PhraseBlock: React.FC<{
   // stick. Calling renderLine(r) reconciles the same DOM in place instead.
   const renderLine = (r: AlignRendering) => {
     const english = isEnglish(r.lang);
-    const showRom = !english && pron[r.lang];
+    const showRom = !english; // romanization always shown for non-Latin scripts
     return (
       <div key={r.lang} className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: '0.5em', rowGap: '0.5rem' }}>
         {r.tokens.map((token, ti) => (
@@ -223,7 +222,6 @@ export const ConceptInterlinear: React.FC<{ segments: AlignSegment[] }> = ({ seg
 
   const [mode, setMode] = React.useState<Mode>('align');
   const [shown, setShown] = React.useState<Record<string, boolean>>(() => Object.fromEntries(langs.map((l, i) => [l.lang, i === 0 || isEnglish(l.lang)])));
-  const [pron, setPron] = React.useState<Record<string, boolean>>(() => Object.fromEntries(langs.map((l) => [l.lang, !isEnglish(l.lang)])));
 
   const modeBtn = (m: Mode, label: string, hint: string) => (
     <button type="button" title={hint} onClick={() => setMode(m)}
@@ -256,19 +254,13 @@ export const ConceptInterlinear: React.FC<{ segments: AlignSegment[] }> = ({ seg
                 </svg>
                 <span style={{ fontVariant: 'small-caps', letterSpacing: '0.04em' }}>{label}</span>
               </button>
-              {on && !isEnglish(lang) && (
-                <button type="button" aria-label={`${pron[lang] ? 'Hide' : 'Show'} pronunciation for ${label}`} title="Pronunciation" onClick={() => setPron((p) => ({ ...p, [lang]: !p[lang] }))}
-                  className={`leading-none transition-colors motion-reduce:transition-none ${pron[lang] ? 'text-emerald-400/80' : 'text-slate-700 hover:text-slate-400'}`}>
-                  ɑ
-                </button>
-              )}
             </span>
           );
         })}
       </div>
 
       <div className="space-y-16">
-        {segments.map((seg) => <PhraseBlock key={seg.id} segment={seg} shown={shown} pron={pron} mode={mode} />)}
+        {segments.map((seg) => <PhraseBlock key={seg.id} segment={seg} shown={shown} mode={mode} />)}
       </div>
     </div>
   );

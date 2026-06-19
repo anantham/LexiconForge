@@ -16,7 +16,7 @@ export const ConceptAlignProtoPage: React.FC = () => (
       </a>
 
       <p className="mt-14 mb-16 text-center text-sm text-slate-500 italic" style={{ fontFamily: SERIF }}>
-        Heart Sutra · open an eye to add a language, ɑ for its sound, hover a word to see what it means and matches.
+        Heart Sutra
       </p>
 
       <ConceptInterlinear segments={OPENING_PHRASES} />
