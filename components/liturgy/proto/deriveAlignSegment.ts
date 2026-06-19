@@ -162,18 +162,55 @@ export function deriveAlignSegment(seg: any, witnessIndex = 0): AlignSegment {
     return cid;
   };
 
-  const renderings: AlignRendering[] = [];
-  for (const sv of seg.scripts ?? []) {
-    const lang = langSub(sv.lang);
-    const script = scrSub(sv.lang);
-    if (lang === 'en' || script === 'Deva') continue; // English handled below; Devanāgarī not word-tokenized yet
-    const tokens: AlignToken[] = tokenize(sv.text, sv.tokens, script).map((t) => {
-      const cids = resolve(lang, script, clean(t));
-      cids.forEach(useUnit);
-      return cids.length
-        ? ({ text: t, units: cids, relation: 'semantic' as AlignRelation })
-        : ({ text: t, units: [], gloss: '(not aligned yet)' });
+  const tokenFor = (lang: string, script: string, t: string, readings?: Record<string, string>, pron?: string): AlignToken => {
+    const cids = resolve(lang, script, clean(t));
+    cids.forEach(useUnit);
+    const base: AlignToken = cids.length
+      ? { text: t, units: cids, relation: 'semantic' as AlignRelation }
+      : { text: t, units: [], gloss: '(not aligned yet)' };
+    if (readings && Object.keys(readings).length) base.readings = readings;
+    else if (pron) base.pronunciation = pron;
+    return base;
+  };
+  // Per-token readings from the whole-line transliteration (drop the trailing
+  // "(label)" and · phrase-breaks); trusted only when the count matches the tokens.
+  const parseReads = (tr: string | undefined, n: number): string[] => {
+    if (!tr) return [];
+    const parts = tr.replace(/\s*\([^)]*\)\s*$/, '').trim().split(/\s+/).filter((p) => p && p !== '·' && p !== ':');
+    return parts.length === n ? parts : [];
+  };
+
+  // Non-English script variants (Devanāgarī skipped — the shipped line isn't
+  // word-tokenized; that depth is the overlay's job).
+  const svs = (seg.scripts ?? [])
+    .filter((sv: any) => langSub(sv.lang) !== 'en' && scrSub(sv.lang) !== 'Deva')
+    .map((sv: any) => {
+      const script = scrSub(sv.lang);
+      const toks = tokenize(sv.text, sv.tokens, script);
+      return { lang: sv.lang as string, label: sv.label as string, script, toks, reads: parseReads(sv.transliteration, toks.length) };
     });
+  const zh = svs.find((s: any) => s.script === 'Hant');
+  const ja = svs.find((s: any) => s.script === 'Jpan');
+  const canMerge = !!(zh && ja && zh.toks.length === ja.toks.length); // same glyphs, only readings differ
+
+  const renderings: AlignRendering[] = [];
+  const done = new Set<string>();
+  for (const sv of svs) {
+    if (done.has(sv.lang)) continue;
+    if ((sv.script === 'Hant' || sv.script === 'Jpan') && canMerge) {
+      done.add(zh!.lang);
+      done.add(ja!.lang);
+      const tokens = zh!.toks.map((t: string, i: number) => {
+        const readings: Record<string, string> = {};
+        if (zh!.reads[i]) readings.zh = zh!.reads[i];
+        if (ja!.reads[i]) readings.ja = ja!.reads[i];
+        return tokenFor('zh', 'Hant', t, readings);
+      });
+      renderings.push({ lang: 'zh-Hant', label: 'Chinese · Japanese', tokens });
+      continue;
+    }
+    done.add(sv.lang);
+    const tokens = sv.toks.map((t: string, i: number) => tokenFor(langSub(sv.lang), sv.script, t, undefined, sv.reads[i]));
     renderings.push({ lang: sv.lang, label: sv.label, tokens });
   }
 
