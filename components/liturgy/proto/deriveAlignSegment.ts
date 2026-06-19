@@ -152,6 +152,73 @@ const BIND: Record<string, string[]> = {
 const resolve = (lang: string, script: string, t: string): string[] =>
   BIND[t] ?? conceptsForToken(lang as any, script as any, t);
 
+/**
+ * English surface → concept fallback, consulted only when the registry has no
+ * attestation for a witness's word. Lets witnesses that keep the Sanskrit terms
+ * untranslated (Bodhi Sangha, Sariputta Ambedkar — "Prajna", "skandhas") and the
+ * shared content words light up like MAPLE/Conze do. Keyed lowercase.
+ * Deliberately conservative: words that name two different concepts depending on
+ * context ("death" — the unarisen pair vs. aging-and-death) are left out.
+ */
+const EN_BIND: Record<string, string[]> = {
+  // names + untranslated Sanskrit
+  avalokiteshvara: ['concept.avalokita-bodhisattva'],
+  bodhisattva: ['concept.bodhisattva'],
+  bodhisattvas: ['concept.bodhisattva'],
+  shariputra: ['concept.sariputra-addressee'],
+  prajna: ['concept.wisdom-prajna'],
+  paramita: ['concept.perfection-paramita'],
+  skandhas: ['concept.skandha-aggregate'],
+  dharmas: ['concept.dharma-phenomena'],
+  nirvana: ['concept.nirvana-extinguishing'],
+  // shared content words
+  practicing: ['concept.practice-carya'],
+  practising: ['concept.practice-carya'],
+  deep: ['concept.deep-gambhira'],
+  deeply: ['concept.deep-gambhira'],
+  wisdom: ['concept.wisdom-prajna'],
+  empty: ['concept.emptiness-sunyata'],
+  emptiness: ['concept.emptiness-sunyata'],
+  form: ['concept.form-rupa'],
+  suffering: ['concept.suffering-duhkha'],
+  distress: ['concept.suffering-duhkha'],
+  saw: ['concept.seeing-vyavalokita'],
+  perceived: ['concept.seeing-vyavalokita'],
+  born: ['concept.unarisen-anutpada'],
+  destroyed: ['concept.unarisen-anutpada'],
+  // the five skandhas in English
+  feeling: ['concept.skandha-aggregate'],
+  feelings: ['concept.skandha-aggregate'],
+  perception: ['concept.skandha-aggregate'],
+  perceptions: ['concept.skandha-aggregate'],
+  reaction: ['concept.skandha-aggregate'],
+  impulses: ['concept.skandha-aggregate'],
+  consciousness: ['concept.skandha-aggregate'],
+  // the six faculties
+  eye: ['concept.six-faculties'],
+  eyes: ['concept.six-faculties'],
+  ear: ['concept.six-faculties'],
+  ears: ['concept.six-faculties'],
+  nose: ['concept.six-faculties'],
+  tongue: ['concept.six-faculties'],
+  body: ['concept.six-faculties'],
+  mind: ['concept.six-faculties'],
+  // origination chain + four truths + aging-death
+  ignorance: ['concept.ignorance-avidya'],
+  age: ['concept.aging-death-jaramarana'],
+  path: ['concept.four-truths'],
+  cessation: ['concept.four-truths'],
+  origination: ['concept.four-truths'],
+  stopping: ['concept.four-truths'],
+  cognition: ['concept.knowledge-jnana'],
+  // mind-states near the end
+  attainment: ['concept.attainment-prapti'],
+  attain: ['concept.attainment-prapti'],
+  hindrance: ['concept.obstruction-cittavarana'],
+  fear: ['concept.fearless-atrasta'],
+  fears: ['concept.fearless-atrasta'],
+};
+
 export function deriveAlignSegment(seg: any, preferredWitnessBy?: string): AlignSegment {
   const units = new Map<string, AlignUnit>();
   const useUnit = (cid: string) => {
@@ -221,7 +288,8 @@ export function deriveAlignSegment(seg: any, preferredWitnessBy?: string): Align
     seg.witnesses?.[0];
   if (w) {
     const tokens: AlignToken[] = String(w.text).split(/\s+/).filter(Boolean).map((t: string) => {
-      const cids = conceptsForToken('en', 'Latn', clean(t), w.by);
+      const reg = conceptsForToken('en', 'Latn', clean(t), w.by);
+      const cids = reg.length ? reg : EN_BIND[clean(t).toLowerCase()] ?? [];
       cids.forEach(useUnit);
       return cids.length
         ? ({ text: t, units: cids, relation: 'interpretive' as AlignRelation })
