@@ -1,0 +1,9 @@
+{
+  "files": ["index.html"],
+  "insertBefore": "</head>",
+  "commentSyntax": "html",
+  "framework": "vite-spa",
+  "devCommand": "npm run dev",
+  "devPort": 5173,
+  "cspChecked": true
+}
