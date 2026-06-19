@@ -139,11 +139,16 @@ const PhraseBlock: React.FC<{
     return { primary, secondary };
   };
 
-  const Line: React.FC<{ r: AlignRendering }> = ({ r }) => {
+  // NOTE: a plain function, NOT a component rendered as <Line/>. Defining a
+  // component inside render gives it a new identity each render, so React
+  // remounts the whole line on every hover — the element under the cursor is
+  // destroyed mid-hover, its mouseleave never fires, and the highlight/tooltip
+  // stick. Calling renderLine(r) reconciles the same DOM in place instead.
+  const renderLine = (r: AlignRendering) => {
     const english = isEnglish(r.lang);
     const showRom = !english && pron[r.lang];
     return (
-      <div className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: '0.5em', rowGap: '0.5rem' }}>
+      <div key={r.lang} className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: '0.5em', rowGap: '0.5rem' }}>
         {r.tokens.map((token, ti) => (
           <span key={ti} className="inline-flex items-start" style={{ columnGap: '0.12em' }}>
             {piecesOf(token).map((piece, si) => {
@@ -205,7 +210,7 @@ const PhraseBlock: React.FC<{
         </svg>
       )}
       <div className="relative z-10 space-y-10">
-        {segment.renderings.filter((r) => shown[r.lang]).map((r) => <Line key={r.lang} r={r} />)}
+        {segment.renderings.filter((r) => shown[r.lang]).map((r) => renderLine(r))}
       </div>
     </div>
   );
