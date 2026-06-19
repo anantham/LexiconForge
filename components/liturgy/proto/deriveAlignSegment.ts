@@ -29,6 +29,28 @@ function tokenize(text: string, tokens: string[] | undefined, script: string): s
 }
 const clean = (t: string) => t.replace(/་$/, '').replace(/[.,;:!?"'()\[\]।॥—–]+$/u, '');
 
+/**
+ * Chant-surface → concept bindings: the inflected/compound forms the
+ * lemma-level registry can't match on its own (the hand-fill that closes the
+ * alignment gaps). Keyed by the cleaned surface token; grows segment by
+ * segment. A compound surface binds to several concepts at once.
+ */
+const BIND: Record<string, string[]> = {
+  // Sanskrit (IAST) — inflected forms + compounds
+  bodhisattvo: ['concept.bodhisattva'],
+  gambhīrāṃ: ['concept.deep-gambhira'],
+  prajñāpāramitācaryāṃ: ['concept.wisdom-prajna', 'concept.perfection-paramita', 'concept.practice-carya'],
+  caramāṇo: ['concept.practice-carya'],
+  vyavalokayati: ['concept.seeing-vyavalokita'],
+  paśyati: ['concept.seeing-vyavalokita'],
+  skandhāḥ: ['concept.skandha-aggregate'],
+  svabhāvaśūnyān: ['concept.svabhava-own-being', 'concept.emptiness-sunyata'],
+  // Tibetan — the shipped line carries the whole name (with the ārya- prefix) as one token
+  'འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག': ['concept.avalokita-bodhisattva'],
+};
+const resolve = (lang: string, script: string, t: string): string[] =>
+  BIND[t] ?? conceptsForToken(lang as any, script as any, t);
+
 export function deriveAlignSegment(seg: any, witnessIndex = 0): AlignSegment {
   const units = new Map<string, AlignUnit>();
   const useUnit = (cid: string) => {
@@ -45,7 +67,7 @@ export function deriveAlignSegment(seg: any, witnessIndex = 0): AlignSegment {
     const script = scrSub(sv.lang);
     if (lang === 'en' || script === 'Deva') continue; // English handled below; Devanāgarī not word-tokenized yet
     const tokens: AlignToken[] = tokenize(sv.text, sv.tokens, script).map((t) => {
-      const cids = conceptsForToken(lang as any, script as any, clean(t));
+      const cids = resolve(lang, script, clean(t));
       cids.forEach(useUnit);
       return cids.length
         ? ({ text: t, units: cids, relation: 'semantic' as AlignRelation })
