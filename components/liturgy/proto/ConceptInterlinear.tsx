@@ -115,6 +115,10 @@ const PhraseBlock: React.FC<{
     if (piece?.phonetic) {
       return { primary: `the sound “${piece.gloss}”`, secondary: `part of ${token.text} = ${wordGloss}${src ? ` (${src})` : ''}` };
     }
+    if (piece?.akshara) {
+      const extra = src && !wordGloss.toLowerCase().includes(src.toLowerCase()) ? ` (${src})` : '';
+      return { primary: `the sound “${piece.pronunciation ?? piece.text}”`, secondary: wordGloss ? `part of “${wordGloss}”${extra}` : '' };
+    }
     let primary = piece?.gloss ?? wordGloss;
     if (!primary) primary = 'a grammar word';
     const chips: string[] = [];
