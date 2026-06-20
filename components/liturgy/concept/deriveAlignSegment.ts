@@ -1,7 +1,7 @@
 import type { AlignSegment, AlignUnit, AlignRendering, AlignToken, AlignRelation } from '../../../types/liturgyAlign';
 import type { TripleScriptWitnessSegment, ScriptVariant, Witness } from '../../../types/liturgy';
 import { conceptsForToken, getConcept } from '../../../data/concepts/lookup';
-import { BIND, EN_BIND, SPLIT, EXTRA_DEVA } from '../../../data/liturgy/heart-sutra-bindings';
+import { BIND, EN_BIND, SPLIT, EXTRA_DEVA, CHAR_JA } from '../../../data/liturgy/heart-sutra-bindings';
 import { aksharasOf, romanizationMatches } from './devanagari';
 
 /**
@@ -196,7 +196,29 @@ export function deriveAlignSegment(
         const readings: Record<string, string> = {};
         if (zh!.reads[i]) readings.zh = zh!.reads[i];
         if (ja!.reads[i]) readings.ja = ja!.reads[i];
-        return tokenFor('zh', 'Hant', t, readings);
+        const base = tokenFor('zh', 'Hant', t, readings);
+        // Per-character pieces so etymology mode isolates a single Han character.
+        // Per-char readings: split each whole-word reading on separators when it
+        // has one syllable per character (Mandarin always does; a phonetic-loan
+        // on'yomi like "haramita" doesn't, so its per-char reading is omitted
+        // rather than mis-split).
+        const chars = [...t];
+        if (chars.length > 1) {
+          const perChar = (s?: string) => {
+            const p = (s ?? '').split(/[-\s·]+/).filter(Boolean);
+            return p.length === chars.length ? p : null;
+          };
+          const zc = perChar(readings.zh);
+          const jc = perChar(readings.ja);
+          base.segments = chars.map((c, k) => {
+            const r: Record<string, string> = {};
+            if (zc) r.zh = zc[k];
+            const jaC = jc ? jc[k] : CHAR_JA[c]; // per-char on'yomi for unsplit loans
+            if (jaC) r.ja = jaC;
+            return { text: c, readings: Object.keys(r).length ? r : undefined };
+          });
+        }
+        return base;
       });
       renderings.push({ lang: 'zh-Hant', label: 'Chinese · Japanese', tokens });
       continue;

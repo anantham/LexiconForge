@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { AlignSegment, AlignRelation, AlignRendering, AlignToken, AlignSegmentPiece } from '../../../types/liturgyAlign';
 import { getConcept } from '../../../data/concepts/lookup';
+import { conceptFacets } from '../../../data/concepts/tooltipFacets';
 
 /**
  * Concept-aligned phrase reader (DESIGN.md). Centered classical serif, words in
@@ -39,17 +40,29 @@ const safeId = (s: string) => s.replace(/[^a-zA-Z0-9]/g, '-');
 const C = { ink: '#e2e8f0', match: '#6ee7b7', faint: '#64748b', english: '#94a3b8', sub: '#94a3b8' };
 const READING_LABEL: Record<string, string> = { zh: '中', ja: '日', ko: '한', vi: 'vi' };
 
-const Tooltip: React.FC<{ primary: string; secondary?: string }> = ({ primary, secondary }) => (
+const Tooltip: React.FC<{ primary: string; secondary?: string; facetIndex?: number; facetTotal?: number }> = ({
+  primary,
+  secondary,
+  facetIndex,
+  facetTotal,
+}) => (
   <motion.span
     initial={{ opacity: 0, y: 4 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: 4 }}
     transition={{ duration: 0.12 }}
     className="absolute bottom-full left-1/2 z-30 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md border border-slate-700/80 bg-slate-900/95 px-2.5 py-1 text-center shadow-lg pointer-events-none"
-    style={{ fontFamily: FONT.Latn, fontStyle: 'normal' }}
+    style={{ fontFamily: FONT.Latn, fontStyle: 'normal', maxWidth: '22rem', whiteSpace: 'normal' }}
   >
     <span className="block text-[13px] text-slate-100">{primary}</span>
     {secondary && <span className="mt-0.5 block text-[11px] text-slate-500">{secondary}</span>}
+    {!!facetTotal && facetTotal > 1 && (
+      <span className="mt-1.5 flex items-center justify-center gap-1" aria-hidden>
+        {Array.from({ length: facetTotal }).map((_, i) => (
+          <span key={i} className="h-1 w-1 rounded-full" style={{ background: i === facetIndex ? C.match : '#475569' }} />
+        ))}
+      </span>
+    )}
   </motion.span>
 );
 
@@ -73,6 +86,7 @@ const PhraseBlock: React.FC<{
 }> = ({ segment, shown, mode, large = false }) => {
   const [hot, setHot] = React.useState<string[] | null>(null); // matching unit ids (align mode)
   const [over, setOver] = React.useState<string | null>(null); // hovered piece key
+  const [facetIdx, setFacetIdx] = React.useState(0); // click-to-cycle tooltip facet
   const [threads, setThreads] = React.useState<{ x: number; y: number }[] | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -166,6 +180,27 @@ const PhraseBlock: React.FC<{
     return { primary, secondary };
   };
 
+  // Tooltip facets the reader can click through: meaning → sense (definition) →
+  // how-to-say (the Sanskrit respelling). Facet 0 is the hover gloss; the rest
+  // come from the concept registry. (No "grammar" facet — there's no per-token
+  // grammatical data, and the curation protocol bans the jargon.)
+  const facetsFor = (token: AlignToken, piece: AlignSegmentPiece | null, effUnits: string[]) => {
+    const base = buildTip(token, piece, effUnits);
+    const out = base.primary ? [base] : [];
+    const cids = effUnits.map((u) => unitById[u]?.conceptId).filter((x): x is string => !!x);
+    for (const f of conceptFacets(cids)) out.push({ primary: f, secondary: '' });
+    for (const cid of cids) {
+      const say = getConcept(cid)?.attestations?.find(
+        (a: { language?: string; script?: string; pronunciation?: string }) =>
+          a.language === 'sa' && a.script === 'Latn' && a.pronunciation,
+      )?.pronunciation;
+      if (say) out.push({ primary: `“${say}”`, secondary: 'how to say it (Sanskrit)' });
+    }
+    const seen = new Set<string>();
+    const facets = out.filter((f) => (seen.has(f.primary) ? false : (seen.add(f.primary), true)));
+    return facets.length ? facets : [{ primary: '', secondary: '' }];
+  };
+
   // NOTE: a plain function, NOT a component rendered as <Line/>. Defining a
   // component inside render gives it a new identity each render, so React
   // remounts the whole line on every hover — the element under the cursor is
@@ -195,18 +230,29 @@ const PhraseBlock: React.FC<{
               const muted = over !== null && !match;
               const ghost = piece.faint || token.relation === 'ghost';
               const phonetic = !!piece.phonetic;
-              const tip = buildTip(token, piece, effUnits);
+              const facets = over === key ? facetsFor(token, piece, effUnits) : null;
+              const facet = facets ? facets[facetIdx % facets.length] : null;
+              const multiFacet = !!facets && facets.length > 1;
               const romLines = piece.readings ? Object.entries(piece.readings) : piece.pronunciation ? [['', piece.pronunciation] as [string, string]] : [];
               return (
                 <span
                   key={si}
                   id={pieceId(r.lang, ti, si)}
-                  className="relative inline-flex cursor-help flex-col items-center"
+                  className={`relative inline-flex flex-col items-center ${multiFacet ? 'cursor-pointer' : 'cursor-help'}`}
                   onMouseEnter={() => {
                     setOver(key);
+                    setFacetIdx(0);
                     if (mode === 'align') { setHot(effUnits); computeThread(effUnits); } else { setHot(null); setThreads(null); }
                   }}
                   onMouseLeave={() => { setOver(null); setHot(null); setThreads(null); }}
+                  onClick={(e) => {
+                    if (!facets || facets.length <= 1) return;
+                    const sel = typeof window !== 'undefined' ? window.getSelection() : null;
+                    if (sel && !sel.isCollapsed) return; // don't fire mid drag-select
+                    e.stopPropagation();
+                    setFacetIdx((n) => (n + 1) % facets.length);
+                  }}
+                  title={multiFacet ? 'click to cycle: meaning · sense · sound' : undefined}
                 >
                   <span
                     className="transition-colors duration-200 motion-reduce:transition-none"
@@ -229,7 +275,11 @@ const PhraseBlock: React.FC<{
                       {val}
                     </span>
                   ))}
-                  <AnimatePresence>{over === key && tip.primary && <Tooltip primary={tip.primary} secondary={tip.secondary} />}</AnimatePresence>
+                  <AnimatePresence>
+                    {over === key && facet?.primary && (
+                      <Tooltip primary={facet.primary} secondary={facet.secondary} facetIndex={facetIdx % facets!.length} facetTotal={facets!.length} />
+                    )}
+                  </AnimatePresence>
                 </span>
               );
             })}
