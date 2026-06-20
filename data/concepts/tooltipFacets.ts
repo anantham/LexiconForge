@@ -20,9 +20,10 @@ import { getConcept } from './lookup';
 /** Extract the first sentence of a multi-sentence string, trimmed. */
 function firstSentence(text: string): string {
   if (!text) return '';
-  // Match up to first .!? followed by space-or-EOL, preserving the punctuation.
-  // Fall back to the whole string when no terminal punctuation is present.
-  const m = text.match(/^(.+?[.!?])(?:\s|$)/);
+  // Match up to first .!? (with an optional closing quote, so `"Self-nature."`
+  // ends the sentence rather than spilling into the next, scholarly one)
+  // followed by space-or-EOL. Fall back to the whole string when absent.
+  const m = text.match(/^(.+?[.!?]["”'’]?)(?:\s|$)/);
   return (m ? m[1] : text).trim();
 }
 

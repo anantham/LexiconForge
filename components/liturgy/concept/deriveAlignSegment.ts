@@ -1,7 +1,7 @@
 import type { AlignSegment, AlignUnit, AlignRendering, AlignToken, AlignRelation } from '../../../types/liturgyAlign';
 import type { TripleScriptWitnessSegment, ScriptVariant, Witness } from '../../../types/liturgy';
 import { conceptsForToken, getConcept } from '../../../data/concepts/lookup';
-import { BIND, EN_BIND, SPLIT, EXTRA_DEVA, CHAR_JA } from '../../../data/liturgy/heart-sutra-bindings';
+import { BIND, EN_BIND, SPLIT, EXTRA_DEVA, CHAR_JA, SEGMENT_BIND } from '../../../data/liturgy/heart-sutra-bindings';
 import { aksharasOf, romanizationMatches } from './devanagari';
 
 /**
@@ -86,6 +86,13 @@ export function deriveAlignSegment(
     return cid;
   };
 
+  // Context-scoped overrides for this segment (homograph collisions), consulted
+  // before the global BIND / conceptsForToken. A key present with [] means the
+  // token is deliberately unbound HERE (a verb/particle), not "not aligned yet".
+  const segBind = SEGMENT_BIND[seg.id];
+  const resolveLocal = (lang: string, script: string, t: string): string[] =>
+    segBind && t in segBind ? segBind[t] : resolve(lang, script, t);
+
   const tokenFor = (lang: string, script: string, t: string, readings?: Record<string, string>, pron?: string): AlignToken => {
     const key = clean(t);
     let base: AlignToken;
@@ -102,10 +109,13 @@ export function deriveAlignSegment(
         segments: split.map((p) => ({ text: p.text, units: p.concepts })),
       };
     } else {
-      const cids = resolve(lang, script, key);
+      const cids = resolveLocal(lang, script, key);
       cids.forEach(useUnit);
+      const unbound = !!segBind && key in segBind; // deliberately unbound here, not a TODO
       base = cids.length
         ? { text: t, units: cids, relation: 'semantic' as AlignRelation }
+        : unbound
+        ? { text: t, units: [] }
         : { text: t, units: [], gloss: '(not aligned yet)' };
     }
     if (readings && Object.keys(readings).length) base.readings = readings;
@@ -152,7 +162,7 @@ export function deriveAlignSegment(
           return (bounds.find((b) => mid >= b.start && mid < b.end) ?? bounds[bounds.length - 1]).concepts;
         });
       } else {
-        const cids = resolve('sa', 'Latn', key);
+        const cids = resolveLocal('sa', 'Latn', key);
         perAkshara = ak.map(() => (cids.length ? cids : undefined));
       }
       const all = [...new Set(perAkshara.flatMap((u) => u ?? []))];
@@ -269,8 +279,10 @@ export function deriveAlignSegment(
     seg.witnesses?.[0];
   if (w) {
     const tokens: AlignToken[] = String(w.text).split(/\s+/).filter(Boolean).map((t) => {
-      const reg = conceptsForToken('en', 'Latn', clean(t), w.by);
-      const cids = reg.length ? reg : EN_BIND[clean(t).toLowerCase()] ?? [];
+      const k = clean(t);
+      const ov = segBind?.[k.toLowerCase()] ?? segBind?.[k]; // context override (incl. [] = unbind here)
+      const reg = conceptsForToken('en', 'Latn', k, w.by);
+      const cids = ov ?? (reg.length ? reg : EN_BIND[k.toLowerCase()] ?? []);
       cids.forEach(useUnit);
       if (cids.length) return { text: t, units: cids, relation: 'interpretive' as AlignRelation };
       // Grammar glue dims (ghost) and shows no tooltip; an unbound content word

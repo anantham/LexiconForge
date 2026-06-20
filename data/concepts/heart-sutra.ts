@@ -373,7 +373,7 @@ const conceptFormRupa: ConceptNode = {
   preferredLabel: 'form / body (rūpa)',
   preferredLanguage: 'en',
   definition:
-    'The first of the five skandhas — matter, form, physical phenomena, everything derived from the four elements. The visible/material aspect of experience including the body.',
+    'The first of the five aggregates: matter — the body and everything physical, the visible and tangible side of experience. Classically, all that is built from the four great elements (the skandha *rūpa*).',
   attestations: [
     { language: 'sa', script: 'Latn', text: 'rūpa', pronunciation: 'ROO-pah', relation: 'semantic' },
     { language: 'sa', script: 'Latn', text: 'rūpaṃ', relation: 'semantic', note: 'Nominative singular as in "rūpaṃ śūnyatā."' },
@@ -623,7 +623,7 @@ const conceptDharma: ConceptNode = {
   preferredLabel: 'phenomena / dharmas (sarva-dharmāḥ)',
   preferredLanguage: 'en',
   definition:
-    'In plural context (*sarvadharmāḥ*), not the Buddha\'s teachings but the elemental, momentary building blocks of experience that Abhidharma posited as having *svabhāva*. The Heart Sutra asserts all dharmas are marked by emptiness — dissolving Abhidharma\'s atomic realism.',
+    'Here, in the plural, not the Buddha\'s teachings but the momentary building blocks of experience — the smallest pieces that earlier Buddhist analysis treated as ultimately real. Technically *sarvadharmāḥ*, which the Abhidharma posited as having *svabhāva*; the Heart Sutra asserts all dharmas are marked by emptiness, dissolving that atomic realism.',
   attestations: [
     { language: 'sa', script: 'Latn', text: 'dharma', pronunciation: 'DHAR-mah', relation: 'semantic' },
     { language: 'sa', script: 'Latn', text: 'sarvadharmāḥ', relation: 'semantic', note: 'All dharmas — the negated set.' },
@@ -692,7 +692,7 @@ const conceptSenseFaculties: ConceptNode = {
   preferredLabel: 'six sense faculties (cakṣus, śrotra, ghrāṇa, jihvā, kāya, manas)',
   preferredLanguage: 'en',
   definition:
-    'The six internal cognitive bases (*ṣaḍāyatana*): eye, ear, nose, tongue, body, mind. After negating the object of perception (the five skandhas), Avalokiteśvara negates the sensory apparatus itself.',
+    'The six inner senses: eye, ear, nose, tongue, body, and mind. Technically the *ṣaḍāyatana*; after negating the objects of perception (the five aggregates), Avalokiteśvara negates the sensing apparatus itself.',
   attestations: [
     { language: 'sa', script: 'Latn', text: 'cakṣus', relation: 'semantic', note: 'eye' },
     { language: 'sa', script: 'Latn', text: 'śrotra', relation: 'semantic', note: 'ear' },
@@ -733,7 +733,7 @@ const conceptRealmDhatu: ConceptNode = {
   preferredLabel: 'realm / element (dhātu)',
   preferredLanguage: 'en',
   definition:
-    'Refers to the eighteen *dhātus* — spheres or elements of cognitive experience: six faculties + six objects + six consciousnesses. The Heart Sutra uses *yāvat* ("up to") to elide and negate the whole list.',
+    'The eighteen elements of cognitive experience: the six senses, their six objects, and the six awarenesses that arise between them. The Heart Sutra names only the first and last (*yāvat*, "up to") to elide and negate the whole list of *dhātus*.',
   attestations: [
     { language: 'sa', script: 'Latn', text: 'dhātu', pronunciation: 'DHAH-too', relation: 'semantic' },
     { language: 'sa', script: 'Deva', text: 'धातु', relation: 'semantic' },
@@ -984,7 +984,7 @@ const conceptInvertedView: ConceptNode = {
   preferredLabel: 'inverted view + crossed-beyond (viparyāsa + atikrānta)',
   preferredLanguage: 'en',
   definition:
-    '*Viparyāsa* denotes the four cognitive inversions: impermanent-as-permanent, suffering-as-joy, non-self-as-self, impure-as-pure. *Atikrānta* = "crossed beyond." Chinese 顛倒夢想 adds "dream-thoughts" — an interpretive flourish.',
+    'The four upside-down views: taking the impermanent as permanent, suffering as joy, the selfless as a self, the impure as pure. *Viparyāsa*; *atikrānta* = "crossed beyond." Chinese 顛倒夢想 adds "dream-thoughts" — an interpretive flourish.',
   attestations: [
     { language: 'sa', script: 'Latn', text: 'viparyāsātikrānta', relation: 'semantic' },
     { language: 'sa', script: 'Latn', text: 'viparyāsa', relation: 'semantic' },
