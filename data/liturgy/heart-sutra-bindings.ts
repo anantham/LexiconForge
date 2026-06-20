@@ -238,3 +238,12 @@ export const EXTRA_DEVA: Record<string, string> = {
   'duḥkha-samudaya-nirodha-mārgāḥ': 'दुःखसमुदयनिरोधमार्गाः',
   'Cittāvaraṇa-': 'चित्तावरण',
 };
+
+/**
+ * Per-character Japanese on'yomi for the multi-character phonetic-loan words
+ * whose whole-word reading carries no separators ("hannya", "haramita"), so the
+ * Han row can show 日 per character. Unambiguous within this chant.
+ */
+export const CHAR_JA: Record<string, string> = {
+  般: 'han', 若: 'nya', 波: 'ha', 羅: 'ra', 蜜: 'mi', 多: 'ta',
+};

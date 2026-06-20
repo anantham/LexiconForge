@@ -59,8 +59,22 @@ export const heartSutraTitle: AlignSegment = {
       lang: 'zh-Hant',
       label: 'Chinese · Japanese',
       tokens: [
-        { text: '般若', units: ['concept.wisdom-prajna'], relation: 'transliteration', readings: { zh: 'bō-rě', ja: 'hannya' } },
-        { text: '波羅蜜多', units: ['concept.perfection-paramita'], relation: 'transliteration', readings: { zh: 'bō-luó-mì-duō', ja: 'haramita' } },
+        {
+          text: '般若', units: ['concept.wisdom-prajna'], relation: 'transliteration', readings: { zh: 'bō-rě', ja: 'hannya' },
+          segments: [
+            { text: '般', readings: { zh: 'bō', ja: 'han' } },
+            { text: '若', readings: { zh: 'rě', ja: 'nya' } },
+          ],
+        },
+        {
+          text: '波羅蜜多', units: ['concept.perfection-paramita'], relation: 'transliteration', readings: { zh: 'bō-luó-mì-duō', ja: 'haramita' },
+          segments: [
+            { text: '波', readings: { zh: 'bō', ja: 'ha' } },
+            { text: '羅', readings: { zh: 'luó', ja: 'ra' } },
+            { text: '蜜', readings: { zh: 'mì', ja: 'mi' } },
+            { text: '多', readings: { zh: 'duō', ja: 'ta' } },
+          ],
+        },
         { text: '心', units: ['u-heart'], relation: 'semantic', readings: { zh: 'xīn', ja: 'shin' } },
         { text: '經', units: ['u-scripture'], relation: 'semantic', readings: { zh: 'jīng', ja: 'gyō' } },
       ],
