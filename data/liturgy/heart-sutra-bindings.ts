@@ -194,3 +194,37 @@ export const EN_BIND: Record<string, string[]> = {
   fear: ['concept.fearless-atrasta'],
   fears: ['concept.fearless-atrasta'],
 };
+
+/**
+ * Compound splits — the "minimal cut". A Sanskrit compound is one surface token
+ * but several meaning-units; bound flat it would highlight the WHOLE word for
+ * any one of its concepts. Splitting it into morpheme pieces (each → one
+ * concept) makes hovering "wisdom" light only the `prajñā` slice, matching how
+ * the other scripts already render the words separately (般若 / ཤེས་རབ).
+ *
+ * INVARIANT (asserted by the contract test): the pieces' text must concatenate
+ * back to the surface key exactly, so the rendered word is unchanged.
+ */
+export const SPLIT: Record<string, { text: string; concepts: string[] }[]> = {
+  prajñāpāramitācaryāṃ: [
+    { text: 'prajñā', concepts: ['concept.wisdom-prajna'] },
+    { text: 'pāramitā', concepts: ['concept.perfection-paramita'] },
+    { text: 'caryāṃ', concepts: ['concept.practice-carya'] },
+  ],
+  prajñāpāramitām: [
+    { text: 'prajñā', concepts: ['concept.wisdom-prajna'] },
+    { text: 'pāramitām', concepts: ['concept.perfection-paramita'] },
+  ],
+  prajñāpāramitā: [
+    { text: 'prajñā', concepts: ['concept.wisdom-prajna'] },
+    { text: 'pāramitā', concepts: ['concept.perfection-paramita'] },
+  ],
+  prajñāpāramitāyām: [
+    { text: 'prajñā', concepts: ['concept.wisdom-prajna'] },
+    { text: 'pāramitāyām', concepts: ['concept.perfection-paramita'] },
+  ],
+  svabhāvaśūnyān: [
+    { text: 'svabhāva', concepts: ['concept.svabhava-own-being'] },
+    { text: 'śūnyān', concepts: ['concept.emptiness-sunyata'] },
+  ],
+};

@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { deriveAlignSegment } from './deriveAlignSegment';
 import { heartSutraTitle } from '../../../data/liturgy/heart-sutra-title';
-import { BIND, EN_BIND } from '../../../data/liturgy/heart-sutra-bindings';
+import { BIND, EN_BIND, SPLIT } from '../../../data/liturgy/heart-sutra-bindings';
 import { getConcept } from '../../../data/concepts/lookup';
 import { getLiturgyDoc } from '../../../data/liturgy';
 import type { AlignSegment } from '../../../types/liturgyAlign';
@@ -23,11 +23,19 @@ const derived: AlignSegment[] = liveSegments.map((s) => deriveAlignSegment(s));
 const unitIdsOf = (seg: AlignSegment) => new Set(seg.units.map((u) => u.id));
 
 describe('concept reader — binding/derivation contract', () => {
-  it('every concept id in BIND and EN_BIND resolves in the registry', () => {
+  it('every concept id in BIND, EN_BIND and SPLIT resolves in the registry', () => {
     const ids = new Set<string>();
     for (const list of [...Object.values(BIND), ...Object.values(EN_BIND)]) for (const id of list) ids.add(id);
+    for (const pieces of Object.values(SPLIT)) for (const p of pieces) for (const id of p.concepts) ids.add(id);
     const missing = [...ids].filter((id) => !getConcept(id));
     expect(missing, `unknown concept ids in bindings: ${missing.join(', ')}`).toEqual([]);
+  });
+
+  it('every SPLIT compound concatenates back to its surface key', () => {
+    for (const [surface, pieces] of Object.entries(SPLIT)) {
+      const joined = pieces.map((p) => p.text).join('');
+      expect(joined, `SPLIT["${surface}"] pieces join to "${joined}"`).toBe(surface);
+    }
   });
 
   it('the hand-authored title is unit-consistent and references real concepts', () => {
