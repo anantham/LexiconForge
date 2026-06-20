@@ -255,12 +255,13 @@ const PhraseBlock: React.FC<{
       return { primary: `the sound “${piece.gloss}”`, secondary: `part of ${token.text} = ${wordGloss}${src ? ` (${src})` : ''}` };
     }
     if (piece?.akshara) {
-      // In etymology mode the syllable's sound is shown + highlighted beneath the
-      // glyph, so the tooltip carries the MEANING — never a useless "the sound
-      // <glyph>" (a glyph the reader can't pronounce). No gloss → no tooltip.
+      // The glyph is on screen and its sound is shown + highlighted beneath it, so
+      // the tooltip carries only the MEANING. No "part of <glyph>" line — that just
+      // names the word the reader is already looking at (and the highlight already
+      // shows which slice this is). No gloss → no tooltip.
       if (!wordGloss) return { primary: '', secondary: '' };
       const extra = src && !wordGloss.toLowerCase().includes(src.toLowerCase()) ? ` (${src})` : '';
-      return { primary: `${wordGloss}${extra}`, secondary: `part of “${token.text}”` };
+      return { primary: `${wordGloss}${extra}`, secondary: '' };
     }
     let primary = piece?.gloss ?? wordGloss;
     // No gloss and no concept = we have no meaning for this token. For sacred
