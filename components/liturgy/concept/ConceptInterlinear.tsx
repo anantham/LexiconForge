@@ -135,9 +135,13 @@ const SourceCard: React.FC<{ title: string; relation?: string; sources: SourceEn
       </div>
       {sources.map((s) => (
         <div key={s.id} className="mb-4 last:mb-0">
-          <div className="mb-1.5 text-[13px]" style={{ color: C.match }}>
-            {s.label}
-          </div>
+          {/* The card title already shows the gloss; only label per-concept when
+              several concepts share the token (then the header disambiguates). */}
+          {sources.length > 1 && (
+            <div className="mb-1.5 text-[13px]" style={{ color: C.match }}>
+              {s.label}
+            </div>
+          )}
           {s.citations.length === 0 ? (
             <div className="text-[12px] italic text-slate-500">No source recorded for this binding yet.</div>
           ) : (
