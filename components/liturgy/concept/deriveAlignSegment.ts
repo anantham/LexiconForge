@@ -132,12 +132,12 @@ export function deriveAlignSegment(
     } else {
       const cids = resolveLocal(lang, script, key);
       cids.forEach(useUnit);
-      const unbound = !!segBind && key in segBind; // deliberately unbound here, not a TODO
+      // Unresolved or deliberately-unbound tokens carry no concept and no gloss —
+      // a function word (故, na, particles) gets no tooltip rather than a misleading
+      // "(not aligned yet)" label. The token still renders; it just makes no claim.
       base = cids.length
         ? { text: t, units: cids, relation: 'semantic' as AlignRelation }
-        : unbound
-        ? { text: t, units: [] }
-        : { text: t, units: [], gloss: '(not aligned yet)' };
+        : { text: t, units: [] };
     }
     if (readings && Object.keys(readings).length) base.readings = readings;
     else if (pron) base.pronunciation = pron;

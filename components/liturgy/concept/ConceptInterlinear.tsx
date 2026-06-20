@@ -271,6 +271,13 @@ const PhraseBlock: React.FC<{
     // No gloss and no concept = we have no meaning for this token. For sacred
     // text, show NO tooltip rather than the misleading "a grammar word".
     if (!primary) return { primary: '', secondary: '' };
+    // If the gloss merely restates the word on screen (English row: hovering
+    // "Wisdom" → "wisdom (prajñā)"), keep only what's new — the parenthetical
+    // Sanskrit / descriptor. Non-Latin glyphs never equal the gloss head, so this
+    // trims only the English row.
+    const paren = parenOf(primary);
+    const word = token.text.replace(/[.,;:!?"'’“”—–]+$/u, '').toLowerCase();
+    if (paren && primary.split(' (')[0].toLowerCase() === word) primary = paren;
     const chips: string[] = [];
     if (piece?.gloss && wordGloss && piece.gloss.toLowerCase() !== wordGloss.toLowerCase() && !piece.faint) chips.push(`within “${wordGloss}”`);
     switch (token.relation) {
