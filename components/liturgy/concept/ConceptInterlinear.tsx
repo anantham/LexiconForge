@@ -77,6 +77,94 @@ function threadPath(pts: { x: number; y: number }[]): string {
   return d;
 }
 
+// How a token attests its concept — shown in the source card so the reader knows
+// what KIND of claim a binding is (a direct sense vs a translator's choice).
+const RELATION_LABEL: Record<string, string> = {
+  semantic: 'direct meaning',
+  interpretive: "translator's rendering",
+  transliteration: 'sound borrowing',
+  calque: 'loan-translation (built piece-by-piece)',
+};
+const shortUrl = (u: string) => u.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+
+type SourceEntry = {
+  id: string;
+  label: string;
+  citations: { id: string; short: string; detail?: string; url?: string; excerpt?: string }[];
+};
+
+// Long-press a token → the scholarly source behind its binding: which dictionary /
+// translator the concept rests on, the cited excerpt, and a link. Interactive
+// (unlike the hover tooltip) so the citation links are clickable.
+const SourceCard: React.FC<{ title: string; relation?: string; sources: SourceEntry[]; onClose: () => void }> = ({
+  title,
+  relation,
+  sources,
+  onClose,
+}) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.15 }}
+    className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-4"
+    style={{ fontFamily: FONT.Latn, fontStyle: 'normal' }}
+    onClick={onClose}
+  >
+    <motion.div
+      initial={{ y: 8, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 8, opacity: 0 }}
+      transition={{ duration: 0.18 }}
+      className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-700/80 bg-slate-900/95 p-5 text-left shadow-2xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="mb-4 flex items-baseline justify-between gap-4">
+        <span className="text-[15px] text-slate-100">
+          {title}
+          {relation && RELATION_LABEL[relation] && (
+            <span className="ml-2 text-[11px] text-slate-500">· {RELATION_LABEL[relation]}</span>
+          )}
+        </span>
+        <button
+          onClick={onClose}
+          className="shrink-0 text-[11px] uppercase tracking-wide text-slate-500 transition-colors hover:text-slate-300"
+        >
+          esc ✕
+        </button>
+      </div>
+      {sources.map((s) => (
+        <div key={s.id} className="mb-4 last:mb-0">
+          <div className="mb-1.5 text-[13px]" style={{ color: C.match }}>
+            {s.label}
+          </div>
+          {s.citations.length === 0 ? (
+            <div className="text-[12px] italic text-slate-500">No source recorded for this binding yet.</div>
+          ) : (
+            s.citations.map((c) => (
+              <div key={c.id} className="mb-2.5 border-l border-slate-700 pl-3 last:mb-0">
+                <div className="text-[12.5px] text-slate-200">{c.short}</div>
+                {c.excerpt && <div className="mt-1 text-[12px] leading-snug text-slate-400">“{c.excerpt}”</div>}
+                {c.detail && <div className="mt-1 text-[11px] text-slate-500">{c.detail}</div>}
+                {c.url && (
+                  <a
+                    href={c.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-block text-[11px] text-sky-400 hover:underline"
+                  >
+                    {shortUrl(c.url)} ↗
+                  </a>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      ))}
+    </motion.div>
+  </motion.div>
+);
+
 const PhraseBlock: React.FC<{
   segment: AlignSegment;
   shown: Record<string, boolean>;
@@ -89,9 +177,25 @@ const PhraseBlock: React.FC<{
   const [facetIdx, setFacetIdx] = React.useState(0); // click-to-cycle tooltip facet
   const [threads, setThreads] = React.useState<{ x: number; y: number }[] | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const [source, setSource] = React.useState<{ title: string; relation?: string; sources: SourceEntry[] } | null>(null);
+  const pressTimer = React.useRef<number | undefined>(undefined);
+  const longPressed = React.useRef(false); // a long-press fired → suppress the click-cycle
+  React.useEffect(() => {
+    if (!source) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSource(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [source]);
 
   const unitById = Object.fromEntries(segment.units.map((u) => [u.id, u]));
   const glossOf = (units: string[]) => units.map((u) => unitById[u]?.gloss).filter(Boolean).join(' · ');
+  const sourcesFor = (units: string[]): SourceEntry[] =>
+    units
+      .map((u) => {
+        const c = getConcept(u);
+        return c ? { id: u, label: c.preferredLabel ?? u, citations: (c.citations ?? []) as SourceEntry['citations'] } : null;
+      })
+      .filter((x): x is SourceEntry => x !== null);
   const piecesOf = (token: AlignToken): AlignSegmentPiece[] =>
     token.segments ?? [{ text: token.text, pronunciation: token.pronunciation, readings: token.readings, gloss: token.gloss, faint: token.relation === 'ghost' }];
   const pieceId = (lang: string, ti: number, si: number) => `pc-${safeId(segment.id)}-${lang}-${ti}-${si}`;
@@ -238,21 +342,34 @@ const PhraseBlock: React.FC<{
                 <span
                   key={si}
                   id={pieceId(r.lang, ti, si)}
-                  className={`relative inline-flex flex-col items-center ${multiFacet ? 'cursor-pointer' : 'cursor-help'}`}
+                  className={`relative inline-flex select-none flex-col items-center ${multiFacet ? 'cursor-pointer' : 'cursor-help'}`}
                   onMouseEnter={() => {
                     setOver(key);
                     setFacetIdx(0);
                     if (mode === 'align') { setHot(effUnits); computeThread(effUnits); } else { setHot(null); setThreads(null); }
                   }}
-                  onMouseLeave={() => { setOver(null); setHot(null); setThreads(null); }}
+                  onMouseLeave={() => { window.clearTimeout(pressTimer.current); setOver(null); setHot(null); setThreads(null); }}
+                  onPointerDown={(e) => {
+                    if (e.button && e.button !== 0) return; // left / touch only
+                    longPressed.current = false;
+                    window.clearTimeout(pressTimer.current);
+                    if (!effUnits.length) return; // nothing to cite
+                    pressTimer.current = window.setTimeout(() => {
+                      longPressed.current = true;
+                      setSource({ title: glossOf(effUnits) || piece.text, relation: token.relation, sources: sourcesFor(effUnits) });
+                    }, 450);
+                  }}
+                  onPointerUp={() => window.clearTimeout(pressTimer.current)}
+                  onContextMenu={(e) => { if (effUnits.length) e.preventDefault(); }}
                   onClick={(e) => {
+                    if (longPressed.current) { longPressed.current = false; e.preventDefault(); return; } // was a long-press
                     if (!facets || facets.length <= 1) return;
                     const sel = typeof window !== 'undefined' ? window.getSelection() : null;
                     if (sel && !sel.isCollapsed) return; // don't fire mid drag-select
                     e.stopPropagation();
                     setFacetIdx((n) => (n + 1) % facets.length);
                   }}
-                  title={multiFacet ? 'click to cycle: meaning · sense · sound' : undefined}
+                  title={multiFacet ? 'click to cycle · hold for source' : effUnits.length ? 'hold for source' : undefined}
                 >
                   <span
                     className="transition-colors duration-200 motion-reduce:transition-none"
@@ -305,6 +422,11 @@ const PhraseBlock: React.FC<{
       <div className="relative z-10 space-y-10">
         {segment.renderings.filter((r) => shown[r.lang]).map((r) => renderLine(r))}
       </div>
+      <AnimatePresence>
+        {source && (
+          <SourceCard title={source.title} relation={source.relation} sources={source.sources} onClose={() => setSource(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
