@@ -89,6 +89,9 @@ export const BIND: Record<string, string[]> = {
   '恐怖': ['concept.fearless-atrasta'],
   '顛倒': ['concept.inverted-view-viparyasa'],
   '涅槃': ['concept.nirvana-extinguishing'],
+  '究竟': ['concept.nirvana-extinguishing'],
+  '遠離': ['concept.inverted-view-viparyasa'],
+  '夢想': ['concept.inverted-view-viparyasa'],
   '知': ['concept.knowledge-jnana'],
   '般若波羅蜜多': ['concept.wisdom-prajna', 'concept.perfection-paramita'],
   '大神': ['concept.mantra-vidya'],
@@ -128,6 +131,16 @@ export const BIND: Record<string, string[]> = {
   'སྒྲིབ་པ': ['concept.obstruction-cittavarana'],
   'སྐྲག་པ': ['concept.fearless-atrasta'],
   'ཤེས་རབ': ['concept.wisdom-prajna'],
+  // Multi-syllable Tibetan words that syllable-split rows fragment into bare
+  // syllables — groupTibetan (deriveAlignSegment) rejoins consecutive syllables
+  // that exactly form one of these keys, so the word binds instead of vanishing.
+  // (Word-token rows like opening-seeing match these directly, no grouping.)
+  'སྟོང་པ་ཉིད': ['concept.emptiness-sunyata'],
+  'སྟོང་པར': ['concept.emptiness-sunyata'],
+  'ཡེ་ཤེས': ['concept.knowledge-jnana'],
+  'ཤཱ་རིའི་བུ': ['concept.sariputra-addressee'],
+  'རྣམ་པར་ཤེས་པ': ['concept.skandha-aggregate'],
+  'རྣམ་པར་བལྟའོ': ['concept.seeing-vyavalokita'],
 };
 
 /**
@@ -170,6 +183,17 @@ export const EN_BIND: Record<string, string[]> = {
   reaction: ['concept.skandha-aggregate'],
   impulses: ['concept.skandha-aggregate'],
   consciousness: ['concept.skandha-aggregate'],
+  // MAPLE's words for the other skandhas (preference = vedanā, information = saṃjñā, patterning = saṃskāra)
+  preference: ['concept.skandha-aggregate'],
+  information: ['concept.skandha-aggregate'],
+  patterning: ['concept.skandha-aggregate'],
+  // audit: content words MAPLE uses that were left unaligned while peers lit in other scripts
+  arise: ['concept.unarisen-anutpada'],
+  arising: ['concept.four-truths'],
+  realm: ['concept.realm-dhatu'],
+  aging: ['concept.aging-death-jaramarana'],
+  death: ['concept.aging-death-jaramarana'],
+  mantra: ['concept.mantra-vidya'],
   // the six faculties
   eye: ['concept.six-faculties'],
   eyes: ['concept.six-faculties'],
