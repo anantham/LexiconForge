@@ -1,7 +1,8 @@
 import type { AlignSegment, AlignUnit, AlignRendering, AlignToken, AlignRelation } from '../../../types/liturgyAlign';
 import type { TripleScriptWitnessSegment, ScriptVariant, Witness } from '../../../types/liturgy';
 import { conceptsForToken, getConcept } from '../../../data/concepts/lookup';
-import { BIND, EN_BIND, SPLIT } from '../../../data/liturgy/heart-sutra-bindings';
+import { BIND, EN_BIND, SPLIT, EXTRA_DEVA } from '../../../data/liturgy/heart-sutra-bindings';
+import { aksharasOf, romanizationMatches } from './devanagari';
 
 /**
  * Make the concept graph load-bearing: turn a shipped `triple-script-witness`
@@ -16,8 +17,9 @@ import { BIND, EN_BIND, SPLIT } from '../../../data/liturgy/heart-sutra-bindings
  * (conceptReader.test.ts) asserts that invariant for both derived segments and
  * the hand-authored title, plus a coverage floor that catches binding drift.
  *
- * Deliberately coarse: word-level (no akshara split), Devanāgarī skipped (the
- * shipped line isn't word-tokenized).
+ * The Sanskrit row renders as Devanāgarī aksharas (each akshara carrying its
+ * sound + its morpheme's concept) when every token's Devanāgarī romanizes back
+ * to the authoritative IAST; otherwise that segment falls back to IAST.
  */
 
 const CJK = /[㐀-鿿豈-﫿]/;
@@ -94,8 +96,56 @@ export function deriveAlignSegment(
     return parts.length === n ? parts : [];
   };
 
-  // Non-English script variants (Devanāgarī skipped — the shipped line isn't
-  // word-tokenized; that depth is the overlay's job).
+  // Devanāgarī for this segment's Sanskrit words (form → scriptAlt) + the
+  // EXTRA_DEVA fallback for compounds the registry didn't carry.
+  const devaIdx = new Map<string, string>();
+  for (const word of seg.words ?? []) if (word.scriptAlt) devaIdx.set(String(word.form).toLowerCase(), word.scriptAlt);
+
+  // Render a Sanskrit token row as Devanāgarī aksharas — each akshara carrying
+  // its sound + its morpheme's concept — or return null if any token can't be
+  // shown in Devanāgarī, so the whole row falls back to IAST (keeping the rail
+  // consistent). A Devanāgarī source is used only when its romanization
+  // reproduces the authoritative IAST (self-validation; no guessed sounds).
+  const devaTokensFor = (toks: string[]): AlignToken[] | null => {
+    const out: AlignToken[] = [];
+    for (const t of toks) {
+      const key = clean(t);
+      if (!key || /^[·:।॥.,;]+$/u.test(key)) { out.push({ text: t, units: [] }); continue; } // separator
+      const deva = devaIdx.get(key.toLowerCase()) ?? EXTRA_DEVA[key];
+      if (!deva || !romanizationMatches(deva, key)) return null;
+      const ak = aksharasOf(deva);
+      const split = SPLIT[key];
+      let perAkshara: (string[] | undefined)[];
+      if (split) {
+        // Assign each akshara to the morpheme (and concept) its sound falls in.
+        const bounds: { start: number; end: number; concepts: string[] }[] = [];
+        let p = 0;
+        for (const m of split) { bounds.push({ start: p, end: p + m.text.length, concepts: m.concepts }); p += m.text.length; }
+        let cur = 0;
+        perAkshara = ak.map((a) => {
+          const mid = cur + a.rom.length / 2;
+          cur += a.rom.length;
+          return (bounds.find((b) => mid >= b.start && mid < b.end) ?? bounds[bounds.length - 1]).concepts;
+        });
+      } else {
+        const cids = resolve('sa', 'Latn', key);
+        perAkshara = ak.map(() => (cids.length ? cids : undefined));
+      }
+      const all = [...new Set(perAkshara.flatMap((u) => u ?? []))];
+      all.forEach(useUnit);
+      const tok: AlignToken = {
+        text: deva,
+        units: all,
+        pronunciation: key,
+        segments: ak.map((a, i) => ({ text: a.text, pronunciation: a.rom, akshara: true, units: perAkshara[i] })),
+      };
+      if (all.length) tok.relation = 'semantic';
+      out.push(tok);
+    }
+    return out;
+  };
+
+  // Non-English script variants (Devanāgarī built from the Sanskrit row below).
   const svs = (seg.scripts ?? [])
     .filter((sv: ScriptVariant) => langSub(sv.lang) !== 'en' && scrSub(sv.lang) !== 'Deva')
     .map((sv: ScriptVariant) => {
@@ -124,6 +174,13 @@ export function deriveAlignSegment(
       continue;
     }
     done.add(sv.lang);
+    if (sv.lang === 'sa-Latn') {
+      const deva = devaTokensFor(sv.toks);
+      if (deva) {
+        renderings.push({ lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', tokens: deva });
+        continue;
+      }
+    }
     const tokens = sv.toks.map((t, i) => tokenFor(langSub(sv.lang), sv.script, t, undefined, sv.reads[i]));
     renderings.push({ lang: sv.lang, label: sv.label, tokens });
   }

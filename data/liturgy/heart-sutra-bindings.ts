@@ -228,3 +228,13 @@ export const SPLIT: Record<string, { text: string; concepts: string[] }[]> = {
     { text: 'śūnyān', concepts: ['concept.emptiness-sunyata'] },
   ],
 };
+
+/**
+ * Devanāgarī for the few Sanskrit tokens that have no `words[].scriptAlt` in the
+ * chant data (hyphenated compounds the registry didn't carry). Same self-
+ * validation as everything else: the akshara romanizer must reproduce the IAST.
+ */
+export const EXTRA_DEVA: Record<string, string> = {
+  'duḥkha-samudaya-nirodha-mārgāḥ': 'दुःखसमुदयनिरोधमार्गाः',
+  'Cittāvaraṇa-': 'चित्तावरण',
+};
