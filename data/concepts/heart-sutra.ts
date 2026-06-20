@@ -38,6 +38,7 @@ import {
   ddbCitation,
   princetonDictionaryCitation,
 } from '../liturgy/_groundingHelpers';
+import { WEB_SOURCES } from './heart-sutra-web-sources';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Opening cluster: prajñā · pāramitā · caryā · gambhīra · Avalokiteśvara · bodhisattva
@@ -1211,7 +1212,7 @@ const conceptHeartSutraWork: ConceptNode = {
 // Registry
 // ─────────────────────────────────────────────────────────────────────────
 
-export const HEART_SUTRA_CONCEPTS: ConceptRegistry = {
+const RAW_CONCEPTS: ConceptRegistry = {
   [conceptWisdomPrajna.id]: conceptWisdomPrajna,
   [conceptPerfectionParamita.id]: conceptPerfectionParamita,
   [conceptPracticeCarya.id]: conceptPracticeCarya,
@@ -1243,3 +1244,12 @@ export const HEART_SUTRA_CONCEPTS: ConceptRegistry = {
   [conceptDharaniSyllables.id]: conceptDharaniSyllables,
   [conceptHeartSutraWork.id]: conceptHeartSutraWork,
 };
+
+// Layer the verified free-source citations (Wiktionary + DPD) onto each concept,
+// so the registry's audit trail includes them and the source card surfaces them.
+export const HEART_SUTRA_CONCEPTS: ConceptRegistry = Object.fromEntries(
+  Object.entries(RAW_CONCEPTS).map(([id, c]) => {
+    const web = WEB_SOURCES[id];
+    return [id, web && web.length ? { ...c, citations: [...(c.citations ?? []), ...web] } : c];
+  }),
+);

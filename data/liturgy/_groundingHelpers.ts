@@ -107,6 +107,27 @@ export function wikipediaCitation(article: string): Citation {
 }
 
 /**
+ * Wiktionary entry for a specific surface form in its native script (Devanāgarī
+ * or Han). Free, multilingual, per-word — links the actual glyph the reader sees.
+ * Page existence was batch-verified against the Wiktionary API before any entry
+ * was cited (see data/concepts/heart-sutra-web-sources.ts); only resolving titles
+ * are added. Native script only — never IAST romanizations, which can collide
+ * with unrelated English words (e.g. "gate").
+ */
+export function wiktionaryEntryCitation(title: string, scriptLabel: string): Citation {
+  return {
+    id: `cite:wiktionary:${title}`,
+    short: `Wiktionary: ${title} (${scriptLabel})`,
+    detail: 'Wiktionary — free multilingual dictionary (en.wiktionary.org). Entry verified to resolve.',
+    url: `https://en.wiktionary.org/wiki/${encodeURIComponent(title)}`,
+    provenance: 'wiktionary',
+    query: title,
+    fetchedAt: TODAY,
+    license: 'CC BY-SA 4.0 — Wiktionary',
+  };
+}
+
+/**
  * 84000 Reading-Room glossary entry. Permalinks live at
  * `84000.co/glossary/<slug>`. If you don't have the slug yet, pass `null`
  * to get an honest placeholder citation that the UI will surface as
@@ -181,7 +202,7 @@ export function princetonDictionaryCitation(
   return {
     id: `cite:princeton:${entry.replace(/\s+/g, '_').slice(0, 80)}`,
     short: `Princeton Dictionary of Buddhism, s.v. ${entry} (${pageStr})`,
-    detail: 'Buswell & Lopez (eds.), *The Princeton Dictionary of Buddhism* (2014). Print.',
+    detail: 'Buswell & Lopez (eds.), *The Princeton Dictionary of Buddhism* (2014). Print — page number AI-supplied, not independently verified.',
     provenance: 'manual' as Citation['provenance'],
     query: entry,
     excerpt,

@@ -4,6 +4,7 @@ import { deriveAlignSegment } from './deriveAlignSegment';
 import { heartSutraTitle } from '../../../data/liturgy/heart-sutra-title';
 import { BIND, EN_BIND, SPLIT, SEGMENT_BIND } from '../../../data/liturgy/heart-sutra-bindings';
 import { getConcept } from '../../../data/concepts/lookup';
+import { WEB_SOURCES } from '../../../data/concepts/heart-sutra-web-sources';
 import { getLiturgyDoc } from '../../../data/liturgy';
 import type { AlignSegment } from '../../../types/liturgyAlign';
 
@@ -162,5 +163,20 @@ describe('concept reader — binding/derivation contract', () => {
       .map((t) => t.gloss)
       .filter(Boolean);
     expect(glosses).not.toContain('(not aligned yet)');
+  });
+
+  it('web-source citations are merged onto real concepts; Wiktionary titles are native script only', () => {
+    for (const [id, cites] of Object.entries(WEB_SOURCES)) {
+      const concept = getConcept(id);
+      expect(concept, `WEB_SOURCES id ${id} is not a real concept`).toBeTruthy();
+      // the registry actually carries them (assembly merge worked)
+      const provs = (concept!.citations ?? []).map((c) => c.provenance);
+      expect(provs.some((p) => p === 'wiktionary' || p === 'dpd'), `${id} missing merged web source`).toBe(true);
+      // Wiktionary entries must be native script (Devanāgarī / Han) — never IAST,
+      // which collides with English words (e.g. "gate"). Guards the verification.
+      for (const c of cites.filter((x) => x.provenance === 'wiktionary')) {
+        expect(/[ऀ-ॿ㐀-鿿]/.test(c.query ?? ''), `${c.short} is not native script`).toBe(true);
+      }
+    }
   });
 });
