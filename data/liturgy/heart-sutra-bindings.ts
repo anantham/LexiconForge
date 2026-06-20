@@ -247,3 +247,24 @@ export const EXTRA_DEVA: Record<string, string> = {
 export const CHAR_JA: Record<string, string> = {
   般: 'han', 若: 'nya', 波: 'ha', 羅: 'ra', 蜜: 'mi', 多: 'ta',
 };
+
+/**
+ * Context-scoped binding overrides, keyed by segment id then cleaned token. They
+ * fix homograph collisions where a bare surface form means different concepts in
+ * different lines — a global BIND key can't tell them apart:
+ *   滅  = "cease" (anirodha) in 不生不滅 BUT "cessation" (nirodha, a Noble Truth) in 苦集滅道
+ *   行  = caryā (practice) in the opening BUT the saṃskāra aggregate in 受想行識
+ *   རིག = vidyā standing alone BUT "ignorance" inside མ་རིག་པ (ma-rig-pa)
+ * An empty array means "deliberately unbound in this line" — a verb or particle
+ * that carries no concept here (the verb 知 / jñātavyaṃ "to know" ≠ the noun jñāna;
+ * "cognition" = vijñāna, not jñāna; interpretive "practicing" with no caryā in the
+ * source). Distinct from "not aligned yet". Consulted before BIND / EN_BIND.
+ */
+export const SEGMENT_BIND: Record<string, Record<string, string[]>> = {
+  'middle-no-four-truths': { '滅': ['concept.four-truths'] },
+  'middle-no-other-skandhas': { '行': ['concept.skandha-aggregate'] },
+  'middle-no-ignorance': { 'རིག': ['concept.ignorance-avidya'] },
+  'mantra-therefore-know': { '知': [], 'jñātavyaṃ': [] },
+  'middle-no-dhatus': { cognition: [] },
+  'middle-because-no-attainment': { practicing: [] },
+};

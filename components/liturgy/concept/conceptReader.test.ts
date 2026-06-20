@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { deriveAlignSegment } from './deriveAlignSegment';
 import { heartSutraTitle } from '../../../data/liturgy/heart-sutra-title';
-import { BIND, EN_BIND, SPLIT } from '../../../data/liturgy/heart-sutra-bindings';
+import { BIND, EN_BIND, SPLIT, SEGMENT_BIND } from '../../../data/liturgy/heart-sutra-bindings';
 import { getConcept } from '../../../data/concepts/lookup';
 import { getLiturgyDoc } from '../../../data/liturgy';
 import type { AlignSegment } from '../../../types/liturgyAlign';
@@ -23,10 +23,11 @@ const derived: AlignSegment[] = liveSegments.map((s) => deriveAlignSegment(s));
 const unitIdsOf = (seg: AlignSegment) => new Set(seg.units.map((u) => u.id));
 
 describe('concept reader — binding/derivation contract', () => {
-  it('every concept id in BIND, EN_BIND and SPLIT resolves in the registry', () => {
+  it('every concept id in BIND, EN_BIND, SPLIT and SEGMENT_BIND resolves in the registry', () => {
     const ids = new Set<string>();
     for (const list of [...Object.values(BIND), ...Object.values(EN_BIND)]) for (const id of list) ids.add(id);
     for (const pieces of Object.values(SPLIT)) for (const p of pieces) for (const id of p.concepts) ids.add(id);
+    for (const seg of Object.values(SEGMENT_BIND)) for (const list of Object.values(seg)) for (const id of list) ids.add(id);
     const missing = [...ids].filter((id) => !getConcept(id));
     expect(missing, `unknown concept ids in bindings: ${missing.join(', ')}`).toEqual([]);
   });
@@ -105,5 +106,30 @@ describe('concept reader — binding/derivation contract', () => {
       .find((t) => t.text === 'प्रज्ञापारमिताचर्यां');
     const wisdomAksharas = (tok?.segments ?? []).filter((p) => p.units?.includes('concept.wisdom-prajna'));
     expect(wisdomAksharas.map((p) => p.text)).toEqual(['प्र', 'ज्ञा']);
+  });
+
+  it('context-scoped overrides fix homograph collisions (no faked meaning on sacred text)', () => {
+    const segById = (id: string) => derived.find((s) => s.id === id)!;
+    const tok = (id: string, lang: string, text: string) =>
+      segById(id).renderings.find((r) => r.lang === lang)?.tokens.find((t) => t.text === text);
+
+    // 滅 in 苦集滅道 is nirodha, a Noble Truth — not the "cease" (anirodha) of 不生不滅.
+    expect(tok('middle-no-four-truths', 'zh-Hant', '滅')?.units).toEqual(['concept.four-truths']);
+    // 行 in 受想行識 is the saṃskāra aggregate — not caryā (practice).
+    expect(tok('middle-no-other-skandhas', 'zh-Hant', '行')?.units).toEqual(['concept.skandha-aggregate']);
+    // Tibetan རིག inside མ་རིག་པ is ignorance — not vidyā / mantra.
+    expect(tok('middle-no-ignorance', 'bo-Tibt', 'རིག')?.units).toEqual(['concept.ignorance-avidya']);
+
+    // The verb 知 "to know" (≠ the noun jñāna) carries no concept here, and must
+    // not show "(not aligned yet)" — it is deliberately unbound, like en "know:".
+    const zhi = tok('mantra-therefore-know', 'zh-Hant', '知');
+    expect(zhi?.units).toEqual([]);
+    expect(zhi?.gloss).toBeUndefined();
+
+    // English "cognition" (= vijñāna, the dhātu head) is not bound to jñāna.
+    const cognition = segById('middle-no-dhatus').renderings
+      .find((r) => r.lang === 'en')
+      ?.tokens.find((t) => t.text === 'cognition;');
+    expect(cognition?.units).toEqual([]);
   });
 });
