@@ -109,6 +109,26 @@ const PhraseBlock: React.FC<{
     setThreads(pts.length >= 2 ? pts : null);
   };
 
+  // Threads are measured from live DOM rects, so re-measure while one is shown:
+  // a window resize or an async web-font swap (Devanāgarī/Tibetan/CJK arrive
+  // after first paint) reflows the tokens and would otherwise leave the curve
+  // pointing at stale positions. Scroll needs no recompute — points are
+  // container-relative and scroll with the content.
+  React.useEffect(() => {
+    if (mode !== 'align' || !hot) return;
+    const recompute = () => computeThread(hot);
+    const ro = new ResizeObserver(recompute);
+    if (containerRef.current) ro.observe(containerRef.current);
+    window.addEventListener('resize', recompute);
+    const fonts = typeof document !== 'undefined' ? (document as Document & { fonts?: FontFaceSet }).fonts : undefined;
+    fonts?.ready.then(recompute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', recompute);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hot, mode, shown]);
+
   const buildTip = (token: AlignToken, piece: AlignSegmentPiece | null, effUnits: string[]) => {
     const wordGloss = glossOf(effUnits);
     const node = effUnits.map((u) => unitById[u]?.conceptId).filter(Boolean).map((id) => getConcept(id!)).find(Boolean);
@@ -121,7 +141,9 @@ const PhraseBlock: React.FC<{
       return { primary: `the sound “${piece.pronunciation ?? piece.text}”`, secondary: wordGloss ? `part of “${wordGloss}”${extra}` : '' };
     }
     let primary = piece?.gloss ?? wordGloss;
-    if (!primary) primary = 'a grammar word';
+    // No gloss and no concept = we have no meaning for this token. For sacred
+    // text, show NO tooltip rather than the misleading "a grammar word".
+    if (!primary) return { primary: '', secondary: '' };
     const chips: string[] = [];
     if (piece?.gloss && wordGloss && piece.gloss.toLowerCase() !== wordGloss.toLowerCase() && !piece.faint) chips.push(`within “${wordGloss}”`);
     switch (token.relation) {
@@ -193,7 +215,7 @@ const PhraseBlock: React.FC<{
                       {val}
                     </span>
                   ))}
-                  <AnimatePresence>{over === key && <Tooltip primary={tip.primary} secondary={tip.secondary} />}</AnimatePresence>
+                  <AnimatePresence>{over === key && tip.primary && <Tooltip primary={tip.primary} secondary={tip.secondary} />}</AnimatePresence>
                 </span>
               );
             })}

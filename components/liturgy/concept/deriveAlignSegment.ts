@@ -35,6 +35,18 @@ const clean = (t: string) => t.replace(/་$/, '').replace(/[.,;:!?"'()\[\]।�
 const resolve = (lang: string, script: string, t: string): string[] =>
   BIND[t] ?? conceptsForToken(lang as any, script as any, t);
 
+// English grammar glue (no concept). An unbound word NOT in this set is treated
+// as content — rendered normally with no tooltip — rather than mislabeled as
+// "grammar this language adds". Deliberately conservative (clear function words
+// only), so a content word is never dimmed or mislabeled.
+const EN_FUNCTION = new Set([
+  'the', 'a', 'an', 'of', 'and', 'or', 'is', 'are', 'was', 'were', 'be', 'been', 'am', 'in', 'on', 'at',
+  'to', 'into', 'onto', 'upon', 'that', 'this', 'these', 'those', 'it', 'its', 'they', 'their', 'them',
+  'he', 'his', 'she', 'her', 'who', 'whom', 'with', 'as', 'by', 'for', 'from', 'not', 'no', 'nor', 'but',
+  'than', 'then', 'so', 'do', 'does', 'did', 'has', 'have', 'had', 'which', 'what', 'when', 'where',
+  'while', 'through', 'here', 'there', 'all', 'any', 'every', 'both', 'each', 'o', 'oh', 'if', 'also',
+]);
+
 export function deriveAlignSegment(
   seg: TripleScriptWitnessSegment,
   preferredWitnessBy?: string,
@@ -110,9 +122,12 @@ export function deriveAlignSegment(
       const reg = conceptsForToken('en', 'Latn', clean(t), w.by);
       const cids = reg.length ? reg : EN_BIND[clean(t).toLowerCase()] ?? [];
       cids.forEach(useUnit);
-      return cids.length
-        ? ({ text: t, units: cids, relation: 'interpretive' as AlignRelation })
-        : ({ text: t, units: [], relation: 'ghost' as AlignRelation, gloss: t.toLowerCase() });
+      if (cids.length) return { text: t, units: cids, relation: 'interpretive' as AlignRelation };
+      // Grammar glue dims (ghost) and shows no tooltip; an unbound content word
+      // renders normally with no gloss — we don't claim a meaning we don't have.
+      return EN_FUNCTION.has(clean(t).toLowerCase())
+        ? ({ text: t, units: [], relation: 'ghost' as AlignRelation })
+        : ({ text: t, units: [] });
     });
     renderings.push({ lang: 'en', label: 'English', by: w.by, tokens });
   }
