@@ -26,12 +26,33 @@ export const heartSutraTitle: AlignSegment = {
   ],
   renderings: [
     {
-      lang: 'sa-Latn',
-      label: 'Sanskrit (IAST)',
+      lang: 'sa-Deva',
+      label: 'Sanskrit (Devanāgarī)',
       tokens: [
-        { text: 'Prajñā', units: ['concept.wisdom-prajna'], relation: 'semantic' },
-        { text: 'pāramitā', units: ['concept.perfection-paramita'], relation: 'semantic' },
-        { text: 'hṛdaya', units: ['u-heart'], relation: 'semantic' },
+        {
+          text: 'प्रज्ञा', units: ['concept.wisdom-prajna'], relation: 'semantic', pronunciation: 'prajñā',
+          segments: [
+            { text: 'प्र', pronunciation: 'pra', akshara: true, units: ['concept.wisdom-prajna'] },
+            { text: 'ज्ञा', pronunciation: 'jñā', akshara: true, units: ['concept.wisdom-prajna'] },
+          ],
+        },
+        {
+          text: 'पारमिता', units: ['concept.perfection-paramita'], relation: 'semantic', pronunciation: 'pāramitā',
+          segments: [
+            { text: 'पा', pronunciation: 'pā', akshara: true, units: ['concept.perfection-paramita'] },
+            { text: 'र', pronunciation: 'ra', akshara: true, units: ['concept.perfection-paramita'] },
+            { text: 'मि', pronunciation: 'mi', akshara: true, units: ['concept.perfection-paramita'] },
+            { text: 'ता', pronunciation: 'tā', akshara: true, units: ['concept.perfection-paramita'] },
+          ],
+        },
+        {
+          text: 'हृदय', units: ['u-heart'], relation: 'semantic', pronunciation: 'hṛdaya',
+          segments: [
+            { text: 'हृ', pronunciation: 'hṛ', akshara: true, units: ['u-heart'] },
+            { text: 'द', pronunciation: 'da', akshara: true, units: ['u-heart'] },
+            { text: 'य', pronunciation: 'ya', akshara: true, units: ['u-heart'] },
+          ],
+        },
       ],
     },
     {

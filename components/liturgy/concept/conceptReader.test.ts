@@ -84,9 +84,26 @@ describe('concept reader — binding/derivation contract', () => {
       derived
         .flatMap((s) => s.renderings)
         .flatMap((r) => r.tokens)
-        .find((t) => t.text === 'prajñāpāramitācaryāṃ')?.units ?? [];
+        .find((t) => t.text === 'प्रज्ञापारमिताचर्यां')?.units ?? [];
     expect(units).toEqual(
       expect.arrayContaining(['concept.wisdom-prajna', 'concept.perfection-paramita', 'concept.practice-carya']),
     );
+  });
+
+  it('renders the Sanskrit row as Devanāgarī for every segment (consistent rail)', () => {
+    for (const seg of derived) {
+      const langs = seg.renderings.map((r) => r.lang);
+      expect(langs.includes('sa-Deva'), `segment ${seg.id} fell back to IAST`).toBe(true);
+      expect(langs.includes('sa-Latn'), `segment ${seg.id} kept an IAST row (rail inconsistent)`).toBe(false);
+    }
+  });
+
+  it('per-akshara minimal cut: the compound has प्र·ज्ञा bound to wisdom only', () => {
+    const tok = derived
+      .flatMap((s) => s.renderings)
+      .flatMap((r) => r.tokens)
+      .find((t) => t.text === 'प्रज्ञापारमिताचर्यां');
+    const wisdomAksharas = (tok?.segments ?? []).filter((p) => p.units?.includes('concept.wisdom-prajna'));
+    expect(wisdomAksharas.map((p) => p.text)).toEqual(['प्र', 'ज्ञा']);
   });
 });
