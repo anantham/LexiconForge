@@ -23,6 +23,7 @@ export type CitationProvenance =
   | 'cbeta'
   | 'gretil'
   | '84000'
+  | 'wiktionary'
   | 'manual';
 
 export type Citation = {
