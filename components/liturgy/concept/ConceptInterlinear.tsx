@@ -170,8 +170,15 @@ const PhraseBlock: React.FC<{
   const renderLine = (r: AlignRendering) => {
     const english = isEnglish(r.lang);
     const showRom = !english; // romanization always shown for non-Latin scripts
+    // Whole-line romanization fallback (e.g. Tibetan) when the tokens carry no
+    // per-token sound — reliable, vs. mis-paired per-word sounds.
+    const hasPerTokenRom = r.tokens.some(
+      (t) => t.pronunciation || t.readings || t.segments?.some((s) => s.pronunciation || s.readings),
+    );
+    const showTranslit = !english && scriptOf(r.lang) !== 'Latn' && !hasPerTokenRom && !!r.transliteration;
     return (
-      <div key={r.lang} className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: '0.5em', rowGap: '0.5rem' }}>
+      <div key={r.lang}>
+        <div className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: '0.5em', rowGap: '0.5rem' }}>
         {r.tokens.map((token, ti) => (
           <span key={ti} className="inline-flex items-start" style={{ columnGap: '0.12em' }}>
             {piecesOf(token).map((piece, si) => {
@@ -221,6 +228,12 @@ const PhraseBlock: React.FC<{
             })}
           </span>
         ))}
+        </div>
+        {showTranslit && (
+          <div className="mt-2 text-center text-[0.82rem] italic" style={{ fontFamily: FONT.Latn, color: C.sub }}>
+            {r.transliteration}
+          </div>
+        )}
       </div>
     );
   };

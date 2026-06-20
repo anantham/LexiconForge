@@ -151,7 +151,11 @@ export function deriveAlignSegment(
     .map((sv: ScriptVariant) => {
       const script = scrSub(sv.lang);
       const toks = tokenize(sv.text, sv.tokens, script);
-      return { lang: sv.lang, label: sv.label ?? sv.lang, script, toks, reads: parseReads(sv.transliteration, toks.length) };
+      const translit = sv.transliteration?.replace(/\s*\([^)]*\)\s*$/, '').trim();
+      // Tibetan: never pair per-token (its Lhasa rom doesn't align 1:1 with the
+      // word tokens even when counts coincide) — fall through to the whole line.
+      const reads = script === 'Tibt' ? [] : parseReads(sv.transliteration, toks.length);
+      return { lang: sv.lang, label: sv.label ?? sv.lang, script, toks, reads, translit };
     });
   const zh = svs.find((s) => s.script === 'Hant');
   const ja = svs.find((s) => s.script === 'Jpan');
@@ -182,7 +186,7 @@ export function deriveAlignSegment(
       }
     }
     const tokens = sv.toks.map((t, i) => tokenFor(langSub(sv.lang), sv.script, t, undefined, sv.reads[i]));
-    renderings.push({ lang: sv.lang, label: sv.label, tokens });
+    renderings.push({ lang: sv.lang, label: sv.label, tokens, transliteration: sv.translit });
   }
 
   // Select the witness by name (witnesses aren't index-aligned across segments —

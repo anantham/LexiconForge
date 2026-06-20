@@ -143,6 +143,13 @@ export type AlignRendering = {
   label: string;
   /** Witness/translator id for translations. */
   by?: string;
+  /**
+   * Whole-line romanization, shown as a single muted line beneath the row when
+   * the tokens carry no per-token sound (e.g. Tibetan, whose Lhasa transliteration
+   * doesn't align 1:1 with the word tokens). Reliable fallback vs. mis-paired
+   * per-word sounds.
+   */
+  transliteration?: string;
   tokens: AlignToken[];
 };
 
