@@ -1,6 +1,6 @@
 import React from 'react';
-import { ConceptInterlinear } from './ConceptInterlinear';
-import { deriveAlignSegment } from './deriveAlignSegment';
+import { ConceptInterlinear } from '../concept/ConceptInterlinear';
+import { deriveAlignSegment } from '../concept/deriveAlignSegment';
 import { getLiturgyDoc } from '../../../data/liturgy';
 
 const SERIF = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";

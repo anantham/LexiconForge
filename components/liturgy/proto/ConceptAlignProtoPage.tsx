@@ -1,5 +1,5 @@
 import React from 'react';
-import { ConceptInterlinear } from './ConceptInterlinear';
+import { ConceptInterlinear } from '../concept/ConceptInterlinear';
 import { OPENING_PHRASES } from '../../../data/liturgy/_proto/opening-practice-aligned';
 
 const SERIF = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
