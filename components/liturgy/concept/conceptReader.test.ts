@@ -154,4 +154,13 @@ describe('concept reader — binding/derivation contract', () => {
     expect(tok('middle-no-wisdom-no-attainment', 'bo-Tibt', 'ཡེ་ཤེས')?.units).toEqual(['concept.knowledge-jnana']);
     expect(tok('opening-seeing', 'bo-Tibt', 'རྣམ་པར་བལྟའོ')?.units).toEqual(['concept.seeing-vyavalokita']);
   });
+
+  it('unbound tokens make no claim — no "(not aligned yet)" gloss anywhere', () => {
+    const glosses = derived
+      .flatMap((s) => s.renderings)
+      .flatMap((r) => r.tokens)
+      .map((t) => t.gloss)
+      .filter(Boolean);
+    expect(glosses).not.toContain('(not aligned yet)');
+  });
 });
