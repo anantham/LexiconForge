@@ -1,0 +1,121 @@
+import type { AlignSegment, AlignUnit, AlignRendering, AlignToken, AlignRelation } from '../../../types/liturgyAlign';
+import type { TripleScriptWitnessSegment, ScriptVariant, Witness } from '../../../types/liturgy';
+import { conceptsForToken, getConcept } from '../../../data/concepts/lookup';
+import { BIND, EN_BIND } from '../../../data/liturgy/heart-sutra-bindings';
+
+/**
+ * Make the concept graph load-bearing: turn a shipped `triple-script-witness`
+ * segment into the concept-aligned model by asking `conceptsForToken()` (plus the
+ * curated BIND/EN_BIND overrides in data/liturgy/heart-sutra-bindings.ts) what
+ * each token attests. Tokens that resolve carry their concept(s) as units (so the
+ * cross-script threads light up); unresolved script tokens are left visibly
+ * "not aligned yet".
+ *
+ * The per-segment unit spine is built FROM the tokens (via `useUnit`), so every
+ * `token.units` id is guaranteed present in `segment.units`. The contract test
+ * (conceptReader.test.ts) asserts that invariant for both derived segments and
+ * the hand-authored title, plus a coverage floor that catches binding drift.
+ *
+ * Deliberately coarse: word-level (no akshara split), Devanāgarī skipped (the
+ * shipped line isn't word-tokenized).
+ */
+
+const CJK = /[㐀-鿿豈-﫿]/;
+const langSub = (l: string) => l.split('-')[0];
+const scrSub = (l: string) => l.split('-')[1] ?? 'Latn';
+
+function tokenize(text: string, tokens: string[] | undefined, script: string): string[] {
+  if (tokens && tokens.length) return tokens;
+  if (script === 'Tibt') return text.split(/[་༌།༎\s]+/).filter(Boolean);
+  if (script === 'Hant' || script === 'Jpan') return [...text].filter((c) => CJK.test(c));
+  return text.split(/\s+/).filter(Boolean);
+}
+const clean = (t: string) => t.replace(/་$/, '').replace(/[.,;:!?"'()\[\]।॥—–]+$/u, '');
+
+const resolve = (lang: string, script: string, t: string): string[] =>
+  BIND[t] ?? conceptsForToken(lang as any, script as any, t);
+
+export function deriveAlignSegment(
+  seg: TripleScriptWitnessSegment,
+  preferredWitnessBy?: string,
+): AlignSegment {
+  const units = new Map<string, AlignUnit>();
+  const useUnit = (cid: string) => {
+    if (!units.has(cid)) {
+      const node = getConcept(cid);
+      units.set(cid, { id: cid, gloss: node?.preferredLabel ?? cid, conceptId: cid });
+    }
+    return cid;
+  };
+
+  const tokenFor = (lang: string, script: string, t: string, readings?: Record<string, string>, pron?: string): AlignToken => {
+    const cids = resolve(lang, script, clean(t));
+    cids.forEach(useUnit);
+    const base: AlignToken = cids.length
+      ? { text: t, units: cids, relation: 'semantic' as AlignRelation }
+      : { text: t, units: [], gloss: '(not aligned yet)' };
+    if (readings && Object.keys(readings).length) base.readings = readings;
+    else if (pron) base.pronunciation = pron;
+    return base;
+  };
+  // Per-token readings from the whole-line transliteration (drop the trailing
+  // "(label)" and · phrase-breaks); trusted only when the count matches the tokens.
+  const parseReads = (tr: string | undefined, n: number): string[] => {
+    if (!tr) return [];
+    const parts = tr.replace(/\s*\([^)]*\)\s*$/, '').trim().split(/\s+/).filter((p) => p && p !== '·' && p !== ':');
+    return parts.length === n ? parts : [];
+  };
+
+  // Non-English script variants (Devanāgarī skipped — the shipped line isn't
+  // word-tokenized; that depth is the overlay's job).
+  const svs = (seg.scripts ?? [])
+    .filter((sv: ScriptVariant) => langSub(sv.lang) !== 'en' && scrSub(sv.lang) !== 'Deva')
+    .map((sv: ScriptVariant) => {
+      const script = scrSub(sv.lang);
+      const toks = tokenize(sv.text, sv.tokens, script);
+      return { lang: sv.lang, label: sv.label ?? sv.lang, script, toks, reads: parseReads(sv.transliteration, toks.length) };
+    });
+  const zh = svs.find((s) => s.script === 'Hant');
+  const ja = svs.find((s) => s.script === 'Jpan');
+  const canMerge = !!(zh && ja && zh.toks.length === ja.toks.length); // same glyphs, only readings differ
+
+  const renderings: AlignRendering[] = [];
+  const done = new Set<string>();
+  for (const sv of svs) {
+    if (done.has(sv.lang)) continue;
+    if ((sv.script === 'Hant' || sv.script === 'Jpan') && canMerge) {
+      done.add(zh!.lang);
+      done.add(ja!.lang);
+      const tokens = zh!.toks.map((t, i) => {
+        const readings: Record<string, string> = {};
+        if (zh!.reads[i]) readings.zh = zh!.reads[i];
+        if (ja!.reads[i]) readings.ja = ja!.reads[i];
+        return tokenFor('zh', 'Hant', t, readings);
+      });
+      renderings.push({ lang: 'zh-Hant', label: 'Chinese · Japanese', tokens });
+      continue;
+    }
+    done.add(sv.lang);
+    const tokens = sv.toks.map((t, i) => tokenFor(langSub(sv.lang), sv.script, t, undefined, sv.reads[i]));
+    renderings.push({ lang: sv.lang, label: sv.label, tokens });
+  }
+
+  // Select the witness by name (witnesses aren't index-aligned across segments —
+  // some carry only a subset); fall back to the first available.
+  const w =
+    (preferredWitnessBy && seg.witnesses?.find((x: Witness) => x.by === preferredWitnessBy)) ||
+    seg.witnesses?.[0];
+  if (w) {
+    const tokens: AlignToken[] = String(w.text).split(/\s+/).filter(Boolean).map((t) => {
+      const reg = conceptsForToken('en', 'Latn', clean(t), w.by);
+      const cids = reg.length ? reg : EN_BIND[clean(t).toLowerCase()] ?? [];
+      cids.forEach(useUnit);
+      return cids.length
+        ? ({ text: t, units: cids, relation: 'interpretive' as AlignRelation })
+        : ({ text: t, units: [], relation: 'ghost' as AlignRelation, gloss: t.toLowerCase() });
+    });
+    renderings.push({ lang: 'en', label: 'English', by: w.by, tokens });
+  }
+
+  return { id: seg.id, gloss: w?.text, units: [...units.values()], renderings };
+}

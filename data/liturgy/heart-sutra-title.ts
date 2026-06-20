@@ -1,4 +1,4 @@
-import type { AlignSegment } from '../../../types/liturgyAlign';
+import type { AlignSegment } from '../../types/liturgyAlign';
 
 /**
  * The sutra's TITLE as a concept-aligned segment — its name in each tradition,

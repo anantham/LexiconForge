@@ -4,9 +4,9 @@ import { SectionRenderer } from './SectionRenderer';
 import { ProseBlock } from './ProseBlock';
 import { LiturgySettingsProvider, SettingsButton, useLiturgySettings } from './LiturgySettings';
 import { WitnessDots } from './shapes/TripleScriptWitness';
-import { ConceptInterlinear } from './proto/ConceptInterlinear';
-import { deriveAlignSegment } from './proto/deriveAlignSegment';
-import { heartSutraTitle } from './proto/heartSutraTitle';
+import { ConceptInterlinear } from './concept/ConceptInterlinear';
+import { deriveAlignSegment } from './concept/deriveAlignSegment';
+import { heartSutraTitle } from '../../data/liturgy/heart-sutra-title';
 
 /**
  * Gather every unique English-translation witness used across the doc.

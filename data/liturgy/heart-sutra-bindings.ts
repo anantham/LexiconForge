@@ -1,41 +1,21 @@
-import type { AlignSegment, AlignUnit, AlignRendering, AlignToken, AlignRelation } from '../../../types/liturgyAlign';
-import { conceptsForToken, getConcept } from '../../../data/concepts/lookup';
-
 /**
- * LIVE-WIRING increment 1 — make the concept graph load-bearing.
+ * Heart Sutra surface → concept bindings — the hand-curated alignment overrides
+ * for the inflected/compound forms the lemma-level concept registry can't match
+ * on its own. Consumed by components/liturgy/concept/deriveAlignSegment.ts.
  *
- * Turns a shipped `triple-script-witness` segment (from data/liturgy/*.ts) into
- * the concept-aligned model by asking `conceptsForToken()` what each token
- * attests. Where the registry resolves a token, it carries that concept as a
- * unit (so the cross-script alignment threads light up); where it doesn't, the
- * token is left visibly "not aligned yet" — the honest worklist for the
- * hand-fill pass (compounds, inflected forms, particles the lemma-level
- * registry can't match).
+ * This is CURATED DATA, not renderer code: changes here are reviewed like
+ * content, and a coverage/consistency contract test
+ * (components/liturgy/concept/conceptReader.test.ts) round-trips the shipped
+ * chant through the derivation to guard against drift (a stale key, a renamed
+ * concept, an upstream tokenization change).
  *
- * Deliberately coarse for now: word-level (no akshara split), one English
- * witness, CJK kept as separate rows, Devanāgarī skipped (the shipped line
- * isn't word-tokenized). Those are the next increments.
+ * Deliberately conservative: surfaces that name two different concepts depending
+ * on context ("death" — the unarisen pair vs. aging-and-death) are left out
+ * rather than mis-aligned. A compound surface binds to several concepts at once.
  */
 
-const CJK = /[㐀-鿿豈-﫿]/;
-const langSub = (l: string) => l.split('-')[0];
-const scrSub = (l: string) => l.split('-')[1] ?? 'Latn';
-
-function tokenize(text: string, tokens: string[] | undefined, script: string): string[] {
-  if (tokens && tokens.length) return tokens;
-  if (script === 'Tibt') return text.split(/[་༌།༎\s]+/).filter(Boolean);
-  if (script === 'Hant' || script === 'Jpan') return [...text].filter((c) => CJK.test(c));
-  return text.split(/\s+/).filter(Boolean);
-}
-const clean = (t: string) => t.replace(/་$/, '').replace(/[.,;:!?"'()\[\]।॥—–]+$/u, '');
-
-/**
- * Chant-surface → concept bindings: the inflected/compound forms the
- * lemma-level registry can't match on its own (the hand-fill that closes the
- * alignment gaps). Keyed by the cleaned surface token; grows segment by
- * segment. A compound surface binds to several concepts at once.
- */
-const BIND: Record<string, string[]> = {
+/** Script-side cleaned surface token → concept ids. */
+export const BIND: Record<string, string[]> = {
   // Sanskrit (IAST) — inflected forms + compounds
   bodhisattvo: ['concept.bodhisattva'],
   gambhīrāṃ: ['concept.deep-gambhira'],
@@ -149,18 +129,14 @@ const BIND: Record<string, string[]> = {
   'སྐྲག་པ': ['concept.fearless-atrasta'],
   'ཤེས་རབ': ['concept.wisdom-prajna'],
 };
-const resolve = (lang: string, script: string, t: string): string[] =>
-  BIND[t] ?? conceptsForToken(lang as any, script as any, t);
 
 /**
- * English surface → concept fallback, consulted only when the registry has no
- * attestation for a witness's word. Lets witnesses that keep the Sanskrit terms
- * untranslated (Bodhi Sangha, Sariputta Ambedkar — "Prajna", "skandhas") and the
- * shared content words light up like MAPLE/Conze do. Keyed lowercase.
- * Deliberately conservative: words that name two different concepts depending on
- * context ("death" — the unarisen pair vs. aging-and-death) are left out.
+ * English surface (lowercase) → concept ids — a fallback consulted only when the
+ * registry has no attestation for a witness's word, so witnesses that keep the
+ * Sanskrit terms untranslated (Bodhi Sangha, Sariputta Ambedkar — "Prajna",
+ * "skandhas") and the shared content words light up like MAPLE/Conze do.
  */
-const EN_BIND: Record<string, string[]> = {
+export const EN_BIND: Record<string, string[]> = {
   // names + untranslated Sanskrit
   avalokiteshvara: ['concept.avalokita-bodhisattva'],
   bodhisattva: ['concept.bodhisattva'],
@@ -218,85 +194,3 @@ const EN_BIND: Record<string, string[]> = {
   fear: ['concept.fearless-atrasta'],
   fears: ['concept.fearless-atrasta'],
 };
-
-export function deriveAlignSegment(seg: any, preferredWitnessBy?: string): AlignSegment {
-  const units = new Map<string, AlignUnit>();
-  const useUnit = (cid: string) => {
-    if (!units.has(cid)) {
-      const node = getConcept(cid);
-      units.set(cid, { id: cid, gloss: node?.preferredLabel ?? cid, conceptId: cid });
-    }
-    return cid;
-  };
-
-  const tokenFor = (lang: string, script: string, t: string, readings?: Record<string, string>, pron?: string): AlignToken => {
-    const cids = resolve(lang, script, clean(t));
-    cids.forEach(useUnit);
-    const base: AlignToken = cids.length
-      ? { text: t, units: cids, relation: 'semantic' as AlignRelation }
-      : { text: t, units: [], gloss: '(not aligned yet)' };
-    if (readings && Object.keys(readings).length) base.readings = readings;
-    else if (pron) base.pronunciation = pron;
-    return base;
-  };
-  // Per-token readings from the whole-line transliteration (drop the trailing
-  // "(label)" and · phrase-breaks); trusted only when the count matches the tokens.
-  const parseReads = (tr: string | undefined, n: number): string[] => {
-    if (!tr) return [];
-    const parts = tr.replace(/\s*\([^)]*\)\s*$/, '').trim().split(/\s+/).filter((p) => p && p !== '·' && p !== ':');
-    return parts.length === n ? parts : [];
-  };
-
-  // Non-English script variants (Devanāgarī skipped — the shipped line isn't
-  // word-tokenized; that depth is the overlay's job).
-  const svs = (seg.scripts ?? [])
-    .filter((sv: any) => langSub(sv.lang) !== 'en' && scrSub(sv.lang) !== 'Deva')
-    .map((sv: any) => {
-      const script = scrSub(sv.lang);
-      const toks = tokenize(sv.text, sv.tokens, script);
-      return { lang: sv.lang as string, label: sv.label as string, script, toks, reads: parseReads(sv.transliteration, toks.length) };
-    });
-  const zh = svs.find((s: any) => s.script === 'Hant');
-  const ja = svs.find((s: any) => s.script === 'Jpan');
-  const canMerge = !!(zh && ja && zh.toks.length === ja.toks.length); // same glyphs, only readings differ
-
-  const renderings: AlignRendering[] = [];
-  const done = new Set<string>();
-  for (const sv of svs) {
-    if (done.has(sv.lang)) continue;
-    if ((sv.script === 'Hant' || sv.script === 'Jpan') && canMerge) {
-      done.add(zh!.lang);
-      done.add(ja!.lang);
-      const tokens = zh!.toks.map((t: string, i: number) => {
-        const readings: Record<string, string> = {};
-        if (zh!.reads[i]) readings.zh = zh!.reads[i];
-        if (ja!.reads[i]) readings.ja = ja!.reads[i];
-        return tokenFor('zh', 'Hant', t, readings);
-      });
-      renderings.push({ lang: 'zh-Hant', label: 'Chinese · Japanese', tokens });
-      continue;
-    }
-    done.add(sv.lang);
-    const tokens = sv.toks.map((t: string, i: number) => tokenFor(langSub(sv.lang), sv.script, t, undefined, sv.reads[i]));
-    renderings.push({ lang: sv.lang, label: sv.label, tokens });
-  }
-
-  // Select the witness by name (witnesses aren't index-aligned across
-  // segments — some carry only a subset); fall back to the first available.
-  const w =
-    (preferredWitnessBy && seg.witnesses?.find((x: any) => x.by === preferredWitnessBy)) ||
-    seg.witnesses?.[0];
-  if (w) {
-    const tokens: AlignToken[] = String(w.text).split(/\s+/).filter(Boolean).map((t: string) => {
-      const reg = conceptsForToken('en', 'Latn', clean(t), w.by);
-      const cids = reg.length ? reg : EN_BIND[clean(t).toLowerCase()] ?? [];
-      cids.forEach(useUnit);
-      return cids.length
-        ? ({ text: t, units: cids, relation: 'interpretive' as AlignRelation })
-        : ({ text: t, units: [], relation: 'ghost' as AlignRelation, gloss: t.toLowerCase() });
-    });
-    renderings.push({ lang: 'en', label: 'English', by: w.by, tokens });
-  }
-
-  return { id: seg.id, gloss: w?.text, units: [...units.values()], renderings };
-}
