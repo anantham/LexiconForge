@@ -37,13 +37,21 @@ function firstSentence(text: string): string {
  */
 export function conceptFacets(conceptIds: string[] | undefined): string[] {
   if (!conceptIds || conceptIds.length === 0) return [];
+  const single = conceptIds.length === 1;
   const out: string[] = [];
   for (const id of conceptIds) {
     const concept = getConcept(id);
     if (!concept) continue;
     const label = concept.preferredLabel ?? id;
     const def = firstSentence(concept.definition ?? '');
-    out.push(def ? `◇ ${label} · ${def}` : `◇ ${label}`);
+    if (single) {
+      // The hover gloss (facet 0) already shows the label; the sense facet adds
+      // only the definition — restating the label here is the redundancy.
+      if (def) out.push(`◇ ${def}`);
+    } else {
+      // Several concepts on one token — keep the label so the reader knows which.
+      out.push(def ? `◇ ${label} · ${def}` : `◇ ${label}`);
+    }
   }
   return out;
 }

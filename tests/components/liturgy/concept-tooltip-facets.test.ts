@@ -8,12 +8,14 @@ describe('conceptFacets', () => {
     expect(conceptFacets(['concept.does-not-exist'])).toEqual([]);
   });
 
-  it('returns one facet per known concept, prefixed with the diamond glyph', () => {
+  it('single concept: the sense facet is the definition only — it does not restate the label', () => {
     const facets = conceptFacets(['concept.wisdom-prajna']);
     expect(facets).toHaveLength(1);
     expect(facets[0]).toMatch(/^◇ /);
-    expect(facets[0]).toContain('wisdom');
-    expect(facets[0]).toContain('prajñā');
+    // facet 0 (the hover gloss) already shows "wisdom (prajñā)"; the sense facet
+    // must not repeat it — that was the redundancy this fix removed.
+    expect(facets[0]).not.toContain('wisdom (prajñā)');
+    expect(facets[0].replace(/^◇ /, '').length).toBeGreaterThan(10); // carries the definition
   });
 
   it('uses only the first sentence of a multi-sentence definition', () => {
