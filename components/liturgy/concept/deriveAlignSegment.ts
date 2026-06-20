@@ -1,7 +1,7 @@
 import type { AlignSegment, AlignUnit, AlignRendering, AlignToken, AlignRelation } from '../../../types/liturgyAlign';
 import type { TripleScriptWitnessSegment, ScriptVariant, Witness } from '../../../types/liturgy';
 import { conceptsForToken, getConcept } from '../../../data/concepts/lookup';
-import { BIND, EN_BIND } from '../../../data/liturgy/heart-sutra-bindings';
+import { BIND, EN_BIND, SPLIT } from '../../../data/liturgy/heart-sutra-bindings';
 
 /**
  * Make the concept graph load-bearing: turn a shipped `triple-script-witness`
@@ -61,11 +61,27 @@ export function deriveAlignSegment(
   };
 
   const tokenFor = (lang: string, script: string, t: string, readings?: Record<string, string>, pron?: string): AlignToken => {
-    const cids = resolve(lang, script, clean(t));
-    cids.forEach(useUnit);
-    const base: AlignToken = cids.length
-      ? { text: t, units: cids, relation: 'semantic' as AlignRelation }
-      : { text: t, units: [], gloss: '(not aligned yet)' };
+    const key = clean(t);
+    let base: AlignToken;
+    const split = SPLIT[key];
+    if (split) {
+      // Compound → one piece per morpheme, each bound to its single concept
+      // (the "minimal cut": hovering a concept lights only its slice of the word,
+      // like the separate words the other scripts already show — 般若 / ཤེས་རབ).
+      split.forEach((p) => p.concepts.forEach(useUnit));
+      base = {
+        text: t,
+        units: split.flatMap((p) => p.concepts),
+        relation: 'semantic' as AlignRelation,
+        segments: split.map((p) => ({ text: p.text, units: p.concepts })),
+      };
+    } else {
+      const cids = resolve(lang, script, key);
+      cids.forEach(useUnit);
+      base = cids.length
+        ? { text: t, units: cids, relation: 'semantic' as AlignRelation }
+        : { text: t, units: [], gloss: '(not aligned yet)' };
+    }
     if (readings && Object.keys(readings).length) base.readings = readings;
     else if (pron) base.pronunciation = pron;
     return base;
