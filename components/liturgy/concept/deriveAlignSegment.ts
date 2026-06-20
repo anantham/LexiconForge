@@ -28,11 +28,32 @@ const scrSub = (l: string) => l.split('-')[1] ?? 'Latn';
 
 function tokenize(text: string, tokens: string[] | undefined, script: string): string[] {
   if (tokens && tokens.length) return tokens;
-  if (script === 'Tibt') return text.split(/[་༌།༎\s]+/).filter(Boolean);
+  if (script === 'Tibt') return groupTibetan(text.split(/[་༌།༎\s]+/).filter(Boolean));
   if (script === 'Hant' || script === 'Jpan') return [...text].filter((c) => CJK.test(c));
   return text.split(/\s+/).filter(Boolean);
 }
 const clean = (t: string) => t.replace(/་$/, '').replace(/[.,;:!?"'()\[\]।॥—–]+$/u, '');
+
+// Tibetan binds at the WORD level, but rows without a token hint arrive as bare
+// tsheg syllables. Rejoin consecutive syllables that EXACTLY form a multi-syllable
+// BIND key (curated, longest-first) so words like སྟོང་པ་ཉིད / ཤཱ་རིའི་བུ / ཡེ་ཤེས
+// bind instead of fragmenting. Only curated keys group — single-syllable bindings
+// (སྡུག, བསྔལ…) are never regrouped, so nothing already-correct can shift.
+const TIBETAN_WORDS = Object.keys(BIND)
+  .filter((k) => /[ༀ-࿿]/.test(k) && k.split('་').filter(Boolean).length >= 2)
+  .sort((a, b) => b.split('་').filter(Boolean).length - a.split('་').filter(Boolean).length);
+function groupTibetan(syl: string[]): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < syl.length; ) {
+    let n = 0;
+    for (const w of TIBETAN_WORDS) {
+      const len = w.split('་').filter(Boolean).length;
+      if (i + len <= syl.length && syl.slice(i, i + len).map(clean).join('་') === w) { n = len; break; }
+    }
+    if (n) { out.push(syl.slice(i, i + n).join('་')); i += n; } else { out.push(syl[i]); i += 1; }
+  }
+  return out;
+}
 
 const resolve = (lang: string, script: string, t: string): string[] =>
   BIND[t] ?? conceptsForToken(lang as any, script as any, t);

@@ -689,7 +689,7 @@ const conceptUnarisenAnutpada: ConceptNode = {
 
 const conceptSenseFaculties: ConceptNode = {
   id: 'concept.six-faculties',
-  preferredLabel: 'six sense faculties (cakṣus, śrotra, ghrāṇa, jihvā, kāya, manas)',
+  preferredLabel: 'six sense faculties',
   preferredLanguage: 'en',
   definition:
     'The six inner senses: eye, ear, nose, tongue, body, and mind. Technically the *ṣaḍāyatana*; after negating the objects of perception (the five aggregates), Avalokiteśvara negates the sensing apparatus itself.',
@@ -1064,7 +1064,7 @@ const conceptNirvana: ConceptNode = {
 
 const conceptThreeTimes: ConceptNode = {
   id: 'concept.three-times-tryadhva',
-  preferredLabel: 'three times / unsurpassed perfect awakening (tryadhva / anuttarā samyaksaṃbodhi)',
+  preferredLabel: 'three times / unsurpassed perfect awakening',
   preferredLanguage: 'en',
   definition:
     '*Tryadhva* = past, present, future. *Anuttarā samyaksaṃbodhi* = "unsurpassed complete perfect awakening" — the ultimate state of buddhahood. Heart Sutra: Buddhas of all three times rely on *prajñāpāramitā* to attain this, democratizing awakening as a timeless cosmic truth.',

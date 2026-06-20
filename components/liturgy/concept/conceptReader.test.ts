@@ -132,4 +132,26 @@ describe('concept reader — binding/derivation contract', () => {
       ?.tokens.find((t) => t.text === 'cognition;');
     expect(cognition?.units).toEqual([]);
   });
+
+  it('closes cross-script asymmetries (content words lit in every script that has them)', () => {
+    const segById = (id: string) => derived.find((s) => s.id === id)!;
+    const tok = (id: string, lang: string, text: string) =>
+      segById(id).renderings.find((r) => r.lang === lang)?.tokens.find((t) => t.text === text);
+
+    // English: MAPLE's idiosyncratic skandha words now bind like their siblings.
+    expect(tok('emptiness-is-form', 'en', 'preference,')?.units).toEqual(['concept.skandha-aggregate']);
+    expect(tok('emptiness-is-form', 'en', 'information,')?.units).toEqual(['concept.skandha-aggregate']);
+    expect(tok('middle-no-aging-death', 'en', 'aging')?.units).toEqual(['concept.aging-death-jaramarana']);
+    expect(tok('mantra-prajna-spoken', 'en', 'mantra')?.units).toEqual(['concept.mantra-vidya']);
+
+    // Chinese: the rest of a registered phrase, not just its head character.
+    expect(tok('result-far-from-inversion', 'zh-Hant', '遠離')?.units).toEqual(['concept.inverted-view-viparyasa']);
+    expect(tok('result-ultimate-nirvana', 'zh-Hant', '究竟')?.units).toEqual(['concept.nirvana-extinguishing']);
+
+    // Tibetan: syllable-split rows are regrouped into whole words that bind.
+    expect(tok('middle-emptiness-no-form', 'bo-Tibt', 'སྟོང་པ་ཉིད')?.units).toEqual(['concept.emptiness-sunyata']);
+    expect(tok('middle-shariputra', 'bo-Tibt', 'ཤཱ་རིའི་བུ')?.units).toEqual(['concept.sariputra-addressee']);
+    expect(tok('middle-no-wisdom-no-attainment', 'bo-Tibt', 'ཡེ་ཤེས')?.units).toEqual(['concept.knowledge-jnana']);
+    expect(tok('opening-seeing', 'bo-Tibt', 'རྣམ་པར་བལྟའོ')?.units).toEqual(['concept.seeing-vyavalokita']);
+  });
 });
