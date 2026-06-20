@@ -137,8 +137,12 @@ const PhraseBlock: React.FC<{
       return { primary: `the sound “${piece.gloss}”`, secondary: `part of ${token.text} = ${wordGloss}${src ? ` (${src})` : ''}` };
     }
     if (piece?.akshara) {
+      // In etymology mode the syllable's sound is shown + highlighted beneath the
+      // glyph, so the tooltip carries the MEANING — never a useless "the sound
+      // <glyph>" (a glyph the reader can't pronounce). No gloss → no tooltip.
+      if (!wordGloss) return { primary: '', secondary: '' };
       const extra = src && !wordGloss.toLowerCase().includes(src.toLowerCase()) ? ` (${src})` : '';
-      return { primary: `the sound “${piece.pronunciation ?? piece.text}”`, secondary: wordGloss ? `part of “${wordGloss}”${extra}` : '' };
+      return { primary: `${wordGloss}${extra}`, secondary: `part of “${token.text}”` };
     }
     let primary = piece?.gloss ?? wordGloss;
     // No gloss and no concept = we have no meaning for this token. For sacred
@@ -172,10 +176,13 @@ const PhraseBlock: React.FC<{
     const showRom = !english; // romanization always shown for non-Latin scripts
     // Whole-line romanization fallback (e.g. Tibetan) when the tokens carry no
     // per-token sound — reliable, vs. mis-paired per-word sounds.
-    const hasPerTokenRom = r.tokens.some(
-      (t) => t.pronunciation || t.readings || t.segments?.some((s) => s.pronunciation || s.readings),
-    );
-    const showTranslit = !english && scriptOf(r.lang) !== 'Latn' && !hasPerTokenRom && !!r.transliteration;
+    // Whole-line romanization fallback: shown only when some pieces lack a
+    // per-piece sound (e.g. Tibetan particles), so it fills the gaps without being
+    // redundant where every syllable already shows its own sound.
+    const tokenHasFullRom = (t: AlignToken) =>
+      t.segments?.length ? t.segments.every((s) => s.pronunciation) : !!(t.pronunciation || t.readings);
+    const allRom = r.tokens.length > 0 && r.tokens.every(tokenHasFullRom);
+    const showTranslit = !english && scriptOf(r.lang) !== 'Latn' && !!r.transliteration && !allRom;
     return (
       <div key={r.lang}>
         <div className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: '0.5em', rowGap: '0.5rem' }}>

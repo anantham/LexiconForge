@@ -37,6 +37,30 @@ const clean = (t: string) => t.replace(/་$/, '').replace(/[.,;:!?"'()\[\]।�
 const resolve = (lang: string, script: string, t: string): string[] =>
   BIND[t] ?? conceptsForToken(lang as any, script as any, t);
 
+// Split a Tibetan word into tsheg-separated syllables, each paired with its
+// per-syllable Lhasa sound from the concept's curated bo attestation (e.g.
+// "pa-rol-tu chin-pa", which IS syllable-aligned). Only paired when the syllable
+// counts match — otherwise the syllable shows no sound (and the whole-line Lhasa
+// beneath still carries the pronunciation). No guessing on sacred text.
+const lhasaOf = (p?: string): string | undefined =>
+  p ? (p.match(/([^;(]+?)\s*\(Lhasa\)/)?.[1] ?? p.replace(/\s*\([^)]*\)/g, '')).trim() : undefined;
+const tibetanSegments = (token: string) => {
+  const key = clean(token);
+  const syls = key.split(/(?<=་)/).filter(Boolean);
+  let roms: string[] | undefined;
+  for (const cid of resolve('bo', 'Tibt', key)) {
+    const att = getConcept(cid)?.attestations?.find(
+      (a: any) => a.language === 'bo' && a.script === 'Tibt' && clean(a.text) === key,
+    );
+    const lhasa = lhasaOf(att?.pronunciation);
+    if (lhasa) {
+      const r = lhasa.split(/[-\s]+/).filter(Boolean);
+      if (r.length === syls.length) { roms = r; break; }
+    }
+  }
+  return syls.map((s, i) => ({ text: s, pronunciation: roms?.[i], akshara: true }));
+};
+
 // English grammar glue (no concept). An unbound word NOT in this set is treated
 // as content — rendered normally with no tooltip — rather than mislabeled as
 // "grammar this language adds". Deliberately conservative (clear function words
@@ -184,6 +208,33 @@ export function deriveAlignSegment(
         renderings.push({ lang: 'sa-Deva', label: 'Sanskrit (Devanāgarī)', tokens: deva });
         continue;
       }
+    }
+    if (sv.script === 'Tibt') {
+      // Break each Tibetan word into tsheg syllables (fine-grained, hoverable),
+      // with per-syllable Lhasa where reliable. Two sources, both gated by count:
+      //   1) the row's whole-line transliteration split per syllable, when its
+      //      count matches the row's total syllables (covers words like the
+      //      Avalokiteśvara name that have no citation attestation);
+      //   2) else the concept's curated bo attestation, per word.
+      const tokSyls = sv.toks.map((t) => clean(t).split(/(?<=་)/).filter(Boolean));
+      const total = tokSyls.reduce((n, s) => n + s.length, 0);
+      const rowRoms = (sv.translit ?? '').split(/[-\s]+/).filter(Boolean);
+      const positional = rowRoms.length === total;
+      let cur = 0;
+      const tokens = sv.toks.map((t, ti) => {
+        const base = tokenFor('bo', 'Tibt', t);
+        const syls = tokSyls[ti];
+        const perWord = positional ? null : tibetanSegments(t);
+        base.segments = syls.map((s, si) => ({
+          text: s,
+          pronunciation: positional ? rowRoms[cur + si] : perWord?.[si]?.pronunciation,
+          akshara: true,
+        }));
+        cur += syls.length;
+        return base;
+      });
+      renderings.push({ lang: sv.lang, label: sv.label, tokens, transliteration: sv.translit });
+      continue;
     }
     const tokens = sv.toks.map((t, i) => tokenFor(langSub(sv.lang), sv.script, t, undefined, sv.reads[i]));
     renderings.push({ lang: sv.lang, label: sv.label, tokens, transliteration: sv.translit });
