@@ -262,14 +262,15 @@ const PhraseBlock: React.FC<{
       // The glyph is on screen and its sound is shown + highlighted beneath it, so
       // the tooltip carries only the MEANING. No "part of <glyph>" line — that just
       // names the word the reader is already looking at (and the highlight already
-      // shows which slice this is). No gloss → no tooltip.
-      if (!wordGloss) return { primary: '', secondary: '' };
+      // shows which slice this is). No concept → fall back to the word's literal
+      // gloss (e.g. "not", "separate"); only truly blank if neither exists.
+      if (!wordGloss) return { primary: token.gloss || '', secondary: '' };
       const extra = src && !wordGloss.toLowerCase().includes(src.toLowerCase()) ? ` (${src})` : '';
       return { primary: `${wordGloss}${extra}`, secondary: '' };
     }
-    let primary = piece?.gloss ?? wordGloss;
-    // No gloss and no concept = we have no meaning for this token. For sacred
-    // text, show NO tooltip rather than the misleading "a grammar word".
+    // Concept gloss if any; else the word's literal gloss (so connective words
+    // like 故 / 一切 still show their plain meaning). Blank only if none exists.
+    let primary = piece?.gloss || wordGloss || token.gloss || '';
     if (!primary) return { primary: '', secondary: '' };
     // If the gloss merely restates the word on screen (English row: hovering
     // "Wisdom" → "wisdom (prajñā)"), keep only what's new — the parenthetical
