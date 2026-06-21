@@ -1,7 +1,7 @@
 import type { AlignSegment, AlignUnit, AlignRendering, AlignToken, AlignRelation } from '../../../types/liturgyAlign';
 import type { TripleScriptWitnessSegment, ScriptVariant, Witness } from '../../../types/liturgy';
 import { conceptsForToken, getConcept } from '../../../data/concepts/lookup';
-import { BIND, EN_BIND, SPLIT, EXTRA_DEVA, CHAR_JA, SEGMENT_BIND } from '../../../data/liturgy/heart-sutra-bindings';
+import { BIND, EN_BIND, SPLIT, EXTRA_DEVA, CHAR_JA, SEGMENT_BIND, WORD_GLOSS } from '../../../data/liturgy/heart-sutra-bindings';
 import { aksharasOf, romanizationMatches } from './devanagari';
 
 /**
@@ -132,12 +132,12 @@ export function deriveAlignSegment(
     } else {
       const cids = resolveLocal(lang, script, key);
       cids.forEach(useUnit);
-      // Unresolved or deliberately-unbound tokens carry no concept and no gloss —
-      // a function word (故, na, particles) gets no tooltip rather than a misleading
-      // "(not aligned yet)" label. The token still renders; it just makes no claim.
+      // No concept → fall back to a literal word-gloss (故 → "therefore", na →
+      // "not") so every word still shows its plain meaning; particles with no
+      // gloss stay silent (no misleading "(not aligned yet)").
       base = cids.length
         ? { text: t, units: cids, relation: 'semantic' as AlignRelation }
-        : { text: t, units: [] };
+        : { text: t, units: [], gloss: WORD_GLOSS[key] ?? WORD_GLOSS[key.toLowerCase()] };
     }
     if (readings && Object.keys(readings).length) base.readings = readings;
     else if (pron) base.pronunciation = pron;
@@ -195,6 +195,7 @@ export function deriveAlignSegment(
         segments: ak.map((a, i) => ({ text: a.text, pronunciation: a.rom, akshara: true, units: perAkshara[i] })),
       };
       if (all.length) tok.relation = 'semantic';
+      else tok.gloss = WORD_GLOSS[key.toLowerCase()]; // literal gloss for unbound Sanskrit words
       out.push(tok);
     }
     return out;

@@ -121,11 +121,11 @@ describe('concept reader — binding/derivation contract', () => {
     // Tibetan རིག inside མ་རིག་པ is ignorance — not vidyā / mantra.
     expect(tok('middle-no-ignorance', 'bo-Tibt', 'རིག')?.units).toEqual(['concept.ignorance-avidya']);
 
-    // The verb 知 "to know" (≠ the noun jñāna) carries no concept here, and must
-    // not show "(not aligned yet)" — it is deliberately unbound, like en "know:".
+    // The verb 知 "to know" (≠ the noun jñāna) carries no concept here, but does
+    // get its literal word-gloss ("to know") — never the jñāna concept.
     const zhi = tok('mantra-therefore-know', 'zh-Hant', '知');
     expect(zhi?.units).toEqual([]);
-    expect(zhi?.gloss).toBeUndefined();
+    expect(zhi?.gloss).toBe('to know');
 
     // English "cognition" (= vijñāna, the dhātu head) is not bound to jñāna.
     const cognition = segById('middle-no-dhatus').renderings
@@ -178,5 +178,20 @@ describe('concept reader — binding/derivation contract', () => {
         expect(/[ऀ-ॿ㐀-鿿]/.test(c.query ?? ''), `${c.short} is not native script`).toBe(true);
       }
     }
+  });
+
+  it('every Sanskrit/Chinese word shows a gloss (concept or literal) — no blank hovers', () => {
+    const blank: string[] = [];
+    for (const seg of derived) {
+      for (const r of seg.renderings) {
+        if (r.lang !== 'sa-Deva' && r.lang !== 'zh-Hant') continue;
+        for (const t of r.tokens) {
+          const hasConcept = (t.units ?? []).length > 0;
+          const isSeparator = /^[·:।॥.,]+$/u.test(t.text);
+          if (!hasConcept && !t.gloss && !isSeparator) blank.push(`${r.lang}:${t.pronunciation ?? t.text}`);
+        }
+      }
+    }
+    expect(blank, `words with no tooltip: ${blank.join(', ')}`).toEqual([]);
   });
 });
