@@ -127,11 +127,11 @@ describe('concept reader — binding/derivation contract', () => {
     expect(zhi?.units).toEqual([]);
     expect(zhi?.gloss).toBe('to know');
 
-    // English "cognition" (= vijñāna, the dhātu head) is not bound to jñāna.
+    // English "cognition" (= vijñāna / manas, the sixth dhātu) binds to six-faculties, not jñāna.
     const cognition = segById('middle-no-dhatus').renderings
       .find((r) => r.lang === 'en')
       ?.tokens.find((t) => t.text === 'cognition;');
-    expect(cognition?.units).toEqual([]);
+    expect(cognition?.units).toEqual(['concept.six-faculties']);
   });
 
   it('closes cross-script asymmetries (content words lit in every script that has them)', () => {

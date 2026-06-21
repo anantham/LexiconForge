@@ -211,9 +211,46 @@ export const EN_BIND: Record<string, string[]> = {
   origination: ['concept.four-truths'],
   stopping: ['concept.four-truths'],
   cognition: ['concept.knowledge-jnana'],
+  // additional seeing form
+  seeing: ['concept.seeing-vyavalokita'],
+  // unarisen / unceased forms across witnesses
+  birth: ['concept.unarisen-anutpada'],
+  destruction: ['concept.unarisen-anutpada'],
+  // rūpa synonyms (each translator picks a different word for the first sense-object)
+  forms: ['concept.form-rupa'],
+  colour: ['concept.form-rupa'],
+  color: ['concept.form-rupa'],
+  shape: ['concept.form-rupa'],
+  // dhātu / element / realm synonyms
+  element: ['concept.realm-dhatu'],
+  elements: ['concept.realm-dhatu'],
+  realms: ['concept.realm-dhatu'],
+  // dharma-phenomena synonym
+  phenomena: ['concept.dharma-phenomena'],
+  // knowledge (jñāna) — distinct from wisdom (prajñā)
+  knowledge: ['concept.knowledge-jnana'],
+  // Nirvāṇa with macron (Conze, Red Pine, Thich Nhat Hanh spellings)
+  'nirvāṇa': ['concept.nirvana-extinguishing'],
+  // Śāriputra with diacritics (Conze)
+  'śāriputra': ['concept.sariputra-addressee'],
+  // mantra / spell synonyms
+  spell: ['concept.mantra-vidya'],
+  // obstruction synonyms
+  obstructions: ['concept.obstruction-cittavarana'],
+  obstacles: ['concept.obstruction-cittavarana'],
+  // additional skandha-member words
+  impulse: ['concept.skandha-aggregate'],
+  sensation: ['concept.skandha-aggregate'],
+  memory: ['concept.skandha-aggregate'],
+  formations: ['concept.skandha-aggregate'],
+  // cause = samudaya (second noble truth)
+  cause: ['concept.four-truths'],
+  // suffering synonym (Thich Nhat Hanh)
+  'ill-being': ['concept.suffering-duhkha'],
   // mind-states near the end
   attainment: ['concept.attainment-prapti'],
   attain: ['concept.attainment-prapti'],
+  attained: ['concept.attainment-prapti'],
   hindrance: ['concept.obstruction-cittavarana'],
   fear: ['concept.fearless-atrasta'],
   fears: ['concept.fearless-atrasta'],
@@ -285,12 +322,72 @@ export const CHAR_JA: Record<string, string> = {
  * source). Distinct from "not aligned yet". Consulted before BIND / EN_BIND.
  */
 export const SEGMENT_BIND: Record<string, Record<string, string[]>> = {
-  'middle-no-four-truths': { '滅': ['concept.four-truths'] },
+  // ── existing homograph fixes ──────────────────────────────────────────────
+  'middle-no-four-truths': {
+    '滅': ['concept.four-truths'],            // 苦集滅道: cessation = nirodha truth
+    source: ['concept.four-truths'],          // Red Pine's samudaya rendering
+    relief: ['concept.four-truths'],          // Red Pine's nirodha rendering
+    end: ['concept.four-truths'],             // Thich Nhat Hanh's nirodha rendering
+  },
   'middle-no-other-skandhas': { '行': ['concept.skandha-aggregate'] },
   'middle-no-ignorance': { 'རིག': ['concept.ignorance-avidya'] },
   'mantra-therefore-know': { '知': [], 'jñātavyaṃ': [] },
-  'middle-no-dhatus': { cognition: [] },
+  // cognition = vijñāna/manas (sixth faculty), not jñāna — bind to six-faculties
+  'middle-no-dhatus': {
+    cognition: ['concept.six-faculties'],
+    world: ['concept.realm-dhatu'],           // Sariputta Ambedkar's dhātu rendering
+    organs: ['concept.six-faculties'],        // Thich Nhat Hanh "six Sense Organs"
+  },
   'middle-because-no-attainment': { practicing: [] },
+  // ── new witness-specific overrides from English alignment audit ───────────
+  // In "no birth and no death" context, "death" = anirodha (not jarāmaraṇa)
+  'middle-no-arise-no-cease': {
+    death: ['concept.unarisen-anutpada'],     // Thich Nhat Hanh + Sariputta Ambedkar
+    stopped: ['concept.unarisen-anutpada'],   // Conze (1958)
+    produced: ['concept.unarisen-anutpada'],  // Conze (1958) "not produced"
+  },
+  // The sixth sense-object (dharmas / mental objects) expressed as "thought" / "objects"
+  'middle-no-six-objects': {
+    objects: ['concept.dharma-phenomena'],    // Conze + Bodhi Sangha
+    object: ['concept.dharma-phenomena'],     // Thich Nhat Hanh "Object of Mind"
+    thought: ['concept.dharma-phenomena'],    // MAPLE + Red Pine
+  },
+  // Inverted-view paraphrases across all five witnesses
+  'result-far-from-inversion': {
+    overcome: ['concept.inverted-view-viparyasa'],  // Conze (1958)
+    distorted: ['concept.inverted-view-viparyasa'], // Red Pine (2004)
+    wrong: ['concept.inverted-view-viparyasa'],     // Thich Nhat Hanh (2014)
+    delusive: ['concept.inverted-view-viparyasa'],  // Bodhi Sangha
+    deluded: ['concept.inverted-view-viparyasa'],   // Sariputta Ambedkar
+  },
+  // Sariputta splits svabhāva into two tokens "own" + "being"
+  'opening-seeing': {
+    own: ['concept.svabhava-own-being'],
+    being: ['concept.svabhava-own-being'],
+  },
+  // "knowledge" in the mantra titles = vidyā (the spell), not jñāna
+  'mantra-great-knowledge': {
+    knowledge: ['concept.mantra-vidya'],
+  },
+  // past/present/future = the three times (tryadhva)
+  'buddhas-all-three-times': {
+    past: ['concept.three-times-tryadhva'],
+    present: ['concept.three-times-tryadhva'],
+    future: ['concept.three-times-tryadhva'],
+  },
+  // Red Pine: "realize" = attain (prāpti); "Enlightenment" = unsurpassed bodhi
+  'buddhas-attain-bodhi': {
+    realize: ['concept.attainment-prapti'],
+    enlightenment: ['concept.three-times-tryadhva'],
+  },
+  // Conze: "Perfection of Wisdom" → paramita + prajna
+  'buddhas-rely-prajna': {
+    perfection: ['concept.perfection-paramita'],
+  },
+  // Conze: "gone beyond" = pāramitā
+  'opening-practice': {
+    beyond: ['concept.perfection-paramita'],
+  },
 };
 
 /**
