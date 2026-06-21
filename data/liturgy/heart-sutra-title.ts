@@ -83,9 +83,30 @@ export const heartSutraTitle: AlignSegment = {
       lang: 'bo-Tibt',
       label: 'Tibetan',
       tokens: [
-        { text: 'ཤེས་རབ', units: ['concept.wisdom-prajna'], relation: 'semantic', pronunciation: 'she-rab' },
-        { text: 'ཕ་རོལ་ཏུ་ཕྱིན་པ', units: ['concept.perfection-paramita'], relation: 'semantic', pronunciation: 'pa-rol-tu chin-pa' },
-        { text: 'སྙིང་པོ', units: ['u-heart'], relation: 'semantic', pronunciation: 'nying-po' },
+        {
+          text: 'ཤེས་རབ', units: ['concept.wisdom-prajna'], relation: 'semantic', pronunciation: 'she-rab',
+          segments: [
+            { text: 'ཤེས་', pronunciation: 'she', akshara: true },
+            { text: 'རབ', pronunciation: 'rab', akshara: true },
+          ],
+        },
+        {
+          text: 'ཕ་རོལ་ཏུ་ཕྱིན་པ', units: ['concept.perfection-paramita'], relation: 'semantic', pronunciation: 'pa-rol-tu chin-pa',
+          segments: [
+            { text: 'ཕ་', pronunciation: 'pa', akshara: true },
+            { text: 'རོལ་', pronunciation: 'rol', akshara: true },
+            { text: 'ཏུ་', pronunciation: 'tu', akshara: true },
+            { text: 'ཕྱིན་', pronunciation: 'chin', akshara: true },
+            { text: 'པ', pronunciation: 'pa', akshara: true },
+          ],
+        },
+        {
+          text: 'སྙིང་པོ', units: ['u-heart'], relation: 'semantic', pronunciation: 'nying-po',
+          segments: [
+            { text: 'སྙིང་', pronunciation: 'nying', akshara: true },
+            { text: 'པོ', pronunciation: 'po', akshara: true },
+          ],
+        },
       ],
     },
     {
