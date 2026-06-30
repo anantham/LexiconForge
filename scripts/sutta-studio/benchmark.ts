@@ -1553,6 +1553,12 @@ const runBenchmark = async () => {
                       weaver: pipelineResult.weaver.output,
                       typesetter: pipelineResult.typesetter.output,
                     },
+                    golden: {
+                      anatomist: goldenAnatomist ?? null,
+                      lexicographer: goldenLexicographer ?? null,
+                      weaver: goldenWeaver ?? null,
+                      typesetter: goldenTypesetter ?? null,
+                    },
                     segments: phaseSegments.map(s => ({ pali: s.pali })),
                   };
                   const score = scorePhase(scoringInput, testPhaseId, settings.model);
