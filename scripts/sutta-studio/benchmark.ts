@@ -32,6 +32,9 @@ import {
   type QualityScore,
 } from './quality-scorer';
 import { generateLeaderboard } from './generate-leaderboard';
+import { DpdProvider } from '../../services/providers/dpd';
+import { loadDpdSubsetFromFs } from '../../services/providers/dpd-loader-fs';
+import type { LexiconEntry } from '../../services/providers/types';
 
 type MetricRow = {
   timestamp: string;
@@ -898,6 +901,35 @@ type PipelinePhaseResult = {
   typesetter: { output: TypesetterPass | null; error: string | null; llm: any };
 };
 
+// DPD grounding for the benchmark pipeline (matches production compiler/index.ts).
+// Cached per workId so the ~700KB headword subset loads once, not per phase.
+let _dpdCache: { uid: string; provider: DpdProvider | null } | null = null;
+const getDpdProvider = (uid: string): DpdProvider | null => {
+  if (_dpdCache?.uid === uid) return _dpdCache.provider;
+  let provider: DpdProvider | null = null;
+  try {
+    provider = new DpdProvider(loadDpdSubsetFromFs(uid));
+  } catch (e: any) {
+    console.warn(`[DPD] no subset for ${uid} (run \`npm run build:dpd -- ${uid}\`): ${e?.message || e}`);
+  }
+  _dpdCache = { uid, provider };
+  return provider;
+};
+const buildDpdLookups = async (
+  provider: DpdProvider | null,
+  items: Array<{ key: string; surface: string }>
+): Promise<Record<string, LexiconEntry[]>> => {
+  const out: Record<string, LexiconEntry[]> = {};
+  if (!provider) return out;
+  for (const { key, surface } of items) {
+    try {
+      const entries = await provider.lookup(surface);
+      if (entries.length > 0) out[key] = entries;
+    } catch { /* skip this word on lookup error */ }
+  }
+  return out;
+};
+
 const runPipelineForPhase = async (params: {
   phaseId: string;
   workId: string;
@@ -920,6 +952,14 @@ const runPipelineForPhase = async (params: {
     typesetter: { output: null, error: null, llm: null },
   };
 
+  // DPD grounding (matches production): give the Anatomist + Lexicographer real
+  // lexical data instead of letting the model guess etymology/senses.
+  const dpdProvider = getDpdProvider(workId);
+  const surfaceWords = Array.from(
+    new Set(segments.flatMap((s) => (s.pali || '').split(/\s+/).filter(Boolean)))
+  ).map((w) => ({ key: w, surface: w }));
+  const anatomistDpd = await buildDpdLookups(dpdProvider, surfaceWords);
+
   // 1. ANATOMIST
   const anatomistResult = await runAnatomistPass({
     phaseId,
@@ -927,6 +967,7 @@ const runPipelineForPhase = async (params: {
     segments,
     settings,
     structuredOutputs,
+    dpdLookups: anatomistDpd,
     llmCaller: caller,
     maxTokens,
   });
@@ -946,13 +987,20 @@ const runPipelineForPhase = async (params: {
     return result;
   }
 
-  // 2. LEXICOGRAPHER
+  // 2. LEXICOGRAPHER (now grounded with DPD attestations, keyed by word id)
+  const lexDpd = anatomistForDownstream
+    ? await buildDpdLookups(
+        dpdProvider,
+        anatomistForDownstream.words.map((w) => ({ key: w.id, surface: w.surface }))
+      )
+    : {};
   const lexicographerResult = await runLexicographerPass({
     phaseId,
     workId,
     segments,
     anatomist: anatomistForDownstream,
     dictionaryEntries: {},
+    dpdLookups: lexDpd,
     settings,
     structuredOutputs,
     llmCaller: caller,
@@ -1031,7 +1079,13 @@ const runBenchmark = async () => {
   const workId = BENCHMARK_CONFIG.fixture.workId;
   const segments = phase.canonicalSegments;
 
-  if (!isFixturePhase(phase)) {
+  // The full-phase fixture (anatomist/weaver/expectedPhaseView) is only consumed
+  // by legacy single-phase mode. Per-phase pipeline mode (phasesToTest) sources
+  // every golden from loadAllGoldenFixtures(), so a skeleton-only fixture is
+  // correct there — this guard was unconditional, which made pipeline mode
+  // impossible to start.
+  const isPerPhasePipelineMode = Boolean(BENCHMARK_CONFIG.phasesToTest?.length);
+  if (!isPerPhasePipelineMode && !isFixturePhase(phase)) {
     throw new Error(`Fixture phase "${phaseKey}" is a skeleton fixture without pass data (anatomist, weaver, etc.). Use a full FixturePhase for benchmarking.`);
   }
 
@@ -1359,6 +1413,14 @@ const runBenchmark = async () => {
           // Collect quality scores for each phase
           const qualityScores: QualityScore[] = [];
 
+          // Circuit-breaker: stop burning tokens on a clearly-degrading model.
+          const CB_MAX_FAIL_STREAK = 3;   // consecutive phases failing a required pass
+          const CB_FLOOR_AFTER = 4;       // start floor-checking once this many phases are scored
+          const CB_SCORE_FLOOR = 0.3;     // abort if running avg overall drops below this
+          let phaseFailStreak = 0;
+          let phasesAttempted = 0;
+          let earlyStopReason: string | null = null;
+
           for (const testPhaseId of phasesToTest) {
             const phaseSegments = getSegmentsForPhase(testPhaseId, goldenFixtures);
             if (phaseSegments.length === 0) {
@@ -1541,6 +1603,27 @@ const runBenchmark = async () => {
             };
             progressState.message = `Completed pipeline for ${testPhaseId}`;
             await writeProgressState(BENCHMARK_CONFIG.outputRoot, progressPath, progressState);
+
+            // ── Circuit-breaker: abort this model early if it's clearly degrading ──
+            phasesAttempted++;
+            const requiredOk = !!(
+              pipelineResult.anatomist.output &&
+              pipelineResult.lexicographer.output &&
+              pipelineResult.weaver.output
+            );
+            phaseFailStreak = requiredOk ? 0 : phaseFailStreak + 1;
+            if (phaseFailStreak >= CB_MAX_FAIL_STREAK) {
+              earlyStopReason = `${phaseFailStreak} consecutive phases failed a required pass`;
+            } else if (qualityScores.length >= CB_FLOOR_AFTER) {
+              const avgSoFar = qualityScores.reduce((s, q) => s + q.overallScore, 0) / qualityScores.length;
+              if (avgSoFar < CB_SCORE_FLOOR) {
+                earlyStopReason = `avg overall ${avgSoFar.toFixed(2)} below floor ${CB_SCORE_FLOOR} after ${qualityScores.length} phases`;
+              }
+            }
+            if (earlyStopReason) {
+              console.warn(`[CircuitBreaker] ${runId}: stopping early — ${earlyStopReason} (attempted ${phasesAttempted}/${phasesToTest.length} phases)`);
+              break;
+            }
           }
 
           // ─────────────────────────────────────────────────────────────────────
@@ -1578,6 +1661,8 @@ const runBenchmark = async () => {
                 provider: settings.provider,
                 promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
                 phaseCount: qualityScores.length,
+                phasesAttempted,
+                earlyStopReason,
                 averages: {
                   coverage: avgCoverage,
                   validity: avgValidity,
@@ -1597,6 +1682,15 @@ const runBenchmark = async () => {
                 `[Pipeline] Quality scores: coverage=${avgCoverage.toFixed(2)}, validity=${avgValidity.toFixed(2)}, richness=${avgRichness.toFixed(2)}, grammar=${avgGrammar.toFixed(2)}, overall=${avgOverall.toFixed(2)}`
               );
             }
+          }
+
+          // ── Loud per-model summary (failures surfaced, not buried in metrics.json) ──
+          {
+            const scored = qualityScores.length;
+            const failed = Math.max(0, phasesAttempted - scored);
+            const parts = [`${scored} scored`, `${failed} failed`, `of ${phasesToTest.length} phases`];
+            if (earlyStopReason) parts.push(`STOPPED EARLY: ${earlyStopReason}`);
+            console.log(`[Summary] ${runId} (${settings.model}): ${parts.join(' · ')}`);
           }
 
           // Skip remaining passes in the old loop - we've handled them all

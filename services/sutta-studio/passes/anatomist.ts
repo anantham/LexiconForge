@@ -6,6 +6,7 @@
 
 import type { AppSettings } from '../../../types';
 import type { AnatomistPass, CanonicalSegment } from '../../../types/suttaStudio';
+import type { LexiconEntry } from '../../providers/types';
 import { buildAnatomistPrompt } from '../prompts';
 import { buildPhaseStateEnvelope, parseJsonResponse } from '../utils';
 import { anatomistResponseSchema } from '../schemas';
@@ -19,6 +20,7 @@ export const runAnatomistPass = async (params: {
   settings: AppSettings;
   structuredOutputs: boolean;
   retrievalContext?: string;
+  dpdLookups?: Record<string, LexiconEntry[]>;
   signal?: AbortSignal;
   llmCaller?: LLMCaller;
   maxTokens?: number;
@@ -30,6 +32,7 @@ export const runAnatomistPass = async (params: {
     settings,
     structuredOutputs,
     retrievalContext,
+    dpdLookups,
     signal,
     llmCaller = defaultLLMCaller,
     maxTokens = 16000,
@@ -48,7 +51,7 @@ export const runAnatomistPass = async (params: {
   const requestName = 'anatomist';
 
   try {
-    const prompt = buildAnatomistPrompt(phaseId, segments, phaseState, retrievalContext);
+    const prompt = buildAnatomistPrompt(phaseId, segments, phaseState, retrievalContext, dpdLookups);
     const llm = await llmCaller({
       settings,
       messages: [
