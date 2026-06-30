@@ -895,7 +895,13 @@
           "tooltips": [
             "Name ending",
             "Labels the town that follows"
-          ]
+          ],
+          "morph": {
+            "case": "acc",
+            "number": "sg",
+            "gender": "n",
+            "note": "place-name in -ṁ"
+          }
         },
         {
           "id": "d2s1",
@@ -926,7 +932,12 @@
           "tooltips": [
             "[Genitive Plural] Possession",
             "\"Of the Kurus\" — their town"
-          ]
+          ],
+          "morph": {
+            "case": "gen",
+            "number": "pl",
+            "gender": "m"
+          }
         },
         {
           "id": "d4s1",
@@ -956,7 +967,12 @@
           "tooltips": [
             "[Nominative Singular] Subject marker",
             "\"A town\" — what we are talking about"
-          ]
+          ],
+          "morph": {
+            "case": "nom",
+            "number": "sg",
+            "gender": "m"
+          }
         }
       ],
       "relations": [
@@ -2718,7 +2734,10 @@
             "  → Mindfulness IS the removing",
             "  → Dry insight approach",
             "⚡ Both readings are grammatically valid"
-          ]
+          ],
+          "morph": {
+            "note": "absolutive (gerund): -ya marks a completed action before the main verb; the form itself carries the tense"
+          }
         },
         {
           "id": "ab2s1",
@@ -2737,7 +2756,12 @@
           "tooltips": [
             "[Locative Singular] 📍 \"In/regarding the...\" — scope of action",
             "What the removing applies to"
-          ]
+          ],
+          "morph": {
+            "case": "loc",
+            "number": "sg",
+            "gender": "m"
+          }
         },
         {
           "id": "ab3s1",
@@ -2781,13 +2805,28 @@
             "3. Sloth & torpor",
             "4. Restlessness & remorse",
             "5. Doubt"
-          ]
+          ],
+          "morph": {
+            "case": "acc",
+            "number": "sg",
+            "gender": "n"
+          }
         }
       ],
       "handoff": {
         "confidence": "high",
         "notes": "Extracted from demoPacket"
-      }
+      },
+      "relations": [
+        {
+          "id": "r1",
+          "fromSegmentId": "ab2s2",
+          "type": "location",
+          "label": "In the world",
+          "targetWordId": "ab1",
+          "status": "confirmed"
+        }
+      ]
     },
     "phase-ac": {
       "id": "phase-ac",
