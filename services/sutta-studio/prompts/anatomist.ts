@@ -62,7 +62,7 @@ export const buildAnatomistPrompt = (
 
   const dpdBlock = dpdLookups ? renderAnatomistDpdBlock(dpdLookups) : '';
   const dpdSection = dpdBlock
-    ? `\nDPD attestations (Digital Pāli Dictionary — GROUND your morpheme split, roots/prefixes, and etymology in these; prefer them over guessing. Inflected surface forms are matched to their lemma):\n${dpdBlock}\n`
+    ? `\nDPD attestations (Digital Pāli Dictionary) for the words below. Use them to INFORM your morpheme split, roots/prefixes, and etymology — they do NOT replace the split.\nCRITICAL: you MUST still break each word into its prefix/root/suffix segments (e.g. nigamo → ni·gam·o, vineyya → vi·ney·ya, abhijjhādomanassaṁ → abhi·jjhā·domanass·aṁ) and attach the DPD-derived meaning to the RIGHT segment. NEVER collapse a word into one segment just because the DPD lists it as a single headword/lemma — the DPD gloss is the meaning of the WHOLE word; your job is to decompose it. Inflected surface forms are matched to their lemma:\n${dpdBlock}\n`
     : '';
 
   const paliText = segments.map((seg) => seg.pali).join(' ');
