@@ -43,9 +43,17 @@ export type PipelineOutput = {
   segments: Array<{ pali: string }>;
 };
 
+/**
+ * Scoring-rubric version. v2.0 = the Gate/Fidelity/Usability redesign (ADR SUTTA-009):
+ * gateFactor multiplier, sequence-aligned micro-F1 fidelity, paliWordCoverage as a Gate.
+ * v1 (density) scores are NOT comparable to v2 and must not share a leaderboard.
+ */
+export const RUBRIC_VERSION = '2.0';
+
 export type QualityScore = {
   phase: string;
   model: string;
+  rubricVersion: string;
   // Coverage
   paliWordCoverage: number;
   englishMappingRatio: number;
@@ -55,7 +63,7 @@ export type QualityScore = {
   noDuplicateMappings: number;
   textIntegrity: number;
   // Richness
-  tooltipDensity: number;
+  tooltipCoverage: number;
   sensePolysemy: number;
   senseDistinctness: number;  // fraction of sense-pairs that are NOT near-duplicates (anti-vacuous-polysemy)
   morphDataPresent: number;
@@ -125,17 +133,6 @@ const countDistinctClusters = (items: string[][]): number => {
   return reps.length;
 };
 
-/** Token-set F1 (precision+recall harmonic mean) — rewards overlap, penalizes extras. */
-const tokenF1 = (gold: string[], model: string[]): number => {
-  const g = new Set(gold), m = new Set(model);
-  if (g.size === 0 && m.size === 0) return 1;
-  if (g.size === 0 || m.size === 0) return 0;
-  let inter = 0;
-  for (const x of m) if (g.has(x)) inter++;
-  const p = inter / m.size, r = inter / g.size;
-  return p + r > 0 ? (2 * p * r) / (p + r) : 0;
-};
-
 // ─────────────────────────────────────────────────────────────────────────────
 // SCORING FUNCTIONS (exported for use in benchmark.ts)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -144,7 +141,7 @@ export function scoreAnatomist(data: AnatomistPass, inputPali: string): {
   paliWordCoverage: number;
   noEmptySegments: number;
   textIntegrity: number;
-  tooltipDensity: number;
+  tooltipCoverage: number;
   morphDataPresent: number;
 } {
   const words = data?.words || [];
@@ -161,22 +158,25 @@ export function scoreAnatomist(data: AnatomistPass, inputPali: string): {
     ? 1 - (emptySegments / segments.length)
     : 0;
 
-  // Text integrity: do segments concatenate to surface form?
-  let textIntegrity = 1;
+  // Text integrity: FRACTION of words whose segments concatenate back to the surface.
+  // (Was binary — one bad word zeroed the phase, which the gate multiplier then made
+  // catastrophic. Fractional distinguishes a single sandhi slip from total corruption
+  // and feeds the gate proportionally: total corruption → 0, one slip → a small dent.)
+  let reconstructed = 0;
   for (const word of words) {
-    const wordSegments = segments.filter(s => s.wordId === word.id);
-    const concat = wordSegments.map(s => s.text).join('');
-    // Normalize for case comparison
-    if (concat.toLowerCase() !== word.surface.toLowerCase()) {
-      textIntegrity = 0;
-      break;
-    }
+    const concat = segments.filter(s => s.wordId === word.id).map(s => s.text).join('');
+    if (concat.toLowerCase() === (word.surface || '').toLowerCase()) reconstructed++;
   }
+  const textIntegrity = words.length > 0 ? reconstructed / words.length : 1;
 
-  // Tooltip density: average tooltips per segment
-  const totalTooltips = segments.reduce((sum, s) => sum + (s.tooltips?.length || 0), 0);
-  const avgTooltips = segments.length > 0 ? totalTooltips / segments.length : 0;
-  const tooltipDensity = Math.min(1, avgTooltips / 2); // 2 tooltips per segment = 100%
+  // Tooltip COVERAGE: fraction of segments that carry at least one tooltip.
+  // (Was avg-tooltips-per-segment — a DENSITY metric that punished correct
+  // morpheme splitting: splitting a lumped stem into N segments diluted the
+  // average even with the same total explanation. Coverage is split-invariant —
+  // every segment explained = 1.0 whether the word is 1 segment or 4. The
+  // QUALITY/correctness of the explanation is measured by contentFidelity.)
+  const explainedSegments = segments.filter(s => (s.tooltips?.length || 0) > 0).length;
+  const tooltipCoverage = segments.length > 0 ? explainedSegments / segments.length : 0;
 
   // Morph data presence — RESTRAINT-AWARE.
   // Inflectional morphology (case/number/gender/tense) belongs on the SUFFIX
@@ -194,7 +194,7 @@ export function scoreAnatomist(data: AnatomistPass, inputPali: string): {
     paliWordCoverage,
     noEmptySegments,
     textIntegrity,
-    tooltipDensity,
+    tooltipCoverage,
     morphDataPresent,
   };
 }
@@ -302,16 +302,39 @@ export function scoreGrammar(data: AnatomistPass): {
 // compare morpheme boundaries (segmentation) and etymology/gloss tokens (content).
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Index a pass's words by lowercased surface form (the cross-pass join key). */
-const indexWordsBySurface = (
-  pass: AnatomistPass | null | undefined
-): Map<string, { id: string; segmentIds: string[] }> => {
-  const map = new Map<string, { id: string; segmentIds: string[] }>();
-  for (const w of (pass?.words || [])) {
-    const key = (w.surface || '').toLowerCase();
-    if (key && !map.has(key)) map.set(key, { id: w.id, segmentIds: w.segmentIds || [] });
+/** Normalized surface key for cross-pass word alignment (lowercase + Unicode NFC). */
+const normSurface = (s: string | undefined): string => (s || '').toLowerCase().normalize('NFC');
+
+/**
+ * Align two word arrays by normalized surface via LCS sequence alignment, returning
+ * matched [goldenIndex, modelIndex] pairs in order. Robust to drops / merges / repeats:
+ * a dropped instance of a repeated word leaves ONE golden word unmatched with no cascade
+ * — unlike positional Nth-to-Nth matching (Gemini review finding #1).
+ */
+const alignWords = (
+  gold: AnatomistPass['words'],
+  model: AnatomistPass['words']
+): Array<[number, number]> => {
+  const G = (gold || []).map(w => normSurface(w.surface));
+  const M = (model || []).map(w => normSurface(w.surface));
+  const n = G.length, m = M.length;
+  if (n === 0 || m === 0) return [];
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      dp[i][j] = G[i - 1] === M[j - 1]
+        ? dp[i - 1][j - 1] + 1
+        : Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
   }
-  return map;
+  const pairs: Array<[number, number]> = [];
+  let i = n, j = m;
+  while (i > 0 && j > 0) {
+    if (G[i - 1] === M[j - 1]) { pairs.push([i - 1, j - 1]); i--; j--; }
+    else if (dp[i - 1][j] >= dp[i][j - 1]) i--;
+    else j--;
+  }
+  return pairs.reverse();
 };
 
 /** Internal cut offsets for a word's ordered morpheme segments (e.g. ni|gam|o → {2,5}). */
@@ -330,48 +353,36 @@ const boundaryOffsets = (
   return cuts;
 };
 
-const cutF1 = (gold: Set<number>, model: Set<number>): number => {
-  if (gold.size === 0 && model.size === 0) return 1; // both single-segment → agree
-  if (gold.size === 0 || model.size === 0) return 0;
-  let inter = 0;
-  for (const c of model) if (gold.has(c)) inter++;
-  const p = inter / model.size, r = inter / gold.size;
-  return p + r > 0 ? (2 * p * r) / (p + r) : 0;
-};
-
-/** Morpheme-boundary fidelity: do the model's cuts match the golden's, per shared word? */
+/** Morpheme-boundary fidelity: MICRO-F1 of cut positions, pooled over sequence-aligned words. */
 export function scoreSegmentationFidelity(
   output: AnatomistPass,
   golden: AnatomistPass | null | undefined
 ): number | null {
   if (!golden?.words?.length) return null;
-  const goldIdx = indexWordsBySurface(golden);
-  const outIdx = indexWordsBySurface(output);
-  let n = 0, sum = 0;
-  for (const [surface, gWord] of goldIdx) {
-    const oWord = outIdx.get(surface);
-    if (!oWord) continue; // model didn't analyse this golden word
-    const gCuts = boundaryOffsets(gWord.segmentIds, golden.segments || []);
-    const oCuts = boundaryOffsets(oWord.segmentIds, output.segments || []);
-    sum += cutF1(gCuts, oCuts);
-    n++;
+  const pairs = alignWords(golden.words, output.words || []);
+  if (pairs.length === 0) return null;
+  let tp = 0, fp = 0, fn = 0;
+  for (const [gi, mi] of pairs) {
+    const gCuts = boundaryOffsets(golden.words[gi].segmentIds || [], golden.segments || []);
+    const oCuts = boundaryOffsets((output.words || [])[mi].segmentIds || [], output.segments || []);
+    for (const c of oCuts) (gCuts.has(c) ? tp++ : fp++);
+    for (const c of gCuts) if (!oCuts.has(c)) fn++;
   }
-  return n > 0 ? sum / n : null;
+  const denom = 2 * tp + fp + fn;
+  return denom > 0 ? (2 * tp) / denom : 1; // no boundaries on either side across all aligned words → agree
 }
 
-/** A word's "knowledge tokens" — its anatomist tooltips + its lexicographer senses. */
-const wordKnowledgeTokens = (
-  surface: string,
+/** A word's "knowledge tokens" (by id) — its anatomist tooltips + its lexicographer senses. */
+const wordKnowledgeTokensById = (
+  wordId: string,
   anat: AnatomistPass | null | undefined,
   lex: LexicographerPass | null | undefined
 ): string[] => {
-  const word = (anat?.words || []).find(w => (w.surface || '').toLowerCase() === surface);
-  if (!word) return [];
   const tokens: string[] = [];
-  for (const s of (anat?.segments || []).filter(s => s.wordId === word.id)) {
+  for (const s of (anat?.segments || []).filter(s => s.wordId === wordId)) {
     for (const t of (s.tooltips || [])) tokens.push(...tokenize(t));
   }
-  const lexEntry = (lex?.senses || []).find(e => e.wordId === word.id);
+  const lexEntry = (lex?.senses || []).find(e => e.wordId === wordId);
   if (lexEntry) {
     for (const sense of (lexEntry.senses || [])) {
       tokens.push(...tokenize(sense.english));
@@ -381,24 +392,33 @@ const wordKnowledgeTokens = (
   return tokens;
 };
 
-/** Etymology + gloss fidelity: token-F1 of the model's per-word knowledge vs golden's. */
+/**
+ * Etymology + gloss fidelity: STRICT MICRO-F1 (β=1) over sequence-aligned words.
+ * Pool TP/FP/FN across the whole phase, then one F1 — so a 20-token compound carries
+ * more weight than a 1-token particle (Gemini #3). Balanced F1, NOT recall-weighted:
+ * recall-weighting rewards synonym-spraying (Gemini #2); "model exceeds golden" is
+ * handled by the golden-update protocol, not by loosening the metric. Words the golden
+ * is silent on contribute nothing (no penalty for a model's correct additions).
+ */
 export function scoreContentFidelity(
   outAnat: AnatomistPass, goldAnat: AnatomistPass | null | undefined,
   outLex: LexicographerPass, goldLex: LexicographerPass | null | undefined
 ): number | null {
   if (!goldAnat?.words?.length) return null;
-  const goldIdx = indexWordsBySurface(goldAnat);
-  const outIdx = indexWordsBySurface(outAnat);
-  let n = 0, sum = 0;
-  for (const surface of goldIdx.keys()) {
-    if (!outIdx.has(surface)) continue;
-    const goldTokens = wordKnowledgeTokens(surface, goldAnat, goldLex);
-    if (goldTokens.length === 0) continue; // golden silent on this word → no reference
-    const modelTokens = wordKnowledgeTokens(surface, outAnat, outLex);
-    sum += tokenF1(goldTokens, modelTokens);
-    n++;
+  const pairs = alignWords(goldAnat.words, outAnat.words || []);
+  if (pairs.length === 0) return null;
+  let tp = 0, fp = 0, fn = 0, scored = 0;
+  for (const [gi, mi] of pairs) {
+    const goldTokens = new Set(wordKnowledgeTokensById(goldAnat.words[gi].id, goldAnat, goldLex));
+    if (goldTokens.size === 0) continue; // golden silent on this word → no reference
+    scored++;
+    const modelTokens = new Set(wordKnowledgeTokensById((outAnat.words || [])[mi].id, outAnat, outLex));
+    for (const t of modelTokens) (goldTokens.has(t) ? tp++ : fp++);
+    for (const t of goldTokens) if (!modelTokens.has(t)) fn++;
   }
-  return n > 0 ? sum / n : null;
+  if (scored === 0) return null;
+  const denom = 2 * tp + fp + fn;
+  return denom > 0 ? (2 * tp) / denom : 0;
 }
 
 export function scoreTypesetter(
@@ -516,32 +536,49 @@ export function scoreTypesetter(
   return { blockSizeScore, singleWordBlockRatio, oversizedBlockRatio, englishOrderScore, layoutScore };
 }
 
+/**
+ * Validity GATE as a multiplier (not an additive bucket). A `textIntegrity` failure
+ * (segments don't reconstruct the surface) is catastrophic data loss → hard 0.1 cap
+ * (Gemini review #4). The softer structural gates — including `paliWordCoverage`, which
+ * is structural not UX (Gemini) — degrade the score mildly via softFactor in [0.7, 1.0].
+ */
+export function computeGateFactor(scores: {
+  textIntegrity: number;
+  noEmptySegments: number;
+  noDuplicateMappings: number;
+  relationsValid: number;
+  paliWordCoverage: number;
+}): number {
+  // textIntegrity is the FRACTION of words that reconstruct (0..1); it multiplies the
+  // gate directly — total corruption → 0 (Gemini's "garbage scores 0"), a single sandhi
+  // slip → a proportional dent, not a catastrophic cliff. The softer structural gates
+  // (incl. paliWordCoverage, which is structural not UX — Gemini) swing only [0.7, 1.0].
+  const soft = (scores.noEmptySegments + scores.noDuplicateMappings + scores.relationsValid + scores.paliWordCoverage) / 4;
+  const softFactor = 0.7 + 0.3 * soft;
+  return scores.textIntegrity * softFactor;
+}
+
+// v2.0 quality weights — Fidelity dominates; the old density metrics survive only as a
+// small "transitional richness" bucket (kept, not deleted) until relation/morph fidelity
+// replaces them in v2.1. See ADR SUTTA-009.
+const W_FIDELITY = 0.60;
+const W_USABILITY = 0.25;
+const W_RICHNESS = 0.15;
+
 export function computeOverallScore(scores: Omit<QualityScore, 'overallScore'>): number {
-  // When a golden packet is available, FIDELITY (does the model reproduce the
-  // golden's morpheme boundaries + etymology/gloss?) is the HEADLINE dimension,
-  // and grammar/arrows are de-emphasized — per owner: segmentation + etymology
-  // matter far more than relations. Without a golden, fall back to the legacy
-  // density-only weighting so ad-hoc scoring still works.
+  const gateFactor = computeGateFactor(scores);
+  const usability = (scores.alignmentCoverage + scores.englishOrderScore) / 2;
+  const transitionalRichness = (scores.tooltipCoverage + scores.sensePolysemy + scores.morphDataPresent) / 3;
+
   if (scores.fidelityScore !== null && scores.fidelityScore !== undefined) {
-    const w = { coverage: 0.20, validity: 0.20, richness: 0.15, fidelity: 0.30, grammar: 0.05, layout: 0.10 };
-    return (
-      scores.coverageScore * w.coverage +
-      scores.validityScore * w.validity +
-      scores.richnessScore * w.richness +
-      scores.fidelityScore * w.fidelity +
-      scores.grammarScore * w.grammar +
-      scores.layoutDimension * w.layout
-    );
+    const quality = W_FIDELITY * scores.fidelityScore + W_USABILITY * usability + W_RICHNESS * transitionalRichness;
+    return gateFactor * quality;
   }
 
-  const weights = { coverage: 0.25, validity: 0.30, richness: 0.15, grammar: 0.15, layout: 0.15 };
-  return (
-    scores.coverageScore * weights.coverage +
-    scores.validityScore * weights.validity +
-    scores.richnessScore * weights.richness +
-    scores.grammarScore * weights.grammar +
-    scores.layoutDimension * weights.layout
-  );
+  // No golden → "ungraded for fidelity": score on gate × (usability + richness) only,
+  // renormalized over their weights. Such phases are EXCLUDED from the ranked leaderboard.
+  const quality = (W_USABILITY * usability + W_RICHNESS * transitionalRichness) / (W_USABILITY + W_RICHNESS);
+  return gateFactor * quality;
 }
 
 export function scorePhase(data: PipelineOutput, phase: string, model: string): QualityScore {
@@ -574,7 +611,7 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
     anatomistScores.textIntegrity
   ) / 3;
   const richnessScore = (
-    anatomistScores.tooltipDensity +
+    anatomistScores.tooltipCoverage +
     lexiScores.sensePolysemy +
     anatomistScores.morphDataPresent
   ) / 3;
@@ -584,6 +621,7 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
   const baseScores = {
     phase,
     model,
+    rubricVersion: RUBRIC_VERSION,
     ...anatomistScores,
     ...lexiScores,
     ...weaverScores,
@@ -686,7 +724,7 @@ async function main() {
     console.log(`    No Duplicate Mappings:  ${(r.noDuplicateMappings * 100).toFixed(0)}%`);
     console.log(`    Text Integrity:         ${r.textIntegrity ? '✓' : '✗'}`);
     console.log(`  Richness:`);
-    console.log(`    Tooltip Density:        ${(r.tooltipDensity * 100).toFixed(0)}%`);
+    console.log(`    Tooltip Coverage:       ${(r.tooltipCoverage * 100).toFixed(0)}%`);
     console.log(`    Sense Polysemy:         ${(r.sensePolysemy * 100).toFixed(0)}%`);
     console.log(`    Morph Data Present:     ${(r.morphDataPresent * 100).toFixed(0)}%`);
     console.log(`  Grammar (Arrows):`);
