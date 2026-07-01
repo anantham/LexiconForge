@@ -169,13 +169,20 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
   const reportsRoot = BENCHMARK_CONFIG.outputRoot;
   console.log(`[Leaderboard] Scanning ${reportsRoot} for benchmark runs...`);
 
-  // Get all timestamp directories
+  // Get all timestamp directories. For a PUBLISHED board, pin to a canonical run (or set)
+  // via LEADERBOARD_DIRS (comma-separated timestamps) so experimental/ablation runs don't
+  // pollute it — a published leaderboard must come from a reproducible, named run.
   const dirEntries = await fs.readdir(reportsRoot, { withFileTypes: true });
-  const timestampDirs = dirEntries
+  const pinned = (process.env.LEADERBOARD_DIRS || '').split(',').map((s) => s.trim()).filter(Boolean);
+  let timestampDirs = dirEntries
     .filter((e) => e.isDirectory() && e.name.match(/^\d{4}-\d{2}-\d{2}/))
     .map((e) => e.name)
     .sort()
     .reverse(); // Most recent first
+  if (pinned.length) {
+    timestampDirs = timestampDirs.filter((d) => pinned.includes(d));
+    console.log(`[Leaderboard] PINNED to ${timestampDirs.length}/${pinned.length} run dir(s): ${pinned.join(', ')}`);
+  }
 
   console.log(`[Leaderboard] Found ${timestampDirs.length} benchmark runs`);
 
@@ -427,10 +434,22 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     entries,
   };
 
-  // Write leaderboard.json
+  // Honesty banner data: how thin is this board? (phase coverage across the ranked models)
+  const phaseCount = Math.max(0, ...entries.map((e) => e.phasesCount));
+  (leaderboard as Leaderboard & { status?: string; coverageNote?: string }).status = 'preview';
+  (leaderboard as Leaderboard & { status?: string; coverageNote?: string }).coverageNote =
+    `PREVIEW — limited coverage. Scored on ${phaseCount} golden-backed MN10 phase(s), ${entries.length} model(s). ` +
+    'The golden is partial (not every word is graded), Content is deterministic token-F1 (cannot reward paraphrase/enrichment), ' +
+    'and Semantic is an advisory LLM-judge score (judge-model dependent, self-judge bias). Rankings will shift as coverage grows.';
+
+  // Write leaderboard.json — reports/ (local/dev) AND public/ (committed → served in prod).
   const leaderboardPath = path.join(reportsRoot, 'leaderboard.json');
   await fs.writeFile(leaderboardPath, JSON.stringify(leaderboard, null, 2), 'utf8');
-  console.log(`[Leaderboard] Wrote ${entries.length} ranked entries to ${leaderboardPath}`);
+  const publicDir = path.join('public', 'benchmarks');
+  await fs.mkdir(publicDir, { recursive: true });
+  const publicPath = path.join(publicDir, 'sutta-studio-leaderboard.json');
+  await fs.writeFile(publicPath, JSON.stringify(leaderboard, null, 2), 'utf8');
+  console.log(`[Leaderboard] Wrote ${entries.length} ranked entries to ${leaderboardPath} + ${publicPath}`);
   if (excludedReasons.size > 0) {
     console.warn(`[Leaderboard] EXCLUDED ${excludedModels.size} model(s) / phase(s) from ranking:`);
     for (const r of excludedReasons) console.warn(`  - ${r}`);

@@ -76,10 +76,18 @@ type LeaderboardEntry = {
   modelId: string;
   modelName: string;
   overallScore: number;
-  coverageScore: number;
-  validityScore: number;
-  richnessScore: number;
-  grammarScore: number;
+  // v2.0 rubric (ADR SUTTA-009) + semantic judge (SUTTA-010)
+  fidelityScore: number;
+  segmentationFidelity: number;
+  contentFidelity: number;
+  contentSemantic: number | null;
+  judgeModel: string | null;
+  paliWordCoverage: number;
+  // legacy v1 aggregates (may be absent on new boards)
+  coverageScore?: number;
+  validityScore?: number;
+  richnessScore?: number;
+  grammarScore?: number;
   tokensTotal: number;
   durationMs: number;
   costUsd: number | null;
@@ -92,11 +100,16 @@ type LeaderboardEntry = {
 type Leaderboard = {
   generatedAt: string;
   promptVersion: string;
+  rubricVersion?: string;
+  status?: string;
+  coverageNote?: string;
   methodology: {
     docsUrl: string;
     rankingMetric: string;
     aggregation: string;
+    description?: string;
   };
+  excluded?: { models: string[]; reasons: string[] };
   entries: LeaderboardEntry[];
 };
 
@@ -598,9 +611,13 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
     setLeaderboardLoading(true);
     setLeaderboardError(null);
     try {
-      const response = await fetch(`/reports/sutta-studio/leaderboard.json?ts=${Date.now()}`, {
-        cache: 'no-store',
-      });
+      // Prefer the committed/published copy (served in prod); fall back to the local
+      // reports copy for dev before a public board has been committed.
+      const ts = Date.now();
+      let response = await fetch(`/benchmarks/sutta-studio-leaderboard.json?ts=${ts}`, { cache: 'no-store' });
+      if (!response.ok) {
+        response = await fetch(`/reports/sutta-studio/leaderboard.json?ts=${ts}`, { cache: 'no-store' });
+      }
       if (!response.ok) {
         if (response.status === 404) {
           setLeaderboardError('Leaderboard not yet generated. Run a benchmark first.');
@@ -959,11 +976,24 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
             )}
             {leaderboard && !leaderboardLoading && (
               <div className="space-y-4">
+                {leaderboard.coverageNote && (
+                  <div className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                    <span className="font-semibold uppercase tracking-wide">
+                      {leaderboard.status === 'preview' ? 'Preview' : 'Note'}
+                    </span>{' '}
+                    {leaderboard.coverageNote}
+                  </div>
+                )}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-lg font-semibold">Model Leaderboard</h2>
+                    <h2 className="text-lg font-semibold">
+                      Model Leaderboard
+                      {leaderboard.rubricVersion && (
+                        <span className="ml-2 text-xs font-normal text-gray-400">rubric v{leaderboard.rubricVersion}</span>
+                      )}
+                    </h2>
                     <p className="text-xs text-gray-500">
-                      Ranking by: Overall Score | Best run per model |{' '}
+                      Ranking by: Overall Score (deterministic) | Best run per model |{' '}
                       <a
                         href={leaderboard.methodology.docsUrl}
                         target="_blank"
@@ -990,20 +1020,20 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('modelId')}>
                           Model {sortColumn === 'modelId' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('overallScore')}>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('overallScore')} title="Deterministic ranked total: gate × (0.60 fidelity + 0.25 usability + 0.15 richness)">
                           Overall {sortColumn === 'overallScore' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('validityScore')}>
-                          Validity {sortColumn === 'validityScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('segmentationFidelity')} title="Morpheme-boundary micro-F1 vs the golden (deterministic)">
+                          Seg {sortColumn === 'segmentationFidelity' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('richnessScore')}>
-                          Richness {sortColumn === 'richnessScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('contentFidelity')} title="Etymology + gloss token-F1 vs the golden (deterministic; cannot reward paraphrase/enrichment)">
+                          Content {sortColumn === 'contentFidelity' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('coverageScore')}>
-                          Coverage {sortColumn === 'coverageScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('contentSemantic')} title="LLM-judge content score (ADR SUTTA-010): rewards correct enrichment, penalizes hallucination. Advisory — not in the ranked total.">
+                          Semantic {sortColumn === 'contentSemantic' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('grammarScore')}>
-                          Grammar {sortColumn === 'grammarScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('paliWordCoverage')} title="Fraction of golden words the model reproduced by surface (gate input)">
+                          Coverage {sortColumn === 'paliWordCoverage' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('tokensTotal')}>
                           Tokens {sortColumn === 'tokensTotal' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -1041,17 +1071,17 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                             <td className={`px-3 py-2 font-semibold ${scoreColor(entry.overallScore)}`}>
                               {entry.overallScore.toFixed(2)}
                             </td>
-                            <td className={`px-3 py-2 ${scoreColor(entry.validityScore)}`}>
-                              {entry.validityScore.toFixed(2)}
+                            <td className={`px-3 py-2 ${scoreColor(entry.segmentationFidelity)}`}>
+                              {entry.segmentationFidelity.toFixed(2)}
                             </td>
-                            <td className={`px-3 py-2 ${scoreColor(entry.richnessScore)}`}>
-                              {entry.richnessScore.toFixed(2)}
+                            <td className={`px-3 py-2 ${scoreColor(entry.contentFidelity)}`}>
+                              {entry.contentFidelity.toFixed(2)}
                             </td>
-                            <td className={`px-3 py-2 ${scoreColor(entry.coverageScore)}`}>
-                              {entry.coverageScore.toFixed(2)}
+                            <td className={`px-3 py-2 ${entry.contentSemantic == null ? 'text-gray-300' : scoreColor(entry.contentSemantic)}`}>
+                              {entry.contentSemantic == null ? '—' : entry.contentSemantic.toFixed(2)}
                             </td>
-                            <td className={`px-3 py-2 ${scoreColor(entry.grammarScore)}`}>
-                              {entry.grammarScore.toFixed(2)}
+                            <td className={`px-3 py-2 ${scoreColor(entry.paliWordCoverage)}`}>
+                              {entry.paliWordCoverage.toFixed(2)}
                             </td>
                             <td className="px-3 py-2 text-gray-600">{tokens}</td>
                             <td className="px-3 py-2 text-gray-600">
