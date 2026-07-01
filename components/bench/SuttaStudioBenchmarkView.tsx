@@ -233,6 +233,22 @@ const formatPhaseTitle = (title?: string | null) => {
   return title.trim().length ? title : '(no title)';
 };
 
+/** Column-header label with an instant, styled hover tooltip (native `title` is
+ *  slow to appear and easy to miss). Dotted underline signals it's hoverable. */
+function HeaderTip({ label, tip, align = 'left' }: { label: string; tip: string; align?: 'left' | 'right' }) {
+  return (
+    <span className="group relative inline-flex cursor-help items-center border-b border-dotted border-gray-400/70">
+      {label}
+      <span
+        role="tooltip"
+        className={`pointer-events-none absolute top-full z-30 mt-2 hidden w-56 whitespace-normal rounded-md bg-gray-900 px-2.5 py-2 text-[11px] font-normal normal-case leading-snug tracking-normal text-gray-100 shadow-xl ring-1 ring-white/10 group-hover:block ${align === 'right' ? 'right-0' : 'left-0'}`}
+      >
+        {tip}
+      </span>
+    </span>
+  );
+}
+
 const PASS_OPTIONS: { value: PassName; label: string }[] = [
   { value: 'skeleton', label: 'Skeleton (phases)' },
   { value: 'anatomist', label: 'Anatomist (words/segments)' },
@@ -1039,26 +1055,33 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('modelId')}>
                           Model {sortColumn === 'modelId' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('overallScore')} title="Deterministic ranked total: gate × (0.60 fidelity + 0.25 usability + 0.15 richness)">
-                          Overall {sortColumn === 'overallScore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('overallScore')}>
+                          <HeaderTip label="Overall" tip="Ranked deterministic total (rubric v2.0): a gate multiplier × weighted fidelity, usability and richness. Higher = closer to the golden reference." />{' '}
+                          {sortColumn === 'overallScore' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('segmentationFidelity')} title="Morpheme-boundary micro-F1 vs the golden (deterministic)">
-                          Seg {sortColumn === 'segmentationFidelity' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('segmentationFidelity')}>
+                          <HeaderTip label="Seg" tip="Segmentation fidelity — micro-F1 of the model's morpheme boundaries vs the golden. Did it split each word the same way?" />{' '}
+                          {sortColumn === 'segmentationFidelity' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('contentFidelity')} title="Etymology + gloss token-F1 vs the golden (deterministic; cannot reward paraphrase/enrichment)">
-                          Content {sortColumn === 'contentFidelity' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('contentFidelity')}>
+                          <HeaderTip label="Content" tip="Content fidelity — token-F1 of etymology + glosses vs the golden. Deterministic, so it can't reward valid paraphrase or enrichment (that's what Semantic is for)." />{' '}
+                          {sortColumn === 'contentFidelity' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('contentSemantic')} title="LLM-judge content score (ADR SUTTA-010): rewards correct enrichment, penalizes hallucination. Advisory — not in the ranked total.">
-                          Semantic {sortColumn === 'contentSemantic' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('contentSemantic')}>
+                          <HeaderTip label="Semantic" tip="Semantic score — an LLM judge (gpt-4o-mini) rating word content 0–1: rewards correct enrichment, penalizes hallucination. Advisory — NOT in the ranked total." />{' '}
+                          {sortColumn === 'contentSemantic' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
-                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('paliWordCoverage')} title="Fraction of golden words the model reproduced by surface (gate input)">
-                          Coverage {sortColumn === 'paliWordCoverage' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('paliWordCoverage')}>
+                          <HeaderTip label="Coverage" tip="Coverage — fraction of the golden's Pāli words the model actually reproduced by surface (feeds the gate)." />{' '}
+                          {sortColumn === 'paliWordCoverage' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('tokensTotal')}>
-                          Tokens {sortColumn === 'tokensTotal' && (sortDirection === 'asc' ? '↑' : '↓')}
+                          <HeaderTip label="Tokens" tip="Total tokens (prompt + completion) across all pipeline passes for this model's run." />{' '}
+                          {sortColumn === 'tokensTotal' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('costUsd')}>
-                          Cost {sortColumn === 'costUsd' && (sortDirection === 'asc' ? '↑' : '↓')}
+                          <HeaderTip label="Cost" align="right" tip="Total OpenRouter API cost (USD) for this model's full run across all phases." />{' '}
+                          {sortColumn === 'costUsd' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
                         <th className="px-3 py-2">View</th>
                       </tr>
