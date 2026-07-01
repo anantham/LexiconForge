@@ -391,7 +391,7 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     sourceRunTimestamps,
     judgeModel: boardJudge,
     coverageNote:
-      `PREVIEW — limited coverage. Ranked on ${phaseCount} golden-backed MN10 phase(s), ${entries.length} model(s), ` +
+      `Limited coverage. Ranked on ${phaseCount} golden-backed MN10 phase(s), ${entries.length} model(s), ` +
       `from run(s) ${sourceRunTimestamps.join(', ') || '(none)'}. The golden is partial (not every word is graded); ` +
       'Content is deterministic token-F1 (cannot reward paraphrase/enrichment); Semantic is an advisory LLM-judge score ' +
       `(judge=${boardJudge ?? 'n/a'}, not in the ranked total). ` +

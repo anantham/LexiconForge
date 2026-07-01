@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-01T07:36:57.578Z",
+  "generatedAt": "2026-07-01T08:17:22.809Z",
   "promptVersion": "sutta-studio-v12-prior-phase-context",
   "rubricVersion": "2.0",
   "status": "preview",
@@ -7,7 +7,7 @@
     "2026-07-01T06-29-18-572Z"
   ],
   "judgeModel": "openai/gpt-4o-mini",
-  "coverageNote": "PREVIEW — limited coverage. Ranked on 2 golden-backed MN10 phase(s), 4 model(s), from run(s) 2026-07-01T06-29-18-572Z. The golden is partial (not every word is graded); Content is deterministic token-F1 (cannot reward paraphrase/enrichment); Semantic is an advisory LLM-judge score (judge=openai/gpt-4o-mini, not in the ranked total). Rankings will shift as coverage grows.",
+  "coverageNote": "Limited coverage. Ranked on 2 golden-backed MN10 phase(s), 4 model(s), from run(s) 2026-07-01T06-29-18-572Z. The golden is partial (not every word is graded); Content is deterministic token-F1 (cannot reward paraphrase/enrichment); Semantic is an advisory LLM-judge score (judge=openai/gpt-4o-mini, not in the ranked total). Rankings will shift as coverage grows.",
   "methodology": {
     "docsUrl": "https://github.com/anthropics/lexiconforge/blob/main/docs/benchmarks/sutta-studio.md#quality-scoring",
     "rankingMetric": "overallScore",
