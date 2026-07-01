@@ -68,6 +68,9 @@ type LeaderboardEntry = {
   fidelityScore: number;
   segmentationFidelity: number;
   contentFidelity: number;
+  // Optional LLM-judge semantic content score (ADR SUTTA-010); null when no judge run exists.
+  contentSemantic: number | null;
+  judgeModel: string | null;
   paliWordCoverage: number;
   // legacy v1 aggregates, retained for reference only
   coverageScore: number;
@@ -149,6 +152,9 @@ type ModelRun = {
   runTimestamp: string;
   runId: string;
   qualityScores: QualityScores;
+  // Optional semantic-content score for this run (from judge-content.ts; ADR SUTTA-010).
+  contentSemantic: number | null;
+  judgeModel: string | null;
   metrics: {
     tokensTotal: number;
     durationMs: number;
@@ -156,6 +162,8 @@ type ModelRun = {
   };
   packetPath: string;
 };
+
+type JudgeScores = { judgeVersion?: string; judgeModel?: string; avgContentSemantic?: number };
 
 export async function generateLeaderboard(): Promise<Leaderboard> {
   const reportsRoot = BENCHMARK_CONFIG.outputRoot;
@@ -212,12 +220,17 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       const durationMs = modelRows.reduce((sum, r) => sum + (r.durationMs || 0), 0);
       const costUsd = modelRows.reduce((sum, r) => sum + (r.costUsd || 0), 0) || null;
 
+      // Optional semantic-content score (judge-content.ts writes it to the run-dir root).
+      const judge = await readJson<JudgeScores>(path.join(runDir, `judge-scores-${modelId}.json`));
+
       allRuns.push({
         modelId,
         modelName,
         runTimestamp: timestamp,
         runId: modelId,
         qualityScores,
+        contentSemantic: judge?.avgContentSemantic ?? null,
+        judgeModel: judge?.judgeModel ?? null,
         metrics: { tokensTotal, durationMs, costUsd },
         packetPath: `/reports/sutta-studio/${timestamp}/outputs/${modelId}/packet.json`,
       });
@@ -239,6 +252,9 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     totalTokens: number;
     totalDuration: number;
     totalCost: number | null;
+    // Semantic-content judge scores across this model's runs (ADR SUTTA-010).
+    semanticScores: number[];
+    judgeModel: string | null;
   };
 
   const modelAggregates = new Map<string, ModelAggregate>();
@@ -276,8 +292,16 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
         totalTokens: 0,
         totalDuration: 0,
         totalCost: null,
+        semanticScores: [],
+        judgeModel: null,
       };
       modelAggregates.set(run.modelId, agg);
+    }
+
+    // Collect the semantic-content judge score for this run, if present.
+    if (run.contentSemantic != null) {
+      agg.semanticScores.push(run.contentSemantic);
+      agg.judgeModel = run.judgeModel ?? agg.judgeModel;
     }
 
     // Add each phase score, using the best score per phase ID
@@ -317,6 +341,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     avgValidity: number;
     avgRichness: number;
     avgGrammar: number;
+    contentSemantic: number | null;
+    judgeModel: string | null;
     phasesCount: number;
     metrics: { tokensTotal: number; durationMs: number; costUsd: number | null };
     bestRun: ModelRun;
@@ -338,6 +364,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       avgValidity: mean(phases.map((p) => p.validityScore)),
       avgRichness: mean(phases.map((p) => p.richnessScore)),
       avgGrammar: mean(phases.map((p) => p.grammarScore)),
+      contentSemantic: agg.semanticScores.length ? mean(agg.semanticScores) : null,
+      judgeModel: agg.judgeModel,
       phasesCount: phases.length,
       metrics: {
         tokensTotal: agg.totalTokens,
@@ -362,6 +390,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     fidelityScore: m.avgFidelity,
     segmentationFidelity: m.avgSegFidelity,
     contentFidelity: m.avgContentFidelity,
+    contentSemantic: m.contentSemantic,
+    judgeModel: m.judgeModel,
     paliWordCoverage: m.avgPaliCoverage,
     coverageScore: m.avgCoverage,
     validityScore: m.avgValidity,
@@ -417,18 +447,21 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 async function main() {
   const leaderboard = await generateLeaderboard();
 
+  const judgeModel = leaderboard.entries.find((e) => e.judgeModel)?.judgeModel;
   console.log(`\n=== SUTTA-STUDIO LEADERBOARD (rubric v${leaderboard.rubricVersion}) ===\n`);
-  console.log('Rank | Model            | Phases | Overall | Fidelity | Seg  | Content | PaliCov');
-  console.log('-----|------------------|--------|---------|----------|------|---------|--------');
+  console.log('Rank | Model            | Phases | Overall | Fidelity | Seg  | Content | Semantic | PaliCov');
+  console.log('-----|------------------|--------|---------|----------|------|---------|----------|--------');
   for (const e of leaderboard.entries) {
+    const sem = e.contentSemantic == null ? '  —  ' : e.contentSemantic.toFixed(2).padStart(5);
     console.log(
       `  ${e.rank.toString().padStart(2)} | ${e.modelId.padEnd(16)} | ${e.phasesCount.toString().padStart(6)} | ` +
-      `${e.overallScore.toFixed(2).padStart(7)} | ${e.fidelityScore.toFixed(2).padStart(8)} | ${e.segmentationFidelity.toFixed(2).padStart(4)} | ${e.contentFidelity.toFixed(2).padStart(7)} | ${e.paliWordCoverage.toFixed(2).padStart(7)}`
+      `${e.overallScore.toFixed(2).padStart(7)} | ${e.fidelityScore.toFixed(2).padStart(8)} | ${e.segmentationFidelity.toFixed(2).padStart(4)} | ${e.contentFidelity.toFixed(2).padStart(7)} | ${sem.padStart(8)} | ${e.paliWordCoverage.toFixed(2).padStart(7)}`
     );
   }
   if (leaderboard.entries.length === 0) console.log('  (no ranked entries — see exclusions below)');
   console.log(`\nRanked on overallScore, rubric v${leaderboard.rubricVersion} + golden-backed phases only.`);
-  console.log('Fidelity = 0.5·Seg + 0.5·Content (strict micro-F1 vs golden). PaliCov = golden words the model matched.');
+  console.log('Fidelity = 0.5·Seg + 0.5·Content (deterministic micro-F1 vs golden). PaliCov = golden words the model matched.');
+  console.log(`Semantic = LLM-judge content score (ADR SUTTA-010${judgeModel ? `, judge=${judgeModel}` : ''}); rewards enrichment, penalizes hallucination. Not in the ranked total.`);
   if (leaderboard.excluded.reasons.length > 0) {
     console.log(`\nExcluded from ranking (${leaderboard.excluded.models.length}):`);
     for (const r of leaderboard.excluded.reasons) console.log(`  - ${r}`);
