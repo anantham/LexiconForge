@@ -249,6 +249,66 @@ function HeaderTip({ label, tip, align = 'left' }: { label: string; tip: string;
   );
 }
 
+/** Side-by-side golden-vs-model comparison, opened from a leaderboard "View" link.
+ *  Data comes from public/benchmarks/compare/<modelId>.json (built by publish-compare.ts). */
+function ComparePanel({ modelId, data, loading, onBack }: { modelId: string; data: any; loading: boolean; onBack: () => void }) {
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <button onClick={onBack} className="text-sm text-blue-600 hover:underline">← Back to leaderboard</button>
+        <div className="text-sm text-gray-500">Golden vs <span className="font-medium text-gray-800">{modelId}</span></div>
+      </div>
+      {loading && <p className="py-10 text-center text-sm text-gray-500">Loading comparison…</p>}
+      {!loading && !data && <p className="py-10 text-center text-sm text-gray-500">No published comparison for this model yet.</p>}
+      {!loading && data && (
+        <div className="space-y-5">
+          <p className="text-xs text-gray-500">
+            {data.phases.length} graded phase(s). Each word: the <span className="font-medium">golden reference</span> (left) vs what <span className="font-medium">{modelId}</span> produced (right).
+            Green = same morpheme split, amber = different split, red = word the model dropped.
+          </p>
+          {data.phases.map((phase: any) => (
+            <div key={phase.phaseId} className="rounded-lg border border-gray-200 p-3">
+              <div className="mb-2 flex items-baseline gap-2">
+                <span className="text-[11px] uppercase tracking-wide text-gray-400">{phase.phaseId}</span>
+                <span className="text-base text-gray-800" style={{ fontFamily: 'Georgia, serif' }}>{phase.pali}</span>
+              </div>
+              <div className="mb-2 grid grid-cols-2 gap-3 border-b pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                <div>Golden</div><div>{modelId}</div>
+              </div>
+              <div className="space-y-2">
+                {phase.words.map((w: any, i: number) => (
+                  <div key={i} className="grid grid-cols-2 gap-3">
+                    <div className="rounded bg-gray-50 p-2">
+                      <div className="text-sm font-medium text-gray-800">{w.surface} <code className="text-xs text-purple-700">{w.golden.seg}</code></div>
+                      {w.golden.tips?.length ? <ul className="mt-1 list-disc pl-4 text-xs text-gray-600">{w.golden.tips.map((t: string, j: number) => <li key={j}>{t}</li>)}</ul> : null}
+                      {w.golden.senses?.length ? <div className="mt-1 text-xs text-gray-500">senses: {w.golden.senses.join(' · ')}</div> : null}
+                    </div>
+                    <div className={`rounded p-2 ${w.model ? (w.model.segMatch ? 'bg-green-50' : 'bg-amber-50') : 'bg-red-50'}`}>
+                      {w.model ? (
+                        <>
+                          <div className="text-sm font-medium text-gray-800">
+                            <code className="text-xs text-purple-700">{w.model.seg}</code>{' '}
+                            <span className={`text-xs ${w.model.segMatch ? 'text-green-600' : 'text-amber-600'}`}>{w.model.segMatch ? '✓ same split' : '✕ different split'}</span>
+                          </div>
+                          {w.model.tips?.length ? <ul className="mt-1 list-disc pl-4 text-xs text-gray-600">{w.model.tips.map((t: string, j: number) => <li key={j}>{t}</li>)}</ul> : null}
+                          {w.model.senses?.length ? <div className="mt-1 text-xs text-gray-500">senses: {w.model.senses.join(' · ')}</div> : null}
+                        </>
+                      ) : <div className="text-xs text-red-600">⚠ no aligned word (dropped / different surface)</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {phase.unmatched?.length ? (
+                <div className="mt-2 text-xs text-gray-500"><span className="font-medium">Model-only words (no golden reference):</span> {phase.unmatched.map((u: any) => u.surface).join(', ')}</div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const PASS_OPTIONS: { value: PassName; label: string }[] = [
   { value: 'skeleton', label: 'Skeleton (phases)' },
   { value: 'anatomist', label: 'Anatomist (words/segments)' },
@@ -554,6 +614,22 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
   const [leaderboardError, setLeaderboardError] = React.useState<string | null>(null);
   const [sortColumn, setSortColumn] = React.useState<keyof LeaderboardEntry>('rank');
   const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('asc');
+
+  // Golden-vs-model comparison panel (opened from the "View" link)
+  const [compareModel, setCompareModel] = React.useState<string | null>(null);
+  const [compareData, setCompareData] = React.useState<any>(null);
+  const [compareLoading, setCompareLoading] = React.useState<boolean>(false);
+  React.useEffect(() => {
+    if (!compareModel) { setCompareData(null); return; }
+    let cancelled = false;
+    setCompareLoading(true);
+    setCompareData(null);
+    fetch(`/benchmarks/compare/${encodeURIComponent(compareModel)}.json?ts=${Date.now()}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled) { setCompareData(d); setCompareLoading(false); } })
+      .catch(() => { if (!cancelled) { setCompareData(null); setCompareLoading(false); } });
+    return () => { cancelled = true; };
+  }, [compareModel]);
 
   // Filters
   const [filterModel, setFilterModel] = React.useState<string>('all');
@@ -1045,6 +1121,9 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                   </div>
                 </div>
 
+                {compareModel ? (
+                  <ComparePanel modelId={compareModel} data={compareData} loading={compareLoading} onBack={() => setCompareModel(null)} />
+                ) : (
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
                     <thead>
@@ -1137,21 +1216,14 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                               )}
                             </td>
                             <td className="px-3 py-2">
-                              {/* Only link when the packet is actually served. Published boards
-                                  reference gitignored /reports/ packets, which 404 in prod —
-                                  don't render a broken link there. */}
-                              {entry.packetPath && !entry.packetPath.startsWith('/reports/') ? (
-                                <a
-                                  href={`/sutta/pipeline?path=${entry.packetPath}`}
-                                  className="text-blue-600 hover:underline text-xs"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  View
-                                </a>
-                              ) : (
-                                <span className="text-gray-300 text-xs">—</span>
-                              )}
+                              {/* Opens the golden-vs-model side-by-side comparison
+                                  (public/benchmarks/compare/<model>.json). */}
+                              <button
+                                onClick={() => setCompareModel(entry.modelId)}
+                                className="text-blue-600 hover:underline text-xs"
+                              >
+                                View
+                              </button>
                             </td>
                           </tr>
                         );
@@ -1159,6 +1231,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
+                )}
 
                 <div className="text-xs text-gray-500">
                   {leaderboard.entries.length} models | Prompt version: {leaderboard.promptVersion}

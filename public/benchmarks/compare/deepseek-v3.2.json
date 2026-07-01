@@ -1,0 +1,5039 @@
+{
+  "model": "deepseek-v3.2",
+  "run": "2026-07-01T10-11-40-333Z",
+  "phases": [
+    {
+      "phaseId": "phase-2",
+      "pali": "sattānaṁ visuddhiyā,",
+      "goldenWordCount": 2,
+      "modelWordCount": 2,
+      "words": [
+        {
+          "surface": "sattānaṁ",
+          "golden": {
+            "seg": "satt·ānaṁ",
+            "tips": [
+              "From sat/sant: existing, being",
+              "Also √saj: to cling (the \"stuck\" ones)",
+              "Also satta: seven (7)",
+              "[Genitive Plural] Of beings",
+              "🔗 Shows who it belongs to"
+            ],
+            "senses": [
+              "beings",
+              "stuck ones",
+              "seven types"
+            ]
+          },
+          "model": {
+            "seg": "satt·ānaṁ",
+            "tips": [
+              "The stem 'satta' means a being, a living creature. The final -a is dropped before the case ending.",
+              "This word is the plural of 'satta' (being). It's the object of purification in this phrase.",
+              "The -ānaṁ ending is genitive plural, meaning 'of the [plural]'. Pāli marks 'belonging to' on the noun itself, where English would say 'of the'.",
+              "This is the standard genitive plural ending for masculine nouns ending in -a, like 'satta'."
+            ],
+            "senses": [
+              "beings",
+              "creatures",
+              "those who are attached"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "visuddhiyā",
+          "golden": {
+            "seg": "vi·suddhi·yā",
+            "tips": [
+              "[Prefix] Intensive / completely",
+              "√sudh: Purity, brightness",
+              "✨ To be clean, clear",
+              "[Dative] For the sake of",
+              "🎯 Purpose marker"
+            ],
+            "senses": [
+              "purification",
+              "clarity",
+              "cleansing",
+              "brightening",
+              "refinement"
+            ]
+          },
+          "model": {
+            "seg": "vi·suddh·iyā",
+            "tips": [
+              "The prefix 'vi-' often means apart, away, or intensifies the meaning. Here it suggests a thorough or complete purification.",
+              "The root 'suddh' means to be pure, clean, or clear. It's related to the English word 'suds' (soap bubbles).",
+              "The -iyā ending is the instrumental singular feminine, meaning 'by means of' or 'for the purpose of'. It shows the means or purpose.",
+              "Here it indicates the purpose of the path: 'for the purpose of purification'."
+            ],
+            "senses": [
+              "purification",
+              "purity",
+              "cleansing"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-4",
+      "pali": "dukkhadomanassānaṁ atthaṅgamāya,",
+      "goldenWordCount": 2,
+      "modelWordCount": 2,
+      "words": [
+        {
+          "surface": "dukkhadomanassānaṁ",
+          "golden": {
+            "seg": "dukkha·domanass·ānaṁ",
+            "tips": [
+              "[Compound] du (bad) + kha (space)",
+              "Physical pain, suffering",
+              "[Compound] du (bad) + manas (mind)",
+              "Mental distress, displeasure",
+              "[Genitive Plural] Of pain & distress"
+            ],
+            "senses": [
+              "pain & distress",
+              "suffering & sadness",
+              "discomfort & displeasure"
+            ]
+          },
+          "model": {
+            "seg": "dukkha·domanass·ānaṁ",
+            "tips": [
+              "Dukkha: pain, suffering, unsatisfactoriness.",
+              "The first part of the compound 'dukkhadomanassa'.",
+              "Domanassa: mental distress, sadness, displeasure.",
+              "The second part of the compound 'dukkhadomanassa'.",
+              "The -ānaṁ ending is genitive plural — it means 'of the [plural things]'.",
+              "Here it marks 'dukkhadomanassa' as belonging to something else, showing possession."
+            ],
+            "senses": [
+              "pain and sadness",
+              "suffering and distress",
+              "discomfort and stress"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "atthaṅgamāya",
+          "golden": {
+            "seg": "atthaṅ·gam·āya",
+            "tips": [
+              "From √as: to set (like the sun)",
+              "Home, setting, disappearing",
+              "√gam: to go",
+              "atthaṅgama = going to its setting",
+              "[Dative] For the sake of",
+              "🎯 Purpose marker"
+            ],
+            "senses": [
+              "disappearance",
+              "ending",
+              "extinguishing"
+            ]
+          },
+          "model": {
+            "seg": "atthaṅgam·āya",
+            "tips": [
+              "Atthaṅgama: cessation, disappearance, passing away.",
+              "From 'attha' (goal, good) + 'gama' (going).",
+              "The -āya ending is dative singular — it means 'for the purpose of, for the sake of'.",
+              "It shows the goal or intended result of the action."
+            ],
+            "senses": [
+              "disappearance",
+              "ending",
+              "subsiding"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-6",
+      "pali": "nibbānassa sacchikiriyāya,",
+      "goldenWordCount": 2,
+      "modelWordCount": 2,
+      "words": [
+        {
+          "surface": "nibbānassa",
+          "golden": {
+            "seg": "nibbān·assa",
+            "tips": [
+              "ni (out) + vāna (blowing)",
+              "🕯️ Fire going out, cooling, peace",
+              "[Genitive Singular] Of Nibbana"
+            ],
+            "senses": [
+              "of Nibbana",
+              "of Unbinding",
+              "of extinguishing",
+              "of cooling",
+              "of liberation"
+            ]
+          },
+          "model": {
+            "seg": "nibbāna·ssa",
+            "tips": [
+              "The root 'nibbāna' means extinguishing, like a fire going out.",
+              "In Buddhist teaching, it refers to the complete quenching of mental defilements, total emancipation.",
+              "The -a ending is the stem form; the word is neuter.",
+              "The -ssa ending is genitive singular, meaning 'of' or 'for'.",
+              "Pāli marks belonging directly on the noun, where English would use the preposition 'of'.",
+              "Here it shows the extinguishment is the goal or object of the realizing action."
+            ],
+            "senses": [
+              "extinguishing",
+              "emancipation",
+              "blowing out"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "sacchikiriyāya",
+          "golden": {
+            "seg": "sacchi·kiriy·āya",
+            "tips": [
+              "[Compound] sa + akkhi (with eyes)",
+              "👀 Seeing directly, witnessing",
+              "√kṛ: to do, make",
+              "Making real, accomplishing",
+              "[Dative] For the sake of",
+              "🎯 Purpose marker"
+            ],
+            "senses": [
+              "realization",
+              "witnessing",
+              "direct experience",
+              "making visible",
+              "touching"
+            ]
+          },
+          "model": {
+            "seg": "sacchikiri·yāya",
+            "tips": [
+              "The stem 'sacchikiri' comes from the root 'sacchikaroti', meaning to realize, to make real, to experience directly.",
+              "It's a compound of 'sa' (with) and 'akkh' (eye), suggesting 'seeing with one's own eyes'.",
+              "This is the action of direct personal realization, not just intellectual understanding.",
+              "The -yāya ending is dative singular, meaning 'for the purpose of' or 'in order to'.",
+              "This case marks the goal or purpose of an action.",
+              "Here it indicates that the path of mindfulness is for the purpose of realizing extinguishment."
+            ],
+            "senses": [
+              "personal realization",
+              "direct experience",
+              "accomplishment"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-7",
+      "pali": "yadidaṁ cattāro satipaṭṭhānā.",
+      "goldenWordCount": 3,
+      "modelWordCount": 3,
+      "words": [
+        {
+          "surface": "yadidaṁ",
+          "golden": {
+            "seg": "yad·idaṁ",
+            "tips": [
+              "[Relative Pronoun] Which, what",
+              "[Demonstrative] This",
+              "yad + idaṁ = \"namely, that is to say\""
+            ],
+            "senses": [
+              "namely"
+            ]
+          },
+          "model": {
+            "seg": "yadidaṁ",
+            "tips": [],
+            "senses": [
+              "namely",
+              "that is"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "cattāro",
+          "golden": {
+            "seg": "cattāro",
+            "tips": [
+              "[Numeral] Four (4)",
+              "[Nominative Plural Masculine]"
+            ],
+            "senses": [
+              "the four",
+              "four",
+              "the quartet"
+            ]
+          },
+          "model": {
+            "seg": "cattāro",
+            "tips": [],
+            "senses": [
+              "four",
+              "fourfold",
+              "the four"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "satipaṭṭhānā",
+          "golden": {
+            "seg": "sati·paṭṭhānā",
+            "tips": [
+              "√smṛ: to remember",
+              "💭 Mindfulness, presence, awareness",
+              "[Compound] paṭi + √sthā: to stand",
+              "Establishing, foundation, setting up"
+            ],
+            "senses": [
+              "foundations of mindfulness",
+              "establishments of awareness",
+              "presencings of remembering",
+              "ways of keeping present",
+              "lucid abodes"
+            ]
+          },
+          "model": {
+            "seg": "satipaṭṭhānā",
+            "tips": [],
+            "senses": [],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-ab",
+      "pali": "Idha, bhikkhave, bhikkhu kāye kāyānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
+      "goldenWordCount": 3,
+      "modelWordCount": 12,
+      "words": [
+        {
+          "surface": "vineyya",
+          "golden": {
+            "seg": "vi·ney·ya",
+            "tips": [
+              "[Prefix] Vi: Away / Out / Apart",
+              "Same root as VINAYA (discipline)",
+              "√nī: To lead (vi-nī = lead away)",
+              "Vineti = to discipline, remove, train",
+              "⚖️ THE GREAT DEBATE:",
+              "• \"Having removed\" (sequential):",
+              "  → First jhāna, then insight",
+              "  → Samatha-first approach",
+              "• \"While removing\" (simultaneous):",
+              "  → Mindfulness IS the removing",
+              "  → Dry insight approach",
+              "⚡ Both readings are grammatically valid"
+            ],
+            "senses": [
+              "putting aside",
+              "having removed",
+              "disciplining",
+              "training away",
+              "freeing from"
+            ]
+          },
+          "model": {
+            "seg": "vi·ney·ya",
+            "tips": [
+              "The prefix 'vi-' here means away, apart — indicates removal or separation.",
+              "The root 'ney' is from 'nī' meaning to lead, guide, or remove — here, 'having removed'.",
+              "The -ya ending makes it a gerund — an action completed before the main verb, 'having removed'."
+            ],
+            "senses": [
+              "rid of",
+              "having removed",
+              "free from"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "loke",
+          "golden": {
+            "seg": "lok·e",
+            "tips": [
+              "Loka: World / Realm",
+              "[Locative Singular] 📍 \"In/regarding the...\" — scope of action",
+              "What the removing applies to"
+            ],
+            "senses": [
+              "regarding the world",
+              "in the world",
+              "concerning experience"
+            ]
+          },
+          "model": {
+            "seg": "lok·e",
+            "tips": [
+              "The root 'lok' means world, cosmos, or people — the sphere of experience.",
+              "The -e ending is locative singular — 'in/with regard to the world'."
+            ],
+            "senses": [
+              "world",
+              "experience",
+              "people"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "abhijjhādomanassaṁ",
+          "golden": {
+            "seg": "abhi·jjhā·domanass·aṁ",
+            "tips": [
+              "Abhi: Towards / Intensely",
+              "√jhā (√dhyai): Longing / Covetousness",
+              "= First Hindrance (kāmacchanda)",
+              "Du + Manas: Bad-mind / Displeasure",
+              "= Second Hindrance (byāpāda/ill-will)",
+              "📝 SYNECDOCHE:",
+              "These two stand for ALL FIVE Hindrances:",
+              "1. Sensory desire (abhijjhā)",
+              "2. Ill-will (domanassa)",
+              "3. Sloth & torpor",
+              "4. Restlessness & remorse",
+              "5. Doubt"
+            ],
+            "senses": [
+              "covetousness & displeasure",
+              "the five hindrances",
+              "wanting & not-wanting"
+            ]
+          },
+          "model": {
+            "seg": "abhi·jjhā·domanass·aṁ",
+            "tips": [
+              "The prefix 'abhi-' means towards, over, or excessive — intensifies the craving.",
+              "The root 'jjhā' is from 'dhyai' meaning to think, meditate, or crave — here, covetousness.",
+              "The stem 'domanass' means mental pain, displeasure, or sadness — 'bad-mindedness'.",
+              "The -aṁ ending is accusative singular — marks the object of 'having removed'."
+            ],
+            "senses": [
+              "covetousness and displeasure",
+              "greed and distress",
+              "longing and depression"
+            ],
+            "segMatch": true
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "Idha",
+          "seg": "Idha",
+          "tips": [
+            "Adverb meaning 'here' or 'in this case' — points to the teaching that follows."
+          ]
+        },
+        {
+          "surface": "bhikkhave",
+          "seg": "bhikkhav·e",
+          "tips": [
+            "The stem for 'monk' or 'mendicant' — related to begging, specifically religious mendicancy.",
+            "The -e ending is vocative plural — used when calling out to a group, respectfully."
+          ]
+        },
+        {
+          "surface": "bhikkhu",
+          "seg": "bhikkh·u",
+          "tips": [
+            "The root 'bhikkh' means to beg or share — a monk is one who lives by alms.",
+            "The -u ending is nominative singular — marks the subject of the sentence."
+          ]
+        },
+        {
+          "surface": "kāye",
+          "seg": "kāy·e",
+          "tips": [
+            "The root 'kāy' means body, but also group or accumulation — the physical process.",
+            "The -e ending is locative singular — means 'in/on/with regard to' the body."
+          ]
+        },
+        {
+          "surface": "kāyānupassī",
+          "seg": "kāyā·nupass·ī",
+          "tips": [
+            "The stem 'kāyā' is the locative form of 'body' — 'in the body'.",
+            "The stem 'nupass' comes from 'anu' (along) + 'pass' (to see) — meaning 'to observe closely'.",
+            "The -ī ending is nominative singular — 'one who observes'."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·ati",
+          "tips": [
+            "The prefix 'vi-' often means apart, away, or intensifies — here it gives 'viharati' the sense of dwelling or staying.",
+            "The root 'har' means to bear, carry, or hold — combined with 'vi-', it means to dwell or abide.",
+            "The -ati ending marks third person singular present tense — 'he/she/it dwells'."
+          ]
+        },
+        {
+          "surface": "ātāpī",
+          "seg": "ātāp·ī",
+          "tips": [
+            "The root 'ātāp' comes from 'tap' meaning to burn — ardor, zeal, or burning effort.",
+            "The -ī ending is nominative singular — 'one who has ardor'."
+          ]
+        },
+        {
+          "surface": "sampajāno",
+          "seg": "sam·pa·jān·o",
+          "tips": [
+            "The prefix 'sam-' means together, completely, or well — intensifies the knowing.",
+            "The prefix 'pa-' (or 'pra-') means forth, forward, or actively — adds a sense of active engagement.",
+            "The root 'jān' means to know — from the same root as 'ñāṇa' (knowledge)."
+          ]
+        },
+        {
+          "surface": "satimā",
+          "seg": "sati·mā",
+          "tips": [
+            "The root 'sati' means mindfulness, recollection, or presence — from the root 'smṛ' (to remember).",
+            "The -mā ending is a possessive suffix from '-mant' — 'one who possesses mindfulness'."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-ad",
+      "pali": "vedanāsu vedanānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
+      "goldenWordCount": 3,
+      "modelWordCount": 9,
+      "words": [
+        {
+          "surface": "ātāpī",
+          "golden": {
+            "seg": "ātāp·ī",
+            "tips": [
+              "🔥 √tap: To burn / Heat",
+              "Possessive: One who has..."
+            ],
+            "senses": [
+              "ardent",
+              "with heat",
+              "diligent",
+              "keen"
+            ]
+          },
+          "model": {
+            "seg": "ātāp·ī",
+            "tips": [
+              "The root 'tap' means to burn or heat, related to ascetic practice (tapas).",
+              "In the Buddhist context, it means ardent effort, the burning away of defilements.",
+              "The -ī ending is a possessive suffix meaning 'one who has' ardor or zeal.",
+              "It describes the meditator as being ardent."
+            ],
+            "senses": [
+              "ardent",
+              "keen",
+              "zealous"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "sampajāno",
+          "golden": {
+            "seg": "sam·pa·jān·o",
+            "tips": [
+              "Together / Completely",
+              "Forth / Forward",
+              "🧠 √jñā: To know",
+              "The one doing this"
+            ],
+            "senses": [
+              "clearly knowing",
+              "with clear comprehension",
+              "discerning",
+              "fully aware"
+            ]
+          },
+          "model": {
+            "seg": "sam·pa·jān·o",
+            "tips": [
+              "The prefix 'sam-' means 'together' or 'completely', adding a sense of thoroughness.",
+              "The prefix 'pa-' (or 'pra-') means 'forth' or 'forward', indicating active direction.",
+              "The root 'jñā' means to know. Combined with the prefixes, it means 'to know completely and actively'.",
+              "This is the basis for 'sampajañña', clear comprehension.",
+              "The -o ending is the nominative singular masculine, meaning 'one who is'.",
+              "It describes the meditator as being clearly aware."
+            ],
+            "senses": [
+              "aware",
+              "clearly comprehending",
+              "intentional"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "satimā",
+          "golden": {
+            "seg": "sati·mā",
+            "tips": [
+              "💭 √smṛ: Memory / Mindfulness",
+              "-mant: Possessing the faculty"
+            ],
+            "senses": [
+              "possessing mindfulness",
+              "mindful",
+              "equipped with awareness",
+              "recollected"
+            ]
+          },
+          "model": {
+            "seg": "sati·mā",
+            "tips": [
+              "The root 'sati' comes from remembering, and means mindfulness or presence of mind.",
+              "It is the seventh factor of the Noble Eightfold Path.",
+              "The -mā ending is a contracted possessive suffix from '-mant', meaning 'one who possesses'.",
+              "It describes the meditator as being mindful."
+            ],
+            "senses": [
+              "mindful",
+              "attentive",
+              "with excellent recollection"
+            ],
+            "segMatch": true
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "vedanāsu",
+          "seg": "vedanā·su",
+          "tips": [
+            "The stem 'vedanā' means felt experience, the pleasant, unpleasant, or neutral tone of sensation.",
+            "It is the second of the five aggregates (khandha).",
+            "The -su ending marks location in the plural — 'in/among the feelings'."
+          ]
+        },
+        {
+          "surface": "vedanānupassī",
+          "seg": "vedanā·anupass·ī",
+          "tips": [
+            "The same stem as in the previous word, meaning 'feeling' or 'felt experience'.",
+            "Here it is the object of contemplation.",
+            "The root 'pass' means to see, with the prefix 'anu' meaning 'along' or 'following'."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": [
+            "The prefix 'vi-' often indicates separation, intensity, or a distinct state.",
+            "Here it intensifies the meaning of dwelling or abiding.",
+            "The root 'har' is related to carrying or bearing, and in this verb means to dwell or stay."
+          ]
+        },
+        {
+          "surface": "vineyya",
+          "seg": "vi·ney·ya",
+          "tips": [
+            "The prefix 'vi-' here indicates separation or removal.",
+            "The root 'nī' means to lead or carry. With the prefix, it means 'to lead away' or 'to remove'.",
+            "The -ya ending makes this a gerund, expressing an action completed prior to the main verb — 'having removed'."
+          ]
+        },
+        {
+          "surface": "loke",
+          "seg": "lok·e",
+          "tips": [
+            "The stem 'loka' means world, cosmos, or the sphere of existence.",
+            "The final -a of the stem is shortened due to sandhi before the vowel ending.",
+            "The -e ending is the locative singular, meaning 'in the world' or 'with regard to the world'."
+          ]
+        },
+        {
+          "surface": "abhijjhādomanassaṁ",
+          "seg": "abhijjhā·domanass·a·ṁ",
+          "tips": [
+            "'Abhijjhā' means covetousness or greed, the first of the five hindrances.",
+            "It is a compound of 'abhi' (towards, over) and 'ijjhā' (desiring).",
+            "'Domanassa' means displeasure, sadness, or mental pain, the opposite of pleasant feeling."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-af",
+      "pali": "citte cittānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
+      "goldenWordCount": 3,
+      "modelWordCount": 9,
+      "words": [
+        {
+          "surface": "citte",
+          "golden": {
+            "seg": "citt·e",
+            "tips": [
+              "🧠 Double etymology:",
+              "• √cit: To perceive / To think",
+              "• √ci: To accumulate / Heap up",
+              "Citta = \"Heart-Mind\"",
+              "• Agent of cognition",
+              "• Repository of kamma",
+              "Not thoughts — the STATE of consciousness",
+              "(lustful, clear, contracted, exalted...)",
+              "[Locative Singular] 📍 \"In the...\" — locative singular",
+              "The 16 states: sarāga/vītarāga, sadosa/vītadosa..."
+            ],
+            "senses": [
+              "in the mind",
+              "in the heart",
+              "regarding consciousness"
+            ]
+          },
+          "model": {
+            "seg": "citt·e",
+            "tips": [],
+            "senses": [
+              "mind",
+              "thought",
+              "heart"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "cittānupassī",
+          "golden": {
+            "seg": "citt·ānu·pass·ī",
+            "tips": [
+              "Citta: Mind / Heart / Consciousness",
+              "Anu: Along / Repeatedly",
+              "👁️ √dṛś (Pali √pass): To see",
+              "-ī = \"one who does this\"",
+              "Identity: a mind-observer"
+            ],
+            "senses": [
+              "observing mind",
+              "a mind-watcher",
+              "tracking consciousness",
+              "seeing mind as mind"
+            ]
+          },
+          "model": {
+            "seg": "cittā·nupass·ī",
+            "tips": [],
+            "senses": [
+              "observer of the mind",
+              "mind-contemplator",
+              "one who sees the mind"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "viharati",
+          "golden": {
+            "seg": "vi·har·ati",
+            "tips": [
+              "[Prefix] Apart / Special",
+              "🏠 √hṛ: To dwell",
+              "[Present 3rd Singular] Ongoing action"
+            ],
+            "senses": [
+              "dwells",
+              "abides",
+              "remains",
+              "lives",
+              "keeps at it"
+            ]
+          },
+          "model": {
+            "seg": "vi·har·a·ti",
+            "tips": [],
+            "senses": [
+              "dwells",
+              "stays",
+              "abides"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "ātāpī",
+          "seg": "ātāp·ī",
+          "tips": []
+        },
+        {
+          "surface": "sampajāno",
+          "seg": "sam·pa·jān·o",
+          "tips": []
+        },
+        {
+          "surface": "satimā",
+          "seg": "sati·mā",
+          "tips": []
+        },
+        {
+          "surface": "vineyya",
+          "seg": "vi·ney·ya",
+          "tips": []
+        },
+        {
+          "surface": "loke",
+          "seg": "lok·e",
+          "tips": []
+        },
+        {
+          "surface": "abhijjhādomanassaṁ",
+          "seg": "abhi·jjhā·domanass·aṁ",
+          "tips": []
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-ag",
+      "pali": "citte cittānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
+      "goldenWordCount": 3,
+      "modelWordCount": 9,
+      "words": [
+        {
+          "surface": "ātāpī",
+          "golden": {
+            "seg": "ātāp·ī",
+            "tips": [
+              "🔥 √tap: To burn, heat",
+              "Ardor / Effort",
+              "[Possessive suffix] One who has ardor"
+            ],
+            "senses": [
+              "ardent",
+              "with heat",
+              "diligent",
+              "keen"
+            ]
+          },
+          "model": {
+            "seg": "ātāp·ī",
+            "tips": [],
+            "senses": [
+              "ardent",
+              "zealous",
+              "energetic"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "sampajāno",
+          "golden": {
+            "seg": "sam·pa·jān·o",
+            "tips": [
+              "[Prefix] Sam: together, completely",
+              "[Prefix] Pa/Pra: forth, forward",
+              "🧠 √jñā: To know",
+              "Sampajañña = Clear Comprehension",
+              "[Nominative Singular Masculine] One who knows"
+            ],
+            "senses": [
+              "clearly knowing",
+              "with clear comprehension",
+              "discerning",
+              "fully aware"
+            ]
+          },
+          "model": {
+            "seg": "sam·pa·jān·o",
+            "tips": [],
+            "senses": [
+              "clearly aware",
+              "fully knowing",
+              "comprehending"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "satimā",
+          "golden": {
+            "seg": "sati·mā",
+            "tips": [
+              "💭 √smṛ: To remember",
+              "Sati = mindfulness / presence",
+              "[Possessive suffix] -mant: Possessing the faculty"
+            ],
+            "senses": [
+              "possessing mindfulness",
+              "mindful",
+              "equipped with awareness",
+              "recollected"
+            ]
+          },
+          "model": {
+            "seg": "sati·mā",
+            "tips": [],
+            "senses": [
+              "mindful",
+              "attentive",
+              "present"
+            ],
+            "segMatch": true
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "citte",
+          "seg": "citt·e",
+          "tips": []
+        },
+        {
+          "surface": "cittānupassī",
+          "seg": "cittā·nupass·ī",
+          "tips": []
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": []
+        },
+        {
+          "surface": "vineyya",
+          "seg": "vi·ney·ya",
+          "tips": []
+        },
+        {
+          "surface": "loke",
+          "seg": "lok·e",
+          "tips": []
+        },
+        {
+          "surface": "abhijjhādomanassaṁ",
+          "seg": "abhi·jjhā·domanass·aṁ",
+          "tips": []
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-ai",
+      "pali": "dhammesu dhammānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ. ",
+      "goldenWordCount": 3,
+      "modelWordCount": 9,
+      "words": [
+        {
+          "surface": "dhammesu",
+          "golden": {
+            "seg": "dhamm·esu",
+            "tips": [
+              "⚖️ √dhṛ: To hold / Support / Sustain",
+              "Dhamma = \"that which holds\"",
+              "Here NOT \"The Dhamma\" (singular/Doctrine)",
+              "But \"dhammas\" (plural) = PATTERNS:",
+              "1. Five Hindrances",
+              "2. Five Aggregates",
+              "3. Six Sense Bases",
+              "4. Seven Awakening Factors",
+              "5. Four Noble Truths",
+              "🔬 Domain of Vipassanā — causal laws",
+              "[Locative Plural] 📍 \"Among the...\" — locative PLURAL",
+              "Not \"in Dhamma\" but \"in dhammas\"",
+              "Observing principles, not things"
+            ],
+            "senses": [
+              "in principles",
+              "regarding phenomena",
+              "within the categories",
+              "in the way things work"
+            ]
+          },
+          "model": {
+            "seg": "dhamme·su",
+            "tips": [
+              "The stem is 'dhamma', meaning teaching, quality, or phenomenon. The final -a has fused with the case ending.",
+              "The -su ending marks location among multiple things — 'in/among the phenomena'."
+            ],
+            "senses": [
+              "mental phenomena",
+              "qualities",
+              "teachings"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "dhammānupassī",
+          "golden": {
+            "seg": "dhamm·ānu·pass·ī",
+            "tips": [
+              "Dhamma: Phenomena / Principles",
+              "Anu: Along / Closely",
+              "👁️ √dṛś (Pali √pass): To see",
+              "-ī = \"one who does this\"",
+              "Identity: a dhamma-observer"
+            ],
+            "senses": [
+              "observing phenomena",
+              "a dhamma-watcher",
+              "tracking principles",
+              "seeing dhamma as dhamma"
+            ]
+          },
+          "model": {
+            "seg": "dhammā·nupass·ī",
+            "tips": [
+              "The stem 'dhamma' (phenomena, teachings). The long -ā shows it's the object of observation.",
+              "The root 'pass' means to see. With the prefix 'anu-' (along, after), it means to observe closely or contemplate.",
+              "The -ī ending makes this an adjective meaning 'one who observes'."
+            ],
+            "senses": [
+              "observing phenomena",
+              "contemplating principles",
+              "watching qualities"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "viharati",
+          "golden": {
+            "seg": "vi·har·ati",
+            "tips": [
+              "[Prefix] Apart / Special",
+              "🏠 √hṛ: To dwell",
+              "[Present 3rd Singular] Ongoing action"
+            ],
+            "senses": [
+              "dwells",
+              "abides",
+              "remains",
+              "lives",
+              "keeps at it"
+            ]
+          },
+          "model": {
+            "seg": "vi·har·a·ti",
+            "tips": [
+              "The prefix 'vi-' often means apart, in various directions, or intensifies the action.",
+              "The root 'har' means to carry, bear, or hold. Combined with 'vi-', it means to dwell or abide.",
+              "A thematic vowel connecting the root to the personal ending.",
+              "The -ti ending marks the third person singular present tense — 'he/she/it dwells'."
+            ],
+            "senses": [
+              "dwells",
+              "remains",
+              "meditates"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "ātāpī",
+          "seg": "ātāp·ī",
+          "tips": [
+            "Related to heat or burning. In this context, it means ardent effort, like the heat of ascetic practice.",
+            "A possessive suffix meaning 'one who has' — 'one who has ardor'."
+          ]
+        },
+        {
+          "surface": "sampajāno",
+          "seg": "sam·pa·jān·o",
+          "tips": [
+            "The prefix 'sam-' means together, completely, or thoroughly.",
+            "The prefix 'pa-' (or 'pra-') means forth, forward, or out.",
+            "The root 'jān' means to know. Combined, 'sampajāna' means clear comprehension or full awareness."
+          ]
+        },
+        {
+          "surface": "satimā",
+          "seg": "sati·mā",
+          "tips": [
+            "The root 'sati' means mindfulness, recollection, or presence of mind.",
+            "A contracted possessive suffix from '-mant', meaning 'one who possesses' — 'one who possesses mindfulness'."
+          ]
+        },
+        {
+          "surface": "vineyya",
+          "seg": "vi·ney·ya",
+          "tips": [
+            "The prefix 'vi-' here means apart or away, indicating removal.",
+            "The root 'nī' means to lead, carry, or remove. The form 'neyya' is a gerundive or absolutive.",
+            "The -ya ending forms a gerund (absolutive), meaning 'having removed' or 'after removing'."
+          ]
+        },
+        {
+          "surface": "loke",
+          "seg": "lok·e",
+          "tips": [
+            "The stem 'loka', meaning world, cosmos, or realm of existence. The final -a has fused with the case ending.",
+            "The -e ending marks location in a singular thing — 'in the world'."
+          ]
+        },
+        {
+          "surface": "abhijjhādomanassaṁ",
+          "seg": "abhijjhā·domanass·a·ṁ",
+          "tips": [
+            "Covetousness, greed, or longing. It's a compound noun formed from 'abhi-' (towards, over) and 'ijjhā' (desire).",
+            "Displeasure, sadness, or mental pain. Literally 'bad-mindedness'.",
+            "A stem-forming vowel linking the compound parts."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-aj",
+      "pali": "dhammesu dhammānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ. ",
+      "goldenWordCount": 3,
+      "modelWordCount": 9,
+      "words": [
+        {
+          "surface": "ātāpī",
+          "golden": {
+            "seg": "ātāp·ī",
+            "tips": [
+              "🔥 √tap: To burn, heat",
+              "Ardor / Effort",
+              "[Possessive suffix] One who has ardor"
+            ],
+            "senses": [
+              "ardent",
+              "with heat",
+              "diligent",
+              "keen"
+            ]
+          },
+          "model": {
+            "seg": "ātāp·ī",
+            "tips": [
+              "The root 'tap' means to burn or heat. 'Ātāpa' is ardor or fervor, the burning away of defilements.",
+              "The -ī ending is nominative singular, meaning 'one who has' the quality: ardent."
+            ],
+            "senses": [
+              "ardent",
+              "zealous",
+              "fervent"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "sampajāno",
+          "golden": {
+            "seg": "sam·pa·jān·o",
+            "tips": [
+              "[Prefix] Sam: together, completely",
+              "[Prefix] Pa/Pra: forth, forward",
+              "🧠 √jñā: To know",
+              "Sampajañña = Clear Comprehension",
+              "[Nominative Singular Masculine] One who knows"
+            ],
+            "senses": [
+              "clearly knowing",
+              "with clear comprehension",
+              "discerning",
+              "fully aware"
+            ]
+          },
+          "model": {
+            "seg": "sam·pa·jān·o",
+            "tips": [
+              "The prefix 'sam-' means together, completely, or thoroughly.",
+              "The prefix 'pa-' (or 'pra-') means forth, forward, or intensifies the action.",
+              "The root 'jñā' means to know. 'Sampajāna' is clear comprehension or full awareness.",
+              "The -o ending is nominative singular, meaning 'one who is' clearly aware."
+            ],
+            "senses": [
+              "aware",
+              "clearly knowing",
+              "fully alert"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "satimā",
+          "golden": {
+            "seg": "sati·mā",
+            "tips": [
+              "💭 √smṛ: To remember",
+              "Sati = mindfulness / presence",
+              "[Possessive suffix] -mant: Possessing the faculty"
+            ],
+            "senses": [
+              "possessing mindfulness",
+              "mindful",
+              "equipped with awareness",
+              "recollected"
+            ]
+          },
+          "model": {
+            "seg": "sati·mā",
+            "tips": [
+              "The stem 'sati' means mindfulness, recollection, or presence of mind.",
+              "The suffix '-mā' is a possessive ending from '-mant', meaning 'one who possesses' mindfulness."
+            ],
+            "senses": [
+              "mindful",
+              "attentive",
+              "present"
+            ],
+            "segMatch": true
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "dhammesu",
+          "seg": "dhamma·esu",
+          "tips": [
+            "The stem 'dhamma' means teaching, doctrine, or nature. It's a core term in Buddhist thought.",
+            "The -esu ending is locative plural, meaning 'in/among/with regard to' the things mentioned."
+          ]
+        },
+        {
+          "surface": "dhammānupassī",
+          "seg": "dhamma·anupass·ī",
+          "tips": [
+            "The stem 'dhamma' here is the object of observation. The long ā is from sandhi with the next part.",
+            "The root 'pass' means to see. With the prefix 'anu' (along, after), it means to observe closely or contemplate.",
+            "The -ī ending is nominative singular, marking the subject: 'one who observes'."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": [
+            "The prefix 'vi-' often means apart, distinct, or intensifies the action.",
+            "The root 'har' means to carry, bear, or hold. Combined with 'vi-', it means to dwell, abide, or stay.",
+            "This is the thematic vowel 'a', connecting the root to the personal ending."
+          ]
+        },
+        {
+          "surface": "vineyya",
+          "seg": "vi·ney·ya",
+          "tips": [
+            "The prefix 'vi-' here means apart or away, indicating removal.",
+            "The root 'nī' means to lead, carry, or take. Combined with 'vi-', it means to remove or put away.",
+            "The -ya ending makes this a gerund or absolutive, meaning 'having removed'."
+          ]
+        },
+        {
+          "surface": "loke",
+          "seg": "lok·e",
+          "tips": [
+            "The stem 'loka' means world, realm, or the sphere of existence.",
+            "The -e ending is locative singular, meaning 'in/with regard to the world'."
+          ]
+        },
+        {
+          "surface": "abhijjhādomanassaṁ",
+          "seg": "abhijjhā·domanass·a·ṁ",
+          "tips": [
+            "'Abhijjhā' is covetousness or greed, a mental state of wanting what others have.",
+            "'Domanassa' is displeasure, sadness, or mental pain, the opposite of pleasant feeling.",
+            "This 'a' is a stem-forming vowel, part of the compound noun."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-al",
+      "pali": "Uddeso niṭṭhito. ",
+      "goldenWordCount": 2,
+      "modelWordCount": 2,
+      "words": [
+        {
+          "surface": "Uddeso",
+          "golden": {
+            "seg": "Uddes·o",
+            "tips": [
+              "Ud + √diś: To point out / Indicate",
+              "Uddesa = outline, summary, pointing out",
+              "The brief statement before detailed explanation",
+              "The thing itself — \"the outline\""
+            ],
+            "senses": [
+              "The outline",
+              "The overview",
+              "The pointing-out"
+            ]
+          },
+          "model": {
+            "seg": "?·?",
+            "tips": [],
+            "senses": [
+              "summary",
+              "recitation",
+              "introduction"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "niṭṭhito",
+          "golden": {
+            "seg": "niṭṭhit·o",
+            "tips": [
+              "Ni + √sthā: To stand / Be established",
+              "Niṭṭhita = finished, completed, concluded",
+              "[Masculine Singular] describing the uddesa"
+            ],
+            "senses": [
+              "is complete",
+              "is concluded",
+              "stands established"
+            ]
+          },
+          "model": {
+            "seg": "?·?·?",
+            "tips": [],
+            "senses": [
+              "finished",
+              "accomplished",
+              "concluded"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-an",
+      "pali": "Idha, bhikkhave, bhikkhu araññagato vā rukkhamūlagato vā suññāgāragato vā nisīdati, pallaṅkaṁ ābhujitvā, ujuṁ kāyaṁ paṇidhāya, parimukhaṁ satiṁ upaṭṭhapetvā. ",
+      "goldenWordCount": 7,
+      "modelWordCount": 18,
+      "words": [
+        {
+          "surface": "Idha",
+          "golden": {
+            "seg": "Idha",
+            "tips": [
+              "Here / In this teaching",
+              "📍 Sets the context"
+            ],
+            "senses": [
+              "Here"
+            ]
+          },
+          "model": {
+            "seg": "Idha",
+            "tips": [
+              "Adverb meaning 'here' or 'in this case' — points to the situation being described."
+            ],
+            "senses": [
+              "Here",
+              "Now"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "bhikkhave",
+          "golden": {
+            "seg": "bhikkh·ave",
+            "tips": [
+              "√bhikkh: To beg alms",
+              "[Vocative Plural] 📢"
+            ],
+            "senses": [
+              "monks",
+              "O monastics",
+              "mendicants"
+            ]
+          },
+          "model": {
+            "seg": "bhikkhav·e",
+            "tips": [
+              "The stem for 'monk' or 'mendicant' — same as bhikkhu, but in a special form for calling out.",
+              "The -e ending is vocative plural — used when respectfully calling out to a group, like 'O monks!'"
+            ],
+            "senses": [
+              "monks"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "bhikkhu",
+          "golden": {
+            "seg": "bhikkh·u",
+            "tips": [
+              "√bhikkh: To beg alms",
+              "[Nominative Singular]"
+            ],
+            "senses": [
+              "a monk",
+              "a monastic",
+              "a mendicant"
+            ]
+          },
+          "model": {
+            "seg": "bhikkh·u",
+            "tips": [
+              "The root is related to begging — specifically religious mendicancy, not poverty.",
+              "The -u ending makes it a noun in the nominative singular case — the subject of the sentence, 'a monk'."
+            ],
+            "senses": [
+              "mendicant",
+              "monk",
+              "bhikkhu"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "araññagato",
+          "golden": {
+            "seg": "arañña·gato",
+            "tips": [
+              "🌲 Araṇya: Forest / Wilderness",
+              "From araṇa (remote) + ya",
+              "Canonical: 500 bow-lengths from village",
+              "Space for undisturbed practice",
+              "√gam: Gone to",
+              "Past participle — having gone"
+            ],
+            "senses": [
+              "gone to the wilderness",
+              "gone to the forest",
+              "gone to the wild"
+            ]
+          },
+          "model": {
+            "seg": "arañña·gat·o",
+            "tips": [
+              "The word for 'wilderness' or 'forest' — a place of solitude.",
+              "From the root 'gam' meaning 'to go' — here it means 'gone to' or 'having gone'.",
+              "The -o ending makes it a past participle in the nominative singular, describing the monk — 'one who has gone'."
+            ],
+            "senses": [
+              "gone to the forest",
+              "in the forest",
+              "forest-dwelling"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or — disjunctive particle",
+              "Presents alternatives"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [
+              "A particle meaning 'or' — it connects alternative locations."
+            ],
+            "senses": [
+              "or"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "rukkhamūlagato",
+          "golden": {
+            "seg": "rukkha·mūla·gato",
+            "tips": [
+              "🌳 Rukkha: Tree",
+              "From Sanskrit vṛkṣa",
+              "Mūla: Root / Base / Foundation",
+              "The shaded spot at the base of a tree",
+              "Gone to"
+            ],
+            "senses": [
+              "gone to a tree root",
+              "at the foot of a tree",
+              "to the base of a tree"
+            ]
+          },
+          "model": {
+            "seg": "rukkhamūla·gat·o·?",
+            "tips": [
+              "A compound meaning 'the root of a tree' — rukkha (tree) + mūla (root).",
+              "From the root 'gam' meaning 'to go' — same as in araññagato, meaning 'gone to'.",
+              "The -o ending makes it a past participle in the nominative singular, describing the monk."
+            ],
+            "senses": [
+              "gone to the foot of a tree",
+              "tree-root dweller",
+              "sitting at a tree root"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "suññāgāragato",
+          "golden": {
+            "seg": "suññ·āgāra·gato",
+            "tips": [
+              "Suñña: Empty / Void",
+              "Same root as suññatā (emptiness)",
+              "Empty of disturbances/people",
+              "Full stem: suñña (final vowel elided in sandhi before āgāra)",
+              "Āgāra: House / Building / Hut",
+              "A dwelling, shelter",
+              "Gone to"
+            ],
+            "senses": [
+              "gone to an empty house",
+              "in an empty building",
+              "to a void dwelling place"
+            ]
+          },
+          "model": {
+            "seg": "suññāgāra·gat·o·?",
+            "tips": [
+              "A compound meaning 'empty hut' or 'uninhabited dwelling' — suñña (empty) + āgāra (dwelling).",
+              "From the root 'gam' meaning 'to go' — same pattern, meaning 'gone to'.",
+              "The -o ending makes it a past participle in the nominative singular, describing the monk."
+            ],
+            "senses": [
+              "gone to an empty hut",
+              "in a vacant dwelling",
+              "solitary-place dweller"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": [
+            "A particle meaning 'or' — continues the list of alternative locations."
+          ]
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": [
+            "A particle meaning 'or' — final item in the list of locations."
+          ]
+        },
+        {
+          "surface": "nisīdati",
+          "seg": "ni·sīd·ati",
+          "tips": [
+            "A prefix meaning 'down' — gives the sense of settling or sitting down.",
+            "The root meaning 'to sit' — the core action of the verb.",
+            "The -ati ending marks the present tense, third person singular — 'he/she sits'."
+          ]
+        },
+        {
+          "surface": "pallaṅkaṁ",
+          "seg": "pallaṅka·ṁ",
+          "tips": [
+            "The word for a cross-legged sitting posture, especially for meditation — a 'couch' or 'seat'.",
+            "The -ṁ ending marks the accusative case, singular — it's the object of the action, 'cross-legged'."
+          ]
+        },
+        {
+          "surface": "ābhujitvā",
+          "seg": "ā·bhuj·itv·ā",
+          "tips": [
+            "A prefix meaning 'towards' or 'completely' — intensifies the action of bending.",
+            "The root meaning 'to bend' or 'to curve'.",
+            "The -itvā ending marks an absolutive — an action completed before the next one, like 'having bent'."
+          ]
+        },
+        {
+          "surface": "ujuṁ",
+          "seg": "uj·uṁ",
+          "tips": [
+            "The stem meaning 'straight' or 'upright'.",
+            "The -uṁ ending is an adverbial form — makes it 'straightly' or 'uprightly'."
+          ]
+        },
+        {
+          "surface": "kāyaṁ",
+          "seg": "kāy·aṁ",
+          "tips": [
+            "The word for 'body' — the physical form.",
+            "The -aṁ ending marks the accusative case, singular — it's the object, 'the body'."
+          ]
+        },
+        {
+          "surface": "paṇidhāya",
+          "seg": "pa·ṇi·dhā·ya",
+          "tips": [
+            "A prefix meaning 'forth' or 'forward' — gives direction to the action.",
+            "A variant of the prefix 'ni' meaning 'down' — combined, it suggests setting or placing.",
+            "The root meaning 'to put' or 'to place'."
+          ]
+        },
+        {
+          "surface": "parimukhaṁ",
+          "seg": "parimukh·a·ṁ",
+          "tips": [
+            "The word meaning 'in front' or 'to the fore' — often interpreted as the area around the mouth/nose, the meditation object.",
+            "Part of the stem formation for the adverb.",
+            "The -ṁ ending makes it an adverb — 'to the fore' or 'as a priority'."
+          ]
+        },
+        {
+          "surface": "satiṁ",
+          "seg": "sat·iṁ",
+          "tips": [
+            "The root related to 'memory' and 'mindfulness' — the faculty of present awareness.",
+            "The -iṁ ending marks the accusative case, singular — it's the object, 'mindfulness'."
+          ]
+        },
+        {
+          "surface": "upaṭṭhapetvā",
+          "seg": "upa·ṭṭh·ap·etv·ā",
+          "tips": [
+            "A prefix meaning 'near' or 'close to' — suggests bringing something near or establishing it.",
+            "A root related to 'standing' or 'setting up' — from √sthā.",
+            "A causative suffix — makes the verb mean 'to cause to stand', i.e., 'to establish'."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-ap",
+      "pali": "Idha, bhikkhave, bhikkhu araññagato vā rukkhamūlagato vā suññāgāragato vā nisīdati, pallaṅkaṁ ābhujitvā, ujuṁ kāyaṁ paṇidhāya, parimukhaṁ satiṁ upaṭṭhapetvā. ",
+      "goldenWordCount": 3,
+      "modelWordCount": 18,
+      "words": [
+        {
+          "surface": "parimukhaṁ",
+          "golden": {
+            "seg": "pari·mukh·aṁ",
+            "tips": [
+              "Pari: Around / Encompassing",
+              "Mukha: Face / Mouth / Front",
+              "📍 THREE INTERPRETATIONS:",
+              "🏛️ Vibhaṅga: Nose-tip (nāsikagge)",
+              "  or upper lip (uttaroṭṭhe)",
+              "  \"Long-nosed man\" = nostril tip",
+              "  \"Short-nosed man\" = upper lip",
+              "📖 Vinaya: \"To the fore\"",
+              "  = mental priority, not location",
+              "  (Cv.V.27.4 uses for \"chest\")",
+              "🧘 Synthesis: Anchor → Expand",
+              "  Face region → then sabbakāya",
+              "[Accusative] describing where/how"
+            ],
+            "senses": [
+              "in front",
+              "around the nostrils",
+              "as foremost"
+            ]
+          },
+          "model": {
+            "seg": "?",
+            "tips": [],
+            "senses": [
+              "to the fore",
+              "as a priority",
+              "directed forward"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "satiṁ",
+          "golden": {
+            "seg": "sati·ṁ",
+            "tips": [
+              "💭 √smṛ: Mindfulness / Awareness",
+              "The thing being established",
+              "[Accusative] object of upaṭṭhapetvā"
+            ],
+            "senses": [
+              "mindfulness",
+              "recollection",
+              "presence of mind"
+            ]
+          },
+          "model": {
+            "seg": "?·?",
+            "tips": [],
+            "senses": [
+              "mindfulness",
+              "memory",
+              "awareness"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "upaṭṭhapetvā",
+          "golden": {
+            "seg": "upa·ṭṭhap·etvā",
+            "tips": [
+              "Upa: Near / Towards",
+              "√sthā (Causative): To cause to stand",
+              "Upaṭṭhapeti = to establish, set up, make present",
+              "[Absolutive] \"having done X\"",
+              "After this, the breathing begins"
+            ],
+            "senses": [
+              "having set up",
+              "having brought near",
+              "having readied"
+            ]
+          },
+          "model": {
+            "seg": "?·?·?",
+            "tips": [],
+            "senses": [
+              "having established",
+              "having set up",
+              "having made sure is present"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "Idha",
+          "seg": "?",
+          "tips": []
+        },
+        {
+          "surface": "bhikkhave",
+          "seg": "?",
+          "tips": []
+        },
+        {
+          "surface": "bhikkhu",
+          "seg": "?",
+          "tips": []
+        },
+        {
+          "surface": "araññagato",
+          "seg": "?·?·?",
+          "tips": []
+        },
+        {
+          "surface": "vā",
+          "seg": "?",
+          "tips": []
+        },
+        {
+          "surface": "rukkhamūlagato",
+          "seg": "?·?·?",
+          "tips": []
+        },
+        {
+          "surface": "vā",
+          "seg": "?",
+          "tips": []
+        },
+        {
+          "surface": "suññāgāragato",
+          "seg": "?·?·?",
+          "tips": []
+        },
+        {
+          "surface": "vā",
+          "seg": "?",
+          "tips": []
+        },
+        {
+          "surface": "nisīdati",
+          "seg": "?·?·?",
+          "tips": []
+        },
+        {
+          "surface": "pallaṅkaṁ",
+          "seg": "?·?",
+          "tips": []
+        },
+        {
+          "surface": "ābhujitvā",
+          "seg": "?·?·?",
+          "tips": []
+        },
+        {
+          "surface": "ujuṁ",
+          "seg": "?",
+          "tips": []
+        },
+        {
+          "surface": "kāyaṁ",
+          "seg": "?·?",
+          "tips": []
+        },
+        {
+          "surface": "paṇidhāya",
+          "seg": "?·?·?",
+          "tips": []
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-aq",
+      "pali": "So satova assasati, satova passasati. ",
+      "goldenWordCount": 5,
+      "modelWordCount": 5,
+      "words": [
+        {
+          "surface": "So",
+          "golden": {
+            "seg": "So",
+            "tips": [
+              "Sa: He / That one",
+              "Refers back to the bhikkhu"
+            ],
+            "senses": [
+              "He"
+            ]
+          },
+          "model": {
+            "seg": "So",
+            "tips": [
+              "A demonstrative pronoun meaning 'he', 'that', or 'it'.",
+              "Here it refers back to the meditator, the subject of the action.",
+              "It is in the nominative case, marking the subject of the verb."
+            ],
+            "senses": [
+              "he",
+              "that one",
+              "so"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "sato",
+          "golden": {
+            "seg": "sat·o",
+            "tips": [
+              "💭 √smṛ: Memory / Mindfulness",
+              "📝 KEY: Sato (not satimā)!",
+              "• Satimā = POSSESSING the faculty",
+              "• Sato = APPLYING it NOW",
+              "Active, moment-to-moment awareness",
+              "Here: mindfully doing the breathing",
+              "[Nominative Singular] describing \"he\"",
+              "Adverbial sense: \"mindfully\""
+            ],
+            "senses": [
+              "mindfully",
+              "with awareness",
+              "recollected"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "va",
+          "golden": {
+            "seg": "va",
+            "tips": [
+              "Eva → va: Just / Only / Indeed",
+              "Emphatic particle",
+              "\"Just mindfully\" — nothing else"
+            ],
+            "senses": [
+              "just"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "assasati",
+          "golden": {
+            "seg": "assas·ati",
+            "tips": [
+              "🌬️ Ā + √śvas: To breathe in",
+              "Sanskrit āśvas → Pali assasati",
+              "Ā = towards (ad-spirare in Latin)",
+              "⚡ WHY IN-BREATH FIRST?",
+              "• Primacy of intake — receiving life",
+              "• In-breath = arising, energizing",
+              "• Out-breath = cessation, release",
+              "📜 Note: Vinaya commentary INVERTS",
+              "  these (assāsa = out), but Suttas",
+              "  & etymology support in-first",
+              "Present tense — ongoing action"
+            ],
+            "senses": [
+              "breathes in",
+              "inhales",
+              "breathes"
+            ]
+          },
+          "model": {
+            "seg": "ā·ssas·a·ti",
+            "tips": [
+              "A directional prefix meaning 'towards', 'to', or 'in'.",
+              "Here it indicates the inward direction of the breath.",
+              "The root 'śvas' meaning 'to breathe' or 'to blow'.",
+              "This root is related to the English word 'gasp'.",
+              "The double 's' is a result of sandhi with the prefix 'ā'.",
+              "The thematic vowel for the present tense conjugation.",
+              "The third person singular present tense ending.",
+              "It means 'he/she/it' performs the action.",
+              "So the whole verb means 'he breathes in'."
+            ],
+            "senses": [
+              "breathes in"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "passasati",
+          "golden": {
+            "seg": "passas·ati",
+            "tips": [
+              "🌬️ Pra + √śvas: To breathe out",
+              "Sanskrit praśvas → Pali passasati",
+              "Pra = forth (pro-spirare in Latin)",
+              "• Release phase of the cycle",
+              "• Calming, letting go",
+              "• Leads to passambhayaṁ (stilling)",
+              "[Present Tense]"
+            ],
+            "senses": [
+              "breathes out",
+              "exhales",
+              "out-breathes"
+            ]
+          },
+          "model": {
+            "seg": "pa·ssas·a·ti",
+            "tips": [
+              "A directional prefix meaning 'away', 'forth', or 'out'.",
+              "Here it indicates the outward direction of the breath.",
+              "The root 'śvas' meaning 'to breathe' or 'to blow'.",
+              "This root is related to the English word 'gasp'.",
+              "The double 's' is a result of sandhi with the prefix 'pa'.",
+              "The thematic vowel for the present tense conjugation.",
+              "The third person singular present tense ending.",
+              "It means 'he/she/it' performs the action.",
+              "So the whole verb means 'he breathes out'."
+            ],
+            "senses": [
+              "breathes out"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "satova",
+          "seg": "sato·va",
+          "tips": [
+            "From the root 'sar' meaning 'to remember' or 'to be mindful'.",
+            "This is the masculine singular form of the past participle 'sata', meaning 'mindful' or 'remembering'.",
+            "It describes the state of the subject ('he') as being mindful."
+          ]
+        },
+        {
+          "surface": "satova",
+          "seg": "sato·va",
+          "tips": [
+            "From the root 'sar' meaning 'to remember' or 'to be mindful'.",
+            "This is the masculine singular form of the past participle 'sata', meaning 'mindful' or 'remembering'.",
+            "It describes the state of the subject ('he') as being mindful."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-as",
+      "pali": "rassaṁ vā assasanto ‘rassaṁ assasāmī’ti pajānāti, rassaṁ vā passasanto ‘rassaṁ passasāmī’ti pajānāti. ",
+      "goldenWordCount": 14,
+      "modelWordCount": 12,
+      "words": [
+        {
+          "surface": "Rassaṁ",
+          "golden": {
+            "seg": "Rass·aṁ",
+            "tips": [
+              "Rassa: Short (in space or time)",
+              "Sanskrit hrasva (h → r in Pali)",
+              "🌬️ A short, quick breath",
+              "🪵 Turner \"making a short turn\"",
+              "Ancient reciprocating bow-lathe:",
+              "back-forth mirrors in-out breath",
+              "The turner knows through DOING",
+              "[Accusative Adverbial] \"short-ly\"",
+              "Describing manner of breathing"
+            ],
+            "senses": [
+              "short",
+              "quickly",
+              "lightly"
+            ]
+          },
+          "model": {
+            "seg": "rass·aṁ",
+            "tips": [
+              "Short, brief, shallow. Describes the breath's duration or depth.",
+              "The -aṁ ending makes it accusative singular. Here it marks the quality of the action."
+            ],
+            "senses": [
+              "short",
+              "shallow",
+              "light"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or — disjunctive"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [
+              "'Or', 'either'. A particle marking an alternative."
+            ],
+            "senses": [
+              "or"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "assasanto",
+          "golden": {
+            "seg": "assas·anto",
+            "tips": [
+              "√śvas: To breathe",
+              "ā + śvas = breathe in",
+              "[Present Participle] \"while doing\""
+            ],
+            "senses": [
+              "breathing in",
+              "inhaling",
+              "taking a breath"
+            ]
+          },
+          "model": {
+            "seg": "a·ssas·anto",
+            "tips": [
+              "The prefix 'a-' here means 'in', 'towards', or 'inward'.",
+              "The root √śvas means 'to breathe'.",
+              "The -nto ending makes it a present participle, meaning 'one who is...ing'."
+            ],
+            "senses": [
+              "inhaling",
+              "breathing in",
+              "taking in breath"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "'rassaṁ",
+          "golden": {
+            "seg": "'rass·aṁ",
+            "tips": [
+              "Opening quote mark",
+              "Inner speech: what meditator knows",
+              "[Accusative] Object of knowing"
+            ],
+            "senses": [
+              "short",
+              "dwarfish",
+              "stunted"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "assasāmī",
+          "golden": {
+            "seg": "assas·āmī",
+            "tips": [
+              "Breathing in (inside quote)",
+              "[1st Person Singular] \"I am doing\""
+            ],
+            "senses": [
+              "I breathe in",
+              "I inhale",
+              "I am breathing in"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'ti",
+          "golden": {
+            "seg": "'ti",
+            "tips": [
+              "Iti: Quotation end"
+            ],
+            "senses": [
+              "—"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "pajānāti",
+          "golden": {
+            "seg": "pa·jān·āti",
+            "tips": [
+              "Pa: Forth / Fully",
+              "🧠 √jñā: To know",
+              "[Present Tense] \"knows\""
+            ],
+            "senses": [
+              "knows",
+              "clearly knows",
+              "discerns"
+            ]
+          },
+          "model": {
+            "seg": "pa·jān·āti",
+            "tips": [
+              "The prefix 'pa-' means 'thoroughly', 'completely'.",
+              "The root √jñā means 'to know', 'to understand'.",
+              "The -āti ending is the third person singular present tense verb ending, 'he/she/it...s'."
+            ],
+            "senses": [
+              "knows",
+              "understands",
+              "discerns"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "rassaṁ",
+          "golden": {
+            "seg": "rass·aṁ",
+            "tips": [
+              "Short (repeated for out-breath)",
+              "[Accusative Adverbial]"
+            ],
+            "senses": [
+              "short",
+              "quickly",
+              "lightly"
+            ]
+          },
+          "model": {
+            "seg": "rass·aṁ",
+            "tips": [
+              "Same as p1s1: short, brief, shallow.",
+              "Same as p1s2: accusative singular ending."
+            ],
+            "senses": [
+              "short",
+              "shallow",
+              "light"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [
+              "Same as p2s1: 'or', 'either'."
+            ],
+            "senses": [
+              "or"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "passasanto",
+          "golden": {
+            "seg": "passas·anto",
+            "tips": [
+              "√śvas: To breathe",
+              "pa + śvas = breathe out",
+              "[Present Participle]"
+            ],
+            "senses": [
+              "breathing out",
+              "exhaling",
+              "letting go"
+            ]
+          },
+          "model": {
+            "seg": "pa·ssas·anto",
+            "tips": [
+              "The prefix 'pa-' here means 'forth', 'out', or 'forward'.",
+              "Same as p3s2: the root √śvas, 'to breathe'.",
+              "Same as p3s3: present participle ending, 'one who is...ing'."
+            ],
+            "senses": [
+              "exhaling",
+              "breathing out",
+              "letting out breath"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "'rassaṁ",
+          "golden": {
+            "seg": "'rass·aṁ",
+            "tips": [
+              "Opening quote",
+              "[Accusative]"
+            ],
+            "senses": [
+              "short",
+              "dwarfish",
+              "stunted"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "passasāmī",
+          "golden": {
+            "seg": "passas·āmī",
+            "tips": [
+              "Breathing out (inside quote)",
+              "[1st Person Singular]"
+            ],
+            "senses": [
+              "I breathe out",
+              "I exhale",
+              "I am breathing out"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'ti",
+          "golden": {
+            "seg": "'ti",
+            "tips": [
+              "Iti: Quotation end"
+            ],
+            "senses": [
+              "—"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "pajānāti",
+          "golden": {
+            "seg": "pa·jān·āti",
+            "tips": [
+              "Pa: Forth",
+              "√jñā: To know",
+              "[Present Tense]"
+            ],
+            "senses": [
+              "knows",
+              "clearly knows",
+              "discerns"
+            ]
+          },
+          "model": {
+            "seg": "pa·jān·āti",
+            "tips": [
+              "Same as p6s1: 'thoroughly', 'completely'.",
+              "Same as p6s2: the root √jñā, 'to know'.",
+              "Same as p6s3: third person singular present tense verb ending."
+            ],
+            "senses": [
+              "knows",
+              "understands",
+              "discerns"
+            ],
+            "segMatch": true
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "‘rassaṁ",
+          "seg": "rass·aṁ",
+          "tips": [
+            "Same as p1s1: short, brief, shallow.",
+            "Same as p1s2: accusative singular ending."
+          ]
+        },
+        {
+          "surface": "assasāmī’ti",
+          "seg": "a·ssas·ām·ī’ti",
+          "tips": [
+            "Same as p3s1: the inward direction.",
+            "Same as p3s2: the root √śvas, 'to breathe'.",
+            "The -āmi ending is the first person singular present tense verb ending, 'I...'."
+          ]
+        },
+        {
+          "surface": "‘rassaṁ",
+          "seg": "rass·aṁ",
+          "tips": [
+            "Same as p1s1: short, brief, shallow.",
+            "Same as p1s2: accusative singular ending."
+          ]
+        },
+        {
+          "surface": "passasāmī’ti",
+          "seg": "pa·ssas·ām·ī’ti",
+          "tips": [
+            "Same as p9s1: 'forth', 'out', or 'forward'.",
+            "Same as p3s2: the root √śvas, 'to breathe'.",
+            "Same as p5s3: first person singular present tense, 'I...'."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-at",
+      "pali": "‘Sabbakāyapaṭisaṁvedī assasissāmī’ti sikkhati, ‘sabbakāyapaṭisaṁvedī passasissāmī’ti sikkhati. ",
+      "goldenWordCount": 8,
+      "modelWordCount": 1,
+      "words": [
+        {
+          "surface": "'Sabbakāyapaṭisaṁvedī",
+          "golden": {
+            "seg": "'Sabba·kāya·paṭi·saṁ·ved·ī",
+            "tips": [
+              "Sabba: All / Entire / Whole",
+              "Skt. sarva, Greek ὅλος (holo-)",
+              "Opening quote mark",
+              "⚡ THREE TRADITIONS:",
+              "🏛️ Visuddhimagga: \"breath-body\"",
+              "  = whole breath at nostril",
+              "  Purpose: nimitta for jhāna",
+              "📜 Sutta (MN119): \"physical body\"",
+              "  = body pervaded like bathman",
+              "  kneading soap-ball with water",
+              "📚 Sarvastivāda: \"all bodies\"",
+              "  = mental + physical groups",
+              "Each has methodological merit",
+              "Paṭi: Towards / In response",
+              "Saṁ: Together / Fully",
+              "√vid: To know / Experience",
+              "Paṭisaṁvedī = fully experiencing",
+              "[Agent Suffix] One who experiences"
+            ],
+            "senses": [
+              "experiencing the whole body",
+              "experiencing the whole breath",
+              "sensitive to the entire form"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "assasissāmī",
+          "golden": {
+            "seg": "assas·issāmī",
+            "tips": [
+              "√śvas: To breathe",
+              "ā + śvas = breathe in",
+              "[Future 1st Person] \"I will\"",
+              "Intentional: setting up training"
+            ],
+            "senses": [
+              "I will breathe in",
+              "I shall inhale",
+              "I will be breathing in"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'ti",
+          "golden": {
+            "seg": "'ti",
+            "tips": [
+              "Iti: Quotation end"
+            ],
+            "senses": [
+              "—"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "sikkhati",
+          "golden": {
+            "seg": "sikkh·ati",
+            "tips": [
+              "√śikṣ: To train / Practice / Learn",
+              "Desiderative of √śak (to be able)",
+              "📝 PRESCRIPTIVE MODE:",
+              "• Pajānāti (4.4-4.5) = descriptive",
+              "• Sikkhati (4.6-4.7) = prescriptive",
+              "⚡ KEY INDICATORS:",
+              "• Future tense (assasissāmī)",
+              "• Intentional cultivation",
+              "• Same verb as monastic precepts:",
+              "  sikkhāpada = training rules",
+              "Active shaping, not just watching",
+              "[Present Tense] \"trains\""
+            ],
+            "senses": [
+              "trains",
+              "learns",
+              "cultivates"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'sabbakāyapaṭisaṁvedī",
+          "golden": {
+            "seg": "'sabba·kāya·paṭi·saṁ·ved·ī",
+            "tips": [
+              "All / Whole (repeated)",
+              "Body (same three traditions)",
+              "Towards",
+              "Fully",
+              "√vid: Experience",
+              "[Agent Suffix]"
+            ],
+            "senses": [
+              "experiencing the whole body",
+              "experiencing the whole breath",
+              "sensitive to the entire form"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "passasissāmī",
+          "golden": {
+            "seg": "passas·issāmī",
+            "tips": [
+              "√śvas: To breathe",
+              "pa + śvas = breathe out",
+              "[Future 1st Person]"
+            ],
+            "senses": [
+              "I will breathe out",
+              "I shall exhale",
+              "I will be breathing out"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'ti",
+          "golden": {
+            "seg": "'ti",
+            "tips": [
+              "Iti: Quotation end"
+            ],
+            "senses": [
+              "—"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "sikkhati",
+          "golden": {
+            "seg": "sikkh·ati",
+            "tips": [
+              "√śikṣ: Trains",
+              "[Present Tense]"
+            ],
+            "senses": [
+              "trains",
+              "learns",
+              "cultivates"
+            ]
+          },
+          "model": null
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "‘Sabbakāyapaṭisaṁvedī assasissāmī’ti sikkhati, ‘sabbakāyapaṭisaṁvedī passasissāmī’ti sikkhati.",
+          "seg": "‘Sabbakāyapaṭisaṁvedī assasissāmī’ti sikkhati, ‘sabbakāyapaṭisaṁvedī passasissāmī’ti sikkhati.",
+          "tips": []
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-av",
+      "pali": "Seyyathāpi, bhikkhave, dakkho bhamakāro vā bhamakārantevāsī vā dīghaṁ vā añchanto ‘dīghaṁ añchāmī’ti pajānāti, rassaṁ vā añchanto ‘rassaṁ añchāmī’ti pajānāti; ",
+      "goldenWordCount": 21,
+      "modelWordCount": 21,
+      "words": [
+        {
+          "surface": "Seyyathāpi",
+          "golden": {
+            "seg": "Seyyathā·pi",
+            "tips": [
+              "Seyyathā: Just as / Like",
+              "Introduces a simile (upamā)",
+              "Pedagogical device for meditation",
+              "Api: Also / Even",
+              "[Emphatic Particle]"
+            ],
+            "senses": [
+              "just as"
+            ]
+          },
+          "model": {
+            "seg": "Seyyathā·pi",
+            "tips": [],
+            "senses": [
+              "Just like",
+              "As if"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "bhikkhave",
+          "golden": {
+            "seg": "bhikkha·ve",
+            "tips": [
+              "Bhikkhu: Monk",
+              "[Vocative Plural] Addressing the group"
+            ],
+            "senses": [
+              "monks"
+            ]
+          },
+          "model": {
+            "seg": "bhikkhave",
+            "tips": [],
+            "senses": [
+              "monks"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "dakkho",
+          "golden": {
+            "seg": "dakkh·o",
+            "tips": [
+              "Dakkha: Skilled / Expert",
+              "Vedic dakṣa, Greek δεξιός, Latin decet",
+              "📝 The turner is not a passive",
+              "observer — he is a craftsman",
+              "with developed sensitivity",
+              "[Nominative Singular]"
+            ],
+            "senses": [
+              "skilled",
+              "dexterous",
+              "deft"
+            ]
+          },
+          "model": {
+            "seg": "dakkho",
+            "tips": [],
+            "senses": [
+              "expert",
+              "skilled",
+              "deft"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "bhamakāro",
+          "golden": {
+            "seg": "bhama·kār·o",
+            "tips": [
+              "🪵 Bhama: Lathe / Turning-wheel",
+              "From √bhram: to turn, rotate",
+              "Ancient reciprocating bow-lathe:",
+              "Turner pulls strap back-forth",
+              "to spin the wood — mirrors",
+              "the in-out rhythm of breath",
+              "√kṛ: Maker / Doer",
+              "Bhamakāra = \"lathe-worker\"",
+              "A turner who shapes wood",
+              "[Nominative Singular]"
+            ],
+            "senses": [
+              "a turner",
+              "turner",
+              "lathe operator"
+            ]
+          },
+          "model": {
+            "seg": "bhamakāro",
+            "tips": [],
+            "senses": [
+              "turner",
+              "carpenter",
+              "artisan"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or — disjunctive"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [],
+            "senses": [
+              "or"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "bhamakārantevāsī",
+          "golden": {
+            "seg": "bhama·kār·ante·vās·ī",
+            "tips": [
+              "Lathe",
+              "Maker",
+              "Anta: End / Near",
+              "Antevāsī = one who dwells near",
+              "= apprentice (learning close by)",
+              "√vas: To dwell",
+              "[Nominative Singular]"
+            ],
+            "senses": [
+              "a turner's apprentice",
+              "turner's student",
+              "apprentice turner"
+            ]
+          },
+          "model": {
+            "seg": "bhamakārantevāsī",
+            "tips": [],
+            "senses": [
+              "turner's assistant",
+              "carpenter's apprentice",
+              "trainee"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [],
+            "senses": [
+              "or"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "dīghaṁ",
+          "golden": {
+            "seg": "dīgh·aṁ",
+            "tips": [
+              "Dīgha: Long",
+              "A long, slow pull on the lathe",
+              "[Accusative Adverbial]"
+            ],
+            "senses": [
+              "long",
+              "tall",
+              "deep"
+            ]
+          },
+          "model": {
+            "seg": "dīgha·ṁ",
+            "tips": [],
+            "senses": [
+              "deep",
+              "long",
+              "deeply"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [],
+            "senses": [
+              "or"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "añchanto",
+          "golden": {
+            "seg": "añch·anto",
+            "tips": [
+              "√añch: To pull, drag",
+              "PTS: \"to turn on a lathe\"",
+              "🪵 The turner PULLS the strap",
+              "to rotate the workpiece",
+              "= active, embodied knowing",
+              "[Present Participle] \"while pulling\""
+            ],
+            "senses": [
+              "pulling",
+              "stretching",
+              "turns"
+            ]
+          },
+          "model": {
+            "seg": "añchanto",
+            "tips": [],
+            "senses": [
+              "turning",
+              "cutting",
+              "drawing along"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "'dīghaṁ",
+          "golden": {
+            "seg": "'dīgh·aṁ",
+            "tips": [
+              "Opening quote",
+              "[Accusative]"
+            ],
+            "senses": [
+              "long",
+              "tall",
+              "deep"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "añchāmī",
+          "golden": {
+            "seg": "añch·āmī",
+            "tips": [
+              "Pulling (inside quote)",
+              "[1st Person Singular]"
+            ],
+            "senses": [
+              "I pull",
+              "I stretch",
+              "I turn"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'ti",
+          "golden": {
+            "seg": "'ti",
+            "tips": [
+              "Iti: Quote end"
+            ],
+            "senses": [
+              "—"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "pajānāti",
+          "golden": {
+            "seg": "pa·jān·āti",
+            "tips": [
+              "Pa: Forth",
+              "√jñā: To know",
+              "[Present Tense]"
+            ],
+            "senses": [
+              "knows",
+              "clearly knows",
+              "discerns"
+            ]
+          },
+          "model": {
+            "seg": "pajānāti",
+            "tips": [],
+            "senses": [
+              "knows",
+              "understands",
+              "distinguishes"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "rassaṁ",
+          "golden": {
+            "seg": "rass·aṁ",
+            "tips": [
+              "Rassa: Short",
+              "A short, quick pull",
+              "[Accusative Adverbial]"
+            ],
+            "senses": [
+              "short",
+              "dwarfish",
+              "stunted"
+            ]
+          },
+          "model": {
+            "seg": "rassa·ṁ",
+            "tips": [],
+            "senses": [
+              "shallow",
+              "short",
+              "shallowly"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [],
+            "senses": [
+              "or"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "añchanto",
+          "golden": {
+            "seg": "añch·anto",
+            "tips": [
+              "Pulling",
+              "[Present Participle]"
+            ],
+            "senses": [
+              "pulling",
+              "stretching",
+              "turning"
+            ]
+          },
+          "model": {
+            "seg": "añchanto",
+            "tips": [],
+            "senses": [
+              "turning",
+              "cutting",
+              "drawing along"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "'rassaṁ",
+          "golden": {
+            "seg": "'rass·aṁ",
+            "tips": [
+              "Opening quote",
+              "[Accusative]"
+            ],
+            "senses": [
+              "short",
+              "dwarfish",
+              "stunted"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "añchāmī",
+          "golden": {
+            "seg": "añch·āmī",
+            "tips": [
+              "Pulling",
+              "[1st Person Singular]"
+            ],
+            "senses": [
+              "I pull",
+              "I stretch",
+              "I turn"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'ti",
+          "golden": {
+            "seg": "'ti",
+            "tips": [
+              "Iti: Quote end"
+            ],
+            "senses": [
+              "—"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "pajānāti",
+          "golden": {
+            "seg": "pa·jān·āti",
+            "tips": [
+              "Pa: Forth",
+              "√jñā: To know",
+              "[Present Tense]"
+            ],
+            "senses": [
+              "knows",
+              "clearly knows",
+              "discerns"
+            ]
+          },
+          "model": {
+            "seg": "pajānāti",
+            "tips": [],
+            "senses": [
+              "knows",
+              "understands",
+              "distinguishes"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "‘dīghaṁ",
+          "seg": "‘dīgha·ṁ",
+          "tips": []
+        },
+        {
+          "surface": "añchāmi",
+          "seg": "añchāmi",
+          "tips": []
+        },
+        {
+          "surface": "’ti",
+          "seg": "’ti",
+          "tips": []
+        },
+        {
+          "surface": "‘rassaṁ",
+          "seg": "‘rassa·ṁ",
+          "tips": []
+        },
+        {
+          "surface": "añchāmi",
+          "seg": "añchāmi",
+          "tips": []
+        },
+        {
+          "surface": "’ti",
+          "seg": "’ti",
+          "tips": []
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-ax",
+      "pali": "‘sabbakāyapaṭisaṁvedī assasissāmī’ti sikkhati, ‘sabbakāyapaṭisaṁvedī passasissāmī’ti sikkhati; ",
+      "goldenWordCount": 8,
+      "modelWordCount": 1,
+      "words": [
+        {
+          "surface": "'Sabbakāyapaṭisaṁvedī",
+          "golden": {
+            "seg": "'Sabba·kāya·paṭi·saṁ·ved·ī",
+            "tips": [
+              "Sabba: All / Whole",
+              "Opening quote",
+              "Kāya: Body",
+              "⚡ THREE TRADITIONS:",
+              "🏛️ Visuddhimagga: breath-body",
+              "📜 Sutta: physical body",
+              "📚 Sarvastivāda: all bodies",
+              "Paṭi: Towards",
+              "Saṁ: Fully",
+              "√vid: Experience",
+              "[Nominative Agent Suffix]"
+            ],
+            "senses": [
+              "experiencing the whole body",
+              "experiencing the whole breath",
+              "sensitive to entire form"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "assasissāmī",
+          "golden": {
+            "seg": "assas·issāmī",
+            "tips": [
+              "Breathing in",
+              "[Future Tense 1st Person Singular]"
+            ],
+            "senses": [
+              "I will breathe in",
+              "I shall inhale",
+              "breathing in will occur"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'ti",
+          "golden": {
+            "seg": "'ti",
+            "tips": [
+              "Iti: Quote end"
+            ],
+            "senses": [
+              "—"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "sikkhati",
+          "golden": {
+            "seg": "sikkh·ati",
+            "tips": [
+              "√śikṣ: To train",
+              "[Present Tense 3rd Person Singular]"
+            ],
+            "senses": [
+              "trains",
+              "learns",
+              "cultivates"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'sabbakāyapaṭisaṁvedī",
+          "golden": {
+            "seg": "'sabba·kāya·paṭi·saṁ·ved·ī",
+            "tips": [
+              "All / Whole",
+              "Body",
+              "Towards",
+              "Fully",
+              "Experience",
+              "[Nominative Agent Suffix]"
+            ],
+            "senses": [
+              "experiencing the whole body",
+              "experiencing the whole breath"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "passasissāmī",
+          "golden": {
+            "seg": "passas·issāmī",
+            "tips": [
+              "Breathing out",
+              "[Future Tense 1st Person Singular]"
+            ],
+            "senses": [
+              "I will breathe out",
+              "I shall exhale",
+              "breathing out will occur"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "'ti",
+          "golden": {
+            "seg": "'ti",
+            "tips": [
+              "Iti: Quote end"
+            ],
+            "senses": [
+              "—"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "sikkhati",
+          "golden": {
+            "seg": "sikkh·ati",
+            "tips": [
+              "√śikṣ: Trains",
+              "[Present Tense 3rd Person Singular]"
+            ],
+            "senses": [
+              "trains",
+              "learns",
+              "cultivates"
+            ]
+          },
+          "model": null
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "‘sabbakāyapaṭisaṁvedī",
+          "seg": "?",
+          "tips": []
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-az",
+      "pali": "Iti ajjhattaṁ vā kāye kāyānupassī viharati, bahiddhā vā kāye kāyānupassī viharati, ajjhattabahiddhā vā kāye kāyānupassī viharati; ",
+      "goldenWordCount": 5,
+      "modelWordCount": 16,
+      "words": [
+        {
+          "surface": "bahiddhā",
+          "golden": {
+            "seg": "bahid·dhā",
+            "tips": [
+              "Bahis: Outside / External",
+              "Sanskrit bahis",
+              "[Adverbial] \"externally\"",
+              "📍 EXTERNAL SCOPE:",
+              "• Others' bodies (living beings)",
+              "• Or: external aspects of one's",
+              "  own body (skin, posture)",
+              "🔗 Develops universal insight"
+            ],
+            "senses": [
+              "externally",
+              "in others",
+              "outwardly"
+            ]
+          },
+          "model": {
+            "seg": "bah·i·ddhā",
+            "tips": [
+              "The stem for 'much' or 'many', from which 'outside' (bahiddhā) is derived.",
+              "A connecting element, part of the derivation of the adverb.",
+              "An adverbial ending, making 'bahiddhā' mean 'externally' or 'outwardly'."
+            ],
+            "senses": [
+              "externally",
+              "outwardly",
+              "outside"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [
+              "A particle meaning 'or'. Completes the threefold contemplative framework."
+            ],
+            "senses": [
+              "or",
+              "either"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "kāye",
+          "golden": {
+            "seg": "kāy·e",
+            "tips": [
+              "Kāya: Body",
+              "[Locative Singular] \"in the body\""
+            ],
+            "senses": [
+              "in the body",
+              "in this heap",
+              "in this mass",
+              "body as body",
+              "in what's assembled"
+            ]
+          },
+          "model": {
+            "seg": "kāy·e",
+            "tips": [
+              "The stem for 'body' or 'group', from the root meaning 'to accumulate'.",
+              "The -e ending is locative singular, meaning 'in/on/with regard to the body'."
+            ],
+            "senses": [
+              "body",
+              "physical process",
+              "group"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "kāyānupassī",
+          "golden": {
+            "seg": "kāy·ānu·pass·ī",
+            "tips": [
+              "Kāya: Body",
+              "Anu: Along / Following",
+              "√paś: To see / Observe",
+              "[Nominative Agent Noun] \"one who...\""
+            ],
+            "senses": [
+              "observing body",
+              "a body-watcher",
+              "contemplating form",
+              "tracking the physical",
+              "seeing body as body"
+            ]
+          },
+          "model": {
+            "seg": "kāyā·nupass·ī",
+            "tips": [
+              "The stem for 'body' in compound form. The long ā is from sandhi (kāya + anupassī).",
+              "The root √pass, 'to see', with prefix anu- meaning 'along, following'. Anupassī means 'one who observes'.",
+              "A possessive suffix making it an adjective: 'one who has observation'."
+            ],
+            "senses": [
+              "observing the body",
+              "contemplating the body",
+              "body-aware"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "viharati",
+          "golden": {
+            "seg": "vihar·ati",
+            "tips": [
+              "Dwells",
+              "[Present Tense 3rd Person Singular]"
+            ],
+            "senses": [
+              "dwells",
+              "abides",
+              "remains",
+              "lives",
+              "keeps at it"
+            ]
+          },
+          "model": {
+            "seg": "vi·har·a·ti",
+            "tips": [
+              "A prefix meaning 'apart' or 'in various ways'. With harati, it forms viharati, 'to dwell' or 'to abide'.",
+              "The root √har, meaning 'to bear, carry'. Here it means to sustain or maintain a state.",
+              "The thematic vowel, part of the verb's present tense conjugation.",
+              "Third person singular present tense ending: 'he/she/it dwells'."
+            ],
+            "senses": [
+              "dwells",
+              "lives",
+              "stays"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "Iti",
+          "seg": "Iti",
+          "tips": [
+            "Thus; like this; and so. This word introduces a conclusion or a manner of practice."
+          ]
+        },
+        {
+          "surface": "ajjhattaṁ",
+          "seg": "ajjhatt·aṁ",
+          "tips": [
+            "The stem for 'internal' or 'inwardly'. Related to 'adhi-atta', meaning 'pertaining to self'.",
+            "The -aṁ ending makes this an adverb: 'internally' or 'inwardly'."
+          ]
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": [
+            "A particle meaning 'or'. Here it offers alternative perspectives for contemplation."
+          ]
+        },
+        {
+          "surface": "kāye",
+          "seg": "kāy·e",
+          "tips": [
+            "The stem for 'body' or 'group', from the root meaning 'to accumulate'.",
+            "The -e ending is locative singular, meaning 'in/on/with regard to the body'."
+          ]
+        },
+        {
+          "surface": "kāyānupassī",
+          "seg": "kāyā·nupass·ī",
+          "tips": [
+            "The stem for 'body' in compound form. The long ā is from sandhi (kāya + anupassī).",
+            "The root √pass, 'to see', with prefix anu- meaning 'along, following'. Anupassī means 'one who observes'.",
+            "A possessive suffix making it an adjective: 'one who has observation'."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": [
+            "A prefix meaning 'apart' or 'in various ways'. With harati, it forms viharati, 'to dwell' or 'to abide'.",
+            "The root √har, meaning 'to bear, carry'. Here it means to sustain or maintain a state.",
+            "The thematic vowel, part of the verb's present tense conjugation."
+          ]
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": [
+            "A particle meaning 'or'. Repeats the structure, offering another option."
+          ]
+        },
+        {
+          "surface": "kāye",
+          "seg": "kāy·e",
+          "tips": [
+            "The stem for 'body' or 'group', from the root meaning 'to accumulate'.",
+            "The -e ending is locative singular, meaning 'in/on/with regard to the body'."
+          ]
+        },
+        {
+          "surface": "kāyānupassī",
+          "seg": "kāyā·nupass·ī",
+          "tips": [
+            "The stem for 'body' in compound form. The long ā is from sandhi (kāya + anupassī).",
+            "The root √pass, 'to see', with prefix anu- meaning 'along, following'. Anupassī means 'one who observes'.",
+            "A possessive suffix making it an adjective: 'one who has observation'."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": [
+            "A prefix meaning 'apart' or 'in various ways'. With harati, it forms viharati, 'to dwell' or 'to abide'.",
+            "The root √har, meaning 'to bear, carry'. Here it means to sustain or maintain a state.",
+            "The thematic vowel, part of the verb's present tense conjugation."
+          ]
+        },
+        {
+          "surface": "ajjhattabahiddhā",
+          "seg": "ajjhattabah·i·ddhā",
+          "tips": [
+            "A compound stem combining 'ajjhatta' (internal) and 'bahi' (external).",
+            "A connecting element, part of the derivation of the compound adverb.",
+            "An adverbial ending, making 'ajjhattabahiddhā' mean 'internally and externally'."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-ba",
+      "pali": "Iti ajjhattaṁ vā kāye kāyānupassī viharati, bahiddhā vā kāye kāyānupassī viharati, ajjhattabahiddhā vā kāye kāyānupassī viharati; ",
+      "goldenWordCount": 5,
+      "modelWordCount": 16,
+      "words": [
+        {
+          "surface": "ajjhattabahiddhā",
+          "golden": {
+            "seg": "ajjhatta·bahid·dhā",
+            "tips": [
+              "Internal",
+              "External",
+              "[Adverbial] \"both internally and externally\"",
+              "⚡ BOTH TOGETHER:",
+              "Seeing the SAME patterns",
+              "in self and others",
+              "→ Universality of experience",
+              "→ Breaking self/other duality",
+              "→ Foundation for compassion"
+            ],
+            "senses": [
+              "both internally and externally",
+              "in oneself and others",
+              "inwardly and outwardly"
+            ]
+          },
+          "model": {
+            "seg": "aj·jha·tta·ba·hi·ddh·ā",
+            "tips": [
+              "Prefix 'ad-' (to, towards), same as p2s1.",
+              "Root related to 'hṛ' (to take), same as p2s2.",
+              "Suffix forming abstract nouns/adverbs, same as p2s3.",
+              "The first part of 'bahiddhā', joined here in a compound.",
+              "The core of 'bahiddhā', indicating externality, same as p7s1/p7s2.",
+              "Part of the adverbial suffix, from 'bahiddhā'.",
+              "The final adverbial ending, forming 'ajjhattabahiddhā' meaning 'internally and externally'.",
+              "A compound adverb covering both spheres of observation."
+            ],
+            "senses": [
+              "internally and externally",
+              "inwardly and outwardly",
+              "personal and external"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [
+              "Or. The third disjunctive particle for the combined alternative."
+            ],
+            "senses": [
+              "or"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "kāye",
+          "golden": {
+            "seg": "kāy·e",
+            "tips": [
+              "Kāya: Body",
+              "[Locative Singular] \"in the body\""
+            ],
+            "senses": [
+              "in the body",
+              "in this heap",
+              "in this mass",
+              "body as body",
+              "in what's assembled"
+            ]
+          },
+          "model": {
+            "seg": "kāy·e",
+            "tips": [
+              "Root for 'body', same as p4s1 and p9s1.",
+              "Locative case: 'in the body', same as p4s2 and p9s2."
+            ],
+            "senses": [
+              "body",
+              "physical process",
+              "physical existence"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "kāyānupassī",
+          "golden": {
+            "seg": "kāy·ānu·pass·ī",
+            "tips": [
+              "Kāya: Body",
+              "Anu: Along / Following",
+              "√paś: To see / Observe",
+              "[Nominative Agent Noun] \"one who...\""
+            ],
+            "senses": [
+              "observing body",
+              "a body-watcher",
+              "contemplating form",
+              "tracking the physical",
+              "seeing body as body"
+            ]
+          },
+          "model": {
+            "seg": "kāyā·nupass·ī",
+            "tips": [
+              "Stem 'kāya' in compound, same as p5s1 and p10s1.",
+              "Root 'pass' with prefix 'anu-', same as p5s2 and p10s2.",
+              "Possessive suffix: 'one who observes', same as p5s3 and p10s3."
+            ],
+            "senses": [
+              "observing the body",
+              "contemplating the body",
+              "body-contemplator"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "viharati",
+          "golden": {
+            "seg": "vihar·ati",
+            "tips": [
+              "Dwells",
+              "[Present Tense 3rd Person Singular]"
+            ],
+            "senses": [
+              "dwells",
+              "abides",
+              "remains",
+              "lives",
+              "keeps at it"
+            ]
+          },
+          "model": {
+            "seg": "vi·har·a·ti",
+            "tips": [
+              "Prefix 'vi-', same as p6s1 and p11s1.",
+              "Root 'har' (to dwell), same as p6s2 and p11s2.",
+              "Thematic vowel, same as p6s3 and p11s3.",
+              "Third person singular present ending, same as p6s4 and p11s4."
+            ],
+            "senses": [
+              "dwells",
+              "stays",
+              "lives"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "Iti",
+          "seg": "Iti",
+          "tips": [
+            "Thus, like this. A particle that introduces a summary or a conclusion.",
+            "Often translated as 'and so' or 'thus'. It frames the following instruction."
+          ]
+        },
+        {
+          "surface": "ajjhattaṁ",
+          "seg": "aj·jha·tta·ṁ",
+          "tips": [
+            "The prefix 'ad-' meaning 'to, towards'. It often assimilates to the following sound.",
+            "Related to the root 'hṛ' meaning 'to take'. The sense is of something being taken inward.",
+            "A suffix that forms abstract nouns or adverbs, often indicating a state or condition."
+          ]
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": [
+            "Or, either. A disjunctive particle that presents alternatives.",
+            "It connects the different spheres of observation: internal OR external."
+          ]
+        },
+        {
+          "surface": "kāye",
+          "seg": "kāy·e",
+          "tips": [
+            "The root for 'body', meaning an accumulation or collection of parts.",
+            "In meditation, 'kāya' often refers to the physical body as a process.",
+            "The locative case ending -e, meaning 'in' or 'with regard to' the body."
+          ]
+        },
+        {
+          "surface": "kāyānupassī",
+          "seg": "kāyā·nupass·ī",
+          "tips": [
+            "The stem 'kāya' (body) in a compound form. The long -ā is a sandhi change before 'n'.",
+            "The root 'pass' meaning 'to see', with the prefix 'anu-' meaning 'along, following'.",
+            "Anupassati means to observe closely, to watch over continuously."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": [
+            "A prefix meaning 'apart' or 'in a particular way'. It often intensifies or specifies the action.",
+            "The root 'hṛ' meaning 'to take, to carry'. Viharati means to dwell, to abide, to carry on.",
+            "The thematic vowel 'a' that connects the root to the personal ending."
+          ]
+        },
+        {
+          "surface": "bahiddhā",
+          "seg": "bah·i·ddhā",
+          "tips": [
+            "Related to 'bahu' meaning 'much, many'. The sense is of 'outside' as the larger sphere.",
+            "A connecting element; the core idea is of separation or externality.",
+            "An adverbial suffix forming 'bahiddhā', meaning 'externally' or 'outwardly'."
+          ]
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": [
+            "Or. Repeats the disjunctive particle for the second alternative: external observation."
+          ]
+        },
+        {
+          "surface": "kāye",
+          "seg": "kāy·e",
+          "tips": [
+            "The root for 'body', identical to p4s1. The object of observation remains the same.",
+            "Locative case: 'in the body'. The grammatical form is the same for internal and external observation."
+          ]
+        },
+        {
+          "surface": "kāyānupassī",
+          "seg": "kāyā·nupass·ī",
+          "tips": [
+            "The stem 'kāya' (body) in compound, same as p5s1.",
+            "The root 'pass' (to see) with prefix 'anu-', same as p5s2.",
+            "Possessive suffix: 'one who observes', same as p5s3."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": [
+            "Prefix 'vi-', same as p6s1.",
+            "Root 'har' (to carry, dwell), same as p6s2.",
+            "Thematic vowel, same as p6s3."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-bc",
+      "pali": "samudayadhammānupassī vā kāyasmiṁ viharati, vayadhammānupassī vā kāyasmiṁ viharati, samudayavayadhammānupassī vā kāyasmiṁ viharati. ",
+      "goldenWordCount": 4,
+      "modelWordCount": 12,
+      "words": [
+        {
+          "surface": "vayadhammānupassī",
+          "golden": {
+            "seg": "vaya·dhamm·ānu·pass·ī",
+            "tips": [
+              "Vaya: Decay / Passing away / Cessation",
+              "From vi + i: going away",
+              "⚡ ANICCA direct insight:",
+              "Everything that arises, passes",
+              "This is vipassanā proper",
+              "Nature / Quality",
+              "\"Passing-nature\" = subject to decay",
+              "Full stem: dhamma (final vowel elided in sandhi before ānu)",
+              "Repeatedly",
+              "Seeing",
+              "[Nominative Agent Suffix]"
+            ],
+            "senses": [
+              "observing the passing nature",
+              "seeing how things cease",
+              "watching phenomena vanish"
+            ]
+          },
+          "model": {
+            "seg": "vaya·dhamma·ānupass·ī",
+            "tips": [
+              "The root 'vaya' means 'falling', 'disappearance', or 'cessation'. It refers to the process of passing away or vanishing.",
+              "The root 'dhamma' means 'phenomenon', 'nature', or 'law'. Here it refers to the nature or characteristic of the disappearance process.",
+              "The root 'pass' means 'to see'. The prefix 'anu-' means 'along' or 'following', so 'anupass' means 'to observe closely' or 'to contemplate'.",
+              "The '-ī' ending is a possessive suffix, making the whole word an adjective meaning 'one who sees' or 'one who contemplates'."
+            ],
+            "senses": [
+              "observing the nature of vanishing",
+              "contemplating the property of disappearance",
+              "seeing the law of vanishing"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [
+              "A particle meaning 'or', used here to present alternative modes of contemplation."
+            ],
+            "senses": [
+              "or",
+              "either"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "kāyasmiṁ",
+          "golden": {
+            "seg": "kāya·smiṁ",
+            "tips": [
+              "Body",
+              "[Locative Singular] \"in regard to body\""
+            ],
+            "senses": [
+              "in regard to body",
+              "concerning the body",
+              "in the body"
+            ]
+          },
+          "model": {
+            "seg": "kāya·smiṁ",
+            "tips": [
+              "The root 'kāya' means 'body', referring here to the physical body or the collection of physical processes.",
+              "The '-smiṁ' ending is the locative case singular, meaning 'in' or 'with regard to'. It marks the location or focus of the meditation."
+            ],
+            "senses": [
+              "in the body",
+              "in the physical process",
+              "in the group"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "viharati",
+          "golden": {
+            "seg": "vihar·ati",
+            "tips": [
+              "Dwells",
+              "[Present Tense 3rd Person Singular]"
+            ],
+            "senses": [
+              "dwells",
+              "abides",
+              "remains",
+              "lives",
+              "keeps at it"
+            ]
+          },
+          "model": {
+            "seg": "viharati",
+            "tips": [
+              "The root 'hara' means 'to carry' or 'to bear'. The prefix 'vi-' can mean 'apart' or 'in a particular way', so 'viharati' means 'to dwell' or 'to abide' in a meditative state."
+            ],
+            "senses": [
+              "dwells",
+              "stays",
+              "lives"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "samudayadhammānupassī",
+          "seg": "samudaya·dhamma·ānupass·ī",
+          "tips": [
+            "The root 'udaya' means 'arising' or 'origin'. Combined with 'sam-' (meaning 'together' or 'completely'), it refers to the complete process of origination.",
+            "The root 'dhamma' means 'phenomenon', 'nature', or 'law'. Here it refers to the nature or characteristic of the arising process.",
+            "The root 'pass' means 'to see'. The prefix 'anu-' means 'along' or 'following', so 'anupass' means 'to observe closely' or 'to contemplate'."
+          ]
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": [
+            "A particle meaning 'or', used here to present alternative modes of contemplation."
+          ]
+        },
+        {
+          "surface": "kāyasmiṁ",
+          "seg": "kāya·smiṁ",
+          "tips": [
+            "The root 'kāya' means 'body', referring here to the physical body or the collection of physical processes.",
+            "The '-smiṁ' ending is the locative case singular, meaning 'in' or 'with regard to'. It marks the location or focus of the meditation."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "viharati",
+          "tips": [
+            "The root 'hara' means 'to carry' or 'to bear'. The prefix 'vi-' can mean 'apart' or 'in a particular way', so 'viharati' means 'to dwell' or 'to abide' in a meditative state."
+          ]
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": [
+            "A particle meaning 'or', used here to present alternative modes of contemplation."
+          ]
+        },
+        {
+          "surface": "kāyasmiṁ",
+          "seg": "kāya·smiṁ",
+          "tips": [
+            "The root 'kāya' means 'body', referring here to the physical body or the collection of physical processes.",
+            "The '-smiṁ' ending is the locative case singular, meaning 'in' or 'with regard to'. It marks the location or focus of the meditation."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "viharati",
+          "tips": [
+            "The root 'hara' means 'to carry' or 'to bear'. The prefix 'vi-' can mean 'apart' or 'in a particular way', so 'viharati' means 'to dwell' or 'to abide' in a meditative state."
+          ]
+        },
+        {
+          "surface": "samudayavayadhammānupassī",
+          "seg": "samudayavaya·dhamma·ānupass·ī",
+          "tips": [
+            "A compound of 'samudaya' (arising) and 'vaya' (falling), referring to the combined process of origination and cessation.",
+            "The root 'dhamma' means 'phenomenon', 'nature', or 'law'. Here it refers to the nature or characteristic of the combined arising and falling process.",
+            "The root 'pass' means 'to see'. The prefix 'anu-' means 'along' or 'following', so 'anupass' means 'to observe closely' or 'to contemplate'."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-bd",
+      "pali": "samudayadhammānupassī vā kāyasmiṁ viharati, vayadhammānupassī vā kāyasmiṁ viharati, samudayavayadhammānupassī vā kāyasmiṁ viharati. ",
+      "goldenWordCount": 4,
+      "modelWordCount": 12,
+      "words": [
+        {
+          "surface": "samudayavayadhammānupassī",
+          "golden": {
+            "seg": "samudaya·vaya·dhamm·ānu·pass·ī",
+            "tips": [
+              "Arising",
+              "And passing",
+              "⚡ COMPLETE ANICCA:",
+              "Seeing the FULL CYCLE",
+              "Arising-and-passing together",
+              "→ Nothing to cling to",
+              "→ Dependent origination direct",
+              "Nature",
+              "Full stem: dhamma (final vowel elided in sandhi before ānu)",
+              "Repeatedly",
+              "Seeing",
+              "[Nominative Agent Suffix]"
+            ],
+            "senses": [
+              "observing arising-and-passing nature",
+              "seeing impermanence fully",
+              "watching the full flux"
+            ]
+          },
+          "model": {
+            "seg": "sam·udaya·vaya·dhamma·ānupass·ī",
+            "tips": [],
+            "senses": [
+              "observing the nature of arising and vanishing",
+              "seeing the arising and disappearance of phenomena",
+              "contemplating the nature of origination and dissolution"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "vā",
+          "golden": {
+            "seg": "vā",
+            "tips": [
+              "Or"
+            ],
+            "senses": [
+              "or"
+            ]
+          },
+          "model": {
+            "seg": "vā",
+            "tips": [],
+            "senses": [
+              "or",
+              "alternatively"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "kāyasmiṁ",
+          "golden": {
+            "seg": "kāya·smiṁ",
+            "tips": [
+              "Body",
+              "[Locative Singular] \"in regard to body\""
+            ],
+            "senses": [
+              "in regard to body",
+              "concerning the body",
+              "in the body"
+            ]
+          },
+          "model": {
+            "seg": "kāya·smiṁ",
+            "tips": [],
+            "senses": [
+              "in the body",
+              "in the physical process",
+              "in the physicality"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "viharati",
+          "golden": {
+            "seg": "vihar·ati",
+            "tips": [
+              "Dwells",
+              "[Present Tense 3rd Person Singular]"
+            ],
+            "senses": [
+              "dwells",
+              "abides",
+              "remains",
+              "lives",
+              "keeps at it"
+            ]
+          },
+          "model": {
+            "seg": "vi·har·a·ti",
+            "tips": [],
+            "senses": [
+              "dwells",
+              "stays",
+              "lives"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "samudayadhammānupassī",
+          "seg": "sam·udaya·dhamma·ānupass·ī",
+          "tips": []
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": []
+        },
+        {
+          "surface": "kāyasmiṁ",
+          "seg": "kāya·smiṁ",
+          "tips": []
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": []
+        },
+        {
+          "surface": "vayadhammānupassī",
+          "seg": "vaya·dhamma·ānupass·ī",
+          "tips": []
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": []
+        },
+        {
+          "surface": "kāyasmiṁ",
+          "seg": "kāya·smiṁ",
+          "tips": []
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": []
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-bf",
+      "pali": "‘Atthi kāyo’ti vā panassa sati paccupaṭṭhitā hoti. Yāvadeva ñāṇamattāya paṭissatimattāya anissito ca viharati, na ca kiñci loke upādiyati. ",
+      "goldenWordCount": 3,
+      "modelWordCount": 18,
+      "words": [
+        {
+          "surface": "yāvadeva",
+          "golden": {
+            "seg": "yāvad·eva",
+            "tips": [
+              "Yāva: As far as / To the extent",
+              "[Adverbial particle]",
+              "Eva: Just / Only",
+              "[Emphatic particle]",
+              "Yāvadeva = just to the extent"
+            ],
+            "senses": [
+              "just to the extent"
+            ]
+          },
+          "model": {
+            "seg": "Yāva·deva",
+            "tips": [
+              "An adverb meaning 'as far as', 'until', or 'to the extent that'. It sets a limit.",
+              "An emphatic particle meaning 'only', 'just', or 'merely'. Combined with 'yāva', it means 'only as much as'."
+            ],
+            "senses": [
+              "only as much as"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "ñāṇamattāya",
+          "golden": {
+            "seg": "ñāṇa·matt·āya",
+            "tips": [
+              "Ñāṇa: Knowledge / Gnosis",
+              "From √jñā: to know",
+              "Matta: Mere / Only / Just",
+              "📝 JUST for knowledge's sake",
+              "Not for ego, not for becoming",
+              "Pure knowing without grasping",
+              "[Dative Case] \"for the purpose of\""
+            ],
+            "senses": [
+              "for bare knowledge",
+              "just for knowing"
+            ]
+          },
+          "model": {
+            "seg": "ñāṇa·mattā·ya",
+            "tips": [
+              "Knowledge or understanding. A central goal of the path.",
+              "A suffix meaning 'measure', 'extent', or 'just enough'. It forms abstract nouns indicating sufficiency.",
+              "A dative singular ending, meaning 'for'. It indicates purpose: 'for the sake of knowledge-measure'."
+            ],
+            "senses": [
+              "for knowledge",
+              "for a measure of understanding",
+              "for awareness"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "paṭissatimattāya",
+          "golden": {
+            "seg": "paṭi·ssati·matt·āya",
+            "tips": [
+              "Paṭi: Back / Again",
+              "Sati: Mindfulness",
+              "Paṭissati = continued mindfulness",
+              "Mere / Just",
+              "[Dative Case] \"for\""
+            ],
+            "senses": [
+              "for bare mindfulness",
+              "just for awareness"
+            ]
+          },
+          "model": {
+            "seg": "paṭi·ssati·mattāya",
+            "tips": [
+              "A prefix meaning 'again', 'back', or 'continuous'. Here it intensifies the sense of mindfulness.",
+              "A form of 'sati' (mindfulness) with sandhi. 'Paṭissati' means continuous mindfulness or lucid self-awareness.",
+              "The same suffix as in p9s2-s3: 'mattāya' means 'for a measure of'. It's in the dative case, indicating purpose."
+            ],
+            "senses": [
+              "for mindfulness",
+              "for a measure of lucid awareness",
+              "for attention"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "‘Atthi",
+          "seg": "Atthi·‘",
+          "tips": [
+            "The verb 'is' or 'exists'. It's a present-tense form of the root 'as' meaning 'to be'.",
+            "This word introduces the object of mindfulness: 'There is a body'.",
+            "Opening quotation mark. In Pali texts, this often sets off a thought or perception being noted."
+          ]
+        },
+        {
+          "surface": "kāyo’ti",
+          "seg": "kāyo·’ti",
+          "tips": [
+            "The stem for 'body'. It comes from the root meaning 'to accumulate' or 'to heap up', referring to the physical form.",
+            "The long 'o' is the nominative singular ending, marking this as the subject of the quoted phrase.",
+            "Closing quotation mark plus the particle 'ti'. The 'ti' marks the end of a thought or speech, like 'thinking: ...' or 'saying: ...'."
+          ]
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": [
+            "A particle meaning 'or'. It introduces an alternative object of mindfulness."
+          ]
+        },
+        {
+          "surface": "panassa",
+          "seg": "pana·assa",
+          "tips": [
+            "A connective particle meaning 'and', 'but', or 'furthermore'. It links this statement to a previous one.",
+            "A sandhi form of 'assa', meaning 'for him' or 'his'. It's a dative/genitive pronoun referring to the meditator."
+          ]
+        },
+        {
+          "surface": "sati",
+          "seg": "sati",
+          "tips": [
+            "Mindfulness or awareness. The core faculty being cultivated in this practice.",
+            "It's a feminine noun from the root meaning 'to remember'."
+          ]
+        },
+        {
+          "surface": "paccupaṭṭhitā",
+          "seg": "paccu·pa·ṭṭhita·ā",
+          "tips": [
+            "A compound prefix from 'pati' (towards, against) and 'upa' (near). Together they mean 'standing near' or 'in attendance'.",
+            "The 'pa' part of the 'upa' prefix, fused here. It contributes to the sense of 'near'.",
+            "The past participle stem from the root 'ṭhā' meaning 'to stand'. The form means 'established' or 'set up'."
+          ]
+        },
+        {
+          "surface": "hoti",
+          "seg": "ho·ti",
+          "tips": [
+            "The present tense stem of the verb 'to be', from the root 'hū'. It means 'is'.",
+            "The third person singular present tense ending. It marks the verb as 'he/she/it is'."
+          ]
+        },
+        {
+          "surface": "anissito",
+          "seg": "a·nissita·o",
+          "tips": [
+            "A negative prefix meaning 'not', 'non-', or 'without'.",
+            "The past participle stem meaning 'dependent on', 'leaning on', or 'supported by'. From the root 'si' meaning 'to lean'.",
+            "A masculine nominative singular ending. It marks this adjective ('independent') as describing the meditator."
+          ]
+        },
+        {
+          "surface": "ca",
+          "seg": "ca",
+          "tips": [
+            "The conjunction 'and'. It connects the description of how one meditates."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·hara·ti",
+          "tips": [
+            "A prefix meaning 'apart', 'asunder', or sometimes giving an intensive sense. Here it modifies 'dwell'.",
+            "The root meaning 'to carry', 'to bear', or 'to hold'. In this verb form, it means 'to dwell' or 'to abide'.",
+            "The third person singular present tense ending. 'He/she dwells'."
+          ]
+        },
+        {
+          "surface": "na",
+          "seg": "na",
+          "tips": [
+            "The adverb 'not'. It negates the following verb."
+          ]
+        },
+        {
+          "surface": "ca",
+          "seg": "ca",
+          "tips": [
+            "The conjunction 'and'. It connects the negative clause to the previous positive one."
+          ]
+        },
+        {
+          "surface": "kiñci",
+          "seg": "kiñci· ",
+          "tips": [
+            "An indefinite pronoun meaning 'anything', 'something', or 'any'. It's the object of grasping.",
+            "A space in the surface text. It separates 'kiñci' from 'loke'."
+          ]
+        },
+        {
+          "surface": "loke",
+          "seg": "lok·e",
+          "tips": [
+            "The stem for 'world'. It refers to the cosmos, a plane of existence, or the people in it.",
+            "A locative singular ending, meaning 'in' or 'with regard to'. 'In the world'."
+          ]
+        },
+        {
+          "surface": "upādiyati",
+          "seg": "upa·ā·diyati·.",
+          "tips": [
+            "A prefix meaning 'near', 'towards', or 'upon'. It often indicates taking hold of something.",
+            "An intensive prefix, often meaning 'up' or giving a sense of repetition. Combined, 'upādiyati' means 'grasps' or 'clings'.",
+            "A present passive form from the root 'dā' meaning 'to give' or 'to take'. In this construction, it means 'is taken up' or 'grasped'."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-bg",
+      "pali": "‘Atthi kāyo’ti vā panassa sati paccupaṭṭhitā hoti. Yāvadeva ñāṇamattāya paṭissatimattāya anissito ca viharati, na ca kiñci loke upādiyati. ",
+      "goldenWordCount": 8,
+      "modelWordCount": 20,
+      "words": [
+        {
+          "surface": "anissito",
+          "golden": {
+            "seg": "a·nissit·o",
+            "tips": [
+              "A-: Not / Without (negative)",
+              "Nissita: Dependent / Leaning on",
+              "From ni + √śri: to lean",
+              "Anissita = INDEPENDENT",
+              "⚡ KEY RESULT:",
+              "Not leaning on craving",
+              "Not leaning on views",
+              "Self-sufficient awareness",
+              "[Nominative Singular]"
+            ],
+            "senses": [
+              "independent",
+              "not dependent",
+              "unsupported"
+            ]
+          },
+          "model": {
+            "seg": "anissito",
+            "tips": [],
+            "senses": [
+              "independent",
+              "detached",
+              "unsupported"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "ca",
+          "golden": {
+            "seg": "ca",
+            "tips": [
+              "And"
+            ],
+            "senses": [
+              "and"
+            ]
+          },
+          "model": {
+            "seg": "ca",
+            "tips": [],
+            "senses": [
+              "and"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "viharati",
+          "golden": {
+            "seg": "vihar·ati",
+            "tips": [
+              "Dwells",
+              "[Present Tense 3rd Person Singular]"
+            ],
+            "senses": [
+              "dwells",
+              "abides",
+              "remains",
+              "lives",
+              "keeps at it"
+            ]
+          },
+          "model": {
+            "seg": "viharati",
+            "tips": [],
+            "senses": [
+              "dwells",
+              "stays",
+              "abides"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "na",
+          "golden": {
+            "seg": "na",
+            "tips": [
+              "Not"
+            ],
+            "senses": [
+              "not"
+            ]
+          },
+          "model": {
+            "seg": "na",
+            "tips": [],
+            "senses": [
+              "not"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "ca",
+          "golden": {
+            "seg": "ca",
+            "tips": [
+              "And"
+            ],
+            "senses": [
+              "and"
+            ]
+          },
+          "model": {
+            "seg": "ca",
+            "tips": [],
+            "senses": [
+              "and"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "kiñci",
+          "golden": {
+            "seg": "kiñci",
+            "tips": [
+              "Kiñci: Anything / Something",
+              "[Indefinite Pronoun Accusative]",
+              "With na = \"not anything\""
+            ],
+            "senses": [
+              "anything",
+              "something",
+              "whatever"
+            ]
+          },
+          "model": {
+            "seg": "kiñci",
+            "tips": [],
+            "senses": [
+              "anything",
+              "something"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "loke",
+          "golden": {
+            "seg": "lok·e",
+            "tips": [
+              "Loka: World",
+              "📍 In the world = in experience",
+              "All of saṁsāric existence",
+              "[Locative Singular] \"in the world\""
+            ],
+            "senses": [
+              "in the world"
+            ]
+          },
+          "model": {
+            "seg": "loke",
+            "tips": [],
+            "senses": [
+              "in the world",
+              "in the cosmos",
+              "among people"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "upādiyati",
+          "golden": {
+            "seg": "up·ādi·yati",
+            "tips": [
+              "Upa: Towards / Near",
+              "Full stem: upa (final vowel elided in sandhi before ādi)",
+              "√dā: To take",
+              "Upādāna = clinging, grasping",
+              "⚡ THE GOAL:",
+              "Na upādiyati = does NOT cling",
+              "Freedom from the 4 upādānas:",
+              "• Sensual clinging",
+              "• View clinging",
+              "• Rite/ritual clinging",
+              "• Self-doctrine clinging",
+              "[Present Tense 3rd Person Singular] \"clings\""
+            ],
+            "senses": [
+              "clings to",
+              "takes up"
+            ]
+          },
+          "model": {
+            "seg": "upādiyati",
+            "tips": [],
+            "senses": [
+              "grasps",
+              "clings",
+              "takes possession of"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "‘Atthi kāyo’ti",
+          "seg": "‘·Atthi·kāyo·’·ti",
+          "tips": []
+        },
+        {
+          "surface": "vā",
+          "seg": "vā",
+          "tips": []
+        },
+        {
+          "surface": "panassa",
+          "seg": "panassa",
+          "tips": []
+        },
+        {
+          "surface": "sati",
+          "seg": "sati",
+          "tips": []
+        },
+        {
+          "surface": "paccupaṭṭhitā",
+          "seg": "paccupaṭṭhitā",
+          "tips": []
+        },
+        {
+          "surface": "hoti",
+          "seg": "hoti",
+          "tips": []
+        },
+        {
+          "surface": ".",
+          "seg": ".",
+          "tips": []
+        },
+        {
+          "surface": "Yāvadeva",
+          "seg": "Yāvadeva",
+          "tips": []
+        },
+        {
+          "surface": "ñāṇamattāya",
+          "seg": "ñāṇamattāya",
+          "tips": []
+        },
+        {
+          "surface": "paṭissatimattāya",
+          "seg": "paṭissatimattāya",
+          "tips": []
+        },
+        {
+          "surface": ",",
+          "seg": ",",
+          "tips": []
+        },
+        {
+          "surface": ".",
+          "seg": ".",
+          "tips": []
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-d",
+      "pali": "ekaṁ samayaṁ bhagavā kurūsu viharati kammāsadhammaṁ nāma kurūnaṁ nigamo. ",
+      "goldenWordCount": 4,
+      "modelWordCount": 9,
+      "words": [
+        {
+          "surface": "Kammāsadhammaṁ",
+          "golden": {
+            "seg": "Kammāsa·dhamma·ṁ",
+            "tips": [
+              "Spotted / Speckled",
+              "Name of a man-eating ogre (porisāda)",
+              "From Jātaka: King Kammāsapāda",
+              "Likely from √dam: to tame",
+              "Where the ogre was \"tamed\"",
+              "Sanskritized spelling: dhamma",
+              "Name ending",
+              "Labels the town that follows"
+            ],
+            "senses": [
+              "Kammāsadhamma",
+              "\"Where the Spotted One was Tamed\"",
+              "the spotted-dhamma place"
+            ]
+          },
+          "model": {
+            "seg": "kammāsa·dhamma·ṁ·?",
+            "tips": [
+              "The first part of the proper name for the town, Kammāsa.",
+              "The word 'dhamma', meaning teaching, truth, or nature. Here it's part of a place name.",
+              "The -ṁ ending marks the accusative case, showing this is the object of the verb 'was staying near'."
+            ],
+            "senses": [
+              "Kammasadamma",
+              "Kammasadhamma",
+              "Kammasadhamma town"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "nāma",
+          "golden": {
+            "seg": "nāma",
+            "tips": [
+              "[Indeclinable] \"named, by name\"",
+              "Links proper name to common noun",
+              "\"X nāma Y\" = \"Y named X\""
+            ],
+            "senses": [
+              "named"
+            ]
+          },
+          "model": {
+            "seg": "nāma",
+            "tips": [
+              "An indeclinable particle meaning 'called' or 'by name'. It introduces the name of something."
+            ],
+            "senses": [
+              "named",
+              "called"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "kurūnaṁ",
+          "golden": {
+            "seg": "kurū·naṁ",
+            "tips": [
+              "[Stem] Kuru (the Kuru people)",
+              "Lengthened to kurū before -naṁ",
+              "[Genitive Plural] Possession",
+              "\"Of the Kurus\" — their town"
+            ],
+            "senses": [
+              "of the Kurus",
+              "belonging to the Kurus",
+              "the Kurus'"
+            ]
+          },
+          "model": {
+            "seg": "kurū·naṁ",
+            "tips": [
+              "The stem for the people, the Kurus, the same as in 'kurūsu'.",
+              "The -naṁ ending is genitive plural, meaning 'of the' Kurus."
+            ],
+            "senses": [
+              "of the Kurus",
+              "of the Kuru country",
+              "of the Kuru people"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "nigamo",
+          "golden": {
+            "seg": "ni·gam·o",
+            "tips": [
+              "[Prefix] Down / Into",
+              "Where people go down to",
+              "√gam: to go",
+              "Place people resort to (for trade)",
+              "[Nominative Singular] Subject marker",
+              "\"A town\" — what we are talking about"
+            ],
+            "senses": [
+              "a market town",
+              "a township",
+              "a trading center"
+            ]
+          },
+          "model": {
+            "seg": "ni·gam·o",
+            "tips": [
+              "A prefix often meaning 'down' or 'into', but here part of the word for 'town' or 'market town'.",
+              "The root √gam means 'to go'. Combined with 'ni-', it relates to a place people go to, a settlement.",
+              "The -o ending marks the nominative singular case, making this the subject: 'the town'."
+            ],
+            "senses": [
+              "town",
+              "market town",
+              "settlement"
+            ],
+            "segMatch": true
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "ekaṁ",
+          "seg": "eka·ṁ",
+          "tips": [
+            "The word for 'one' or 'a certain'.",
+            "The -ṁ ending marks the accusative case, which here indicates a point in time: 'at one time'."
+          ]
+        },
+        {
+          "surface": "samayaṁ",
+          "seg": "sam·aya·ṁ",
+          "tips": [
+            "A prefix meaning 'together' or 'completely'.",
+            "From the root meaning 'to go'. Combined with 'sam-', it means a 'coming together' or 'occasion'.",
+            "The -ṁ ending marks the accusative case, pairing with 'ekaṁ' to mean 'at one time'."
+          ]
+        },
+        {
+          "surface": "bhagavā",
+          "seg": "bhaga·vā",
+          "tips": [
+            "The root relates to fortune, luck, or a share. It's the basis for the title 'Blessed One'.",
+            "A possessive suffix meaning 'one who has'. 'Bhagavā' means 'one who has fortune'."
+          ]
+        },
+        {
+          "surface": "kurūsu",
+          "seg": "kurū·su",
+          "tips": [
+            "The name of the people, the Kurus, or their land.",
+            "The -su ending is locative plural, meaning 'in' or 'among' the Kurus."
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·a·ti",
+          "tips": [
+            "A prefix that can mean 'apart' or 'in a particular way', often intensifying the verb.",
+            "The root √har means to carry, bear, or take. Combined with 'vi-', it broadens to dwelling or staying.",
+            "A thematic vowel connecting the root to the personal ending."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-f",
+      "pali": "“bhikkhavo”ti. ",
+      "goldenWordCount": 2,
+      "modelWordCount": 1,
+      "words": [
+        {
+          "surface": "Bhikkhavo",
+          "golden": {
+            "seg": "Bhikkh·avo",
+            "tips": [
+              "√bhikkh: To share / beg",
+              "[Vocative Plural] 📢 \"Hey you all!\"",
+              "Calling out to a group",
+              "Like saying \"O monks!\""
+            ],
+            "senses": [
+              "Bhikkhus!",
+              "Monks!",
+              "Mendicants!"
+            ]
+          },
+          "model": {
+            "seg": "bhikkha·vo",
+            "tips": [
+              "The stem 'bhikkha' is related to begging, specifically religious mendicancy.",
+              "This is the same word for 'monk' or 'mendicant' seen earlier in the text, now in a different form.",
+              "The -vo ending is vocative plural — used when calling out respectfully to a group, like 'Hey you all!'",
+              "Pāli marks direct address on the noun itself, where English would use tone or punctuation."
+            ],
+            "senses": [
+              "Mendicants!",
+              "Monks!",
+              "O mendicants!"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "ti",
+          "golden": {
+            "seg": "ti",
+            "tips": [
+              "[Quotation marker] From iti",
+              "End of speech"
+            ],
+            "senses": [
+              "\""
+            ]
+          },
+          "model": null
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-h",
+      "pali": "Bhagavā etadavoca: ",
+      "goldenWordCount": 3,
+      "modelWordCount": 2,
+      "words": [
+        {
+          "surface": "Bhagavā",
+          "golden": {
+            "seg": "Bhaga·vā",
+            "tips": [
+              "Fortune, good luck",
+              "From √bhaj: to share",
+              "[Possessive suffix] \"One who has...\"",
+              "[Nominative] Subject — the speaker"
+            ],
+            "senses": [
+              "The Blessed One",
+              "The Fortunate One",
+              "The Lucky One"
+            ]
+          },
+          "model": {
+            "seg": "Bhaga·vā",
+            "tips": [
+              "The root 'bhaga' means fortune, good luck, or prosperity.",
+              "From the verb √bhaj, meaning to share, apportion, or partake.",
+              "It describes one who possesses or shares out fortune.",
+              "The suffix -vā makes a possessive adjective: 'one who has...' or 'the possessor of...'.",
+              "Here it forms 'the Fortunate One' or 'the Blessed One', a title for the Buddha.",
+              "Nominative singular masculine: the subject of the sentence, the one speaking."
+            ],
+            "senses": [
+              "Blessed One",
+              "Sublime One",
+              "Fortunate One"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "etad",
+          "golden": {
+            "seg": "etad",
+            "tips": [
+              "[Demonstrative Pronoun] \"This\"",
+              "[Neuter Accusative] Points to what follows",
+              "More emphatic than \"tad\""
+            ],
+            "senses": [
+              "this"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "avoca",
+          "golden": {
+            "seg": "a·voc·a",
+            "tips": [
+              "[Augment] Marks past tense",
+              "Like \"a-\" in Greek aorist",
+              "√vac: To speak, say",
+              "Source of Latin \"vox\", English \"voice\"",
+              "[Aorist 3rd singular] He spoke",
+              "Completed action in the past"
+            ],
+            "senses": [
+              "said",
+              "declared",
+              "spoke"
+            ]
+          },
+          "model": null
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "etadavoca",
+          "seg": "eta·da·a·voca",
+          "tips": [
+            "A pronoun meaning 'this' or 'that'.",
+            "It points to what is about to be said, the discourse to follow.",
+            "Often used to introduce direct speech."
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-x",
+      "pali": "Katame cattāro? ",
+      "goldenWordCount": 2,
+      "modelWordCount": 2,
+      "words": [
+        {
+          "surface": "Katame",
+          "golden": {
+            "seg": "Kat·ame",
+            "tips": [
+              "[Interrogative] Ka-stem",
+              "Asking a question",
+              "[Nominative Plural Masculine]",
+              "❓ \"Which ones?\" — asking about a group"
+            ],
+            "senses": [
+              "What",
+              "Which"
+            ]
+          },
+          "model": {
+            "seg": "Katame",
+            "tips": [
+              "The word 'katama' means 'what?' or 'which?'. The -e ending makes it plural and nominative, meaning 'which ones?'",
+              "This is an interrogative pronoun, asking for a specific identification from a group."
+            ],
+            "senses": [
+              "Which",
+              "What"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "cattāro",
+          "golden": {
+            "seg": "cattāro",
+            "tips": [
+              "[Numeral] Four (4)",
+              "[Nominative Plural Masculine]"
+            ],
+            "senses": [
+              "four",
+              "the four",
+              "a tetrad"
+            ]
+          },
+          "model": {
+            "seg": "?",
+            "tips": [],
+            "senses": [
+              "four",
+              "fourfold",
+              "the four"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-z",
+      "pali": "Idha, bhikkhave, bhikkhu kāye kāyānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
+      "goldenWordCount": 3,
+      "modelWordCount": 12,
+      "words": [
+        {
+          "surface": "kāye",
+          "golden": {
+            "seg": "kāy·e",
+            "tips": [
+              "Kāya: Body, collection, heap",
+              "[Locative Singular] 📍 \"In the...\"",
+              "\"Body in body\" = seeing body AS body",
+              "• Not as \"mine\" or \"self\"",
+              "• Just the raw phenomenon"
+            ],
+            "senses": [
+              "in the body",
+              "in this heap",
+              "in this mass",
+              "body as body",
+              "in what's assembled"
+            ]
+          },
+          "model": {
+            "seg": "kāye",
+            "tips": [],
+            "senses": [
+              "body",
+              "physical process",
+              "group"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "kāyānupassī",
+          "golden": {
+            "seg": "kāy·ānu·pass·ī",
+            "tips": [
+              "Kāya: Body, collection",
+              "Object of observation",
+              "[Prefix] Anu: along, repeatedly, closely",
+              "Implies sustained observation",
+              "👁️ √dṛś (Pali √pass): To see",
+              "Anupassati = observe closely",
+              "[Agent noun suffix] \"One who does this\"",
+              "Identity shift: you become an observer"
+            ],
+            "senses": [
+              "observing body",
+              "a body-watcher",
+              "contemplating form",
+              "tracking the physical",
+              "seeing body as body"
+            ]
+          },
+          "model": {
+            "seg": "kāyānupassī",
+            "tips": [],
+            "senses": [
+              "observing the body",
+              "body-contemplator",
+              "body-meditator"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "viharati",
+          "golden": {
+            "seg": "vi·har·ati",
+            "tips": [
+              "[Prefix] Apart, specially",
+              "🏠 √hṛ: To carry, dwell",
+              "[Present 3rd Singular] He/she does this"
+            ],
+            "senses": [
+              "dwells",
+              "abides",
+              "remains",
+              "lives",
+              "keeps at it"
+            ]
+          },
+          "model": {
+            "seg": "viharati",
+            "tips": [],
+            "senses": [
+              "dwells",
+              "remains",
+              "stays"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "Idha",
+          "seg": "Idha",
+          "tips": []
+        },
+        {
+          "surface": "bhikkhave",
+          "seg": "bhikkhave",
+          "tips": []
+        },
+        {
+          "surface": "bhikkhu",
+          "seg": "bhikkhu",
+          "tips": []
+        },
+        {
+          "surface": "ātāpī",
+          "seg": "ātāpī",
+          "tips": []
+        },
+        {
+          "surface": "sampajāno",
+          "seg": "sampajāno",
+          "tips": []
+        },
+        {
+          "surface": "satimā",
+          "seg": "satimā",
+          "tips": []
+        },
+        {
+          "surface": "vineyya",
+          "seg": "vineyya",
+          "tips": []
+        },
+        {
+          "surface": "loke",
+          "seg": "loke",
+          "tips": []
+        },
+        {
+          "surface": "abhijjhādomanassaṁ",
+          "seg": "abhijjhādomanassaṁ",
+          "tips": []
+        }
+      ]
+    }
+  ]
+}
