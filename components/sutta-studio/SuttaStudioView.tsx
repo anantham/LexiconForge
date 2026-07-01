@@ -94,18 +94,34 @@ export function SuttaStudioView({
     return map;
   }, [packet.canonicalSegments]);
 
-  // Hash navigation: scroll to element on load
+  // Hash navigation: scroll to a deep-linked word/segment on load AND flash it, so the
+  // link visibly LANDS on a specific word (not just "scrolled somewhere"). DOM ids come
+  // from wordDomId / segmentIdToDomId, e.g. /sutta/mn10#phase-ab-p2 or #phase-ab-seg-p2s1.
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    if (hash) {
-      // Small delay to ensure DOM is ready
-      requestAnimationFrame(() => {
-        const el = document.getElementById(hash);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      });
-    }
+    if (!hash) return;
+    // Wait for phases to paint before locating the target.
+    const raf = requestAnimationFrame(() => {
+      const el = document.getElementById(hash);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion || typeof el.animate !== 'function') {
+        el.style.outline = '2px solid rgba(52,211,153,0.7)';
+        el.style.borderRadius = '4px';
+        window.setTimeout(() => { el.style.outline = ''; }, 2000);
+        return;
+      }
+      el.animate(
+        [
+          { boxShadow: '0 0 0 0 rgba(52,211,153,0)', backgroundColor: 'rgba(52,211,153,0.20)' },
+          { boxShadow: '0 0 0 6px rgba(52,211,153,0.35)', backgroundColor: 'rgba(52,211,153,0.10)', offset: 0.35 },
+          { boxShadow: '0 0 0 0 rgba(52,211,153,0)', backgroundColor: 'rgba(52,211,153,0)' },
+        ],
+        { duration: 2400, easing: 'ease-out' }
+      );
+    });
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   const handleSettingsChange = useCallback((newSettings: StudioSettings) => {
