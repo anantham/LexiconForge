@@ -1101,7 +1101,6 @@
           "type": "root",
           "tooltips": [
             "√bhikkh: to beg",
-            "From √bhaj: to share",
             "One who lives on alms"
           ]
         },
@@ -1780,7 +1779,7 @@
       "words": [
         {
           "id": "p7",
-          "surface": "sokaparidevaānaṁ",
+          "surface": "sokaparidevānaṁ",
           "wordClass": "content",
           "segmentIds": [
             "p7s1",
@@ -1814,11 +1813,12 @@
         {
           "id": "p7s2",
           "wordId": "p7",
-          "text": "parideva",
+          "text": "paridev",
           "type": "root",
           "tooltips": [
             "[Compound] pari + deva",
-            "😭 Crying out all around, lamentation"
+            "😭 Crying out all around, lamentation",
+            "Full stem: parideva (final vowel elided in sandhi before ānaṁ)"
           ]
         },
         {
@@ -2014,7 +2014,7 @@
           "text": "ñāya",
           "type": "root",
           "tooltips": [
-            "√ñā: to know",
+            "nī + √i: to lead, go → \"the way, method\"",
             "Method, system, right way, truth"
           ]
         },
@@ -4149,7 +4149,7 @@
           "text": "bhikkh",
           "type": "root",
           "tooltips": [
-            "√bhikkh: To beg alms (from √bhaj: to share)"
+            "√bhikkh: To beg alms"
           ]
         },
         {
@@ -4167,7 +4167,7 @@
           "text": "bhikkh",
           "type": "root",
           "tooltips": [
-            "√bhikkh: To beg alms (from √bhaj: to share)"
+            "√bhikkh: To beg alms"
           ]
         },
         {
@@ -4336,7 +4336,7 @@
         },
         {
           "id": "an7",
-          "surface": "suññaāgāragato",
+          "surface": "suññāgāragato",
           "wordClass": "content",
           "segmentIds": [
             "an7s1",
@@ -4362,7 +4362,7 @@
           "text": "bhikkh",
           "type": "root",
           "tooltips": [
-            "√bhikkh: To beg alms (from √bhaj: to share)"
+            "√bhikkh: To beg alms"
           ]
         },
         {
@@ -4380,7 +4380,7 @@
           "text": "bhikkh",
           "type": "root",
           "tooltips": [
-            "√bhikkh: To beg alms (from √bhaj: to share)"
+            "√bhikkh: To beg alms"
           ]
         },
         {
@@ -4456,12 +4456,13 @@
         {
           "id": "an7s1",
           "wordId": "an7",
-          "text": "suñña",
+          "text": "suññ",
           "type": "root",
           "tooltips": [
             "Suñña: Empty / Void",
             "Same root as suññatā (emptiness)",
-            "Empty of disturbances/people"
+            "Empty of disturbances/people",
+            "Full stem: suñña (final vowel elided in sandhi before āgāra)"
           ]
         },
         {
@@ -8714,7 +8715,7 @@
       "words": [
         {
           "id": "bb1",
-          "surface": "samudayadhammaānupassī",
+          "surface": "samudayadhammānupassī",
           "wordClass": "content",
           "segmentIds": [
             "bb1s1",
@@ -8780,11 +8781,12 @@
         {
           "id": "bb1s3",
           "wordId": "bb1",
-          "text": "dhamma",
+          "text": "dhamm",
           "type": "root",
           "tooltips": [
             "Dhamma: Nature / Quality / Phenomenon",
-            "\"Arising-nature\" = subject to arising"
+            "\"Arising-nature\" = subject to arising",
+            "Full stem: dhamma (final vowel elided in sandhi before ānu)"
           ]
         },
         {
@@ -8880,7 +8882,7 @@
       "words": [
         {
           "id": "bc1",
-          "surface": "vayadhammaānupassī",
+          "surface": "vayadhammānupassī",
           "wordClass": "content",
           "segmentIds": [
             "bc1s1",
@@ -8936,11 +8938,12 @@
         {
           "id": "bc1s2",
           "wordId": "bc1",
-          "text": "dhamma",
+          "text": "dhamm",
           "type": "root",
           "tooltips": [
             "Nature / Quality",
-            "\"Passing-nature\" = subject to decay"
+            "\"Passing-nature\" = subject to decay",
+            "Full stem: dhamma (final vowel elided in sandhi before ānu)"
           ]
         },
         {
@@ -9036,7 +9039,7 @@
       "words": [
         {
           "id": "bd1",
-          "surface": "samudayavayadhammaānupassī",
+          "surface": "samudayavayadhammānupassī",
           "wordClass": "content",
           "segmentIds": [
             "bd1s1",
@@ -9102,10 +9105,11 @@
         {
           "id": "bd1s3",
           "wordId": "bd1",
-          "text": "dhamma",
+          "text": "dhamm",
           "type": "root",
           "tooltips": [
-            "Nature"
+            "Nature",
+            "Full stem: dhamma (final vowel elided in sandhi before ānu)"
           ]
         },
         {
@@ -9621,7 +9625,7 @@
         },
         {
           "id": "bg8",
-          "surface": "upaādiyati",
+          "surface": "upādiyati",
           "wordClass": "content",
           "segmentIds": [
             "bg8s1",
@@ -9743,10 +9747,11 @@
         {
           "id": "bg8s1",
           "wordId": "bg8",
-          "text": "upa",
+          "text": "up",
           "type": "prefix",
           "tooltips": [
-            "Upa: Towards / Near"
+            "Upa: Towards / Near",
+            "Full stem: upa (final vowel elided in sandhi before ādi)"
           ]
         },
         {
@@ -9791,5 +9796,14 @@
         "notes": "Extracted from demoPacket"
       }
     }
+  },
+  "_dpdVerified": {
+    "at": "2026-07-01",
+    "against": "data/dpd/mn10",
+    "corrections": [
+      "bhikkhu/bhikkhave: removed spurious √bhaj (root is √bhikkh); 5 segs",
+      "ñāya: √ñā→nī+√i per DPD; 1 segs",
+      "sandhi surfaces: fixed 6 double-vowel junctions to canonical (surface-faithful per #25)"
+    ]
   }
 }
