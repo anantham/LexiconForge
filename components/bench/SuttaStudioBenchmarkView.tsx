@@ -515,6 +515,9 @@ const BenchCard: React.FC<{
 
 export const SuttaStudioBenchmarkView: React.FC = () => {
   const [entries, setEntries] = React.useState<BenchIndexEntry[]>([]);
+  // Whether the local-dev benchmark index (reports/…/index.json) is actually available.
+  // In production that path doesn't exist, so the Run Inspector (a dev tool) is hidden.
+  const [indexAvailable, setIndexAvailable] = React.useState<boolean>(false);
   const [leftId, setLeftId] = React.useState<string>('');
   const [rightId, setRightId] = React.useState<string>('');
   const [leftEntry, setLeftEntry] = React.useState<BenchEntry | null>(null);
@@ -587,16 +590,26 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
       const response = await fetch(`/reports/sutta-studio/index.json?ts=${Date.now()}`, {
         cache: 'no-store',
       });
-      if (!response.ok) {
-        throw new Error(`Failed to load index: ${response.status}`);
+      // In production the reports/ dir isn't served, so this path resolves to the SPA
+      // index.html (200 + text/html). Treat anything that isn't real JSON as "the run
+      // index isn't available here" (dev-only feature) rather than crashing on a parse error.
+      const contentType = response.headers.get('content-type') || '';
+      if (!response.ok || !contentType.includes('json')) {
+        setEntries([]);
+        setIndexAvailable(false);
+        setError(null);
+        return;
       }
       const payload = (await response.json()) as BenchIndexPayload;
       const sorted = sortEntries(payload.entries ?? []);
       setEntries(sorted);
       setLastUpdated(payload.generatedAt ?? null);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to load benchmark index.');
+      setIndexAvailable(true);
+    } catch {
+      // Not available here (e.g. published site) — degrade quietly, don't surface a raw error.
       setEntries([]);
+      setIndexAvailable(false);
+      setError(null);
     } finally {
       setIsLoading(false);
     }
@@ -667,30 +680,32 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
   };
 
   React.useEffect(() => {
+    // Live-progress polling is a local-dev concern (watching a running benchmark). The
+    // published site has no reports/active-run.json, so don't poll it there.
+    if (!indexAvailable) return;
     let active = true;
     const fetchProgress = async () => {
       try {
         const response = await fetch(`/reports/sutta-studio/active-run.json?ts=${Date.now()}`, {
           cache: 'no-store',
         });
-        if (!response.ok) {
-          if (response.status === 404) {
-            if (active) {
-              setProgress(null);
-              setProgressError(null);
-            }
-            return;
+        const contentType = response.headers.get('content-type') || '';
+        if (!response.ok || !contentType.includes('json')) {
+          if (active) {
+            setProgress(null);
+            setProgressError(null);
           }
-          throw new Error(`Failed to load progress: ${response.status}`);
+          return;
         }
         const payload = (await response.json()) as BenchProgressPointer;
         if (active) {
           setProgress(payload);
           setProgressError(null);
         }
-      } catch (err: any) {
+      } catch {
         if (active) {
-          setProgressError(err?.message || 'Failed to load progress.');
+          setProgress(null);
+          setProgressError(null);
         }
       }
     };
@@ -701,7 +716,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
       active = false;
       window.clearInterval(interval);
     };
-  }, []);
+  }, [indexAvailable]);
 
   React.useEffect(() => {
     if (!filteredEntries.length) {
@@ -952,17 +967,21 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
           >
             Leaderboard
           </button>
-          <button
-            type="button"
-            className={`px-4 py-2 text-sm font-medium rounded-t ${
-              activeTab === 'inspector'
-                ? 'bg-white border border-b-0 border-gray-200 text-gray-900'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-            onClick={() => setActiveTab('inspector')}
-          >
-            Run Inspector
-          </button>
+          {/* Run Inspector is a local-dev tool (browses reports/ run data). Hide it on the
+              published site where that data isn't served. */}
+          {indexAvailable && (
+            <button
+              type="button"
+              className={`px-4 py-2 text-sm font-medium rounded-t ${
+                activeTab === 'inspector'
+                  ? 'bg-white border border-b-0 border-gray-200 text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              onClick={() => setActiveTab('inspector')}
+            >
+              Run Inspector
+            </button>
+          )}
         </div>
 
         {/* Leaderboard Tab */}
