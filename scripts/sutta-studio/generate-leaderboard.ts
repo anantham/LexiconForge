@@ -312,7 +312,9 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
   for (const [modelId, runs] of byModel) {
     const ranked = runs
       .map(({ run, phases }) => ({ run, phases, meanOverall: mean(phases.map((p) => p.overallScore)) }))
-      .sort((a, b) => b.meanOverall - a.meanOverall || b.phases.length - a.phases.length);
+      // Prefer the MOST COMPLETE run (most phases), THEN the higher mean. Sorting by score
+      // first would let a 1-phase lucky/aborted run beat a stable full run — Goodhart (Gemini review).
+      .sort((a, b) => b.phases.length - a.phases.length || b.meanOverall - a.meanOverall);
     const best = ranked[0];
     const phases = best.phases;
     modelScores.push({
@@ -360,8 +362,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     richnessScore: r4(m.avgRichness),
     grammarScore: r4(m.avgGrammar),
     tokensTotal: m.metrics.tokensTotal,
-    durationMs: m.metrics.durationMs,
-    costUsd: m.metrics.costUsd,
+    durationMs: Math.round(m.metrics.durationMs),
+    costUsd: m.metrics.costUsd == null ? null : Number(m.metrics.costUsd.toFixed(6)),
     phasesCount: m.phasesCount,
     runTimestamp: m.bestRun.runTimestamp,
     runId: m.bestRun.runId,
@@ -370,7 +372,14 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 
   // Provenance: the exact run dir(s) that actually produced this board (auditable/reproducible).
   const sourceRunTimestamps = Array.from(new Set(entries.map((e) => e.runTimestamp))).sort();
-  const boardJudge = entries.find((e) => e.judgeModel)?.judgeModel ?? null;
+  // MIXED-JUDGE GUARD (ADR SUTTA-010): a board's Semantic column is only comparable if every
+  // entry was judged by the SAME model. If judges differ, don't silently label the board with
+  // whichever we read first — surface it (and callers should not rank on Semantic).
+  const judgeModels = Array.from(new Set(entries.map((e) => e.judgeModel).filter((j): j is string => !!j)));
+  const boardJudge = judgeModels.length <= 1 ? (judgeModels[0] ?? null) : 'MIXED';
+  if (judgeModels.length > 1) {
+    excludedReasons.add(`semantic: ${judgeModels.length} different judges on one board (${judgeModels.join(', ')}) — contentSemantic is NOT comparable across rows`);
+  }
   const selfJudged = entries.filter((e) => e.selfJudge).map((e) => e.modelId);
   const phaseCount = Math.max(0, ...entries.map((e) => e.phasesCount));
 
