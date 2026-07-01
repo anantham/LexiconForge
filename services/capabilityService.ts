@@ -61,7 +61,7 @@ async function loadModels(): Promise<Map<string, ModelMeta>> {
   
   try {
     const m = await withRetry(async () => {
-      const r = await fetch(`${ORIGIN}/models`);
+      const r = await fetch(`${ORIGIN}/models`, { signal: AbortSignal.timeout(15_000) });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const json = await r.json();
       const map = new Map<string, ModelMeta>();
@@ -88,7 +88,7 @@ async function loadEndpoints(author: string, slug: string): Promise<Endpoint[]> 
   
   try {
     const eps = await withRetry(async () => {
-      const r = await fetch(`${ORIGIN}/models/${author}/${slug}/endpoints`);
+      const r = await fetch(`${ORIGIN}/models/${author}/${slug}/endpoints`, { signal: AbortSignal.timeout(15_000) });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const json = await r.json();
       return (json.data?.endpoints ?? []) as Endpoint[];
