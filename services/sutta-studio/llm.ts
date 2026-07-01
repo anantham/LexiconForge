@@ -24,6 +24,19 @@ import { initializeProviders } from '../../adapters/providers';
 import { getProvider } from '../../adapters/providers/registry';
 import { aiDebugFullEnabled, dlog, dlogFull } from '../ai/debug';
 import { logPipelineEvent } from '../suttaStudioPipelineLog';
+import { withRetry } from '../../utils/retry';
+
+/**
+ * Retry only TRANSIENT transport failures (the DNS/connection blips that were
+ * killing whole benchmark models — "fetch failed", ENOTFOUND, timeouts, 429/5xx).
+ * Never retry an abort (deliberate cancel) or a genuine 4xx (bad slug/auth).
+ */
+const isRetryableLLM = (signal?: AbortSignal) => (e: unknown): boolean => {
+  if (signal?.aborted) return false;
+  if (e instanceof DOMException && e.name === 'AbortError') return false;
+  const msg = ((e as any)?.message ?? '').toLowerCase();
+  return /fetch failed|network|timeout|connection|enotfound|econnreset|econnrefused|socket|502|503|504|429|rate limit/.test(msg);
+};
 
 const warn = (message: string, ...args: any[]) =>
   console.warn(`[SuttaStudioCompiler] ${message}`, ...args);
@@ -99,18 +112,35 @@ export const callCompilerLLM = async (
   const start = performance.now();
   let response: ChatResponse;
   try {
-    response = await provider.chatJSON({
-      settings: effectiveSettings,
-      messages,
-      temperature: 0.2,
-      maxTokens,
-      schema: options?.schema,
-      schemaName: options?.schemaName,
-      structuredOutputs: options?.structuredOutputs,
-      abortSignal: signal,
-      apiType: 'sutta_studio',
-      providerPreferences: options?.providerPreferences,
-    });
+    response = await withRetry(
+      () => provider.chatJSON({
+        settings: effectiveSettings,
+        messages,
+        temperature: 0.2,
+        maxTokens,
+        schema: options?.schema,
+        schemaName: options?.schemaName,
+        structuredOutputs: options?.structuredOutputs,
+        abortSignal: signal,
+        apiType: 'sutta_studio',
+        providerPreferences: options?.providerPreferences,
+      }),
+      {
+        maxAttempts: 4,
+        initialDelay: 2000,
+        signal,
+        isRetryable: isRetryableLLM(signal),
+        onRetry: (attempt, delay, err) => {
+          logPipelineEvent({
+            level: 'warn',
+            stage: options?.meta?.stage,
+            phaseId: options?.meta?.phaseId,
+            message: 'llm.retry',
+            data: { attempt, delayMs: delay, error: (err as any)?.message || String(err) },
+          });
+        },
+      },
+    );
   } catch (e: any) {
     logPipelineEvent({
       level: 'error',

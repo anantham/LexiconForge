@@ -3,6 +3,12 @@
  * Replaces hardcoded model name heuristics with actual API data
  */
 
+import { withRetry, isNetworkError } from '../utils/retry';
+
+/** Retry transient network failures + 429/5xx, but NOT genuine 4xx (dead slug). */
+const isTransient = (e: unknown): boolean =>
+  isNetworkError(e) || /HTTP\s(5\d\d|429)/.test((e as any)?.message ?? '');
+
 export type ModelMeta = {
   id: string;
   name?: string;
@@ -54,18 +60,22 @@ async function loadModels(): Promise<Map<string, ModelMeta>> {
   }
   
   try {
-    const r = await fetch(`${ORIGIN}/models`);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const json = await r.json();
-    const m = new Map<string, ModelMeta>();
-    for (const row of json.data as any[]) {
-      m.set(row.id, row);
-    }
+    const m = await withRetry(async () => {
+      const r = await fetch(`${ORIGIN}/models`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const json = await r.json();
+      const map = new Map<string, ModelMeta>();
+      for (const row of json.data as any[]) map.set(row.id, row);
+      return map;
+    }, {
+      maxAttempts: 4, initialDelay: 1500, isRetryable: isTransient,
+      onRetry: (a, d) => console.warn(`[CapabilityService] models fetch retry ${a} in ${d}ms`),
+    });
     cache.models = m;
     cache.lastFetch = now;
     return m;
   } catch (error) {
-    console.warn('[CapabilityService] Failed to load models:', error);
+    console.warn('[CapabilityService] Failed to load models (after retries):', error);
     return cache.models || new Map();
   }
 }
@@ -77,14 +87,19 @@ async function loadEndpoints(author: string, slug: string): Promise<Endpoint[]> 
   }
   
   try {
-    const r = await fetch(`${ORIGIN}/models/${author}/${slug}/endpoints`);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const json = await r.json();
-    const eps = (json.data?.endpoints ?? []) as Endpoint[];
+    const eps = await withRetry(async () => {
+      const r = await fetch(`${ORIGIN}/models/${author}/${slug}/endpoints`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const json = await r.json();
+      return (json.data?.endpoints ?? []) as Endpoint[];
+    }, {
+      maxAttempts: 4, initialDelay: 1500, isRetryable: isTransient,
+      onRetry: (a, d) => console.warn(`[CapabilityService] endpoints fetch retry ${a} in ${d}ms for ${key}`),
+    });
     cache.endpoints.set(key, eps);
     return eps;
   } catch (error) {
-    console.warn(`[CapabilityService] Failed to load endpoints for ${key}:`, error);
+    console.warn(`[CapabilityService] Failed to load endpoints for ${key} (after retries):`, error);
     return [];
   }
 }
