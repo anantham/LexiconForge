@@ -117,3 +117,4 @@ reports/
 # Kept OUT of git (binary, ~74M; would permanently bloat history and jpg/zip are
 # not routed through LFS). Lives on disk only; transcriptions belong in data/liturgy/.
 /chants/
+.vercel
