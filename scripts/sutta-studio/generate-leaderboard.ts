@@ -20,6 +20,13 @@ import { BENCHMARK_CONFIG } from './benchmark-config';
 type PhaseScore = {
   phase: string;
   model: string;
+  rubricVersion?: string;
+  // v2.0 headline fidelity (null when the phase has no golden → unranked)
+  fidelityScore?: number | null;
+  segmentationFidelity?: number | null;
+  contentFidelity?: number | null;
+  paliWordCoverage?: number;
+  // legacy v1 aggregates (kept for reference, not ranked on)
   coverageScore: number;
   validityScore: number;
   richnessScore: number;
@@ -34,8 +41,11 @@ type QualityScores = {
   model: string;
   provider: string;
   promptVersion: string;
+  rubricVersion?: string;
   phaseCount: number;
+  goldenPhaseCount?: number;
   averages: {
+    fidelity?: number | null;
     coverage: number;
     validity: number;
     richness: number;
@@ -45,13 +55,21 @@ type QualityScores = {
   phases: PhaseScore[];
 };
 
+/** The rubric version the leaderboard ranks on. Mixing versions is a build failure. */
+const RANKED_RUBRIC_VERSION = '2.0';
+
 type LeaderboardEntry = {
   rank: number;
   modelId: string;
   modelName: string;
 
-  // Quality scores (0-1)
+  // v2.0 quality scores (0-1) — fidelity is the headline, overall is the ranking metric
   overallScore: number;
+  fidelityScore: number;
+  segmentationFidelity: number;
+  contentFidelity: number;
+  paliWordCoverage: number;
+  // legacy v1 aggregates, retained for reference only
   coverageScore: number;
   validityScore: number;
   richnessScore: number;
@@ -72,12 +90,15 @@ type LeaderboardEntry = {
 type Leaderboard = {
   generatedAt: string;
   promptVersion: string;
+  rubricVersion: string;
   methodology: {
     docsUrl: string;
     rankingMetric: 'overallScore';
     aggregation: 'allPhasesPerModel';
     description: string;
   };
+  /** Runs/phases that were NOT ranked, and why — transparency, not silent dropping. */
+  excluded: { models: string[]; reasons: string[] };
   entries: LeaderboardEntry[];
 };
 
@@ -221,9 +242,28 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
   };
 
   const modelAggregates = new Map<string, ModelAggregate>();
+  const excludedModels = new Set<string>();
+  const excludedReasons = new Set<string>();
 
   for (const run of allRuns) {
-    const phases = run.qualityScores.phases || [];
+    const allPhasesRaw = run.qualityScores.phases || [];
+    // RUBRIC-VERSION GUARD: only phases scored under the ranked rubric AND with a golden
+    // (fidelityScore != null) are eligible. Mixing rubric versions on one board is a build
+    // failure (ADR SUTTA-009); no-golden phases have no fidelity so they can't be ranked.
+    const phases = allPhasesRaw.filter((p) => {
+      const v = p.rubricVersion ?? run.qualityScores.rubricVersion;
+      if (v !== RANKED_RUBRIC_VERSION) {
+        excludedModels.add(run.modelId);
+        excludedReasons.add(`${run.modelId}: rubricVersion ${v ?? 'v1/none'} ≠ ${RANKED_RUBRIC_VERSION} (re-score with backfill)`);
+        return false;
+      }
+      if (p.fidelityScore == null) {
+        excludedModels.add(run.modelId);
+        excludedReasons.add(`${run.modelId}/${p.phase}: no golden → no fidelity, unranked`);
+        return false;
+      }
+      return true;
+    });
     let agg = modelAggregates.get(run.modelId);
 
     if (!agg) {
@@ -264,10 +304,15 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
   console.log(`[Leaderboard] ${modelAggregates.size} unique models with aggregated phases`);
 
   // Compute averages across all unique phases per model
+  const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
   const modelScores: Array<{
     modelId: string;
     modelName: string;
     avgOverall: number;
+    avgFidelity: number;
+    avgSegFidelity: number;
+    avgContentFidelity: number;
+    avgPaliCoverage: number;
     avgCoverage: number;
     avgValidity: number;
     avgRichness: number;
@@ -281,20 +326,18 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     const phases = Array.from(agg.uniquePhases.values());
     if (phases.length === 0) continue;
 
-    const avgOverall = phases.reduce((s, p) => s + p.overallScore, 0) / phases.length;
-    const avgCoverage = phases.reduce((s, p) => s + p.coverageScore, 0) / phases.length;
-    const avgValidity = phases.reduce((s, p) => s + p.validityScore, 0) / phases.length;
-    const avgRichness = phases.reduce((s, p) => s + p.richnessScore, 0) / phases.length;
-    const avgGrammar = phases.reduce((s, p) => s + p.grammarScore, 0) / phases.length;
-
     modelScores.push({
       modelId: agg.modelId,
       modelName: agg.modelName,
-      avgOverall,
-      avgCoverage,
-      avgValidity,
-      avgRichness,
-      avgGrammar,
+      avgOverall: mean(phases.map((p) => p.overallScore)),
+      avgFidelity: mean(phases.map((p) => p.fidelityScore ?? 0)),
+      avgSegFidelity: mean(phases.map((p) => p.segmentationFidelity ?? 0)),
+      avgContentFidelity: mean(phases.map((p) => p.contentFidelity ?? 0)),
+      avgPaliCoverage: mean(phases.map((p) => p.paliWordCoverage ?? 0)),
+      avgCoverage: mean(phases.map((p) => p.coverageScore)),
+      avgValidity: mean(phases.map((p) => p.validityScore)),
+      avgRichness: mean(phases.map((p) => p.richnessScore)),
+      avgGrammar: mean(phases.map((p) => p.grammarScore)),
       phasesCount: phases.length,
       metrics: {
         tokensTotal: agg.totalTokens,
@@ -316,6 +359,10 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     modelId: m.modelId,
     modelName: m.modelName,
     overallScore: m.avgOverall,
+    fidelityScore: m.avgFidelity,
+    segmentationFidelity: m.avgSegFidelity,
+    contentFidelity: m.avgContentFidelity,
+    paliWordCoverage: m.avgPaliCoverage,
     coverageScore: m.avgCoverage,
     validityScore: m.avgValidity,
     richnessScore: m.avgRichness,
@@ -332,21 +379,32 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
   const leaderboard: Leaderboard = {
     generatedAt: new Date().toISOString(),
     promptVersion: latestPromptVersion,
+    rubricVersion: RANKED_RUBRIC_VERSION,
     methodology: {
       docsUrl:
         'https://github.com/anthropics/lexiconforge/blob/main/docs/benchmarks/sutta-studio.md#quality-scoring',
       rankingMetric: 'overallScore',
       aggregation: 'allPhasesPerModel',
       description:
-        'Scores are averaged across ALL unique phases completed by each model. Uses best score per phase when a model has multiple runs.',
+        `Ranked on rubric v${RANKED_RUBRIC_VERSION} only (mixing versions is a build failure). ` +
+        'overallScore = gateFactor × (0.60·fidelity + 0.25·usability + 0.15·transitional-richness), ' +
+        'averaged over each model\'s unique golden-backed phases (best score per phase across runs). ' +
+        'fidelity = 0.5·segmentation + 0.5·content, strict micro-F1 vs the golden. ' +
+        'CAVEAT: fidelity only scores words the golden covers; where the golden is partial, ' +
+        'unscored model words are excluded — see paliWordCoverage and the per-run golden-diff.',
     },
+    excluded: { models: Array.from(excludedModels), reasons: Array.from(excludedReasons) },
     entries,
   };
 
   // Write leaderboard.json
   const leaderboardPath = path.join(reportsRoot, 'leaderboard.json');
   await fs.writeFile(leaderboardPath, JSON.stringify(leaderboard, null, 2), 'utf8');
-  console.log(`[Leaderboard] Wrote ${entries.length} entries to ${leaderboardPath}`);
+  console.log(`[Leaderboard] Wrote ${entries.length} ranked entries to ${leaderboardPath}`);
+  if (excludedReasons.size > 0) {
+    console.warn(`[Leaderboard] EXCLUDED ${excludedModels.size} model(s) / phase(s) from ranking:`);
+    for (const r of excludedReasons) console.warn(`  - ${r}`);
+  }
 
   return leaderboard;
 }
@@ -359,15 +417,22 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 async function main() {
   const leaderboard = await generateLeaderboard();
 
-  console.log('\n=== LEADERBOARD (All Phases Aggregated) ===\n');
-  console.log('Rank | Model            | Phases | Overall | Covg.  | Valid. | Rich.  | Gram.');
-  console.log('-----|------------------|--------|---------|--------|--------|--------|-------');
-  for (const entry of leaderboard.entries) {
+  console.log(`\n=== SUTTA-STUDIO LEADERBOARD (rubric v${leaderboard.rubricVersion}) ===\n`);
+  console.log('Rank | Model            | Phases | Overall | Fidelity | Seg  | Content | PaliCov');
+  console.log('-----|------------------|--------|---------|----------|------|---------|--------');
+  for (const e of leaderboard.entries) {
     console.log(
-      `  ${entry.rank.toString().padStart(2)} | ${entry.modelId.padEnd(16)} | ${entry.phasesCount.toString().padStart(5)}/15 | ${entry.overallScore.toFixed(2).padStart(6)}  | ${entry.coverageScore.toFixed(2).padStart(5)}  | ${entry.validityScore.toFixed(2).padStart(5)}  | ${entry.richnessScore.toFixed(2).padStart(5)}  | ${entry.grammarScore.toFixed(2).padStart(5)}`
+      `  ${e.rank.toString().padStart(2)} | ${e.modelId.padEnd(16)} | ${e.phasesCount.toString().padStart(6)} | ` +
+      `${e.overallScore.toFixed(2).padStart(7)} | ${e.fidelityScore.toFixed(2).padStart(8)} | ${e.segmentationFidelity.toFixed(2).padStart(4)} | ${e.contentFidelity.toFixed(2).padStart(7)} | ${e.paliWordCoverage.toFixed(2).padStart(7)}`
     );
   }
-  console.log('\nNote: Scores averaged across ALL unique phases per model.');
+  if (leaderboard.entries.length === 0) console.log('  (no ranked entries — see exclusions below)');
+  console.log(`\nRanked on overallScore, rubric v${leaderboard.rubricVersion} + golden-backed phases only.`);
+  console.log('Fidelity = 0.5·Seg + 0.5·Content (strict micro-F1 vs golden). PaliCov = golden words the model matched.');
+  if (leaderboard.excluded.reasons.length > 0) {
+    console.log(`\nExcluded from ranking (${leaderboard.excluded.models.length}):`);
+    for (const r of leaderboard.excluded.reasons) console.log(`  - ${r}`);
+  }
 }
 
 main().catch((error) => {
