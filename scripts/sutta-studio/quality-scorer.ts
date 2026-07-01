@@ -105,6 +105,8 @@ const SENSE_STOP = new Set([
 const tokenize = (text: string | undefined | null): string[] => {
   if (!text) return [];
   return text
+    .normalize('NFC') // fold decomposed diacritics FIRST, else a combining macron (not in
+                      // the whitelist below) gets split out and fractures the word (Gemini review)
     .toLowerCase()
     .replace(/[^a-zĀ-ſḀ-ỿ√]+/g, ' ')
     .split(/\s+/)
@@ -165,9 +167,13 @@ export function scoreAnatomist(data: AnatomistPass, inputPali: string): {
   let reconstructed = 0;
   for (const word of words) {
     const concat = segments.filter(s => s.wordId === word.id).map(s => s.text).join('');
-    if (concat.toLowerCase() === (word.surface || '').toLowerCase()) reconstructed++;
+    // Reconstruct under the SAME NFC/case normalization the aligner uses, so a
+    // precomposed-vs-decomposed diacritic mismatch isn't scored as data loss (grok review).
+    if (normSurface(concat) === normSurface(word.surface)) reconstructed++;
   }
-  const textIntegrity = words.length > 0 ? reconstructed / words.length : 1;
+  // Empty output must NOT bank an unearned 1.0 here — that would hand a garbage/empty
+  // response a ~0.85 gateFactor (Gemini review). No words → nothing reconstructed → 0.
+  const textIntegrity = words.length > 0 ? reconstructed / words.length : 0;
 
   // Tooltip COVERAGE: fraction of segments that carry at least one tooltip.
   // (Was avg-tooltips-per-segment — a DENSITY metric that punished correct
@@ -311,7 +317,7 @@ const normSurface = (s: string | undefined): string => (s || '').toLowerCase().n
  * a dropped instance of a repeated word leaves ONE golden word unmatched with no cascade
  * — unlike positional Nth-to-Nth matching (Gemini review finding #1).
  */
-const alignWords = (
+export const alignWords = (
   gold: AnatomistPass['words'],
   model: AnatomistPass['words']
 ): Array<[number, number]> => {
@@ -358,9 +364,9 @@ export function scoreSegmentationFidelity(
   output: AnatomistPass,
   golden: AnatomistPass | null | undefined
 ): number | null {
-  if (!golden?.words?.length) return null;
+  if (!golden?.words?.length) return null; // no golden → ungraded (excluded from ranking)
   const pairs = alignWords(golden.words, output.words || []);
-  if (pairs.length === 0) return null;
+  if (pairs.length === 0) return 0; // golden exists but nothing aligned → earned a 0, not a free pass (grok + Gemini review)
   let tp = 0, fp = 0, fn = 0;
   for (const [gi, mi] of pairs) {
     const gCuts = boundaryOffsets(golden.words[gi].segmentIds || [], golden.segments || []);
@@ -404,9 +410,9 @@ export function scoreContentFidelity(
   outAnat: AnatomistPass, goldAnat: AnatomistPass | null | undefined,
   outLex: LexicographerPass, goldLex: LexicographerPass | null | undefined
 ): number | null {
-  if (!goldAnat?.words?.length) return null;
+  if (!goldAnat?.words?.length) return null; // no golden → ungraded
   const pairs = alignWords(goldAnat.words, outAnat.words || []);
-  if (pairs.length === 0) return null;
+  if (pairs.length === 0) return 0; // golden exists but nothing aligned → earned a 0, not a free pass (grok + Gemini review)
   let tp = 0, fp = 0, fn = 0, scored = 0;
   for (const [gi, mi] of pairs) {
     const goldTokens = new Set(wordKnowledgeTokensById(goldAnat.words[gi].id, goldAnat, goldLex));
@@ -537,10 +543,12 @@ export function scoreTypesetter(
 }
 
 /**
- * Validity GATE as a multiplier (not an additive bucket). A `textIntegrity` failure
- * (segments don't reconstruct the surface) is catastrophic data loss → hard 0.1 cap
- * (Gemini review #4). The softer structural gates — including `paliWordCoverage`, which
- * is structural not UX (Gemini) — degrade the score mildly via softFactor in [0.7, 1.0].
+ * Validity GATE as a multiplier (not an additive bucket). `textIntegrity` (the FRACTION
+ * of words whose segments reconstruct the surface) multiplies the gate DIRECTLY: total
+ * corruption → 0, a single sandhi slip → a proportional dent — NOT a hard cliff. (An
+ * earlier draft imposed a hard 0.1 cap on any textIntegrity miss; that was rejected for
+ * crushing a mostly-correct phase to 0.059 over 4 slips — see ADR SUTTA-009.) The softer
+ * structural gates — incl. `paliWordCoverage`, structural not UX — swing only [0.7, 1.0].
  */
 export function computeGateFactor(scores: {
   textIntegrity: number;
@@ -568,7 +576,10 @@ const W_RICHNESS = 0.15;
 export function computeOverallScore(scores: Omit<QualityScore, 'overallScore'>): number {
   const gateFactor = computeGateFactor(scores);
   const usability = (scores.alignmentCoverage + scores.englishOrderScore) / 2;
-  const transitionalRichness = (scores.tooltipCoverage + scores.sensePolysemy + scores.morphDataPresent) / 3;
+  // ADR SUTTA-009 folds all three surviving density metrics — sensePolysemy,
+  // morphDataPresent AND relationDensity — into this reduced-weight bucket (was ÷3,
+  // silently dropping relationDensity — Gemini review). Retired wholesale in v2.1.
+  const transitionalRichness = (scores.tooltipCoverage + scores.sensePolysemy + scores.morphDataPresent + scores.relationDensity) / 4;
 
   if (scores.fidelityScore !== null && scores.fidelityScore !== undefined) {
     const quality = W_FIDELITY * scores.fidelityScore + W_USABILITY * usability + W_RICHNESS * transitionalRichness;
@@ -597,6 +608,15 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
   const contentFidelity = scoreContentFidelity(data.output.anatomist, goldAnat, data.output.lexicographer, goldLex);
   const fidParts = [segmentationFidelity, contentFidelity].filter((x): x is number => x !== null);
   const fidelityScore = fidParts.length > 0 ? fidParts.reduce((a, b) => a + b, 0) / fidParts.length : null;
+
+  // Gate coverage: with a golden present, `paliWordCoverage` is the fraction of GOLDEN
+  // words the model actually reproduced (by surface alignment) — NOT the blind word-COUNT
+  // ratio scoreAnatomist computes, which a model can satisfy by emitting the right NUMBER
+  // of WRONG words (grok review). No golden → keep the count ratio. This value overrides
+  // the one from scoreAnatomist below, and it is what feeds the Validity Gate.
+  const paliWordCoverage = goldAnat?.words?.length
+    ? alignWords(goldAnat.words, data.output.anatomist?.words || []).length / goldAnat.words.length
+    : anatomistScores.paliWordCoverage;
 
   // Coverage now includes alignment coverage as the most important factor for visible alignment edges
   // Weight: paliWordCoverage (33%) + englishMappingRatio (17%) + alignmentCoverage (50%)
@@ -627,6 +647,7 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
     ...weaverScores,
     ...grammarScores,
     ...typesetterScores,
+    paliWordCoverage, // golden-aware coverage overrides scoreAnatomist's count ratio (feeds the Gate)
     segmentationFidelity,
     contentFidelity,
     fidelityScore,

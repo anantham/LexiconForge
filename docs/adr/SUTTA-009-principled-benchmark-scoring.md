@@ -106,7 +106,7 @@ Fidelity assumes a *maintained* golden. The protocol: when a model disagrees wit
 
 The ADR target and the code must not diverge silently. Migration is explicit and `rubricVersion`-stamped:
 
-1. **v2.0 (this change):** add the `gateFactor` multiplier (hard `0.1` cap on `textIntegrity` fail), strict **micro-F1** `contentFidelity` + `segmentationFidelity` over **sequence-aligned** words, `paliWordCoverage` moved into the Gate; reweight to **wF 0.60 / wU 0.25 / wR 0.15**; **keep** `sensePolysemy` / `morphDataPresent` / `relationDensity` computed but folded into the reduced-weight transitional-richness bucket (not deleted). The earlier "relations not wholly absent" presence gate is **dropped** — grok's catch: a single dummy relation satisfies it, recreating the exact volume target this ADR bans.
+1. **v2.0 (this change):** add the `gateFactor` multiplier (fractional `textIntegrity` multiplies the gate directly — a *proportional* dent, not a hard cap; see §Validity above), strict **micro-F1** `contentFidelity` + `segmentationFidelity` over **sequence-aligned** words, `paliWordCoverage` moved into the Gate; reweight to **wF 0.60 / wU 0.25 / wR 0.15**; **keep** `sensePolysemy` / `morphDataPresent` / `relationDensity` computed but folded into the reduced-weight transitional-richness bucket (not deleted). The earlier "relations not wholly absent" presence gate is **dropped** — grok's catch: a single dummy relation satisfies it, recreating the exact volume target this ADR bans.
 2. **v2.x:** build the fidelity replacements — `relationFidelity` and morph-agreement-vs-golden (`MorphHint` F-score) — and back-fill the golden's missing `MorphHint`s + relations.
 3. **v2.1:** retire transitional richness (wR→0), delete the dead density code, raise wF to 0.55.
 
@@ -151,7 +151,7 @@ Introduce a `rubricVersion` stamped into every `quality-scores.json` and the lea
 | Nth-to-Nth matching cascades on a dropped/merged word | Gemini #1 | edit-distance **sequence alignment** |
 | recall-weighted Fβ rewards "synonym spraying" | Gemini #2 (overrides grok #1) | **strict F1 (β=1)**; exceed-golden via golden-update + surpass test |
 | macro-average F1 is noisy on tiny per-word samples | Gemini #3 | **micro-F1** (pool TP/FP/FN per phase) |
-| gateFactor 0.4 floor lets garbage bank 40% | Gemini #4 | **0.1** hard cap on `textIntegrity` fail |
+| gateFactor 0.4 floor lets garbage bank 40% | Gemini #4 | fractional `textIntegrity` **multiplies** the gate (garbage → 0); the initially-proposed hard `0.1` cap was superseded by a *proportional* dent after real-run validation (§Validity) |
 | `paliWordCoverage` is structural, not Usability | Gemini | moved to the **Validity Gate** |
 | Fidelity 0.40 cap under-weights the only real signal | Gemini (overrides grok #4) | **wF 0.60**; transitional richness shrunk to **wR 0.15** |
 | gateFactor / Fβ / sub-weights underspecified | grok re-review (PARTIAL ×3) | exact formulas pinned in the scoring section |
