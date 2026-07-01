@@ -38,6 +38,17 @@ const isRetryableLLM = (signal?: AbortSignal) => (e: unknown): boolean => {
   return /fetch failed|network|timeout|connection|enotfound|econnreset|econnrefused|socket|502|503|504|429|rate limit/.test(msg);
 };
 
+/** Per-call ceiling. A phase pass shouldn't take this long; a hung provider (kimi,
+ *  gpt-oss have done this — no response, no error) would otherwise stall the whole
+ *  benchmark since the circuit breaker only counts failures, not silent stalls. */
+const LLM_CALL_TIMEOUT_MS = 90_000;
+
+const combineSignals = (external: AbortSignal | undefined, timeout: AbortSignal): AbortSignal => {
+  if (!external) return timeout;
+  const anyFn = (AbortSignal as unknown as { any?: (s: AbortSignal[]) => AbortSignal }).any;
+  return typeof anyFn === 'function' ? anyFn([external, timeout]) : timeout;
+};
+
 const warn = (message: string, ...args: any[]) =>
   console.warn(`[SuttaStudioCompiler] ${message}`, ...args);
 
@@ -113,18 +124,25 @@ export const callCompilerLLM = async (
   let response: ChatResponse;
   try {
     response = await withRetry(
-      () => provider.chatJSON({
-        settings: effectiveSettings,
-        messages,
-        temperature: 0.2,
-        maxTokens,
-        schema: options?.schema,
-        schemaName: options?.schemaName,
-        structuredOutputs: options?.structuredOutputs,
-        abortSignal: signal,
-        apiType: 'sutta_studio',
-        providerPreferences: options?.providerPreferences,
-      }),
+      () => {
+        const tc = new AbortController();
+        let timedOut = false;
+        const timer = setTimeout(() => { timedOut = true; tc.abort(); }, LLM_CALL_TIMEOUT_MS);
+        return provider.chatJSON({
+          settings: effectiveSettings,
+          messages,
+          temperature: 0.2,
+          maxTokens,
+          schema: options?.schema,
+          schemaName: options?.schemaName,
+          structuredOutputs: options?.structuredOutputs,
+          abortSignal: combineSignals(signal, tc.signal),
+          apiType: 'sutta_studio',
+          providerPreferences: options?.providerPreferences,
+        })
+          .catch((e: any) => { if (timedOut) throw new Error(`llm call timeout after ${LLM_CALL_TIMEOUT_MS}ms`); throw e; })
+          .finally(() => clearTimeout(timer));
+      },
       {
         maxAttempts: 4,
         initialDelay: 2000,
