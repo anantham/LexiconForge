@@ -71,6 +71,7 @@ type LeaderboardEntry = {
   // Optional LLM-judge semantic content score (ADR SUTTA-010); null when no judge run exists.
   contentSemantic: number | null;
   judgeModel: string | null;
+  selfJudge: boolean;
   paliWordCoverage: number;
   // legacy v1 aggregates, retained for reference only
   coverageScore: number;
@@ -94,10 +95,15 @@ type Leaderboard = {
   generatedAt: string;
   promptVersion: string;
   rubricVersion: string;
+  status?: string;
+  coverageNote?: string;
+  /** The exact run dir(s) this board was built from — makes it auditable/reproducible. */
+  sourceRunTimestamps: string[];
+  judgeModel: string | null;
   methodology: {
     docsUrl: string;
     rankingMetric: 'overallScore';
-    aggregation: 'allPhasesPerModel';
+    aggregation: 'bestRunPerModel';
     description: string;
   };
   /** Runs/phases that were NOT ranked, and why — transparency, not silent dropping. */
@@ -155,6 +161,7 @@ type ModelRun = {
   // Optional semantic-content score for this run (from judge-content.ts; ADR SUTTA-010).
   contentSemantic: number | null;
   judgeModel: string | null;
+  selfJudge: boolean;
   metrics: {
     tokensTotal: number;
     durationMs: number;
@@ -163,7 +170,7 @@ type ModelRun = {
   packetPath: string;
 };
 
-type JudgeScores = { judgeVersion?: string; judgeModel?: string; avgContentSemantic?: number };
+type JudgeScores = { judgeVersion?: string; judgeModel?: string; avgContentSemantic?: number; selfJudge?: boolean };
 
 export async function generateLeaderboard(): Promise<Leaderboard> {
   const reportsRoot = BENCHMARK_CONFIG.outputRoot;
@@ -238,6 +245,7 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
         qualityScores,
         contentSemantic: judge?.avgContentSemantic ?? null,
         judgeModel: judge?.judgeModel ?? null,
+        selfJudge: judge?.selfJudge ?? false,
         metrics: { tokensTotal, durationMs, costUsd },
         packetPath: `/reports/sutta-studio/${timestamp}/outputs/${modelId}/packet.json`,
       });
@@ -246,96 +254,41 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 
   console.log(`[Leaderboard] Found ${allRuns.length} model runs with quality scores`);
 
-  // Aggregate ALL phases across ALL runs per model
-  // This gives a true representation across the full test set
-  type ModelAggregate = {
-    modelId: string;
-    modelName: string;
-    allPhases: PhaseScore[];
-    // Track unique phases by phase ID to avoid double-counting same phase from multiple runs
-    uniquePhases: Map<string, PhaseScore>;
-    // Keep the run with most phases for the packet link
-    bestRun: ModelRun;
-    totalTokens: number;
-    totalDuration: number;
-    totalCost: number | null;
-    // Semantic-content judge scores across this model's runs (ADR SUTTA-010).
-    semanticScores: number[];
-    judgeModel: string | null;
-  };
-
-  const modelAggregates = new Map<string, ModelAggregate>();
+  const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+  const r4 = (x: number) => Number(x.toFixed(4)); // stamp published numbers at 4 dp (no float noise)
   const excludedModels = new Set<string>();
   const excludedReasons = new Set<string>();
 
+  // Group ranked-eligible runs by model. RUBRIC-VERSION GUARD: only phases scored under the
+  // ranked rubric AND with a golden (fidelityScore != null) are eligible — mixing rubric
+  // versions is a build failure (ADR SUTTA-009).
+  const byModel = new Map<string, Array<{ run: ModelRun; phases: PhaseScore[] }>>();
   for (const run of allRuns) {
-    const allPhasesRaw = run.qualityScores.phases || [];
-    // RUBRIC-VERSION GUARD: only phases scored under the ranked rubric AND with a golden
-    // (fidelityScore != null) are eligible. Mixing rubric versions on one board is a build
-    // failure (ADR SUTTA-009); no-golden phases have no fidelity so they can't be ranked.
-    const phases = allPhasesRaw.filter((p) => {
+    const phases = (run.qualityScores.phases || []).filter((p) => {
       const v = p.rubricVersion ?? run.qualityScores.rubricVersion;
       if (v !== RANKED_RUBRIC_VERSION) {
-        excludedModels.add(run.modelId);
         excludedReasons.add(`${run.modelId}: rubricVersion ${v ?? 'v1/none'} ≠ ${RANKED_RUBRIC_VERSION} (re-score with backfill)`);
         return false;
       }
       if (p.fidelityScore == null) {
-        excludedModels.add(run.modelId);
         excludedReasons.add(`${run.modelId}/${p.phase}: no golden → no fidelity, unranked`);
         return false;
       }
       return true;
     });
-    let agg = modelAggregates.get(run.modelId);
-
-    if (!agg) {
-      agg = {
-        modelId: run.modelId,
-        modelName: run.modelName,
-        allPhases: [],
-        uniquePhases: new Map(),
-        bestRun: run,
-        totalTokens: 0,
-        totalDuration: 0,
-        totalCost: null,
-        semanticScores: [],
-        judgeModel: null,
-      };
-      modelAggregates.set(run.modelId, agg);
-    }
-
-    // Collect the semantic-content judge score for this run, if present.
-    if (run.contentSemantic != null) {
-      agg.semanticScores.push(run.contentSemantic);
-      agg.judgeModel = run.judgeModel ?? agg.judgeModel;
-    }
-
-    // Add each phase score, using the best score per phase ID
-    for (const phase of phases) {
-      const existing = agg.uniquePhases.get(phase.phase);
-      if (!existing || phase.overallScore > existing.overallScore) {
-        agg.uniquePhases.set(phase.phase, phase);
-      }
-    }
-
-    // Track best run (most phases) for packet link
-    if (phases.length > (agg.bestRun.qualityScores.phases?.length || 0)) {
-      agg.bestRun = run;
-    }
-
-    // Aggregate metrics
-    agg.totalTokens += run.metrics.tokensTotal;
-    agg.totalDuration += run.metrics.durationMs;
-    if (run.metrics.costUsd !== null) {
-      agg.totalCost = (agg.totalCost || 0) + run.metrics.costUsd;
-    }
+    if (!phases.length) { excludedModels.add(run.modelId); continue; }
+    const arr = byModel.get(run.modelId) || [];
+    arr.push({ run, phases });
+    byModel.set(run.modelId, arr);
   }
+  // A model excluded for some runs but ranked via others is not "excluded".
+  for (const id of byModel.keys()) excludedModels.delete(id);
 
-  console.log(`[Leaderboard] ${modelAggregates.size} unique models with aggregated phases`);
+  console.log(`[Leaderboard] ${byModel.size} ranked models`);
 
-  // Compute averages across all unique phases per model
-  const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+  // Per model, pick the SINGLE best run (highest mean overallScore; tie-break: more phases).
+  // Use ONLY that run's phases, metrics, and semantic score — never a Frankenstein of
+  // best-per-phase across runs, and never summed metrics (grok + Gemini review).
   const modelScores: Array<{
     modelId: string;
     modelName: string;
@@ -350,18 +303,21 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     avgGrammar: number;
     contentSemantic: number | null;
     judgeModel: string | null;
+    selfJudge: boolean;
     phasesCount: number;
     metrics: { tokensTotal: number; durationMs: number; costUsd: number | null };
     bestRun: ModelRun;
   }> = [];
 
-  for (const agg of modelAggregates.values()) {
-    const phases = Array.from(agg.uniquePhases.values());
-    if (phases.length === 0) continue;
-
+  for (const [modelId, runs] of byModel) {
+    const ranked = runs
+      .map(({ run, phases }) => ({ run, phases, meanOverall: mean(phases.map((p) => p.overallScore)) }))
+      .sort((a, b) => b.meanOverall - a.meanOverall || b.phases.length - a.phases.length);
+    const best = ranked[0];
+    const phases = best.phases;
     modelScores.push({
-      modelId: agg.modelId,
-      modelName: agg.modelName,
+      modelId,
+      modelName: best.run.modelName,
       avgOverall: mean(phases.map((p) => p.overallScore)),
       avgFidelity: mean(phases.map((p) => p.fidelityScore ?? 0)),
       avgSegFidelity: mean(phases.map((p) => p.segmentationFidelity ?? 0)),
@@ -371,15 +327,13 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       avgValidity: mean(phases.map((p) => p.validityScore)),
       avgRichness: mean(phases.map((p) => p.richnessScore)),
       avgGrammar: mean(phases.map((p) => p.grammarScore)),
-      contentSemantic: agg.semanticScores.length ? mean(agg.semanticScores) : null,
-      judgeModel: agg.judgeModel,
+      // Semantic comes ONLY from the chosen run (not averaged across runs / mixed judges).
+      contentSemantic: best.run.contentSemantic,
+      judgeModel: best.run.judgeModel,
+      selfJudge: best.run.selfJudge,
       phasesCount: phases.length,
-      metrics: {
-        tokensTotal: agg.totalTokens,
-        durationMs: agg.totalDuration,
-        costUsd: agg.totalCost,
-      },
-      bestRun: agg.bestRun,
+      metrics: best.run.metrics, // the chosen run's metrics — NOT summed across runs
+      bestRun: best.run,
     });
   }
 
@@ -393,17 +347,18 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     rank: index + 1,
     modelId: m.modelId,
     modelName: m.modelName,
-    overallScore: m.avgOverall,
-    fidelityScore: m.avgFidelity,
-    segmentationFidelity: m.avgSegFidelity,
-    contentFidelity: m.avgContentFidelity,
-    contentSemantic: m.contentSemantic,
+    overallScore: r4(m.avgOverall),
+    fidelityScore: r4(m.avgFidelity),
+    segmentationFidelity: r4(m.avgSegFidelity),
+    contentFidelity: r4(m.avgContentFidelity),
+    contentSemantic: m.contentSemantic == null ? null : r4(m.contentSemantic),
     judgeModel: m.judgeModel,
-    paliWordCoverage: m.avgPaliCoverage,
-    coverageScore: m.avgCoverage,
-    validityScore: m.avgValidity,
-    richnessScore: m.avgRichness,
-    grammarScore: m.avgGrammar,
+    selfJudge: m.selfJudge,
+    paliWordCoverage: r4(m.avgPaliCoverage),
+    coverageScore: r4(m.avgCoverage),
+    validityScore: r4(m.avgValidity),
+    richnessScore: r4(m.avgRichness),
+    grammarScore: r4(m.avgGrammar),
     tokensTotal: m.metrics.tokensTotal,
     durationMs: m.metrics.durationMs,
     costUsd: m.metrics.costUsd,
@@ -413,19 +368,36 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     packetPath: m.bestRun.packetPath,
   }));
 
+  // Provenance: the exact run dir(s) that actually produced this board (auditable/reproducible).
+  const sourceRunTimestamps = Array.from(new Set(entries.map((e) => e.runTimestamp))).sort();
+  const boardJudge = entries.find((e) => e.judgeModel)?.judgeModel ?? null;
+  const selfJudged = entries.filter((e) => e.selfJudge).map((e) => e.modelId);
+  const phaseCount = Math.max(0, ...entries.map((e) => e.phasesCount));
+
   const leaderboard: Leaderboard = {
     generatedAt: new Date().toISOString(),
     promptVersion: latestPromptVersion,
     rubricVersion: RANKED_RUBRIC_VERSION,
+    status: 'preview',
+    sourceRunTimestamps,
+    judgeModel: boardJudge,
+    coverageNote:
+      `PREVIEW — limited coverage. Ranked on ${phaseCount} golden-backed MN10 phase(s), ${entries.length} model(s), ` +
+      `from run(s) ${sourceRunTimestamps.join(', ') || '(none)'}. The golden is partial (not every word is graded); ` +
+      'Content is deterministic token-F1 (cannot reward paraphrase/enrichment); Semantic is an advisory LLM-judge score ' +
+      `(judge=${boardJudge ?? 'n/a'}, not in the ranked total). ` +
+      (selfJudged.length ? `⚠️ SELF-JUDGE present for: ${selfJudged.join(', ')} (judge is the same model — biased). ` : '') +
+      'Rankings will shift as coverage grows.',
     methodology: {
       docsUrl:
         'https://github.com/anthropics/lexiconforge/blob/main/docs/benchmarks/sutta-studio.md#quality-scoring',
       rankingMetric: 'overallScore',
-      aggregation: 'allPhasesPerModel',
+      aggregation: 'bestRunPerModel',
       description:
         `Ranked on rubric v${RANKED_RUBRIC_VERSION} only (mixing versions is a build failure). ` +
         'overallScore = gateFactor × (0.60·fidelity + 0.25·usability + 0.15·transitional-richness), ' +
-        'averaged over each model\'s unique golden-backed phases (best score per phase across runs). ' +
+        "averaged over the golden-backed phases of each model's SINGLE best run (highest mean overall) — " +
+        'NOT cherry-picked best-per-phase across runs; metrics are that run\'s, not summed. ' +
         'fidelity = 0.5·segmentation + 0.5·content, strict micro-F1 vs the golden. ' +
         'CAVEAT: fidelity only scores words the golden covers; where the golden is partial, ' +
         'unscored model words are excluded — see paliWordCoverage and the per-run golden-diff.',
@@ -434,22 +406,22 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     entries,
   };
 
-  // Honesty banner data: how thin is this board? (phase coverage across the ranked models)
-  const phaseCount = Math.max(0, ...entries.map((e) => e.phasesCount));
-  (leaderboard as Leaderboard & { status?: string; coverageNote?: string }).status = 'preview';
-  (leaderboard as Leaderboard & { status?: string; coverageNote?: string }).coverageNote =
-    `PREVIEW — limited coverage. Scored on ${phaseCount} golden-backed MN10 phase(s), ${entries.length} model(s). ` +
-    'The golden is partial (not every word is graded), Content is deterministic token-F1 (cannot reward paraphrase/enrichment), ' +
-    'and Semantic is an advisory LLM-judge score (judge-model dependent, self-judge bias). Rankings will shift as coverage grows.';
-
-  // Write leaderboard.json — reports/ (local/dev) AND public/ (committed → served in prod).
+  // Write leaderboard.json to reports/ (local/dev, always). The PUBLISHED copy under public/
+  // is written ONLY when pinned to a reproducible run (LEADERBOARD_DIRS) — never let an
+  // un-pinned "scan everything" run silently overwrite the public board (grok review).
   const leaderboardPath = path.join(reportsRoot, 'leaderboard.json');
   await fs.writeFile(leaderboardPath, JSON.stringify(leaderboard, null, 2), 'utf8');
-  const publicDir = path.join('public', 'benchmarks');
-  await fs.mkdir(publicDir, { recursive: true });
-  const publicPath = path.join(publicDir, 'sutta-studio-leaderboard.json');
-  await fs.writeFile(publicPath, JSON.stringify(leaderboard, null, 2), 'utf8');
-  console.log(`[Leaderboard] Wrote ${entries.length} ranked entries to ${leaderboardPath} + ${publicPath}`);
+  console.log(`[Leaderboard] Wrote ${entries.length} ranked entries to ${leaderboardPath}`);
+  if (pinned.length > 0) {
+    const publicDir = path.join('public', 'benchmarks');
+    await fs.mkdir(publicDir, { recursive: true });
+    const publicPath = path.join(publicDir, 'sutta-studio-leaderboard.json');
+    await fs.writeFile(publicPath, JSON.stringify(leaderboard, null, 2), 'utf8');
+    console.log(`[Leaderboard] Published (pinned) → ${publicPath}`);
+    if (selfJudged.length) console.warn(`[Leaderboard] ⚠️  SELF-JUDGE in published board: ${selfJudged.join(', ')} — re-judge with a neutral --judge before shipping.`);
+  } else {
+    console.warn('[Leaderboard] NOT publishing to public/ — LEADERBOARD_DIRS is unset. A published board must be pinned to a reproducible run (e.g. LEADERBOARD_DIRS=<timestamp>).');
+  }
   if (excludedReasons.size > 0) {
     console.warn(`[Leaderboard] EXCLUDED ${excludedModels.size} model(s) / phase(s) from ranking:`);
     for (const r of excludedReasons) console.warn(`  - ${r}`);

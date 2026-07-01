@@ -33,14 +33,15 @@ Add **`contentSemantic`** — an optional, LLM-judged content dimension — impl
 
 ### The rubric (asymmetric — this is the whole point)
 
-For each golden↔model **aligned** word (LCS by surface, reusing `alignWords`), the judge is given the golden analysis (segmentation, tooltips, senses) and the model analysis of the same word, and scores 0.0–1.0:
+For each golden↔model **aligned** word (LCS by surface, reusing `alignWords`), the judge is given the golden analysis (segmentation, tooltips, senses) and the model analysis of the same word, and scores 0.0–1.0. The asymmetry is on the **penalty** side, not the reward side:
 
-- **REWARD ENRICHMENT** — correct depth beyond the golden (extra attested etymology, commentary, canonical/Vism references, genuine translator debate) scores **above** a plain golden match, up to 1.0.
-- **IGNORE PARAPHRASE** — different wording conveying the same or greater correct meaning is never penalized.
-- **PENALIZE HALLUCINATION HARD** — a confident false claim about the Pāli (wrong root, invented etymology, wrong grammatical role, fabricated reference) caps the word at **≤ 0.4**. This finally implements the "confidently-wrong-gloss asymmetric penalty" deferred by SUTTA-009: a confident error is worse than an omission.
+- **FAITHFUL + CORRECT ⇒ ~1.0, even if concise.** A correct analysis that captures the essential meaning scores at the top — it does **not** need extra detail to get there. Conciseness is not a fault. *(This is the fix to the v1 rubric flaw the review caught: capping a perfect faithful match at 0.8 while reserving 1.0 for "enriched" incentivized verbosity/padding — Goodhart. Removed.)*
+- **IGNORE PARAPHRASE** — different wording conveying the same correct meaning is never penalized.
+- **ENRICHMENT WELCOME, NOT REQUIRED** — correct depth beyond the golden never *lowers* the score, but padding/filler/length for its own sake earns **nothing**. Reward correctness and completeness, not verbosity.
+- **PENALIZE HALLUCINATION HARD** — a confident false claim about the Pāli (wrong root, invented etymology, wrong grammatical role, fabricated reference) caps the word at **≤ 0.4** even if the rest is good. This implements the "confidently-wrong-gloss asymmetric penalty" deferred by SUTTA-009: a confident error is worse than an omission. (Longer answers have more room to be wrong — verbosity must not hide an error.)
 - **PENALIZE OMISSION MILDLY** — missing an essential golden point docks points, but less than a hallucination.
 
-Anchors: faithful match ≈ 0.8; faithful + correctly enriched → up to 1.0; a real error ≤ 0.4; mostly-right-but-missing-core ≈ 0.5. Only words the golden actually grades (has tooltips or senses) are scored.
+Anchors: faithful + complete (concise or rich) ≈ 0.95–1.0; faithful with a minor gap ≈ 0.8; missing the core sense ≈ 0.5; a real factual error ≤ 0.4. Only words the golden actually grades (has tooltips or senses) are scored.
 
 ### Keeping it reproducible (the SUTTA-009 constraint)
 
@@ -91,4 +92,18 @@ The judge **sees quality token-overlap missed** (2× the score for the same outp
 
 ## Review log
 
-_(to be filled after the cross-family review — grok-build + agy/Gemini — on this ADR + `judge-content.ts`.)_
+**Round 1 — pre-publish cross-family review (grok-build REVISE, agy/Gemini-3.1-Pro NO-GO).** Reviewed the judge, the leaderboard generator, this ADR, and the actual published board JSON before merging to `main`. Both converged; all must-fixes applied:
+
+| Finding | Source | Fix |
+|---|---|---|
+| **Verbosity farming** — capping a perfect faithful match at 0.8 while reserving 1.0 for "enriched" forces padding to score top | Gemini | rubric rewritten: faithful+correct ⇒ ~1.0; enrichment welcome but **not required**; padding earns nothing |
+| **Self-judge bias live in the board** — gemini-2.5-flash judged itself to the top Semantic score | both | re-judge with a **neutral** `--judge` (non-contestant); `selfJudge` flag written per run + surfaced per row + in the coverageNote |
+| **Frankenstein aggregation** — best-per-phase across runs is a score no single run achieved (Goodhart-invites run-spam) | both | switched to **single best run per model** (highest mean overall); use only that run's phases |
+| **Summed metrics across runs** — tokens/cost/latency inflated N× | Gemini | metrics taken from the chosen run, not summed |
+| **Un-pinned public overwrite + no provenance** | grok | public write gated on `LEADERBOARD_DIRS`; `sourceRunTimestamps` recorded in the JSON |
+| **Judge output unvalidated** — a subset/invented wordIds → wrong avg | grok | validate returned words == sent words (ids + score∈[0,1]); skip the phase otherwise |
+| **Judge drops whole model on one phase's failure** | both | per-phase try/catch; only drop a model if zero words scored |
+| **`packetPath` 404 in prod** | Gemini | the View link is not rendered for gitignored `/reports/` packets |
+| **Float noise** (`0.8000000000000002`) | both | all published scores rounded to 4 dp |
+
+Both reviewers noted the honesty framing (caveats, deterministic-vs-advisory split, exclusion transparency) was already strong; the gate was execution + the self-judge in the live data. A neutral-judge re-run + re-review is required before GO.

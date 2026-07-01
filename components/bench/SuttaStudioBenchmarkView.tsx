@@ -1079,6 +1079,9 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                             </td>
                             <td className={`px-3 py-2 ${entry.contentSemantic == null ? 'text-gray-300' : scoreColor(entry.contentSemantic)}`}>
                               {entry.contentSemantic == null ? '—' : entry.contentSemantic.toFixed(2)}
+                              {entry.selfJudge && (
+                                <span className="ml-1 text-amber-600" title="Self-judge: the judge is the same model — this score is biased.">*</span>
+                              )}
                             </td>
                             <td className={`px-3 py-2 ${scoreColor(entry.paliWordCoverage)}`}>
                               {entry.paliWordCoverage.toFixed(2)}
@@ -1092,14 +1095,21 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                               )}
                             </td>
                             <td className="px-3 py-2">
-                              <a
-                                href={`/sutta/pipeline?path=${entry.packetPath}`}
-                                className="text-blue-600 hover:underline text-xs"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                View
-                              </a>
+                              {/* Only link when the packet is actually served. Published boards
+                                  reference gitignored /reports/ packets, which 404 in prod —
+                                  don't render a broken link there. */}
+                              {entry.packetPath && !entry.packetPath.startsWith('/reports/') ? (
+                                <a
+                                  href={`/sutta/pipeline?path=${entry.packetPath}`}
+                                  className="text-blue-600 hover:underline text-xs"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  View
+                                </a>
+                              ) : (
+                                <span className="text-gray-300 text-xs">—</span>
+                              )}
                             </td>
                           </tr>
                         );

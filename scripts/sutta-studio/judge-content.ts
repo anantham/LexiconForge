@@ -47,14 +47,15 @@ const wordContent = (w: any, a: AnatomistPass, lex: LexicographerPass | null) =>
 // ── judge prompt ─────────────────────────────────────────────────────────────
 const JUDGE_RUBRIC = `You are a Pāli philology examiner scoring an automated analysis pipeline.
 
-For each word you are given the GOLDEN reference analysis and a MODEL analysis of the SAME Pāli word (segmentation, etymology tooltips, English senses). Score how good the MODEL analysis is from 0.0 to 1.0. This rubric is deliberately ASYMMETRIC — read it carefully:
+For each word you are given the GOLDEN reference analysis and a MODEL analysis of the SAME Pāli word (segmentation, etymology tooltips, English senses). Score how good the MODEL analysis is from 0.0 to 1.0. This rubric is deliberately ASYMMETRIC on the PENALTY side — read it carefully:
 
-- REWARD ENRICHMENT: if the MODEL adds CORRECT depth the golden lacks (more etymology, attested commentary, canonical/Visuddhimagga references, genuine translator debate), that is BETTER. Score can EXCEED a plain golden match — up to 1.0. Do NOT cap a richer-but-correct analysis at the golden's level.
-- IGNORE PARAPHRASE: different wording that conveys the same or greater correct meaning is fine. Never penalize a model for not using the golden's exact phrasing.
-- PENALIZE HALLUCINATION HARD: if the MODEL states something FALSE about the Pāli — wrong root, invented etymology, wrong grammatical role, fabricated reference — score ≤ 0.4 even if the rest is good. A confident error is worse than an omission.
+- A FAITHFUL, FULLY-CORRECT analysis scores ~1.0 — even if it is CONCISE and even if it does not use the golden's exact wording. Do NOT require extra detail to reach a top score. Conciseness is not a fault; a correct one-line gloss that captures the essential meaning is excellent.
+- IGNORE PARAPHRASE: different wording that conveys the same correct meaning is fine. Never penalize a model for not matching the golden's phrasing.
+- ENRICHMENT IS WELCOME, NOT REQUIRED: correct depth beyond the golden (attested commentary, canonical/Visuddhimagga references, genuine translator debate) never LOWERS the score — but padding, filler, or verbosity for its own sake earns NOTHING. Do not reward length; reward correctness and completeness.
+- PENALIZE HALLUCINATION HARD: if the MODEL states something FALSE about the Pāli — wrong root, invented etymology, wrong grammatical role, fabricated reference — score ≤ 0.4 even if the rest is good. A confident error is worse than an omission. (Longer answers have MORE room to be wrong — do not let verbosity hide an error.)
 - PENALIZE OMISSION MILDLY: if the MODEL misses an ESSENTIAL point the golden carries (core meaning, key grammatical role), dock some points — but less than for a hallucination.
 
-Anchors: faithful match of the golden's substance ≈ 0.8; faithful AND correctly enriched → up to 1.0; a real factual error → ≤ 0.4; mostly-right but missing the core sense ≈ 0.5.
+Anchors: faithful + complete (concise or rich, correct throughout) ≈ 0.95–1.0; faithful with a minor gap ≈ 0.8; missing the core sense ≈ 0.5; a real factual error ≤ 0.4.
 
 Return JSON ONLY: { "words": [ { "wordId": string, "score": number, "verdict": "faithful"|"enriched"|"omission"|"error", "hallucination": boolean, "rationale": string } ] } — one entry per word, rationale one sentence.`;
 
@@ -81,49 +82,95 @@ const extractJson = (text: string): any => {
   return JSON.parse(body.slice(start, end + 1));
 };
 
+const JUDGE_TIMEOUT_MS = 90_000;
 const callJudge = async (judgeModel: string, prompt: string): Promise<any> => {
   const key = process.env.OPENROUTER_API_KEY;
   if (!key) throw new Error('OPENROUTER_API_KEY not set (run with --env-file=.env.local)');
-  const res = await fetch(OPENROUTER_URL, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: judgeModel,
-      messages: [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: prompt }],
-      temperature: 0,
-      response_format: { type: 'json_object' },
-    }),
-  });
-  if (!res.ok) throw new Error(`judge HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  const data = await res.json();
-  const text = data.choices?.[0]?.message?.content ?? '';
-  return extractJson(text);
+  // Abort a hanging judge call so one slow model can't stall the whole run (grok review).
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), JUDGE_TIMEOUT_MS);
+  try {
+    const res = await fetch(OPENROUTER_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: judgeModel,
+        messages: [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: prompt }],
+        temperature: 0,
+        response_format: { type: 'json_object' },
+      }),
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`judge HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content ?? '';
+    return extractJson(text);
+  } catch (e: any) {
+    if (e?.name === 'AbortError') throw new Error(`judge timed out after ${JUDGE_TIMEOUT_MS / 1000}s`);
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+/** Self-judge heuristic: the judge slug names, or is named by, the model under test. */
+const isSelfJudge = (judgeModel: string, modelId: string, modelSlug?: string): boolean => {
+  const j = judgeModel.toLowerCase();
+  const short = j.split('/').pop() || j;
+  const m = modelId.toLowerCase();
+  const s = (modelSlug || '').toLowerCase();
+  return j.includes(m) || m.includes(short) || (!!s && (j === s || s.includes(short) || short.includes(s.split('/').pop() || s)));
 };
 
 const judgeModelForRun = async (reportDir: string, modelId: string, judgeModel: string) => {
   const modelDir = path.join(reportDir, 'outputs', modelId);
   const phaseFiles = fs.readdirSync(modelDir).filter((f) => f.startsWith('pipeline-') && f.endsWith('.json')).sort();
   const perWord: any[] = [];
+  let phasesOk = 0, phasesFailed = 0;
   for (const pf of phaseFiles) {
-    const data = JSON.parse(fs.readFileSync(path.join(modelDir, pf), 'utf8'));
-    const ga: AnatomistPass | null = data.golden?.anatomist ?? null;
-    const oa: AnatomistPass | null = data.output?.anatomist ?? null;
-    if (!ga?.words?.length || !oa?.words?.length) continue;
-    const gl: LexicographerPass | null = data.golden?.lexicographer ?? null;
-    const ol: LexicographerPass | null = data.output?.lexicographer ?? null;
-    const pairs = alignWords(ga.words, oa.words);
-    const items = pairs.map(([gi, mi]) => ({
-      wordId: ga.words[gi].id,
-      gold: wordContent(ga.words[gi], ga, gl),
-      model: wordContent(oa.words[mi], oa, ol),
-    })).filter((it) => it.gold.tooltips.length || it.gold.senses.length); // only golden-graded words
-    if (!items.length) continue;
     const phaseId = pf.replace('pipeline-', '').replace('.json', '');
-    const judged = await callJudge(judgeModel, buildJudgePrompt(items));
-    for (const w of (judged.words || [])) perWord.push({ phase: phaseId, ...w });
-    console.log(`  ${modelId}/${phaseId}: judged ${items.length} words`);
+    try {
+      const data = JSON.parse(fs.readFileSync(path.join(modelDir, pf), 'utf8'));
+      const ga: AnatomistPass | null = data.golden?.anatomist ?? null;
+      const oa: AnatomistPass | null = data.output?.anatomist ?? null;
+      if (!ga?.words?.length || !oa?.words?.length) continue;
+      const gl: LexicographerPass | null = data.golden?.lexicographer ?? null;
+      const ol: LexicographerPass | null = data.output?.lexicographer ?? null;
+      const pairs = alignWords(ga.words, oa.words);
+      const items = pairs.map(([gi, mi]) => ({
+        wordId: ga.words[gi].id,
+        gold: wordContent(ga.words[gi], ga, gl),
+        model: wordContent(oa.words[mi], oa, ol),
+      })).filter((it) => it.gold.tooltips.length || it.gold.senses.length); // only golden-graded words
+      if (!items.length) continue;
+
+      const judged = await callJudge(judgeModel, buildJudgePrompt(items));
+
+      // VALIDATE the judge's response: it must score EXACTLY the words we sent, with valid
+      // numeric scores in [0,1]. A subset / extra / invented wordIds → the phase's avg would
+      // be wrong, so we skip the whole phase rather than publish a bad number.
+      const sentIds = new Set(items.map((i) => i.wordId));
+      const byId = new Map<string, any>();
+      for (const w of (judged.words || [])) {
+        if (sentIds.has(w?.wordId) && typeof w.score === 'number' && w.score >= 0 && w.score <= 1 && !byId.has(w.wordId)) {
+          byId.set(w.wordId, w);
+        }
+      }
+      if (byId.size !== items.length) {
+        console.warn(`  ${modelId}/${phaseId}: judge returned ${byId.size}/${items.length} valid words — SKIPPING phase (not averaging a partial result)`);
+        phasesFailed++;
+        continue;
+      }
+      for (const it of items) perWord.push({ phase: phaseId, ...byId.get(it.wordId) });
+      phasesOk++;
+      console.log(`  ${modelId}/${phaseId}: judged ${items.length} words`);
+    } catch (e: any) {
+      // Per-phase resilience: one bad phase (API/JSON error) must NOT drop the whole model.
+      console.warn(`  ${modelId}/${phaseId}: judge failed — ${e?.message || e}; skipping phase`);
+      phasesFailed++;
+    }
   }
-  return perWord;
+  return { perWord, phasesOk, phasesFailed, selfJudge: isSelfJudge(judgeModel, modelId) };
 };
 
 const main = async () => {
@@ -140,32 +187,42 @@ const main = async () => {
     .filter((m) => !onlyModel || m === onlyModel);
 
   console.log(`\njudge-content v${JUDGE_VERSION} — judge=${judgeModel} — ${path.basename(reportDir)}\n`);
-  const summary: Array<{ model: string; avg: number; n: number; errors: number; enriched: number }> = [];
+  const summary: Array<{ model: string; avg: number; n: number; errors: number; enriched: number; selfJudge: boolean }> = [];
   for (const model of models) {
-    let perWord: any[] = [];
+    let res: Awaited<ReturnType<typeof judgeModelForRun>>;
     try {
-      perWord = await judgeModelForRun(reportDir, model, judgeModel);
+      res = await judgeModelForRun(reportDir, model, judgeModel);
     } catch (e: any) {
       console.warn(`  ${model}: judge failed — ${e?.message || e}`);
       continue;
     }
-    if (!perWord.length) continue;
+    const { perWord, phasesOk, phasesFailed, selfJudge } = res;
+    if (!perWord.length) {
+      console.warn(`  ${model}: no words judged (${phasesFailed} phase(s) failed) — skipped`);
+      continue;
+    }
+    if (selfJudge) console.warn(`  ⚠️  ${model}: SELF-JUDGE (judge=${judgeModel}) — score is biased; flagged in output`);
     const avg = perWord.reduce((s, w) => s + (w.score ?? 0), 0) / perWord.length;
     const errors = perWord.filter((w) => w.hallucination || w.verdict === 'error').length;
     const enriched = perWord.filter((w) => w.verdict === 'enriched').length;
     fs.writeFileSync(
       path.join(reportDir, `judge-scores-${model}.json`),
-      JSON.stringify({ judgeVersion: JUDGE_VERSION, judgeModel, model, avgContentSemantic: avg, words: perWord }, null, 2),
+      JSON.stringify({
+        judgeVersion: JUDGE_VERSION, judgeModel, model, selfJudge,
+        phasesJudged: phasesOk, phasesFailed,
+        avgContentSemantic: Number(avg.toFixed(4)),
+        words: perWord,
+      }, null, 2),
       'utf8',
     );
-    summary.push({ model, avg, n: perWord.length, errors, enriched });
+    summary.push({ model, avg, n: perWord.length, errors, enriched, selfJudge });
   }
 
   console.log('\n=== SEMANTIC CONTENT (judge) ===');
-  console.log('Model            | words | avg    | enriched | errors');
-  console.log('-----------------|-------|--------|----------|-------');
+  console.log('Model            | words | avg    | enriched | errors | self?');
+  console.log('-----------------|-------|--------|----------|--------|------');
   for (const s of summary.sort((a, b) => b.avg - a.avg)) {
-    console.log(`${s.model.padEnd(16)} | ${String(s.n).padStart(5)} | ${s.avg.toFixed(3).padStart(6)} | ${String(s.enriched).padStart(8)} | ${s.errors}`);
+    console.log(`${s.model.padEnd(16)} | ${String(s.n).padStart(5)} | ${s.avg.toFixed(3).padStart(6)} | ${String(s.enriched).padStart(8)} | ${String(s.errors).padStart(6)} | ${s.selfJudge ? 'SELF' : '—'}`);
   }
 };
 
