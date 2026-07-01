@@ -108,26 +108,22 @@ export const BENCHMARK_CONFIG = {
   // ─────────────────────────────────────────────────────────────────────────
   // ALL 51 PHASES - Full coverage benchmark
   // ─────────────────────────────────────────────────────────────────────────
-  // FULL phase list (restored after ripple test)
+  // HELD-OUT test set (30 phases) — the honest, uncontaminated ranking set.
+  // The only phases embedded in prompts as worked examples are phase-a/b/aa
+  // (config/suttaStudioExamples); none appear below, so ranking here is clean.
+  // (Full 51-phase list preserved in git history / the *Fixture.phases arrays.)
   phasesToTest: [
-    // Opening/Nidana (8 phases)
-    'phase-a', 'phase-b', 'phase-c', 'phase-d', 'phase-e', 'phase-f', 'phase-g', 'phase-h',
-    // Uddesa (7 phases - uses wordRange slicing)
-    'phase-1', 'phase-2', 'phase-3', 'phase-4', 'phase-5', 'phase-6', 'phase-7',
-    // Kāyānupassanā intro (3 phases)
-    'phase-x', 'phase-y', 'phase-z',
-    // Body contemplation (12 phases)
-    'phase-aa', 'phase-ab', 'phase-ac', 'phase-ad', 'phase-ae', 'phase-af',
-    'phase-ag', 'phase-ah', 'phase-ai', 'phase-aj', 'phase-ak', 'phase-al',
-    // Breathing section (12 phases)
-    'phase-am', 'phase-an', 'phase-ao', 'phase-ap', 'phase-aq', 'phase-ar',
-    'phase-as', 'phase-at', 'phase-au', 'phase-av', 'phase-aw', 'phase-ax',
-    // End sections (9 phases)
-    'phase-ay', 'phase-az', 'phase-ba', 'phase-bb', 'phase-bc', 'phase-bd',
-    'phase-be', 'phase-bf', 'phase-bg',
+    'phase-d', 'phase-f', 'phase-h',
+    'phase-2', 'phase-4', 'phase-6', 'phase-7',
+    'phase-x', 'phase-z',
+    'phase-ab', 'phase-ad', 'phase-af', 'phase-ag', 'phase-ai', 'phase-aj', 'phase-al',
+    'phase-an', 'phase-ao', 'phase-ap', 'phase-aq', 'phase-as', 'phase-at', 'phase-av', 'phase-ax',
+    'phase-az', 'phase-ba', 'phase-bc', 'phase-bd', 'phase-bf', 'phase-bg',
   ],
   // Filter to specific model IDs (empty = all)
-  onlyRunIds: ['gemini-3-flash'] as string[],
+  // gemini-2-flash dropped: slug google/gemini-2.0-flash-001 is deprecated on
+  // OpenRouter ("No endpoints found"). 5 live models below.
+  onlyRunIds: ['glm-4.7-flash'] as string[],
   // Fixture configs - all 51 phases available
   anatomistFixture: {
     path: 'test-fixtures/sutta-studio-anatomist-golden.json',
