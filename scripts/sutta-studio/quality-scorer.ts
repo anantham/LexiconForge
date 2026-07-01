@@ -398,6 +398,22 @@ const wordKnowledgeTokensById = (
   return tokens;
 };
 
+/** DPD-attested alternate senses for a word (ADR SUTTA-011). A model token in this set
+ *  is NOT a hallucination, so it isn't penalised as FP — but it's not in the core golden
+ *  either, so it earns no TP. Recall (FN) is always measured against the core golden only,
+ *  so this cannot be gamed by synonym-spraying (random words aren't DPD-attested). */
+const wordAcceptedTokens = (
+  wordId: string,
+  lex: LexicographerPass | null | undefined,
+): Set<string> => {
+  const entry = (lex?.senses || []).find((e) => e.wordId === wordId) as
+    | { acceptedSenses?: string[] }
+    | undefined;
+  const out = new Set<string>();
+  for (const s of entry?.acceptedSenses || []) for (const t of tokenize(s)) out.add(t);
+  return out;
+};
+
 /**
  * Etymology + gloss fidelity: STRICT MICRO-F1 (β=1) over sequence-aligned words.
  * Pool TP/FP/FN across the whole phase, then one F1 — so a 20-token compound carries
@@ -418,9 +434,14 @@ export function scoreContentFidelity(
     const goldTokens = new Set(wordKnowledgeTokensById(goldAnat.words[gi].id, goldAnat, goldLex));
     if (goldTokens.size === 0) continue; // golden silent on this word → no reference
     scored++;
+    const acceptedTokens = wordAcceptedTokens(goldAnat.words[gi].id, goldLex);
     const modelTokens = new Set(wordKnowledgeTokensById((outAnat.words || [])[mi].id, outAnat, outLex));
-    for (const t of modelTokens) (goldTokens.has(t) ? tp++ : fp++);
-    for (const t of goldTokens) if (!modelTokens.has(t)) fn++;
+    for (const t of modelTokens) {
+      if (goldTokens.has(t)) tp++;             // in core golden → true positive
+      else if (!acceptedTokens.has(t)) fp++;   // not core, not DPD-attested → false positive
+      // else: DPD-attested alternate → neutral (neither rewarded nor penalised)
+    }
+    for (const t of goldTokens) if (!modelTokens.has(t)) fn++; // recall vs CORE golden only
   }
   if (scored === 0) return null;
   const denom = 2 * tp + fp + fn;
