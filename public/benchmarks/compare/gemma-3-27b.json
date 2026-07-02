@@ -7,6 +7,14 @@
       "pali": "sattānaṁ visuddhiyā,",
       "goldenWordCount": 2,
       "modelWordCount": 2,
+      "scores": {
+        "segF1": 0.6666666666666666,
+        "contentF1": 0.2597402597402597,
+        "semantic": null,
+        "coverage": 1,
+        "overall": 0.2398274280067758,
+        "textIntegrity": 0.5
+      },
       "words": [
         {
           "surface": "sattānaṁ",
@@ -39,7 +47,49 @@
               "individuals"
             ],
             "segMatch": true
-          }
+          },
+          "tokens": {
+            "matched": [
+              "satta",
+              "being",
+              "genitive",
+              "plural",
+              "beings"
+            ],
+            "modelOnly": [
+              "creature",
+              "√sat",
+              "belonging",
+              "possession",
+              "sentient",
+              "existence",
+              "lives",
+              "existences",
+              "individuals",
+              "persons"
+            ],
+            "goldenOnly": [
+              "sat",
+              "sant",
+              "existing",
+              "also",
+              "√saj",
+              "cling",
+              "stuck",
+              "ones",
+              "seven",
+              "shows",
+              "who",
+              "belongs",
+              "living",
+              "entities",
+              "attached",
+              "types",
+              "numerical"
+            ],
+            "f1": 0.2702702702702703
+          },
+          "judge": null
         },
         {
           "surface": "visuddhiyā",
@@ -76,7 +126,52 @@
               "liberation"
             ],
             "segMatch": false
-          }
+          },
+          "tokens": {
+            "matched": [
+              "purity",
+              "completely",
+              "clean",
+              "purification",
+              "cleansing"
+            ],
+            "modelOnly": [
+              "visuddhi",
+              "suddhi",
+              "genitive",
+              "singular",
+              "belonging",
+              "holiness",
+              "sacredness",
+              "liberation",
+              "freedom"
+            ],
+            "goldenOnly": [
+              "prefix",
+              "intensive",
+              "√sudh",
+              "brightness",
+              "clear",
+              "dative",
+              "sake",
+              "purpose",
+              "marker",
+              "cleaning",
+              "out",
+              "clarity",
+              "seeing",
+              "clearly",
+              "washing",
+              "away",
+              "brightening",
+              "light",
+              "emerging",
+              "refinement",
+              "polishing"
+            ],
+            "f1": 0.25
+          },
+          "judge": null
         }
       ],
       "unmatched": []
@@ -86,6 +181,14 @@
       "pali": "dukkhadomanassānaṁ atthaṅgamāya,",
       "goldenWordCount": 2,
       "modelWordCount": 2,
+      "scores": {
+        "segF1": 0.2,
+        "contentF1": 0.25882352941176473,
+        "semantic": null,
+        "coverage": 1,
+        "overall": 0.22238660386029413,
+        "textIntegrity": 0.5
+      },
       "words": [
         {
           "surface": "dukkhadomanassānaṁ",
@@ -120,7 +223,49 @@
               "anguish"
             ],
             "segMatch": false
-          }
+          },
+          "tokens": {
+            "matched": [
+              "bad",
+              "suffering",
+              "distress",
+              "genitive",
+              "plural",
+              "discomfort",
+              "physical",
+              "mental",
+              "pain"
+            ],
+            "modelOnly": [
+              "√dukh",
+              "painful",
+              "unhappiness",
+              "domanassa",
+              "grief",
+              "related",
+              "doma",
+              "suffix",
+              "singular",
+              "unease",
+              "state",
+              "anguish",
+              "severe"
+            ],
+            "goldenOnly": [
+              "compound",
+              "kha",
+              "space",
+              "manas",
+              "mind",
+              "displeasure",
+              "sadness",
+              "standard",
+              "unpleasant",
+              "feelings"
+            ],
+            "f1": 0.43902439024390244
+          },
+          "judge": null
         },
         {
           "surface": "atthaṅgamāya",
@@ -154,7 +299,59 @@
               "extinguishment"
             ],
             "segMatch": false
-          }
+          },
+          "tokens": {
+            "matched": [
+              "disappearance",
+              "ending"
+            ],
+            "modelOnly": [
+              "atthaṅga",
+              "eightfold",
+              "path",
+              "eight",
+              "parts",
+              "suffix",
+              "instrumental",
+              "case",
+              "means",
+              "ceasing",
+              "exist",
+              "visible",
+              "cessation",
+              "process",
+              "fact",
+              "being",
+              "brought",
+              "end",
+              "extinguishment",
+              "action",
+              "putting",
+              "out",
+              "fire",
+              "light"
+            ],
+            "goldenOnly": [
+              "√as",
+              "set",
+              "sun",
+              "home",
+              "setting",
+              "disappearing",
+              "√gam",
+              "atthaṅgama",
+              "going",
+              "dative",
+              "sake",
+              "purpose",
+              "marker",
+              "down",
+              "extinguishing",
+              "fading"
+            ],
+            "f1": 0.09090909090909091
+          },
+          "judge": null
         }
       ],
       "unmatched": []
@@ -164,6 +361,14 @@
       "pali": "ekaṁ samayaṁ bhagavā kurūsu viharati kammāsadhammaṁ nāma kurūnaṁ nigamo. ",
       "goldenWordCount": 4,
       "modelWordCount": 9,
+      "scores": {
+        "segF1": 0.6,
+        "contentF1": 0.2268041237113402,
+        "semantic": null,
+        "coverage": 1,
+        "overall": null,
+        "textIntegrity": null
+      },
       "words": [
         {
           "surface": "Kammāsadhammaṁ",
@@ -195,7 +400,52 @@
             ],
             "senses": [],
             "segMatch": false
-          }
+          },
+          "tokens": {
+            "matched": [],
+            "modelOnly": [
+              "kamma",
+              "action",
+              "deed",
+              "saddhamma",
+              "good",
+              "doctrine",
+              "connecting",
+              "vowel",
+              "nominative",
+              "singular",
+              "subject"
+            ],
+            "goldenOnly": [
+              "spotted",
+              "speckled",
+              "man",
+              "eating",
+              "ogre",
+              "porisāda",
+              "jātaka",
+              "king",
+              "kammāsapāda",
+              "likely",
+              "√dam",
+              "tame",
+              "was",
+              "tamed",
+              "sanskritized",
+              "spelling",
+              "dhamma",
+              "ending",
+              "labels",
+              "town",
+              "follows",
+              "kammāsadhamma",
+              "etymology",
+              "literal",
+              "compound"
+            ],
+            "f1": 0
+          },
+          "judge": null
         },
         {
           "surface": "nāma",
@@ -217,7 +467,24 @@
             ],
             "senses": [],
             "segMatch": true
-          }
+          },
+          "tokens": {
+            "matched": [
+              "nāma",
+              "called"
+            ],
+            "modelOnly": [],
+            "goldenOnly": [
+              "indeclinable",
+              "named",
+              "links",
+              "proper",
+              "common",
+              "noun"
+            ],
+            "f1": 0.4
+          },
+          "judge": null
         },
         {
           "surface": "kurūnaṁ",
@@ -243,7 +510,34 @@
             ],
             "senses": [],
             "segMatch": true
-          }
+          },
+          "tokens": {
+            "matched": [
+              "kurū",
+              "genitive",
+              "plural",
+              "kurus"
+            ],
+            "modelOnly": [
+              "country"
+            ],
+            "goldenOnly": [
+              "stem",
+              "kuru",
+              "people",
+              "lengthened",
+              "before",
+              "naṁ",
+              "possession",
+              "their",
+              "town",
+              "belonging",
+              "possessive",
+              "ownership"
+            ],
+            "f1": 0.38095238095238093
+          },
+          "judge": null
         },
         {
           "surface": "nigamo",
@@ -271,7 +565,42 @@
             ],
             "senses": [],
             "segMatch": false
-          }
+          },
+          "tokens": {
+            "matched": [
+              "town",
+              "village",
+              "nominative",
+              "singular",
+              "subject"
+            ],
+            "modelOnly": [
+              "nigama"
+            ],
+            "goldenOnly": [
+              "prefix",
+              "down",
+              "people",
+              "√gam",
+              "resort",
+              "trade",
+              "marker",
+              "talking",
+              "market",
+              "larger",
+              "gāma",
+              "township",
+              "smaller",
+              "nagara",
+              "city",
+              "trading",
+              "center",
+              "commercial",
+              "gathering"
+            ],
+            "f1": 0.3333333333333333
+          },
+          "judge": null
         }
       ],
       "unmatched": [
@@ -327,6 +656,14 @@
       "pali": "“bhikkhavo”ti. ",
       "goldenWordCount": 2,
       "modelWordCount": 1,
+      "scores": {
+        "segF1": 0,
+        "contentF1": 0.5294117647058824,
+        "semantic": null,
+        "coverage": 0.5,
+        "overall": 0,
+        "textIntegrity": 0
+      },
       "words": [
         {
           "surface": "Bhikkhavo",
@@ -356,7 +693,42 @@
               "Monks!"
             ],
             "segMatch": false
-          }
+          },
+          "tokens": {
+            "matched": [
+              "√bhikkh",
+              "share",
+              "beg",
+              "vocative",
+              "plural",
+              "calling",
+              "out",
+              "group",
+              "monks"
+            ],
+            "modelOnly": [
+              "religious",
+              "mendicancy",
+              "addressee",
+              "addressing",
+              "monastic",
+              "community"
+            ],
+            "goldenOnly": [
+              "hey",
+              "you",
+              "all",
+              "saying",
+              "bhikkhus",
+              "call",
+              "standard",
+              "mendicants",
+              "those",
+              "who"
+            ],
+            "f1": 0.5294117647058824
+          },
+          "judge": null
         },
         {
           "surface": "ti",
@@ -370,7 +742,9 @@
               "\""
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         }
       ],
       "unmatched": []
@@ -380,6 +754,14 @@
       "pali": "Bhagavā etadavoca: ",
       "goldenWordCount": 3,
       "modelWordCount": 2,
+      "scores": {
+        "segF1": 1,
+        "contentF1": 0.5116279069767442,
+        "semantic": null,
+        "coverage": 0.3333333333333333,
+        "overall": 0.6999806201550386,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "Bhagavā",
@@ -411,7 +793,49 @@
               "Fortunate One"
             ],
             "segMatch": true
-          }
+          },
+          "tokens": {
+            "matched": [
+              "√bhaj",
+              "share",
+              "fortunate",
+              "fortune",
+              "luck",
+              "possessive",
+              "suffix",
+              "who",
+              "has",
+              "nominative",
+              "blessed"
+            ],
+            "modelOnly": [
+              "bhaga",
+              "splendor",
+              "forms",
+              "singular",
+              "standard",
+              "epithet",
+              "buddha",
+              "sublime",
+              "emphasizing",
+              "transcendent",
+              "qualities",
+              "referring",
+              "auspicious",
+              "birth",
+              "life"
+            ],
+            "goldenOnly": [
+              "good",
+              "subject",
+              "speaker",
+              "literal",
+              "lucky",
+              "bearer"
+            ],
+            "f1": 0.5116279069767442
+          },
+          "judge": null
         },
         {
           "surface": "etad",
@@ -426,7 +850,9 @@
               "this"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "avoca",
@@ -446,7 +872,9 @@
               "spoke"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         }
       ],
       "unmatched": [

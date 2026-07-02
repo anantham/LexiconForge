@@ -102,7 +102,7 @@ const SENSE_STOP = new Set([
 ]);
 
 /** Lowercase, strip punctuation (keep Pāli diacritics + √ root marker), drop stopwords/short. */
-const tokenize = (text: string | undefined | null): string[] => {
+export const tokenize = (text: string | undefined | null): string[] => {
   if (!text) return [];
   return text
     .normalize('NFC') // fold decomposed diacritics FIRST, else a combining macron (not in
@@ -379,7 +379,7 @@ export function scoreSegmentationFidelity(
 }
 
 /** A word's "knowledge tokens" (by id) — its anatomist tooltips + its lexicographer senses. */
-const wordKnowledgeTokensById = (
+export const wordKnowledgeTokensById = (
   wordId: string,
   anat: AnatomistPass | null | undefined,
   lex: LexicographerPass | null | undefined

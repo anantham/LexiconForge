@@ -7,6 +7,14 @@
       "pali": "sattānaṁ visuddhiyā,",
       "goldenWordCount": 2,
       "modelWordCount": 2,
+      "scores": {
+        "segF1": 1,
+        "contentF1": 0.29357798165137616,
+        "semantic": 0.8500000000000001,
+        "coverage": 1,
+        "overall": 0.6443233944954128,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "sattānaṁ",
@@ -39,6 +47,62 @@
               "sentient beings"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "satta",
+              "being",
+              "existing",
+              "genitive",
+              "plural",
+              "beings",
+              "living"
+            ],
+            "modelOnly": [
+              "√satt",
+              "√as",
+              "sentient",
+              "creature",
+              "related",
+              "sattva",
+              "real",
+              "ānaṁ",
+              "ending",
+              "pāli",
+              "uses",
+              "suffix",
+              "show",
+              "belonging",
+              "english",
+              "creatures",
+              "all",
+              "things",
+              "consciousness"
+            ],
+            "goldenOnly": [
+              "sat",
+              "sant",
+              "also",
+              "√saj",
+              "cling",
+              "stuck",
+              "ones",
+              "seven",
+              "shows",
+              "who",
+              "belongs",
+              "entities",
+              "attached",
+              "types",
+              "numerical"
+            ],
+            "f1": 0.2916666666666667
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the segmentation and provides accurate tooltips, but it omits the specific mention of 'stuck ones' and 'seven types' from the senses, which are essential points in the GOLDEN analysis."
           }
         },
         {
@@ -76,6 +140,73 @@
               "cleansing"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "prefix",
+              "intensive",
+              "√sudh",
+              "clean",
+              "purity",
+              "dative",
+              "purpose",
+              "purification",
+              "cleansing"
+            ],
+            "modelOnly": [
+              "apart",
+              "intensifies",
+              "root",
+              "utterly",
+              "pure",
+              "√suddhi",
+              "suddhi",
+              "related",
+              "english",
+              "via",
+              "indo",
+              "european",
+              "ending",
+              "singular",
+              "also",
+              "instrumental",
+              "means",
+              "context",
+              "determines",
+              "moral",
+              "spiritual",
+              "state",
+              "being",
+              "process",
+              "removing",
+              "defilements"
+            ],
+            "goldenOnly": [
+              "completely",
+              "brightness",
+              "clear",
+              "sake",
+              "marker",
+              "cleaning",
+              "out",
+              "clarity",
+              "seeing",
+              "clearly",
+              "washing",
+              "away",
+              "brightening",
+              "light",
+              "emerging",
+              "refinement",
+              "polishing"
+            ],
+            "f1": 0.29508196721311475
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a faithful analysis with correct segmentation and tooltips, capturing the essential meanings, though it could have included more senses related to brightness and refinement for completeness."
           }
         }
       ],
@@ -86,6 +217,14 @@
       "pali": "dukkhadomanassānaṁ atthaṅgamāya,",
       "goldenWordCount": 2,
       "modelWordCount": 2,
+      "scores": {
+        "segF1": 0.6,
+        "contentF1": 0.36764705882352944,
+        "semantic": 0.7,
+        "coverage": 1,
+        "overall": 0.29087126395697166,
+        "textIntegrity": 0.5
+      },
       "words": [
         {
           "surface": "dukkhadomanassānaṁ",
@@ -120,6 +259,74 @@
               "ill-being and dissatisfaction"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "pain",
+              "physical",
+              "suffering",
+              "bad",
+              "kha",
+              "space",
+              "mental",
+              "distress",
+              "manas",
+              "mind",
+              "plural",
+              "genitive",
+              "discomfort",
+              "sadness"
+            ],
+            "modelOnly": [
+              "first",
+              "arrow",
+              "duḥ",
+              "axle",
+              "wheel",
+              "poorly",
+              "fitting",
+              "second",
+              "psychological",
+              "stress",
+              "state",
+              "āna",
+              "ending",
+              "means",
+              "pāli",
+              "belonging",
+              "noun",
+              "itself",
+              "english",
+              "would",
+              "say",
+              "ānaṁ",
+              "closes",
+              "vowel",
+              "period",
+              "case",
+              "coupled",
+              "broad",
+              "negative",
+              "experience",
+              "ill",
+              "being",
+              "dissatisfaction",
+              "interpretation"
+            ],
+            "goldenOnly": [
+              "compound",
+              "displeasure",
+              "standard",
+              "unpleasant",
+              "feelings"
+            ],
+            "f1": 0.417910447761194
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL provides a mostly correct analysis but omits the essential point of the genitive plural form, which is crucial for understanding the grammatical role."
           }
         },
         {
@@ -157,6 +364,79 @@
               "vanishing"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "home",
+              "set",
+              "sun",
+              "going",
+              "√gam",
+              "atthaṅgama",
+              "ending",
+              "dative",
+              "purpose",
+              "disappearance",
+              "down"
+            ],
+            "modelOnly": [
+              "atthaṁ",
+              "prefix",
+              "gone",
+              "end",
+              "related",
+              "attha",
+              "gam",
+              "root",
+              "behind",
+              "come",
+              "path",
+              "many",
+              "indo",
+              "european",
+              "languages",
+              "cessation",
+              "before",
+              "lengthens",
+              "stem",
+              "vowel",
+              "sandhi",
+              "bridge",
+              "separate",
+              "morpheme",
+              "makes",
+              "noun",
+              "order",
+              "pāli",
+              "itself",
+              "english",
+              "uses",
+              "preposition",
+              "passing",
+              "away",
+              "subsiding",
+              "calming",
+              "settling",
+              "vanishing",
+              "lit",
+              "complete"
+            ],
+            "goldenOnly": [
+              "√as",
+              "setting",
+              "disappearing",
+              "sake",
+              "marker",
+              "extinguishing",
+              "fading"
+            ],
+            "f1": 0.3188405797101449
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "error",
+            "hallucination": true,
+            "rationale": "The MODEL incorrectly states that 'atthaṁ' is a prefix and misrepresents the morphological structure, leading to a significant factual error."
           }
         }
       ],
@@ -167,6 +447,14 @@
       "pali": "nibbānassa sacchikiriyāya,",
       "goldenWordCount": 2,
       "modelWordCount": 2,
+      "scores": {
+        "segF1": 0.2222222222222222,
+        "contentF1": 0.33587786259541985,
+        "semantic": 0.8500000000000001,
+        "coverage": 1,
+        "overall": 0.20789912840136054,
+        "textIntegrity": 0.5
+      },
       "words": [
         {
           "surface": "nibbānassa",
@@ -201,6 +489,72 @@
               "blowing out"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "out",
+              "blowing",
+              "extinguishing",
+              "singular",
+              "goal",
+              "liberation",
+              "cooling",
+              "fire"
+            ],
+            "modelOnly": [
+              "prefix",
+              "down",
+              "away",
+              "modifies",
+              "root",
+              "√vā",
+              "blow",
+              "wind",
+              "ni√vā",
+              "nibbāna",
+              "flame",
+              "also",
+              "mental",
+              "defilements",
+              "ssa",
+              "ending",
+              "means",
+              "pāli",
+              "belonging",
+              "noun",
+              "itself",
+              "english",
+              "would",
+              "say",
+              "extinguishment",
+              "defilement",
+              "ultimate",
+              "full",
+              "quenching",
+              "complete",
+              "metaphor",
+              "cessation",
+              "craving",
+              "literal",
+              "goes"
+            ],
+            "goldenOnly": [
+              "vāna",
+              "going",
+              "peace",
+              "genitive",
+              "nibbana",
+              "unbinding",
+              "freedom",
+              "release"
+            ],
+            "f1": 0.2711864406779661
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct segmentation and detailed etymology, but it introduces additional interpretations that, while accurate, are not present in the GOLDEN reference."
           }
         },
         {
@@ -243,6 +597,79 @@
               "to bring about"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "eyes",
+              "making",
+              "own",
+              "√kṛ",
+              "make",
+              "compound",
+              "visible",
+              "dative",
+              "purpose",
+              "personal",
+              "experience",
+              "direct",
+              "realization",
+              "sake"
+            ],
+            "modelOnly": [
+              "stem",
+              "sacchi",
+              "before",
+              "person",
+              "sakkhi",
+              "eye",
+              "common",
+              "verbs",
+              "suffix",
+              "abstract",
+              "noun",
+              "forming",
+              "turns",
+              "verb",
+              "act",
+              "often",
+              "seen",
+              "āya",
+              "together",
+              "ending",
+              "emphatic",
+              "use",
+              "realize",
+              "personally",
+              "experiencing",
+              "lit",
+              "doing",
+              "indicates",
+              "bring",
+              "active",
+              "extinguishment",
+              "living",
+              "reality"
+            ],
+            "goldenOnly": [
+              "akkhi",
+              "seeing",
+              "directly",
+              "witnessing",
+              "real",
+              "accomplishing",
+              "marker",
+              "first",
+              "hand",
+              "touching",
+              "contact"
+            ],
+            "f1": 0.3888888888888889
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL captures the core meaning and segmentation but misses some essential nuances of witnessing and direct experience emphasized in the GOLDEN reference."
           }
         }
       ],
@@ -253,6 +680,14 @@
       "pali": "yadidaṁ cattāro satipaṭṭhānā.",
       "goldenWordCount": 3,
       "modelWordCount": 3,
+      "scores": {
+        "segF1": 0.6666666666666666,
+        "contentF1": 0.41739130434782606,
+        "semantic": 0.8666666666666667,
+        "coverage": 1,
+        "overall": 0.6327173913043479,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "yadidaṁ",
@@ -279,6 +714,42 @@
               "that is"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "relative",
+              "pronoun",
+              "introduces",
+              "idaṁ",
+              "demonstrative",
+              "namely"
+            ],
+            "modelOnly": [
+              "stem",
+              "explanation",
+              "sandhi",
+              "glide",
+              "connects",
+              "together",
+              "yadidaṁ",
+              "enumeration",
+              "specification",
+              "identifies",
+              "preceding",
+              "referent"
+            ],
+            "goldenOnly": [
+              "yad",
+              "say",
+              "follows"
+            ],
+            "f1": 0.4444444444444444
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct segmentation and accurate tooltips, with additional context about the usage of 'yadidaṁ' that enriches the analysis without introducing errors."
           }
         },
         {
@@ -306,6 +777,33 @@
               "fourfold"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "number",
+              "four",
+              "nominative",
+              "masculine",
+              "plural",
+              "group"
+            ],
+            "modelOnly": [
+              "cardinal",
+              "set",
+              "fourfold"
+            ],
+            "goldenOnly": [
+              "numeral",
+              "quantity",
+              "quartet"
+            ],
+            "f1": 0.6666666666666666
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the segmentation and meaning of 'cattāro', while also providing additional context about its grammatical role, enhancing the analysis without factual errors."
           }
         },
         {
@@ -341,6 +839,79 @@
               "ways of attending mindfully"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "mindfulness",
+              "presence",
+              "practice",
+              "foundation",
+              "setting",
+              "√sthā",
+              "stand",
+              "compound",
+              "foundations",
+              "establishments",
+              "ways",
+              "present"
+            ],
+            "modelOnly": [
+              "sati",
+              "core",
+              "faculty",
+              "ending",
+              "stem",
+              "suffix",
+              "paṭṭhāna",
+              "prefix",
+              "nominative",
+              "plural",
+              "masculine",
+              "four",
+              "classic",
+              "meditation",
+              "subjects",
+              "body",
+              "feelings",
+              "mind",
+              "phenomena",
+              "mindful",
+              "attention",
+              "each",
+              "domain",
+              "attending",
+              "mindfully",
+              "modes",
+              "being"
+            ],
+            "goldenOnly": [
+              "√smṛ",
+              "remember",
+              "awareness",
+              "paṭi",
+              "establishing",
+              "standard",
+              "translation",
+              "active",
+              "placing",
+              "presencings",
+              "remembering",
+              "memory",
+              "aspect",
+              "keeping",
+              "oriented",
+              "lucid",
+              "abodes",
+              "clarity",
+              "emphasis"
+            ],
+            "f1": 0.34285714285714286
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly segments and explains 'satipaṭṭhānā', but it omits some of the nuanced senses and the full range of meanings present in the GOLDEN reference."
           }
         }
       ],
@@ -351,6 +922,14 @@
       "pali": "Idha, bhikkhave, bhikkhu kāye kāyānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
       "goldenWordCount": 3,
       "modelWordCount": 12,
+      "scores": {
+        "segF1": 0.8333333333333334,
+        "contentF1": 0.32653061224489793,
+        "semantic": 0.85,
+        "coverage": 1,
+        "overall": 0.6086399255266622,
+        "textIntegrity": 0.9166666666666666
+      },
       "words": [
         {
           "surface": "vineyya",
@@ -393,6 +972,85 @@
               "dispelling"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "apart",
+              "away",
+              "√nī",
+              "lead",
+              "having",
+              "removed",
+              "aside",
+              "removing",
+              "putting"
+            ],
+            "modelOnly": [
+              "removal",
+              "separation",
+              "indo",
+              "european",
+              "carry",
+              "vineyya",
+              "put",
+              "absolutive",
+              "ending",
+              "done",
+              "indicates",
+              "action",
+              "completed",
+              "before",
+              "main",
+              "verb",
+              "getting",
+              "rid",
+              "set",
+              "dispelling",
+              "eliminating",
+              "thoroughly"
+            ],
+            "goldenOnly": [
+              "prefix",
+              "out",
+              "same",
+              "root",
+              "vinaya",
+              "discipline",
+              "vineti",
+              "remove",
+              "train",
+              "great",
+              "debate",
+              "sequential",
+              "first",
+              "jhāna",
+              "then",
+              "insight",
+              "samatha",
+              "approach",
+              "while",
+              "simultaneous",
+              "mindfulness",
+              "dry",
+              "both",
+              "readings",
+              "grammatically",
+              "valid",
+              "view",
+              "disciplining",
+              "connection",
+              "training",
+              "gradual",
+              "freeing",
+              "liberation"
+            ],
+            "f1": 0.2465753424657534
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct segmentation and accurate meanings, but the etymology regarding Indo-European roots is unnecessary and slightly misleading."
           }
         },
         {
@@ -424,6 +1082,52 @@
               "people"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "loka",
+              "world",
+              "realm",
+              "experience",
+              "locative",
+              "singular",
+              "domain"
+            ],
+            "modelOnly": [
+              "sphere",
+              "often",
+              "means",
+              "beings",
+              "society",
+              "pāli",
+              "directly",
+              "noun",
+              "cosmos",
+              "known",
+              "through",
+              "aggregates",
+              "spheres",
+              "elements",
+              "people",
+              "population",
+              "worldly"
+            ],
+            "goldenOnly": [
+              "regarding",
+              "scope",
+              "action",
+              "removing",
+              "applies",
+              "location",
+              "concerning"
+            ],
+            "f1": 0.3684210526315789
+          },
+          "judge": {
+            "score": 0.85,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL captures the core meanings and grammatical role well, but it introduces some unnecessary elaboration on the 'world of beings' which is not essential."
           }
         },
         {
@@ -467,6 +1171,90 @@
               "longing and discontent"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "abhi",
+              "desire",
+              "√dhyai",
+              "abhijjhā",
+              "covetousness",
+              "longing",
+              "domanassa",
+              "displeasure",
+              "bad",
+              "manas",
+              "mind",
+              "wanting",
+              "craving",
+              "two",
+              "poles",
+              "hindrance"
+            ],
+            "modelOnly": [
+              "toward",
+              "intensively",
+              "directed",
+              "excessive",
+              "think",
+              "covet",
+              "jhā",
+              "pali",
+              "development",
+              "mental",
+              "pain",
+              "duḥ",
+              "mindedness",
+              "accusative",
+              "singular",
+              "neuter",
+              "ending",
+              "regarding",
+              "removed",
+              "gerund",
+              "vineyya",
+              "depression",
+              "unhappiness",
+              "aversion",
+              "greed",
+              "distress",
+              "discontent",
+              "dual",
+              "attraction",
+              "repulsion"
+            ],
+            "goldenOnly": [
+              "towards",
+              "intensely",
+              "√jhā",
+              "first",
+              "kāmacchanda",
+              "second",
+              "byāpāda",
+              "ill",
+              "will",
+              "synecdoche",
+              "these",
+              "stand",
+              "all",
+              "five",
+              "hindrances",
+              "sensory",
+              "sloth",
+              "torpor",
+              "restlessness",
+              "remorse",
+              "doubt",
+              "literal",
+              "pair"
+            ],
+            "f1": 0.3764705882352941
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL accurately describes the components and meanings but omits the important synecdoche aspect that encompasses all five hindrances."
           }
         }
       ],
@@ -558,6 +1346,14 @@
       "pali": "vedanāsu vedanānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
       "goldenWordCount": 3,
       "modelWordCount": 9,
+      "scores": {
+        "segF1": 0.8,
+        "contentF1": 0.34285714285714286,
+        "semantic": 0.9,
+        "coverage": 1,
+        "overall": 0.5985890652557319,
+        "textIntegrity": 0.8888888888888888
+      },
       "words": [
         {
           "surface": "ātāpī",
@@ -588,6 +1384,64 @@
               "zealous"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "√tap",
+              "burn",
+              "heat",
+              "burning",
+              "effort",
+              "possessive",
+              "who",
+              "has",
+              "ardent",
+              "keen",
+              "diligent"
+            ],
+            "modelOnly": [
+              "vedic",
+              "tapas",
+              "ascetic",
+              "buddhist",
+              "defilements",
+              "through",
+              "ending",
+              "suffix",
+              "ardor",
+              "same",
+              "pattern",
+              "satimā",
+              "vedanānupassī",
+              "stem",
+              "possessing",
+              "quality",
+              "continuous",
+              "zeal",
+              "lit",
+              "energetic",
+              "applying",
+              "sustained",
+              "zealous",
+              "passionate",
+              "commitment",
+              "practice"
+            ],
+            "goldenOnly": [
+              "transformative",
+              "fire",
+              "steady",
+              "energy",
+              "sharp",
+              "attention"
+            ],
+            "f1": 0.4074074074074074
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct segmentation, accurate etymology, and comprehensive senses that align well with the GOLDEN reference."
           }
         },
         {
@@ -623,6 +1477,80 @@
               "intentional"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "together",
+              "completely",
+              "forth",
+              "forward",
+              "√j",
+              "know",
+              "knowing",
+              "clearly",
+              "aware",
+              "full",
+              "comprehension",
+              "fully"
+            ],
+            "modelOnly": [
+              "prefix",
+              "sam",
+              "intensifies",
+              "root",
+              "follows",
+              "directional",
+              "bringing",
+              "knowledge",
+              "jānāti",
+              "forms",
+              "sampajāna",
+              "complete",
+              "active",
+              "often",
+              "translated",
+              "ending",
+              "nominative",
+              "singular",
+              "masculine",
+              "who",
+              "agrees",
+              "implied",
+              "subject",
+              "bhikkhu",
+              "gender",
+              "number",
+              "present",
+              "experience",
+              "lit",
+              "actively",
+              "understanding",
+              "actions",
+              "their",
+              "results",
+              "intentional",
+              "deliberate",
+              "purposeful",
+              "all",
+              "activities"
+            ],
+            "goldenOnly": [
+              "doing",
+              "awareness",
+              "clear",
+              "four",
+              "types",
+              "discerning",
+              "purpose",
+              "context"
+            ],
+            "f1": 0.3380281690140845
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL offers a detailed analysis with correct segmentation and etymology, though it slightly expands on the senses without omitting any essential points."
           }
         },
         {
@@ -654,6 +1582,64 @@
               "having good memory"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "√smṛ",
+              "mindfulness",
+              "memory",
+              "mant",
+              "possessing",
+              "mindful",
+              "awareness"
+            ],
+            "modelOnly": [
+              "remember",
+              "root",
+              "sati",
+              "presence",
+              "buddhism",
+              "means",
+              "mind",
+              "just",
+              "suffix",
+              "contracted",
+              "same",
+              "pattern",
+              "guṇavant",
+              "virtues",
+              "satimā",
+              "who",
+              "possesses",
+              "fully",
+              "present",
+              "quality",
+              "lit",
+              "having",
+              "attentive",
+              "continuous",
+              "moment",
+              "good",
+              "excellent",
+              "recollection",
+              "teaching",
+              "practice"
+            ],
+            "goldenOnly": [
+              "faculty",
+              "standard",
+              "equipped",
+              "capacity",
+              "recollected",
+              "gathered"
+            ],
+            "f1": 0.28
+          },
+          "judge": {
+            "score": 0.85,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL accurately segments and provides correct etymology, but it misses the core sense of 'possessing mindfulness' as clearly as the GOLDEN reference."
           }
         }
       ],
@@ -719,6 +1705,14 @@
       "pali": "citte cittānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
       "goldenWordCount": 3,
       "modelWordCount": 9,
+      "scores": {
+        "segF1": 0.6666666666666666,
+        "contentF1": 0.287292817679558,
+        "semantic": 0.8166666666666668,
+        "coverage": 1,
+        "overall": 0.5952787543947764,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "citte",
@@ -754,6 +1748,73 @@
               "thought"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "citta",
+              "mind",
+              "heart",
+              "locative",
+              "cognition",
+              "affective"
+            ],
+            "modelOnly": [
+              "stem",
+              "thought",
+              "case",
+              "ending",
+              "means",
+              "pāli",
+              "location",
+              "noun",
+              "itself",
+              "english",
+              "uses",
+              "prepositions",
+              "seat",
+              "emotion",
+              "center",
+              "specific",
+              "mental",
+              "act"
+            ],
+            "goldenOnly": [
+              "double",
+              "etymology",
+              "√cit",
+              "perceive",
+              "think",
+              "√ci",
+              "accumulate",
+              "heap",
+              "agent",
+              "repository",
+              "kamma",
+              "thoughts",
+              "state",
+              "consciousness",
+              "lustful",
+              "clear",
+              "contracted",
+              "exalted",
+              "singular",
+              "states",
+              "sarāga",
+              "vītarāga",
+              "sadosa",
+              "vītadosa",
+              "cognitive",
+              "aspect",
+              "regarding",
+              "awareness"
+            ],
+            "f1": 0.20689655172413793
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis of the segmentation and meanings, but it lacks the depth of the GOLDEN reference regarding the states of consciousness."
           }
         },
         {
@@ -787,6 +1848,75 @@
               "contemplating the mind"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "citta",
+              "mind",
+              "following",
+              "anu",
+              "along",
+              "observing",
+              "√pass",
+              "see",
+              "who",
+              "seeing",
+              "heart"
+            ],
+            "modelOnly": [
+              "stem",
+              "lengthened",
+              "vowel",
+              "due",
+              "sandhi",
+              "before",
+              "anupassī",
+              "prefix",
+              "according",
+              "shortened",
+              "after",
+              "together",
+              "passī",
+              "means",
+              "suffix",
+              "has",
+              "cittānupassī",
+              "observes",
+              "watching",
+              "mental",
+              "phenomena",
+              "they",
+              "arise",
+              "meditative",
+              "awareness",
+              "inner",
+              "states",
+              "contemplating",
+              "reflective",
+              "observation",
+              "thoughts"
+            ],
+            "goldenOnly": [
+              "consciousness",
+              "repeatedly",
+              "√dṛś",
+              "pali",
+              "does",
+              "identity",
+              "observer",
+              "action",
+              "watcher",
+              "tracking",
+              "closely",
+              "phenomenological"
+            ],
+            "f1": 0.3384615384615385
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the segmentation, etymology, and senses, closely aligning with the GOLDEN reference."
           }
         },
         {
@@ -820,6 +1950,70 @@
               "stays"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "prefix",
+              "apart",
+              "dwell",
+              "singular",
+              "present",
+              "dwells",
+              "practice",
+              "abides",
+              "stays"
+            ],
+            "modelOnly": [
+              "means",
+              "separate",
+              "gives",
+              "dwelling",
+              "state",
+              "separation",
+              "defilements",
+              "√har",
+              "carry",
+              "take",
+              "lit",
+              "oneself",
+              "thematic",
+              "vowel",
+              "connects",
+              "root",
+              "personal",
+              "ending",
+              "third",
+              "person",
+              "tense",
+              "she",
+              "meditates",
+              "habitual",
+              "meditative",
+              "continues",
+              "residence",
+              "metaphorically"
+            ],
+            "goldenOnly": [
+              "special",
+              "√hṛ",
+              "ongoing",
+              "action",
+              "lives",
+              "way",
+              "rests",
+              "remains",
+              "put",
+              "being",
+              "keeps",
+              "continuous"
+            ],
+            "f1": 0.3103448275862069
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the prefix and root but introduces a misleading interpretation of 'vi-' and misses key senses from the GOLDEN reference."
           }
         }
       ],
@@ -882,6 +2076,14 @@
       "pali": "citte cittānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
       "goldenWordCount": 3,
       "modelWordCount": 9,
+      "scores": {
+        "segF1": 1,
+        "contentF1": 0.49101796407185627,
+        "semantic": 0.9,
+        "coverage": 1,
+        "overall": 0.6042173229298978,
+        "textIntegrity": 0.7777777777777778
+      },
       "words": [
         {
           "surface": "ātāpī",
@@ -911,6 +2113,59 @@
               "diligent"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "√tap",
+              "burn",
+              "heat",
+              "suffix",
+              "possessive",
+              "who",
+              "ardor",
+              "ardent",
+              "effort",
+              "diligent"
+            ],
+            "modelOnly": [
+              "buddhist",
+              "context",
+              "ascetic",
+              "burns",
+              "defilements",
+              "tapas",
+              "austerity",
+              "ending",
+              "possesses",
+              "nominative",
+              "singular",
+              "masculine",
+              "intense",
+              "zeal",
+              "zealous",
+              "enthusiastic",
+              "practice",
+              "persistent",
+              "energetic"
+            ],
+            "goldenOnly": [
+              "has",
+              "burning",
+              "transformative",
+              "fire",
+              "steady",
+              "energy",
+              "keen",
+              "sharp",
+              "attention"
+            ],
+            "f1": 0.4166666666666667
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the segmentation, etymology, and senses of 'ātāpī', providing a correct and concise analysis without any factual errors."
           }
         },
         {
@@ -945,6 +2200,76 @@
               "deliberate"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "prefix",
+              "sam",
+              "together",
+              "completely",
+              "pra",
+              "forward",
+              "forth",
+              "knowing",
+              "√j",
+              "know",
+              "full",
+              "comprehension",
+              "nominative",
+              "singular",
+              "masculine",
+              "clearly",
+              "aware",
+              "fully"
+            ],
+            "modelOnly": [
+              "intensifies",
+              "root",
+              "follows",
+              "adds",
+              "directional",
+              "thoroughly",
+              "pāli",
+              "verb",
+              "jānāti",
+              "cluster",
+              "jān",
+              "means",
+              "clarity",
+              "ending",
+              "thematic",
+              "stems",
+              "agreeing",
+              "subject",
+              "bhikkhu",
+              "comprehending",
+              "present",
+              "moment",
+              "comprehensive",
+              "understanding",
+              "deliberate",
+              "acting",
+              "intention"
+            ],
+            "goldenOnly": [
+              "sampaja",
+              "clear",
+              "who",
+              "knows",
+              "awareness",
+              "four",
+              "types",
+              "discerning",
+              "purpose",
+              "context"
+            ],
+            "f1": 0.4931506849315068
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a thorough and accurate analysis of 'sampajāno', correctly detailing the segmentation, etymology, and senses without any errors."
           }
         },
         {
@@ -975,6 +2300,54 @@
               "recollected"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "√smṛ",
+              "remember",
+              "sati",
+              "mindfulness",
+              "capacity",
+              "presence",
+              "suffix",
+              "mant",
+              "possessive",
+              "possessing",
+              "mindful",
+              "awareness",
+              "recollected"
+            ],
+            "modelOnly": [
+              "means",
+              "non",
+              "forgetting",
+              "just",
+              "memory",
+              "contracted",
+              "nominative",
+              "singular",
+              "masculine",
+              "anchored",
+              "present",
+              "moment",
+              "attentive",
+              "focused",
+              "alert",
+              "undisturbed"
+            ],
+            "goldenOnly": [
+              "faculty",
+              "standard",
+              "equipped",
+              "gathered"
+            ],
+            "f1": 0.5652173913043478
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL is mostly accurate but misses the essential point of 'sati' as a faculty, which is a key aspect of the GOLDEN reference."
           }
         }
       ],
@@ -1038,6 +2411,14 @@
       "pali": "dhammesu dhammānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ. ",
       "goldenWordCount": 3,
       "modelWordCount": 9,
+      "scores": {
+        "segF1": 0,
+        "contentF1": 0.3036649214659686,
+        "semantic": 0.8000000000000002,
+        "coverage": 1,
+        "overall": 0.19820470557817849,
+        "textIntegrity": 0.4444444444444444
+      },
       "words": [
         {
           "surface": "dhammesu",
@@ -1077,6 +2458,80 @@
               "teachings"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "dhamma",
+              "principles",
+              "phenomena",
+              "among",
+              "dhammas",
+              "plural",
+              "locative",
+              "domain",
+              "mental",
+              "categories"
+            ],
+            "modelOnly": [
+              "teaching",
+              "ending",
+              "makes",
+              "pāli",
+              "location",
+              "noun",
+              "english",
+              "uses",
+              "preposition",
+              "means",
+              "context",
+              "happens",
+              "objects",
+              "observation",
+              "meditation",
+              "reality",
+              "teachings",
+              "doctrinal",
+              "aspects"
+            ],
+            "goldenOnly": [
+              "√dhṛ",
+              "hold",
+              "support",
+              "sustain",
+              "holds",
+              "singular",
+              "doctrine",
+              "patterns",
+              "five",
+              "hindrances",
+              "aggregates",
+              "six",
+              "bases",
+              "seven",
+              "awakening",
+              "factors",
+              "four",
+              "noble",
+              "truths",
+              "vipassanā",
+              "causal",
+              "laws",
+              "observing",
+              "things",
+              "regarding",
+              "within",
+              "sections",
+              "way",
+              "work",
+              "mind"
+            ],
+            "f1": 0.2898550724637681
+          },
+          "judge": {
+            "score": 0.85,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the locative plural and provides a good explanation of the term, but it omits specific details about the categories of dhammas and the context of observing principles."
           }
         },
         {
@@ -1111,6 +2566,76 @@
               "contemplating nature"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "dhamma",
+              "principles",
+              "phenomena",
+              "who",
+              "anu",
+              "following",
+              "see",
+              "observing",
+              "along",
+              "closely"
+            ],
+            "modelOnly": [
+              "teaching",
+              "stem",
+              "lengthened",
+              "dhammā",
+              "before",
+              "compound",
+              "second",
+              "member",
+              "nupassī",
+              "observes",
+              "√paś",
+              "means",
+              "dhammas",
+              "changes",
+              "nupa",
+              "root",
+              "related",
+              "english",
+              "scope",
+              "spectacle",
+              "anupassī",
+              "sees",
+              "active",
+              "contemplation",
+              "mental",
+              "states",
+              "watching",
+              "inner",
+              "continuous",
+              "awareness",
+              "contemplating",
+              "nature",
+              "insight",
+              "things"
+            ],
+            "goldenOnly": [
+              "√dṛś",
+              "pali",
+              "√pass",
+              "does",
+              "identity",
+              "observer",
+              "action",
+              "watcher",
+              "tracking",
+              "seeing",
+              "phenomenological"
+            ],
+            "f1": 0.3076923076923077
+          },
+          "judge": {
+            "score": 0.75,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL provides a solid breakdown of the components but misses the core identity aspect of being a dhamma-watcher and does not fully capture the phenomenological aspect of the term."
           }
         },
         {
@@ -1144,6 +2669,69 @@
               "practices"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "apart",
+              "prefix",
+              "√hṛ",
+              "dwell",
+              "singular",
+              "present",
+              "dwells",
+              "ongoing",
+              "remains"
+            ],
+            "modelOnly": [
+              "intensive",
+              "can",
+              "mean",
+              "various",
+              "ways",
+              "carry",
+              "bring",
+              "extended",
+              "remain",
+              "ati",
+              "ending",
+              "third",
+              "person",
+              "tense",
+              "she",
+              "pāli",
+              "uses",
+              "same",
+              "actions",
+              "habitual",
+              "meditative",
+              "abiding",
+              "continues",
+              "state",
+              "practices",
+              "engaged",
+              "meditation"
+            ],
+            "goldenOnly": [
+              "special",
+              "action",
+              "lives",
+              "way",
+              "abides",
+              "rests",
+              "stays",
+              "put",
+              "being",
+              "keeps",
+              "continuous",
+              "practice"
+            ],
+            "f1": 0.3157894736842105
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL accurately describes the verb's form and meaning but lacks emphasis on the ongoing nature of the action and the specific context of meditative practice."
           }
         }
       ],
@@ -1206,6 +2794,14 @@
       "pali": "dhammesu dhammānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ. ",
       "goldenWordCount": 3,
       "modelWordCount": 9,
+      "scores": {
+        "segF1": 0.6666666666666666,
+        "contentF1": 0.41509433962264153,
+        "semantic": 0.7166666666666667,
+        "coverage": 1,
+        "overall": 0.36723809107849986,
+        "textIntegrity": 0.5555555555555556
+      },
       "words": [
         {
           "surface": "ātāpī",
@@ -1235,6 +2831,63 @@
               "diligent"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "√tap",
+              "burn",
+              "heat",
+              "ardent",
+              "burning",
+              "effort",
+              "suffix",
+              "possessive",
+              "who",
+              "has",
+              "ardor",
+              "diligent",
+              "steady"
+            ],
+            "modelOnly": [
+              "ātāpī",
+              "means",
+              "defilements",
+              "through",
+              "related",
+              "vedic",
+              "tapas",
+              "ascetic",
+              "adjective",
+              "nominative",
+              "singular",
+              "masculine",
+              "continuous",
+              "lit",
+              "zeal",
+              "zealous",
+              "enthusiastic",
+              "energetic",
+              "practice",
+              "sustained",
+              "application",
+              "without",
+              "laziness"
+            ],
+            "goldenOnly": [
+              "transformative",
+              "fire",
+              "energy",
+              "keen",
+              "sharp",
+              "attention"
+            ],
+            "f1": 0.4727272727272727
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the core meaning and grammatical role of 'ātāpī', providing a correct etymology and relevant senses without any factual errors."
           }
         },
         {
@@ -1269,6 +2922,73 @@
               "deliberate"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "sam",
+              "together",
+              "completely",
+              "√j",
+              "knowing",
+              "fully",
+              "forth",
+              "forward",
+              "pra",
+              "know",
+              "clearly",
+              "nominative",
+              "singular",
+              "aware",
+              "full",
+              "comprehension",
+              "awareness"
+            ],
+            "modelOnly": [
+              "combined",
+              "intensifies",
+              "mean",
+              "comprehending",
+              "becomes",
+              "stem",
+              "jāna",
+              "present",
+              "ending",
+              "related",
+              "english",
+              "cognate",
+              "through",
+              "indo",
+              "european",
+              "knowledge",
+              "moment",
+              "alert",
+              "active",
+              "clarity",
+              "deliberate",
+              "purposeful",
+              "intentional",
+              "action"
+            ],
+            "goldenOnly": [
+              "prefix",
+              "sampaja",
+              "clear",
+              "masculine",
+              "who",
+              "knows",
+              "four",
+              "types",
+              "discerning",
+              "purpose",
+              "context"
+            ],
+            "f1": 0.4927536231884058
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a mostly accurate analysis of 'sampajāno', but it slightly overcomplicates the etymology and misses the explicit mention of 'clear comprehension' as a key sense."
           }
         },
         {
@@ -1296,6 +3016,53 @@
               "with excellent recollection"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "mindful",
+              "presence",
+              "awareness"
+            ],
+            "modelOnly": [
+              "fully",
+              "present",
+              "attentive",
+              "memory",
+              "quality",
+              "continuous",
+              "forgetting",
+              "object",
+              "excellent",
+              "recollection",
+              "having",
+              "strong",
+              "sustaining",
+              "over",
+              "time"
+            ],
+            "goldenOnly": [
+              "√smṛ",
+              "remember",
+              "sati",
+              "mindfulness",
+              "possessive",
+              "suffix",
+              "mant",
+              "possessing",
+              "faculty",
+              "standard",
+              "equipped",
+              "capacity",
+              "recollected",
+              "gathered"
+            ],
+            "f1": 0.17142857142857143
+          },
+          "judge": {
+            "score": 0.3,
+            "verdict": "error",
+            "hallucination": true,
+            "rationale": "The MODEL fails to provide any segmentation or tooltips, and the absence of essential information about 'satimā' indicates a significant factual error."
           }
         }
       ],
@@ -1348,6 +3115,14 @@
       "pali": "Uddeso niṭṭhito. ",
       "goldenWordCount": 2,
       "modelWordCount": 2,
+      "scores": {
+        "segF1": 0.4,
+        "contentF1": 0.3103448275862069,
+        "semantic": 0.7749999999999999,
+        "coverage": 1,
+        "overall": 0.23780172413793105,
+        "textIntegrity": 0.5
+      },
       "words": [
         {
           "surface": "Uddeso",
@@ -1377,6 +3152,67 @@
               "teaching"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "uddesa",
+              "summary",
+              "pointing",
+              "point",
+              "out",
+              "indicate",
+              "outline",
+              "brief",
+              "statement"
+            ],
+            "modelOnly": [
+              "synopsis",
+              "literally",
+              "√dis",
+              "text",
+              "section",
+              "has",
+              "just",
+              "been",
+              "recited",
+              "nominative",
+              "singular",
+              "ending",
+              "makes",
+              "subject",
+              "clause",
+              "pāli",
+              "masculine",
+              "nouns",
+              "english",
+              "uses",
+              "order",
+              "key",
+              "points",
+              "recitation",
+              "oral",
+              "delivery",
+              "teaching",
+              "doctrinal",
+              "instruction"
+            ],
+            "goldenOnly": [
+              "√diś",
+              "before",
+              "detailed",
+              "explanation",
+              "itself",
+              "overview",
+              "introduction",
+              "etymological"
+            ],
+            "f1": 0.32727272727272727
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the segmentation, etymology, and senses of 'Uddeso', providing a correct and concise analysis without any factual errors."
           }
         },
         {
@@ -1407,6 +3243,73 @@
               "accomplished"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "finished",
+              "complete",
+              "stand",
+              "concluded",
+              "describing",
+              "completed",
+              "singular",
+              "masculine",
+              "done"
+            ],
+            "modelOnly": [
+              "niṭṭhā",
+              "root",
+              "ni√sthā",
+              "still",
+              "settled",
+              "passive",
+              "was",
+              "has",
+              "been",
+              "comes",
+              "suffix",
+              "past",
+              "participle",
+              "ending",
+              "turns",
+              "verb",
+              "adjective",
+              "state",
+              "pāli",
+              "uses",
+              "same",
+              "both",
+              "act",
+              "resulting",
+              "nominative",
+              "agrees",
+              "uddeso",
+              "outline",
+              "gender",
+              "number",
+              "case",
+              "subject",
+              "action",
+              "brought",
+              "conclusion",
+              "accomplished",
+              "successfully"
+            ],
+            "goldenOnly": [
+              "√sthā",
+              "established",
+              "niṭṭhita",
+              "uddesa",
+              "ended",
+              "stands"
+            ],
+            "f1": 0.29508196721311475
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "error",
+            "hallucination": true,
+            "rationale": "The MODEL incorrectly segments 'niṭṭhito' as 'niṭṭhi·ta·o', which introduces a factual error regarding its grammatical structure, despite providing some correct information about its meaning."
           }
         }
       ],
@@ -1417,6 +3320,14 @@
       "pali": "Idha, bhikkhave, bhikkhu araññagato vā rukkhamūlagato vā suññāgāragato vā nisīdati, pallaṅkaṁ ābhujitvā, ujuṁ kāyaṁ paṇidhāya, parimukhaṁ satiṁ upaṭṭhapetvā. ",
       "goldenWordCount": 7,
       "modelWordCount": 18,
+      "scores": {
+        "segF1": 0.4,
+        "contentF1": 0.42735042735042733,
+        "semantic": 0.8642857142857144,
+        "coverage": 1,
+        "overall": 0.43397985705003245,
+        "textIntegrity": 0.7222222222222222
+      },
       "words": [
         {
           "surface": "Idha",
@@ -1441,6 +3352,31 @@
               "Now"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "teaching",
+              "context",
+              "case"
+            ],
+            "modelOnly": [
+              "indeclinable",
+              "discourse",
+              "marker",
+              "now",
+              "narrative",
+              "transition"
+            ],
+            "goldenOnly": [
+              "sets"
+            ],
+            "f1": 0.46153846153846156
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis but adds unnecessary detail about being a discourse marker, which is not essential."
           }
         },
         {
@@ -1469,6 +3405,49 @@
               "bhikkhus"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "monks",
+              "vocative",
+              "plural",
+              "group",
+              "mendicants",
+              "address"
+            ],
+            "modelOnly": [
+              "stem",
+              "bhikkhu",
+              "same",
+              "below",
+              "now",
+              "hey",
+              "you",
+              "all",
+              "calling",
+              "out",
+              "assembled",
+              "community",
+              "bhikkhus",
+              "formal",
+              "monastic",
+              "audience"
+            ],
+            "goldenOnly": [
+              "√bhikkh",
+              "beg",
+              "alms",
+              "monastics",
+              "addressing",
+              "beggars"
+            ],
+            "f1": 0.35294117647058826
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL captures the core meaning but omits the etymological connection to 'bhikkhu' and the specific sense of 'mendicants' as an address form."
           }
         },
         {
@@ -1498,6 +3477,43 @@
               "bhikkhu"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "√bhikkh",
+              "beg",
+              "who",
+              "alms",
+              "mendicant",
+              "nominative",
+              "singular",
+              "subject",
+              "monk",
+              "ordained",
+              "monastic"
+            ],
+            "modelOnly": [
+              "share",
+              "bhikkhu",
+              "lives",
+              "fully",
+              "lit",
+              "beggar",
+              "traditional",
+              "english",
+              "buddhist",
+              "pāli"
+            ],
+            "goldenOnly": [
+              "begs"
+            ],
+            "f1": 0.6666666666666666
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately reflects the segmentation, etymology, and senses without any significant omissions or errors."
           }
         },
         {
@@ -1535,6 +3551,66 @@
               "retreated to the woods"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "forest",
+              "wilderness",
+              "gone",
+              "√gam",
+              "past",
+              "participle",
+              "having",
+              "wild",
+              "setting",
+              "natural"
+            ],
+            "modelOnly": [
+              "ara",
+              "forested",
+              "area",
+              "away",
+              "villages",
+              "gata",
+              "come",
+              "has",
+              "shortened",
+              "added",
+              "nominative",
+              "singular",
+              "masculine",
+              "agreeing",
+              "bhikkhu",
+              "monk",
+              "entered",
+              "physically",
+              "woodland",
+              "retreated",
+              "woods",
+              "withdrawn",
+              "secluded"
+            ],
+            "goldenOnly": [
+              "araṇya",
+              "araṇa",
+              "remote",
+              "canonical",
+              "bow",
+              "lengths",
+              "village",
+              "space",
+              "undisturbed",
+              "practice",
+              "location",
+              "untamed"
+            ],
+            "f1": 0.36363636363636365
+          },
+          "judge": {
+            "score": 0.7,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL misses the canonical reference and the specific context of '500 bow-lengths from village', which is essential for understanding."
           }
         },
         {
@@ -1559,6 +3635,29 @@
               "or else"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "presents",
+              "alternatives",
+              "disjunctive",
+              "alternative"
+            ],
+            "modelOnly": [
+              "option",
+              "else",
+              "emphatic"
+            ],
+            "goldenOnly": [
+              "particle"
+            ],
+            "f1": 0.6666666666666666
+          },
+          "judge": {
+            "score": 1,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a complete and correct analysis that matches the GOLDEN reference without any omissions."
           }
         },
         {
@@ -1593,6 +3692,50 @@
               "retreated to a tree's foot"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "rukkha",
+              "tree",
+              "mūla",
+              "root",
+              "foot",
+              "base",
+              "gone",
+              "meditation",
+              "spot"
+            ],
+            "modelOnly": [
+              "gata",
+              "come",
+              "√gam",
+              "nominative",
+              "singular",
+              "masculine",
+              "agreeing",
+              "bhikkhu",
+              "seated",
+              "common",
+              "retreated",
+              "under",
+              "seclusion"
+            ],
+            "goldenOnly": [
+              "sanskrit",
+              "vṛkṣa",
+              "foundation",
+              "shaded",
+              "traditional",
+              "location",
+              "bottom"
+            ],
+            "f1": 0.47368421052631576
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL is accurate but adds unnecessary detail about agreeing with 'bhikkhu', which is not essential for the analysis."
           }
         },
         {
@@ -1629,6 +3772,63 @@
               "retreated to a solitary place"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "empty",
+              "house",
+              "dwelling",
+              "gone",
+              "hut",
+              "vacant",
+              "building"
+            ],
+            "modelOnly": [
+              "deserted",
+              "agāra",
+              "gata",
+              "come",
+              "√gam",
+              "nominative",
+              "singular",
+              "masculine",
+              "agreeing",
+              "bhikkhu",
+              "uninhabited",
+              "secluded",
+              "meditation",
+              "retreated",
+              "solitary",
+              "quiet",
+              "spot"
+            ],
+            "goldenOnly": [
+              "void",
+              "same",
+              "root",
+              "atā",
+              "emptiness",
+              "disturbances",
+              "people",
+              "full",
+              "stem",
+              "final",
+              "vowel",
+              "elided",
+              "sandhi",
+              "before",
+              "āgāra",
+              "shelter",
+              "without",
+              "refuge"
+            ],
+            "f1": 0.2857142857142857
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL captures the core meaning but omits the connection to 'emptiness' and the full etymological context provided in the GOLDEN."
           }
         }
       ],
@@ -1733,6 +3933,14 @@
       "pali": "Idha, bhikkhave, bhikkhu araññagato vā rukkhamūlagato vā suññāgāragato vā nisīdati, pallaṅkaṁ ābhujitvā, ujuṁ kāyaṁ paṇidhāya, parimukhaṁ satiṁ upaṭṭhapetvā. ",
       "goldenWordCount": 6,
       "modelWordCount": 18,
+      "scores": {
+        "segF1": 0.5882352941176471,
+        "contentF1": 0.3944954128440367,
+        "semantic": 0.7999999999999998,
+        "coverage": 1,
+        "overall": 0.5316848553896585,
+        "textIntegrity": 0.8333333333333334
+      },
       "words": [
         {
           "surface": "nisīdati",
@@ -1763,6 +3971,43 @@
               "is seated"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "down",
+              "√sad",
+              "sit",
+              "settle",
+              "present",
+              "tense",
+              "sits",
+              "action",
+              "seated",
+              "state"
+            ],
+            "modelOnly": [
+              "prefix",
+              "ati",
+              "ending",
+              "person",
+              "singular",
+              "taking",
+              "seat",
+              "descriptive",
+              "resulting"
+            ],
+            "goldenOnly": [
+              "sad",
+              "ongoing",
+              "general"
+            ],
+            "f1": 0.625
+          },
+          "judge": {
+            "score": 1,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct segmentation, accurate etymology, and captures the essential meanings without any errors."
           }
         },
         {
@@ -1794,6 +4039,56 @@
               "with legs crossed"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "pallaṅka",
+              "cross",
+              "legged",
+              "position",
+              "meditation",
+              "posture",
+              "accusative",
+              "bent",
+              "full",
+              "lotus"
+            ],
+            "modelOnly": [
+              "also",
+              "means",
+              "couch",
+              "singular",
+              "having",
+              "sat",
+              "half",
+              "formal",
+              "legs",
+              "crossed",
+              "descriptive",
+              "without",
+              "labeling"
+            ],
+            "goldenOnly": [
+              "paryaṅka",
+              "sanskrit",
+              "seat",
+              "throne",
+              "can",
+              "mean",
+              "seated",
+              "object",
+              "being",
+              "adopted",
+              "traditional",
+              "folded"
+            ],
+            "f1": 0.4444444444444444
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL is mostly correct but misses the specific mention of 'accusative' and the full range of meanings related to the meditation posture."
           }
         },
         {
@@ -1826,6 +4121,59 @@
               "having arranged"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "√bhuj",
+              "bend",
+              "absolutive",
+              "having",
+              "bent",
+              "legs",
+              "limbs"
+            ],
+            "modelOnly": [
+              "prefix",
+              "toward",
+              "around",
+              "curve",
+              "suffix",
+              "action",
+              "completed",
+              "before",
+              "next",
+              "folded",
+              "bending",
+              "posture",
+              "simple",
+              "physical",
+              "arranged",
+              "deliberate",
+              "placement"
+            ],
+            "goldenOnly": [
+              "towards",
+              "completely",
+              "fold",
+              "ābhujati",
+              "done",
+              "sequence",
+              "first",
+              "then",
+              "arranging",
+              "coiled",
+              "wrapped",
+              "position",
+              "contracted",
+              "drawn"
+            ],
+            "f1": 0.3111111111111111
+          },
+          "judge": {
+            "score": 1,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately reflects the segmentation, etymology, and senses, aligning well with the GOLDEN reference."
           }
         },
         {
@@ -1855,6 +4203,50 @@
               "erectly"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "straight",
+              "erect"
+            ],
+            "modelOnly": [
+              "ujuṁ",
+              "adverbial",
+              "modifying",
+              "how",
+              "body",
+              "placed",
+              "uprightly",
+              "slouching",
+              "alignment",
+              "erectly",
+              "formal",
+              "dignified",
+              "posture"
+            ],
+            "goldenOnly": [
+              "uju",
+              "upright",
+              "direct",
+              "sanskrit",
+              "ṛju",
+              "physical",
+              "ethical",
+              "straightness",
+              "accusative",
+              "describing",
+              "made",
+              "bent",
+              "vertical",
+              "extended"
+            ],
+            "f1": 0.12903225806451613
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the meaning but lacks the mention of ethical straightness and the accusative grammatical role."
           }
         },
         {
@@ -1883,6 +4275,40 @@
               "frame"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "kāya",
+              "body",
+              "physical",
+              "accusative",
+              "torso",
+              "frame",
+              "structure"
+            ],
+            "modelOnly": [
+              "√kṛ",
+              "make",
+              "singular",
+              "direct",
+              "object",
+              "paṇidhāya",
+              "specifically",
+              "upper",
+              "upright"
+            ],
+            "goldenOnly": [
+              "made",
+              "straight",
+              "mass"
+            ],
+            "f1": 0.5384615384615384
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct segmentation and some meanings but incorrectly attributes the etymology to √kṛ and misses key grammatical details."
           }
         },
         {
@@ -1915,6 +4341,53 @@
               "directing"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "forth",
+              "forward",
+              "√dhā",
+              "position",
+              "absolutive",
+              "having",
+              "placed"
+            ],
+            "modelOnly": [
+              "prefix",
+              "put",
+              "suffix",
+              "variant",
+              "tvā",
+              "guiding",
+              "directing",
+              "body",
+              "setting",
+              "placing",
+              "particular",
+              "way",
+              "intentional",
+              "positioning"
+            ],
+            "goldenOnly": [
+              "pra",
+              "down",
+              "directed",
+              "set",
+              "establish",
+              "paṇidhāya",
+              "done",
+              "oriented",
+              "established",
+              "determined",
+              "fixed"
+            ],
+            "f1": 0.358974358974359
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "error",
+            "hallucination": true,
+            "rationale": "The MODEL misrepresents the prefix as 'pa-' instead of 'pra + ni-' and fails to accurately convey the meaning of 'having placed forward.'"
           }
         }
       ],
@@ -2020,6 +4493,14 @@
       "pali": "Idha, bhikkhave, bhikkhu araññagato vā rukkhamūlagato vā suññāgāragato vā nisīdati, pallaṅkaṁ ābhujitvā, ujuṁ kāyaṁ paṇidhāya, parimukhaṁ satiṁ upaṭṭhapetvā. ",
       "goldenWordCount": 3,
       "modelWordCount": 18,
+      "scores": {
+        "segF1": 0.6666666666666666,
+        "contentF1": 0.3815028901734104,
+        "semantic": 0.9166666666666666,
+        "coverage": 1,
+        "overall": 0.6611866063174738,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "parimukhaṁ",
@@ -2058,6 +4539,82 @@
               "around the mouth"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "around",
+              "front",
+              "priority",
+              "pari",
+              "mukha",
+              "mouth",
+              "face",
+              "fore",
+              "before",
+              "primary",
+              "focus"
+            ],
+            "modelOnly": [
+              "parimukha",
+              "first",
+              "often",
+              "means",
+              "directed",
+              "toward",
+              "meditation",
+              "object",
+              "ending",
+              "adverbial",
+              "suffix",
+              "forefront",
+              "traditional",
+              "mindfulness",
+              "lips",
+              "nasal",
+              "area"
+            ],
+            "goldenOnly": [
+              "encompassing",
+              "three",
+              "interpretations",
+              "vibhaṅga",
+              "nose",
+              "tip",
+              "nāsikagge",
+              "upper",
+              "lip",
+              "uttaroṭṭhe",
+              "long",
+              "nosed",
+              "man",
+              "nostril",
+              "short",
+              "vinaya",
+              "mental",
+              "location",
+              "uses",
+              "chest",
+              "synthesis",
+              "anchor",
+              "expand",
+              "region",
+              "then",
+              "sabbakāya",
+              "accusative",
+              "describing",
+              "how",
+              "nostrils",
+              "breath",
+              "spot",
+              "foremost"
+            ],
+            "f1": 0.3055555555555556
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis with additional context about the term's application in meditation, enhancing the understanding without introducing errors."
           }
         },
         {
@@ -2087,6 +4644,51 @@
               "memory"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "mindfulness",
+              "presence",
+              "√smṛ",
+              "mind",
+              "memory",
+              "accusative",
+              "object",
+              "established",
+              "awareness",
+              "faculty"
+            ],
+            "modelOnly": [
+              "sati",
+              "remember",
+              "related",
+              "english",
+              "ending",
+              "singular",
+              "direct",
+              "bare",
+              "attention",
+              "recollectedness",
+              "watchfulness",
+              "remembering",
+              "meditation",
+              "context",
+              "stay",
+              "present"
+            ],
+            "goldenOnly": [
+              "being",
+              "upaṭṭhapetvā",
+              "recollection",
+              "attentiveness"
+            ],
+            "f1": 0.5
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the essential meaning and grammatical role of 'satiṁ' while providing relevant etymological connections."
           }
         },
         {
@@ -2119,6 +4721,70 @@
               "having made present"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "upa",
+              "near",
+              "√sthā",
+              "stand",
+              "establish",
+              "causative",
+              "cause",
+              "set",
+              "absolutive",
+              "having",
+              "made",
+              "present"
+            ],
+            "modelOnly": [
+              "prefix",
+              "means",
+              "toward",
+              "onto",
+              "directional",
+              "related",
+              "english",
+              "latin",
+              "stare",
+              "stem",
+              "etvā",
+              "suffix",
+              "caused",
+              "established",
+              "final",
+              "preparatory",
+              "action",
+              "before",
+              "main",
+              "verb",
+              "sitting",
+              "firmly",
+              "placed",
+              "put",
+              "position",
+              "available"
+            ],
+            "goldenOnly": [
+              "towards",
+              "upaṭṭhapeti",
+              "make",
+              "done",
+              "after",
+              "breathing",
+              "begins",
+              "prepared",
+              "brought",
+              "readied",
+              "ready"
+            ],
+            "f1": 0.39344262295081966
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL correctly explains the components and meaning of 'upaṭṭhapetvā', adding useful detail about its grammatical function without factual inaccuracies."
           }
         }
       ],
@@ -2252,6 +4918,14 @@
       "pali": "So satova assasati, satova passasati. ",
       "goldenWordCount": 5,
       "modelWordCount": 5,
+      "scores": {
+        "segF1": 0,
+        "contentF1": 0.21348314606741572,
+        "semantic": 0.8166666666666668,
+        "coverage": 0.6,
+        "overall": 0.3557218097913323,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "So",
@@ -2275,6 +4949,46 @@
               "They"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "back"
+            ],
+            "modelOnly": [
+              "pronoun",
+              "nominative",
+              "singular",
+              "meditator",
+              "often",
+              "left",
+              "untranslated",
+              "english",
+              "demonstrative",
+              "resuming",
+              "subject",
+              "prior",
+              "context",
+              "idiomatic",
+              "formulas",
+              "they",
+              "modern",
+              "gender",
+              "neutral",
+              "substitute",
+              "when",
+              "referring"
+            ],
+            "goldenOnly": [
+              "bhikkhu",
+              "practitioner"
+            ],
+            "f1": 0.07692307692307693
+          },
+          "judge": {
+            "score": 0.85,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The model correctly identifies the grammatical role and provides a reasonable interpretation, but it omits the specific reference to the bhikkhu, which is essential for completeness."
           }
         },
         {
@@ -2297,7 +5011,9 @@
               "recollected"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "va",
@@ -2312,7 +5028,9 @@
               "just"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "assasati",
@@ -2351,6 +5069,97 @@
               "draws breath"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "assasati",
+              "breathing",
+              "breathe",
+              "breath",
+              "assāsa",
+              "present",
+              "breathes",
+              "inhales"
+            ],
+            "modelOnly": [
+              "prefix",
+              "toward",
+              "back",
+              "composition",
+              "means",
+              "√sās",
+              "root",
+              "underlying",
+              "words",
+              "passāsa",
+              "double",
+              "comes",
+              "sandhi",
+              "thematic",
+              "vowel",
+              "stem",
+              "marker",
+              "builds",
+              "verb",
+              "class",
+              "person",
+              "singular",
+              "ending",
+              "she",
+              "does",
+              "primary",
+              "standard",
+              "meditative",
+              "usage",
+              "physiological",
+              "description",
+              "clinical",
+              "register",
+              "draws",
+              "poetic",
+              "vivid"
+            ],
+            "goldenOnly": [
+              "√śvas",
+              "sanskrit",
+              "āśvas",
+              "pali",
+              "towards",
+              "spirare",
+              "latin",
+              "why",
+              "first",
+              "primacy",
+              "intake",
+              "receiving",
+              "life",
+              "arising",
+              "energizing",
+              "out",
+              "cessation",
+              "release",
+              "note",
+              "vinaya",
+              "commentary",
+              "inverts",
+              "these",
+              "suttas",
+              "etymology",
+              "support",
+              "tense",
+              "ongoing",
+              "action",
+              "inhalation",
+              "drawing",
+              "general"
+            ],
+            "f1": 0.19047619047619047
+          },
+          "judge": {
+            "score": 0.75,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The model provides a detailed analysis of the components and structure but misses the emphasis on the inhalation aspect and the commentary on the inversion in Vinaya, which are key points in the golden reference."
           }
         },
         {
@@ -2386,6 +5195,79 @@
               "releases breath"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "forth",
+              "out",
+              "breathing",
+              "breathe",
+              "passasati",
+              "pali",
+              "present",
+              "breathes",
+              "exhales",
+              "breath"
+            ],
+            "modelOnly": [
+              "prefix",
+              "contrasts",
+              "assasati",
+              "means",
+              "√sās",
+              "same",
+              "root",
+              "pair",
+              "forms",
+              "standard",
+              "compound",
+              "stem",
+              "suffix",
+              "verb",
+              "class",
+              "person",
+              "singular",
+              "ending",
+              "parallel",
+              "structure",
+              "primary",
+              "meditative",
+              "usage",
+              "physiological",
+              "description",
+              "clinical",
+              "register",
+              "releases",
+              "poetic",
+              "vivid"
+            ],
+            "goldenOnly": [
+              "pra",
+              "√śvas",
+              "sanskrit",
+              "praśvas",
+              "pro",
+              "spirare",
+              "latin",
+              "release",
+              "phase",
+              "cycle",
+              "calming",
+              "letting",
+              "leads",
+              "passambhayaṁ",
+              "stilling",
+              "tense",
+              "exhalation",
+              "releasing"
+            ],
+            "f1": 0.29411764705882354
+          },
+          "judge": {
+            "score": 0.85,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The model accurately describes the components and meaning but does not capture the significance of the release phase and calming aspect emphasized in the golden reference."
           }
         }
       ],
@@ -2413,6 +5295,14 @@
       "pali": "rassaṁ vā assasanto ‘rassaṁ assasāmī’ti pajānāti, rassaṁ vā passasanto ‘rassaṁ passasāmī’ti pajānāti. ",
       "goldenWordCount": 14,
       "modelWordCount": 12,
+      "scores": {
+        "segF1": 0.3333333333333333,
+        "contentF1": 0.3463687150837989,
+        "semantic": 0.8333333333333334,
+        "coverage": 0.42857142857142855,
+        "overall": 0.23794860944843482,
+        "textIntegrity": 0.5
+      },
       "words": [
         {
           "surface": "Rassaṁ",
@@ -2446,6 +5336,62 @@
               "briefly"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "lightly",
+              "short",
+              "time",
+              "breathing",
+              "adverbial",
+              "breath"
+            ],
+            "modelOnly": [
+              "adverb",
+              "modifies",
+              "neuter",
+              "ending",
+              "makes",
+              "adjective",
+              "shallowly",
+              "duration",
+              "briefly"
+            ],
+            "goldenOnly": [
+              "rassa",
+              "space",
+              "sanskrit",
+              "hrasva",
+              "pali",
+              "quick",
+              "turner",
+              "making",
+              "turn",
+              "ancient",
+              "reciprocating",
+              "bow",
+              "lathe",
+              "back",
+              "forth",
+              "mirrors",
+              "out",
+              "knows",
+              "through",
+              "doing",
+              "accusative",
+              "describing",
+              "manner",
+              "brief",
+              "quickly",
+              "gentle"
+            ],
+            "f1": 0.2553191489361702
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The model captures the core meaning and grammatical role but omits the full range of senses and etymological connections present in the golden reference."
           }
         },
         {
@@ -2469,6 +5415,32 @@
               "when"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative",
+              "disjunctive"
+            ],
+            "modelOnly": [
+              "particle",
+              "introduce",
+              "case",
+              "conjunction",
+              "when",
+              "temporal",
+              "circumstantial",
+              "equivalent",
+              "while",
+              "context"
+            ],
+            "goldenOnly": [],
+            "f1": 0.2857142857142857
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The model correctly identifies the word's function but misses the simplicity of the golden's definition and the disjunctive nature of the term."
           }
         },
         {
@@ -2500,6 +5472,56 @@
               "in-breathing"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "√śvas",
+              "breathe",
+              "inhaling",
+              "participle",
+              "present",
+              "doing",
+              "breathing",
+              "active",
+              "drawing",
+              "breath"
+            ],
+            "modelOnly": [
+              "prefix",
+              "towards",
+              "near",
+              "directional",
+              "root",
+              "underlying",
+              "action",
+              "thematic",
+              "vowel",
+              "connects",
+              "ending",
+              "masculine",
+              "nominative",
+              "singular",
+              "who",
+              "ing",
+              "describes",
+              "subject",
+              "inward",
+              "technical",
+              "meditation",
+              "inhalation"
+            ],
+            "goldenOnly": [
+              "śvas",
+              "while",
+              "taking"
+            ],
+            "f1": 0.4444444444444444
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The model provides a detailed and accurate analysis, capturing the essential meaning and grammatical role without any significant omissions."
           }
         },
         {
@@ -2517,7 +5539,9 @@
               "stunted"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "assasāmī",
@@ -2533,7 +5557,9 @@
               "I am breathing in"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "'ti",
@@ -2546,7 +5572,9 @@
               "—"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "pajānāti",
@@ -2563,7 +5591,9 @@
               "discerns"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "rassaṁ",
@@ -2590,6 +5620,41 @@
               "briefly"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "lightly",
+              "repeated",
+              "adverbial",
+              "short"
+            ],
+            "modelOnly": [
+              "adverb",
+              "same",
+              "second",
+              "clause",
+              "neuter",
+              "ending",
+              "function",
+              "briefly",
+              "duration"
+            ],
+            "goldenOnly": [
+              "out",
+              "breath",
+              "accusative",
+              "brief",
+              "quickly",
+              "manner",
+              "gentle"
+            ],
+            "f1": 0.3333333333333333
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The model repeats some information but does not fully convey the nuances of the golden reference, particularly the adverbial aspect."
           }
         },
         {
@@ -2613,6 +5678,29 @@
               "when"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative"
+            ],
+            "modelOnly": [
+              "particle",
+              "parallels",
+              "second",
+              "disjunctive",
+              "same",
+              "when",
+              "temporal",
+              "while"
+            ],
+            "goldenOnly": [],
+            "f1": 0.2
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The model accurately identifies the word's function but lacks the concise clarity and depth of the golden reference."
           }
         },
         {
@@ -2644,6 +5732,52 @@
               "out-breathing"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "√śvas",
+              "breathe",
+              "present",
+              "participle",
+              "exhaling",
+              "breathing",
+              "out",
+              "breath"
+            ],
+            "modelOnly": [
+              "prefix",
+              "forth",
+              "forward",
+              "directional",
+              "exhalation",
+              "root",
+              "same",
+              "thematic",
+              "vowel",
+              "masculine",
+              "nominative",
+              "singular",
+              "who",
+              "active",
+              "sending",
+              "outward",
+              "technical",
+              "meditation"
+            ],
+            "goldenOnly": [
+              "śvas",
+              "while",
+              "releasing",
+              "letting",
+              "release"
+            ],
+            "f1": 0.41025641025641024
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The model provides a comprehensive and accurate analysis, closely aligning with the golden reference while adding useful detail."
           }
         },
         {
@@ -2660,7 +5794,9 @@
               "stunted"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "passasāmī",
@@ -2676,7 +5812,9 @@
               "I am breathing out"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "'ti",
@@ -2689,7 +5827,9 @@
               "—"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "pajānāti",
@@ -2706,7 +5846,9 @@
               "discerns"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         }
       ],
       "unmatched": [
@@ -2769,6 +5911,14 @@
       "pali": "‘Sabbakāyapaṭisaṁvedī assasissāmī’ti sikkhati, ‘sabbakāyapaṭisaṁvedī passasissāmī’ti sikkhati. ",
       "goldenWordCount": 8,
       "modelWordCount": 6,
+      "scores": {
+        "segF1": 0.6666666666666666,
+        "contentF1": 0.2222222222222222,
+        "semantic": 0.9,
+        "coverage": 0.25,
+        "overall": 0.48263097426470586,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "'Sabbakāyapaṭisaṁvedī",
@@ -2800,7 +5950,9 @@
               "sensitive to the entire form"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "assasissāmī",
@@ -2818,7 +5970,9 @@
               "I will be breathing in"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "'ti",
@@ -2831,7 +5985,9 @@
               "—"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "sikkhati",
@@ -2870,6 +6026,77 @@
               "learns"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "learn",
+              "practice",
+              "training",
+              "practices",
+              "trains",
+              "active",
+              "learns"
+            ],
+            "modelOnly": [
+              "√sikkh",
+              "related",
+              "sikkhā",
+              "thematic",
+              "vowel",
+              "connects",
+              "root",
+              "personal",
+              "ending",
+              "person",
+              "singular",
+              "she",
+              "learning",
+              "through",
+              "repeated",
+              "application",
+              "method",
+              "acquires",
+              "skill"
+            ],
+            "goldenOnly": [
+              "√śikṣ",
+              "train",
+              "desiderative",
+              "√śak",
+              "able",
+              "prescriptive",
+              "mode",
+              "pajānāti",
+              "descriptive",
+              "sikkhati",
+              "key",
+              "indicators",
+              "future",
+              "tense",
+              "assasissāmī",
+              "intentional",
+              "cultivation",
+              "same",
+              "verb",
+              "monastic",
+              "precepts",
+              "sikkhāpada",
+              "rules",
+              "shaping",
+              "just",
+              "watching",
+              "present",
+              "develops",
+              "cultivates",
+              "work"
+            ],
+            "f1": 0.2222222222222222
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis with additional details about the grammatical structure and thematic vowel, enhancing the understanding without introducing errors."
           }
         },
         {
@@ -2890,7 +6117,9 @@
               "sensitive to the entire form"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "passasissāmī",
@@ -2907,7 +6136,9 @@
               "I will be breathing out"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "'ti",
@@ -2920,7 +6151,9 @@
               "—"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "sikkhati",
@@ -2949,6 +6182,53 @@
               "learns"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "practices",
+              "trains",
+              "active",
+              "learns"
+            ],
+            "modelOnly": [
+              "√sikkh",
+              "learn",
+              "practice",
+              "related",
+              "sikkhā",
+              "training",
+              "thematic",
+              "vowel",
+              "connects",
+              "root",
+              "personal",
+              "ending",
+              "person",
+              "singular",
+              "she",
+              "learning",
+              "through",
+              "repeated",
+              "application",
+              "method",
+              "acquires",
+              "skill"
+            ],
+            "goldenOnly": [
+              "√śikṣ",
+              "present",
+              "tense",
+              "develops",
+              "cultivates",
+              "work"
+            ],
+            "f1": 0.2222222222222222
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the core meaning and grammatical details while offering extra context about the root and its relation to training, which enriches the analysis."
           }
         }
       ],
@@ -2996,6 +6276,14 @@
       "pali": "Seyyathāpi, bhikkhave, dakkho bhamakāro vā bhamakārantevāsī vā dīghaṁ vā añchanto ‘dīghaṁ añchāmī’ti pajānāti, rassaṁ vā añchanto ‘rassaṁ añchāmī’ti pajānāti; ",
       "goldenWordCount": 21,
       "modelWordCount": 19,
+      "scores": {
+        "segF1": 0,
+        "contentF1": 0.33088235294117646,
+        "semantic": 0.9272727272727274,
+        "coverage": 0.5238095238095238,
+        "overall": 0.34619248186400114,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "Seyyathāpi",
@@ -3012,7 +6300,9 @@
               "just as"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "bhikkhave",
@@ -3026,7 +6316,9 @@
               "monks"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "dakkho",
@@ -3057,6 +6349,51 @@
               "able"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "dakkha",
+              "skilled",
+              "expert",
+              "deft"
+            ],
+            "modelOnly": [
+              "adroit",
+              "adjective",
+              "experienced",
+              "master",
+              "craft",
+              "manual",
+              "skill",
+              "able",
+              "competent",
+              "proficient"
+            ],
+            "goldenOnly": [
+              "vedic",
+              "dakṣa",
+              "greek",
+              "latin",
+              "decet",
+              "turner",
+              "passive",
+              "observer",
+              "craftsman",
+              "developed",
+              "sensitivity",
+              "nominative",
+              "singular",
+              "dexterous",
+              "trained",
+              "practiced"
+            ],
+            "f1": 0.23529411764705882
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the core meaning and grammatical role, but lacks the etymological depth present in the GOLDEN reference."
           }
         },
         {
@@ -3092,6 +6429,59 @@
               "wood turner"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "bhamakāra",
+              "turner",
+              "lathe",
+              "operator",
+              "who",
+              "shapes",
+              "wood",
+              "worker",
+              "turning",
+              "wheel"
+            ],
+            "modelOnly": [
+              "carpenter",
+              "works",
+              "craftsperson",
+              "using",
+              "specialist"
+            ],
+            "goldenOnly": [
+              "bhama",
+              "√bhram",
+              "turn",
+              "rotate",
+              "ancient",
+              "reciprocating",
+              "bow",
+              "pulls",
+              "strap",
+              "back",
+              "forth",
+              "spin",
+              "mirrors",
+              "out",
+              "rhythm",
+              "breath",
+              "√kṛ",
+              "maker",
+              "doer",
+              "nominative",
+              "singular",
+              "craftsman",
+              "turns"
+            ],
+            "f1": 0.4166666666666667
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis of the term but omits some of the detailed etymological context found in the GOLDEN reference."
           }
         },
         {
@@ -3115,6 +6505,31 @@
               "either"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative"
+            ],
+            "modelOnly": [
+              "conjunction",
+              "linking",
+              "alternatives",
+              "disjunction",
+              "either",
+              "paired",
+              "later",
+              "correlative"
+            ],
+            "goldenOnly": [
+              "disjunctive"
+            ],
+            "f1": 0.18181818181818182
+          },
+          "judge": {
+            "score": 1,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL's analysis is concise and fully correct, matching the GOLDEN reference in meaning and grammatical role."
           }
         },
         {
@@ -3147,6 +6562,51 @@
               "apprentice wood turner"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "turner",
+              "apprentice",
+              "lathe",
+              "learning",
+              "trade"
+            ],
+            "modelOnly": [
+              "bhamakārantevāsī",
+              "assistant",
+              "operator",
+              "junior",
+              "worker",
+              "turning",
+              "workshop",
+              "wood",
+              "learner",
+              "under",
+              "master"
+            ],
+            "goldenOnly": [
+              "maker",
+              "anta",
+              "end",
+              "near",
+              "antevāsī",
+              "who",
+              "dwells",
+              "close",
+              "√vas",
+              "dwell",
+              "nominative",
+              "singular",
+              "student",
+              "trainee"
+            ],
+            "f1": 0.2857142857142857
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately describes the term as an apprentice but lacks some of the detailed etymological insights present in the GOLDEN reference."
           }
         },
         {
@@ -3170,6 +6630,27 @@
               "otherwise"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative"
+            ],
+            "modelOnly": [
+              "disjunction",
+              "pair",
+              "otherwise",
+              "second",
+              "option",
+              "comparison"
+            ],
+            "goldenOnly": [],
+            "f1": 0.25
+          },
+          "judge": {
+            "score": 1,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct and concise analysis that aligns well with the GOLDEN reference."
           }
         },
         {
@@ -3198,6 +6679,47 @@
               "drawn out"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "long",
+              "deep",
+              "extended",
+              "pull",
+              "lathe"
+            ],
+            "modelOnly": [
+              "dīghaṁ",
+              "neuter",
+              "adverb",
+              "cut",
+              "string",
+              "extending",
+              "far",
+              "drawn",
+              "out",
+              "lengthy",
+              "stroke"
+            ],
+            "goldenOnly": [
+              "dīgha",
+              "slow",
+              "accusative",
+              "adverbial",
+              "time",
+              "space",
+              "tall",
+              "full",
+              "extent",
+              "thorough"
+            ],
+            "f1": 0.3225806451612903
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL captures the essential meaning but does not include the specific context of the term's use as an adverbial form."
           }
         },
         {
@@ -3221,6 +6743,27 @@
               "or else"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative"
+            ],
+            "modelOnly": [
+              "marking",
+              "conditional",
+              "disjunction",
+              "action",
+              "else",
+              "process"
+            ],
+            "goldenOnly": [],
+            "f1": 0.25
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately conveys the meaning but lacks the specific context of the term's use in the GOLDEN reference."
           }
         },
         {
@@ -3252,6 +6795,55 @@
               "drawing along"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "present",
+              "participle",
+              "lathe",
+              "pulling",
+              "drawing",
+              "active"
+            ],
+            "modelOnly": [
+              "chanta",
+              "turning",
+              "cutting",
+              "action",
+              "string",
+              "tool",
+              "process",
+              "along",
+              "moving",
+              "steadily",
+              "crafting"
+            ],
+            "goldenOnly": [
+              "√a",
+              "pull",
+              "drag",
+              "pts",
+              "turn",
+              "turner",
+              "pulls",
+              "strap",
+              "rotate",
+              "workpiece",
+              "embodied",
+              "knowing",
+              "while",
+              "stretching",
+              "extending",
+              "motion",
+              "turns"
+            ],
+            "f1": 0.3
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the present participle form but does not fully capture the active, embodied knowing aspect emphasized in the GOLDEN reference."
           }
         },
         {
@@ -3268,7 +6860,9 @@
               "deep"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "añchāmī",
@@ -3284,7 +6878,9 @@
               "I turn"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "'ti",
@@ -3297,7 +6893,9 @@
               "—"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "pajānāti",
@@ -3314,7 +6912,9 @@
               "discerns"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "rassaṁ",
@@ -3342,6 +6942,41 @@
               "brief"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "short",
+              "small",
+              "pull",
+              "brief",
+              "duration"
+            ],
+            "modelOnly": [
+              "rassaṁ",
+              "neuter",
+              "adverb",
+              "cut",
+              "shallow",
+              "deep",
+              "stroke",
+              "depth"
+            ],
+            "goldenOnly": [
+              "rassa",
+              "quick",
+              "accusative",
+              "adverbial",
+              "dwarfish",
+              "stunted",
+              "motion"
+            ],
+            "f1": 0.4
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis but lacks the specific context of the term's use as an adverbial form in the GOLDEN reference."
           }
         },
         {
@@ -3365,6 +7000,25 @@
               "or else"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative"
+            ],
+            "modelOnly": [
+              "disjunction",
+              "action",
+              "else",
+              "process"
+            ],
+            "goldenOnly": [],
+            "f1": 0.3333333333333333
+          },
+          "judge": {
+            "score": 1,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL's analysis is concise and fully correct, matching the GOLDEN reference in meaning and grammatical role."
           }
         },
         {
@@ -3392,6 +7046,41 @@
               "drawing along"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "present",
+              "participle",
+              "turning",
+              "pulling",
+              "drawing",
+              "lathe"
+            ],
+            "modelOnly": [
+              "chanta",
+              "cutting",
+              "action",
+              "string",
+              "tool",
+              "active",
+              "process",
+              "along",
+              "moving",
+              "steadily",
+              "crafting"
+            ],
+            "goldenOnly": [
+              "motion",
+              "stretching",
+              "extending"
+            ],
+            "f1": 0.46153846153846156
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately describes the term but does not include the specific context of the term's use as a present participle in the GOLDEN reference."
           }
         },
         {
@@ -3408,7 +7097,9 @@
               "stunted"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "añchāmī",
@@ -3424,7 +7115,9 @@
               "I turn"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "'ti",
@@ -3437,7 +7130,9 @@
               "—"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "pajānāti",
@@ -3454,7 +7149,9 @@
               "discerns"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         }
       ],
       "unmatched": [
@@ -3526,6 +7223,14 @@
       "pali": "‘sabbakāyapaṭisaṁvedī assasissāmī’ti sikkhati, ‘sabbakāyapaṭisaṁvedī passasissāmī’ti sikkhati; ",
       "goldenWordCount": 8,
       "modelWordCount": 6,
+      "scores": {
+        "segF1": 0.5,
+        "contentF1": 0.3333333333333333,
+        "semantic": 0.8,
+        "coverage": 0.25,
+        "overall": 0,
+        "textIntegrity": 0
+      },
       "words": [
         {
           "surface": "'Sabbakāyapaṭisaṁvedī",
@@ -3550,7 +7255,9 @@
               "sensitive to entire form"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "assasissāmī",
@@ -3566,7 +7273,9 @@
               "breathing in will occur"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "'ti",
@@ -3579,7 +7288,9 @@
               "—"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "sikkhati",
@@ -3609,6 +7320,58 @@
               "learns"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "√śikṣ",
+              "train",
+              "present",
+              "tense",
+              "person",
+              "singular",
+              "trains",
+              "practices",
+              "learns"
+            ],
+            "modelOnly": [
+              "learn",
+              "root",
+              "sikkhā",
+              "training",
+              "sekha",
+              "trainee",
+              "thematic",
+              "vowel",
+              "stems",
+              "third",
+              "ending",
+              "she",
+              "punctuation",
+              "semi",
+              "colon",
+              "separating",
+              "two",
+              "parallel",
+              "clauses",
+              "meditative",
+              "repeated",
+              "cultivation",
+              "skill",
+              "acquisition"
+            ],
+            "goldenOnly": [
+              "develops",
+              "cultivates",
+              "active",
+              "work"
+            ],
+            "f1": 0.391304347826087
+          },
+          "judge": {
+            "score": 0.85,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis but omits the essential sense of 'cultivates' and introduces unnecessary details about punctuation."
           }
         },
         {
@@ -3628,7 +7391,9 @@
               "experiencing the whole breath"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "passasissāmī",
@@ -3644,7 +7409,9 @@
               "breathing out will occur"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "'ti",
@@ -3657,7 +7424,9 @@
               "—"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "sikkhati",
@@ -3687,6 +7456,64 @@
               "learns"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "√śikṣ",
+              "person",
+              "singular",
+              "present",
+              "trains",
+              "practices",
+              "learns"
+            ],
+            "modelOnly": [
+              "learn",
+              "train",
+              "same",
+              "root",
+              "repetition",
+              "underscores",
+              "training",
+              "core",
+              "practice",
+              "thematic",
+              "vowel",
+              "third",
+              "entire",
+              "clause",
+              "repeats",
+              "out",
+              "breath",
+              "punctuation",
+              "semi",
+              "colon",
+              "ends",
+              "paired",
+              "concluding",
+              "whole",
+              "teaching",
+              "segment",
+              "meditative",
+              "repeated",
+              "cultivation",
+              "skill",
+              "acquisition"
+            ],
+            "goldenOnly": [
+              "tense",
+              "develops",
+              "cultivates",
+              "active",
+              "work"
+            ],
+            "f1": 0.28
+          },
+          "judge": {
+            "score": 0.75,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the root and grammatical structure but misses the core sense of 'cultivates' and includes extraneous commentary on punctuation."
           }
         }
       ],
@@ -3734,6 +7561,14 @@
       "pali": "Iti ajjhattaṁ vā kāye kāyānupassī viharati, bahiddhā vā kāye kāyānupassī viharati, ajjhattabahiddhā vā kāye kāyānupassī viharati; ",
       "goldenWordCount": 5,
       "modelWordCount": 16,
+      "scores": {
+        "segF1": 0.5,
+        "contentF1": 0.38509316770186336,
+        "semantic": 0.8799999999999999,
+        "coverage": 1,
+        "overall": 0.6098224976276743,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "bahiddhā",
@@ -3765,6 +7600,50 @@
               "outwardly"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "externally",
+              "outside",
+              "others",
+              "bodies",
+              "oneself",
+              "outwardly",
+              "external"
+            ],
+            "modelOnly": [
+              "bahiddhā",
+              "indeclinable",
+              "opposite",
+              "ajjhattaṁ",
+              "referring",
+              "world"
+            ],
+            "goldenOnly": [
+              "bahis",
+              "sanskrit",
+              "adverbial",
+              "scope",
+              "living",
+              "beings",
+              "aspects",
+              "own",
+              "body",
+              "skin",
+              "posture",
+              "develops",
+              "universal",
+              "insight",
+              "objective",
+              "observation"
+            ],
+            "f1": 0.3888888888888889
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the core meaning and grammatical role of 'bahiddhā', though it could have included more detail about the external aspects of one's own body."
           }
         },
         {
@@ -3788,6 +7667,27 @@
               "and"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative"
+            ],
+            "modelOnly": [
+              "third",
+              "option",
+              "series",
+              "disjunctive",
+              "connective",
+              "alternatively"
+            ],
+            "goldenOnly": [],
+            "f1": 0.25
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct meaning but misses the broader context of 'vā' as a disjunctive alternative, which is essential for understanding its usage."
           }
         },
         {
@@ -3818,6 +7718,45 @@
               "the body"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "kāya",
+              "body",
+              "locative",
+              "singular",
+              "physical",
+              "collection",
+              "phenomena"
+            ],
+            "modelOnly": [
+              "same",
+              "stem",
+              "before",
+              "anatomical",
+              "frame",
+              "process",
+              "changing",
+              "object",
+              "meditation"
+            ],
+            "goldenOnly": [
+              "heap",
+              "parts",
+              "mass",
+              "aggregate",
+              "just",
+              "assembled",
+              "self",
+              "view"
+            ],
+            "f1": 0.45161290322580644
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the locative singular and provides a comprehensive understanding of 'kāye', though it could have emphasized the not-self view aspect more."
           }
         },
         {
@@ -3851,6 +7790,63 @@
               "one who watches the body"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "body",
+              "see",
+              "closely",
+              "anu",
+              "following",
+              "who",
+              "observing",
+              "contemplating"
+            ],
+            "modelOnly": [
+              "kāyā",
+              "sandhi",
+              "stem",
+              "compound",
+              "√pass",
+              "prefix",
+              "eye",
+              "possessive",
+              "observes",
+              "watching",
+              "moment",
+              "reflecting",
+              "nature",
+              "watches",
+              "meditator",
+              "stance",
+              "vigilant",
+              "awareness"
+            ],
+            "goldenOnly": [
+              "kāya",
+              "along",
+              "√paś",
+              "observe",
+              "nominative",
+              "agent",
+              "noun",
+              "action",
+              "watcher",
+              "identity",
+              "sustained",
+              "attention",
+              "tracking",
+              "physical",
+              "seeing",
+              "phenomenological"
+            ],
+            "f1": 0.32
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL offers a detailed analysis of 'kāyānupassī', accurately explaining the components and providing a rich understanding of the term's implications."
           }
         },
         {
@@ -3883,6 +7879,49 @@
               "lives"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "person",
+              "singular",
+              "present",
+              "dwells",
+              "abides",
+              "tense",
+              "lives",
+              "practice"
+            ],
+            "modelOnly": [
+              "intensive",
+              "prefix",
+              "√har",
+              "dwell",
+              "thematic",
+              "vowel",
+              "third",
+              "state",
+              "meditates",
+              "meditation",
+              "inhabits",
+              "mode"
+            ],
+            "goldenOnly": [
+              "way",
+              "rests",
+              "remains",
+              "stays",
+              "put",
+              "being",
+              "keeps",
+              "continuous"
+            ],
+            "f1": 0.4444444444444444
+          },
+          "judge": {
+            "score": 0.85,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the verb form and meaning of 'viharati', but it lacks some of the nuances related to continuous practice and way of being."
           }
         }
       ],
@@ -3981,6 +8020,14 @@
       "pali": "Iti ajjhattaṁ vā kāye kāyānupassī viharati, bahiddhā vā kāye kāyānupassī viharati, ajjhattabahiddhā vā kāye kāyānupassī viharati; ",
       "goldenWordCount": 5,
       "modelWordCount": 16,
+      "scores": {
+        "segF1": 0.46153846153846156,
+        "contentF1": 0.3894736842105263,
+        "semantic": 0.79,
+        "coverage": 1,
+        "overall": 0.5923414011189833,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "ajjhattabahiddhā",
@@ -4014,6 +8061,56 @@
               "both inwardly and outwardly"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "adverbial",
+              "internally",
+              "externally",
+              "both",
+              "internal",
+              "external",
+              "inwardly",
+              "outwardly",
+              "comprehensive",
+              "scope"
+            ],
+            "modelOnly": [
+              "compound",
+              "within",
+              "without",
+              "combines",
+              "ajjhatta",
+              "bahiddhā",
+              "adverb",
+              "scopes",
+              "simultaneously"
+            ],
+            "goldenOnly": [
+              "together",
+              "seeing",
+              "same",
+              "patterns",
+              "self",
+              "others",
+              "universality",
+              "experience",
+              "breaking",
+              "other",
+              "duality",
+              "foundation",
+              "compassion",
+              "universal",
+              "oneself",
+              "complete"
+            ],
+            "f1": 0.4444444444444444
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct segmentation and captures the essential meaning of the term, but it lacks some of the depth and nuances present in the GOLDEN reference."
           }
         },
         {
@@ -4037,6 +8134,33 @@
               "and"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative"
+            ],
+            "modelOnly": [
+              "indeclinable",
+              "particle",
+              "third",
+              "option",
+              "series",
+              "case",
+              "three",
+              "fold",
+              "enumeration",
+              "cumulative",
+              "listing",
+              "context"
+            ],
+            "goldenOnly": [],
+            "f1": 0.14285714285714285
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the word as an indeclinable particle but misses the specific context of marking a third option in a series, which is essential."
           }
         },
         {
@@ -4067,6 +8191,48 @@
               "corporeal process"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "kāya",
+              "body",
+              "physical",
+              "locative",
+              "singular",
+              "aggregate",
+              "collection",
+              "parts"
+            ],
+            "modelOnly": [
+              "stem",
+              "object",
+              "observation",
+              "ending",
+              "respect",
+              "anatomical",
+              "group",
+              "processes",
+              "corporeal",
+              "process",
+              "dynamic",
+              "existence"
+            ],
+            "goldenOnly": [
+              "heap",
+              "mass",
+              "just",
+              "phenomena",
+              "assembled",
+              "self",
+              "view"
+            ],
+            "f1": 0.45714285714285713
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL accurately describes the locative singular but omits some of the broader senses and implications of the term as presented in the GOLDEN reference."
           }
         },
         {
@@ -4100,6 +8266,64 @@
               "contemplating the body"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "kāya",
+              "body",
+              "anu",
+              "√paś",
+              "see",
+              "observe",
+              "along",
+              "nominative",
+              "who",
+              "observing",
+              "contemplating"
+            ],
+            "modelOnly": [
+              "stem",
+              "sandhi",
+              "lengthening",
+              "looking",
+              "watching",
+              "continuously",
+              "possessive",
+              "suffix",
+              "singular",
+              "observes",
+              "mindfulness",
+              "object",
+              "contemplator",
+              "compound",
+              "watches",
+              "meditative",
+              "investigation",
+              "bodily",
+              "phenomena"
+            ],
+            "goldenOnly": [
+              "following",
+              "agent",
+              "noun",
+              "action",
+              "watcher",
+              "identity",
+              "sustained",
+              "attention",
+              "tracking",
+              "physical",
+              "closely",
+              "seeing",
+              "phenomenological"
+            ],
+            "f1": 0.4074074074074074
+          },
+          "judge": {
+            "score": 0.95,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a faithful and complete analysis, accurately reflecting the segmentation, etymology, and senses without any significant omissions."
           }
         },
         {
@@ -4132,6 +8356,56 @@
               "remains"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "present",
+              "tense",
+              "person",
+              "singular",
+              "dwells",
+              "practice",
+              "remains"
+            ],
+            "modelOnly": [
+              "prefix",
+              "apart",
+              "through",
+              "out",
+              "√hṛ",
+              "carry",
+              "take",
+              "move",
+              "dwell",
+              "thematic",
+              "vowel",
+              "active",
+              "ending",
+              "she",
+              "meditates",
+              "habitual",
+              "meditative",
+              "abiding",
+              "continuously"
+            ],
+            "goldenOnly": [
+              "lives",
+              "way",
+              "abides",
+              "rests",
+              "stays",
+              "put",
+              "being",
+              "keeps",
+              "continuous"
+            ],
+            "f1": 0.3333333333333333
+          },
+          "judge": {
+            "score": 0.7,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL captures the basic meaning and grammatical role but lacks some of the nuanced senses and implications found in the GOLDEN reference."
           }
         }
       ],
@@ -4233,6 +8507,14 @@
       "pali": "samudayadhammānupassī vā kāyasmiṁ viharati, vayadhammānupassī vā kāyasmiṁ viharati, samudayavayadhammānupassī vā kāyasmiṁ viharati. ",
       "goldenWordCount": 4,
       "modelWordCount": 12,
+      "scores": {
+        "segF1": 0.6153846153846154,
+        "contentF1": 0.3068181818181818,
+        "semantic": 0.7750000000000001,
+        "coverage": 1,
+        "overall": 0.5851925851925852,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "vayadhammānupassī",
@@ -4272,6 +8554,93 @@
               "viewing as subject to falling away"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "vaya",
+              "away",
+              "going",
+              "passing",
+              "phenomena",
+              "things",
+              "nature",
+              "seeing",
+              "nominative",
+              "observing",
+              "vanish",
+              "cessation",
+              "subject"
+            ],
+            "modelOnly": [
+              "√vṛ",
+              "√gam",
+              "disappear",
+              "ruin",
+              "dhammā",
+              "principles",
+              "disappearance",
+              "root",
+              "√paś",
+              "see",
+              "prefix",
+              "anu",
+              "following",
+              "anupassī",
+              "accordance",
+              "ending",
+              "makes",
+              "possessive",
+              "adjective",
+              "who",
+              "sees",
+              "singular",
+              "masculine",
+              "liable",
+              "falling",
+              "contemplating",
+              "focused",
+              "process",
+              "viewing",
+              "noting",
+              "characteristic",
+              "vanishing"
+            ],
+            "goldenOnly": [
+              "decay",
+              "anicca",
+              "direct",
+              "insight",
+              "everything",
+              "arises",
+              "passes",
+              "vipassanā",
+              "proper",
+              "quality",
+              "full",
+              "stem",
+              "dhamma",
+              "final",
+              "vowel",
+              "elided",
+              "sandhi",
+              "before",
+              "ānu",
+              "repeatedly",
+              "agent",
+              "suffix",
+              "how",
+              "cease",
+              "impermanence",
+              "watching",
+              "realization"
+            ],
+            "f1": 0.3058823529411765
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "error",
+            "hallucination": true,
+            "rationale": "The MODEL incorrectly states the root of 'vaya' as √vṛ or √gam, which is a factual error, while the rest of the analysis contains some correct elements."
           }
         },
         {
@@ -4294,6 +8663,25 @@
               "or"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative"
+            ],
+            "modelOnly": [
+              "indeclinable",
+              "particle",
+              "offering",
+              "alternatives"
+            ],
+            "goldenOnly": [],
+            "f1": 0.3333333333333333
+          },
+          "judge": {
+            "score": 1,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the meaning and function of 'vā' as an indeclinable particle meaning 'or'."
           }
         },
         {
@@ -4323,6 +8711,46 @@
               "among bodily processes"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "body",
+              "locative",
+              "location",
+              "regard"
+            ],
+            "modelOnly": [
+              "kāya",
+              "physical",
+              "collection",
+              "parts",
+              "smiṁ",
+              "ending",
+              "case",
+              "provides",
+              "meditation",
+              "occurs",
+              "object",
+              "contemplation",
+              "frame",
+              "reference",
+              "among",
+              "bodily",
+              "processes"
+            ],
+            "goldenOnly": [
+              "singular",
+              "concerning",
+              "domain",
+              "sphere"
+            ],
+            "f1": 0.27586206896551724
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL provides a mostly correct analysis but misses the essential point of 'in regard to body' as a locative sense."
           }
         },
         {
@@ -4356,6 +8784,68 @@
               "remains"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "present",
+              "tense",
+              "person",
+              "singular",
+              "abides",
+              "dwells",
+              "remains",
+              "continuous",
+              "practice"
+            ],
+            "modelOnly": [
+              "prefix",
+              "apart",
+              "intensive",
+              "often",
+              "intensifies",
+              "root",
+              "√har",
+              "carry",
+              "take",
+              "carries",
+              "abide",
+              "dwell",
+              "thematic",
+              "vowel",
+              "links",
+              "personal",
+              "ending",
+              "typical",
+              "verbs",
+              "she",
+              "action",
+              "happening",
+              "now",
+              "habitual",
+              "abiding",
+              "state",
+              "meditates",
+              "meditative",
+              "dwelling",
+              "mindfulness",
+              "presence"
+            ],
+            "goldenOnly": [
+              "lives",
+              "way",
+              "rests",
+              "stays",
+              "put",
+              "being",
+              "keeps"
+            ],
+            "f1": 0.32142857142857145
+          },
+          "judge": {
+            "score": 0.7,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL includes some correct information but omits the core sense of 'dwells' and introduces unnecessary detail about the prefix."
           }
         }
       ],
@@ -4435,6 +8925,14 @@
       "pali": "samudayadhammānupassī vā kāyasmiṁ viharati, vayadhammānupassī vā kāyasmiṁ viharati, samudayavayadhammānupassī vā kāyasmiṁ viharati. ",
       "goldenWordCount": 4,
       "modelWordCount": 12,
+      "scores": {
+        "segF1": 0.5,
+        "contentF1": 0.2641509433962264,
+        "semantic": 0.75,
+        "coverage": 1,
+        "overall": 0.404600713996068,
+        "textIntegrity": 0.75
+      },
       "words": [
         {
           "surface": "samudayavayadhammānupassī",
@@ -4475,6 +8973,88 @@
               "observing the nature of both arising and vanishing in"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "arising",
+              "dhamma",
+              "nature",
+              "suffix",
+              "passing",
+              "seeing",
+              "origination",
+              "impermanence",
+              "observing"
+            ],
+            "modelOnly": [
+              "samudaya",
+              "sam",
+              "√i",
+              "√vaya",
+              "disappearance",
+              "decay",
+              "phenomena",
+              "truth",
+              "things",
+              "liable",
+              "anu",
+              "√paś",
+              "see",
+              "contemplate",
+              "anupassī",
+              "means",
+              "who",
+              "sees",
+              "observes",
+              "possessive",
+              "has",
+              "contemplates",
+              "contemplating",
+              "both",
+              "simultaneous",
+              "observation",
+              "away",
+              "dissolution",
+              "balanced",
+              "insight",
+              "vanishing",
+              "compound",
+              "vaya",
+              "dhammānupassī"
+            ],
+            "goldenOnly": [
+              "complete",
+              "anicca",
+              "full",
+              "cycle",
+              "together",
+              "nothing",
+              "cling",
+              "dependent",
+              "direct",
+              "stem",
+              "final",
+              "vowel",
+              "elided",
+              "sandhi",
+              "before",
+              "ānu",
+              "repeatedly",
+              "nominative",
+              "agent",
+              "fully",
+              "watching",
+              "flux",
+              "total",
+              "transience"
+            ],
+            "f1": 0.23684210526315788
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "error",
+            "hallucination": true,
+            "rationale": "The MODEL incorrectly segments the word and introduces a false suffix '-ī', which misrepresents the grammatical structure."
           }
         },
         {
@@ -4497,6 +9077,27 @@
               "or"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "alternative"
+            ],
+            "modelOnly": [
+              "disjunctive",
+              "particle",
+              "indicates",
+              "another",
+              "contemplative",
+              "mode"
+            ],
+            "goldenOnly": [],
+            "f1": 0.25
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the meaning and function of 'vā' as a disjunctive particle without any errors."
           }
         },
         {
@@ -4525,6 +9126,45 @@
               "group"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "body",
+              "locative",
+              "singular"
+            ],
+            "modelOnly": [
+              "√kāya",
+              "physical",
+              "group",
+              "suffix",
+              "smiṁ",
+              "primary",
+              "object",
+              "meditation",
+              "process",
+              "living",
+              "changing",
+              "collection",
+              "possible",
+              "reference",
+              "aggregates",
+              "khandhas"
+            ],
+            "goldenOnly": [
+              "regard",
+              "location",
+              "concerning",
+              "domain",
+              "sphere"
+            ],
+            "f1": 0.2222222222222222
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis but misses the broader senses related to the locative context and aggregates."
           }
         },
         {
@@ -4557,6 +9197,61 @@
               "remains"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "dwells",
+              "present",
+              "tense",
+              "person",
+              "singular",
+              "practice",
+              "remains",
+              "stays"
+            ],
+            "modelOnly": [
+              "prefix",
+              "apart",
+              "intensive",
+              "√har",
+              "carry",
+              "bear",
+              "viharati",
+              "means",
+              "thematic",
+              "vowel",
+              "stem",
+              "suffix",
+              "third",
+              "she",
+              "does",
+              "meditates",
+              "focused",
+              "contemplative",
+              "abiding",
+              "state",
+              "awareness",
+              "continues",
+              "meditation",
+              "object"
+            ],
+            "goldenOnly": [
+              "lives",
+              "way",
+              "abides",
+              "rests",
+              "put",
+              "being",
+              "keeps",
+              "continuous"
+            ],
+            "f1": 0.3333333333333333
+          },
+          "judge": {
+            "score": 0.7,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the meaning of 'viharati' but lacks some of the nuanced senses related to continuous practice and way of being."
           }
         }
       ],
@@ -4634,6 +9329,14 @@
       "pali": "‘Atthi kāyo’ti vā panassa sati paccupaṭṭhitā hoti. Yāvadeva ñāṇamattāya paṭissatimattāya anissito ca viharati, na ca kiñci loke upādiyati. ",
       "goldenWordCount": 3,
       "modelWordCount": 18,
+      "scores": {
+        "segF1": 0.5,
+        "contentF1": 0.40816326530612246,
+        "semantic": 0.6666666666666666,
+        "coverage": 1,
+        "overall": 0.47695105820105815,
+        "textIntegrity": 0.7777777777777778
+      },
       "words": [
         {
           "surface": "yāvadeva",
@@ -4661,6 +9364,35 @@
               "as far as"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "yāva",
+              "far",
+              "yāvadeva",
+              "just",
+              "emphatic",
+              "only",
+              "extent"
+            ],
+            "modelOnly": [
+              "until",
+              "much",
+              "limit"
+            ],
+            "goldenOnly": [
+              "adverbial",
+              "particle",
+              "eva",
+              "limitation"
+            ],
+            "f1": 0.6666666666666666
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL correctly segments and provides accurate tooltips and senses, though it slightly diverges in phrasing without losing the core meaning."
           }
         },
         {
@@ -4694,6 +9426,51 @@
               "sufficient for knowing"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "āṇa",
+              "knowledge",
+              "√j",
+              "matta",
+              "dative",
+              "purpose",
+              "sake",
+              "knowing"
+            ],
+            "modelOnly": [
+              "understanding",
+              "measure",
+              "amount",
+              "āṇamattā",
+              "singular",
+              "enough",
+              "sufficient",
+              "functional",
+              "adequacy"
+            ],
+            "goldenOnly": [
+              "gnosis",
+              "know",
+              "mere",
+              "only",
+              "just",
+              "ego",
+              "becoming",
+              "pure",
+              "without",
+              "grasping",
+              "case",
+              "bare",
+              "minimal"
+            ],
+            "f1": 0.42105263157894735
+          },
+          "judge": {
+            "score": 0.5,
+            "verdict": "error",
+            "hallucination": true,
+            "rationale": "The MODEL misinterprets 'mattā' as 'measure' instead of 'mere/only', leading to a significant factual error in meaning."
           }
         },
         {
@@ -4726,6 +9503,55 @@
               "sufficient for recollection"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "paṭissati",
+              "mindfulness",
+              "awareness",
+              "dative",
+              "purpose"
+            ],
+            "modelOnly": [
+              "continuous",
+              "lucid",
+              "matta",
+              "measure",
+              "amount",
+              "paṭissatimattā",
+              "singular",
+              "sandhi",
+              "doubling",
+              "same",
+              "function",
+              "enough",
+              "degree",
+              "self",
+              "sake",
+              "sufficient",
+              "recollection",
+              "functional",
+              "adequacy"
+            ],
+            "goldenOnly": [
+              "paṭi",
+              "back",
+              "again",
+              "sati",
+              "continued",
+              "mere",
+              "just",
+              "case",
+              "bare",
+              "minimal"
+            ],
+            "f1": 0.2564102564102564
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL captures some correct elements but misses the essential sense of 'just' in relation to mindfulness, affecting the completeness of the analysis."
           }
         }
       ],
@@ -4853,6 +9679,14 @@
       "pali": "‘Atthi kāyo’ti vā panassa sati paccupaṭṭhitā hoti. Yāvadeva ñāṇamattāya paṭissatimattāya anissito ca viharati, na ca kiñci loke upādiyati. ",
       "goldenWordCount": 8,
       "modelWordCount": 18,
+      "scores": {
+        "segF1": 0.75,
+        "contentF1": 0.25396825396825395,
+        "semantic": 0.9,
+        "coverage": 0.75,
+        "overall": 0.5513520386738722,
+        "textIntegrity": 0.8888888888888888
+      },
       "words": [
         {
           "surface": "anissito",
@@ -4888,6 +9722,62 @@
               "unsupported"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "negative",
+              "dependent",
+              "lean",
+              "nominative",
+              "singular",
+              "independent",
+              "free",
+              "unsupported"
+            ],
+            "modelOnly": [
+              "prefix",
+              "privation",
+              "following",
+              "√sri",
+              "depend",
+              "root",
+              "relying",
+              "means",
+              "settled",
+              "upon",
+              "masculine",
+              "subject",
+              "viharati",
+              "detached",
+              "clinging",
+              "support",
+              "unattached",
+              "disengaged",
+              "reliance",
+              "flowing"
+            ],
+            "goldenOnly": [
+              "without",
+              "nissita",
+              "leaning",
+              "√śri",
+              "anissita",
+              "key",
+              "result",
+              "craving",
+              "views",
+              "self",
+              "sufficient",
+              "awareness",
+              "reliant"
+            ],
+            "f1": 0.32653061224489793
+          },
+          "judge": {
+            "score": 0.85,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the core meaning of 'independent' but omits the specific implications of 'not leaning on craving' and 'not leaning on views' found in the GOLDEN analysis."
           }
         },
         {
@@ -4910,6 +9800,29 @@
               "and"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [],
+            "modelOnly": [
+              "coordinating",
+              "conjunction",
+              "links",
+              "two",
+              "clauses",
+              "independent",
+              "dwells",
+              "joining"
+            ],
+            "goldenOnly": [
+              "connection"
+            ],
+            "f1": 0
+          },
+          "judge": {
+            "score": 1,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately captures the meaning and function of 'ca' as a coordinating conjunction, matching the GOLDEN analysis."
           }
         },
         {
@@ -4928,7 +9841,9 @@
               "keeps at it"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "na",
@@ -4950,6 +9865,26 @@
               "not"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [],
+            "modelOnly": [
+              "standard",
+              "negation",
+              "particle",
+              "pāli",
+              "simple"
+            ],
+            "goldenOnly": [
+              "negative"
+            ],
+            "f1": 0
+          },
+          "judge": {
+            "score": 1,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct and concise analysis of 'na' as the standard negation particle in Pāli, aligning perfectly with the GOLDEN reference."
           }
         },
         {
@@ -4972,6 +9907,27 @@
               "and"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [],
+            "modelOnly": [
+              "same",
+              "conjunction",
+              "pairs",
+              "mean",
+              "joining",
+              "phrases"
+            ],
+            "goldenOnly": [
+              "connection"
+            ],
+            "f1": 0
+          },
+          "judge": {
+            "score": 0.85,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies 'ca' as a conjunction but does not mention its specific pairing with 'na' to convey 'and not', which is an essential point in the GOLDEN analysis."
           }
         },
         {
@@ -5000,6 +9956,38 @@
               "something"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "pronoun",
+              "indefinite",
+              "anything",
+              "object"
+            ],
+            "modelOnly": [
+              "root",
+              "kim",
+              "interrogative",
+              "becomes",
+              "suffix",
+              "makes",
+              "neutral",
+              "some",
+              "entity"
+            ],
+            "goldenOnly": [
+              "accusative",
+              "any",
+              "whatever",
+              "exception"
+            ],
+            "f1": 0.38095238095238093
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL accurately describes 'kiñci' as an indefinite pronoun but does not explicitly mention its use with 'na' to form 'not anything', which is a notable aspect of the GOLDEN analysis."
           }
         },
         {
@@ -5028,6 +10016,51 @@
               "people"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "world",
+              "locative",
+              "singular",
+              "experience"
+            ],
+            "modelOnly": [
+              "√lok",
+              "see",
+              "perceive",
+              "root",
+              "domain",
+              "seeing",
+              "perceiving",
+              "ending",
+              "location",
+              "grasping",
+              "would",
+              "occur",
+              "cosmos",
+              "physical",
+              "universe",
+              "realm",
+              "aggregates",
+              "senses",
+              "elements",
+              "people",
+              "society",
+              "population"
+            ],
+            "goldenOnly": [
+              "loka",
+              "all",
+              "saṁsāric",
+              "existence"
+            ],
+            "f1": 0.23529411764705882
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL provides a good analysis of 'loke' but misses the specific context of 'in experience' and the broader implications of saṁsāric existence mentioned in the GOLDEN analysis."
           }
         },
         {
@@ -5053,7 +10086,9 @@
               "takes up"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         }
       ],
       "unmatched": [
@@ -5165,6 +10200,14 @@
       "pali": "ekaṁ samayaṁ bhagavā kurūsu viharati kammāsadhammaṁ nāma kurūnaṁ nigamo. ",
       "goldenWordCount": 4,
       "modelWordCount": 9,
+      "scores": {
+        "segF1": 0.75,
+        "contentF1": 0.3779527559055118,
+        "semantic": 0.8,
+        "coverage": 1,
+        "overall": 0.6555733267716535,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "Kammāsadhammaṁ",
@@ -5200,6 +10243,59 @@
               "Town of Kammasattha"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "town",
+              "compound",
+              "spotted",
+              "dhamma"
+            ],
+            "modelOnly": [
+              "proper",
+              "noun",
+              "kammāsa",
+              "nature",
+              "quality",
+              "accusative",
+              "singular",
+              "object",
+              "named",
+              "being",
+              "kammasattha",
+              "settlement",
+              "called"
+            ],
+            "goldenOnly": [
+              "speckled",
+              "man",
+              "eating",
+              "ogre",
+              "porisāda",
+              "jātaka",
+              "king",
+              "kammāsapāda",
+              "likely",
+              "√dam",
+              "tame",
+              "was",
+              "tamed",
+              "sanskritized",
+              "spelling",
+              "ending",
+              "labels",
+              "follows",
+              "kammāsadhamma",
+              "etymology",
+              "literal"
+            ],
+            "f1": 0.19047619047619047
+          },
+          "judge": {
+            "score": 0.6,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL correctly identifies the components and grammatical role but omits the specific cultural reference to the ogre and the etymological context provided in the GOLDEN analysis."
           }
         },
         {
@@ -5226,6 +10322,33 @@
               "Namely"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "indeclinable",
+              "called"
+            ],
+            "modelOnly": [
+              "namely",
+              "never",
+              "changes",
+              "say"
+            ],
+            "goldenOnly": [
+              "named",
+              "links",
+              "proper",
+              "common",
+              "noun",
+              "nāma"
+            ],
+            "f1": 0.2857142857142857
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL captures the essential meaning and grammatical role accurately, with only a minor difference in phrasing compared to the GOLDEN."
           }
         },
         {
@@ -5258,6 +10381,43 @@
               "Belonging to the Kurus"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "stem",
+              "kuru",
+              "people",
+              "genitive",
+              "plural",
+              "naṁ",
+              "belonging",
+              "kurus",
+              "possession"
+            ],
+            "modelOnly": [
+              "same",
+              "ending",
+              "means",
+              "pāli",
+              "noun",
+              "itself"
+            ],
+            "goldenOnly": [
+              "lengthened",
+              "kurū",
+              "before",
+              "their",
+              "town",
+              "possessive",
+              "ownership"
+            ],
+            "f1": 0.5806451612903226
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "faithful",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis of the word's segmentation and grammatical role, closely aligning with the GOLDEN without significant omissions."
           }
         },
         {
@@ -5292,6 +10452,52 @@
               "Settlement"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "down",
+              "√gam",
+              "market",
+              "town",
+              "nominative",
+              "singular",
+              "subject",
+              "larger",
+              "village"
+            ],
+            "modelOnly": [
+              "literally",
+              "going",
+              "clause",
+              "settlement",
+              "regular",
+              "markets",
+              "inhabited"
+            ],
+            "goldenOnly": [
+              "prefix",
+              "people",
+              "resort",
+              "trade",
+              "marker",
+              "talking",
+              "gāma",
+              "township",
+              "smaller",
+              "nagara",
+              "city",
+              "trading",
+              "center",
+              "commercial",
+              "gathering"
+            ],
+            "f1": 0.45
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL accurately describes the word's components and grammatical role but misses the specific nuances of its function as a trading center and the cultural context of the term."
           }
         }
       ],
@@ -5348,6 +10554,14 @@
       "pali": "“bhikkhavo”ti. ",
       "goldenWordCount": 2,
       "modelWordCount": 1,
+      "scores": {
+        "segF1": 0,
+        "contentF1": 0.47058823529411764,
+        "semantic": 0.9,
+        "coverage": 0.5,
+        "overall": 0.3684865196078431,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "Bhikkhavo",
@@ -5376,6 +10590,60 @@
               "Bhikkhus"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "√bhikkh",
+              "share",
+              "beg",
+              "who",
+              "vocative",
+              "plural",
+              "calling",
+              "out",
+              "group",
+              "monks",
+              "mendicants",
+              "bhikkhus"
+            ],
+            "modelOnly": [
+              "bhikkh",
+              "root",
+              "religious",
+              "mendicant",
+              "pauper",
+              "someone",
+              "lives",
+              "received",
+              "alms",
+              "spiritual",
+              "practice",
+              "ending",
+              "when",
+              "respectfully",
+              "monastic",
+              "community",
+              "transliterated",
+              "honorific",
+              "formal",
+              "address"
+            ],
+            "goldenOnly": [
+              "hey",
+              "you",
+              "all",
+              "saying",
+              "call",
+              "standard",
+              "those"
+            ],
+            "f1": 0.47058823529411764
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis with additional context about the term's usage and etymology, enhancing the understanding without introducing errors."
           }
         },
         {
@@ -5390,7 +10658,9 @@
               "\""
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         }
       ],
       "unmatched": []
@@ -5400,6 +10670,14 @@
       "pali": "Bhagavā etadavoca: ",
       "goldenWordCount": 3,
       "modelWordCount": 2,
+      "scores": {
+        "segF1": 1,
+        "contentF1": 0.5,
+        "semantic": 0.9,
+        "coverage": 0.3333333333333333,
+        "overall": 0.7322916666666666,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "Bhagavā",
@@ -5432,6 +10710,63 @@
               "Sublime One"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "fortune",
+              "good",
+              "luck",
+              "√bhaj",
+              "share",
+              "who",
+              "has",
+              "nominative",
+              "possessive",
+              "suffix",
+              "speaker",
+              "subject",
+              "blessed",
+              "fortunate"
+            ],
+            "modelOnly": [
+              "root",
+              "means",
+              "ending",
+              "singular",
+              "vant",
+              "mant",
+              "possesses",
+              "sublime",
+              "same",
+              "stem",
+              "phase",
+              "now",
+              "standard",
+              "honorific",
+              "epithet",
+              "buddha",
+              "narrative",
+              "prose",
+              "etymological",
+              "possessing",
+              "bhaga",
+              "conveys",
+              "reverence",
+              "transcendent",
+              "status"
+            ],
+            "goldenOnly": [
+              "literal",
+              "lucky",
+              "bearer"
+            ],
+            "f1": 0.5
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct segmentation and etymology, with additional depth in the senses, but slightly diverges in phrasing and includes a minor redundancy in the tooltips."
           }
         },
         {
@@ -5447,7 +10782,9 @@
               "this"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         },
         {
           "surface": "avoca",
@@ -5467,7 +10804,9 @@
               "spoke"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         }
       ],
       "unmatched": [
@@ -5487,6 +10826,14 @@
       "pali": "Katame cattāro? ",
       "goldenWordCount": 2,
       "modelWordCount": 2,
+      "scores": {
+        "segF1": 0,
+        "contentF1": 0.5185185185185185,
+        "semantic": 0.9,
+        "coverage": 0.5,
+        "overall": 0.4505034722222222,
+        "textIntegrity": 1
+      },
       "words": [
         {
           "surface": "Katame",
@@ -5516,6 +10863,41 @@
               "Which"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "stem",
+              "interrogative",
+              "nominative",
+              "plural",
+              "masculine",
+              "asking",
+              "group"
+            ],
+            "modelOnly": [
+              "pronoun",
+              "katama",
+              "asks",
+              "selection",
+              "known",
+              "set",
+              "several",
+              "ending",
+              "specification",
+              "selecting"
+            ],
+            "goldenOnly": [
+              "question",
+              "ones",
+              "specific"
+            ],
+            "f1": 0.5185185185185185
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct analysis with additional context about the usage of 'katama', enhancing the understanding without introducing errors."
           }
         },
         {
@@ -5532,7 +10914,9 @@
               "a tetrad"
             ]
           },
-          "model": null
+          "model": null,
+          "tokens": null,
+          "judge": null
         }
       ],
       "unmatched": [
@@ -5551,6 +10935,14 @@
       "pali": "Idha, bhikkhave, bhikkhu kāye kāyānupassī viharati ātāpī sampajāno satimā, vineyya loke abhijjhādomanassaṁ; ",
       "goldenWordCount": 3,
       "modelWordCount": 12,
+      "scores": {
+        "segF1": 0.6666666666666666,
+        "contentF1": 0.3258426966292135,
+        "semantic": 0.8666666666666667,
+        "coverage": 1,
+        "overall": 0.5924628745318352,
+        "textIntegrity": 0.9166666666666666
+      },
       "words": [
         {
           "surface": "kāye",
@@ -5583,6 +10975,53 @@
               "body"
             ],
             "segMatch": true
+          },
+          "tokens": {
+            "matched": [
+              "kāya",
+              "body",
+              "physical",
+              "locative",
+              "singular",
+              "phenomena"
+            ],
+            "modelOnly": [
+              "literally",
+              "accumulation",
+              "ending",
+              "regard",
+              "english",
+              "uses",
+              "pāli",
+              "noun",
+              "anatomical",
+              "structure",
+              "process",
+              "existence",
+              "material"
+            ],
+            "goldenOnly": [
+              "collection",
+              "heap",
+              "seeing",
+              "mine",
+              "self",
+              "just",
+              "raw",
+              "phenomenon",
+              "parts",
+              "mass",
+              "aggregate",
+              "assembled",
+              "view"
+            ],
+            "f1": 0.3157894736842105
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL provides a correct segmentation and locative singular explanation, but it slightly simplifies the depth of the senses compared to the GOLDEN reference."
           }
         },
         {
@@ -5620,6 +11059,84 @@
               "remaining focused on the body"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "kāya",
+              "body",
+              "see",
+              "anu",
+              "prefix",
+              "observing",
+              "closely",
+              "who",
+              "contemplating",
+              "sustained",
+              "attention"
+            ],
+            "modelOnly": [
+              "same",
+              "stem",
+              "now",
+              "first",
+              "member",
+              "compound",
+              "√paś",
+              "behold",
+              "means",
+              "after",
+              "watching",
+              "ending",
+              "possessive",
+              "adjective",
+              "observes",
+              "pattern",
+              "ātāpī",
+              "meditative",
+              "awareness",
+              "directed",
+              "remaining",
+              "focused",
+              "continuous",
+              "bodily",
+              "phenomena"
+            ],
+            "goldenOnly": [
+              "collection",
+              "object",
+              "observation",
+              "along",
+              "repeatedly",
+              "implies",
+              "√dṛś",
+              "pali",
+              "√pass",
+              "anupassati",
+              "observe",
+              "agent",
+              "noun",
+              "suffix",
+              "does",
+              "identity",
+              "shift",
+              "you",
+              "become",
+              "observer",
+              "action",
+              "watcher",
+              "tracking",
+              "physical",
+              "following",
+              "seeing",
+              "phenomenological"
+            ],
+            "f1": 0.2972972972972973
+          },
+          "judge": {
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "rationale": "The MODEL captures the core meaning and segmentation but misses some essential nuances of sustained observation and identity shift present in the GOLDEN analysis."
           }
         },
         {
@@ -5653,6 +11170,75 @@
               "meditates"
             ],
             "segMatch": false
+          },
+          "tokens": {
+            "matched": [
+              "prefix",
+              "apart",
+              "carry",
+              "dwell",
+              "dwells",
+              "abides",
+              "stays",
+              "singular",
+              "present",
+              "she",
+              "lives",
+              "remains"
+            ],
+            "modelOnly": [
+              "separate",
+              "intensively",
+              "adds",
+              "force",
+              "distinction",
+              "root",
+              "√har",
+              "take",
+              "pāli",
+              "viharati",
+              "means",
+              "carrying",
+              "oneself",
+              "along",
+              "state",
+              "thematic",
+              "vowel",
+              "connects",
+              "personal",
+              "ending",
+              "third",
+              "person",
+              "descriptive",
+              "past",
+              "future",
+              "continues",
+              "situation",
+              "meditates",
+              "cultivates",
+              "meditative",
+              "posture",
+              "mind"
+            ],
+            "goldenOnly": [
+              "specially",
+              "√hṛ",
+              "does",
+              "way",
+              "rests",
+              "put",
+              "being",
+              "keeps",
+              "continuous",
+              "practice"
+            ],
+            "f1": 0.36363636363636365
+          },
+          "judge": {
+            "score": 0.9,
+            "verdict": "enriched",
+            "hallucination": false,
+            "rationale": "The MODEL accurately describes the segmentation and provides a detailed explanation of the root and grammatical role, enhancing the understanding without introducing errors."
           }
         }
       ],
