@@ -100,7 +100,10 @@ export function getDefaultApiKey(): string | null {
     return null;
   }
 
-  const defaultKey = import.meta.env.VITE_DEFAULT_OPENROUTER_KEY;
+  // import.meta.env only exists under Vite; tsx/Node scripts crash on the
+  // bare access — and OpenAIAdapter's key-priority log calls this even when
+  // a user key is present, so the crash hits every headless LLM call.
+  const defaultKey = import.meta.env?.VITE_DEFAULT_OPENROUTER_KEY;
   if (!defaultKey) {
     return null;
   }

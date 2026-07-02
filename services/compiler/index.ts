@@ -49,7 +49,7 @@ import { SUTTA_STUDIO_PROMPT_VERSION } from '../suttaStudioPromptVersion';
 import { fetchCanonicalSegmentsForUid } from './segments';
 import { fetchDictionaryEntry } from './dictionary';
 import { callCompilerLLM } from './llm';
-import { DpdProvider } from '../providers/dpd';
+import { DpdProvider, type DpdData } from '../providers/dpd';
 import { getBundledDpdData } from '../providers/dpd-loader-vite';
 import type { LexiconEntry } from '../providers/types';
 import {
@@ -159,6 +159,13 @@ export const compileSuttaStudioPacket = async (options: {
    * without paying the full $X compile cost. Unset = all phases.
    */
   phaseLimit?: number;
+  /**
+   * Headless override: DPD data to ground the lexicographer with. Browser
+   * builds bundle every data/dpd/<sutta>/ subset via import.meta.glob; that
+   * loader silently returns {} under Node, so tsx scripts must inject the
+   * fs-loaded equivalent here or the compile quietly loses DPD grounding.
+   */
+  dpdData?: DpdData;
 }): Promise<DeepLoomPacket> => {
   const { uid, uids, lang, author, settings: rawSettings, onProgress, signal, allowCrossChapter, phaseLimit: phaseLimitOpt } = options;
   const settings = applySuttaStudioModelOverride(rawSettings);
@@ -461,7 +468,7 @@ export const compileSuttaStudioPacket = async (options: {
             // raw SC dictionary payload. Local lookup, no network.
             const dpdLookups: Record<string, LexiconEntry[]> = {};
             try {
-              const dpdProvider = new DpdProvider(getBundledDpdData());
+              const dpdProvider = new DpdProvider(options.dpdData ?? getBundledDpdData());
               await Promise.all(contentWords.map(async (word) => {
                 const entries = await dpdProvider.lookup(word.surface);
                 if (entries.length > 0) dpdLookups[word.id] = entries;
