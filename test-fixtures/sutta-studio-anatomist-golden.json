@@ -531,7 +531,7 @@
           "type": "stem",
           "tooltips": [
             "[Emphatic particle] \"Just so\"",
-            "Points back to the occasion"
+            "Points forward to the discourse about to be recited"
           ]
         },
         {
@@ -1492,7 +1492,7 @@
           "type": "prefix",
           "tooltips": [
             "[Augment] Marks past tense",
-            "Like \"a-\" in Greek aorist"
+            "Like the \"e-\" augment in the Greek aorist (Sanskrit uses \"a-\")"
           ]
         },
         {
@@ -2237,7 +2237,7 @@
           "text": "paṭṭhānā",
           "type": "root",
           "tooltips": [
-            "[Compound] paṭi + √sthā: to stand",
+            "[Compound] pa + √sthā: to stand (also analyzed as sati + upaṭṭhāna, \"attending\")",
             "Establishing, foundation, setting up"
           ]
         }
@@ -9805,5 +9805,6 @@
       "ñāya: √ñā→nī+√i per DPD; 1 segs",
       "sandhi surfaces: fixed 6 double-vowel junctions to canonical (surface-faithful per #25)"
     ]
-  }
+  },
+  "_goldenV2": "2026-07-02: tooltip corrections from the golden-v2 curation (accepted by adversarial verify)"
 }

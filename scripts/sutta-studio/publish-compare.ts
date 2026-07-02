@@ -54,7 +54,7 @@ const wordSenses = (wordId: string, lex: LexicographerPass | null): string[] =>
   ((lex?.senses || []).find((x) => x.wordId === wordId)?.senses || []).map((s) => s.english).filter(Boolean);
 
 type TokenDiff = { matched: string[]; modelOnly: string[]; goldenOnly: string[]; f1: number | null };
-type JudgeEntry = { score: number; verdict: string; hallucination: boolean; rationale: string };
+type JudgeEntry = { score: number; verdict: string; hallucination: boolean; goldenSuspect?: boolean; rationale: string };
 
 type CompareWord = {
   surface: string;
@@ -152,7 +152,8 @@ function loadJudge(reportDir: string, model: string): Map<string, Map<string, Ju
       if (!w?.phase || !w?.wordId) continue;
       if (!byPhase.has(w.phase)) byPhase.set(w.phase, new Map());
       byPhase.get(w.phase)!.set(w.wordId, {
-        score: w.score, verdict: w.verdict, hallucination: !!w.hallucination, rationale: w.rationale || '',
+        score: w.score, verdict: w.verdict, hallucination: !!w.hallucination,
+        goldenSuspect: !!w.goldenSuspect, rationale: w.rationale || '',
       });
     }
   } catch { /* judge file unreadable → artifact just omits judge rows */ }

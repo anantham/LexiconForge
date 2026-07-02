@@ -17,7 +17,9 @@ all DPD homonyms** as a neutral set destroys word-sense disambiguation.
 - **Grok:** asymmetric tp/fn references; weakens disambiguation pressure; implemented+mutated the
   fixture before review; missing adversarial tests.
 
-**Agreed fix — path B (do this instead):** after DPD lookup, have an LLM/human select only the
+**Path B was EXECUTED 2026-07-02** as "golden v2": a 51-phase curator+adversarial-skeptic workflow selected context-valid DPD senses into the CORE golden (13 additions, 1 wrong-homonym removal, 3 tooltip corrections; audit log in docs/benchmarks/golden-v2-apply-log.json; cross-family spot-check via grok; metric stayed strict per SUTTA-012).
+
+**Agreed fix — path B (as designed):** after DPD lookup, have an LLM/human select only the
 **contextually valid** senses for each specific phase, merge those vetted senses into the **core**
 golden (so they earn `tp` AND participate in `fn`), and **keep strict SUTTA-009 F1**. This is the
 "golden-update protocol" — widen the golden, don't loosen the instrument — plus adversarial tests

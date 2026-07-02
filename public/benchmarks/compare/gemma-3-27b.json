@@ -9,10 +9,12 @@
       "modelWordCount": 2,
       "scores": {
         "segF1": 0.6666666666666666,
-        "contentF1": 0.2597402597402597,
+        "contentF1": 0.26666666666666666,
+        "contentPrecision": 0.3448275862068966,
+        "contentRecall": 0.21739130434782608,
         "semantic": null,
         "coverage": 1,
-        "overall": 0.2398274280067758,
+        "overall": 0.24078586956521741,
         "textIntegrity": 0.5
       },
       "words": [
@@ -29,8 +31,7 @@
             ],
             "senses": [
               "beings",
-              "stuck ones",
-              "seven types"
+              "stuck ones"
             ]
           },
           "model": {
@@ -83,11 +84,9 @@
               "belongs",
               "living",
               "entities",
-              "attached",
-              "types",
-              "numerical"
+              "attached"
             ],
-            "f1": 0.2702702702702703
+            "f1": 0.2857142857142857
           },
           "judge": null
         },
@@ -184,6 +183,8 @@
       "scores": {
         "segF1": 0.2,
         "contentF1": 0.25882352941176473,
+        "contentPrecision": 0.22916666666666666,
+        "contentRecall": 0.2972972972972973,
         "semantic": null,
         "coverage": 1,
         "overall": 0.22238660386029413,
@@ -363,7 +364,9 @@
       "modelWordCount": 9,
       "scores": {
         "segF1": 0.6,
-        "contentF1": 0.2268041237113402,
+        "contentF1": 0.2222222222222222,
+        "contentPrecision": 0.4583333333333333,
+        "contentRecall": 0.14666666666666667,
         "semantic": null,
         "coverage": 1,
         "overall": null,
@@ -387,7 +390,8 @@
             "senses": [
               "Kammāsadhamma",
               "\"Where the Spotted One was Tamed\"",
-              "the spotted-dhamma place"
+              "the spotted-dhamma place",
+              "name of a town in the Kuru country"
             ]
           },
           "model": {
@@ -441,7 +445,9 @@
               "kammāsadhamma",
               "etymology",
               "literal",
-              "compound"
+              "compound",
+              "kuru",
+              "country"
             ],
             "f1": 0
           },
@@ -499,7 +505,8 @@
             "senses": [
               "of the Kurus",
               "belonging to the Kurus",
-              "the Kurus'"
+              "the Kurus'",
+              "name of the people of Kuru; Kurus"
             ]
           },
           "model": {
@@ -658,7 +665,9 @@
       "modelWordCount": 1,
       "scores": {
         "segF1": 0,
-        "contentF1": 0.5294117647058824,
+        "contentF1": 0.45,
+        "contentPrecision": 0.6,
+        "contentRecall": 0.36,
         "semantic": null,
         "coverage": 0.5,
         "overall": 0,
@@ -755,11 +764,13 @@
       "goldenWordCount": 3,
       "modelWordCount": 2,
       "scores": {
-        "segF1": 1,
-        "contentF1": 0.5116279069767442,
+        "segF1": 0.5,
+        "contentF1": 0.2894736842105263,
+        "contentPrecision": 0.4230769230769231,
+        "contentRecall": 0.22,
         "semantic": null,
         "coverage": 0.3333333333333333,
-        "overall": 0.6999806201550386,
+        "overall": 0.4941666666666666,
         "textIntegrity": 1
       },
       "words": [
@@ -860,7 +871,7 @@
             "seg": "a·voc·a",
             "tips": [
               "[Augment] Marks past tense",
-              "Like \"a-\" in Greek aorist",
+              "Like the \"e-\" augment in the Greek aorist (Sanskrit uses \"a-\")",
               "√vac: To speak, say",
               "Source of Latin \"vox\", English \"voice\"",
               "[Aorist 3rd singular] He spoke",

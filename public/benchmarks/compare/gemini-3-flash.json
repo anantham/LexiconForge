@@ -9,10 +9,12 @@
       "modelWordCount": 2,
       "scores": {
         "segF1": 0.8571428571428571,
-        "contentF1": 0.2956521739130435,
-        "semantic": 0.7,
+        "contentF1": 0.3008849557522124,
+        "contentPrecision": 0.2537313432835821,
+        "contentRecall": 0.3695652173913043,
+        "semantic": 0.875,
         "coverage": 1,
-        "overall": 0.5770885093167701,
+        "overall": 0.5786583438685209,
         "textIntegrity": 1
       },
       "words": [
@@ -29,8 +31,7 @@
             ],
             "senses": [
               "beings",
-              "stuck ones",
-              "seven types"
+              "stuck ones"
             ]
           },
           "model": {
@@ -96,17 +97,16 @@
               "seven",
               "shows",
               "belongs",
-              "entities",
-              "types",
-              "numerical"
+              "entities"
             ],
-            "f1": 0.3018867924528302
+            "f1": 0.3137254901960784
           },
           "judge": {
-            "score": 0.6,
+            "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL correctly identifies the segmentation and grammatical role but omits the essential meanings related to 'stuck ones' and 'seven types', which are present in the GOLDEN analysis."
+            "goldenSuspect": false,
+            "rationale": "The MODEL correctly identifies the segmentation and provides accurate tooltips, but it omits the specific sense of 'stuck ones' and the connection to attachment, which is essential."
           }
         },
         {
@@ -209,10 +209,11 @@
             "f1": 0.2903225806451613
           },
           "judge": {
-            "score": 0.8,
+            "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL provides a mostly accurate analysis with correct segmentation and tooltips, but it lacks some of the richness of the GOLDEN's senses, particularly the emphasis on clarity and brightening."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a faithful and complete analysis, accurately capturing the meaning and grammatical role of 'visuddhiyā' with appropriate detail."
           }
         }
       ],
@@ -226,6 +227,8 @@
       "scores": {
         "segF1": 0.6666666666666666,
         "contentF1": 0.4489795918367347,
+        "contentPrecision": 0.36065573770491804,
+        "contentRecall": 0.5945945945945946,
         "semantic": 0.875,
         "coverage": 1,
         "overall": 0.5721938775510204,
@@ -318,10 +321,11 @@
             "f1": 0.46153846153846156
           },
           "judge": {
-            "score": 0.85,
+            "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL provides a mostly accurate analysis but omits the specific genitive plural aspect and the full range of senses from the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a mostly accurate analysis but omits the essential genitive plural aspect of the phrase, which is crucial for understanding its grammatical role."
           }
         },
         {
@@ -404,10 +408,11 @@
             "f1": 0.43478260869565216
           },
           "judge": {
-            "score": 0.9,
+            "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL captures the essential meanings and grammatical roles accurately, with minor differences in phrasing but no significant omissions."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately captures the meaning and grammatical structure of the word, providing a faithful analysis with no significant omissions or errors."
           }
         }
       ],
@@ -421,6 +426,8 @@
       "scores": {
         "segF1": 0.5714285714285714,
         "contentF1": 0.3185840707964602,
+        "contentPrecision": 0.25,
+        "contentRecall": 0.43902439024390244,
         "semantic": 0.7,
         "coverage": 1,
         "overall": 0.5045037926675094,
@@ -510,9 +517,10 @@
           },
           "judge": {
             "score": 0.6,
-            "verdict": "error",
-            "hallucination": true,
-            "rationale": "The MODEL incorrectly segments the word as 'nibbāna·ssa' instead of 'nibbān·assa', and it introduces a false etymology by stating 'Nibbāna: The quenching of a fire' without acknowledging the correct components."
+            "verdict": "omission",
+            "hallucination": false,
+            "goldenSuspect": false,
+            "rationale": "The MODEL correctly identifies the genitive ending and provides relevant senses, but it omits the specific reference to Nibbāna and the essential meanings of 'freedom from' and 'release'."
           }
         },
         {
@@ -621,7 +629,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL provides a mostly accurate analysis but misses the essential point of 'witnessing' and 'seeing directly' as key senses, which are present in the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning and grammatical role but misses some nuances of witnessing and personal contact emphasized in the GOLDEN analysis."
           }
         }
       ],
@@ -633,11 +642,13 @@
       "goldenWordCount": 3,
       "modelWordCount": 3,
       "scores": {
-        "segF1": 0.5,
-        "contentF1": 0.36065573770491804,
+        "segF1": 0.4,
+        "contentF1": 0.22916666666666666,
+        "contentPrecision": 0.2558139534883721,
+        "contentRecall": 0.20754716981132076,
         "semantic": 0.8500000000000001,
         "coverage": 0.6666666666666666,
-        "overall": 0.5190543032786885,
+        "overall": 0.45134375,
         "textIntegrity": 1
       },
       "words": [
@@ -706,7 +717,8 @@
             "score": 0.9,
             "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis with additional details about sandhi and grammatical role, enhancing the understanding without introducing errors."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct analysis with additional detail about the grammatical function and sandhi, enhancing the understanding without introducing errors."
           }
         },
         {
@@ -777,7 +789,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL correctly identifies the numeral and its grammatical role but omits the specific mention of nominative plural masculine, which is essential for completeness."
+            "goldenSuspect": false,
+            "rationale": "The MODEL correctly identifies the numeral and its grammatical role but misses the explicit mention of the nominative plural masculine form, which is essential."
           }
         },
         {
@@ -787,7 +800,7 @@
             "tips": [
               "√smṛ: to remember",
               "💭 Mindfulness, presence, awareness",
-              "[Compound] paṭi + √sthā: to stand",
+              "[Compound] pa + √sthā: to stand (also analyzed as sati + upaṭṭhāna, \"attending\")",
               "Establishing, foundation, setting up"
             ],
             "senses": [
@@ -823,7 +836,9 @@
       "scores": {
         "segF1": 0.8333333333333334,
         "contentF1": 0.3057324840764331,
-        "semantic": 0.7333333333333334,
+        "contentPrecision": 0.3870967741935484,
+        "contentRecall": 0.25263157894736843,
+        "semantic": 0.8000000000000002,
         "coverage": 1,
         "overall": 0.66921974522293,
         "textIntegrity": 1
@@ -941,7 +956,8 @@
             "score": 0.9,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL accurately captures the segmentation and core meanings, though it lacks the depth of the GOLDEN regarding the interpretative debate."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately captures the segmentation and core meanings, though it lacks the depth of the GOLDEN's commentary on the sequential and simultaneous views."
           }
         },
         {
@@ -1007,7 +1023,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis but omits the essential aspect of scope and the specific application of the removing action."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct segmentation and basic meanings but omits the broader scope and domain aspects highlighted in the GOLDEN."
           }
         },
         {
@@ -1114,10 +1131,11 @@
             "f1": 0.3076923076923077
           },
           "judge": {
-            "score": 0.5,
-            "verdict": "error",
-            "hallucination": true,
-            "rationale": "The MODEL misrepresents the grammatical role by stating 'Accusative' instead of the correct form, which significantly undermines its accuracy."
+            "score": 0.7,
+            "verdict": "omission",
+            "hallucination": false,
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures some key elements but misses the synecdoche aspect and the full context of the five hindrances as presented in the GOLDEN."
           }
         }
       ],
@@ -1211,7 +1229,9 @@
       "scores": {
         "segF1": 1,
         "contentF1": 0.4878048780487805,
-        "semantic": 0.9,
+        "contentPrecision": 0.410958904109589,
+        "contentRecall": 0.6,
+        "semantic": 0.9499999999999998,
         "coverage": 1,
         "overall": 0.7713414634146342,
         "textIntegrity": 1
@@ -1287,7 +1307,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL accurately captures the segmentation, etymology, and senses of 'ātāpī' with minor variations in wording but maintains the core meanings."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately captures the essential meanings and grammatical roles of 'ātāpī' without introducing any errors."
           }
         },
         {
@@ -1368,10 +1389,11 @@
             "f1": 0.5416666666666666
           },
           "judge": {
-            "score": 0.9,
+            "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis of 'sampajāno' but slightly lacks the emphasis on the four types of clear comprehension mentioned in the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct and complete analysis of 'sampajāno', aligning well with the GOLDEN reference."
           }
         },
         {
@@ -1443,10 +1465,11 @@
             "f1": 0.3783783783783784
           },
           "judge": {
-            "score": 0.85,
-            "verdict": "omission",
+            "score": 0.95,
+            "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL correctly identifies the segmentation and general meaning of 'satimā' but misses the specific mention of 'faculty' and 'capacity' from the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL's analysis of 'satimā' is accurate and comprehensive, reflecting the core meanings and grammatical aspects effectively."
           }
         }
       ],
@@ -1515,6 +1538,8 @@
       "scores": {
         "segF1": 0.7692307692307693,
         "contentF1": 0.2926829268292683,
+        "contentPrecision": 0.27906976744186046,
+        "contentRecall": 0.3076923076923077,
         "semantic": 0.7166666666666667,
         "coverage": 1,
         "overall": 0.6356195633634658,
@@ -1619,7 +1644,8 @@
             "score": 0.85,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the core meaning and grammatical role but omits the nuanced aspects of citta as a repository of kamma and the specific states of consciousness."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning and grammatical role but omits the nuanced aspects of citta as a state of consciousness and the specific locative context."
           }
         },
         {
@@ -1717,7 +1743,8 @@
             "score": 0.9,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis of the components and meanings, closely aligning with the GOLDEN reference while adding some depth."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately reflects the segmentation and meaning of 'cittānupassī' while providing a clear explanation of the components without significant omissions."
           }
         },
         {
@@ -1810,7 +1837,8 @@
             "score": 0.4,
             "verdict": "error",
             "hallucination": true,
-            "rationale": "The MODEL incorrectly states that √har means 'to carry or take', which is a factual error, as the correct root is √hṛ meaning 'to dwell'."
+            "goldenSuspect": false,
+            "rationale": "The MODEL incorrectly identifies the root as √har instead of √hṛ, leading to a significant factual error in the analysis."
           }
         }
       ],
@@ -1877,6 +1905,8 @@
       "scores": {
         "segF1": 1,
         "contentF1": 0.53125,
+        "contentPrecision": 0.53125,
+        "contentRecall": 0.53125,
         "semantic": 0.8666666666666667,
         "coverage": 1,
         "overall": 0.8010416666666667,
@@ -1954,7 +1984,8 @@
             "score": 0.9,
             "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct segmentation and etymology, with senses that expand on the GOLDEN's meanings without introducing errors."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct segmentation and accurate tooltips, with enriched senses that capture the essence of ardor and diligence, though it slightly varies in phrasing from the GOLDEN."
           }
         },
         {
@@ -2040,7 +2071,8 @@
             "score": 0.9,
             "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The MODEL accurately segments and explains the word, offering additional insights into its meanings that align well with the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately reflects the segmentation and tooltips, while offering enriched senses that align well with the concept of clear comprehension and awareness, differing slightly in wording from the GOLDEN."
           }
         },
         {
@@ -2116,7 +2148,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the core meaning and segmentation but misses the nuance of 'recollected' from the GOLDEN, which is an essential aspect of the term."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning and segmentation but omits the nuance of 'faculty' and 'capacity' present in the GOLDEN, leading to a minor gap in completeness."
           }
         }
       ],
@@ -2185,6 +2218,8 @@
       "scores": {
         "segF1": 0.6153846153846154,
         "contentF1": 0.33507853403141363,
+        "contentPrecision": 0.29357798165137616,
+        "contentRecall": 0.3902439024390244,
         "semantic": 0.7166666666666667,
         "coverage": 1,
         "overall": 0.6101389448248088,
@@ -2302,6 +2337,7 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
+            "goldenSuspect": false,
             "rationale": "The model correctly identifies the locative plural and the general meaning but omits specific details about the categories of dhammas and the distinction from singular Dhamma."
           }
         },
@@ -2408,7 +2444,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model provides a comprehensive analysis with correct segmentation, etymology, and senses, closely aligning with the golden reference."
+            "goldenSuspect": false,
+            "rationale": "The model provides a faithful analysis with correct segmentation, etymology, and senses, closely aligning with the golden reference."
           }
         },
         {
@@ -2506,7 +2543,8 @@
             "score": 0.4,
             "verdict": "error",
             "hallucination": true,
-            "rationale": "The model incorrectly states the root as '√har' instead of '√hṛ', leading to a significant factual error in the analysis."
+            "goldenSuspect": false,
+            "rationale": "The model incorrectly states the root as 'har' instead of 'hṛ', leading to a significant factual error in the analysis."
           }
         }
       ],
@@ -2574,7 +2612,9 @@
       "scores": {
         "segF1": 1,
         "contentF1": 0.5853658536585366,
-        "semantic": 0.85,
+        "contentPrecision": 0.6101694915254238,
+        "contentRecall": 0.5625,
+        "semantic": 0.9,
         "coverage": 1,
         "overall": 0.7926552106430155,
         "textIntegrity": 1
@@ -2648,7 +2688,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL accurately captures the segmentation, etymology, and senses of the word 'ātāpī' without any factual errors or omissions."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately captures the segmentation, etymology, and senses of the word 'ātāpī' with minor variations in phrasing."
           }
         },
         {
@@ -2729,10 +2770,11 @@
             "f1": 0.64
           },
           "judge": {
-            "score": 0.8,
-            "verdict": "omission",
+            "score": 0.95,
+            "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis but misses the specific mention of 'sampajāñña' and the four types of clear comprehension, which are essential points in the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct analysis of 'sampajāno' with appropriate segmentation, etymology, and senses, closely aligning with the GOLDEN reference."
           }
         },
         {
@@ -2806,7 +2848,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL is mostly correct but omits the nuance of 'possessing the faculty' and 'equipped with awareness,' which are key aspects of the GOLDEN analysis."
+            "goldenSuspect": false,
+            "rationale": "The MODEL is mostly accurate but misses the essential sense of 'possessing mindfulness' as a faculty, which is a key aspect of the GOLDEN analysis."
           }
         }
       ],
@@ -2874,7 +2917,9 @@
       "scores": {
         "segF1": 0.5714285714285714,
         "contentF1": 0.3146067415730337,
-        "semantic": 0.7,
+        "contentPrecision": 0.24561403508771928,
+        "contentRecall": 0.4375,
+        "semantic": 0.8500000000000001,
         "coverage": 1,
         "overall": 0.4960189272338148,
         "textIntegrity": 1
@@ -2959,10 +3004,11 @@
             "f1": 0.3829787234042553
           },
           "judge": {
-            "score": 0.8,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The MODEL correctly identifies the segmentation and provides accurate etymological information, but it omits the specific sense of 'the thing itself — \"the outline\"' from the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct segmentation and etymology, with additional senses that enhance understanding, though it slightly diverges in phrasing from the GOLDEN."
           }
         },
         {
@@ -3043,10 +3089,11 @@
             "f1": 0.23809523809523808
           },
           "judge": {
-            "score": 0.6,
-            "verdict": "error",
+            "score": 0.8,
+            "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL contains a factual error in the segmentation and misrepresents the grammatical role of the suffix, leading to a lower score despite capturing some correct senses."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning and grammatical role but misses the explicit connection to 'uddesa' and the specific masculine singular description noted in the GOLDEN."
           }
         }
       ],
@@ -3058,11 +3105,13 @@
       "goldenWordCount": 7,
       "modelWordCount": 18,
       "scores": {
-        "segF1": 0.7142857142857143,
-        "contentF1": 0.4520547945205479,
-        "semantic": 0.82,
+        "segF1": 0.6666666666666666,
+        "contentF1": 0.4074074074074074,
+        "contentPrecision": 0.5,
+        "contentRecall": 0.34375,
+        "semantic": 0.8800000000000001,
         "coverage": 0.7142857142857143,
-        "overall": 0.6349042527206652,
+        "overall": 0.6093222852812287,
         "textIntegrity": 0.9444444444444444
       },
       "words": [
@@ -3157,7 +3206,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL accurately captures the segmentation, grammatical role, and core meanings of the word 'bhikkhu' without any factual errors."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately captures the core meanings and grammatical role of 'bhikkhu' with slight variation in wording."
           }
         },
         {
@@ -3234,10 +3284,11 @@
             "f1": 0.41025641025641024
           },
           "judge": {
-            "score": 0.8,
+            "score": 0.85,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis but omits the canonical reference and some nuances of the term's meaning related to undisturbed practice."
+            "goldenSuspect": false,
+            "rationale": "The MODEL is mostly correct but omits the specific canonical reference and the full context of 'araññagato' as a past participle."
           }
         },
         {
@@ -3284,7 +3335,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL correctly identifies the segmentation and meanings of 'vā' without any errors or omissions."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct and concise analysis of 'vā' with appropriate senses and grammatical role."
           }
         },
         {
@@ -3351,10 +3403,11 @@
             "f1": 0.5806451612903226
           },
           "judge": {
-            "score": 0.8,
+            "score": 0.85,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL is mostly accurate but misses the etymological connection to Sanskrit and the specific context of meditation associated with the term."
+            "goldenSuspect": false,
+            "rationale": "The MODEL is accurate but misses the detailed etymological context and the specific traditional significance of 'rukkhamūlagato'."
           }
         },
         {
@@ -3436,10 +3489,11 @@
             "f1": 0.3333333333333333
           },
           "judge": {
-            "score": 0.6,
-            "verdict": "error",
+            "score": 0.8,
+            "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL contains a factual error by not fully capturing the nuances of 'suññāgāra' and misrepresents the context of the term as a 'lonely place' rather than focusing on its emptiness aspect."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the general meaning but omits key etymological details and the full implications of 'suññāgāragato' as a refuge."
           }
         }
       ],
@@ -3560,7 +3614,9 @@
       "scores": {
         "segF1": 0.8235294117647058,
         "contentF1": 0.3804878048780488,
-        "semantic": 0.875,
+        "contentPrecision": 0.37142857142857144,
+        "contentRecall": 0.39,
+        "semantic": 0.8083333333333335,
         "coverage": 1,
         "overall": 0.659482332774304,
         "textIntegrity": 0.9444444444444444
@@ -3633,6 +3689,7 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
+            "goldenSuspect": false,
             "rationale": "The MODEL accurately captures the segmentation, etymology, and senses of the word without any errors."
           }
         },
@@ -3709,7 +3766,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL misses some specific meanings related to the meditation seat and the traditional context, but the core sense is maintained."
+            "goldenSuspect": false,
+            "rationale": "The MODEL is mostly correct but omits the specific mention of 'meditation seat/throne' and the full lotus position."
           }
         },
         {
@@ -3797,7 +3855,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis of the segmentation, etymology, and senses without any factual errors."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a faithful analysis with correct segmentation, etymology, and senses."
           }
         },
         {
@@ -3863,7 +3922,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the basic meanings but lacks the depth regarding ethical straightness and the accusative role."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning but lacks the ethical dimension of 'straightness' mentioned in the GOLDEN."
           }
         },
         {
@@ -3925,7 +3985,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL accurately reflects the segmentation, etymology, and senses of the word without any errors."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately reflects the segmentation, etymology, and senses of the word."
           }
         },
         {
@@ -4000,10 +4061,11 @@
             "f1": 0.3783783783783784
           },
           "judge": {
-            "score": 0.8,
-            "verdict": "omission",
-            "hallucination": false,
-            "rationale": "The MODEL correctly identifies the components but omits the specific meaning of 'having placed forward' and the context of the action."
+            "score": 0.4,
+            "verdict": "error",
+            "hallucination": true,
+            "goldenSuspect": false,
+            "rationale": "The MODEL incorrectly segments the word and misrepresents the prefixes, leading to a significant factual error."
           }
         }
       ],
@@ -4118,7 +4180,9 @@
       "scores": {
         "segF1": 0.7272727272727273,
         "contentF1": 0.3384615384615385,
-        "semantic": 0.7666666666666667,
+        "contentPrecision": 0.4489795918367347,
+        "contentRecall": 0.2716049382716049,
+        "semantic": 0.7833333333333333,
         "coverage": 1,
         "overall": 0.6144067091180843,
         "textIntegrity": 0.9444444444444444
@@ -4228,7 +4292,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the core meaning and segmentation but omits the detailed interpretations and specific references from the GOLDEN analysis."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning but omits the nuanced interpretations and specific references from the GOLDEN analysis."
           }
         },
         {
@@ -4289,10 +4354,11 @@
             "f1": 0.5185185185185185
           },
           "judge": {
-            "score": 0.9,
+            "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL provides a faithful analysis with correct segmentation and senses, though it lacks the explicit mention of the accusative object."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a faithful and complete analysis of the word, closely aligning with the GOLDEN without significant omissions."
           }
         },
         {
@@ -4374,9 +4440,10 @@
           },
           "judge": {
             "score": 0.6,
-            "verdict": "error",
+            "verdict": "omission",
             "hallucination": true,
-            "rationale": "The MODEL incorrectly segments the word and misrepresents the root, leading to a factual error despite capturing some correct meanings."
+            "goldenSuspect": false,
+            "rationale": "The MODEL contains a factual error in the segmentation and misses key aspects of the causative meaning and context provided in the GOLDEN."
           }
         }
       ],
@@ -4512,11 +4579,13 @@
       "goldenWordCount": 5,
       "modelWordCount": 5,
       "scores": {
-        "segF1": 1,
-        "contentF1": 0.3333333333333333,
+        "segF1": 0,
+        "contentF1": 0.03508771929824561,
+        "contentPrecision": 0.2222222222222222,
+        "contentRecall": 0.01904761904761905,
         "semantic": 0.8,
         "coverage": 0.2,
-        "overall": 0.6592123015873015,
+        "overall": 0.2931070384294068,
         "textIntegrity": 1
       },
       "words": [
@@ -4567,7 +4636,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL correctly identifies the core meaning and segmentation but misses the specific reference to 'that one' and does not fully capture the emphatic sense of 'So' as indicated in the GOLDEN analysis."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning but misses the specific reference to 'that one' and the emphasis on the previous instruction."
           }
         },
         {
@@ -4708,10 +4778,12 @@
       "modelWordCount": 12,
       "scores": {
         "segF1": 0,
-        "contentF1": 0.31901840490797545,
-        "semantic": 0.7833333333333335,
+        "contentF1": 0.203125,
+        "contentPrecision": 0.2857142857142857,
+        "contentRecall": 0.15757575757575756,
+        "semantic": 0.8500000000000001,
         "coverage": 0.42857142857142855,
-        "overall": 0.4102949637700404,
+        "overall": 0.3770170003607503,
         "textIntegrity": 1
       },
       "words": [
@@ -4733,7 +4805,8 @@
             "senses": [
               "short",
               "quickly",
-              "lightly"
+              "lightly",
+              "(of breathing) for a short time; shallowly"
             ]
           },
           "model": {
@@ -4802,15 +4875,17 @@
               "breathing",
               "brief",
               "quickly",
-              "gentle"
+              "gentle",
+              "shallowly"
             ],
-            "f1": 0.1568627450980392
+            "f1": 0.15384615384615385
           },
           "judge": {
             "score": 0.9,
-            "verdict": "enriched",
+            "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model provides a correct analysis with additional context about the adverbial form and depth of breath, but it slightly misses the specific reference to the accusative adverbial role."
+            "goldenSuspect": false,
+            "rationale": "The model accurately captures the core meaning and grammatical role, with minor omissions in the depth of etymological references."
           }
         },
         {
@@ -4857,7 +4932,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The model captures the core meaning but introduces 'either' and 'inclusive addition' which are not present in the golden reference, leading to a minor omission."
+            "goldenSuspect": false,
+            "rationale": "The model correctly identifies the meaning but misses the disjunctive aspect emphasized in the golden."
           }
         },
         {
@@ -4934,10 +5010,11 @@
             "f1": 0.3902439024390244
           },
           "judge": {
-            "score": 0.6,
-            "verdict": "error",
-            "hallucination": true,
-            "rationale": "The model incorrectly segments the word and misidentifies the root, leading to a significant factual error despite capturing some correct aspects of the meaning."
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "goldenSuspect": false,
+            "rationale": "The model provides a good analysis but omits the specific mention of inhalation as a core action."
           }
         },
         {
@@ -5022,7 +5099,8 @@
             "senses": [
               "short",
               "quickly",
-              "lightly"
+              "lightly",
+              "(of breathing) for a short time; shallowly"
             ]
           },
           "model": {
@@ -5063,15 +5141,19 @@
               "brief",
               "quickly",
               "manner",
-              "gentle"
+              "gentle",
+              "breathing",
+              "time",
+              "shallowly"
             ],
-            "f1": 0.2608695652173913
+            "f1": 0.23076923076923078
           },
           "judge": {
-            "score": 0.8,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model provides a correct analysis but omits the specific mention of the accusative adverbial role and the repeated context of 'out-breath'."
+            "goldenSuspect": false,
+            "rationale": "The model accurately reflects the meaning and grammatical role, with slight omissions in the description of the adverbial aspect."
           }
         },
         {
@@ -5109,10 +5191,11 @@
             "f1": 0.4
           },
           "judge": {
-            "score": 0.9,
-            "verdict": "enriched",
+            "score": 0.8,
+            "verdict": "omission",
             "hallucination": false,
-            "rationale": "The model accurately captures the meaning and adds context, but the phrase 'alternative possibility' is slightly more than what the golden reference states."
+            "goldenSuspect": false,
+            "rationale": "The model captures the meaning but lacks the emphasis on the disjunctive nature of the term."
           }
         },
         {
@@ -5180,10 +5263,11 @@
             "f1": 0.5294117647058824
           },
           "judge": {
-            "score": 0.7,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model correctly identifies the core meaning but misses the specific mention of the present participle aspect and the precise action of 'letting go'."
+            "goldenSuspect": false,
+            "rationale": "The model provides a correct and complete analysis of the term, accurately reflecting its meaning and grammatical role."
           }
         },
         {
@@ -5322,6 +5406,8 @@
       "scores": {
         "segF1": 0,
         "contentF1": 0,
+        "contentPrecision": 0,
+        "contentRecall": 0,
         "semantic": null,
         "coverage": 0,
         "overall": 0.07652662037037036,
@@ -5561,11 +5647,13 @@
       "goldenWordCount": 21,
       "modelWordCount": 19,
       "scores": {
-        "segF1": 0.7647058823529411,
-        "contentF1": 0.47752808988764045,
-        "semantic": 0.9233333333333332,
+        "segF1": 0.6842105263157895,
+        "contentF1": 0.4187192118226601,
+        "contentPrecision": 0.48295454545454547,
+        "contentRecall": 0.3695652173913043,
+        "semantic": 0.9299999999999999,
         "coverage": 0.7142857142857143,
-        "overall": 0.6079395516938664,
+        "overall": 0.5713486237362877,
         "textIntegrity": 0.8947368421052632
       },
       "words": [
@@ -5631,7 +5719,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The model correctly identifies the segmentation and provides accurate tooltips, but it omits the pedagogical context and the specific role of 'api' as an emphatic particle."
+            "goldenSuspect": false,
+            "rationale": "The model correctly identifies the segmentation and provides accurate tooltips, but it omits the pedagogical aspect and the specific role of 'api' as an emphatic particle."
           }
         },
         {
@@ -5684,7 +5773,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model accurately captures the segmentation, tooltips, and sense of the word, maintaining fidelity to the golden reference."
+            "goldenSuspect": false,
+            "rationale": "The model accurately captures the segmentation, grammatical role, and meaning of 'bhikkhave' as a vocative plural addressing monks."
           }
         },
         {
@@ -5760,7 +5850,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model provides a correct segmentation and comprehensive tooltips, closely aligning with the golden reference."
+            "goldenSuspect": false,
+            "rationale": "The model provides a correct segmentation and captures the essential meanings of 'dakkho' without any omissions."
           }
         },
         {
@@ -5852,10 +5943,11 @@
             "f1": 0.28
           },
           "judge": {
-            "score": 0.8,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "enriched",
             "hallucination": false,
-            "rationale": "While the model correctly identifies the segmentation and provides accurate tooltips, it lacks the detailed context about the lathe and the specific role of the turner."
+            "goldenSuspect": false,
+            "rationale": "The model accurately segments and explains 'bhamakāro', adding depth with the roots but slightly less detail than the golden reference."
           }
         },
         {
@@ -5896,7 +5988,8 @@
             "score": 1,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model accurately reflects the segmentation, tooltips, and sense of the word, matching the golden reference perfectly."
+            "goldenSuspect": false,
+            "rationale": "The model provides a precise segmentation and correct meanings for 'vā', matching the golden reference."
           }
         },
         {
@@ -5974,7 +6067,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model provides a correct segmentation and tooltips, accurately conveying the meaning of the term as an apprentice."
+            "goldenSuspect": false,
+            "rationale": "The model accurately segments 'bhamakārantevāsī' and captures the essential meanings, with minor omissions in the explanation of the term."
           }
         },
         {
@@ -6012,7 +6106,8 @@
             "score": 1,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model accurately captures the segmentation, tooltips, and sense of the word, aligning perfectly with the golden reference."
+            "goldenSuspect": false,
+            "rationale": "The model provides a correct segmentation and meaning for 'vā', aligning perfectly with the golden reference."
           }
         },
         {
@@ -6075,10 +6170,11 @@
             "f1": 0.5333333333333333
           },
           "judge": {
-            "score": 0.8,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The model provides a correct segmentation and tooltips but misses the specific context of the term as an adverbial accusative related to the lathe."
+            "goldenSuspect": false,
+            "rationale": "The model accurately segments 'dīghaṁ' and provides correct meanings, but it could have included more about the adverbial aspect."
           }
         },
         {
@@ -6116,7 +6212,8 @@
             "score": 1,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model accurately reflects the segmentation, tooltips, and sense of the word, matching the golden reference perfectly."
+            "goldenSuspect": false,
+            "rationale": "The model accurately reflects the segmentation and meaning of 'vā', consistent with the golden reference."
           }
         },
         {
@@ -6191,10 +6288,11 @@
             "f1": 0.5581395348837209
           },
           "judge": {
-            "score": 0.95,
-            "verdict": "faithful",
+            "score": 0.8,
+            "verdict": "omission",
             "hallucination": false,
-            "rationale": "The model provides a correct segmentation and tooltips, accurately conveying the meaning of the term as an active participle."
+            "goldenSuspect": false,
+            "rationale": "The model correctly segments 'añchanto' but misses the specific context of the action related to the lathe."
           }
         },
         {
@@ -6309,7 +6407,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model accurately captures the segmentation, tooltips, and sense of the word, closely aligning with the golden reference."
+            "goldenSuspect": false,
+            "rationale": "The model accurately captures the segmentation and meanings of 'pajānāti', closely aligning with the golden reference."
           }
         },
         {
@@ -6369,10 +6468,11 @@
             "f1": 0.48
           },
           "judge": {
-            "score": 0.8,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The model provides a correct segmentation and tooltips but lacks the specific context of the term as an adverbial related to a short pull."
+            "goldenSuspect": false,
+            "rationale": "The model provides a correct segmentation and meanings for 'rassaṁ', but could have included more about the adverbial aspect."
           }
         },
         {
@@ -6410,7 +6510,8 @@
             "score": 1,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model accurately reflects the segmentation, tooltips, and sense of the word, matching the golden reference perfectly."
+            "goldenSuspect": false,
+            "rationale": "The model accurately reflects the segmentation and meaning of 'vā', consistent with the golden reference."
           }
         },
         {
@@ -6468,10 +6569,11 @@
             "f1": 0.43478260869565216
           },
           "judge": {
-            "score": 0.95,
-            "verdict": "faithful",
+            "score": 0.9,
+            "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The model provides a correct segmentation and tooltips, accurately conveying the meaning of the term as a present participle."
+            "goldenSuspect": false,
+            "rationale": "The model accurately segments 'añchanto' and captures the essential meanings, but lacks some context from the golden reference."
           }
         },
         {
@@ -6584,7 +6686,8 @@
             "score": 0.95,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The model accurately captures the segmentation, tooltips, and sense of the word, closely aligning with the golden reference."
+            "goldenSuspect": false,
+            "rationale": "The model accurately captures the segmentation and meanings of 'pajānāti', closely aligning with the golden reference."
           }
         }
       ],
@@ -6633,6 +6736,8 @@
       "scores": {
         "segF1": 0,
         "contentF1": 0,
+        "contentPrecision": 0,
+        "contentRecall": 0,
         "semantic": null,
         "coverage": 0,
         "overall": 0.21390933025308026,
@@ -6853,6 +6958,8 @@
       "scores": {
         "segF1": 0.6153846153846154,
         "contentF1": 0.34375,
+        "contentPrecision": 0.4489795918367347,
+        "contentRecall": 0.27848101265822783,
         "semantic": 0.82,
         "coverage": 1,
         "overall": 0.6058186107295481,
@@ -6928,10 +7035,11 @@
             "f1": 0.36363636363636365
           },
           "judge": {
-            "score": 0.8,
+            "score": 0.85,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the core meaning but omits specific details about the external scope and the development of universal insight."
+            "goldenSuspect": false,
+            "rationale": "The model captures the core meaning but omits specific aspects of externality and universal insight present in the golden."
           }
         },
         {
@@ -6969,7 +7077,8 @@
             "score": 1,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL accurately reflects the meaning and grammatical role of 'vā' without any omissions or errors."
+            "goldenSuspect": false,
+            "rationale": "The model accurately reflects the meaning and function of the word without any omissions or errors."
           }
         },
         {
@@ -7031,10 +7140,11 @@
             "f1": 0.3333333333333333
           },
           "judge": {
-            "score": 0.8,
+            "score": 0.75,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL provides a good analysis but misses some nuances of the locative singular and the concept of not-self view."
+            "goldenSuspect": false,
+            "rationale": "The model provides a good analysis but misses some nuances of the body as an aggregate and the not-self view."
           }
         },
         {
@@ -7115,7 +7225,8 @@
             "score": 0.9,
             "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The MODEL offers a comprehensive analysis that captures the essence of the term while adding depth to the understanding of the action."
+            "goldenSuspect": false,
+            "rationale": "The model is faithful and adds depth to the analysis of the observing action, though it could be more concise."
           }
         },
         {
@@ -7187,7 +7298,8 @@
             "score": 0.6,
             "verdict": "error",
             "hallucination": true,
-            "rationale": "The MODEL incorrectly segments the word and introduces a thematic element that is not present in the original analysis, leading to a factual error."
+            "goldenSuspect": false,
+            "rationale": "The model introduces a false segmentation and misrepresents the grammatical role, leading to a significant factual error."
           }
         }
       ],
@@ -7295,7 +7407,9 @@
       "scores": {
         "segF1": 0.625,
         "contentF1": 0.42038216560509556,
-        "semantic": 0.8200000000000001,
+        "contentPrecision": 0.44,
+        "contentRecall": 0.4024390243902439,
+        "semantic": 0.86,
         "coverage": 1,
         "overall": 0.5992121085702102,
         "textIntegrity": 0.9375
@@ -7387,7 +7501,8 @@
             "score": 0.9,
             "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct segmentation and captures the essential meaning of the term, but it lacks some of the depth and specific nuances present in the GOLDEN analysis."
+            "goldenSuspect": false,
+            "rationale": "The model provides a correct segmentation and captures the essential meaning of the term, while also offering additional insights into the concept of comprehensive observation."
           }
         },
         {
@@ -7423,10 +7538,11 @@
             "f1": 0.5
           },
           "judge": {
-            "score": 0.9,
+            "score": 1,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL accurately reflects the segmentation and meaning of the word, maintaining the essential sense of 'or' without any errors."
+            "goldenSuspect": false,
+            "rationale": "The model accurately reflects the segmentation and meaning of the word without any errors or omissions."
           }
         },
         {
@@ -7491,7 +7607,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the core meaning but omits some of the additional senses and nuances found in the GOLDEN analysis."
+            "goldenSuspect": false,
+            "rationale": "The model captures the core meaning and segmentation but omits some nuances of the senses related to the concept of body as an aggregate."
           }
         },
         {
@@ -7569,10 +7686,11 @@
             "f1": 0.5116279069767442
           },
           "judge": {
-            "score": 0.8,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis but misses some of the specific nuances and alternative interpretations present in the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The model provides a correct analysis with additional insights into the act of observing the body, enhancing the understanding of the term."
           }
         },
         {
@@ -7650,7 +7768,8 @@
             "score": 0.7,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL includes some correct elements but introduces a misleading etymological breakdown and lacks the full range of meanings present in the GOLDEN analysis."
+            "goldenSuspect": false,
+            "rationale": "The model correctly segments the word and provides some meanings but misses key aspects of the continuous nature of the action described."
           }
         }
       ],
@@ -7758,7 +7877,9 @@
       "scores": {
         "segF1": 0.6153846153846154,
         "contentF1": 0.25,
-        "semantic": 0.7250000000000001,
+        "contentPrecision": 0.23943661971830985,
+        "contentRecall": 0.26153846153846155,
+        "semantic": 0.775,
         "coverage": 1,
         "overall": 0.5985042735042735,
         "textIntegrity": 1
@@ -7871,7 +7992,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL correctly segments and provides relevant tooltips, but it misses the essential aspect of 'anicca' and the specific grammatical role of the word."
+            "goldenSuspect": false,
+            "rationale": "The model captures the core meaning but misses the specific emphasis on 'anicca' and the repeated aspect of observation."
           }
         },
         {
@@ -7917,7 +8039,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the basic meaning but adds unnecessary detail about practice perspectives, missing the concise essence of the word."
+            "goldenSuspect": false,
+            "rationale": "The model provides a correct meaning but lacks the concise definition of 'or' as simply an alternative."
           }
         },
         {
@@ -7982,7 +8105,8 @@
             "score": 0.6,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL provides some relevant senses but fails to mention the locative aspect, which is crucial for understanding the grammatical role."
+            "goldenSuspect": false,
+            "rationale": "The model misses the locative aspect and the specific context of 'in regard to body' which is essential."
           }
         },
         {
@@ -8058,10 +8182,11 @@
             "f1": 0.17142857142857143
           },
           "judge": {
-            "score": 0.7,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL includes some correct senses but introduces a misleading etymological breakdown and omits key meanings related to continuous practice."
+            "goldenSuspect": false,
+            "rationale": "The model accurately reflects the meaning of 'dwells' and includes additional relevant senses without errors."
           }
         }
       ],
@@ -8143,7 +8268,9 @@
       "scores": {
         "segF1": 0.6666666666666666,
         "contentF1": 0.24793388429752067,
-        "semantic": 0.7499999999999999,
+        "contentPrecision": 0.23809523809523808,
+        "contentRecall": 0.25862068965517243,
+        "semantic": 0.725,
         "coverage": 1,
         "overall": 0.6189314473405382,
         "textIntegrity": 1
@@ -8248,10 +8375,11 @@
             "f1": 0.25
           },
           "judge": {
-            "score": 0.6,
-            "verdict": "error",
-            "hallucination": true,
-            "rationale": "The MODEL introduces a false interpretation by stating 'focusing on the rise and fall of the body,' which misrepresents the original meaning related to the full cycle of phenomena."
+            "score": 0.7,
+            "verdict": "omission",
+            "hallucination": false,
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning but omits key aspects of the full cycle and the specific context of impermanence."
           }
         },
         {
@@ -8296,7 +8424,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the core meaning but adds unnecessary detail about marking a different mode of practice, which is not present in the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct sense but lacks the concise definition of 'or' as simply an alternative."
           }
         },
         {
@@ -8353,10 +8482,11 @@
             "f1": 0.21052631578947367
           },
           "judge": {
-            "score": 0.7,
+            "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL misses the essential locative sense of 'in regard to body' and focuses instead on a more general interpretation of 'physical process.'"
+            "goldenSuspect": false,
+            "rationale": "The MODEL is accurate but misses the locative aspect and broader implications of 'in regard to body.'"
           }
         },
         {
@@ -8432,10 +8562,11 @@
             "f1": 0.2702702702702703
           },
           "judge": {
-            "score": 0.9,
-            "verdict": "faithful",
-            "hallucination": false,
-            "rationale": "The MODEL accurately reflects the meaning of 'dwells' and 'abides' while providing additional context about the action, which does not detract from the core sense."
+            "score": 0.6,
+            "verdict": "error",
+            "hallucination": true,
+            "goldenSuspect": false,
+            "rationale": "The MODEL introduces 'meditates' which is not a correct interpretation of 'viharati,' leading to a significant factual error."
           }
         }
       ],
@@ -8517,6 +8648,8 @@
       "scores": {
         "segF1": 0.9230769230769231,
         "contentF1": 0.41237113402061853,
+        "contentPrecision": 0.4,
+        "contentRecall": 0.425531914893617,
         "semantic": 0.6999999999999998,
         "coverage": 1,
         "overall": 0.6958292290322151,
@@ -8581,7 +8714,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL correctly segments and provides tooltips but omits the specific sense of limitation and the emphatic nature of 'eva'."
+            "goldenSuspect": false,
+            "rationale": "The MODEL correctly segments and provides tooltips but misses the specific limiting sense of 'just to the extent' as emphasized in the GOLDEN."
           }
         },
         {
@@ -8664,7 +8798,8 @@
             "score": 0.6,
             "verdict": "error",
             "hallucination": false,
-            "rationale": "The MODEL misinterprets 'matta' as 'measure/amount' instead of 'mere/only', which alters the core meaning and purpose of the phrase."
+            "goldenSuspect": false,
+            "rationale": "The MODEL misinterprets 'matta' as 'measure/amount' instead of 'mere/only,' leading to a significant deviation from the core meaning."
           }
         },
         {
@@ -8738,7 +8873,8 @@
             "score": 0.7,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct segmentation and tooltips but fails to capture the essential sense of 'just' and the specific meaning of 'paṭissati' as 'continued mindfulness'."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct segmentation and tooltips but fails to capture the essential limiting sense of 'just' in the context of mindfulness."
           }
         }
       ],
@@ -8874,11 +9010,13 @@
       "goldenWordCount": 8,
       "modelWordCount": 18,
       "scores": {
-        "segF1": 0.8571428571428571,
-        "contentF1": 0.46153846153846156,
-        "semantic": 0.8666666666666667,
+        "segF1": 0.6,
+        "contentF1": 0.3007518796992481,
+        "contentPrecision": 0.5263157894736842,
+        "contentRecall": 0.21052631578947367,
+        "semantic": 0.8999999999999999,
         "coverage": 0.75,
-        "overall": 0.6774860117864787,
+        "overall": 0.5612929208861509,
         "textIntegrity": 0.9444444444444444
       },
       "words": [
@@ -8900,7 +9038,8 @@
             "senses": [
               "independent",
               "not dependent",
-              "unsupported"
+              "unsupported",
+              "detached (from); disengaged (from); separated (from); independent (of)"
             ]
           },
           "model": {
@@ -8928,6 +9067,8 @@
               "nominative",
               "singular",
               "craving",
+              "detached",
+              "disengaged",
               "views",
               "free"
             ],
@@ -8937,8 +9078,6 @@
               "√si",
               "depend",
               "meditator",
-              "detached",
-              "disengaged",
               "unattached",
               "reliance"
             ],
@@ -8954,15 +9093,17 @@
               "self",
               "sufficient",
               "awareness",
-              "reliant"
+              "reliant",
+              "separated"
             ],
-            "f1": 0.46153846153846156
+            "f1": 0.5238095238095238
           },
           "judge": {
-            "score": 0.6,
-            "verdict": "error",
-            "hallucination": true,
-            "rationale": "The MODEL incorrectly segments the word and introduces a false etymology by stating '√si' instead of the correct root '√śri', which affects the overall accuracy."
+            "score": 0.8,
+            "verdict": "omission",
+            "hallucination": false,
+            "goldenSuspect": false,
+            "rationale": "The MODEL correctly identifies the core meaning of 'anissito' as independent but omits the specific nuances related to craving and views present in the GOLDEN."
           }
         },
         {
@@ -9000,7 +9141,8 @@
             "score": 1,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL accurately reflects the segmentation, tooltips, and senses of the word 'ca' without any errors."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately reflects the segmentation, tooltips, and senses of 'ca' as 'and' without any errors."
           }
         },
         {
@@ -9058,7 +9200,8 @@
             "score": 1,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis of 'na' with accurate segmentation and senses."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct and concise analysis of 'na' as 'not' with matching senses."
           }
         },
         {
@@ -9096,7 +9239,8 @@
             "score": 1,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL correctly analyzes 'ca' with appropriate segmentation and senses."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately captures the meaning and function of 'ca' as 'and' without any discrepancies."
           }
         },
         {
@@ -9147,7 +9291,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the core meaning but omits the important detail about the usage with 'na' to form 'not anything'."
+            "goldenSuspect": false,
+            "rationale": "The MODEL correctly identifies 'kiñci' as 'anything/something' but lacks the detail about its grammatical role and the negation context with 'na'."
           }
         },
         {
@@ -9206,7 +9351,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL provides a good analysis but misses the specific context of 'in the world' as indicated in the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a good analysis of 'loke' but misses the specific reference to 'in experience' and the broader context of saṁsāric existence."
           }
         },
         {
@@ -9351,10 +9497,12 @@
       "modelWordCount": 9,
       "scores": {
         "segF1": 0.8888888888888888,
-        "contentF1": 0.40601503759398494,
-        "semantic": 0.7250000000000001,
+        "contentF1": 0.42962962962962964,
+        "contentPrecision": 0.48333333333333334,
+        "contentRecall": 0.38666666666666666,
+        "semantic": 0.75,
         "coverage": 1,
-        "overall": 0.718704312865497,
+        "overall": 0.7257886904761904,
         "textIntegrity": 1
       },
       "words": [
@@ -9375,7 +9523,8 @@
             "senses": [
               "Kammāsadhamma",
               "\"Where the Spotted One was Tamed\"",
-              "the spotted-dhamma place"
+              "the spotted-dhamma place",
+              "name of a town in the Kuru country"
             ]
           },
           "model": {
@@ -9394,14 +9543,14 @@
           "tokens": {
             "matched": [
               "town",
+              "kuru",
+              "country",
               "ending",
               "kammāsadhamma",
               "spelling"
             ],
             "modelOnly": [
               "specific",
-              "kuru",
-              "country",
               "nominative",
               "singular",
               "neuter",
@@ -9435,13 +9584,14 @@
               "literal",
               "compound"
             ],
-            "f1": 0.1951219512195122
+            "f1": 0.27906976744186046
           },
           "judge": {
-            "score": 0.4,
-            "verdict": "error",
-            "hallucination": true,
-            "rationale": "The MODEL incorrectly states that it is a specific town in the Kuru country without acknowledging the ogre connection or the etymology related to taming."
+            "score": 0.6,
+            "verdict": "omission",
+            "hallucination": false,
+            "goldenSuspect": false,
+            "rationale": "The model correctly identifies the word as a proper name of a town but omits key etymological details and the specific context of the ogre, which are essential for a complete understanding."
           }
         },
         {
@@ -9491,7 +9641,8 @@
             "score": 0.9,
             "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL accurately captures the core meaning and grammatical role, though it could have included the specific construction 'X nāma Y'."
+            "goldenSuspect": false,
+            "rationale": "The model accurately captures the core meaning and grammatical role of 'nāma' with a concise explanation, closely aligning with the golden analysis."
           }
         },
         {
@@ -9507,7 +9658,8 @@
             "senses": [
               "of the Kurus",
               "belonging to the Kurus",
-              "the Kurus'"
+              "the Kurus'",
+              "name of the people of Kuru; Kurus"
             ]
           },
           "model": {
@@ -9559,7 +9711,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL provides correct information but omits the specific context of possession and the ownership aspect of the genitive plural."
+            "goldenSuspect": false,
+            "rationale": "The model provides a correct analysis but misses some nuances of possession and ownership that are present in the golden reference."
           }
         },
         {
@@ -9641,10 +9794,11 @@
             "f1": 0.4
           },
           "judge": {
-            "score": 0.8,
+            "score": 0.7,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL correctly identifies the root and prefix but misses the specific nuances of a market town and the context of trade."
+            "goldenSuspect": false,
+            "rationale": "The model includes relevant information but lacks the full range of senses and the specific context of a trading center, which are important for a complete understanding."
           }
         }
       ],
@@ -9703,7 +9857,9 @@
       "scores": {
         "segF1": 0,
         "contentF1": 0.34210526315789475,
-        "semantic": 0.825,
+        "contentPrecision": 0.2549019607843137,
+        "contentRecall": 0.52,
+        "semantic": 0.8500000000000001,
         "coverage": 1,
         "overall": 0.3401315789473684,
         "textIntegrity": 1
@@ -9797,10 +9953,11 @@
             "f1": 0.32142857142857145
           },
           "judge": {
-            "score": 0.85,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "enriched",
             "hallucination": false,
-            "rationale": "The MODEL correctly identifies the grammatical role and provides relevant etymology, but it misses the specific core sense of 'Bhikkhus!' as a direct call."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct analysis with additional context about the root and usage, enhancing the understanding without introducing errors."
           }
         },
         {
@@ -9856,7 +10013,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the function of 'ti' but does not explicitly mention its role as a quotation marker, which is essential for understanding its usage."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning but omits the specific reference to 'iti' as a quotation marker, which is essential for full accuracy."
           }
         }
       ],
@@ -9868,11 +10026,13 @@
       "goldenWordCount": 3,
       "modelWordCount": 2,
       "scores": {
-        "segF1": 1,
-        "contentF1": 0.39285714285714285,
-        "semantic": 0.9,
+        "segF1": 0.5,
+        "contentF1": 0.24719101123595505,
+        "contentPrecision": 0.28205128205128205,
+        "contentRecall": 0.22,
+        "semantic": 0.95,
         "coverage": 0.3333333333333333,
-        "overall": 0.6839434523809523,
+        "overall": 0.4999286048689138,
         "textIntegrity": 1
       },
       "words": [
@@ -9961,10 +10121,11 @@
             "f1": 0.39285714285714285
           },
           "judge": {
-            "score": 0.9,
-            "verdict": "enriched",
+            "score": 0.95,
+            "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis with additional senses that enrich the understanding of 'Bhagavā', though it slightly diverges from the GOLDEN's phrasing."
+            "goldenSuspect": false,
+            "rationale": "The MODEL provides a correct segmentation, accurate etymology, and captures the essential meanings without any factual errors."
           }
         },
         {
@@ -9990,7 +10151,7 @@
             "seg": "a·voc·a",
             "tips": [
               "[Augment] Marks past tense",
-              "Like \"a-\" in Greek aorist",
+              "Like the \"e-\" augment in the Greek aorist (Sanskrit uses \"a-\")",
               "√vac: To speak, say",
               "Source of Latin \"vox\", English \"voice\"",
               "[Aorist 3rd singular] He spoke",
@@ -10026,10 +10187,12 @@
       "modelWordCount": 2,
       "scores": {
         "segF1": 0,
-        "contentF1": 0.35714285714285715,
-        "semantic": 0.9,
+        "contentF1": 0.25,
+        "contentPrecision": 0.2777777777777778,
+        "contentRecall": 0.22727272727272727,
+        "semantic": null,
         "coverage": 0.5,
-        "overall": 0.4841145833333333,
+        "overall": 0.4531770833333333,
         "textIntegrity": 1
       },
       "words": [
@@ -10094,12 +10257,7 @@
             ],
             "f1": 0.35714285714285715
           },
-          "judge": {
-            "score": 0.9,
-            "verdict": "enriched",
-            "hallucination": false,
-            "rationale": "The MODEL provides a correct analysis with additional context about the plural subject and its relation to the following word, enhancing the understanding without introducing errors."
-          }
+          "judge": null
         },
         {
           "surface": "cattāro",
@@ -10139,7 +10297,9 @@
       "scores": {
         "segF1": 0.6666666666666666,
         "contentF1": 0.35374149659863946,
-        "semantic": 0.7000000000000001,
+        "contentPrecision": 0.38235294117647056,
+        "contentRecall": 0.3291139240506329,
+        "semantic": 0.8000000000000002,
         "coverage": 1,
         "overall": 0.6489633580705009,
         "textIntegrity": 1
@@ -10217,7 +10377,8 @@
             "score": 0.8,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL captures the core meaning and grammatical role but misses some essential nuances of the GOLDEN analysis, such as the emphasis on the non-self view and the specific interpretations of 'body as body'."
+            "goldenSuspect": false,
+            "rationale": "The MODEL captures the core meaning and grammatical role but omits the nuanced interpretations of 'body as body' and the not-self view present in the GOLDEN."
           }
         },
         {
@@ -10320,10 +10481,11 @@
             "f1": 0.3880597014925373
           },
           "judge": {
-            "score": 0.7,
-            "verdict": "omission",
+            "score": 0.9,
+            "verdict": "faithful",
             "hallucination": false,
-            "rationale": "The MODEL provides a reasonable analysis but omits key aspects of sustained observation and the identity shift implied in the GOLDEN reference."
+            "goldenSuspect": false,
+            "rationale": "The MODEL accurately reflects the segmentation and meaning, providing a clear understanding of the term without significant omissions."
           }
         },
         {
@@ -10408,10 +10570,11 @@
             "f1": 0.2978723404255319
           },
           "judge": {
-            "score": 0.6,
+            "score": 0.7,
             "verdict": "omission",
             "hallucination": false,
-            "rationale": "The MODEL includes some correct elements but misrepresents the root meaning and fails to capture the full range of senses provided in the GOLDEN analysis."
+            "goldenSuspect": false,
+            "rationale": "The MODEL correctly identifies the root and grammatical role but misses several senses from the GOLDEN, particularly the continuous practice aspect."
           }
         }
       ],

@@ -57,7 +57,9 @@ For each word you are given the GOLDEN reference analysis and a MODEL analysis o
 
 Anchors: faithful + complete (concise or rich, correct throughout) ≈ 0.95–1.0; faithful with a minor gap ≈ 0.8; missing the core sense ≈ 0.5; a real factual error ≤ 0.4.
 
-Return JSON ONLY: { "words": [ { "wordId": string, "score": number, "verdict": "faithful"|"enriched"|"omission"|"error", "hallucination": boolean, "rationale": string } ] } — one entry per word, rationale one sentence.`;
+- GOLDEN-SUSPECT FLAG: you must still score the MODEL against the GOLDEN as given — but if the GOLDEN itself looks wrong or overbroad for this word IN THIS CONTEXT (wrong homonym, wrong root, a sense that doesn't fit the phrase), set "goldenSuspect": true so the golden gets audited. Do not let a suspect golden raise or lower the model's score beyond the rubric above.
+
+Return JSON ONLY: { "words": [ { "wordId": string, "score": number, "verdict": "faithful"|"enriched"|"omission"|"error", "hallucination": boolean, "goldenSuspect": boolean, "rationale": string } ] } — one entry per word, rationale one sentence.`;
 
 const buildJudgePrompt = (
   items: Array<{ wordId: string; gold: ReturnType<typeof wordContent>; model: ReturnType<typeof wordContent> }>

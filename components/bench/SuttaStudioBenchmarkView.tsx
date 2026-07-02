@@ -303,6 +303,11 @@ function JudgeRow({ judge }: { judge: any }) {
       <span className={`shrink-0 rounded px-1.5 py-0.5 font-semibold ${style}`}>
         judge {fmtScore(judge.score)} · {judge.verdict}{judge.hallucination ? ' ⚠' : ''}
       </span>
+      {judge.goldenSuspect ? (
+        <span className="shrink-0 rounded bg-purple-100 px-1.5 py-0.5 font-semibold text-purple-700" title="The judge flagged the GOLDEN itself as possibly wrong or overbroad for this word in context — golden-QA telemetry, does not change the score.">
+          ⚑ golden?
+        </span>
+      ) : null}
       <span className="italic text-gray-500">{judge.rationale}</span>
     </div>
   );
@@ -1178,6 +1183,37 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                     {leaderboard.coverageNote}
                   </div>
                 )}
+                {(leaderboard as any).grounding && (
+                  <details className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700">
+                    <summary className="cursor-pointer select-none font-semibold">
+                      Grounding &amp; provenance — whose authority backs each layer
+                      {(leaderboard as any).grounding.closedBook ? (
+                        <span className="ml-2 rounded bg-slate-200 px-1.5 py-0.5 font-medium text-slate-700">closed-book</span>
+                      ) : null}
+                    </summary>
+                    <p className="mt-2 text-gray-600">{(leaderboard as any).grounding.closedBookNote}</p>
+                    <table className="mt-2 w-full text-left">
+                      <thead>
+                        <tr className="text-[10px] uppercase tracking-wide text-gray-400">
+                          <th className="py-1 pr-2">Source</th><th className="py-1 pr-2">Authority</th><th className="py-1">Role</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(leaderboard as any).grounding.sources.map((s: any, i: number) => (
+                          <tr key={i} className="border-t border-gray-200 align-top">
+                            <td className="py-1 pr-2 font-medium">{s.name}</td>
+                            <td className="py-1 pr-2 whitespace-nowrap">{s.authority}</td>
+                            <td className="py-1 text-gray-600">{s.role}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <p className="mt-2 font-semibold text-gray-600">Known circularity (disclosed, being worked down):</p>
+                    <ul className="mt-1 list-disc pl-4 text-gray-600">
+                      {(leaderboard as any).grounding.knownCircularity.map((c: string, i: number) => <li key={i}>{c}</li>)}
+                    </ul>
+                  </details>
+                )}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
                     <h2 className="text-lg font-semibold">
@@ -1235,6 +1271,9 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                         <th className="px-3 py-2">
                           <HeaderTip label="R" tip="Content recall — of everything the golden requires, the fraction the model said. v2.1: words the model dropped count as misses." />
                         </th>
+                        <th className="px-3 py-2">
+                          <HeaderTip label="Halluc" tip="Hallucination rate — share of judged words where the judge found a confident FALSE claim about the Pāli (wrong root, invented etymology, wrong grammar). Closed-book is not an excuse to make things up. Lower is better." />
+                        </th>
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('contentSemantic')}>
                           <HeaderTip label="Semantic" tip="Semantic score — an LLM judge (gpt-4o-mini) rating word content 0–1: rewards correct enrichment, penalizes hallucination. Advisory — NOT in the ranked total." />{' '}
                           {sortColumn === 'contentSemantic' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -1273,6 +1312,9 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                           >
                             <td className="px-3 py-2 font-medium">
                               {rankBadge || entry.rank}
+                              {(entry as any).tiedWithAbove ? (
+                                <span className="ml-0.5 text-xs text-gray-400" title="Statistical tie: this model's 95% confidence interval overlaps the model above (30 phases, bootstrap). The order within a tie is not meaningful.">=</span>
+                              ) : null}
                             </td>
                             <td className="px-3 py-2">
                               <div className="font-medium">{entry.modelId}</div>
@@ -1280,6 +1322,11 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                             </td>
                             <td className={`px-3 py-2 font-semibold ${scoreColor(entry.overallScore)}`}>
                               {entry.overallScore.toFixed(2)}
+                              {(entry as any).overallScoreCI ? (
+                                <span className="ml-1 text-[10px] font-normal text-gray-400" title={`95% bootstrap CI over per-phase scores: ${(entry as any).overallScoreCI[0].toFixed(2)}–${(entry as any).overallScoreCI[1].toFixed(2)}`}>
+                                  ±{(((entry as any).overallScoreCI[1] - (entry as any).overallScoreCI[0]) / 2).toFixed(2)}
+                                </span>
+                              ) : null}
                             </td>
                             <td className={`px-3 py-2 ${scoreColor(entry.segmentationFidelity)}`}>
                               {entry.segmentationFidelity.toFixed(2)}
@@ -1292,6 +1339,9 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                             </td>
                             <td className="px-3 py-2 text-gray-500">
                               {(entry as any).contentRecall == null ? '—' : (entry as any).contentRecall.toFixed(2)}
+                            </td>
+                            <td className={`px-3 py-2 ${(entry as any).hallucinationRate == null ? 'text-gray-300' : (entry as any).hallucinationRate > 0.1 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                              {(entry as any).hallucinationRate == null ? '—' : `${((entry as any).hallucinationRate * 100).toFixed(0)}%`}
                             </td>
                             <td className={`px-3 py-2 ${entry.contentSemantic == null ? 'text-gray-300' : scoreColor(entry.contentSemantic)}`}>
                               {entry.contentSemantic == null ? '—' : entry.contentSemantic.toFixed(2)}

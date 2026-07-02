@@ -1,0 +1,171 @@
+{
+  "appliedAdds": [
+    {
+      "phaseId": "phase-b",
+      "wordId": "b1",
+      "surface": "ekaṁ",
+      "sense": "a; a certain; a single",
+      "reason": "In 'ekaṁ samayaṁ' eka functions as an indefinite article: 'on a certain occasion'. Contextually true and distinct from the bare numeral 'one'."
+    },
+    {
+      "phaseId": "phase-b",
+      "wordId": "b1",
+      "surface": "ekaṁ",
+      "sense": "once",
+      "reason": "The adverbial accusative 'ekaṁ samayaṁ' is standardly rendered 'once / at one time'; DPD attests this reading and it is distinct from the numeral sense."
+    },
+    {
+      "phaseId": "phase-d",
+      "wordId": "d1",
+      "surface": "Kammāsadhammaṁ",
+      "sense": "name of a town in the Kuru country",
+      "reason": "Contextually true and adds real content beyond the bare 'Place name' gloss: it identifies the referent as a town and locates it in the Kuru country, exactly what the phrase 'kurūnaṁ nigamo' asserts."
+    },
+    {
+      "phaseId": "phase-d",
+      "wordId": "d3",
+      "surface": "kurūnaṁ",
+      "sense": "name of the people of Kuru; Kurus",
+      "reason": "The genitive plural here refers to the Kuru people ('a town of the Kurus'); this sense identifies who the Kurus are (a people/tribe), which the existing purely grammatical glosses ('of the Kurus') do not convey. The alternative homonym 'name of a country' is excluded since the plural here denotes the people, not the country."
+    },
+    {
+      "phaseId": "phase-as",
+      "wordId": "as1",
+      "surface": "Rassaṁ",
+      "sense": "(of breathing) for a short time; shallowly",
+      "reason": "DPD's breath-specific gloss; 'shallowly / for a short time' is contextually exact here and adds content (shallowness, duration) not covered by the bare cores 'short/quickly/lightly'."
+    },
+    {
+      "phaseId": "phase-as",
+      "wordId": "as7",
+      "surface": "rassaṁ",
+      "sense": "(of breathing) for a short time; shallowly",
+      "reason": "Same as as1: the DPD breath-context gloss is the precise sense in this phrase and genuinely distinct from the existing core glosses."
+    },
+    {
+      "phaseId": "phase-aw",
+      "wordId": "aw4",
+      "surface": "bhikkhu",
+      "sense": "monk; monastic; mendicant; fully ordained monk; lit. beggar",
+      "reason": "Contextually true and adds genuinely distinct content beyond core 'a monk': 'mendicant' (standard modern translation, e.g. Sujato) and the literal etymology 'beggar' (from bhikkhati). Same referent, richer required reference content."
+    },
+    {
+      "phaseId": "phase-aw",
+      "wordId": "aw5",
+      "surface": "dīghaṁ",
+      "sense": "for a long time; deeply",
+      "reason": "DPD's contextual gloss for digham in breathing passages: accusative used adverbially, so 'breathing long' = breathing for a long time / deeply. Distinct from the bare adjective 'long' and matches the golden's own [Accusative Adverbial] tooltip."
+    },
+    {
+      "phaseId": "phase-aw",
+      "wordId": "aw11",
+      "surface": "dīghaṁ",
+      "sense": "for a long time; deeply",
+      "reason": "Same as aw5: DPD's contextual adverbial gloss for digham of breathing, genuinely distinct from the adjective 'long'."
+    },
+    {
+      "phaseId": "phase-aw",
+      "wordId": "aw17",
+      "surface": "rassaṁ",
+      "sense": "(of breathing) for a short time; shallowly",
+      "reason": "DPD's explicitly breath-contextual gloss: accusative adverbial 'breathing short' = for a short time / shallowly. Genuinely distinct from the bare adjective 'short' and exactly matches this phrase's usage."
+    },
+    {
+      "phaseId": "phase-aw",
+      "wordId": "aw23",
+      "surface": "rassaṁ",
+      "sense": "(of breathing) for a short time; shallowly",
+      "reason": "Same as aw17: DPD's breath-contextual adverbial gloss, distinct from the bare adjective 'short'."
+    },
+    {
+      "phaseId": "phase-be",
+      "wordId": "be5",
+      "surface": "panassa",
+      "sense": "and for him; and his",
+      "reason": "Distinct dative reading of assa (pana + assa): mindfulness 'is established FOR him', which is the natural construal with paccupaṭṭhitā hoti; the existing core sense only gives the genitive 'his'."
+    },
+    {
+      "phaseId": "phase-bg",
+      "wordId": "bg1",
+      "surface": "anissito",
+      "sense": "detached (from); disengaged (from); separated (from); independent (of)",
+      "reason": "The DPD sense for anissita in this context; 'detached/disengaged' adds real content beyond the existing 'independent/not dependent' core senses, matching the commentarial gloss (not dependent on craving and views)."
+    }
+  ],
+  "appliedRemoves": [
+    {
+      "phaseId": "phase-2",
+      "wordId": "p5",
+      "surface": "sattānaṁ",
+      "sense": "seven types",
+      "reason": "Wrong homonym in this context: in 'sattānaṁ visuddhiyā' the word is the genitive plural of satta 'being' (for the purification of beings), not the numeral satta 'seven'. A numerical reading is factually wrong here."
+    }
+  ],
+  "appliedTooltips": [
+    {
+      "phaseId": "phase-a",
+      "wordId": "a1",
+      "surface": "evaṁ",
+      "action": "rewrite",
+      "from": "Points back to the occasion",
+      "to": "Points forward to the discourse about to be recited",
+      "reason": "In the opening formula 'evaṁ me sutaṁ', evaṁ is cataphoric: it announces the teaching that follows (as the golden's own core nuance 'Refers to what follows' states). 'Points back to the occasion' asserts the opposite direction and contradicts the core sense."
+    },
+    {
+      "phaseId": "phase-h",
+      "wordId": "h3",
+      "surface": "avoca",
+      "action": "rewrite",
+      "from": "Like \"a-\" in Greek aorist",
+      "to": "Like the \"e-\" augment in the Greek aorist (Sanskrit uses \"a-\")",
+      "reason": "The Greek aorist augment is e- (epsilon, as in élusa), not a-; the a- augment is the Sanskrit/Pāli form. The tooltip teaches a real Indo-European cognate feature but attributes the wrong vowel to Greek."
+    },
+    {
+      "phaseId": "phase-7",
+      "wordId": "p17",
+      "surface": "satipaṭṭhānā",
+      "action": "rewrite",
+      "from": "[Compound] paṭi + √sthā: to stand",
+      "to": "[Compound] pa + √sthā: to stand (also analyzed as sati + upaṭṭhāna, \"attending\")",
+      "reason": "Wrong prefix: paṭi + √sthā would yield patiṭṭhāna (Skt pratiṣṭhāna), not paṭṭhāna. The attested derivations are pa + ṭhāna ('setting up, foundation') or sati + upaṭṭhāna ('attending', cf. Skt smṛtyupasthāna)."
+    }
+  ],
+  "skipped": [
+    {
+      "phaseId": "phase-7",
+      "wordId": "p17",
+      "kind": "add",
+      "item": "attending mindfully; being present with mindfulness",
+      "why": "skeptic rejected / no verdict"
+    },
+    {
+      "phaseId": "phase-ai",
+      "wordId": "ai1",
+      "kind": "add",
+      "item": "mental states",
+      "why": "skeptic rejected / no verdict"
+    }
+  ],
+  "codexRevision": {
+    "date": "2026-07-02",
+    "action": "dropped 4 (comm) adds per codex finding #4 — core requires expected-competent-answer status, commentary stays enrichment",
+    "dropped": [
+      {
+        "phase": "phase-ae",
+        "sense": "world of experience; (comm) world of aggregates, sense spheres and elements"
+      },
+      {
+        "phase": "phase-ak",
+        "sense": "world of experience; (comm) world of aggregates, sense spheres and elements"
+      },
+      {
+        "phase": "phase-bg",
+        "sense": "world of experience; (comm) world of aggregates, sense spheres and elements"
+      },
+      {
+        "phase": "phase-an",
+        "sense": "(comm) in this teaching; here in this doctrine"
+      }
+    ]
+  }
+}

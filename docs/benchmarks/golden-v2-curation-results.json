@@ -1,0 +1,2639 @@
+[
+ {
+  "phaseId": "phase-a",
+  "curated": {
+   "phaseId": "phase-a",
+   "words": [
+    {
+     "wordId": "a1",
+     "surface": "evaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": [
+      {
+       "originalTooltip": "Points back to the occasion",
+       "action": "rewrite",
+       "replacement": "Points forward to the discourse about to be recited",
+       "reason": "In the opening formula 'evaṁ me sutaṁ', evaṁ is cataphoric: it announces the teaching that follows (as the golden's own core nuance 'Refers to what follows' states). 'Points back to the occasion' asserts the opposite direction and contradicts the core sense."
+      }
+     ]
+    },
+    {
+     "wordId": "a2",
+     "surface": "me",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "a3",
+     "surface": "sutaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "a1",
+    "kind": "tooltip",
+    "item": "Points back to the occasion",
+    "accept": true,
+    "reason": "The original asserts anaphoric (backward) reference, but evaṁ in the opening formula 'evaṁ me sutaṁ' is cataphoric, announcing the discourse to follow — exactly what the golden's own core nuance ('Refers to what follows') states. The tooltip therefore makes a false directional claim in context and directly contradicts the core sense; this is a factual error, not a style preference. Replacement aligns with the core sense."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-b",
+  "curated": {
+   "phaseId": "phase-b",
+   "words": [
+    {
+     "wordId": "b1",
+     "surface": "ekaṁ",
+     "addSenses": [
+      {
+       "sense": "a; a certain; a single",
+       "reason": "In 'ekaṁ samayaṁ' eka functions as an indefinite article: 'on a certain occasion'. Contextually true and distinct from the bare numeral 'one'."
+      },
+      {
+       "sense": "once",
+       "reason": "The adverbial accusative 'ekaṁ samayaṁ' is standardly rendered 'once / at one time'; DPD attests this reading and it is distinct from the numeral sense."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "b2",
+     "surface": "samayaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "b3",
+     "surface": "bhagavā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "b1",
+    "kind": "add",
+    "item": "a; a certain; a single",
+    "accept": true,
+    "reason": "Literally present in b1's acceptedSenses. Context-true: golden tooltip itself says '[Adjective] One, a certain' modifying samayaṁ; 'on a certain occasion' is the mainstream rendering. Distinct content from core 'one' (indefinite vs numeral), so not redundant, and no hedging vector since it is the dominant translation, not a rare homonym."
+   },
+   {
+    "wordId": "b1",
+    "kind": "add",
+    "item": "once",
+    "accept": true,
+    "reason": "Literally present in b1's acceptedSenses. 'Ekaṁ samayaṁ' is the standard adverbial accusative-of-time idiom rendered 'once/at one time', matching the golden tooltip's '[Accusative of Time]' analysis. A model saying 'once' is correct for this word in this phrase, not vague; content is distinct from 'one' and 'a certain'."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-c",
+  "curated": {
+   "phaseId": "phase-c",
+   "words": [
+    {
+     "wordId": "c1",
+     "surface": "kurūsu",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "c2",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-d",
+  "curated": {
+   "phaseId": "phase-d",
+   "words": [
+    {
+     "wordId": "d1",
+     "surface": "Kammāsadhammaṁ",
+     "addSenses": [
+      {
+       "sense": "name of a town in the Kuru country",
+       "reason": "Contextually true and adds real content beyond the bare 'Place name' gloss: it identifies the referent as a town and locates it in the Kuru country, exactly what the phrase 'kurūnaṁ nigamo' asserts."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "d2",
+     "surface": "nāma",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "d3",
+     "surface": "kurūnaṁ",
+     "addSenses": [
+      {
+       "sense": "name of the people of Kuru; Kurus",
+       "reason": "The genitive plural here refers to the Kuru people ('a town of the Kurus'); this sense identifies who the Kurus are (a people/tribe), which the existing purely grammatical glosses ('of the Kurus') do not convey. The alternative homonym 'name of a country' is excluded since the plural here denotes the people, not the country."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "d4",
+     "surface": "nigamo",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "d1",
+    "kind": "add",
+    "item": "name of a town in the Kuru country",
+    "accept": true,
+    "reason": "Verbatim member of d1's acceptedSenses. Contextually true in MN 10 (the phrase itself says it is a nigama of the Kurus). Adds real referent content (town + Kuru location) beyond the bare 'Place name' core gloss; requires a specific correct answer, so no hedging vector."
+   },
+   {
+    "wordId": "d3",
+    "kind": "add",
+    "item": "name of the people of Kuru; Kurus",
+    "accept": true,
+    "reason": "Verbatim member of d3's acceptedSenses. Genitive plural here denotes the Kuru people, so contextually true. Adds meaning beyond the grammatical core glosses by identifying the referent as a people and disambiguating against the 'name of a country' homonym (which the curator rightly excluded — that one WOULD be a hedging vector). Any answer matching it already substantially matches 'of the Kurus', so no new vague-credit path opens."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-e",
+  "curated": {
+   "phaseId": "phase-e",
+   "words": [
+    {
+     "wordId": "e1",
+     "surface": "tatra",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "e2",
+     "surface": "kho",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "e3",
+     "surface": "bhagavā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "e4",
+     "surface": "bhikkhū",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "e5",
+     "surface": "āmantesi",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-f",
+  "curated": {
+   "phaseId": "phase-f",
+   "words": [
+    {
+     "wordId": "f1",
+     "surface": "Bhikkhavo",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "f2",
+     "surface": "ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-g",
+  "curated": {
+   "phaseId": "phase-g",
+   "words": [
+    {
+     "wordId": "g1",
+     "surface": "Bhadante",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "g2",
+     "surface": "ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "g3",
+     "surface": "te",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "g4",
+     "surface": "bhikkhū",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "g5",
+     "surface": "bhagavato",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "g6",
+     "surface": "paccassosuṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-h",
+  "curated": {
+   "phaseId": "phase-h",
+   "words": [
+    {
+     "wordId": "h1",
+     "surface": "Bhagavā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "h2",
+     "surface": "etad",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "h3",
+     "surface": "avoca",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": [
+      {
+       "originalTooltip": "Like \"a-\" in Greek aorist",
+       "action": "rewrite",
+       "replacement": "Like the \"e-\" augment in the Greek aorist (Sanskrit uses \"a-\")",
+       "reason": "The Greek aorist augment is e- (epsilon, as in élusa), not a-; the a- augment is the Sanskrit/Pāli form. The tooltip teaches a real Indo-European cognate feature but attributes the wrong vowel to Greek."
+      }
+     ]
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "h3",
+    "kind": "tooltip",
+    "item": "Like \"a-\" in Greek aorist",
+    "accept": true,
+    "reason": "The original makes a false factual claim: the Greek aorist augment is e- (epsilon, e.g. élusa from lúō), not a-. The a- augment is the Sanskrit/Vedic form (á-vocat) that Pāli avoca inherits; both descend from the PIE *é- augment. The replacement preserves the genuine Indo-European cognate point while correcting the vowel attribution, so this clears the falsity bar for tooltip edits."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-1",
+  "curated": {
+   "phaseId": "phase-1",
+   "words": [
+    {
+     "wordId": "p1",
+     "surface": "Ekāyano",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p2",
+     "surface": "ayaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p3",
+     "surface": "Bhikkhave",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p4",
+     "surface": "maggo",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-2",
+  "curated": {
+   "phaseId": "phase-2",
+   "words": [
+    {
+     "wordId": "p5",
+     "surface": "sattānaṁ",
+     "addSenses": [],
+     "removeSenses": [
+      {
+       "sense": "seven types",
+       "reason": "Wrong homonym in this context: in 'sattānaṁ visuddhiyā' the word is the genitive plural of satta 'being' (for the purification of beings), not the numeral satta 'seven'. A numerical reading is factually wrong here."
+      }
+     ],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p6",
+     "surface": "visuddhiyā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "p5",
+    "kind": "remove",
+    "item": "seven types",
+    "accept": true,
+    "reason": "Wrong homonym for this context: in MN 10 'ekāyano ... maggo sattānaṁ visuddhiyā', sattānaṁ is the genitive plural of satta 'being' (for the purification of beings), as the phase's own golden tooltip '[Genitive Plural] Of beings' confirms. The numeral satta 'seven' is a real homonym but no translation or commentary reads this phrase numerically; requiring 'seven types' as a core sense would penalize correct answers and reward dictionary-spraying. The homonym remains properly documented in the tooltip 'Also satta: seven (7)', so no information is lost."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-3",
+  "curated": {
+   "phaseId": "phase-3",
+   "words": [
+    {
+     "wordId": "p7",
+     "surface": "sokaparidevānaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p8",
+     "surface": "samatikkamāya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-4",
+  "curated": {
+   "phaseId": "phase-4",
+   "words": [
+    {
+     "wordId": "p9",
+     "surface": "dukkhadomanassānaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p10",
+     "surface": "atthaṅgamāya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-5",
+  "curated": {
+   "phaseId": "phase-5",
+   "words": [
+    {
+     "wordId": "p11",
+     "surface": "ñāyassa",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p12",
+     "surface": "adhigamāya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-6",
+  "curated": {
+   "phaseId": "phase-6",
+   "words": [
+    {
+     "wordId": "p13",
+     "surface": "nibbānassa",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p14",
+     "surface": "sacchikiriyāya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-7",
+  "curated": {
+   "phaseId": "phase-7",
+   "words": [
+    {
+     "wordId": "p15",
+     "surface": "yadidaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p16",
+     "surface": "cattāro",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "p17",
+     "surface": "satipaṭṭhānā",
+     "addSenses": [
+      {
+       "sense": "attending mindfully; being present with mindfulness",
+       "reason": "DPD's contextual gloss reflecting the sati + upaṭṭhāna analysis (paralleled by Sanskrit smṛtyupasthāna): mindfulness as active attending. Genuinely distinct from the static 'foundations' reading and from the other core senses."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": [
+      {
+       "originalTooltip": "[Compound] paṭi + √sthā: to stand",
+       "action": "rewrite",
+       "replacement": "[Compound] pa + √sthā: to stand (also analyzed as sati + upaṭṭhāna, \"attending\")",
+       "reason": "Wrong prefix: paṭi + √sthā would yield patiṭṭhāna (Skt pratiṣṭhāna), not paṭṭhāna. The attested derivations are pa + ṭhāna ('setting up, foundation') or sati + upaṭṭhāna ('attending', cf. Skt smṛtyupasthāna)."
+      }
+     ]
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "p17",
+    "kind": "add",
+    "item": "attending mindfully; being present with mindfulness",
+    "accept": false,
+    "reason": "Redundant: this exact string already appears in p17's acceptedSenses array (twice, verbatim). Adding it again contributes no new discriminative content and only inflates the reference set with duplicate tokens."
+   },
+   {
+    "wordId": "p17",
+    "kind": "tooltip",
+    "item": "[Compound] paṭi + √sthā: to stand",
+    "accept": true,
+    "reason": "Original is factually false: paṭi + √sthā would give patiṭṭhāna (Skt pratiṣṭhāna), not the geminate paṭṭhāna. Attested derivations are pa + √sthā (Skt prasthāna) or sati + upaṭṭhāna (Skt smṛtyupasthāna, the commentarial/scholarly analysis). The replacement corrects the prefix and notes the upaṭṭhāna analysis accurately."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-x",
+  "curated": {
+   "phaseId": "phase-x",
+   "words": [
+    {
+     "wordId": "x1",
+     "surface": "Katame",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "x2",
+     "surface": "cattāro",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-y",
+  "curated": {
+   "phaseId": "phase-y",
+   "words": [
+    {
+     "wordId": "y1",
+     "surface": "Idha",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "y2",
+     "surface": "bhikkhave",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "y3",
+     "surface": "bhikkhu",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-z",
+  "curated": {
+   "phaseId": "phase-z",
+   "words": [
+    {
+     "wordId": "z1",
+     "surface": "kāye",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "z2",
+     "surface": "kāyānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "z3",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-aa",
+  "curated": {
+   "phaseId": "phase-aa",
+   "words": [
+    {
+     "wordId": "aa1",
+     "surface": "ātāpī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aa2",
+     "surface": "sampajāno",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aa3",
+     "surface": "satimā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ab",
+  "curated": {
+   "phaseId": "phase-ab",
+   "words": [
+    {
+     "wordId": "ab1",
+     "surface": "vineyya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ab2",
+     "surface": "loke",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ab3",
+     "surface": "abhijjhādomanassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ac",
+  "curated": {
+   "phaseId": "phase-ac",
+   "words": [
+    {
+     "wordId": "ac1",
+     "surface": "vedanāsu",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ac2",
+     "surface": "vedanānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ac3",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ad",
+  "curated": {
+   "phaseId": "phase-ad",
+   "words": [
+    {
+     "wordId": "ad1",
+     "surface": "ātāpī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ad2",
+     "surface": "sampajāno",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ad3",
+     "surface": "satimā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ae",
+  "curated": {
+   "phaseId": "phase-ae",
+   "words": [
+    {
+     "wordId": "ae1",
+     "surface": "vineyya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ae2",
+     "surface": "loke",
+     "addSenses": [
+      {
+       "sense": "world of experience; (comm) world of aggregates, sense spheres and elements",
+       "reason": "This is the standard commentarial gloss of loka in the satipatthana formula specifically: the 'world' one puts aside covetousness and displeasure regarding is the world of the five aggregates / sense spheres, i.e. the field of experience being contemplated. The aggregates/sense-sphere content is genuinely distinct from the existing generic cores ('in the world', 'regarding the world') and more precise than 'concerning experience'."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ae3",
+     "surface": "abhijjhādomanassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "ae2",
+    "kind": "add",
+    "item": "world of experience; (comm) world of aggregates, sense spheres and elements",
+    "accept": true,
+    "reason": "Present verbatim in ae2's acceptedSenses array (not a hallucination). Context-true: the MN 10 commentary glosses loke in this refrain as the five aggregates of clinging (loke ti pancupadanakkhandha), extended to sense spheres/elements — the standard reading for this exact phrase. Not a hedging vector: credit requires the specific, correct commentarial content, not vagueness. Not redundant: shares only 'experience' with the core 'concerning experience'; the aggregates/sense-sphere content is distinct meaning absent from all cores."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-af",
+  "curated": {
+   "phaseId": "phase-af",
+   "words": [
+    {
+     "wordId": "af1",
+     "surface": "citte",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "af2",
+     "surface": "cittānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "af3",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ag",
+  "curated": {
+   "phaseId": "phase-ag",
+   "words": [
+    {
+     "wordId": "ag1",
+     "surface": "ātāpī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ag2",
+     "surface": "sampajāno",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ag3",
+     "surface": "satimā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ah",
+  "curated": {
+   "phaseId": "phase-ah",
+   "words": [
+    {
+     "wordId": "ah1",
+     "surface": "vineyya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ah2",
+     "surface": "loke",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ah3",
+     "surface": "abhijjhādomanassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ai",
+  "curated": {
+   "phaseId": "phase-ai",
+   "words": [
+    {
+     "wordId": "ai1",
+     "surface": "dhammesu",
+     "addSenses": [
+      {
+       "sense": "mental states",
+       "reason": "Contextually true: the dhammas of the fourth satipatthana (hindrances, awakening factors, etc.) are mental states; distinct wording from existing core senses."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ai2",
+     "surface": "dhammānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ai3",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "ai1",
+    "kind": "add",
+    "item": "mental states",
+    "accept": false,
+    "reason": "Redundant: 'mental states' is already literally present in dhammesu's acceptedSenses array (alongside 'mental phenomena; thoughts'). The add duplicates existing content and changes nothing about scoring; the curator's 'distinct wording' claim is false against the file."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-aj",
+  "curated": {
+   "phaseId": "phase-aj",
+   "words": [
+    {
+     "wordId": "aj1",
+     "surface": "ātāpī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aj2",
+     "surface": "sampajāno",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aj3",
+     "surface": "satimā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ak",
+  "curated": {
+   "phaseId": "phase-ak",
+   "words": [
+    {
+     "wordId": "ak1",
+     "surface": "vineyya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ak2",
+     "surface": "loke",
+     "addSenses": [
+      {
+       "sense": "world of experience; (comm) world of aggregates, sense spheres and elements",
+       "reason": "The standard commentarial gloss of 'loke' in the satipatthana formula: the 'world' here is the world of the five aggregates / sense spheres, not the physical cosmos. Genuinely distinct content beyond the existing generic 'concerning experience' core sense."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ak3",
+     "surface": "abhijjhādomanassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "ak2",
+    "kind": "add",
+    "item": "world of experience; (comm) world of aggregates, sense spheres and elements",
+    "accept": true,
+    "reason": "Survives all four rejection tests. (1) It is literally present in ak2's acceptedSenses array in the context file. (2) Context-true: the commentary on the satipatthana formula glosses loke here as the world of the five aggregates / sense spheres and elements, the world of experience, which is precisely the referent in 'vineyya loke abhijjhadomanassam'. (3) Not a hedging vector: it is the contextually correct commentarial reading, not a rare homonym, and it tightens rather than loosens the accepted set relative to the already-present 'universe; cosmos' senses. (4) Not redundant: the aggregates/sense-spheres/elements content appears in no core sense or tooltip; nearest core sense 'concerning experience' lacks that referent, so the add carries genuinely distinct meaning."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-al",
+  "curated": {
+   "phaseId": "phase-al",
+   "words": [
+    {
+     "wordId": "al1",
+     "surface": "Uddeso",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "al2",
+     "surface": "niṭṭhito",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-am",
+  "curated": {
+   "phaseId": "phase-am",
+   "words": [
+    {
+     "wordId": "am1",
+     "surface": "Kathañca",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "am2",
+     "surface": "bhikkhave",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "am3",
+     "surface": "bhikkhu",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "am4",
+     "surface": "kāye",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "am5",
+     "surface": "kāyānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "am6",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-an",
+  "curated": {
+   "phaseId": "phase-an",
+   "words": [
+    {
+     "wordId": "an1",
+     "surface": "Idha",
+     "addSenses": [
+      {
+       "sense": "(comm) in this teaching; here in this doctrine",
+       "reason": "The standard commentarial gloss for idha in 'Idha bhikkhave bhikkhu...' contexts is imasmim sasane ('in this teaching/dispensation'). The golden's own tooltip already asserts 'Here / In this teaching', so this is an attested, contextually true sense genuinely distinct from the bare locative 'Here'."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "an2",
+     "surface": "bhikkhave",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "an3",
+     "surface": "bhikkhu",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "an4",
+     "surface": "araññagato",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "an5",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "an6",
+     "surface": "rukkhamūlagato",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "an7",
+     "surface": "suññāgāragato",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "an1",
+    "kind": "add",
+    "item": "(comm) in this teaching; here in this doctrine",
+    "accept": true,
+    "reason": "Present verbatim in an1's acceptedSenses in the context file; the commentarial gloss imasmim sasane is the standard, contextually true reading of idha in 'Idha bhikkhave bhikkhu...' and the golden tooltip itself says 'In this teaching'. Distinct content from the bare locative core sense 'Here', and it rewards a specific correct answer rather than enabling hedging."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-ao",
+  "curated": {
+   "phaseId": "phase-ao",
+   "words": [
+    {
+     "wordId": "ao1",
+     "surface": "nisīdati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ao2",
+     "surface": "pallaṅkaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ao3",
+     "surface": "ābhujitvā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ao4",
+     "surface": "ujuṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ao5",
+     "surface": "kāyaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ao6",
+     "surface": "paṇidhāya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ap",
+  "curated": {
+   "phaseId": "phase-ap",
+   "words": [
+    {
+     "wordId": "ap1",
+     "surface": "parimukhaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ap2",
+     "surface": "satiṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ap3",
+     "surface": "upaṭṭhapetvā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-aq",
+  "curated": {
+   "phaseId": "phase-aq",
+   "words": [
+    {
+     "wordId": "aq1",
+     "surface": "So",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aq2",
+     "surface": "sato",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aq3",
+     "surface": "va",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aq4",
+     "surface": "assasati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aq5",
+     "surface": "passasati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ar",
+  "curated": {
+   "phaseId": "phase-ar",
+   "words": [
+    {
+     "wordId": "ar1",
+     "surface": "Dīghaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar2",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar3",
+     "surface": "assasanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar3b",
+     "surface": "'dīghaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar4",
+     "surface": "assasāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar5",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar6",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar7",
+     "surface": "dīghaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar8",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar9",
+     "surface": "passasanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar9b",
+     "surface": "'dīghaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar10",
+     "surface": "passasāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar11",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ar12",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-as",
+  "curated": {
+   "phaseId": "phase-as",
+   "words": [
+    {
+     "wordId": "as1",
+     "surface": "Rassaṁ",
+     "addSenses": [
+      {
+       "sense": "(of breathing) for a short time; shallowly",
+       "reason": "DPD's breath-specific gloss; 'shallowly / for a short time' is contextually exact here and adds content (shallowness, duration) not covered by the bare cores 'short/quickly/lightly'."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as2",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as3",
+     "surface": "assasanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as3b",
+     "surface": "'rassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as4",
+     "surface": "assasāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as5",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as6",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as7",
+     "surface": "rassaṁ",
+     "addSenses": [
+      {
+       "sense": "(of breathing) for a short time; shallowly",
+       "reason": "Same as as1: the DPD breath-context gloss is the precise sense in this phrase and genuinely distinct from the existing core glosses."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as8",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as9",
+     "surface": "passasanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as9b",
+     "surface": "'rassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as10",
+     "surface": "passasāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as11",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "as12",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "as1",
+    "kind": "add",
+    "item": "(of breathing) for a short time; shallowly",
+    "accept": true,
+    "reason": "Literally present in as1's acceptedSenses array; context-true (DPD breath-specific gloss, exactly the sense in this ānāpānasati phrase); 'shallowly' adds a depth dimension not in cores 'short/quickly/lightly', so not redundant; no hedging vector since it is the correct contextual sense, not a stray homonym."
+   },
+   {
+    "wordId": "as7",
+    "kind": "add",
+    "item": "(of breathing) for a short time; shallowly",
+    "accept": true,
+    "reason": "Same string is literally in as7's acceptedSenses; identical phrase repeated for the out-breath, so the same context-truth, non-redundancy, and no-hedging analysis applies as for as1."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-at",
+  "curated": {
+   "phaseId": "phase-at",
+   "words": [
+    {
+     "wordId": "at1",
+     "surface": "'Sabbakāyapaṭisaṁvedī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "at2",
+     "surface": "assasissāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "at3",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "at4",
+     "surface": "sikkhati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "at5",
+     "surface": "'sabbakāyapaṭisaṁvedī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "at6",
+     "surface": "passasissāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "at7",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "at8",
+     "surface": "sikkhati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-au",
+  "curated": {
+   "phaseId": "phase-au",
+   "words": [
+    {
+     "wordId": "au1",
+     "surface": "'Passambhayaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "au2",
+     "surface": "kāyasaṅkhāraṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "au3",
+     "surface": "assasissāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "au4",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "au5",
+     "surface": "sikkhati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "au6",
+     "surface": "'passambhayaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "au7",
+     "surface": "kāyasaṅkhāraṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "au8",
+     "surface": "passasissāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "au9",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "au10",
+     "surface": "sikkhati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-av",
+  "curated": {
+   "phaseId": "phase-av",
+   "words": [
+    {
+     "wordId": "av1",
+     "surface": "Seyyathāpi",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av2",
+     "surface": "bhikkhave",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av3",
+     "surface": "dakkho",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av4",
+     "surface": "bhamakāro",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av5",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av6",
+     "surface": "bhamakārantevāsī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av7",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av8",
+     "surface": "dīghaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av9",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av10",
+     "surface": "añchanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av10b",
+     "surface": "'dīghaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av11",
+     "surface": "añchāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av12",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av13",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av14",
+     "surface": "rassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av15",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av16",
+     "surface": "añchanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av16b",
+     "surface": "'rassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av17",
+     "surface": "añchāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av18",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "av19",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-aw",
+  "curated": {
+   "phaseId": "phase-aw",
+   "words": [
+    {
+     "wordId": "aw1",
+     "surface": "Evameva",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw2",
+     "surface": "kho",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw3",
+     "surface": "bhikkhave",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw4",
+     "surface": "bhikkhu",
+     "addSenses": [
+      {
+       "sense": "monk; monastic; mendicant; fully ordained monk; lit. beggar",
+       "reason": "Contextually true and adds genuinely distinct content beyond core 'a monk': 'mendicant' (standard modern translation, e.g. Sujato) and the literal etymology 'beggar' (from bhikkhati). Same referent, richer required reference content."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw5",
+     "surface": "dīghaṁ",
+     "addSenses": [
+      {
+       "sense": "for a long time; deeply",
+       "reason": "DPD's contextual gloss for digham in breathing passages: accusative used adverbially, so 'breathing long' = breathing for a long time / deeply. Distinct from the bare adjective 'long' and matches the golden's own [Accusative Adverbial] tooltip."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw6",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw7",
+     "surface": "assasanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw7b",
+     "surface": "'dīghaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw8",
+     "surface": "assasāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw9",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw10",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw11",
+     "surface": "dīghaṁ",
+     "addSenses": [
+      {
+       "sense": "for a long time; deeply",
+       "reason": "Same as aw5: DPD's contextual adverbial gloss for digham of breathing, genuinely distinct from the adjective 'long'."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw12",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw13",
+     "surface": "passasanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw13b",
+     "surface": "'dīghaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw14",
+     "surface": "passasāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw15",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw16",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw17",
+     "surface": "rassaṁ",
+     "addSenses": [
+      {
+       "sense": "(of breathing) for a short time; shallowly",
+       "reason": "DPD's explicitly breath-contextual gloss: accusative adverbial 'breathing short' = for a short time / shallowly. Genuinely distinct from the bare adjective 'short' and exactly matches this phrase's usage."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw18",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw19",
+     "surface": "assasanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw19b",
+     "surface": "'rassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw20",
+     "surface": "assasāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw21",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw22",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw23",
+     "surface": "rassaṁ",
+     "addSenses": [
+      {
+       "sense": "(of breathing) for a short time; shallowly",
+       "reason": "Same as aw17: DPD's breath-contextual adverbial gloss, distinct from the bare adjective 'short'."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw24",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw25",
+     "surface": "passasanto",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw25b",
+     "surface": "'rassaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw26",
+     "surface": "passasāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw27",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "aw28",
+     "surface": "pajānāti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "aw4",
+    "kind": "add",
+    "item": "monk; monastic; mendicant; fully ordained monk; lit. beggar",
+    "accept": true,
+    "reason": "Literally present in aw4's acceptedSenses. Contextually true (bhikkhu = the practitioner here); 'mendicant' and the lit. 'beggar' etymology add distinct content beyond core 'a monk'. Single referent, no homonym-hedging vector."
+   },
+   {
+    "wordId": "aw5",
+    "kind": "add",
+    "item": "for a long time; deeply",
+    "accept": true,
+    "reason": "Literally present in aw5's acceptedSenses. Matches the golden's own [Accusative Adverbial] tooltip: dīghaṁ is adverbial on breathing here, so the temporal/depth gloss is the contextual meaning and is distinct from the bare adjective 'long'. Not earnable by a vague or wrong answer."
+   },
+   {
+    "wordId": "aw11",
+    "kind": "add",
+    "item": "for a long time; deeply",
+    "accept": true,
+    "reason": "Same as aw5: literally in acceptedSenses, matches the [Accusative Adverbial] tooltip, contextually correct adverbial gloss distinct from bare 'long'."
+   },
+   {
+    "wordId": "aw17",
+    "kind": "add",
+    "item": "(of breathing) for a short time; shallowly",
+    "accept": true,
+    "reason": "Literally present in aw17's acceptedSenses. Breath-scoped adverbial gloss matching the [Accusative Adverbial] tooltip; contextually exact and distinct from bare 'short'. No hedging or redundancy."
+   },
+   {
+    "wordId": "aw23",
+    "kind": "add",
+    "item": "(of breathing) for a short time; shallowly",
+    "accept": true,
+    "reason": "Same as aw17: literally in acceptedSenses, breath-contextual adverbial gloss, distinct from core 'short', contextually true."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-ax",
+  "curated": {
+   "phaseId": "phase-ax",
+   "words": [
+    {
+     "wordId": "ax1",
+     "surface": "'Sabbakāyapaṭisaṁvedī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ax2",
+     "surface": "assasissāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ax3",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ax4",
+     "surface": "sikkhati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ax5",
+     "surface": "'sabbakāyapaṭisaṁvedī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ax6",
+     "surface": "passasissāmī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ax7",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ax8",
+     "surface": "sikkhati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ay",
+  "curated": {
+   "phaseId": "phase-ay",
+   "words": [
+    {
+     "wordId": "ay1",
+     "surface": "Iti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ay2",
+     "surface": "ajjhattaṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ay3",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ay4",
+     "surface": "kāye",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ay5",
+     "surface": "kāyānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ay6",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-az",
+  "curated": {
+   "phaseId": "phase-az",
+   "words": [
+    {
+     "wordId": "az1",
+     "surface": "bahiddhā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "az2",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "az3",
+     "surface": "kāye",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "az4",
+     "surface": "kāyānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "az5",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-ba",
+  "curated": {
+   "phaseId": "phase-ba",
+   "words": [
+    {
+     "wordId": "ba1",
+     "surface": "ajjhattabahiddhā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ba2",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ba3",
+     "surface": "kāye",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ba4",
+     "surface": "kāyānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "ba5",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-bb",
+  "curated": {
+   "phaseId": "phase-bb",
+   "words": [
+    {
+     "wordId": "bb1",
+     "surface": "samudayadhammānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bb2",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bb3",
+     "surface": "kāyasmiṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bb4",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-bc",
+  "curated": {
+   "phaseId": "phase-bc",
+   "words": [
+    {
+     "wordId": "bc1",
+     "surface": "vayadhammānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bc2",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bc3",
+     "surface": "kāyasmiṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bc4",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-bd",
+  "curated": {
+   "phaseId": "phase-bd",
+   "words": [
+    {
+     "wordId": "bd1",
+     "surface": "samudayavayadhammānupassī",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bd2",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bd3",
+     "surface": "kāyasmiṁ",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bd4",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-be",
+  "curated": {
+   "phaseId": "phase-be",
+   "words": [
+    {
+     "wordId": "be1",
+     "surface": "'Atthi",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "be2",
+     "surface": "kāyo",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "be3",
+     "surface": "'ti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "be4",
+     "surface": "vā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "be5",
+     "surface": "panassa",
+     "addSenses": [
+      {
+       "sense": "and for him; and his",
+       "reason": "Distinct dative reading of assa (pana + assa): mindfulness 'is established FOR him', which is the natural construal with paccupaṭṭhitā hoti; the existing core sense only gives the genitive 'his'."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "be6",
+     "surface": "sati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "be7",
+     "surface": "paccupaṭṭhitā",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "be8",
+     "surface": "hoti",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "be5",
+    "kind": "add",
+    "item": "and for him; and his",
+    "accept": true,
+    "reason": "Present verbatim in be5's acceptedSenses; the dative construal (sati established FOR him, pana+assa) is the standard reading of this MN 10 refrain and is not covered by the core genitive 'moreover, his'. Narrow and correct, so no hedging vector; the 'for him' component adds real meaning despite partial overlap of 'and his'."
+   }
+  ]
+ },
+ {
+  "phaseId": "phase-bf",
+  "curated": {
+   "phaseId": "phase-bf",
+   "words": [
+    {
+     "wordId": "bf1",
+     "surface": "yāvadeva",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bf2",
+     "surface": "ñāṇamattāya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bf3",
+     "surface": "paṭissatimattāya",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": []
+ },
+ {
+  "phaseId": "phase-bg",
+  "curated": {
+   "phaseId": "phase-bg",
+   "words": [
+    {
+     "wordId": "bg1",
+     "surface": "anissito",
+     "addSenses": [
+      {
+       "sense": "detached (from); disengaged (from); separated (from); independent (of)",
+       "reason": "The DPD sense for anissita in this context; 'detached/disengaged' adds real content beyond the existing 'independent/not dependent' core senses, matching the commentarial gloss (not dependent on craving and views)."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bg2",
+     "surface": "ca",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bg3",
+     "surface": "viharati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bg4",
+     "surface": "na",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bg5",
+     "surface": "ca",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bg6",
+     "surface": "kiñci",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bg7",
+     "surface": "loke",
+     "addSenses": [
+      {
+       "sense": "world of experience; (comm) world of aggregates, sense spheres and elements",
+       "reason": "This is the standard commentarial reading of 'loka' in the Satipatthana refrain specifically (the world of the five aggregates / sense spheres), distinct from and richer than the lone core sense 'in the world', whose own nuance ('Experience') already points at exactly this reading."
+      }
+     ],
+     "removeSenses": [],
+     "tooltipEdits": []
+    },
+    {
+     "wordId": "bg8",
+     "surface": "upādiyati",
+     "addSenses": [],
+     "removeSenses": [],
+     "tooltipEdits": []
+    }
+   ]
+  },
+  "verdicts": [
+   {
+    "wordId": "bg1",
+    "kind": "add",
+    "item": "detached (from); disengaged (from); separated (from); independent (of)",
+    "accept": true,
+    "reason": "Verbatim member of bg1 acceptedSenses; correct sense of anissita in the MN 10 refrain (not the '(of speech) free flowing' homonym); detached/disengaged/separated is a distinct legitimate rendering family beyond the core independent/not dependent/unsupported, so not essentially redundant; no hedging risk since these are mainstream translator renderings, not rare senses."
+   },
+   {
+    "wordId": "bg7",
+    "kind": "add",
+    "item": "world of experience; (comm) world of aggregates, sense spheres and elements",
+    "accept": true,
+    "reason": "Verbatim member of bg7 acceptedSenses; exactly the commentarial reading of loka in the satipatthana refrain (aggregates/sense spheres/elements), consistent with the golden tooltip 'In the world = in experience'; adds specific content beyond the lone core 'in the world' rather than padding; narrows rather than broadens acceptance, so no hedging vector."
+   }
+  ]
+ }
+]

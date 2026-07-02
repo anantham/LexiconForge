@@ -337,6 +337,14 @@
             {
               "english": "one",
               "nuance": "At one (time)"
+            },
+            {
+              "english": "a; a certain; a single",
+              "nuance": ""
+            },
+            {
+              "english": "once",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -473,6 +481,10 @@
             {
               "english": "the spotted-dhamma place",
               "nuance": "Literal compound"
+            },
+            {
+              "english": "name of a town in the Kuru country",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -513,6 +525,10 @@
             {
               "english": "the Kurus'",
               "nuance": "Ownership"
+            },
+            {
+              "english": "name of the people of Kuru; Kurus",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -1012,10 +1028,6 @@
             {
               "english": "stuck ones",
               "nuance": "Attached"
-            },
-            {
-              "english": "seven types",
-              "nuance": "Numerical"
             }
           ],
           "acceptedSenses": [
@@ -3534,6 +3546,10 @@
             {
               "english": "lightly",
               "nuance": "Gentle"
+            },
+            {
+              "english": "(of breathing) for a short time; shallowly",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -3659,6 +3675,10 @@
             {
               "english": "lightly",
               "nuance": "Gentle"
+            },
+            {
+              "english": "(of breathing) for a short time; shallowly",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -4543,6 +4563,10 @@
             {
               "english": "a monk",
               "nuance": "Practitioner"
+            },
+            {
+              "english": "monk; monastic; mendicant; fully ordained monk; lit. beggar",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -4556,6 +4580,10 @@
             {
               "english": "long",
               "nuance": "Duration"
+            },
+            {
+              "english": "for a long time; deeply",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -4665,6 +4693,10 @@
             {
               "english": "long",
               "nuance": "Duration"
+            },
+            {
+              "english": "for a long time; deeply",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -4774,6 +4806,10 @@
             {
               "english": "short",
               "nuance": "Brief"
+            },
+            {
+              "english": "(of breathing) for a short time; shallowly",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -4875,6 +4911,10 @@
             {
               "english": "short",
               "nuance": "Brief"
+            },
+            {
+              "english": "(of breathing) for a short time; shallowly",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -5947,6 +5987,10 @@
             {
               "english": "moreover, his",
               "nuance": "Connection"
+            },
+            {
+              "english": "and for him; and his",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -6098,6 +6142,10 @@
             {
               "english": "unsupported",
               "nuance": "Self-reliant"
+            },
+            {
+              "english": "detached (from); disengaged (from); separated (from); independent (of)",
+              "nuance": ""
             }
           ],
           "acceptedSenses": [
@@ -6248,5 +6296,6 @@
       }
     }
   },
-  "_acceptedSensesFrom": "data/dpd/mn10 (2026-07-01) — see ADR SUTTA-011"
+  "_acceptedSensesFrom": "data/dpd/mn10 (2026-07-01) — see ADR SUTTA-011",
+  "_lastUpdated": "2026-07-02 (golden v2: SUTTA-011 path B — context-vetted DPD senses merged; see SUTTA-012)"
 }

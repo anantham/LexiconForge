@@ -65,6 +65,9 @@ type LeaderboardEntry = {
 
   // v2.0 quality scores (0-1) — fidelity is the headline, overall is the ranking metric
   overallScore: number;
+  // 95% bootstrap CI over per-phase overall scores; models whose CIs overlap are TIES.
+  overallScoreCI: [number, number] | null;
+  tiedWithAbove: boolean;
   fidelityScore: number;
   segmentationFidelity: number;
   contentFidelity: number;
@@ -77,6 +80,10 @@ type LeaderboardEntry = {
   judgeModel: string | null;
   selfJudge: boolean;
   paliWordCoverage: number;
+  // Judge-derived integrity telemetry (share of judged words with a confident false claim;
+  // count of words where the judge flagged the GOLDEN itself as suspect).
+  hallucinationRate: number | null;
+  goldenSuspectCount: number | null;
   // legacy v1 aggregates, retained for reference only
   coverageScore: number;
   validityScore: number;
@@ -112,6 +119,13 @@ type Leaderboard = {
   };
   /** Runs/phases that were NOT ranked, and why — transparency, not silent dropping. */
   excluded: { models: string[]; reasons: string[] };
+  /** Grounding sources + disclosed circularity — who authored what, and on whose authority. */
+  grounding: {
+    closedBook: boolean;
+    closedBookNote: string;
+    sources: Array<{ name: string; authority: string; role: string }>;
+    knownCircularity: string[];
+  };
   entries: LeaderboardEntry[];
 };
 
@@ -166,6 +180,10 @@ type ModelRun = {
   contentSemantic: number | null;
   judgeModel: string | null;
   selfJudge: boolean;
+  // Judge-derived integrity telemetry: share of judged words flagged as a confident false
+  // claim (hallucination), and count of words where the judge flagged the GOLDEN as suspect.
+  hallucinationRate: number | null;
+  goldenSuspectCount: number | null;
   metrics: {
     tokensTotal: number;
     durationMs: number;
@@ -174,7 +192,32 @@ type ModelRun = {
   packetPath: string;
 };
 
-type JudgeScores = { judgeVersion?: string; judgeModel?: string; avgContentSemantic?: number; selfJudge?: boolean };
+type JudgeScores = {
+  judgeVersion?: string; judgeModel?: string; avgContentSemantic?: number; selfJudge?: boolean;
+  words?: Array<{ hallucination?: boolean; goldenSuspect?: boolean }>;
+};
+
+/** Deterministic PRNG (mulberry32) so bootstrap CIs are reproducible board-to-board. */
+const mulberry32 = (seed: number) => () => {
+  seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+
+/** 95% bootstrap CI of the mean over per-phase scores (resample phases, N=2000, seeded). */
+const bootstrapCI = (values: number[], nBoot = 2000): [number, number] | null => {
+  if (values.length < 2) return null;
+  const rand = mulberry32(42);
+  const means: number[] = [];
+  for (let b = 0; b < nBoot; b++) {
+    let s = 0;
+    for (let i = 0; i < values.length; i++) s += values[Math.floor(rand() * values.length)];
+    means.push(s / values.length);
+  }
+  means.sort((a, b) => a - b);
+  return [means[Math.floor(0.025 * nBoot)], means[Math.ceil(0.975 * nBoot) - 1]];
+};
 
 export async function generateLeaderboard(): Promise<Leaderboard> {
   const reportsRoot = BENCHMARK_CONFIG.outputRoot;
@@ -250,6 +293,12 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
         contentSemantic: judge?.avgContentSemantic ?? null,
         judgeModel: judge?.judgeModel ?? null,
         selfJudge: judge?.selfJudge ?? false,
+        hallucinationRate: judge?.words?.length
+          ? judge.words.filter((w) => w.hallucination).length / judge.words.length
+          : null,
+        goldenSuspectCount: judge?.words?.length
+          ? judge.words.filter((w) => w.goldenSuspect).length
+          : null,
         metrics: { tokensTotal, durationMs, costUsd },
         packetPath: `/reports/sutta-studio/${timestamp}/outputs/${modelId}/packet.json`,
       });
@@ -316,6 +365,9 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     contentSemantic: number | null;
     judgeModel: string | null;
     selfJudge: boolean;
+    hallucinationRate: number | null;
+    goldenSuspectCount: number | null;
+    overallCI: [number, number] | null;
     phasesCount: number;
     metrics: { tokensTotal: number; durationMs: number; costUsd: number | null };
     bestRun: ModelRun;
@@ -353,6 +405,11 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       contentSemantic: best.run.contentSemantic,
       judgeModel: best.run.judgeModel,
       selfJudge: best.run.selfJudge,
+      hallucinationRate: best.run.hallucinationRate,
+      goldenSuspectCount: best.run.goldenSuspectCount,
+      // Statistical honesty (operator request): 95% bootstrap CI over this run's per-phase
+      // overall scores — sub-CI gaps between models are ties, not rankings.
+      overallCI: bootstrapCI(phases.map((p) => p.overallScore)),
       phasesCount: phases.length,
       metrics: best.run.metrics, // the chosen run's metrics — NOT summed across runs
       bestRun: best.run,
@@ -370,6 +427,10 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     modelId: m.modelId,
     modelName: m.modelName,
     overallScore: r4(m.avgOverall),
+    overallScoreCI: m.overallCI ? [r4(m.overallCI[0]), r4(m.overallCI[1])] as [number, number] : null,
+    // CIs overlapping with the model ranked directly above ⇒ statistically a tie at n=30 phases.
+    tiedWithAbove: index > 0 && !!m.overallCI && !!modelScores[index - 1].overallCI
+      && m.overallCI[1] >= (modelScores[index - 1].overallCI as [number, number])[0],
     fidelityScore: r4(m.avgFidelity),
     segmentationFidelity: r4(m.avgSegFidelity),
     contentFidelity: r4(m.avgContentFidelity),
@@ -379,6 +440,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     judgeModel: m.judgeModel,
     selfJudge: m.selfJudge,
     paliWordCoverage: r4(m.avgPaliCoverage),
+    hallucinationRate: m.hallucinationRate == null ? null : r4(m.hallucinationRate),
+    goldenSuspectCount: m.goldenSuspectCount,
     coverageScore: r4(m.avgCoverage),
     validityScore: r4(m.avgValidity),
     richnessScore: r4(m.avgRichness),
@@ -391,6 +454,13 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     runId: m.bestRun.runId,
     packetPath: m.bestRun.packetPath,
   }));
+
+  // HARD FAIL (codex review #12): an all-excluded board (e.g. every run on a stale rubric
+  // version) must never silently publish an empty ranking — that reads as "no models" not
+  // "re-score needed".
+  if (entries.length === 0) {
+    throw new Error(`0 ranked entries — every run was excluded. Reasons: ${Array.from(excludedReasons).join(' | ') || '(none recorded)'}`);
+  }
 
   // Provenance: the exact run dir(s) that actually produced this board (auditable/reproducible).
   const sourceRunTimestamps = Array.from(new Set(entries.map((e) => e.runTimestamp))).sort();
@@ -432,10 +502,36 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
         'fidelity = 0.5·segmentation + 0.5·content, strict micro-F1 vs the golden. ' +
         'v2.1 (SUTTA-012): golden words a model DROPS are charged as misses (no survivorship bias), ' +
         'and content F1 is decomposed into contentPrecision/contentRecall. ' +
+        'All ranked runs use the IDENTICAL harness pipeline (same fixed phases, same passes, no retrieval context) — ' +
+        'scores are comparable to each other but NOT to the richer production pipeline. ' +
+        'Ranking is driven by overallScore only; contentF1 is reference-width-sensitive (partial remediation: ' +
+        'golden v2 widened senses; dictionary-attested ALTERNATE SEGMENTATIONS are still penalized — known limitation). ' +
         'CAVEAT: fidelity only scores words the golden covers; where the golden is partial, ' +
         'unscored model words are excluded — see paliWordCoverage and the per-run golden-diff.',
     },
     excluded: { models: Array.from(excludedModels), reasons: Array.from(excludedReasons) },
+    // GROUNDING & PROVENANCE (operator request): every layer's authority, disclosed, so the
+    // reader can judge circularity risk themselves. Facts trace to human scholarship; wording,
+    // selection and judging pass through LLMs with the guards named here.
+    grounding: {
+      closedBook: true,
+      closedBookNote:
+        'Models receive ONLY the raw Pāli phrase — no dictionary or retrieval context at inference. ' +
+        'The board measures parametric Pāli knowledge + analysis skill; the production pipeline additionally feeds ' +
+        'dictionary grounding, so production output is richer than benchmark output.',
+      sources: [
+        { name: 'SuttaCentral canonical MN 10 (Mahāsaṅgīti; Sujato segmentation)', authority: 'human/scholarly', role: 'source text, phase cuts, and the text-integrity gate (morphemes must reconstruct these exact surfaces)' },
+        { name: 'Digital Pāli Dictionary (DPD; compiled from PTS PED, CPD, traditional grammars)', authority: 'human/lexicographic', role: 'factual authority: roots, POS, attested senses. The golden is machine-verified against it; golden-v2 sense additions were restricted to VERBATIM DPD strings' },
+        { name: 'Golden reference (51 phrases)', authority: 'LLM-drafted (Claude) under operator direction, DPD-verified', role: 'token-overlap reference for Content-F1 and context for the judge. Wording is NOT neutral — a known limitation; see the facts-vs-prose roadmap (SUTTA-013)' },
+        { name: 'Golden v2 curation (2026-07-02)', authority: 'LLM-selected (Claude curator + adversarial skeptic) from DPD data, mechanical verbatim-membership guards, codex (OpenAI) plan review', role: '13 context-vetted sense additions, 1 wrong-homonym removal, 3 tooltip corrections; full audit log in docs/benchmarks/golden-v2-apply-log.json' },
+        { name: 'Semantic judge (openai/gpt-4o-mini)', authority: 'LLM, different family from the golden curator; self-judge guard on the board', role: 'advisory meaning-level score; asymmetric rubric (hallucination ≤0.4); emits per-word hallucination flags and goldenSuspect golden-QA flags' },
+      ],
+      knownCircularity: [
+        'Golden PROSE is Claude-worded (dictionary-checked facts, non-neutral phrasing) — token overlap favors similar phrasing until the facts-vs-prose split lands',
+        'Golden-v2 curation and its adversarial verification were both Claude-family (selection bounded to verbatim DPD content); cross-family spot-check in progress',
+        'The judge anchors on the golden, so golden errors propagate into Semantic until flagged via goldenSuspect',
+      ],
+    },
     entries,
   };
 
@@ -473,13 +569,13 @@ async function main() {
 
   const judgeModel = leaderboard.entries.find((e) => e.judgeModel)?.judgeModel;
   console.log(`\n=== SUTTA-STUDIO LEADERBOARD (rubric v${leaderboard.rubricVersion}) ===\n`);
-  console.log('Rank | Model            | Phases | Overall | Fidelity | Seg  | Content | P    | R    | Semantic | PaliCov');
+  console.log('Rank | Model            | Phases | Overall (95% CI)   | Fidelity | Seg  | Content | P    | R    | Semantic | Halluc | PaliCov');
   console.log('-----|------------------|--------|---------|----------|------|---------|----------|--------');
   for (const e of leaderboard.entries) {
     const sem = e.contentSemantic == null ? '  —  ' : e.contentSemantic.toFixed(2).padStart(5);
     console.log(
       `  ${e.rank.toString().padStart(2)} | ${e.modelId.padEnd(16)} | ${e.phasesCount.toString().padStart(6)} | ` +
-      `${e.overallScore.toFixed(2).padStart(7)} | ${e.fidelityScore.toFixed(2).padStart(8)} | ${e.segmentationFidelity.toFixed(2).padStart(4)} | ${e.contentFidelity.toFixed(2).padStart(7)} | ${(e.contentPrecision == null ? ' —  ' : e.contentPrecision.toFixed(2)).padStart(4)} | ${(e.contentRecall == null ? ' —  ' : e.contentRecall.toFixed(2)).padStart(4)} | ${sem.padStart(8)} | ${e.paliWordCoverage.toFixed(2).padStart(7)}`
+      `${(e.overallScore.toFixed(2) + (e.overallScoreCI ? ` [${e.overallScoreCI[0].toFixed(2)}–${e.overallScoreCI[1].toFixed(2)}]` : '') + (e.tiedWithAbove ? ' =' : '')).padStart(18)} | ${e.fidelityScore.toFixed(2).padStart(8)} | ${e.segmentationFidelity.toFixed(2).padStart(4)} | ${e.contentFidelity.toFixed(2).padStart(7)} | ${(e.contentPrecision == null ? ' —  ' : e.contentPrecision.toFixed(2)).padStart(4)} | ${(e.contentRecall == null ? ' —  ' : e.contentRecall.toFixed(2)).padStart(4)} | ${sem.padStart(8)} | ${(e.hallucinationRate == null ? '  —  ' : (e.hallucinationRate * 100).toFixed(0).padStart(3) + '% ').padStart(6)} | ${e.paliWordCoverage.toFixed(2).padStart(7)}`
     );
   }
   if (leaderboard.entries.length === 0) console.log('  (no ranked entries — see exclusions below)');

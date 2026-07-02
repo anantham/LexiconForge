@@ -40,3 +40,25 @@
 - Companion change (golden v2, same session): context-valid DPD senses are curated into
   the core golden per SUTTA-011 path B, raising everyone's precision honestly. The two
   changes land in one board republish.
+
+## Second opinion (codex gpt-5.5, plan-level review, 2026-07-02) — verdict REVISE, dispositions
+
+Requested by the operator as an independent check before republish. 12 findings; how each landed:
+
+| # | Finding (abridged) | Disposition |
+|---|---|---|
+| 1 | drop-fn is the right survivorship fix; the gate term can't substitute | agreement — no change |
+| 2 | **blocking**: unpenalized unaligned MODEL words = insertion gaming vector | **assessed not exploitable here**: unaligned model words can never earn tp (fidelity and judge score only golden-aligned words), inserted words add no gate credit (all gate terms are ratios), and post-v2.1 breaking alignment CHARGES the dropped golden word. Documented as a watch-item; revisit if tp paths ever open to unaligned words |
+| 3+4 | core additions must be "expected competent answer", not merely context-true, or widened golden punishes concise-correct models | **acted on**: dropped the 4 commentarial "(comm) …" additions from core (13 adds remain); commentary stays judge-rewarded enrichment |
+| 5 | Claude-phrased golden wording could contaminate token-F1 | mitigated by design: sense additions are DPD-verbatim (hard guard); the 3 free-text tooltip rewrites (falsehood fixes) are disclosed to the operator |
+| 6 | DPD coverage/granularity becomes benchmark truth; need an attested-but-not-in-DPD escape path | accepted as policy: tooltip-fix path already bypasses DPD; a non-DPD sense addition requires an ADR note + operator sign-off (this line is that policy) |
+| 7 | rebaselining embedded goldens is provenance-risky | **acted on**: reports/ is gitignored (originals were NOT in git) → refresh now snapshots the run-time golden per run dir (`golden-v1-snapshot.json`) and stamps each file `goldenRebaselined` |
+| 8 | **blocking**: never mix runs from different pipeline conditions | already satisfied (all ranked runs use the identical harness); made explicit in the published methodology text |
+| 9 | judge trusting the golden propagates golden errors into semantic scores | **acted on**: judge now emits a `goldenSuspect` flag per word (golden-QA telemetry, shown in the View); scoring semantics unchanged — the judge does not get override power |
+| 10 | don't claim fairness fixed while split alternates are deferred | **acted on**: methodology text names alternate segmentations as a known limitation; this ADR does the same |
+| 11 | clarify what drives rank | methodology text now states ranking is overallScore only |
+| 12 | regression tests for drop-fn + mixed-version build failure | drop-fn tests exist (this ADR); generate-leaderboard now HARD-FAILS on a 0-entry board instead of publishing an empty ranking |
+
+Still deferred after this round: dictionary-attested alternate segmentations (unfairness #3)
+and benchmark↔production parity (#19). The board is a *relative* ranking under an identical
+harness; publish language must not claim more.
