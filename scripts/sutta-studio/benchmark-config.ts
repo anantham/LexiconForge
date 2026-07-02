@@ -123,7 +123,7 @@ export const BENCHMARK_CONFIG = {
   // Filter to specific model IDs (empty = all)
   // gemini-2-flash dropped: slug google/gemini-2.0-flash-001 is deprecated on
   // OpenRouter ("No endpoints found"). 5 live models below.
-  onlyRunIds: ['glm-4.7-flash'] as string[],
+  onlyRunIds: ['qwen3-235b', 'gemma-3-27b', 'deepseek-v4-flash', 'mistral-small-3.2', 'gpt-5.1', 'grok-4.20'] as string[],
   // Fixture configs - all 51 phases available
   anatomistFixture: {
     path: 'test-fixtures/sutta-studio-anatomist-golden.json',
@@ -259,6 +259,36 @@ export const BENCHMARK_CONFIG = {
           allow_fallbacks: false,
         },
       },
+    },
+    // ── Cheap models added 2026-07-01 (verified live on OpenRouter) ──
+    {
+      id: 'gpt-oss-120b',
+      model: { id: 'gpt-oss-120b', provider: 'OpenRouter', model: 'openai/gpt-oss-120b', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    {
+      id: 'qwen3-235b',
+      model: { id: 'qwen3-235b', provider: 'OpenRouter', model: 'qwen/qwen3-235b-a22b-2507', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    {
+      id: 'gemma-3-27b',
+      model: { id: 'gemma-3-27b', provider: 'OpenRouter', model: 'google/gemma-3-27b-it', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    {
+      id: 'deepseek-v4-flash',
+      model: { id: 'deepseek-v4-flash', provider: 'OpenRouter', model: 'deepseek/deepseek-v4-flash', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    {
+      id: 'mistral-small-3.2',
+      model: { id: 'mistral-small-3.2', provider: 'OpenRouter', model: 'mistralai/mistral-small-3.2-24b-instruct', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    // ── Frontier / expensive models (2026-07-01) — the "does spending more help?" ceiling ──
+    {
+      id: 'gpt-5.1',
+      model: { id: 'gpt-5.1', provider: 'OpenRouter', model: 'openai/gpt-5.1', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    {
+      id: 'grok-4.20',
+      model: { id: 'grok-4.20', provider: 'OpenRouter', model: 'x-ai/grok-4.20', apiKeyEnv: 'OPENROUTER_API_KEY' },
     },
     // ─────────────────────────────────────────────────────────────────────────
     // MARGINAL MODELS (~40-50% success rate, keep for variety)

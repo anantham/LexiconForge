@@ -1,13 +1,14 @@
 {
-  "generatedAt": "2026-07-01T14:43:52.915Z",
+  "generatedAt": "2026-07-02T04:25:04.829Z",
   "promptVersion": "sutta-studio-v12-prior-phase-context",
   "rubricVersion": "2.0",
   "status": "preview",
   "sourceRunTimestamps": [
-    "2026-07-01T10-11-40-333Z"
+    "2026-07-01T10-11-40-333Z",
+    "2026-07-01T17-39-07-313Z"
   ],
   "judgeModel": "openai/gpt-4o-mini",
-  "coverageNote": "Limited coverage. Ranked on 30 golden-backed MN10 phase(s), 3 model(s), from run(s) 2026-07-01T10-11-40-333Z. The golden is partial (not every word is graded); Content is deterministic token-F1 (cannot reward paraphrase/enrichment); Semantic is an advisory LLM-judge score (judge=openai/gpt-4o-mini, not in the ranked total). Rankings will shift as coverage grows.",
+  "coverageNote": "Limited coverage. Ranked on 30 golden-backed MN10 phase(s), 7 model(s), from run(s) 2026-07-01T10-11-40-333Z, 2026-07-01T17-39-07-313Z. The golden is partial (not every word is graded); Content is deterministic token-F1 (cannot reward paraphrase/enrichment); Semantic is an advisory LLM-judge score (judge=openai/gpt-4o-mini, not in the ranked total). Rankings will shift as coverage grows.",
   "methodology": {
     "docsUrl": "https://github.com/anthropics/lexiconforge/blob/main/docs/benchmarks/sutta-studio.md#quality-scoring",
     "rankingMetric": "overallScore",
@@ -15,12 +16,40 @@
     "description": "Ranked on rubric v2.0 only (mixing versions is a build failure). overallScore = gateFactor × (0.60·fidelity + 0.25·usability + 0.15·transitional-richness), averaged over the golden-backed phases of each model's SINGLE best run (highest mean overall) — NOT cherry-picked best-per-phase across runs; metrics are that run's, not summed. fidelity = 0.5·segmentation + 0.5·content, strict micro-F1 vs the golden. CAVEAT: fidelity only scores words the golden covers; where the golden is partial, unscored model words are excluded — see paliWordCoverage and the per-run golden-diff."
   },
   "excluded": {
-    "models": [],
-    "reasons": []
+    "models": [
+      "gemma-3-27b"
+    ],
+    "reasons": [
+      "gemma-3-27b: 4/30 phases (< 15 coverage floor) — insufficient coverage to rank"
+    ]
   },
   "entries": [
     {
       "rank": 1,
+      "modelId": "grok-4.20",
+      "modelName": "x-ai/grok-4.20",
+      "overallScore": 0.5876,
+      "fidelityScore": 0.472,
+      "segmentationFidelity": 0.5935,
+      "contentFidelity": 0.3505,
+      "contentSemantic": 0.8301,
+      "judgeModel": "openai/gpt-4o-mini",
+      "selfJudge": false,
+      "paliWordCoverage": 0.8986,
+      "coverageScore": 0.9159,
+      "validityScore": 0.9543,
+      "richnessScore": 0.8945,
+      "grammarScore": 0.8432,
+      "tokensTotal": 670343,
+      "durationMs": 689695,
+      "costUsd": 1.03434,
+      "phasesCount": 30,
+      "runTimestamp": "2026-07-01T17-39-07-313Z",
+      "runId": "grok-4.20",
+      "packetPath": "/reports/sutta-studio/2026-07-01T17-39-07-313Z/outputs/grok-4.20/packet.json"
+    },
+    {
+      "rank": 2,
       "modelId": "gemini-3-flash",
       "modelName": "google/gemini-3-flash-preview",
       "overallScore": 0.5832,
@@ -44,7 +73,55 @@
       "packetPath": "/reports/sutta-studio/2026-07-01T10-11-40-333Z/outputs/gemini-3-flash/packet.json"
     },
     {
-      "rank": 2,
+      "rank": 3,
+      "modelId": "mistral-small-3.2",
+      "modelName": "mistralai/mistral-small-3.2-24b-instruct",
+      "overallScore": 0.4902,
+      "fidelityScore": 0.4323,
+      "segmentationFidelity": 0.5211,
+      "contentFidelity": 0.3436,
+      "contentSemantic": 0.7671,
+      "judgeModel": "openai/gpt-4o-mini",
+      "selfJudge": false,
+      "paliWordCoverage": 0.9081,
+      "coverageScore": 0.9213,
+      "validityScore": 0.9067,
+      "richnessScore": 0.7455,
+      "grammarScore": 0.8222,
+      "tokensTotal": 640907,
+      "durationMs": 2448099,
+      "costUsd": 0.064115,
+      "phasesCount": 30,
+      "runTimestamp": "2026-07-01T17-39-07-313Z",
+      "runId": "mistral-small-3.2",
+      "packetPath": "/reports/sutta-studio/2026-07-01T17-39-07-313Z/outputs/mistral-small-3.2/packet.json"
+    },
+    {
+      "rank": 4,
+      "modelId": "deepseek-v4-flash",
+      "modelName": "deepseek/deepseek-v4-flash",
+      "overallScore": 0.4685,
+      "fidelityScore": 0.4416,
+      "segmentationFidelity": 0.5251,
+      "contentFidelity": 0.3581,
+      "contentSemantic": 0.8387,
+      "judgeModel": "openai/gpt-4o-mini",
+      "selfJudge": false,
+      "paliWordCoverage": 0.8379,
+      "coverageScore": 0.875,
+      "validityScore": 0.9097,
+      "richnessScore": 0.7004,
+      "grammarScore": 0.7598,
+      "tokensTotal": 1097473,
+      "durationMs": 4556459,
+      "costUsd": 0.153234,
+      "phasesCount": 30,
+      "runTimestamp": "2026-07-01T17-39-07-313Z",
+      "runId": "deepseek-v4-flash",
+      "packetPath": "/reports/sutta-studio/2026-07-01T17-39-07-313Z/outputs/deepseek-v4-flash/packet.json"
+    },
+    {
+      "rank": 5,
       "modelId": "deepseek-v3.2",
       "modelName": "deepseek/deepseek-v3.2",
       "overallScore": 0.4487,
@@ -68,7 +145,31 @@
       "packetPath": "/reports/sutta-studio/2026-07-01T10-11-40-333Z/outputs/deepseek-v3.2/packet.json"
     },
     {
-      "rank": 3,
+      "rank": 6,
+      "modelId": "qwen3-235b",
+      "modelName": "qwen/qwen3-235b-a22b-2507",
+      "overallScore": 0.4353,
+      "fidelityScore": 0.3877,
+      "segmentationFidelity": 0.4632,
+      "contentFidelity": 0.3121,
+      "contentSemantic": 0.7986,
+      "judgeModel": "openai/gpt-4o-mini",
+      "selfJudge": false,
+      "paliWordCoverage": 0.8431,
+      "coverageScore": 0.7927,
+      "validityScore": 0.8886,
+      "richnessScore": 0.7151,
+      "grammarScore": 0.7613,
+      "tokensTotal": 636790,
+      "durationMs": 4255013,
+      "costUsd": 0.05866,
+      "phasesCount": 29,
+      "runTimestamp": "2026-07-01T17-39-07-313Z",
+      "runId": "qwen3-235b",
+      "packetPath": "/reports/sutta-studio/2026-07-01T17-39-07-313Z/outputs/qwen3-235b/packet.json"
+    },
+    {
+      "rank": 7,
       "modelId": "gemini-2.5-flash",
       "modelName": "google/gemini-2.5-flash",
       "overallScore": 0.4153,

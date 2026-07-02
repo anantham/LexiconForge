@@ -1,0 +1,465 @@
+{
+  "model": "gemma-3-27b",
+  "run": "2026-07-01T17-39-07-313Z",
+  "phases": [
+    {
+      "phaseId": "phase-2",
+      "pali": "sattānaṁ visuddhiyā,",
+      "goldenWordCount": 2,
+      "modelWordCount": 2,
+      "words": [
+        {
+          "surface": "sattānaṁ",
+          "golden": {
+            "seg": "satt·ānaṁ",
+            "tips": [
+              "From sat/sant: existing, being",
+              "Also √saj: to cling (the \"stuck\" ones)",
+              "Also satta: seven (7)",
+              "[Genitive Plural] Of beings",
+              "🔗 Shows who it belongs to"
+            ],
+            "senses": [
+              "beings",
+              "stuck ones",
+              "seven types"
+            ]
+          },
+          "model": {
+            "seg": "satt·ānaṁ",
+            "tips": [
+              "satta: being, creature",
+              "From √sat: to be",
+              "[Genitive Plural] Belonging to the beings",
+              "🔗 Marks possession: 'of the beings'"
+            ],
+            "senses": [
+              "beings",
+              "lives",
+              "individuals"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "visuddhiyā",
+          "golden": {
+            "seg": "vi·suddhi·yā",
+            "tips": [
+              "[Prefix] Intensive / completely",
+              "√sudh: Purity, brightness",
+              "✨ To be clean, clear",
+              "[Dative] For the sake of",
+              "🎯 Purpose marker"
+            ],
+            "senses": [
+              "purification",
+              "clarity",
+              "cleansing",
+              "brightening",
+              "refinement"
+            ]
+          },
+          "model": {
+            "seg": "visuddhi·yā· ",
+            "tips": [
+              "visuddhi: purity",
+              "From vi + suddhi: 'completely clean'",
+              "[Genitive Singular] Of purity",
+              "🔗 Marks belonging: 'of purity'",
+              "[Genitive Singular] Of purity",
+              "🔗 Marks belonging: 'of purity'"
+            ],
+            "senses": [
+              "purification",
+              "holiness",
+              "liberation"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-4",
+      "pali": "dukkhadomanassānaṁ atthaṅgamāya,",
+      "goldenWordCount": 2,
+      "modelWordCount": 2,
+      "words": [
+        {
+          "surface": "dukkhadomanassānaṁ",
+          "golden": {
+            "seg": "dukkha·domanass·ānaṁ",
+            "tips": [
+              "[Compound] du (bad) + kha (space)",
+              "Physical pain, suffering",
+              "[Compound] du (bad) + manas (mind)",
+              "Mental distress, displeasure",
+              "[Genitive Plural] Of pain & distress"
+            ],
+            "senses": [
+              "pain & distress",
+              "suffering & sadness",
+              "discomfort & displeasure"
+            ]
+          },
+          "model": {
+            "seg": "dukkha·domanassa·ā·naṁ·",
+            "tips": [
+              "√dukh: To be bad, painful",
+              "Suffering, unhappiness",
+              "domanassa: distress, grief",
+              "Related to 'doma' (grief)",
+              "Suffix: Genitive singular",
+              "Suffix: Genitive plural"
+            ],
+            "senses": [
+              "discomfort",
+              "suffering",
+              "anguish"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "atthaṅgamāya",
+          "golden": {
+            "seg": "atthaṅ·gam·āya",
+            "tips": [
+              "From √as: to set (like the sun)",
+              "Home, setting, disappearing",
+              "√gam: to go",
+              "atthaṅgama = going to its setting",
+              "[Dative] For the sake of",
+              "🎯 Purpose marker"
+            ],
+            "senses": [
+              "disappearance",
+              "ending",
+              "extinguishing"
+            ]
+          },
+          "model": {
+            "seg": "atthaṅga·māya·",
+            "tips": [
+              "atthaṅga: the eightfold path",
+              "Eight parts",
+              "Suffix: instrumental case",
+              "Means 'by means of'"
+            ],
+            "senses": [
+              "disappearance",
+              "cessation",
+              "extinguishment"
+            ],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-d",
+      "pali": "ekaṁ samayaṁ bhagavā kurūsu viharati kammāsadhammaṁ nāma kurūnaṁ nigamo. ",
+      "goldenWordCount": 4,
+      "modelWordCount": 9,
+      "words": [
+        {
+          "surface": "Kammāsadhammaṁ",
+          "golden": {
+            "seg": "Kammāsa·dhamma·ṁ",
+            "tips": [
+              "Spotted / Speckled",
+              "Name of a man-eating ogre (porisāda)",
+              "From Jātaka: King Kammāsapāda",
+              "Likely from √dam: to tame",
+              "Where the ogre was \"tamed\"",
+              "Sanskritized spelling: dhamma",
+              "Name ending",
+              "Labels the town that follows"
+            ],
+            "senses": [
+              "Kammāsadhamma",
+              "\"Where the Spotted One was Tamed\"",
+              "the spotted-dhamma place"
+            ]
+          },
+          "model": {
+            "seg": "kammā·sadhamm·a·ṁ",
+            "tips": [
+              "kamma: action, deed",
+              "saddhamma: good doctrine",
+              "[connecting vowel]",
+              "[Nominative singular] Marks the subject"
+            ],
+            "senses": [],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "nāma",
+          "golden": {
+            "seg": "nāma",
+            "tips": [
+              "[Indeclinable] \"named, by name\"",
+              "Links proper name to common noun",
+              "\"X nāma Y\" = \"Y named X\""
+            ],
+            "senses": [
+              "named"
+            ]
+          },
+          "model": {
+            "seg": "nāma",
+            "tips": [
+              "nāma: name, called"
+            ],
+            "senses": [],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "kurūnaṁ",
+          "golden": {
+            "seg": "kurū·naṁ",
+            "tips": [
+              "[Stem] Kuru (the Kuru people)",
+              "Lengthened to kurū before -naṁ",
+              "[Genitive Plural] Possession",
+              "\"Of the Kurus\" — their town"
+            ],
+            "senses": [
+              "of the Kurus",
+              "belonging to the Kurus",
+              "the Kurus'"
+            ]
+          },
+          "model": {
+            "seg": "kurū·naṁ",
+            "tips": [
+              "kurū: name of a country",
+              "[Genitive plural] Of the Kurus"
+            ],
+            "senses": [],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "nigamo",
+          "golden": {
+            "seg": "ni·gam·o",
+            "tips": [
+              "[Prefix] Down / Into",
+              "Where people go down to",
+              "√gam: to go",
+              "Place people resort to (for trade)",
+              "[Nominative Singular] Subject marker",
+              "\"A town\" — what we are talking about"
+            ],
+            "senses": [
+              "a market town",
+              "a township",
+              "a trading center"
+            ]
+          },
+          "model": {
+            "seg": "nigam·o",
+            "tips": [
+              "nigama: town, village",
+              "[Nominative singular] Marks the subject"
+            ],
+            "senses": [],
+            "segMatch": false
+          }
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "ekaṁ",
+          "seg": "eka·ṁ",
+          "tips": [
+            "eka: one, a certain",
+            "Cardinally 'one', adjectivally 'a certain'",
+            "[Accusative of Time] Marks when something happens"
+          ]
+        },
+        {
+          "surface": "samayaṁ",
+          "seg": "sam·aya·ṁ",
+          "tips": [
+            "sam-: together, completely",
+            "√i: to go",
+            "sam + aya = \"a coming together\""
+          ]
+        },
+        {
+          "surface": "bhagavā",
+          "seg": "bhaga·vā",
+          "tips": [
+            "bhaga: fortune, good luck",
+            "From √bhaj: to share",
+            "[Possessive suffix] One who has..."
+          ]
+        },
+        {
+          "surface": "kurūsu",
+          "seg": "kurū·su",
+          "tips": [
+            "kurū: name of a country",
+            "The land of the Kurus",
+            "[3rd person singular] Indicates 'he/she/it'"
+          ]
+        },
+        {
+          "surface": "viharati",
+          "seg": "vi·har·ati",
+          "tips": [
+            "vi-: in, at, on",
+            "√har: to take, carry, remove",
+            "[3rd person singular] Indicates 'he/she/it'"
+          ]
+        }
+      ]
+    },
+    {
+      "phaseId": "phase-f",
+      "pali": "“bhikkhavo”ti. ",
+      "goldenWordCount": 2,
+      "modelWordCount": 1,
+      "words": [
+        {
+          "surface": "Bhikkhavo",
+          "golden": {
+            "seg": "Bhikkh·avo",
+            "tips": [
+              "√bhikkh: To share / beg",
+              "[Vocative Plural] 📢 \"Hey you all!\"",
+              "Calling out to a group",
+              "Like saying \"O monks!\""
+            ],
+            "senses": [
+              "Bhikkhus!",
+              "Monks!",
+              "Mendicants!"
+            ]
+          },
+          "model": {
+            "seg": "bhikkhu·vo",
+            "tips": [
+              "√bhikkh: To share / beg",
+              "Religious mendicancy",
+              "📢 Vocative plural — calling out to a group",
+              "Marks the addressee as monks"
+            ],
+            "senses": [
+              "Monks!"
+            ],
+            "segMatch": false
+          }
+        },
+        {
+          "surface": "ti",
+          "golden": {
+            "seg": "ti",
+            "tips": [
+              "[Quotation marker] From iti",
+              "End of speech"
+            ],
+            "senses": [
+              "\""
+            ]
+          },
+          "model": null
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "phaseId": "phase-h",
+      "pali": "Bhagavā etadavoca: ",
+      "goldenWordCount": 3,
+      "modelWordCount": 2,
+      "words": [
+        {
+          "surface": "Bhagavā",
+          "golden": {
+            "seg": "Bhaga·vā",
+            "tips": [
+              "Fortune, good luck",
+              "From √bhaj: to share",
+              "[Possessive suffix] \"One who has...\"",
+              "[Nominative] Subject — the speaker"
+            ],
+            "senses": [
+              "The Blessed One",
+              "The Fortunate One",
+              "The Lucky One"
+            ]
+          },
+          "model": {
+            "seg": "Bhaga·vā",
+            "tips": [
+              "√bhaj: to share, to be fortunate",
+              "Bhaga: fortune, luck, splendor",
+              "[Possessive suffix] One who has...",
+              "Forms the nominative singular 'the Blessed One'"
+            ],
+            "senses": [
+              "Blessed One",
+              "Sublime One",
+              "Fortunate One"
+            ],
+            "segMatch": true
+          }
+        },
+        {
+          "surface": "etad",
+          "golden": {
+            "seg": "etad",
+            "tips": [
+              "[Demonstrative Pronoun] \"This\"",
+              "[Neuter Accusative] Points to what follows",
+              "More emphatic than \"tad\""
+            ],
+            "senses": [
+              "this"
+            ]
+          },
+          "model": null
+        },
+        {
+          "surface": "avoca",
+          "golden": {
+            "seg": "a·voc·a",
+            "tips": [
+              "[Augment] Marks past tense",
+              "Like \"a-\" in Greek aorist",
+              "√vac: To speak, say",
+              "Source of Latin \"vox\", English \"voice\"",
+              "[Aorist 3rd singular] He spoke",
+              "Completed action in the past"
+            ],
+            "senses": [
+              "said",
+              "declared",
+              "spoke"
+            ]
+          },
+          "model": null
+        }
+      ],
+      "unmatched": [
+        {
+          "surface": "etadavoca",
+          "seg": "eta·da·voca",
+          "tips": [
+            "eta: this",
+            "Demonstrative pronoun",
+            "[Demonstrative suffix] 'this'"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -286,6 +286,12 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 
   console.log(`[Leaderboard] ${byModel.size} ranked models`);
 
+  // Coverage floor: a model scored on far fewer phases than the board isn't comparable —
+  // its mean is over a different, smaller (often easier) sample. Exclude best-runs below
+  // 50% of the board's max coverage (e.g. a circuit-broken 4/30 run).
+  const maxPhases = Math.max(0, ...[...byModel.values()].map((runs) => Math.max(...runs.map((r) => r.phases.length))));
+  const coverageFloor = Math.max(1, Math.floor(maxPhases * 0.5));
+
   // Per model, pick the SINGLE best run (highest mean overallScore; tie-break: more phases).
   // Use ONLY that run's phases, metrics, and semantic score — never a Frankenstein of
   // best-per-phase across runs, and never summed metrics (grok + Gemini review).
@@ -316,6 +322,11 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       // first would let a 1-phase lucky/aborted run beat a stable full run — Goodhart (Gemini review).
       .sort((a, b) => b.phases.length - a.phases.length || b.meanOverall - a.meanOverall);
     const best = ranked[0];
+    if (best.phases.length < coverageFloor) {
+      excludedModels.add(modelId);
+      excludedReasons.add(`${modelId}: ${best.phases.length}/${maxPhases} phases (< ${coverageFloor} coverage floor) — insufficient coverage to rank`);
+      continue;
+    }
     const phases = best.phases;
     modelScores.push({
       modelId,
