@@ -256,7 +256,7 @@ export const applyWordRangeToSegments = (
   segments: CanonicalSegment[],
   wordRange?: [number, number]
 ): CanonicalSegment[] => {
-  if (!wordRange) return segments;
+  if (!wordRange || segments.length === 0) return segments;
 
   const [start, end] = wordRange;
   const fullPali = segments.map((s) => s.pali).join(' ');

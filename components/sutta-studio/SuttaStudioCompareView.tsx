@@ -1,0 +1,124 @@
+/**
+ * SuttaStudioCompareView — two compiled packets of the SAME sutta, side by side.
+ *
+ * Route: /sutta/compare?left=<packet-url>&right=<packet-url>
+ * Defaults to the MN117 production-model bake-off (gemini-3-flash vs
+ * deepseek-v4-flash). Unranked and qualitative by design: no golden exists
+ * for MN117; this page exists so a human can read both renderings of the
+ * same canonical input and judge which model earns production.
+ *
+ * Each pane hosts a full SuttaStudioView in its own scroll container, so the
+ * reading experience being compared is the real one (tooltips, senses,
+ * citations, alignment), not a stripped summary.
+ */
+
+import { useEffect, useState } from 'react';
+import type { DeepLoomPacket } from '../../types/suttaStudio';
+import { SuttaStudioView } from './SuttaStudioView';
+
+type Side = {
+  url: string;
+  label: string;
+  packet: DeepLoomPacket | null;
+  error: string | null;
+};
+
+const DEFAULT_LEFT = '/benchmarks/mn117/gemini-3-flash.packet.json';
+const DEFAULT_RIGHT = '/benchmarks/mn117/deepseek-v4-flash.packet.json';
+
+const labelFromUrl = (url: string): string => {
+  const file = url.split('/').pop() || url;
+  return file.replace(/\.packet\.json$/, '').replace(/\.json$/, '');
+};
+
+const useSide = (url: string): Side => {
+  const [side, setSide] = useState<Side>({ url, label: labelFromUrl(url), packet: null, error: null });
+
+  useEffect(() => {
+    let cancelled = false;
+    setSide({ url, label: labelFromUrl(url), packet: null, error: null });
+    fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+        return r.json();
+      })
+      .then((packet: DeepLoomPacket) => {
+        if (cancelled) return;
+        // The packet self-reports which model compiled it — trust that over
+        // whatever the URL happens to be named.
+        const model = packet?.compiler?.model;
+        setSide({ url, label: model || labelFromUrl(url), packet, error: null });
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setSide({ url, label: labelFromUrl(url), packet: null, error: e?.message || String(e) });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+
+  return side;
+};
+
+const PaneState = ({ side }: { side: Side }) => (
+  <div className="flex h-full items-center justify-center px-6 text-center">
+    {side.error ? (
+      <div>
+        <p className="text-rose-300 text-sm font-medium mb-2">Could not load packet</p>
+        <p className="text-slate-400 text-xs break-all">{side.url}</p>
+        <p className="text-slate-500 text-xs mt-2">{side.error}</p>
+      </div>
+    ) : (
+      <p className="text-slate-400 text-sm animate-pulse">Loading {side.label}…</p>
+    )}
+  </div>
+);
+
+export function SuttaStudioCompareView() {
+  const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const leftUrl = params.get('left') || DEFAULT_LEFT;
+  const rightUrl = params.get('right') || DEFAULT_RIGHT;
+
+  const left = useSide(leftUrl);
+  const right = useSide(rightUrl);
+
+  const workId = left.packet?.source?.workId || right.packet?.source?.workId || '';
+
+  const pane = (side: Side, edge: 'left' | 'right') => (
+    <div
+      className={`relative h-full min-h-0 overflow-y-auto overscroll-contain bg-slate-950 ${
+        edge === 'left' ? 'lg:border-r lg:border-slate-800' : ''
+      }`}
+    >
+      <div className="sticky top-0 z-40 flex justify-center pointer-events-none">
+        <span className="mt-2 rounded-full bg-slate-900/95 border border-slate-700 px-3 py-1 text-xs font-medium text-amber-200 shadow-lg">
+          {side.label}
+        </span>
+      </div>
+      {side.packet ? <SuttaStudioView packet={side.packet} /> : <PaneState side={side} />}
+    </div>
+  );
+
+  return (
+    <div className="h-dvh flex flex-col bg-slate-950 text-slate-100">
+      <header className="flex-none border-b border-slate-800 bg-slate-950/95 px-4 py-2">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h1 className="text-sm font-semibold text-slate-100">
+            {workId ? workId.toUpperCase() + ' — ' : ''}side-by-side compile
+          </h1>
+          <p className="text-xs text-slate-400">
+            Same sutta, same production pipeline, two models. Unranked — no golden exists for this text; read and judge.
+            <a href="/bench/sutta-studio" className="ml-2 text-sky-400 hover:text-sky-300 underline decoration-slate-600">
+              MN10 leaderboard
+            </a>
+          </p>
+        </div>
+      </header>
+      <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-2 lg:grid-cols-2 lg:grid-rows-1">
+        {pane(left, 'left')}
+        {pane(right, 'right')}
+      </div>
+    </div>
+  );
+}

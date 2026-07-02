@@ -4,6 +4,7 @@ import { SuttaStudioBenchmarkView } from './components/bench/SuttaStudioBenchmar
 import { SuttaStudioApp } from './components/sutta-studio/SuttaStudioApp';
 import { SuttaStudioView } from './components/sutta-studio/SuttaStudioView';
 import { SuttaStudioPipelineLoader } from './components/sutta-studio/SuttaStudioPipelineLoader';
+import { SuttaStudioCompareView } from './components/sutta-studio/SuttaStudioCompareView';
 import { DEMO_PACKET_MN10 } from './components/sutta-studio/demoPacket';
 import type { DeepLoomPacket } from './types/suttaStudio';
 import { LiturgyApp } from './components/liturgy/LiturgyApp';
@@ -49,6 +50,12 @@ const App: React.FC = () => {
   // Pipeline output viewer - loads assembled packet from benchmark runs
   if (pathname === '/sutta/pipeline') {
     return <SuttaStudioPipelineLoader />;
+  }
+
+  // Two compiles of the same sutta, side by side (production-model bake-offs).
+  // Must precede the localSuttaMatch regex, which would swallow "compare" as a sutta id.
+  if (pathname === '/sutta/compare') {
+    return <SuttaStudioCompareView />;
   }
 
   // Published local suttas by REAL id (/sutta/mn10, …) — bundled packet, no API calls.

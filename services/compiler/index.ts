@@ -341,6 +341,14 @@ export const compileSuttaStudioPacket = async (options: {
     const phase = phaseSkeleton[i];
     const segmentSet = new Set(phase.segmentIds);
     const phaseSegments = canonicalWithOrder.filter((seg) => segmentSet.has(seg.ref.segmentId));
+    if (phaseSegments.length === 0) {
+      // Skeleton emitted a phase whose ids resolve to nothing (should be
+      // impossible post-skeleton-filtering, but one such phase crashed a full
+      // MN117 compile at applyWordRangeToSegments). Skip loudly, spend no LLM.
+      warn(`Phase ${phase.id} resolved to zero canonical segments (skeleton ids: ${phase.segmentIds.join(', ') || 'none'}); skipping phase.`);
+      logPipelineEvent({ level: 'warn', stage: 'phase', phaseId: phase.id, message: 'phase.skipped.empty', data: { segmentIds: phase.segmentIds } });
+      continue;
+    }
     const effectiveSegments = applyWordRangeToSegments(phaseSegments, phase.wordRange);
     if (phase.wordRange) {
       log(`  wordRange: [${phase.wordRange[0]}, ${phase.wordRange[1]}) applied - Pali: "${effectiveSegments[0]?.pali}"`);

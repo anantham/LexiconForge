@@ -127,22 +127,35 @@ export const runSkeletonPass = async (params: {
         }))
         .filter((phase) => phase.segmentIds.length > 0);
 
+      // Duplicate-claim handling: a phase WITH a wordRange legitimately
+      // re-claims a segment an earlier phase already owns — that is how one
+      // long segment becomes several sub-split phases. Only phases WITHOUT a
+      // wordRange lose duplicate ids (true LLM double-claims), and any phase
+      // left empty is dropped loudly so it can never reach the compiler as a
+      // zero-segment phase. Mirrors services/compiler/skeleton.ts.
       const seen = new Set<string>();
       filtered.forEach((phase) => {
         phase.segmentIds = phase.segmentIds.filter((id) => {
-          if (seen.has(id)) return false;
-          seen.add(id);
-          return true;
+          if (!seen.has(id)) {
+            seen.add(id);
+            return true;
+          }
+          return Boolean(phase.wordRange);
         });
+      });
+      const nonEmpty = filtered.filter((phase) => {
+        if (phase.segmentIds.length > 0) return true;
+        console.warn(`[SuttaStudio] Skeleton chunk ${chunkIndex + 1}: dropping ${phase.id} — every segmentId already claimed by an earlier phase and no wordRange.`);
+        return false;
       });
 
       if (seen.size !== chunkSegmentIds.size) {
         throw new Error('Skeleton chunk missing or duplicate segments; falling back to chunking.');
       }
 
-      phases.push(...filtered);
+      phases.push(...nonEmpty);
       chunks.push({
-        output: filtered,
+        output: nonEmpty,
         llm,
         requestName,
         schemaName,
