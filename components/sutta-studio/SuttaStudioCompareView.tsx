@@ -21,6 +21,28 @@ type Side = {
   label: string;
   packet: DeepLoomPacket | null;
   error: string | null;
+  /** % of rendered Pāli words whose segment-concat appears verbatim in the
+   * canonical text — the benchmark's textIntegrity idea, golden-free. */
+  surfaceIntegrity: number | null;
+};
+
+const stripToLetters = (s: string): string =>
+  (s || '').normalize('NFC').toLowerCase().replace(/[^a-zāīūṁṃṅñṭḍṇḷ]/g, '');
+
+const measureSurfaceIntegrity = (packet: DeepLoomPacket): number | null => {
+  const canon = stripToLetters((packet.canonicalSegments || []).map((s) => s.pali).join(' '));
+  if (!canon) return null;
+  let total = 0;
+  let ok = 0;
+  for (const phase of packet.phases || []) {
+    for (const word of phase.paliWords || []) {
+      const surface = stripToLetters((word.segments || []).map((seg) => seg.text).join(''));
+      if (!surface) continue;
+      total += 1;
+      if (canon.includes(surface)) ok += 1;
+    }
+  }
+  return total === 0 ? null : ok / total;
 };
 
 const DEFAULT_LEFT = '/benchmarks/mn117/gemini-3-flash.packet.json';
@@ -32,11 +54,11 @@ const labelFromUrl = (url: string): string => {
 };
 
 const useSide = (url: string): Side => {
-  const [side, setSide] = useState<Side>({ url, label: labelFromUrl(url), packet: null, error: null });
+  const [side, setSide] = useState<Side>({ url, label: labelFromUrl(url), packet: null, error: null, surfaceIntegrity: null });
 
   useEffect(() => {
     let cancelled = false;
-    setSide({ url, label: labelFromUrl(url), packet: null, error: null });
+    setSide({ url, label: labelFromUrl(url), packet: null, error: null, surfaceIntegrity: null });
     fetch(url)
       .then((r) => {
         if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
@@ -47,11 +69,11 @@ const useSide = (url: string): Side => {
         // The packet self-reports which model compiled it — trust that over
         // whatever the URL happens to be named.
         const model = packet?.compiler?.model;
-        setSide({ url, label: model || labelFromUrl(url), packet, error: null });
+        setSide({ url, label: model || labelFromUrl(url), packet, error: null, surfaceIntegrity: measureSurfaceIntegrity(packet) });
       })
       .catch((e) => {
         if (cancelled) return;
-        setSide({ url, label: labelFromUrl(url), packet: null, error: e?.message || String(e) });
+        setSide({ url, label: labelFromUrl(url), packet: null, error: e?.message || String(e), surfaceIntegrity: null });
       });
     return () => {
       cancelled = true;
@@ -91,10 +113,20 @@ export function SuttaStudioCompareView() {
         edge === 'left' ? 'lg:border-r lg:border-slate-800' : ''
       }`}
     >
-      <div className="sticky top-0 z-40 flex justify-center pointer-events-none">
+      <div className="sticky top-0 z-40 flex justify-center gap-2 pointer-events-none">
         <span className="mt-2 rounded-full bg-slate-900/95 border border-slate-700 px-3 py-1 text-xs font-medium text-amber-200 shadow-lg">
           {side.label}
         </span>
+        {side.surfaceIntegrity != null && (
+          <span
+            className={`mt-2 rounded-full bg-slate-900/95 border px-3 py-1 text-xs shadow-lg ${
+              side.surfaceIntegrity >= 0.97 ? 'border-emerald-700 text-emerald-300' : 'border-rose-800 text-rose-300'
+            }`}
+            title="Share of rendered Pāli words whose morpheme segments concatenate to a string found verbatim in the canonical text. Measured in your browser against the packet's own canonical segments — no reference answer involved."
+          >
+            surface integrity {(side.surfaceIntegrity * 100).toFixed(1)}%
+          </span>
+        )}
       </div>
       {side.packet ? <SuttaStudioView packet={side.packet} /> : <PaneState side={side} />}
     </div>
