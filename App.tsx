@@ -58,6 +58,13 @@ const App: React.FC = () => {
     return <SuttaStudioCompareView />;
   }
 
+  // MN117 is mid-bake-off: the canonical id shows the two-model side-by-side
+  // until a production model is picked. Then: delete this branch, add the
+  // winning packet to LOCAL_SUTTA_PACKETS like mn10.
+  if (pathname === '/sutta/mn117') {
+    return <SuttaStudioCompareView />;
+  }
+
   // Published local suttas by REAL id (/sutta/mn10, …) — bundled packet, no API calls.
   // /sutta/demo is a legacy alias handled here (the effect above rewrites its URL to mn10).
   if (pathname === '/sutta/demo') {
