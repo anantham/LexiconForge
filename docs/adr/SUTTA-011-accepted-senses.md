@@ -1,7 +1,27 @@
 # SUTTA-011 — Golden expansion via DPD-attested "accepted" senses
 
-**Status:** Implemented, **pending dual-family review** (touches the SUTTA-009 ranked metric).
-**Date:** 2026-07-01
+**Status:** **REVERTED** — dual-family review (grok + Gemini 3.1 Pro High, 2026-07-02) returned
+**REVISE**. The `acceptedSenses` fp-neutralization was removed from the scorer; the metric is back
+to strict SUTTA-009. Superseded by **path B** (below). The DPD `acceptedSenses` data + generator are
+retained as raw material for path B.
+**Date:** 2026-07-01 (reverted 2026-07-02)
+
+## Dual-family review outcome (both REVISE, converging)
+
+The fatal flaw is exactly limitation #1, and it is NOT "mild": using an **uncontextualized union of
+all DPD homonyms** as a neutral set destroys word-sense disambiguation.
+
+- **Gemini:** a model can output "seven beings" and never be penalised for the wrong homonym → the
+  metric degrades to recall-only bounded by the dictionary. A dumb dictionary-lookup script would
+  ace Content-F1. DPD homonym unions also contain common English stop-words → verbosity laundering.
+- **Grok:** asymmetric tp/fn references; weakens disambiguation pressure; implemented+mutated the
+  fixture before review; missing adversarial tests.
+
+**Agreed fix — path B (do this instead):** after DPD lookup, have an LLM/human select only the
+**contextually valid** senses for each specific phase, merge those vetted senses into the **core**
+golden (so they earn `tp` AND participate in `fn`), and **keep strict SUTTA-009 F1**. This is the
+"golden-update protocol" — widen the golden, don't loosen the instrument — plus adversarial tests
+and a board re-run. Not yet built.
 
 ## Problem
 
