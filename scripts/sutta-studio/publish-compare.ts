@@ -29,7 +29,7 @@ import {
   tokenize,
   wordKnowledgeTokensById,
   scoreSegmentationFidelity,
-  scoreContentFidelity,
+  scoreContentFidelityDetail,
 } from './quality-scorer';
 import type { AnatomistPass, LexicographerPass } from '../../types/suttaStudio';
 
@@ -122,9 +122,12 @@ function buildPhase(
   // Per-phase stage scores — recomputed with the scorer's own functions (identical to
   // quality-scores.json; kept live here so the artifact can't drift from the metric).
   const judged = words.map((w) => w.judge).filter(Boolean) as JudgeEntry[];
+  const contentDetail = scoreContentFidelityDetail(oa, ga, ol, gl);
   const scores = {
     segF1: scoreSegmentationFidelity(oa, ga),
-    contentF1: scoreContentFidelity(oa, ga, ol, gl),
+    contentF1: contentDetail?.f1 ?? null,
+    contentPrecision: contentDetail?.precision ?? null,
+    contentRecall: contentDetail?.recall ?? null,
     semantic: judged.length ? judged.reduce((a, j) => a + j.score, 0) / judged.length : null,
     coverage: ga.words.length ? pairs.length / ga.words.length : null,
     overall: phaseScores?.overallScore ?? null,

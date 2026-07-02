@@ -344,6 +344,8 @@ function ComparePanel({ modelId, data, loading, onBack }: { modelId: string; dat
                 <div className="mb-2 flex flex-wrap gap-1.5">
                   <PhaseStat label="split" value={fmtScore(phase.scores.segF1)} tip="Anatomist stage: F1 of morpheme cut positions vs golden, pooled over aligned words" />
                   <PhaseStat label="content" value={fmtScore(phase.scores.contentF1)} tip="Lexicographer stage: strict token-overlap F1 of tooltips+senses vs golden (see per-word breakdown)" />
+                  {phase.scores.contentPrecision != null ? <PhaseStat label="P" value={fmtScore(phase.scores.contentPrecision)} tip="Content precision: of what the model said, the golden-attested fraction" /> : null}
+                  {phase.scores.contentRecall != null ? <PhaseStat label="R" value={fmtScore(phase.scores.contentRecall)} tip="Content recall: of what the golden requires, the fraction the model said (dropped words count as misses)" /> : null}
                   <PhaseStat label="judge" value={fmtScore(phase.scores.semantic)} tip="Semantic judge average over this phase's words (meaning-level, wording-independent)" />
                   <PhaseStat label="coverage" value={phase.scores.coverage == null ? '—' : `${Math.round(phase.scores.coverage * 100)}%`} tip="Fraction of golden words the model reproduced (by surface alignment)" />
                   <PhaseStat label="overall" value={fmtScore(phase.scores.overall)} tip="This phase's overall score: gate × (0.60·Fidelity + 0.25·Usability + 0.15·Richness)" />
@@ -1227,6 +1229,12 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                           <HeaderTip label="Content" tip="Content fidelity — token-F1 of etymology + glosses vs the golden. Deterministic, so it can't reward valid paraphrase or enrichment (that's what Semantic is for)." />{' '}
                           {sortColumn === 'contentFidelity' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
+                        <th className="px-3 py-2">
+                          <HeaderTip label="P" tip="Content precision — of everything the model said, the fraction the golden attests. A thin golden deflates this for every model roughly equally." />
+                        </th>
+                        <th className="px-3 py-2">
+                          <HeaderTip label="R" tip="Content recall — of everything the golden requires, the fraction the model said. v2.1: words the model dropped count as misses." />
+                        </th>
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('contentSemantic')}>
                           <HeaderTip label="Semantic" tip="Semantic score — an LLM judge (gpt-4o-mini) rating word content 0–1: rewards correct enrichment, penalizes hallucination. Advisory — NOT in the ranked total." />{' '}
                           {sortColumn === 'contentSemantic' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -1278,6 +1286,12 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                             </td>
                             <td className={`px-3 py-2 ${scoreColor(entry.contentFidelity)}`}>
                               {entry.contentFidelity.toFixed(2)}
+                            </td>
+                            <td className="px-3 py-2 text-gray-500">
+                              {(entry as any).contentPrecision == null ? '—' : (entry as any).contentPrecision.toFixed(2)}
+                            </td>
+                            <td className="px-3 py-2 text-gray-500">
+                              {(entry as any).contentRecall == null ? '—' : (entry as any).contentRecall.toFixed(2)}
                             </td>
                             <td className={`px-3 py-2 ${entry.contentSemantic == null ? 'text-gray-300' : scoreColor(entry.contentSemantic)}`}>
                               {entry.contentSemantic == null ? '—' : entry.contentSemantic.toFixed(2)}

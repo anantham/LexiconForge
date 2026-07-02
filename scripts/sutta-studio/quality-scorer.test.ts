@@ -147,3 +147,46 @@ describe('paliWordCoverage is golden-aware', () => {
     expect(s.paliWordCoverage).toBe(1);
   });
 });
+
+// ── v2.1 (ADR SUTTA-012): dropped golden words owe their content — no survivorship bias ──
+describe('v2.1 drop penalty', () => {
+  /** Model that silently drops the hard word "nigamo" but nails "loke". */
+  function lokeOnlyAnat(): AnatomistPass {
+    return {
+      id: 'phase-x',
+      words: [word('m2', 'loke', ['m2s1', 'm2s2'])],
+      segments: [
+        seg('m2s1', 'm2', 'lok', ['√lok: world']),
+        seg('m2s2', 'm2', 'e', ['Function: loc sg']),
+      ],
+    };
+  }
+  function lokeOnlyLex(): LexicographerPass {
+    return {
+      id: 'phase-x',
+      senses: [{ wordId: 'm2', wordClass: 'content', senses: [{ english: 'world', nuance: 'the world' }] }],
+    };
+  }
+
+  it('segmentation: dropping a multi-morpheme golden word charges its boundaries as misses', () => {
+    // golden nigamo has cuts {2,5}, loke has {3}; model keeps only loke (tp=1) and owes
+    // nigamo's 2 cuts as fn → F1 = 2·1/(2·1+0+2) = 0.5. Pre-v2.1 this scored a perfect 1.0.
+    expect(scoreSegmentationFidelity(lokeOnlyAnat(), goldenAnat())).toBeCloseTo(0.5, 5);
+  });
+
+  it('content: dropping a content-bearing golden word charges its tokens as misses', () => {
+    const f1 = scoreContentFidelity(lokeOnlyAnat(), goldenAnat(), lokeOnlyLex(), goldenLex());
+    expect(f1).not.toBeNull();
+    expect(f1!).toBeLessThan(1); // pre-v2.1 this was a perfect 1.0 despite dropping half the phase
+    expect(f1!).toBeGreaterThan(0);
+  });
+
+  it('scorePhase exposes contentPrecision/contentRecall; perfect model → 1/1, dropper → P=1 R<1', () => {
+    const perfect = scorePhase(mkPipeline(goldenAnat(), goldenLex()), 'phase-x', 'perfect');
+    expect(perfect.contentPrecision).toBe(1);
+    expect(perfect.contentRecall).toBe(1);
+    const dropper = scorePhase(mkPipeline(lokeOnlyAnat(), lokeOnlyLex()), 'phase-x', 'dropper');
+    expect(dropper.contentPrecision).toBe(1);       // everything it said is golden-attested
+    expect(dropper.contentRecall!).toBeLessThan(1); // but it skipped a word's worth of content
+  });
+});

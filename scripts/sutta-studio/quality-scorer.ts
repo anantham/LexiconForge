@@ -48,7 +48,7 @@ export type PipelineOutput = {
  * gateFactor multiplier, sequence-aligned micro-F1 fidelity, paliWordCoverage as a Gate.
  * v1 (density) scores are NOT comparable to v2 and must not share a leaderboard.
  */
-export const RUBRIC_VERSION = '2.0';
+export const RUBRIC_VERSION = '2.1';
 
 export type QualityScore = {
   phase: string;
@@ -70,6 +70,8 @@ export type QualityScore = {
   // Fidelity (vs golden) — null when no golden packet is available for the phase
   segmentationFidelity: number | null;  // morpheme-boundary F1 vs golden, matched by surface
   contentFidelity: number | null;       // etymology + gloss token F1 vs golden, matched by surface
+  contentPrecision: number | null;      // of what the model said, how much the golden attests (v2.1)
+  contentRecall: number | null;         // of what the golden requires, how much the model said (v2.1)
   fidelityScore: number | null;         // combined fidelity dimension
   // Grammar (arrows)
   relationCount: number;
@@ -367,6 +369,7 @@ export function scoreSegmentationFidelity(
   if (!golden?.words?.length) return null; // no golden → ungraded (excluded from ranking)
   const pairs = alignWords(golden.words, output.words || []);
   if (pairs.length === 0) return 0; // golden exists but nothing aligned → earned a 0, not a free pass (grok + Gemini review)
+  const alignedG = new Set(pairs.map(([gi]) => gi));
   let tp = 0, fp = 0, fn = 0;
   for (const [gi, mi] of pairs) {
     const gCuts = boundaryOffsets(golden.words[gi].segmentIds || [], golden.segments || []);
@@ -374,6 +377,13 @@ export function scoreSegmentationFidelity(
     for (const c of oCuts) (gCuts.has(c) ? tp++ : fp++);
     for (const c of gCuts) if (!oCuts.has(c)) fn++;
   }
+  // v2.1 (ADR SUTTA-012): a golden word the model DROPPED still owes its boundaries.
+  // Fidelity used to be conditioned on the words a model chose to keep, so skipping
+  // hard words inflated the score (survivorship bias — one model dropped 41% of golden
+  // words and still posted competitive per-kept-word fidelity).
+  golden.words.forEach((gw, gi) => {
+    if (!alignedG.has(gi)) fn += boundaryOffsets(gw.segmentIds || [], golden.segments || []).size;
+  });
   const denom = 2 * tp + fp + fn;
   return denom > 0 ? (2 * tp) / denom : 1; // no boundaries on either side across all aligned words → agree
 }
@@ -406,13 +416,13 @@ export const wordKnowledgeTokensById = (
  * handled by the golden-update protocol, not by loosening the metric. Words the golden
  * is silent on contribute nothing (no penalty for a model's correct additions).
  */
-export function scoreContentFidelity(
+export function scoreContentFidelityDetail(
   outAnat: AnatomistPass, goldAnat: AnatomistPass | null | undefined,
   outLex: LexicographerPass, goldLex: LexicographerPass | null | undefined
-): number | null {
+): { f1: number; precision: number; recall: number; tp: number; fp: number; fn: number } | null {
   if (!goldAnat?.words?.length) return null; // no golden → ungraded
   const pairs = alignWords(goldAnat.words, outAnat.words || []);
-  if (pairs.length === 0) return 0; // golden exists but nothing aligned → earned a 0, not a free pass (grok + Gemini review)
+  const alignedG = new Set(pairs.map(([gi]) => gi));
   let tp = 0, fp = 0, fn = 0, scored = 0;
   for (const [gi, mi] of pairs) {
     const goldTokens = new Set(wordKnowledgeTokensById(goldAnat.words[gi].id, goldAnat, goldLex));
@@ -422,9 +432,33 @@ export function scoreContentFidelity(
     for (const t of modelTokens) (goldTokens.has(t) ? tp++ : fp++);
     for (const t of goldTokens) if (!modelTokens.has(t)) fn++;
   }
-  if (scored === 0) return null;
+  // v2.1 (ADR SUTTA-012): a golden word the model DROPPED still owes its content.
+  // Every golden token of an unaligned word is a miss — dropping hard words must not
+  // inflate fidelity (survivorship bias). Model-only words stay unpenalized: the golden
+  // being silent on a word the model added is a golden gap, not a model error.
+  goldAnat.words.forEach((gw, gi) => {
+    if (alignedG.has(gi)) return;
+    const goldTokens = new Set(wordKnowledgeTokensById(gw.id, goldAnat, goldLex));
+    if (goldTokens.size === 0) return;
+    scored++;
+    fn += goldTokens.size;
+  });
+  if (scored === 0) return null; // golden carries no reference content for this phase
   const denom = 2 * tp + fp + fn;
-  return denom > 0 ? (2 * tp) / denom : 0;
+  const f1 = denom > 0 ? (2 * tp) / denom : 0;
+  return {
+    f1,
+    precision: tp + fp > 0 ? tp / (tp + fp) : 0,
+    recall: tp + fn > 0 ? tp / (tp + fn) : 0,
+    tp, fp, fn,
+  };
+}
+
+export function scoreContentFidelity(
+  outAnat: AnatomistPass, goldAnat: AnatomistPass | null | undefined,
+  outLex: LexicographerPass, goldLex: LexicographerPass | null | undefined
+): number | null {
+  return scoreContentFidelityDetail(outAnat, goldAnat, outLex, goldLex)?.f1 ?? null;
 }
 
 export function scoreTypesetter(
@@ -605,7 +639,8 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
   const goldAnat = data.golden?.anatomist ?? null;
   const goldLex = data.golden?.lexicographer ?? null;
   const segmentationFidelity = scoreSegmentationFidelity(data.output.anatomist, goldAnat);
-  const contentFidelity = scoreContentFidelity(data.output.anatomist, goldAnat, data.output.lexicographer, goldLex);
+  const contentDetail = scoreContentFidelityDetail(data.output.anatomist, goldAnat, data.output.lexicographer, goldLex);
+  const contentFidelity = contentDetail?.f1 ?? null;
   const fidParts = [segmentationFidelity, contentFidelity].filter((x): x is number => x !== null);
   const fidelityScore = fidParts.length > 0 ? fidParts.reduce((a, b) => a + b, 0) / fidParts.length : null;
 
@@ -650,6 +685,8 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
     paliWordCoverage, // golden-aware coverage overrides scoreAnatomist's count ratio (feeds the Gate)
     segmentationFidelity,
     contentFidelity,
+    contentPrecision: contentDetail?.precision ?? null,
+    contentRecall: contentDetail?.recall ?? null,
     fidelityScore,
     coverageScore,
     validityScore,

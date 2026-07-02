@@ -56,7 +56,7 @@ type QualityScores = {
 };
 
 /** The rubric version the leaderboard ranks on. Mixing versions is a build failure. */
-const RANKED_RUBRIC_VERSION = '2.0';
+const RANKED_RUBRIC_VERSION = '2.1';
 
 type LeaderboardEntry = {
   rank: number;
@@ -68,6 +68,10 @@ type LeaderboardEntry = {
   fidelityScore: number;
   segmentationFidelity: number;
   contentFidelity: number;
+  // Content F1 decomposed (v2.1 / ADR SUTTA-012): precision = attested share of what the
+  // model said; recall = said share of what the golden requires (dropped words included).
+  contentPrecision: number | null;
+  contentRecall: number | null;
   // Optional LLM-judge semantic content score (ADR SUTTA-010); null when no judge run exists.
   contentSemantic: number | null;
   judgeModel: string | null;
@@ -302,6 +306,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     avgFidelity: number;
     avgSegFidelity: number;
     avgContentFidelity: number;
+    avgContentPrecision: number | null;
+    avgContentRecall: number | null;
     avgPaliCoverage: number;
     avgCoverage: number;
     avgValidity: number;
@@ -335,6 +341,9 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       avgFidelity: mean(phases.map((p) => p.fidelityScore ?? 0)),
       avgSegFidelity: mean(phases.map((p) => p.segmentationFidelity ?? 0)),
       avgContentFidelity: mean(phases.map((p) => p.contentFidelity ?? 0)),
+      // P/R (v2.1): mean over phases that carry them (older scores may predate the fields).
+      avgContentPrecision: (() => { const xs = phases.map((p: any) => p.contentPrecision).filter((x: any): x is number => x != null); return xs.length ? mean(xs) : null; })(),
+      avgContentRecall: (() => { const xs = phases.map((p: any) => p.contentRecall).filter((x: any): x is number => x != null); return xs.length ? mean(xs) : null; })(),
       avgPaliCoverage: mean(phases.map((p) => p.paliWordCoverage ?? 0)),
       avgCoverage: mean(phases.map((p) => p.coverageScore)),
       avgValidity: mean(phases.map((p) => p.validityScore)),
@@ -364,6 +373,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     fidelityScore: r4(m.avgFidelity),
     segmentationFidelity: r4(m.avgSegFidelity),
     contentFidelity: r4(m.avgContentFidelity),
+    contentPrecision: m.avgContentPrecision == null ? null : r4(m.avgContentPrecision),
+    contentRecall: m.avgContentRecall == null ? null : r4(m.avgContentRecall),
     contentSemantic: m.contentSemantic == null ? null : r4(m.contentSemantic),
     judgeModel: m.judgeModel,
     selfJudge: m.selfJudge,
@@ -419,6 +430,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
         "averaged over the golden-backed phases of each model's SINGLE best run (highest mean overall) — " +
         'NOT cherry-picked best-per-phase across runs; metrics are that run\'s, not summed. ' +
         'fidelity = 0.5·segmentation + 0.5·content, strict micro-F1 vs the golden. ' +
+        'v2.1 (SUTTA-012): golden words a model DROPS are charged as misses (no survivorship bias), ' +
+        'and content F1 is decomposed into contentPrecision/contentRecall. ' +
         'CAVEAT: fidelity only scores words the golden covers; where the golden is partial, ' +
         'unscored model words are excluded — see paliWordCoverage and the per-run golden-diff.',
     },
@@ -460,13 +473,13 @@ async function main() {
 
   const judgeModel = leaderboard.entries.find((e) => e.judgeModel)?.judgeModel;
   console.log(`\n=== SUTTA-STUDIO LEADERBOARD (rubric v${leaderboard.rubricVersion}) ===\n`);
-  console.log('Rank | Model            | Phases | Overall | Fidelity | Seg  | Content | Semantic | PaliCov');
+  console.log('Rank | Model            | Phases | Overall | Fidelity | Seg  | Content | P    | R    | Semantic | PaliCov');
   console.log('-----|------------------|--------|---------|----------|------|---------|----------|--------');
   for (const e of leaderboard.entries) {
     const sem = e.contentSemantic == null ? '  —  ' : e.contentSemantic.toFixed(2).padStart(5);
     console.log(
       `  ${e.rank.toString().padStart(2)} | ${e.modelId.padEnd(16)} | ${e.phasesCount.toString().padStart(6)} | ` +
-      `${e.overallScore.toFixed(2).padStart(7)} | ${e.fidelityScore.toFixed(2).padStart(8)} | ${e.segmentationFidelity.toFixed(2).padStart(4)} | ${e.contentFidelity.toFixed(2).padStart(7)} | ${sem.padStart(8)} | ${e.paliWordCoverage.toFixed(2).padStart(7)}`
+      `${e.overallScore.toFixed(2).padStart(7)} | ${e.fidelityScore.toFixed(2).padStart(8)} | ${e.segmentationFidelity.toFixed(2).padStart(4)} | ${e.contentFidelity.toFixed(2).padStart(7)} | ${(e.contentPrecision == null ? ' —  ' : e.contentPrecision.toFixed(2)).padStart(4)} | ${(e.contentRecall == null ? ' —  ' : e.contentRecall.toFixed(2)).padStart(4)} | ${sem.padStart(8)} | ${e.paliWordCoverage.toFixed(2).padStart(7)}`
     );
   }
   if (leaderboard.entries.length === 0) console.log('  (no ranked entries — see exclusions below)');
