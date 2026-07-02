@@ -528,7 +528,7 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       ],
       knownCircularity: [
         'Golden PROSE is Claude-worded (dictionary-checked facts, non-neutral phrasing) — token overlap favors similar phrasing until the facts-vs-prose split lands',
-        'Golden-v2 curation and its adversarial verification were both Claude-family (selection bounded to verbatim DPD content); cross-family spot-check in progress',
+        'Golden-v2 curation and its adversarial verification were both Claude-family (selection bounded to verbatim DPD content); a cross-family check (grok, 2026-07-02) independently reviewed all 17 applied changes: 17/17 upheld, 0 reverts (docs/benchmarks/golden-v2-grok-verify.md)',
         'The judge anchors on the golden, so golden errors propagate into Semantic until flagged via goldenSuspect',
       ],
     },

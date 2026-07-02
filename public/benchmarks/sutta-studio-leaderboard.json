@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-02T14:52:36.374Z",
+  "generatedAt": "2026-07-02T14:55:42.176Z",
   "promptVersion": "sutta-studio-v12-prior-phase-context",
   "rubricVersion": "2.1",
   "status": "preview",
@@ -55,7 +55,7 @@
     ],
     "knownCircularity": [
       "Golden PROSE is Claude-worded (dictionary-checked facts, non-neutral phrasing) — token overlap favors similar phrasing until the facts-vs-prose split lands",
-      "Golden-v2 curation and its adversarial verification were both Claude-family (selection bounded to verbatim DPD content); cross-family spot-check in progress",
+      "Golden-v2 curation and its adversarial verification were both Claude-family (selection bounded to verbatim DPD content); a cross-family check (grok, 2026-07-02) independently reviewed all 17 applied changes: 17/17 upheld, 0 reverts (docs/benchmarks/golden-v2-grok-verify.md)",
       "The judge anchors on the golden, so golden errors propagate into Semantic until flagged via goldenSuspect"
     ]
   },
@@ -141,11 +141,11 @@
       "contentFidelity": 0.3265,
       "contentPrecision": 0.3492,
       "contentRecall": 0.3191,
-      "contentSemantic": 0.7671,
+      "contentSemantic": 0.7897,
       "judgeModel": "openai/gpt-4o-mini",
       "selfJudge": false,
       "paliWordCoverage": 0.9081,
-      "hallucinationRate": 0.125,
+      "hallucinationRate": 0.0948,
       "goldenSuspectCount": 0,
       "coverageScore": 0.9213,
       "validityScore": 0.9067,
