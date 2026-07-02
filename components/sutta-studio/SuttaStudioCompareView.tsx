@@ -24,14 +24,19 @@ type Side = {
   /** % of rendered Pāli words whose segment-concat appears verbatim in the
    * canonical text — the benchmark's textIntegrity idea, golden-free. */
   surfaceIntegrity: number | null;
+  /** rendered Pāli words / canonical words — catches silent word-dropping
+   * (a model can be locally faithful while omitting most of the text). */
+  wordCoverage: number | null;
 };
 
 const stripToLetters = (s: string): string =>
   (s || '').normalize('NFC').toLowerCase().replace(/[^a-zāīūṁṃṅñṭḍṇḷ]/g, '');
 
-const measureSurfaceIntegrity = (packet: DeepLoomPacket): number | null => {
-  const canon = stripToLetters((packet.canonicalSegments || []).map((s) => s.pali).join(' '));
-  if (!canon) return null;
+const measurePacket = (packet: DeepLoomPacket): { surfaceIntegrity: number | null; wordCoverage: number | null } => {
+  const segments = packet.canonicalSegments || [];
+  const canon = stripToLetters(segments.map((s) => s.pali).join(' '));
+  const canonWordCount = segments.flatMap((s) => (s.pali || '').split(/\s+/).filter(Boolean)).length;
+  if (!canon) return { surfaceIntegrity: null, wordCoverage: null };
   let total = 0;
   let ok = 0;
   for (const phase of packet.phases || []) {
@@ -42,7 +47,10 @@ const measureSurfaceIntegrity = (packet: DeepLoomPacket): number | null => {
       if (canon.includes(surface)) ok += 1;
     }
   }
-  return total === 0 ? null : ok / total;
+  return {
+    surfaceIntegrity: total === 0 ? null : ok / total,
+    wordCoverage: canonWordCount === 0 ? null : Math.min(1, total / canonWordCount),
+  };
 };
 
 const DEFAULT_LEFT = '/benchmarks/mn117/gemini-3-flash.packet.json';
@@ -54,11 +62,12 @@ const labelFromUrl = (url: string): string => {
 };
 
 const useSide = (url: string): Side => {
-  const [side, setSide] = useState<Side>({ url, label: labelFromUrl(url), packet: null, error: null, surfaceIntegrity: null });
+  const empty = { packet: null, error: null, surfaceIntegrity: null, wordCoverage: null };
+  const [side, setSide] = useState<Side>({ url, label: labelFromUrl(url), ...empty });
 
   useEffect(() => {
     let cancelled = false;
-    setSide({ url, label: labelFromUrl(url), packet: null, error: null, surfaceIntegrity: null });
+    setSide({ url, label: labelFromUrl(url), ...empty });
     fetch(url)
       .then((r) => {
         if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
@@ -69,11 +78,11 @@ const useSide = (url: string): Side => {
         // The packet self-reports which model compiled it — trust that over
         // whatever the URL happens to be named.
         const model = packet?.compiler?.model;
-        setSide({ url, label: model || labelFromUrl(url), packet, error: null, surfaceIntegrity: measureSurfaceIntegrity(packet) });
+        setSide({ url, label: model || labelFromUrl(url), packet, error: null, ...measurePacket(packet) });
       })
       .catch((e) => {
         if (cancelled) return;
-        setSide({ url, label: labelFromUrl(url), packet: null, error: e?.message || String(e), surfaceIntegrity: null });
+        setSide({ url, label: labelFromUrl(url), ...empty, error: e?.message || String(e) });
       });
     return () => {
       cancelled = true;
@@ -117,6 +126,16 @@ export function SuttaStudioCompareView() {
         <span className="mt-2 rounded-full bg-slate-900/95 border border-slate-700 px-3 py-1 text-xs font-medium text-amber-200 shadow-lg">
           {side.label}
         </span>
+        {side.wordCoverage != null && (
+          <span
+            className={`mt-2 rounded-full bg-slate-900/95 border px-3 py-1 text-xs shadow-lg ${
+              side.wordCoverage >= 0.9 ? 'border-emerald-700 text-emerald-300' : 'border-rose-800 text-rose-300'
+            }`}
+            title="Rendered Pāli words as a share of the canonical text's words. Below 100% means the model silently dropped words from the interlinear rendering."
+          >
+            coverage {(side.wordCoverage * 100).toFixed(0)}%
+          </span>
+        )}
         {side.surfaceIntegrity != null && (
           <span
             className={`mt-2 rounded-full bg-slate-900/95 border px-3 py-1 text-xs shadow-lg ${
