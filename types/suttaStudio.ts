@@ -79,7 +79,9 @@ export type ValidationIssue = {
     | 'canonical_segment_missing' // Source segment not represented in output
     | 'pali_text_mismatch' // Pali text doesn't exactly match source (ERROR - must be 1:1)
     | 'english_content_missing' // Source English words missing from artifact (artifact should be superset)
-    | 'phase_degraded'; // Phase failed compilation
+    | 'phase_degraded' // Phase failed compilation
+    | 'surface_repaired' // Anatomist surfaces auto-corrected to the canonical text (model mangled them)
+    | 'surface_mismatch'; // Rendered word surface not found in canonical text (repair skipped or missed)
   message: string;
   phaseId?: string;
   wordId?: string;

@@ -19,6 +19,7 @@ import type {
   DeepLoomPacket,
   LexicographerPass,
   PhaseView,
+  ValidationIssue,
   WeaverPass,
   TypesetterPass,
 } from '../../types/suttaStudio';
@@ -39,7 +40,7 @@ import {
   dedupeEnglishStructure,
   buildDegradedPhaseView,
 } from '../suttaStudioRehydrator';
-import { V12_PRIOR_PHASES_WINDOW } from '../sutta-studio/utils';
+import { V12_PRIOR_PHASES_WINDOW, repairAnatomistSurfaces } from '../sutta-studio/utils';
 import {
   tokenizeEnglish,
   getWordTokens,
@@ -392,6 +393,7 @@ export const compileSuttaStudioPacket = async (options: {
       });
       let anatomistOutput: AnatomistPass | null = cachedSegment?.anatomist || null;
       let lexicographerOutput: LexicographerPass | null = cachedSegment?.lexicographer || null;
+      const surfaceRepairIssues: ValidationIssue[] = [];
 
       // Anatomist pass
       if (!anatomistOutput) {
@@ -413,6 +415,25 @@ export const compileSuttaStudioPacket = async (options: {
             { schemaName: `sutta_studio_anatomist_${phase.id.replace(/-/g, '_')}`, schema: anatomistResponseSchema, structuredOutputs, meta: { stage: 'anatomist', phaseId: phase.id, requestName: 'anatomist' } }
           );
           anatomistOutput = parseJsonResponse<AnatomistPass>(anatomistRaw);
+          // Surface repair (SUTTA-025 enforcement): the canonical Pāli is
+          // authoritative — never display a model-mangled surface form.
+          const surfaceRepair = repairAnatomistSurfaces(anatomistOutput, paliText);
+          if (surfaceRepair.skippedReason) {
+            warn(`  Surface repair skipped for ${phase.id}: ${surfaceRepair.skippedReason}`);
+            surfaceRepairIssues.push({
+              level: 'warn', code: 'surface_mismatch', phaseId: phase.id,
+              message: `Surface repair skipped: ${surfaceRepair.skippedReason}; canonical-text fidelity not guaranteed for this phase.`,
+            });
+          } else if (surfaceRepair.repairs.length) {
+            anatomistOutput = surfaceRepair.pass;
+            const sample = surfaceRepair.repairs.slice(0, 3).map((r) => `${r.from}→${r.to}`).join(', ');
+            log(`  Surface repair: ${surfaceRepair.repairs.length} word(s) corrected (${sample}${surfaceRepair.repairs.length > 3 ? ', …' : ''})`);
+            logPipelineEvent({ level: 'warn', stage: 'anatomist', phaseId: phase.id, message: 'anatomist.surfaceRepaired', data: { count: surfaceRepair.repairs.length, repairs: surfaceRepair.repairs } });
+            surfaceRepairIssues.push({
+              level: 'warn', code: 'surface_repaired', phaseId: phase.id,
+              message: `${surfaceRepair.repairs.length} word surface(s) auto-corrected to canonical text: ${sample}${surfaceRepair.repairs.length > 3 ? ', …' : ''}`,
+            });
+          }
           logPipelineEvent({ level: 'info', stage: 'anatomist', phaseId: phase.id, message: 'anatomist.complete', data: { wordCount: anatomistOutput.words.length, segmentCount: anatomistOutput.segments.length } });
           segmentCache.setAnatomist(paliText, anatomistOutput);
         } catch (e) {
@@ -679,7 +700,7 @@ export const compileSuttaStudioPacket = async (options: {
       const validation = validatePhase(normalized, { fallbackSegments });
       if (validation.issues.length) warn(`Validation reported ${validation.issues.length} issue(s) for ${phase.id}.`);
       normalized = validation.phase;
-      const validationIssues = [...(packet.compiler?.validationIssues || []), ...validation.issues];
+      const validationIssues = [...(packet.compiler?.validationIssues || []), ...surfaceRepairIssues, ...validation.issues];
       const updatedCompiler = packet.compiler ? { ...packet.compiler, validationIssues } : undefined;
 
       packet = {

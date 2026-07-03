@@ -25,8 +25,14 @@ export type ValidationResult = {
     duplicateSegments: number;
     missingSegments: number;
     duplicateMappings: number;
+    surfaceMismatches: number;
   };
 };
+
+/** Letters-only view of Pāli for surface-membership checks (mirrors the
+ * compare page's surface-integrity metric). */
+const paliLetters = (text: string): string =>
+  (text || '').normalize('NFC').toLowerCase().replace(/[^a-zāīūṁṃṅñṭḍṇḷ]/g, '');
 
 /**
  * Validate a DeepLoomPacket against its source data.
@@ -42,7 +48,46 @@ export function validatePacket(
     duplicateSegments: 0,
     missingSegments: 0,
     duplicateMappings: 0,
+    surfaceMismatches: 0,
   };
+
+  // 0. Surface integrity: every rendered word's segment-concat must appear in
+  // the canonical text. Catches model-mangled surfaces (asthi for atthi,
+  // saāsavā for sāsavā) that earlier checks miss — uses the packet's own
+  // embedded canonicalSegments, so it runs even when no sourceSegments are
+  // passed. Warn-level: the compiler's repairAnatomistSurfaces should have
+  // fixed these; anything left here means the repair was skipped or missed.
+  {
+    const canon = paliLetters((packet.canonicalSegments || []).map((s) => s.pali).join(' '));
+    const MAX_REPORTED = 25;
+    if (canon) {
+      for (const phase of packet.phases) {
+        if (phase.degraded) continue;
+        for (const word of phase.paliWords || []) {
+          const surface = (word.segments || []).map((s) => s.text || '').join('');
+          const letters = paliLetters(surface);
+          if (!letters || canon.includes(letters)) continue;
+          stats.surfaceMismatches++;
+          if (stats.surfaceMismatches <= MAX_REPORTED) {
+            issues.push({
+              level: 'warn',
+              code: 'surface_mismatch',
+              message: `Rendered word "${surface}" not found in canonical text`,
+              phaseId: phase.id,
+              wordId: word.id,
+            });
+          }
+        }
+      }
+      if (stats.surfaceMismatches > MAX_REPORTED) {
+        issues.push({
+          level: 'warn',
+          code: 'surface_mismatch',
+          message: `${stats.surfaceMismatches} rendered words not found in canonical text (first ${MAX_REPORTED} reported individually)`,
+        });
+      }
+    }
+  }
 
   // 1. Check for duplicate canonical segments across phases
   const segmentToPhases = new Map<string, string[]>();

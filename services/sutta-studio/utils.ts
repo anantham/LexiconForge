@@ -1,5 +1,11 @@
 import { extractBalancedJson } from '../ai/textUtils';
-import type { CanonicalSegment, PhaseView, SourceRef } from '../../types/suttaStudio';
+import type {
+  AnatomistPass,
+  AnatomistSegment,
+  CanonicalSegment,
+  PhaseView,
+  SourceRef,
+} from '../../types/suttaStudio';
 
 export const stripCodeFences = (text: string): string => {
   let cleaned = text.trim();
@@ -304,4 +310,126 @@ export const chunkPhases = (
   }
   flush();
   return phases;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Anatomist surface repair
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type SurfaceRepair = {
+  wordId: string;
+  from: string;
+  to: string;
+  collapsed: boolean;
+};
+
+export type SurfaceRepairResult = {
+  pass: AnatomistPass;
+  repairs: SurfaceRepair[];
+  /** Set when repair could not be attempted (e.g. word/token count mismatch). */
+  skippedReason?: string;
+};
+
+/**
+ * Force every Anatomist word back onto the canonical surface text.
+ *
+ * The anatomist prompt already demands that segment texts concatenate to the
+ * exact surface (SUTTA-025), but models still re-expand sandhi a few percent
+ * of the time (sāsavā → sa|āsavā, lokuttara → loka|uttara) or rewrite words
+ * outright (atthi → asthi). The compiler KNOWS the true text — the phase's
+ * canonical Pāli — so displaying a corrupted sacred text is never necessary:
+ *
+ * - word.surface is forced to the canonical token
+ * - a single-segment word gets its segment text replaced
+ * - a multi-segment word whose concat mismatches is COLLAPSED to one
+ *   surface-true segment; the split's pedagogy survives in merged tooltips
+ *   plus an "Underlying analysis" note
+ *
+ * The prompt's word-boundary rule guarantees one word per whitespace token in
+ * order, so alignment is positional. If the model dropped or merged words the
+ * counts disagree and we skip (never guess) — the packet validator reports
+ * whatever remains.
+ */
+export const repairAnatomistSurfaces = (
+  pass: AnatomistPass,
+  paliText: string
+): SurfaceRepairResult => {
+  const nfc = (s: string) => (s || '').normalize('NFC');
+  const tokens = nfc(paliText).split(/\s+/).filter(Boolean);
+  const words = pass.words || [];
+  if (tokens.length === 0 || words.length !== tokens.length) {
+    return {
+      pass,
+      repairs: [],
+      skippedReason: `word/token count mismatch (${words.length} words vs ${tokens.length} tokens)`,
+    };
+  }
+
+  const repairs: SurfaceRepair[] = [];
+  const removedToSurvivor = new Map<string, string>();
+  let newWords = [...words];
+  let newSegments = [...(pass.segments || [])];
+
+  words.forEach((word, i) => {
+    const expected = tokens[i];
+    const byId = new Map(newSegments.map((s) => [s.id, s]));
+    const ordered = (word.segmentIds || [])
+      .map((id) => byId.get(id))
+      .filter((s): s is AnatomistSegment => Boolean(s));
+    const segs = ordered.length
+      ? ordered
+      : newSegments.filter((s) => s.wordId === word.id);
+    const concat = segs.map((s) => s.text || '').join('');
+    const concatOk = nfc(concat) === nfc(expected);
+    const surfaceOk = nfc(word.surface || '') === nfc(expected);
+    if (concatOk && surfaceOk) return;
+
+    if (concatOk) {
+      // Segments are surface-true; only the word.surface field drifted.
+      newWords = newWords.map((w) => (w.id === word.id ? { ...w, surface: expected } : w));
+      repairs.push({ wordId: word.id, from: word.surface || '', to: expected, collapsed: false });
+      return;
+    }
+
+    if (segs.length <= 1) {
+      const target = segs[0];
+      if (target) {
+        newSegments = newSegments.map((s) => (s.id === target.id ? { ...s, text: expected } : s));
+      }
+      newWords = newWords.map((w) => (w.id === word.id ? { ...w, surface: expected } : w));
+      repairs.push({ wordId: word.id, from: concat || word.surface || '', to: expected, collapsed: false });
+      return;
+    }
+
+    // Multi-segment mismatch: collapse to one surface-true segment, keep the
+    // morphological pedagogy in tooltips.
+    const survivor = segs[0];
+    const seen = new Set<string>();
+    const mergedTooltips = segs
+      .flatMap((s) => s.tooltips || [])
+      .filter((t) => (seen.has(t) ? false : (seen.add(t), true)));
+    const analysisNote = `Underlying analysis: ${segs.map((s) => s.text).filter(Boolean).join(' + ')}`;
+    const tooltips = [...mergedTooltips, analysisNote].slice(0, 8);
+    const removedIds = new Set(segs.slice(1).map((s) => s.id));
+    removedIds.forEach((id) => removedToSurvivor.set(id, survivor.id));
+    newSegments = newSegments
+      .filter((s) => !removedIds.has(s.id))
+      .map((s) => (s.id === survivor.id ? { ...s, text: expected, tooltips } : s));
+    newWords = newWords.map((w) =>
+      w.id === word.id ? { ...w, surface: expected, segmentIds: [survivor.id] } : w
+    );
+    repairs.push({ wordId: word.id, from: concat, to: expected, collapsed: true });
+  });
+
+  if (repairs.length === 0) return { pass, repairs: [] };
+
+  const relations = (pass.relations || []).map((r) => {
+    const mapped = removedToSurvivor.get(r.fromSegmentId);
+    return mapped ? { ...r, fromSegmentId: mapped } : r;
+  });
+
+  return {
+    pass: { ...pass, words: newWords, segments: newSegments, relations },
+    repairs,
+  };
 };
