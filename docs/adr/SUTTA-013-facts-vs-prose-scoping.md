@@ -1,7 +1,45 @@
 # SUTTA-013 — Facts-vs-prose scoring split (scoping) + alignment golden (scoping)
 
-**Status:** Proposed — scoped 2026-07-02, not yet built. Target: rubric v2.2.
+**Status:** Part 1 IMPLEMENTED as advisory 2026-07-03 (`facts-scorer.ts`, 8 tests,
+`report-facts-layer.ts` dry run below); ranked-total wiring waits for the v2.2 bump
+with SUTTA-014. Part 2 (alignment golden) still scoped-only — its curation workflow
+needs an ultracode session. Target: rubric v2.2.
 **Why:** the two remaining validity gaps the operator prioritized after v2.1/golden-v2.
+
+## Part 1 dry run (2026-07-03, existing board runs re-scored, zero API cost)
+
+| model | contentF1 (v2.1) | senseF1 | facts | root | pos | morph |
+|---|---|---|---|---|---|---|
+| grok-4.20 | 0.335 | 0.485 | 0.692 | 46% | 85% | 59% |
+| deepseek-v4-flash | 0.327 | 0.388 | 0.658 | 50% | 71% | 0% |
+| mistral-small-3.2 | 0.326 | 0.406 | 0.708 | 48% | 82% | 24% |
+| gemini-3-flash | 0.318 | 0.378 | 0.526 | 35% | 70% | 0% |
+| qwen3-235b | 0.282 | 0.414 | 0.532 | 28% | 74% | 0% |
+| deepseek-v3.2 | 0.281 | 0.400 | 0.500 | **7%** | 76% | 59% |
+| gemini-2.5-flash | 0.256 | 0.312 | 0.381 | 27% | 50% | 0% |
+
+Findings: (a) the v2.1 flat band (0.26-0.34) opens to 0.38-0.71 on facts and the
+ordering CHANGES (mistral/grok lead facts; gemini-3-flash mid-pack) — the split
+measures something prose overlap could not see; (b) root accuracy is the
+discriminator (7%-50%) — the fabricated/omitted-etymology class, now mechanical;
+(c) senseF1 > contentF1 for every model, confirming tooltip prose dragged scores
+for true-but-differently-worded content; (d) **morph checks are too sparse to
+carry ranked weight** (17 checks / 30 phases — golden morph hints live on few
+suffix segments): before v2.2 either enrich golden morph fields or fold morph
+into an unweighted diagnostic column.
+
+## Implementation decisions (part 1, as built)
+
+- **Sense tokens = the senses' `english` strings only.** Nuance is Claude-worded
+  prose → judge territory, same as tooltips. (Refines the scoping text's "SENSES
+  arrays"; the DPD-verbatim guarantee from golden v2 covers `english`, not nuance.)
+- **Silence on a graded fact is WRONG, not ungraded** — otherwise models learn to
+  omit facts to stay safe, the survivorship shape SUTTA-012 killed. Follow-up for
+  the report: split the root column into fabricated-vs-silent so the hallucination
+  question stays separately answerable.
+- **Root authority = DPD root set for the surface (homonym union + Sanskrit
+  brackets), falling back to the golden's own √tooltips** for DPD-unresolvable
+  words. POS authority = golden wordClass (DPD-verified upstream by verify-golden).
 
 ## Part 1 — Grade facts against the dictionary, prose against the judge
 
