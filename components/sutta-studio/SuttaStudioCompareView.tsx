@@ -57,8 +57,10 @@ const measurePacket = (packet: DeepLoomPacket): { surfaceIntegrity: number | nul
   };
 };
 
+// Default pair = the currently-live production question. Other packets stay
+// reachable via ?left=/?right= (deepseek-v4-flash remains published).
 const DEFAULT_LEFT = '/benchmarks/mn117/gemini-3-flash.packet.json';
-const DEFAULT_RIGHT = '/benchmarks/mn117/deepseek-v4-flash.packet.json';
+const DEFAULT_RIGHT = '/benchmarks/mn117/gemini-3.5-flash.packet.json';
 
 const labelFromUrl = (url: string): string => {
   const file = url.split('/').pop() || url;

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Loader from './components/Loader';
 import MainApp from './MainApp';
 import { SuttaStudioBenchmarkView } from './components/bench/SuttaStudioBenchmarkView';
 import { SuttaStudioApp } from './components/sutta-studio/SuttaStudioApp';
@@ -14,6 +15,39 @@ import { LiturgyApp } from './components/liturgy/LiturgyApp';
 const LOCAL_SUTTA_PACKETS: Record<string, DeepLoomPacket> = {
   mn10: DEMO_PACKET_MN10,
 };
+
+// Larger packets load as their own chunk on route hit instead of riding in the
+// main bundle (mn117 is ~1.1MB minified; mn10's 0.5MB stays sync for now).
+const LAZY_SUTTA_LOADERS: Record<string, () => Promise<{ default: unknown }>> = {
+  mn117: () => import('./content/references/sutta/mn117.json'),
+};
+
+function LazyLocalSutta({ uid }: { uid: string }) {
+  const [packet, setPacket] = useState<DeepLoomPacket | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    LAZY_SUTTA_LOADERS[uid]()
+      .then((m) => {
+        if (!cancelled) setPacket(m.default as DeepLoomPacket);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e?.message || String(e));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [uid]);
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-300 flex items-center justify-center text-sm">
+        Failed to load {uid.toUpperCase()}: {error}
+      </div>
+    );
+  }
+  if (!packet) return <Loader />;
+  return <SuttaStudioView packet={packet} />;
+}
 
 const App: React.FC = () => {
   // Track pathname in state so client-side navigation (history.pushState +
@@ -58,12 +92,10 @@ const App: React.FC = () => {
     return <SuttaStudioCompareView />;
   }
 
-  // MN117 is mid-bake-off: the canonical id shows the two-model side-by-side
-  // until a production model is picked. Then: delete this branch, add the
-  // winning packet to LOCAL_SUTTA_PACKETS like mn10.
-  if (pathname === '/sutta/mn117') {
-    return <SuttaStudioCompareView />;
-  }
+  // Bake-off resolved 2026-07-03: gemini-3-flash won (100% word coverage vs
+  // 32-40% for deepseek-v4-flash / gemini-3.5-flash); its surface-repaired
+  // compile is now the canonical bundled packet, lazy-loaded below via
+  // LAZY_SUTTA_LOADERS. The compare lab stays at /sutta/compare.
 
   // Published local suttas by REAL id (/sutta/mn10, …) — bundled packet, no API calls.
   // /sutta/demo is a legacy alias handled here (the effect above rewrites its URL to mn10).
@@ -72,8 +104,10 @@ const App: React.FC = () => {
   }
   const localSuttaMatch = pathname.match(/^\/sutta\/([a-z0-9-]+)$/i);
   if (localSuttaMatch) {
-    const packet = LOCAL_SUTTA_PACKETS[localSuttaMatch[1].toLowerCase()];
+    const uid = localSuttaMatch[1].toLowerCase();
+    const packet = LOCAL_SUTTA_PACKETS[uid];
     if (packet) return <SuttaStudioView packet={packet} />;
+    if (LAZY_SUTTA_LOADERS[uid]) return <LazyLocalSutta uid={uid} />;
   }
 
   // Any other /sutta/* (SuttaCentral uids, /sutta/fojin/…) → live compile.
