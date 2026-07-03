@@ -21,7 +21,11 @@ const anat = (
 
 const lex = (entries: Array<{ wordId: string; senses: Array<{ english: string; nuance?: string }> }>): LexicographerPass => ({
   id: 'phase-t',
-  senses: entries.map((e) => ({ wordId: e.wordId, wordClass: 'content' as const, senses: e.senses })),
+  senses: entries.map((e) => ({
+    wordId: e.wordId,
+    wordClass: 'content' as const,
+    senses: e.senses.map((s) => ({ english: s.english, nuance: s.nuance ?? '' })),
+  })),
 });
 
 const dpdWith = (roots: Record<string, string>) => (surface: string): LexiconEntry[] => {
