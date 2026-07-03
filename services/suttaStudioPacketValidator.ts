@@ -51,22 +51,30 @@ export function validatePacket(
     surfaceMismatches: 0,
   };
 
-  // 0. Surface integrity: every rendered word's segment-concat must appear in
-  // the canonical text. Catches model-mangled surfaces (asthi for atthi,
-  // saāsavā for sāsavā) that earlier checks miss — uses the packet's own
-  // embedded canonicalSegments, so it runs even when no sourceSegments are
-  // passed. Warn-level: the compiler's repairAnatomistSurfaces should have
-  // fixed these; anything left here means the repair was skipped or missed.
+  // 0. Surface integrity: every rendered word's segment-concat must equal
+  // some whitespace-token of the canonical text (letters-only). Catches
+  // model-mangled surfaces (asthi for atthi, saāsavā for sāsavā) that earlier
+  // checks miss — uses the packet's own embedded canonicalSegments, so it
+  // runs even when no sourceSegments are passed. Exact-token membership, not
+  // substring-of-the-whole-text: a substring check lets corruptions ride on
+  // other words or across word boundaries. Warn-level: the compiler's
+  // repairAnatomistSurfaces should have fixed these; anything left here means
+  // the repair was skipped or missed.
   {
-    const canon = paliLetters((packet.canonicalSegments || []).map((s) => s.pali).join(' '));
+    const canonTokens = new Set(
+      (packet.canonicalSegments || [])
+        .flatMap((s) => (s.pali || '').split(/\s+/))
+        .map(paliLetters)
+        .filter(Boolean)
+    );
     const MAX_REPORTED = 25;
-    if (canon) {
+    if (canonTokens.size > 0) {
       for (const phase of packet.phases) {
         if (phase.degraded) continue;
         for (const word of phase.paliWords || []) {
           const surface = (word.segments || []).map((s) => s.text || '').join('');
           const letters = paliLetters(surface);
-          if (!letters || canon.includes(letters)) continue;
+          if (!letters || canonTokens.has(letters)) continue;
           stats.surfaceMismatches++;
           if (stats.surfaceMismatches <= MAX_REPORTED) {
             issues.push({

@@ -34,9 +34,12 @@ const stripToLetters = (s: string): string =>
 
 const measurePacket = (packet: DeepLoomPacket): { surfaceIntegrity: number | null; wordCoverage: number | null } => {
   const segments = packet.canonicalSegments || [];
-  const canon = stripToLetters(segments.map((s) => s.pali).join(' '));
-  const canonWordCount = segments.flatMap((s) => (s.pali || '').split(/\s+/).filter(Boolean)).length;
-  if (!canon) return { surfaceIntegrity: null, wordCoverage: null };
+  const canonWords = segments.flatMap((s) => (s.pali || '').split(/\s+/).filter(Boolean));
+  // Exact-token membership (letters-only), mirroring the packet validator's
+  // surface check — substring-of-the-whole-text would let corruptions ride on
+  // other words or across word boundaries.
+  const canonTokens = new Set(canonWords.map(stripToLetters).filter(Boolean));
+  if (canonTokens.size === 0) return { surfaceIntegrity: null, wordCoverage: null };
   let total = 0;
   let ok = 0;
   for (const phase of packet.phases || []) {
@@ -44,12 +47,12 @@ const measurePacket = (packet: DeepLoomPacket): { surfaceIntegrity: number | nul
       const surface = stripToLetters((word.segments || []).map((seg) => seg.text).join(''));
       if (!surface) continue;
       total += 1;
-      if (canon.includes(surface)) ok += 1;
+      if (canonTokens.has(surface)) ok += 1;
     }
   }
   return {
     surfaceIntegrity: total === 0 ? null : ok / total,
-    wordCoverage: canonWordCount === 0 ? null : Math.min(1, total / canonWordCount),
+    wordCoverage: canonWords.length === 0 ? null : Math.min(1, total / canonWords.length),
   };
 };
 
@@ -141,7 +144,7 @@ export function SuttaStudioCompareView() {
             className={`mt-2 rounded-full bg-slate-900/95 border px-3 py-1 text-xs shadow-lg ${
               side.surfaceIntegrity >= 0.97 ? 'border-emerald-700 text-emerald-300' : 'border-rose-800 text-rose-300'
             }`}
-            title="Share of rendered Pāli words whose morpheme segments concatenate to a string found verbatim in the canonical text. Measured in your browser against the packet's own canonical segments — no reference answer involved."
+            title="Share of rendered Pāli words whose morpheme segments concatenate to an exact word of the canonical text. Measured in your browser against the packet's own canonical segments — no reference answer involved."
           >
             surface integrity {(side.surfaceIntegrity * 100).toFixed(1)}%
           </span>

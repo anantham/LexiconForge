@@ -1,0 +1,71 @@
+// @vitest-environment node
+import { describe, expect, it } from 'vitest';
+import { validatePacket } from './suttaStudioPacketValidator';
+import type { DeepLoomPacket } from '../types/suttaStudio';
+
+/**
+ * Check 0 (surface integrity): rendered words must equal an exact canonical
+ * whitespace-token (letters-only). Guards the two failure modes seen in the
+ * first MN117 production compile AND the looseness codex flagged in review:
+ * a substring check over the whole text lets a corruption ride on another
+ * word ("atthi" inside "natthi") or across a word boundary.
+ */
+
+const packet = (paliWords: Array<{ id: string; surface: string }>, canonical: string[]): DeepLoomPacket =>
+  ({
+    packetId: 'test',
+    source: { provider: 'suttacentral', workId: 'mnTEST' },
+    canonicalSegments: canonical.map((pali, i) => ({
+      ref: { provider: 'suttacentral', workId: 'mnTEST', segmentId: `mnTEST:1.${i + 1}` },
+      order: i,
+      pali,
+    })),
+    phases: [
+      {
+        id: 'phase-1',
+        paliWords: paliWords.map((w) => ({
+          id: w.id,
+          surface: w.surface,
+          wordClass: 'content',
+          senses: [],
+          segments: [{ id: `${w.id}s1`, wordId: w.id, text: w.surface, type: 'stem' }],
+        })),
+        englishStructure: [],
+      },
+    ],
+    citations: [],
+  } as unknown as DeepLoomPacket);
+
+describe('validatePacket surface integrity (check 0)', () => {
+  it('passes words that match canonical tokens exactly (punctuation-insensitive)', () => {
+    const r = validatePacket(packet([{ id: 'p1', surface: 'atthi,' }, { id: 'p2', surface: 'sāsavā' }], ['atthi, bhikkhave,', 'sammādiṭṭhi sāsavā;']));
+    expect(r.stats.surfaceMismatches).toBe(0);
+  });
+
+  it('flags a mangled word (sandhi re-expansion)', () => {
+    const r = validatePacket(packet([{ id: 'p1', surface: 'saāsavā' }], ['sammādiṭṭhi sāsavā']));
+    expect(r.stats.surfaceMismatches).toBe(1);
+    expect(r.issues.some((i) => i.code === 'surface_mismatch' && i.wordId === 'p1')).toBe(true);
+  });
+
+  it('flags a corruption that would ride across a word boundary under a substring check', () => {
+    // letters-only concat of "deva ānanda" contains "vaā" — exact-token
+    // membership must still reject it.
+    const r = validatePacket(packet([{ id: 'p1', surface: 'vaā' }], ['deva ānanda']));
+    expect(r.stats.surfaceMismatches).toBe(1);
+  });
+
+  it('flags a corruption that is a substring of a different canonical word', () => {
+    // "atthi" ⊂ "natthi" — substring membership would pass it; token equality must not.
+    const r = validatePacket(packet([{ id: 'p1', surface: 'atthi' }], ['natthi loke']));
+    expect(r.stats.surfaceMismatches).toBe(1);
+  });
+
+  it('summarizes beyond the report cap instead of flooding issues', () => {
+    const words = Array.from({ length: 30 }, (_, i) => ({ id: `p${i + 1}`, surface: `zzz${i}` }));
+    const r = validatePacket(packet(words, ['atthi bhikkhave']));
+    expect(r.stats.surfaceMismatches).toBe(30);
+    const surfaceIssues = r.issues.filter((i) => i.code === 'surface_mismatch');
+    expect(surfaceIssues).toHaveLength(26); // 25 individual + 1 summary
+  });
+});

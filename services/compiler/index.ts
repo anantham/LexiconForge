@@ -442,6 +442,22 @@ export const compileSuttaStudioPacket = async (options: {
         }
       } else {
         log(`  Using cached anatomist output for ${phase.id}`);
+        // Cached entries written by pre-repair code (persisted IndexedDB cache;
+        // the prompt version did not bump) bypass the fresh-parse repair above.
+        // Repair is deterministic and idempotent — an already-repaired pass
+        // yields zero repairs — so run it on every cache read too.
+        const cachedRepair = repairAnatomistSurfaces(anatomistOutput, paliText);
+        if (cachedRepair.repairs.length) {
+          anatomistOutput = cachedRepair.pass;
+          segmentCache.setAnatomist(paliText, anatomistOutput);
+          const sample = cachedRepair.repairs.slice(0, 3).map((r) => `${r.from}→${r.to}`).join(', ');
+          log(`  Surface repair (cached entry): ${cachedRepair.repairs.length} word(s) corrected (${sample}${cachedRepair.repairs.length > 3 ? ', …' : ''})`);
+          logPipelineEvent({ level: 'warn', stage: 'anatomist', phaseId: phase.id, message: 'anatomist.surfaceRepaired', data: { count: cachedRepair.repairs.length, cached: true } });
+          surfaceRepairIssues.push({
+            level: 'warn', code: 'surface_repaired', phaseId: phase.id,
+            message: `${cachedRepair.repairs.length} cached word surface(s) auto-corrected to canonical text: ${sample}${cachedRepair.repairs.length > 3 ? ', …' : ''}`,
+          });
+        }
       }
 
       // Lexicographer pass

@@ -497,7 +497,7 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       description:
         `Ranked on rubric v${RANKED_RUBRIC_VERSION} only (mixing versions is a build failure). ` +
         'overallScore = gateFactor × (0.60·fidelity + 0.25·usability + 0.15·transitional-richness), ' +
-        "averaged over the golden-backed phases of each model's SINGLE best run (highest mean overall) — " +
+        "averaged over the golden-backed phases of each model's SINGLE best run (selected by most completed phases FIRST, then highest mean overall — completeness beats score, so a lucky partial run cannot represent a model) — " +
         'NOT cherry-picked best-per-phase across runs; metrics are that run\'s, not summed. ' +
         'fidelity = 0.5·segmentation + 0.5·content, strict micro-F1 vs the golden. ' +
         'v2.1 (SUTTA-012): golden words a model DROPS are charged as misses (no survivorship bias), ' +
