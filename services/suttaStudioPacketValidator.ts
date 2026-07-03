@@ -11,6 +11,7 @@ import type {
   PhaseView,
   ValidationIssue,
 } from '../types/suttaStudio';
+import { splitPaliTokens } from './sutta-studio/utils';
 
 const VALIDATOR_VERSION = '1.0.0';
 
@@ -63,7 +64,7 @@ export function validatePacket(
   {
     const canonTokens = new Set(
       (packet.canonicalSegments || [])
-        .flatMap((s) => (s.pali || '').split(/\s+/))
+        .flatMap((s) => splitPaliTokens(s.pali || ''))
         .map(paliLetters)
         .filter(Boolean)
     );

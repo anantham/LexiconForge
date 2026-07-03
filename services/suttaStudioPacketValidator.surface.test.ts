@@ -61,6 +61,16 @@ describe('validatePacket surface integrity (check 0)', () => {
     expect(r.stats.surfaceMismatches).toBe(1);
   });
 
+  it('accepts words the model split at an em-dash join', () => {
+    const r = validatePacket(
+      packet(
+        [{ id: 'p1', surface: 'seyyathidaṁ' }, { id: 'p2', surface: 'sammādiṭṭhi,' }],
+        ['seyyathidaṁ—sammādiṭṭhi, sammāsaṅkappo;']
+      )
+    );
+    expect(r.stats.surfaceMismatches).toBe(0);
+  });
+
   it('summarizes beyond the report cap instead of flooding issues', () => {
     const words = Array.from({ length: 30 }, (_, i) => ({ id: `p${i + 1}`, surface: `zzz${i}` }));
     const r = validatePacket(packet(words, ['atthi bhikkhave']));

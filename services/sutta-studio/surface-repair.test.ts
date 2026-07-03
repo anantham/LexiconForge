@@ -109,6 +109,49 @@ describe('repairAnatomistSurfaces', () => {
     expect(repaired).toBe(input);
   });
 
+  it('absorbs edge punctuation without destroying a morpheme split', () => {
+    // Model dropped the trailing comma and the leading quote; the split
+    // itself is correct and must survive.
+    const input = pass(
+      [{ id: 'p1', surface: 'vuccati', wordClass: 'content', segmentIds: ['p1s1', 'p1s2'] }],
+      [
+        { id: 'p1s1', wordId: 'p1', text: 'vucca', type: 'root', tooltips: ['√vac: to say'] },
+        { id: 'p1s2', wordId: 'p1', text: 'ti', type: 'suffix', tooltips: ['passive ending'] },
+      ]
+    );
+
+    const { pass: repaired, repairs } = repairAnatomistSurfaces(input, '“vuccati,');
+
+    expect(repairs).toEqual([{ wordId: 'p1', from: 'vuccati', to: '“vuccati,', collapsed: false }]);
+    expect(repaired.words[0].segmentIds).toEqual(['p1s1', 'p1s2']);
+    const segTexts = repaired.segments.map((s) => s.text);
+    expect(segTexts).toEqual(['“vucca', 'ti,']);
+    expect(repaired.segments[0].tooltips).toEqual(['√vac: to say']);
+  });
+
+  it('treats em-dash-joined canonical words as separate tokens (dash stays left)', () => {
+    // bilara joins list items: "seyyathidaṁ—sammādiṭṭhi" is ONE whitespace
+    // token, but models correctly render two words. Repair must align 2↔2
+    // and reattach the dash to the left word.
+    const input = pass(
+      [
+        { id: 'p1', surface: 'seyyathidaṁ', wordClass: 'function', segmentIds: ['p1s1'] },
+        { id: 'p2', surface: 'sammādiṭṭhi', wordClass: 'content', segmentIds: ['p2s1'] },
+      ],
+      [
+        { id: 'p1s1', wordId: 'p1', text: 'seyyathidaṁ', type: 'stem', tooltips: [] },
+        { id: 'p2s1', wordId: 'p2', text: 'sammādiṭṭhi', type: 'stem', tooltips: [] },
+      ]
+    );
+
+    const { pass: repaired, repairs, skippedReason } = repairAnatomistSurfaces(input, 'seyyathidaṁ—sammādiṭṭhi');
+
+    expect(skippedReason).toBeUndefined();
+    expect(repairs).toEqual([{ wordId: 'p1', from: 'seyyathidaṁ', to: 'seyyathidaṁ—', collapsed: false }]);
+    expect(repaired.words[0].surface).toBe('seyyathidaṁ—');
+    expect(repaired.words[1].surface).toBe('sammādiṭṭhi');
+  });
+
   it('handles NFD-encoded model output against NFC canonical text', () => {
     const nfd = 'sāsavā'.normalize('NFD');
     const input = pass(

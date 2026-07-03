@@ -331,6 +331,19 @@ export type SurfaceRepairResult = {
 };
 
 /**
+ * Split canonical Pāli into display words. Whitespace separates words, and so
+ * does an em-dash — bilara joins list items like "seyyathidaṁ—sammādiṭṭhi"
+ * into one whitespace token, but models (correctly) render them as separate
+ * words. The dash stays attached to the LEFT word so display keeps it.
+ */
+export const splitPaliTokens = (text: string): string[] =>
+  (text || '')
+    .normalize('NFC')
+    .split(/\s+/)
+    .flatMap((tok) => tok.split(/(?<=—)/))
+    .filter(Boolean);
+
+/**
  * Force every Anatomist word back onto the canonical surface text.
  *
  * The anatomist prompt already demands that segment texts concatenate to the
@@ -355,7 +368,7 @@ export const repairAnatomistSurfaces = (
   paliText: string
 ): SurfaceRepairResult => {
   const nfc = (s: string) => (s || '').normalize('NFC');
-  const tokens = nfc(paliText).split(/\s+/).filter(Boolean);
+  const tokens = splitPaliTokens(paliText);
   const words = pass.words || [];
   if (tokens.length === 0 || words.length !== tokens.length) {
     return {
@@ -398,6 +411,25 @@ export const repairAnatomistSurfaces = (
       }
       newWords = newWords.map((w) => (w.id === word.id ? { ...w, surface: expected } : w));
       repairs.push({ wordId: word.id, from: concat || word.surface || '', to: expected, collapsed: false });
+      return;
+    }
+
+    // Punctuation-only mismatch on a multi-segment word (models often drop a
+    // trailing comma or leading quote): absorb the edge punctuation into the
+    // boundary segments instead of destroying the morpheme split for a comma.
+    const edges = nfc(expected).match(/^([^a-zA-ZāīūṁṃṅñṭḍṇḷĀĪŪṀṂṄÑṬḌṆḶ]*)(.*?)([^a-zA-ZāīūṁṃṅñṭḍṇḷĀĪŪṀṂṄÑṬḌṆḶ]*)$/u);
+    if (edges && nfc(concat) === edges[2]) {
+      const [, lead, , trail] = edges;
+      const firstId = segs[0].id;
+      const lastId = segs[segs.length - 1].id;
+      newSegments = newSegments.map((s) => {
+        if (s.id === firstId && s.id === lastId) return { ...s, text: lead + s.text + trail };
+        if (s.id === firstId && lead) return { ...s, text: lead + s.text };
+        if (s.id === lastId && trail) return { ...s, text: s.text + trail };
+        return s;
+      });
+      newWords = newWords.map((w) => (w.id === word.id ? { ...w, surface: expected } : w));
+      repairs.push({ wordId: word.id, from: concat, to: expected, collapsed: false });
       return;
     }
 

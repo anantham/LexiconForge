@@ -14,6 +14,7 @@
 
 import { useEffect, useState } from 'react';
 import type { DeepLoomPacket } from '../../types/suttaStudio';
+import { splitPaliTokens } from '../../services/sutta-studio/utils';
 import { SuttaStudioView } from './SuttaStudioView';
 
 type Side = {
@@ -34,7 +35,7 @@ const stripToLetters = (s: string): string =>
 
 const measurePacket = (packet: DeepLoomPacket): { surfaceIntegrity: number | null; wordCoverage: number | null } => {
   const segments = packet.canonicalSegments || [];
-  const canonWords = segments.flatMap((s) => (s.pali || '').split(/\s+/).filter(Boolean));
+  const canonWords = segments.flatMap((s) => splitPaliTokens(s.pali || ''));
   // Exact-token membership (letters-only), mirroring the packet validator's
   // surface check — substring-of-the-whole-text would let corruptions ride on
   // other words or across word boundaries.
