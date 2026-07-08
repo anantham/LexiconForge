@@ -1032,6 +1032,23 @@ export const createChaptersSlice: StateCreator<
             debugLog('worker', 'summary', '[Worker] Preload mode changed mid-loop, stopping.');
             break;
           }
+          const { assertModelCostKnown } = await import('../../services/ai/cost');
+          try {
+            await assertModelCostKnown(latestSettings.model);
+          } catch (error) {
+            const showNotification = (get() as any).showNotification;
+            const message =
+              `Budget mode cannot safely preload with unpriced model "${latestSettings.model}". ` +
+              'Choose a priced model or add pricing before continuing.';
+            if (showNotification) {
+              showNotification(message, 'warning');
+            }
+            debugWarn('worker', 'summary', '[Worker] Stopping preload because model pricing is unknown', {
+              model: latestSettings.model,
+              error,
+            });
+            break;
+          }
           const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
           const spent = await getNovelTranslationCost(activeNovelId!, activeVersionId!);
           if (spent >= latestSettings.preloadBudget) {

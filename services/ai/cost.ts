@@ -1,6 +1,15 @@
 import { COSTS_PER_MILLION_TOKENS } from '../../config/costs';
 import { openrouterService } from '../openrouterService';
 
+export class UnknownModelPricingError extends Error {
+  constructor(public readonly model: string) {
+    super(
+      `No pricing information found for model "${model}". Budget mode cannot safely continue until this model is priced.`
+    );
+    this.name = 'UnknownModelPricingError';
+  }
+}
+
 const fetchDynamicPricing = async (model: string) => {
   let pricing = await openrouterService.getPricingForModel(model);
   if (!pricing) {
@@ -25,6 +34,44 @@ const resolveModelCosts = (model: string) => {
   return modelCosts;
 };
 
+const parseTokenPrice = (value: number | string | undefined): number | null => {
+  const parsed = typeof value === 'string' ? parseFloat(value) : value;
+  return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : null;
+};
+
+const resolveTokenRates = async (model: string): Promise<{ input: number; output: number } | null> => {
+  const modelCosts = resolveModelCosts(model);
+  if (modelCosts) {
+    return {
+      input: modelCosts.input / 1_000_000,
+      output: modelCosts.output / 1_000_000,
+    };
+  }
+
+  if (model.includes('/')) {
+    const pricing = await fetchDynamicPricing(model);
+    if (pricing) {
+      const promptCost = parseTokenPrice(pricing.prompt);
+      const completionCost = parseTokenPrice(pricing.completion);
+      if (promptCost !== null && completionCost !== null) {
+        return {
+          input: promptCost,
+          output: completionCost,
+        };
+      }
+    }
+  }
+
+  return null;
+};
+
+export const assertModelCostKnown = async (model: string): Promise<void> => {
+  const rates = await resolveTokenRates(model);
+  if (!rates) {
+    throw new UnknownModelPricingError(model);
+  }
+};
+
 export const calculateCost = async (
   model: string,
   promptTokens: number,
@@ -36,29 +83,12 @@ export const calculateCost = async (
     );
   }
 
-  const modelCosts = resolveModelCosts(model);
-  if (modelCosts) {
-    const inputCost = (promptTokens / 1_000_000) * modelCosts.input;
-    const outputCost = (completionTokens / 1_000_000) * modelCosts.output;
-    return inputCost + outputCost;
+  const rates = await resolveTokenRates(model);
+  if (!rates) {
+    throw new UnknownModelPricingError(model);
   }
 
-  if (model.includes('/')) {
-    const pricing = await fetchDynamicPricing(model);
-    if (pricing) {
-      const promptCost =
-        (typeof pricing.prompt === 'string' ? parseFloat(pricing.prompt) : pricing.prompt) || 0;
-      const completionCost =
-        (typeof pricing.completion === 'string'
-          ? parseFloat(pricing.completion)
-          : pricing.completion) || 0;
-
-      const inputCost = promptTokens * promptCost;
-      const outputCost = completionTokens * completionCost;
-      return inputCost + outputCost;
-    }
-  }
-
-  console.warn(`[Cost] No pricing information found for model: ${model}. Cost will be reported as 0.`);
-  return 0;
+  const inputCost = promptTokens * rates.input;
+  const outputCost = completionTokens * rates.output;
+  return inputCost + outputCost;
 };

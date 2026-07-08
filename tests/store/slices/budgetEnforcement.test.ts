@@ -12,6 +12,10 @@ vi.mock('../../../services/db/operations/budgetOps', () => ({
   getNovelTranslationCost: vi.fn(),
 }));
 
+vi.mock('../../../services/ai/cost', () => ({
+  assertModelCostKnown: vi.fn(),
+}));
+
 // Mock translation service to prevent real API calls
 vi.mock('../../../services/translationService', () => ({
   TranslationService: {
@@ -60,6 +64,7 @@ vi.mock('../../../services/explanationService', () => ({
 }));
 
 import { getNovelTranslationCost } from '../../../services/db/operations/budgetOps';
+import { assertModelCostKnown } from '../../../services/ai/cost';
 import { createTranslationsSlice } from '../../../store/slices/translationsSlice';
 
 const createTestSlice = (settingsOverrides: Partial<AppSettings> = {}) => {
@@ -103,6 +108,7 @@ const createTestSlice = (settingsOverrides: Partial<AppSettings> = {}) => {
 describe('budget enforcement in handleTranslate', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(assertModelCostKnown).mockResolvedValue(undefined);
   });
 
   it('blocks translation when budget mode is active and budget is exhausted', async () => {
@@ -111,6 +117,7 @@ describe('budget enforcement in handleTranslate', () => {
 
     await state.handleTranslate('ch-1', 'manual_translate');
 
+    expect(assertModelCostKnown).toHaveBeenCalledWith('gemini-2.5-flash');
     expect(getNovelTranslationCost).toHaveBeenCalledWith('novel-1', 'v1');
     expect(notifications).toHaveLength(1);
     expect(notifications[0].message).toContain('budget of $4.00 reached');
@@ -123,6 +130,7 @@ describe('budget enforcement in handleTranslate', () => {
 
     await state.handleTranslate('ch-1', 'manual_translate');
 
+    expect(assertModelCostKnown).toHaveBeenCalledWith('gemini-2.5-flash');
     expect(getNovelTranslationCost).toHaveBeenCalledWith('novel-1', 'v1');
     expect(notifications).toHaveLength(1);
     expect(notifications[0].message).toContain('budget of $4.00 reached');
@@ -137,8 +145,25 @@ describe('budget enforcement in handleTranslate', () => {
     // It may fail later since the translation service is mocked, but no budget warning should fire
     await state.handleTranslate('ch-1', 'manual_translate').catch(() => {});
 
+    expect(assertModelCostKnown).toHaveBeenCalledWith('gemini-2.5-flash');
     expect(getNovelTranslationCost).toHaveBeenCalled();
     expect(notifications.filter((n: any) => n.message.includes('budget'))).toHaveLength(0);
+  });
+
+  it('blocks budget-mode translation before spend when model pricing is unknown', async () => {
+    vi.mocked(assertModelCostKnown).mockRejectedValue(new Error('pricing missing'));
+    const { state, notifications } = createTestSlice({
+      model: 'unknown-model-2026',
+      preloadBudget: 4.00,
+    });
+
+    await state.handleTranslate('ch-1', 'manual_translate');
+
+    expect(assertModelCostKnown).toHaveBeenCalledWith('unknown-model-2026');
+    expect(getNovelTranslationCost).not.toHaveBeenCalled();
+    expect(notifications).toHaveLength(1);
+    expect(notifications[0].message).toContain('unpriced model "unknown-model-2026"');
+    expect(notifications[0].type).toBe('warning');
   });
 
   it('skips budget check entirely in chapters mode', async () => {
@@ -149,6 +174,7 @@ describe('budget enforcement in handleTranslate', () => {
 
     await state.handleTranslate('ch-1', 'manual_translate').catch(() => {});
 
+    expect(assertModelCostKnown).not.toHaveBeenCalled();
     expect(getNovelTranslationCost).not.toHaveBeenCalled();
   });
 
@@ -160,6 +186,7 @@ describe('budget enforcement in handleTranslate', () => {
 
     await state.handleTranslate('ch-1', 'manual_translate').catch(() => {});
 
+    expect(assertModelCostKnown).not.toHaveBeenCalled();
     expect(getNovelTranslationCost).not.toHaveBeenCalled();
   });
 
@@ -171,6 +198,7 @@ describe('budget enforcement in handleTranslate', () => {
 
     await state.handleTranslate('ch-1', 'manual_translate').catch(() => {});
 
+    expect(assertModelCostKnown).not.toHaveBeenCalled();
     expect(getNovelTranslationCost).not.toHaveBeenCalled();
   });
 });

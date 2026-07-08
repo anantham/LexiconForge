@@ -2,7 +2,7 @@ import { ChapterOps } from './chapters';
 import { TranslationOps } from './translations';
 
 /**
- * Sums estimatedCost from active translation records for all chapters
+ * Sums estimatedCost from all translation records for all chapters
  * in a given novel + version. Returns total USD spent.
  */
 export async function getNovelTranslationCost(
@@ -21,10 +21,7 @@ export async function getNovelTranslationCost(
       ? await TranslationOps.getVersionsByStableId(stableId)
       : await TranslationOps.getVersionsByUrl(canonicalUrl);
 
-    if (versions.length > 0) {
-      const activeVersion = versions.find(v => v.isActive) || versions[0];
-      totalCost += activeVersion.estimatedCost || 0;
-    }
+    totalCost += versions.reduce((sum, version) => sum + (version.estimatedCost || 0), 0);
   }
 
   return totalCost;

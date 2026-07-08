@@ -1,3 +1,33 @@
+### [2026-07-08 20:28 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** P0.4 cost fail-closed + budget undercount.
+**Progress:** Replaced unknown-model `$0` cost fallback with `UnknownModelPricingError`, added `assertModelCostKnown` for preflight budget checks, made budget mode refuse unknown pricing before translation/preload API calls, and changed novel spend accounting to sum all translation versions instead of only the active version.
+**Files modified (line numbers + why):**
+- `services/ai/cost.ts:4-10,37-73,86-93` — represent unknown pricing as an explicit error and share pricing resolution between preflight and cost calculation.
+- `services/db/operations/budgetOps.ts:4-25` — sum all version costs for a novel/version budget ledger.
+- `store/slices/translationsSlice.ts:276-295` — block budget-mode translation before API spend when selected model pricing is unknown.
+- `store/slices/chaptersSlice.ts:1029-1051` — stop budget preload before API spend when selected model pricing is unknown.
+- `tests/current-system/cost-calculation.test.ts:93-97` — assert unknown model pricing rejects instead of returning `$0`.
+- `tests/services/db/budgetOps.test.ts:16-31` — assert all translation versions count toward budget.
+- `tests/store/slices/budgetEnforcement.test.ts:15-17,108-167` — mock and assert budget pricing preflight, including unknown-model refusal.
+- `docs/WORKLOG.md` — start/end entries for this work.
+**Tests:**
+- `env NODE_OPTIONS=--localstorage-file=/private/tmp/codex-vitest-localstorage-cost npx vitest run tests/current-system/cost-calculation.test.ts tests/services/db/budgetOps.test.ts tests/store/slices/budgetEnforcement.test.ts --maxWorkers=1` ✅ 27 passed.
+- `env NODE_OPTIONS=--localstorage-file=/private/tmp/codex-vitest-localstorage-cost-broader npx vitest run tests/store/slices tests/store/chaptersSlice.test.ts tests/services/db/budgetOps.test.ts tests/current-system/cost-calculation.test.ts --maxWorkers=1` ✅ 61 passed.
+- `npx tsc --noEmit` ⚠️ blocked by existing unrelated repo-wide errors in Sutta/liturgy/script files; no errors referenced cost/budget files.
+- `git diff --check` ✅
+
+### [2026-07-08 20:24 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Fix P0.4 cost/budget safety without broad product behavior changes.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-cost-budget-safety`
+**Branch:** `fix/codex-cost-budget-safety`
+**Files likely affected:**
+- `services/ai/cost.ts`
+- `services/db/operations/budgetOps.ts`
+- Budget/cost tests under `tests/`
+**Hypothesis:** Budget mode needs a fail-closed cost status for unknown model prices and must count all translation versions, while ordinary non-budget translation should not be made unusable by this slice.
+
 ### [2026-07-01 → 2026-07-03] [Agents: Opus 4.8 / Fable 5] — sutta-studio benchmark + MN117 production arc
 **Status:** All merged to main and deployed. Written retroactively after a codex review flagged the missing WORKLOG entries for this burst (~34 commits over ~45h; data commits separate from code commits).
 **Arc 1 — public leaderboard + fairness overhaul** (`/bench/sutta-studio`):

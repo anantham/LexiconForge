@@ -276,6 +276,24 @@ export const createTranslationsSlice: StateCreator<
     if (context.settings.preloadMode === 'budget' && context.settings.preloadBudget && context.settings.preloadBudget > 0) {
       const { activeNovelId, activeVersionId } = state as any;
       if (activeNovelId) {
+        const { assertModelCostKnown } = await import('../../services/ai/cost');
+        try {
+          await assertModelCostKnown(context.settings.model);
+        } catch (error) {
+          const showNotification = (state as any).showNotification;
+          const message =
+            `Budget mode cannot safely translate with unpriced model "${context.settings.model}". ` +
+            'Choose a priced model or add pricing before continuing.';
+          if (showNotification) {
+            showNotification(message, 'warning');
+          }
+          debugWarn('translation', 'summary', '[Budget] Blocked translation because model pricing is unknown', {
+            model: context.settings.model,
+            error,
+          });
+          return;
+        }
+
         const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
         const spent = await getNovelTranslationCost(activeNovelId, activeVersionId);
         if (spent >= context.settings.preloadBudget) {

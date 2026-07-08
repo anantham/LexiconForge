@@ -90,9 +90,10 @@ describe('Edge cases', () => {
     expect(cost).toBeCloseTo(0.155, 6);
   });
 
-  it('returns 0 for unknown models instead of throwing', async () => {
-    const cost = await calculateCost('unknown-model-2025', 1000, 500);
-    expect(cost).toBe(0);
+  it('rejects unknown models instead of reporting $0', async () => {
+    await expect(calculateCost('unknown-model-2025', 1000, 500)).rejects.toThrow(
+      'No pricing information found for model "unknown-model-2025"'
+    );
   });
 
   it('rejects negative token counts', async () => {

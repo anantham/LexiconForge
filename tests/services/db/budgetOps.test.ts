@@ -13,7 +13,7 @@ describe('getNovelTranslationCost', () => {
     vi.clearAllMocks();
   });
 
-  it('sums estimatedCost from active translations across chapters', async () => {
+  it('sums estimatedCost from all translation versions across chapters', async () => {
     vi.mocked(ChapterOps.getByNovelAndVersion).mockResolvedValue([
       { stableId: 'ch-1', canonicalUrl: 'url-1' } as ChapterRecord,
       { stableId: 'ch-2', canonicalUrl: 'url-2' } as ChapterRecord,
@@ -28,7 +28,7 @@ describe('getNovelTranslationCost', () => {
       ]);
 
     const cost = await getNovelTranslationCost('novel-1', 'v1');
-    expect(cost).toBeCloseTo(0.08); // 0.05 + 0.03 (active versions only)
+    expect(cost).toBeCloseTo(0.18); // 0.05 + 0.10 + 0.03
   });
 
   it('returns 0 when no chapters exist', async () => {
