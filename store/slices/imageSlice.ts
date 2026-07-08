@@ -424,6 +424,11 @@ export const createImageSlice: StateCreator<
     const state = get();
     const key = `${chapterId}:${placementMarker}`;
 
+    if (state.generatedImages[key]?.isLoading) {
+      debugLog('image', 'summary', `[ImageSlice] Retry already in progress for ${key}, skipping duplicate request`);
+      return;
+    }
+
     // Get next version number
     const currentMaxVersion = state.imageVersions[key] || 0;
     const nextVersion = currentMaxVersion + 1;
@@ -513,14 +518,19 @@ export const createImageSlice: StateCreator<
       };
 
       if (generationSucceeded) {
-        updates.imageVersions = {
-          ...prevState.imageVersions,
-          [key]: nextVersion
-        };
-        updates.activeImageVersion = {
-          ...prevState.activeImageVersion,
-          [key]: nextVersion
-        };
+        const latestVersion = prevState.imageVersions[key] || 0;
+        if (latestVersion < nextVersion) {
+          updates.imageVersions = {
+            ...prevState.imageVersions,
+            [key]: nextVersion
+          };
+          updates.activeImageVersion = {
+            ...prevState.activeImageVersion,
+            [key]: nextVersion
+          };
+        } else {
+          debugLog('image', 'summary', `[ImageSlice] Retry result for ${key} was stale; latest=${latestVersion}, retry=${nextVersion}`);
+        }
       }
 
       return updates;

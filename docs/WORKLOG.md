@@ -1,3 +1,27 @@
+### [2026-07-08 20:22 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** P0.5 image retry double-fire/version race.
+**Progress:** Added a same-key in-flight guard to `handleRetryImage` so a double-click cannot launch a second paid retry while the first is loading. Added a stale-version check so a late retry result cannot move the visible version pointer backwards if state advanced while the provider call was in flight.
+**Files modified (line numbers + why):**
+- `store/slices/imageSlice.ts:423-430,520-533` — skip duplicate retry requests for a loading marker; only advance version pointers when the retry version is newer than current state.
+- `tests/store/slices/imageSlice.leak-on-throw.test.ts:95-169` — add deferred retry regression tests for duplicate suppression and stale-version protection.
+- `docs/WORKLOG.md` — start/end entries for this work.
+**Tests:**
+- `env NODE_OPTIONS=--localstorage-file=/private/tmp/codex-vitest-localstorage-image npx vitest run tests/store/slices/imageSlice.leak-on-throw.test.ts tests/store/slices/imageSlice.imagePlan.test.ts --maxWorkers=1` ✅ 7 passed.
+- `env NODE_OPTIONS=--localstorage-file=/private/tmp/codex-vitest-localstorage-store-slices npx vitest run tests/store/slices --maxWorkers=1` ✅ 38 passed.
+- `npx tsc --noEmit` ⚠️ blocked by existing unrelated repo-wide errors in Sutta/liturgy/script files; no errors referenced image files.
+- `git diff --check` ✅
+
+### [2026-07-08 20:19 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Fix P0.5 image retry double-fire/version race.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-image-retry-guard`
+**Branch:** `fix/codex-image-retry-guard`
+**Files likely affected:**
+- `store/slices/imageSlice.ts`
+- `tests/store/slices/imageSlice.leak-on-throw.test.ts`
+**Hypothesis:** `handleRetryImage` should refuse a retry when the same marker is already loading, and successful retries should allocate the next image version from the latest post-await store state rather than the pre-await snapshot.
+
 ### [2026-07-01 → 2026-07-03] [Agents: Opus 4.8 / Fable 5] — sutta-studio benchmark + MN117 production arc
 **Status:** All merged to main and deployed. Written retroactively after a codex review flagged the missing WORKLOG entries for this burst (~34 commits over ~45h; data commits separate from code commits).
 **Arc 1 — public leaderboard + fairness overhaul** (`/bench/sutta-studio`):
