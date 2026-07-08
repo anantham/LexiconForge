@@ -121,14 +121,46 @@ export class TranslationRepository implements ITranslationRepository {
     );
   }
 
+  private awaitTransactionCommit(
+    transaction: IDBTransaction,
+    operationName: string,
+    attachRequests: (fail: (stage: string, error?: unknown) => void) => void
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      let settled = false;
+      const fail = (stage: string, error?: unknown) => {
+        if (settled) return;
+        settled = true;
+        reject(
+          error ||
+            transaction.error ||
+            new Error(`[TranslationRepository] ${operationName} ${stage}`)
+        );
+      };
+
+      transaction.oncomplete = () => {
+        if (settled) return;
+        settled = true;
+        resolve();
+      };
+      transaction.onerror = () => fail('transaction failed', transaction.error);
+      transaction.onabort = () => fail('transaction aborted', transaction.error);
+
+      try {
+        attachRequests(fail);
+      } catch (error) {
+        fail('request scheduling failed', error);
+      }
+    });
+  }
+
   private async writeTranslation(record: TranslationRecord): Promise<void> {
     const db = await this.deps.getDb();
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
-      const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
+    const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
+    const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
+    await this.awaitTransactionCommit(transaction, 'writeTranslation', fail => {
       const request = store.put(record);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      request.onerror = () => fail('put request failed', request.error);
     });
   }
 
@@ -140,18 +172,12 @@ export class TranslationRepository implements ITranslationRepository {
     if (!updates.length) return;
 
     const db = await this.deps.getDb();
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
-      const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
-      let remaining = updates.length;
-
+    const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
+    const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
+    await this.awaitTransactionCommit(transaction, 'deactivateTranslations', fail => {
       updates.forEach(update => {
         const request = store.put(update);
-        request.onsuccess = () => {
-          remaining -= 1;
-          if (remaining === 0) resolve();
-        };
-        request.onerror = () => reject(request.error);
+        request.onerror = () => fail('put request failed', request.error);
       });
     });
   }
@@ -363,12 +389,11 @@ export class TranslationRepository implements ITranslationRepository {
     if (!translation) return;
     const db = await this.deps.getDb();
 
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
-      const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
+    const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
+    const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
+    await this.awaitTransactionCommit(transaction, 'deleteTranslationVersion', fail => {
       const request = store.delete(translationId);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      request.onerror = () => fail('delete request failed', request.error);
     });
 
     const remaining = await this.fetchTranslationsByUrl(translation.chapterUrl);

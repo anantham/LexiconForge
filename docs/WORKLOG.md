@@ -1,3 +1,31 @@
+### [2026-07-08 19:15 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** P0.1 IndexedDB transaction durability fix.
+**Progress:** Changed shared DB transactions and translation repository direct write paths to resolve only after `transaction.oncomplete`, so request-level success no longer reports durable persistence. Added focused regression tests for pre-commit resolution and commit-time aborts. Flagged `TranslationRepository.ts` as an architecture hotspot because the durability fix touched a 405-line module with versioning, keyspace, and write concerns mixed together.
+**Files modified (line numbers + why):**
+- `services/db/core/txn.ts:31-48,67-80,83-94` — keep operation result pending until the enclosing transaction completes; map abort errors through DB error taxonomy so quota aborts are not swallowed as success.
+- `services/db/repositories/TranslationRepository.ts:124-183,392-397` — wait for commit in `writeTranslation`, `deactivateTranslations`, and `deleteTranslationVersion` instead of resolving from request `onsuccess`.
+- `tests/services/db/txn.test.ts:1-82` — regression coverage for shared transaction helper resolving after commit and rejecting commit-time quota aborts.
+- `tests/services/db/TranslationRepository.durability.test.ts:1-139` — regression coverage for repository write/deactivate helpers waiting for commit.
+- `docs/architecture/ARCHITECTURE.md:197` — hotspot registration for `TranslationRepository.ts`.
+- `docs/WORKLOG.md` — start/end entries for this work.
+**Tests:**
+- `env NODE_OPTIONS=--localstorage-file=/private/tmp/codex-vitest-localstorage-single npx vitest run tests/services/db/txn.test.ts tests/services/db/TranslationRepository.durability.test.ts tests/services/db/TranslationRepository.test.ts --maxWorkers=1` ✅ 15 passed.
+- `env NODE_OPTIONS=--localstorage-file=/private/tmp/codex-vitest-localstorage-db npx vitest run tests/services/db --maxWorkers=1` ✅ 46 passed.
+- `npx tsc --noEmit` ⚠️ blocked by existing unrelated repo-wide errors in Sutta/liturgy/script files; no errors referenced the changed transaction files or new tests.
+- `git diff --check` ✅
+
+### [2026-07-08 19:07 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Fix IndexedDB transaction durability so write promises resolve after transaction commit, not request `onsuccess`.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-txn-durability`
+**Branch:** `fix/codex-txn-durability`
+**Files likely affected:**
+- `services/db/core/txn.ts`
+- `services/db/repositories/TranslationRepository.ts`
+- Targeted DB tests under `tests/`
+**Notes:** Root checkout has unrelated dirty files (`package-lock.json`, `public/steering-images.json`) and untracked roadmap docs; this work is isolated in a separate worktree.
+
 ### [2026-07-01 → 2026-07-03] [Agents: Opus 4.8 / Fable 5] — sutta-studio benchmark + MN117 production arc
 **Status:** All merged to main and deployed. Written retroactively after a codex review flagged the missing WORKLOG entries for this burst (~34 commits over ~45h; data commits separate from code commits).
 **Arc 1 — public leaderboard + fairness overhaul** (`/bench/sutta-studio`):

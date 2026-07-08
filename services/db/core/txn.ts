@@ -28,6 +28,24 @@ export async function withTxn<T>(
     
     return new Promise<T>((resolve, reject) => {
       const transaction = db.transaction(storeArray, mode);
+      let operationResult: T | undefined;
+      let operationSettled = false;
+      let transactionCompleted = false;
+      let promiseSettled = false;
+
+      const resolveIfComplete = () => {
+        if (!promiseSettled && operationSettled && transactionCompleted) {
+          promiseSettled = true;
+          resolve(operationResult as T);
+        }
+      };
+
+      const rejectOnce = (error: unknown) => {
+        if (!promiseSettled) {
+          promiseSettled = true;
+          reject(error);
+        }
+      };
       
       // Build stores object for easy access
       const stores: Record<string, IDBObjectStore> = {};
@@ -43,31 +61,37 @@ export async function withTxn<T>(
           service, 
           operationName || 'transaction'
         );
-        reject(error);
+        rejectOnce(error);
       };
       
       transaction.onabort = () => {
-        const error = new DbError('Transient', domain, service, 
-          `Transaction aborted in ${domain}${operationName ? `.${operationName}` : ''}`,
-          transaction.error
-        );
-        reject(error);
+        const error = transaction.error
+          ? mapDomError(transaction.error, domain, service, operationName || 'transaction')
+          : new DbError('Transient', domain, service,
+            `Transaction aborted in ${domain}${operationName ? `.${operationName}` : ''}`,
+            transaction.error
+          );
+        rejectOnce(error);
       };
       
       transaction.oncomplete = () => {
-        // Transaction completed successfully
-        // The result should already be resolved by the operation
+        transactionCompleted = true;
+        resolveIfComplete();
       };
       
       // Execute the operation
       operation(transaction, stores)
-        .then(result => resolve(result))
+        .then(result => {
+          operationResult = result;
+          operationSettled = true;
+          resolveIfComplete();
+        })
         .catch(error => {
           // Convert any operation errors to DbError
           const dbError = error instanceof DbError 
             ? error 
             : mapDomError(error, domain, service, operationName);
-          reject(dbError);
+          rejectOnce(dbError);
         });
     });
   }, domain, service, operationName || 'transaction');

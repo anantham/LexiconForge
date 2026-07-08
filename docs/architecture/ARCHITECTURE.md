@@ -194,6 +194,7 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 | `services/suttaStudioPassPrompts.ts` | 725 | Watchlist | Prompt builders + schemas + parsing in one file; no tests |
 | `services/suttaStudioPassRunners.ts` | 586 | Watchlist | All per-pass runners in one file; no tests |
 | `components/sutta-studio/SuttaStudioApp.tsx` | ~498 | Watchlist | Store wiring, navigation, compilation, and render gating |
+| `services/db/repositories/TranslationRepository.ts` | 405 | Watchlist | Translation versioning, active-version mutation, stableId fallback, and direct IDB write paths share one module |
 | `adapters/providers/OpenAIAdapter.ts` | 717 | Monitor | Largest single adapter; manageable but growing |
 | `store/slices/imageSlice.ts` | 1,081 | Keep | Single domain, all parts change together |
 | `store/slices/translationsSlice.ts` | 1,059 | Keep | Single domain, complex but cohesive |
