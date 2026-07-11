@@ -14,7 +14,8 @@ import { renderItalian, type LensFacet } from '../../services/italian/lens/rende
 const SERIF = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
 
 type Tok = { s: string; ws?: boolean; pbr?: boolean; l?: string; p?: string; m?: string; g?: string[] };
-type Unit = { n: number; id: string; title: string; italian: Tok[]; english: string };
+type Block = { it: Tok[][]; en: string[] };
+type Unit = { n: number; id: string; title: string; blocks: Block[] };
 type Payload = { work: string; witness: string; hasGlosses: boolean; units: Unit[] };
 
 const CONTENT_POS = new Set(['NOUN', 'VERB', 'ADJ', 'ADV', 'PROPN', 'AUX']);
@@ -133,13 +134,6 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
 
   const unit = payload.units[idx - 1];
 
-  const paragraphs: Tok[][] = [[]];
-  for (const t of unit.italian) {
-    paragraphs[paragraphs.length - 1].push(t);
-    if (t.pbr) paragraphs.push([]);
-  }
-  const paras = paragraphs.filter((p) => p.length);
-
   return (
     <div style={shell}>
       <div style={col}>
@@ -154,30 +148,31 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
         <h1 style={{ fontFamily: SERIF, textAlign: 'center', fontSize: 26, color: '#f1f5f9', marginBottom: 6 }}>
           {unit.title}
         </h1>
-        <div style={{ textAlign: 'center', color: '#475569', fontSize: 12, marginBottom: 32 }}>
-          hover a word for its meaning · click to cycle (cognate · grammar · word-building)
-        </div>
-
-        <div style={{ fontFamily: SERIF, fontSize: 20, lineHeight: 1.9, color: '#e2e8f0', marginBottom: 40 }}>
-          {paras.map((p, pi) => (
-            <p key={pi} style={{ margin: '0 0 1.1em' }}>
-              {p.map((t, k) => <Word key={k} t={t} />)}
-            </p>
-          ))}
-        </div>
-
-        <div style={{ borderTop: '1px solid #1e293b', paddingTop: 20, marginBottom: 40 }}>
+        <div className="flex items-center justify-center" style={{ gap: 16, marginBottom: 34 }}>
+          <span style={{ color: '#475569', fontSize: 12 }}>hover a word · click to cycle facets</span>
           <button
             onClick={() => setShowEn((v) => !v)}
-            style={{ ...link, background: 'none', border: 'none', padding: 0, marginBottom: 12 }}
+            style={{ ...link, background: 'none', border: `1px solid ${showEn ? 'rgba(52,211,153,.4)' : '#334155'}`, borderRadius: 5, padding: '2px 9px', fontSize: 12, color: showEn ? 'rgba(52,211,153,.85)' : '#64748b' }}
           >
-            {showEn ? '▾' : '▸'} Weaver’s English ({payload.witness})
+            {showEn ? '✓ ' : ''}Weaver English
           </button>
-          {showEn && (
-            <div style={{ fontFamily: SERIF, fontSize: 16, lineHeight: 1.8, fontStyle: 'italic', color: '#94a3b8', whiteSpace: 'pre-wrap' }}>
-              {unit.english}
+        </div>
+
+        <div style={{ marginBottom: 40 }}>
+          {unit.blocks.map((b, bi) => (
+            <div key={bi} style={{ marginBottom: '1.5em' }}>
+              {b.it.map((para, pi) => (
+                <p key={pi} style={{ fontFamily: SERIF, fontSize: 20, lineHeight: 1.85, color: '#e2e8f0', margin: '0 0 .25em' }}>
+                  {para.map((t, k) => <Word key={k} t={t} />)}
+                </p>
+              ))}
+              {showEn && b.en.map((para, pi) => (
+                <p key={pi} style={{ fontFamily: SERIF, fontSize: 15, lineHeight: 1.65, fontStyle: 'italic', color: '#64748b', margin: '.2em 0 0', paddingLeft: 14, borderLeft: '2px solid #1e293b' }}>
+                  {para}
+                </p>
+              ))}
             </div>
-          )}
+          ))}
         </div>
 
         <div className="flex items-center justify-between" style={{ borderTop: '1px solid #1e293b', paddingTop: 20 }}>
