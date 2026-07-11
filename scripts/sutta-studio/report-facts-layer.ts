@@ -17,7 +17,7 @@ import * as path from 'node:path';
 import { loadDpdSubsetFromFs } from '../../services/providers/dpd-loader-fs';
 import type { LexiconEntry } from '../../services/providers/types';
 import { scoreContentFidelityDetail, scoreSegmentationFidelity } from './quality-scorer';
-import { scoreFactsDetail, scoreSenseFidelityDetail, type DpdLookup } from './facts-scorer';
+import { scoreFactsDetail, scoreSenseFidelityDetail, type DpdLookup, type GrammarLookup, type MorphReading } from './facts-scorer';
 
 const ROOT = 'reports/sutta-studio';
 const DEFAULT_DIRS = ['2026-07-01T10-11-40-333Z', '2026-07-01T17-39-07-313Z'];
@@ -46,6 +46,11 @@ const dpdLookup: DpdLookup = (surface) => {
   return out;
 };
 
+const grammarData = fs.existsSync('data/dpd/mn10/grammar.json')
+  ? (JSON.parse(fs.readFileSync('data/dpd/mn10/grammar.json', 'utf8')).readings as Record<string, MorphReading[]>)
+  : {};
+const grammarLookup: GrammarLookup = (s) => grammarData[s];
+
 type Row = {
   model: string;
   phases: number;
@@ -73,7 +78,7 @@ function collectPhase(file: string) {
   return {
     content: scoreContentFidelityDetail(outAnat, goldAnat, outLex, goldLex),
     sense: scoreSenseFidelityDetail(outAnat, goldAnat, outLex, goldLex),
-    facts: scoreFactsDetail(outAnat, goldAnat, dpdLookup),
+    facts: scoreFactsDetail(outAnat, goldAnat, dpdLookup, grammarLookup),
     seg: scoreSegmentationFidelity(outAnat, goldAnat),
   };
 }
@@ -122,11 +127,18 @@ for (const [model, phases] of byModel) {
   const rootFab = sum((f) => f!.root.fabricated);
   const rootSil = sum((f) => f!.root.silent);
   const rootDrop = sum((f) => f!.root.dropped);
-  const agg = (k: 'pos' | 'morph') => {
+  const agg = (k: 'pos') => {
     const correct = sum((f) => f![k].correct);
     const total = sum((f) => f![k].total);
     return total ? `${((100 * correct) / total).toFixed(0)}% (${correct}/${total})` : '—';
   };
+  const morphC = sum((f) => f!.morph.correct);
+  const morphT = sum((f) => f!.morph.total);
+  const covA = sum((f) => f!.morphCoverage.asserted);
+  const covE = sum((f) => f!.morphCoverage.eligible);
+  const morphCol = morphT
+    ? `${((100 * morphC) / morphT).toFixed(0)}% of ${morphT} · cov ${covE ? ((100 * covA) / covE).toFixed(0) : 0}%`
+    : `— · cov ${covE ? ((100 * covA) / covE).toFixed(0) : 0}%`;
   perModel.set(model, { seg: mean(sg), factsMacro: mean(fm), sense: mean(sf) });
   rows.push({
     model,
@@ -140,7 +152,7 @@ for (const [model, phases] of byModel) {
       ? `${((100 * rootCorrect) / rootTotal).toFixed(0)}% (fab ${rootFab}·sil ${rootSil}·drop ${rootDrop})`
       : '—',
     pos: agg('pos'),
-    morph: agg('morph'),
+    morph: morphCol,
   });
 }
 
