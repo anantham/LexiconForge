@@ -118,3 +118,6 @@ reports/
 # not routed through LFS). Lives on disk only; transcriptions belong in data/liturgy/.
 /chants/
 .vercel
+
+# Local pipeline outputs (contain full copyrighted prose — never commit)
+out/
