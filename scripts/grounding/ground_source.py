@@ -47,11 +47,20 @@ def main():
         doc = nlp(text)
         sentences = []
         tok_total = 0
+        ntok = len(doc)
         for si, sent in enumerate(doc.sents):
             toks = []
             for t in sent:
                 if t.is_space:
                     continue
+                # Gap to the next NON-space token, read from raw offsets. spaCy emits
+                # "\n\n" as its own (skipped) whitespace token, so token.whitespace_ is
+                # empty there — measuring the offset gap recovers the paragraph break.
+                j = t.i + 1
+                while j < ntok and doc[j].is_space:
+                    j += 1
+                nxt = doc[j].idx if j < ntok else len(doc.text)
+                gap = doc.text[t.idx + len(t.text): nxt]
                 toks.append({
                     "i": t.i,
                     "surface": t.text,
@@ -60,7 +69,8 @@ def main():
                     "morph": str(t.morph),
                     "isAlpha": t.is_alpha,
                     "isStop": t.is_stop,
-                    "ws": t.whitespace_ == " ",
+                    "ws": len(gap) > 0,       # any whitespace before next word -> render a space
+                    "pbr": "\n" in gap,       # paragraph break follows this token
                 })
             if toks:
                 sentences.append({"idx": si, "text": sent.text.strip(), "tokens": toks})
