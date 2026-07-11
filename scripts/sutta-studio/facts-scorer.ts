@@ -59,15 +59,24 @@ export const extractRoots = (text: string): Set<string> => {
 
 /** DPD's authoritative root set for a word: √roots from every homonym entry +
  *  the Sanskrit-root bracket in citations ("Sanskrit: bhikṣu [bhikṣ]"). */
+/** English fragments the citation-bracket regex sometimes captures ("[in]",
+ * "[of]") — never legitimate Pāli root stems; they would leniently credit
+ * fabricated roots and pollute probe answer keys. */
+const ROOT_NOISE = new Set(['in', 'of', 'to', 'on', 'or', 'and', 'the', 'is', 'a', 'an', 'at', 'it']);
+
 export const dpdRoots = (entries: LexiconEntry[]): Set<string> => {
   const out = new Set<string>();
+  const add = (stem: string) => {
+    const s = stem.trim();
+    if (s && !ROOT_NOISE.has(s)) out.add(s);
+  };
   for (const e of entries) {
     const raw = (e.rawExcerpt ?? '') + ' ' + (e.senses?.map((s) => s.citation ?? '').join(' ') ?? '');
-    for (const r of extractRoots(raw)) out.add(r);
+    for (const r of extractRoots(raw)) add(r);
     const cite = e.senses?.map((s) => s.citation ?? '').join(' ') ?? '';
     const br = /\[([a-zāīūṁṅñṭḍḷṇṃ√\s]+)\]/gi;
     let m: RegExpExecArray | null;
-    while ((m = br.exec(cite)) !== null) out.add(norm(m[1].replace(/√/g, '')));
+    while ((m = br.exec(cite)) !== null) add(norm(m[1].replace(/√/g, '')));
   }
   return out;
 };
