@@ -9,6 +9,16 @@ import { create } from 'zustand';
 import { createChaptersSlice, type ChaptersSlice } from '../../store/slices/chaptersSlice';
 import { createMockEnhancedChapter, createMockImageCacheKey, createMockTranslationResult, createMockUsageMetrics } from '../utils/test-data';
 import { ChapterOps } from '../../services/db/operations';
+import { assertModelCostKnown } from '../../services/ai/cost';
+import { getNovelTranslationCost } from '../../services/db/operations/budgetOps';
+
+vi.mock('../../services/ai/cost', () => ({
+  assertModelCostKnown: vi.fn(),
+}));
+
+vi.mock('../../services/db/operations/budgetOps', () => ({
+  getNovelTranslationCost: vi.fn(),
+}));
 
 // Create a test store
 const createTestStore = () => {
@@ -17,6 +27,7 @@ const createTestStore = () => {
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.clearAllMocks();
 });
 
 describe('chaptersSlice - getMemoryDiagnostics', () => {
@@ -228,5 +239,63 @@ describe('chaptersSlice - preloadNextChapters', () => {
     await vi.advanceTimersByTimeAsync(1500);
 
     expect(findByNumberSpy).toHaveBeenCalledWith(2, 'orv', 'alice-v1');
+  });
+
+  it('stops budget preload before translation when model pricing is unknown', async () => {
+    vi.useFakeTimers();
+    vi.mocked(assertModelCostKnown).mockRejectedValueOnce(new Error('pricing missing'));
+    const handleTranslate = vi.fn();
+    const showNotification = vi.fn();
+
+    const store = create<any>()((set, get, api) => ({
+      ...createChaptersSlice(set, get, api),
+      activeNovelId: 'orv',
+      activeVersionId: 'alice-v1',
+      settings: {
+        provider: 'Gemini',
+        model: 'unknown-model-2026',
+        apiKeyGemini: 'test-key',
+        preloadMode: 'budget',
+        preloadBudget: 4,
+        preloadCount: 0,
+      },
+      loadChapterFromIDB: vi.fn(),
+      fetchTranslationVersions: vi.fn().mockResolvedValue([]),
+      isTranslationActive: vi.fn().mockReturnValue(false),
+      handleTranslate,
+      showNotification,
+      pendingTranslations: new Set(),
+    }));
+
+    store.getState().importChapter(createMockEnhancedChapter({
+      id: 'ch-1',
+      stableId: 'ch-1',
+      novelId: 'orv',
+      chapterNumber: 1,
+      title: 'Chapter 1',
+      nextUrl: null,
+      prevUrl: null,
+    }));
+    store.getState().importChapter(createMockEnhancedChapter({
+      id: 'ch-2',
+      stableId: 'ch-2',
+      novelId: 'orv',
+      chapterNumber: 2,
+      title: 'Chapter 2',
+      nextUrl: null,
+      prevUrl: null,
+    }));
+    store.setState({ currentChapterId: 'ch-1' });
+
+    store.getState().preloadNextChapters();
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(assertModelCostKnown).toHaveBeenCalledWith('unknown-model-2026');
+    expect(getNovelTranslationCost).not.toHaveBeenCalled();
+    expect(handleTranslate).not.toHaveBeenCalled();
+    expect(showNotification).toHaveBeenCalledWith(
+      expect.stringContaining('unpriced model "unknown-model-2026"'),
+      'warning'
+    );
   });
 });

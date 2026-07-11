@@ -85,7 +85,11 @@ export const calculateCost = async (
 
   const rates = await resolveTokenRates(model);
   if (!rates) {
-    throw new UnknownModelPricingError(model);
+    console.warn(
+      `[Cost] No pricing information found for model: ${model}. ` +
+      'Cost will be reported as 0 outside strict budget preflight.'
+    );
+    return 0;
   }
 
   const inputCost = promptTokens * rates.input;

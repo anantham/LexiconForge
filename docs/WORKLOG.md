@@ -1,3 +1,35 @@
+### [2026-07-11 09:32 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** PR #108 review correction after merging current `main`.
+**Progress:** Confined fail-closed unknown-pricing behavior to `assertModelCostKnown`, the explicit budget authorization boundary. Restored tolerant post-response cost accounting so a successful ordinary translation is not discarded after the provider has billed it. Added preload-worker coverage proving unknown pricing stops before budget lookup or translation. Historical unknown-cost representation remains intentionally deferred to the typed cost-policy consolidation.
+**Files modified (line numbers + why):**
+- `services/ai/cost.ts:68-97` — keep strict budget assertion while returning `$0` with a warning from compatibility accounting outside budget preflight.
+- `tests/current-system/cost-calculation.test.ts:1-102` — distinguish tolerant accounting from strict budget authorization.
+- `tests/store/chaptersSlice.test.ts:7-29,196-288` — verify budget preload stops before `handleTranslate` for an unpriced model.
+- `docs/WORKLOG.md` — record the review correction, evidence, and remaining consolidation scope.
+**Tests:**
+- Focused cost/budget/preload tests: 33 passed.
+- Broader store/provider/cost tests: 92 passed.
+- Full Vitest suite: 8,773 passed, 356 skipped.
+- `git diff --check` passed.
+- `npx tsc --noEmit --pretty false` remains blocked only by the pre-existing repo-wide errors in Sutta/liturgy/script files; no changed file appears in the error list.
+**PR:** https://github.com/anantham/LexiconForge/pull/108
+
+### [2026-07-10 18:35 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Correct PR #108 so strict unknown-pricing behavior is confined to budget authorization and cannot discard a completed ordinary translation.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-cost-budget-safety`
+**Branch:** `fix/codex-cost-budget-safety`
+**Files likely affected:**
+- `services/ai/cost.ts`
+- `tests/current-system/cost-calculation.test.ts`
+- `tests/store/chaptersSlice.test.ts`
+- `docs/WORKLOG.md`
+**Hypothesis:** `assertModelCostKnown` is the correct fail-closed budget boundary. `calculateCost` is also used as post-response accounting in live adapters, so it must not throw and discard already-paid successful responses when budget mode is inactive.
+**Predicted tests:** Unknown pricing returns `$0` from tolerant accounting, rejects from strict preflight, and stops the preload worker before `handleTranslate`.
+**Confidence:** 0.96
+**Fallback:** If downstream callers need explicit unknown-cost status, keep this compatibility behavior and introduce a typed `known | unknown` cost result in the immediate cost-policy consolidation rather than widening this safety PR.
+
 ### [2026-07-08 20:28 IST] [Agent: Codex]
 **Status:** Complete
 **Task:** P0.4 cost fail-closed + budget undercount.

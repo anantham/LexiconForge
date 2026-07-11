@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { calculateCost } from '../../services/aiService';
+import { assertModelCostKnown } from '../../services/ai/cost';
 import { openrouterService } from '../../services/openrouterService';
 import { calculateImageCost } from '../../services/imageService';
 import { COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../../config/costs';
@@ -90,8 +91,12 @@ describe('Edge cases', () => {
     expect(cost).toBeCloseTo(0.155, 6);
   });
 
-  it('rejects unknown models instead of reporting $0', async () => {
-    await expect(calculateCost('unknown-model-2025', 1000, 500)).rejects.toThrow(
+  it('keeps ordinary accounting tolerant when model pricing is unknown', async () => {
+    await expect(calculateCost('unknown-model-2025', 1000, 500)).resolves.toBe(0);
+  });
+
+  it('rejects unknown models at the strict budget preflight boundary', async () => {
+    await expect(assertModelCostKnown('unknown-model-2025')).rejects.toThrow(
       'No pricing information found for model "unknown-model-2025"'
     );
   });
