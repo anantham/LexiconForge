@@ -197,6 +197,17 @@ function clusterStory(cluster: string): { assembly: string; note?: string } {
 
 export type EtymFacet = { primary: string; secondary: string };
 
+/** Unvoiced stops that Malayalam speech often softens after a vowel. */
+const SOFTENED: Record<string, string> = { ക: 'ga', ച: 'ja', ട: 'da', ത: 'dha', പ: 'ba' };
+
+/** Does this cluster END in a vowel sound? (consonant = inherent a; chillu/ം/് = no) */
+export function endsVocalic(cluster: string): boolean {
+  const cps = Array.from(cluster).filter((c) => kindOf(c) !== 'join');
+  const last = cps[cps.length - 1];
+  const k = kindOf(last);
+  return k === 'consonant' || k === 'vowel' || k === 'vowel-sign';
+}
+
 /**
  * Split a practical romanization into per-cluster syllable slices, so the
  * sound line can light up with its glyph (hover ടി → "di" glows too).
@@ -222,13 +233,26 @@ export function syllabify(rom: string, clusterCount: number): string[] | null {
 /**
  * The hover tooltip for ONE letter-cluster — used by the interlinear's
  * etymology mode, where each cluster is its own hover target (no cycling).
+ *
+ * `afterVowel`: the cluster before this one ends in a vowel sound. Malayalam
+ * speech often softens a single unvoiced stop there (ട ta → "da" — why the
+ * sound line under തിരുവടി says di while the letter says ta). Geminates
+ * (ക്ക etc.) never soften. The tooltip names the rule instead of leaving the
+ * letter-vs-sound mismatch silent.
  */
-export function clusterTip(cluster: string): EtymFacet {
+export function clusterTip(cluster: string, afterVowel = false): EtymFacet {
   const story = clusterStory(cluster);
-  const single = Array.from(cluster).filter((c) => kindOf(c) !== 'join').length === 1;
+  const cps = Array.from(cluster).filter((c) => kindOf(c) !== 'join');
+  const single = cps.length === 1;
+  let secondary = story.note ?? '';
+  const c0 = cps[0];
+  if (afterVowel && kindOf(c0) === 'consonant' && SOFTENED[c0] && cps[1] !== '്') {
+    const soft = `the letter says ${CONSONANTS[c0]}, but after a vowel the mouth often softens it toward ${SOFTENED[c0]} — the sound line follows the mouth`;
+    secondary = secondary ? `${secondary} · ${soft}` : soft;
+  }
   return {
     primary: single ? story.assembly : `${cluster} = ${story.assembly}`,
-    secondary: story.note ?? '',
+    secondary,
   };
 }
 

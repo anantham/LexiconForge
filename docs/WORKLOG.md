@@ -6,10 +6,10 @@
 - `Mlym` font/size in ConceptInterlinear + Noto Serif Malayalam in index.html; route `/malayalam` in App.tsx.
 **Why hand-curated:** UI-first pilot to converge the interface before automating (mlmorph FST + Olam glosses are the planned substrate; see session discussion). Reader is a heritage speaker relearning script — romanization always-on is the point.
 **Next:** native review of glosses; remaining ~30 paragraphs via semi-automated pipeline; Jnanappana verse mode; ISO 15919 facet.
-**Captured (user observations, not yet built):**
-- SURFACE-FIDELITY DECISION (gates everything downstream): big glyphs as true written words (പണ്ടൊരു) with akshara pieces vs. current sandhi-resolved morpheme display. Recommended: surface-true (SUTTA-025's law).
-- Sub-cluster hover in etym mode (ര vs ു separately inside രു): CONSTRAINT — splitting a combining sequence into separate DOM spans breaks font shaping (രു is one drawn ligature; the sign would detach or dotted-circle). Candidate approaches: pointer-x position within the cluster span mapping to parts, or tooltip-internal part emphasis that follows the mouse. Needs a spike, not a quick edit.
-- Letter-value vs spoken-value: tooltip says ട (ta) while the sound line says 'di' (intervocalic softening) — both are true; the tooltip should eventually NAME the softening rule instead of leaving the mismatch silent.
+**Resolved 2026-07-11 (same session):**
+- ✅ SURFACE LAW ADOPTED (SUTTA-025 applied to Malayalam): pieces must concatenate to the exact written surface; clean boundaries keep morpheme pieces (ഊരക|ത്ത്), sandhi-fused junctions collapse with tooltip pedagogy (പണ്ടൊരു, മേനോന്മാരിൽ, കാവലും, കണക്കെഴുത്തുമുണ്ടായിരുന്നു re-curated). Enforced: `scripts/malayalam/validate-surface.ts` (also checks sound↔cluster sliceability) — wire into CI when this merges.
+- ✅ Letter-vs-spoken value: etym tooltip now names the softening rule (single unvoiced stop after a vowel → "letter says ta, mouth drifts toward da"; geminates exempt).
+- ▣ Sub-cluster hover (ര vs ു inside രു): RESOLVED BY DESIGN, not built — the akshara is the atomic unit of INK: splitting the combining sequence into DOM spans breaks shaping (dotted-circle/detached sign), and in ligated forms the sub-parts have no separate ink to point at. The cluster tooltip enumerates the typed parts instead. Revisit only with a shaping-aware rendering approach (e.g. harfbuzz cluster metrics); pointer-x heuristics rejected as false precision.
 
 ### [2026-07-01 → 2026-07-03] [Agents: Opus 4.8 / Fable 5] — sutta-studio benchmark + MN117 production arc
 **Status:** All merged to main and deployed. Written retroactively after a codex review flagged the missing WORKLOG entries for this burst (~34 commits over ~45h; data commits separate from code commits).

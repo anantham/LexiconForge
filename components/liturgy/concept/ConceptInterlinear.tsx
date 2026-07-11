@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { AlignSegment, AlignRelation, AlignRendering, AlignToken, AlignSegmentPiece } from '../../../types/liturgyAlign';
 import { getConcept } from '../../../data/concepts/lookup';
 import { conceptFacets } from '../../../data/concepts/tooltipFacets';
-import { clustersOf, clusterTip, syllabify } from '../../../services/malayalam/graphemes';
+import { clustersOf, clusterTip, endsVocalic, syllabify } from '../../../services/malayalam/graphemes';
 
 /**
  * Concept-aligned phrase reader (DESIGN.md). Centered classical serif, words in
@@ -422,7 +422,9 @@ const PhraseBlock: React.FC<{
                     {mlymClusters
                       ? mlymClusters.map((cl, ci) => {
                           const ck = `${key}:${ci}`;
-                          const tip = overCl === ck ? clusterTip(cl) : null;
+                          const tip = overCl === ck
+                            ? clusterTip(cl, ci > 0 && endsVocalic(mlymClusters[ci - 1]))
+                            : null;
                           return (
                             <span
                               key={ci}

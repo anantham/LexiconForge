@@ -7,9 +7,13 @@
  * per CLAUSE (breath-group), so the prose cadence is visible as lines.
  *
  * Design decisions embodied here (see WORKLOG / discussion 2026-07-11):
- *  - Malayalam pieces are SANDHI-RESOLVED MORPHEMES (കണക്ക് · എഴുത്ത് · ഉം …),
- *    not graphical slices of the fused surface; the token `note` always
- *    carries the exact written form so the fusion is taught, not hidden.
+ *  - SURFACE LAW (the SUTTA-025 rule, adopted 2026-07-11): a token's pieces
+ *    MUST concatenate to the exact written surface. Morpheme splits happen
+ *    only where the boundary is graphically clean (ഊരക|ത്ത്). Where sandhi
+ *    fuses across a boundary (പണ്ടൊരു, കണക്കെഴുത്തുമുണ്ടായിരുന്നു), the
+ *    pieces COLLAPSE into the fused surface and the gloss/note teaches the
+ *    underlying split — collapse-with-tooltip-pedagogy, never a fake surface.
+ *    Enforced by scripts/malayalam/validate-surface.ts.
  *  - Romanization is PRACTICAL (Mozhi-flavoured: zha/th/kk), aimed at a
  *    heritage speaker relearning the script — not ISO 15919 (that can come
  *    back as a facet later).
@@ -181,11 +185,9 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
           {
             text: 'പണ്ടൊരു',
             units: ['u-longago', 'u-a'],
-            note: 'Two words fused by sandhi: paṇḍu + oru → paṇḍoru. The -u melts before the o-.',
-            segments: [
-              { text: 'പണ്ട്', pronunciation: 'pandu', gloss: 'long ago, in old times', units: ['u-longago'] },
-              { text: 'ഒരു', pronunciation: 'oru', gloss: 'one, a', units: ['u-a'] },
-            ],
+            pronunciation: 'pandoru',
+            gloss: 'long ago + a/one — paṇḍu + oru, fused where the -u melts before o-',
+            note: 'Sandhi welds the two words into one written form; the seam hides inside ണ്ടൊ, so the split lives here, not in the glyphs.',
           },
           {
             text: 'കാലത്തു',
@@ -257,17 +259,9 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
           {
             text: 'മേനോന്മാരിൽ',
             units: ['u-menons', 'u-among'],
-            note: 'Title + plural + "among", one written word: mēnōn + mār + il.',
-            segments: [
-              {
-                text: 'മേനോൻ',
-                pronunciation: 'menon',
-                gloss: 'Menon — a Nair title; the writers and account-keepers',
-                units: ['u-menons'],
-              },
-              { text: 'മാർ', pronunciation: 'maar', gloss: 'plural (for people)', units: ['u-menons'], faint: true },
-              { text: 'ഇൽ', pronunciation: 'il', gloss: 'among / in', units: ['u-among'], faint: true },
-            ],
+            pronunciation: 'menonmaaril',
+            gloss: 'among the Menons — mēnōn (the title) + mār (plural, for people) + il (among), fused',
+            note: 'Both seams weld in writing: ൻ+മാ → ന്മാ and ർ+ഇ → രി. No clean glyph boundary survives, so the three-way split is taught here.',
           },
           {
             text: 'ഒരാൾക്ക്',
@@ -344,17 +338,10 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
                 units: ['u-gate'],
               },
               {
-                text: 'കാവൽ',
-                pronunciation: 'kaaval',
-                gloss: 'watch, guarding — old Dravidian; Tamil kāval is the same word',
-                units: ['u-watch'],
-              },
-              {
-                text: 'ഉം',
-                pronunciation: 'um',
-                gloss: 'and — first of the pair um…um, "both…and"',
-                units: ['u-and-a'],
-                faint: true,
+                text: 'കാവലും',
+                pronunciation: 'kaavalum',
+                gloss: 'watch + and — kāval (guarding; Tamil kāval is the same word) + um ("both…and"), fused: ൽ+ഉം → ലും',
+                units: ['u-watch', 'u-and-a'],
               },
             ],
           },
@@ -394,34 +381,10 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
           {
             text: 'കണക്കെഴുത്തുമുണ്ടായിരുന്നു',
             units: ['u-accounts', 'u-writing', 'u-and-b', 'u-had'],
-            note: 'One written word = an English clause. kaṇakku + ezhuthu + um + uṇḍāyirunnu, every seam fused by sandhi: kk+e→kke, u+u→u, m+u→mu.',
-            segments: [
-              {
-                text: 'കണക്ക്',
-                pronunciation: 'kanakku',
-                gloss: 'count, account — Dravidian; Tamil kaṇakku is the same word',
-                units: ['u-accounts'],
-              },
-              {
-                text: 'എഴുത്ത്',
-                pronunciation: 'ezhuthu',
-                gloss: 'writing — the word in Ezhuthachan, "father of writing"; carries the zha',
-                units: ['u-writing'],
-              },
-              {
-                text: 'ഉം',
-                pronunciation: 'um',
-                gloss: 'also — closing the pair opened by നടകാവലും',
-                units: ['u-and-b'],
-                faint: true,
-              },
-              {
-                text: 'ഉണ്ടായിരുന്നു',
-                pronunciation: 'undaayirunnu',
-                gloss: 'there-was: uṇḍu "exists" + āyi "became" + irunnu "stayed" — an auxiliary chain English says as one word, "had"',
-                units: ['u-had'],
-              },
-            ],
+            pronunciation: 'kanakkezhuthumundaayirunnu',
+            gloss:
+              'accounts + writing + also + there-was — kaṇakku (account; Tamil kaṇakku) + ezhuthu (writing; the word in Ezhuthachan) + um (also) + uṇḍāyirunnu (uṇḍu "exists" + āyi "became" + irunnu "stayed" = "had")',
+            note: 'One written word = an English clause. Every seam fuses: kk+e→ക്കെ, u+u→ത്തു, m+u→മു — no glyph boundary survives, so the four-way split is taught here. With ഒരാൾക്ക്: "to him there was" = he had.',
           },
         ],
       },
