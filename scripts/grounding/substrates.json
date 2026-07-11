@@ -3,12 +3,12 @@
   "substrates": {
     "it": {
       "verified": true,
-      "spacyModel": "it_core_news_lg",
-      "spacyInstall": "python -m spacy download it_core_news_lg",
+      "spacyModel": "it_core_news_sm",
+      "spacyInstall": "python -m spacy download it_core_news_sm",
       "wiktionaryLang": "Italian",
       "wiktionaryExtract": "https://kaikki.org/dictionary/Italian/kaikki.org-dictionary-Italian.jsonl",
       "morphItOptional": "https://docs.sslmit.unibo.it/doku.php?id=resources:morph-it",
-      "notes": "spaCy handles clitics/elisions (sporgendosi, s'allacciano, dell') that a dictionary lookup cannot. Wiktionary JSONL is keyed by lemma -> senses[]."
+      "notes": "spaCy handles clitics/elisions (dell'->di il, Nell'->in il), gerunds (leggendo->leggere) and finite verbs that a dictionary lookup cannot. Verified 2026-07-11 on Calvino: it_core_news_sm (13MB) is IDENTICAL to it_core_news_lg (568MB) on lemma/POS/morph here (lg's word vectors are unused for grounding), so sm is the choice. Residual misses are isolated title words lacking sentence context (e.g. reflexive gerund 'Sporgendosi'). Wiktionary JSONL is keyed by lemma -> senses[] (gloss layer, Stage 2b, not yet built)."
     },
     "fr": {
       "verified": false,

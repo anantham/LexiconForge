@@ -1,0 +1,5 @@
+# spaCy source-grounding substrate (Stage 2). Python 3.12.
+# Install: python -m venv scripts/grounding/.venv && ./scripts/grounding/.venv/bin/pip install -r scripts/grounding/requirements.txt
+# Then: ./scripts/grounding/.venv/bin/python -m spacy download it_core_news_sm
+spacy==3.8.14
+click

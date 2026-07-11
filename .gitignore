@@ -121,3 +121,8 @@ reports/
 
 # Local pipeline outputs (contain full copyrighted prose — never commit)
 out/
+
+# Grounding output (derived from full copyrighted prose — regenerable, never commit)
+data/calvino/
+# Python grounding venv
+scripts/grounding/.venv/
