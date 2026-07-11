@@ -23,6 +23,65 @@
 import type { AlignSegment } from '../../types/liturgyAlign';
 
 export const URAKAM_SENTENCE_1: AlignSegment[] = [
+  // ── TITLE: ഊരകത്ത് അമ്മതിരുവടി ───────────────────────────────────
+  // `title: true` — renders larger, set off with a divider, but flows through
+  // the same rail/threads as every phrase (the Heart Sutra title pattern).
+  {
+    id: 'urk-title',
+    title: true,
+    gloss: 'The Amma Thiruvadi of Urakam',
+    units: [
+      { id: 'ut-urakam', gloss: 'Urakam (the village)', conceptId: 'concept.urakam' },
+      { id: 'ut-at', gloss: 'at / of' },
+      { id: 'ut-amma', gloss: 'mother' },
+      { id: 'ut-thiruvadi', gloss: 'holy feet (honorific)', conceptId: 'concept.thiruvadi' },
+    ],
+    renderings: [
+      {
+        lang: 'ml-Mlym',
+        label: 'Malayalam',
+        tokens: [
+          {
+            text: 'ഊരകത്ത്',
+            units: ['ut-urakam', 'ut-at'],
+            segments: [
+              {
+                text: 'ഊരക',
+                pronunciation: 'ooraka',
+                gloss: 'Urakam — ūru "village" + akam "inside": the village-heart',
+                units: ['ut-urakam'],
+              },
+              { text: 'ത്ത്', pronunciation: 'thu', gloss: 'at / of', units: ['ut-at'], faint: true },
+            ],
+          },
+          {
+            text: 'അമ്മതിരുവടി',
+            units: ['ut-amma', 'ut-thiruvadi'],
+            segments: [
+              { text: 'അമ്മ', pronunciation: 'amma', gloss: 'mother', units: ['ut-amma'] },
+              {
+                text: 'തിരുവടി',
+                pronunciation: 'thiruvadi',
+                gloss: 'holy feet — reverence addresses the goddess through her feet',
+                units: ['ut-thiruvadi'],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        lang: 'en',
+        label: 'English (Opus draft)',
+        by: 'opus-draft',
+        tokens: [
+          { text: 'The', units: [], gloss: 'supplied by English — Malayalam has no "the"' },
+          { text: 'Ammathiruvadi', units: ['ut-amma', 'ut-thiruvadi'], relation: 'transliteration' },
+          { text: 'of Urakam', units: ['ut-at', 'ut-urakam'], relation: 'interpretive' },
+        ],
+      },
+    ],
+  },
+
   // ── ഊരകത്ത് അമ്മതിരുവടിക്ഷേത്രത്തിൽ ──────────────────────────────
   {
     id: 'urk-s1c1',

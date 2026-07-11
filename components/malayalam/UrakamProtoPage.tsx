@@ -56,10 +56,7 @@ export const UrakamProtoPage: React.FC = () => {
           </label>
         </div>
 
-        <h1 className="mt-14 text-center text-3xl text-slate-100" style={{ fontFamily: MLYM }}>
-          ഊരകത്ത് അമ്മതിരുവടി
-        </h1>
-        <p className="mt-3 text-center text-sm text-slate-500 italic" style={{ fontFamily: SERIF }}>
+        <p className="mt-14 text-center text-sm text-slate-500 italic" style={{ fontFamily: SERIF }}>
           Aithihyamala · Kottarathil Sankunni, 1909 · public domain
         </p>
         <p className="mt-1 mb-16 text-center text-xs text-slate-600" style={{ fontFamily: SERIF }}>
