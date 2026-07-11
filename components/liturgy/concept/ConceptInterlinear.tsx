@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { AlignSegment, AlignRelation, AlignRendering, AlignToken, AlignSegmentPiece } from '../../../types/liturgyAlign';
 import { getConcept } from '../../../data/concepts/lookup';
 import { conceptFacets } from '../../../data/concepts/tooltipFacets';
-import { clustersOf, clusterTip, endsVocalic, syllabify } from '../../../services/malayalam/graphemes';
+import { clustersOf, clusterTip, endsVocalic, isMalayalamCluster, syllabify } from '../../../services/malayalam/graphemes';
 
 /**
  * Concept-aligned phrase reader (DESIGN.md). Centered classical serif, words in
@@ -391,8 +391,12 @@ const PhraseBlock: React.FC<{
               // Mlym etym mode: cluster list + per-cluster sound slices, so the
               // glyph and its syllable in the sound line highlight TOGETHER
               // (hover either — both directions work). null slices → whole line.
+              // Bare-punctuation clusters (a trailing '.') get no ordinal — the
+              // sound pairing maps only the Malayalam clusters.
               const mlymClusters = mlymEtym ? clustersOf(piece.text) : null;
-              const romSlices = mlymClusters && piece.pronunciation ? syllabify(piece.pronunciation, mlymClusters.length) : null;
+              let mlymN = -1;
+              const mlymOrd = mlymClusters ? mlymClusters.map((cl) => (isMalayalamCluster(cl) ? ++mlymN : null)) : null;
+              const romSlices = mlymClusters && piece.pronunciation ? syllabify(piece.pronunciation, mlymN + 1) : null;
               return (
                 <span
                   key={si}
@@ -440,7 +444,14 @@ const PhraseBlock: React.FC<{
                   >
                     {mlymClusters
                       ? mlymClusters.map((cl, ci) => {
-                          const ck = `${key}:${ci}`;
+                          const ord = mlymOrd![ci];
+                          if (ord === null) {
+                            // punctuation cluster — rendered, never a hover target
+                            return (
+                              <span key={ci} style={{ color: C.faint }}>{cl}</span>
+                            );
+                          }
+                          const ck = `${key}:${ord}`;
                           const tip = overCl === ck
                             ? clusterTip(cl, ci > 0 && endsVocalic(mlymClusters[ci - 1]))
                             : null;

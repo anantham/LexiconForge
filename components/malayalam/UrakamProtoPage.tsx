@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { ConceptInterlinear } from '../liturgy/concept/ConceptInterlinear';
 import { URAKAM_SENTENCE_1 } from '../../data/malayalam/urakam-ammathiruvadi';
+import { URAKAM_TIER1 } from '../../data/malayalam/urakam-tier1';
+
+// Curated sentence 1 (full unit spine + concepts) followed by the whole
+// legend at Tier 1 (deterministic sounds + Opus-draft English witness).
+const ALL_SEGMENTS = [...URAKAM_SENTENCE_1, ...URAKAM_TIER1];
 
 const SERIF = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
 const MLYM = "'Noto Serif Malayalam', 'Manjari', serif";
@@ -57,13 +62,13 @@ export const UrakamProtoPage: React.FC = () => {
         </div>
 
         <p className="mt-14 text-center text-sm text-slate-500 italic" style={{ fontFamily: SERIF }}>
-          Aithihyamala · Kottarathil Sankunni, 1909 · public domain
+          Aithihyamala · Kottarathil Sankunni, 1909 · public domain · the full legend — opening deep-curated, the rest Tier-1
         </p>
         <p className="mt-1 mb-16 text-center text-xs text-slate-600" style={{ fontFamily: SERIF }}>
           English witness: Opus draft (2026) — unreviewed machine translation, shown for alignment, not authority
         </p>
 
-        <ConceptInterlinear segments={URAKAM_SENTENCE_1} />
+        <ConceptInterlinear segments={ALL_SEGMENTS} />
 
         <p className="mt-20 text-center text-xs text-slate-600" style={{ fontFamily: SERIF }}>
           Malayalam source:{' '}

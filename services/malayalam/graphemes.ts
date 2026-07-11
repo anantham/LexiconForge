@@ -104,9 +104,14 @@ export function clustersOf(text: string): string[] {
     const k = kindOf(ch);
     if (!cur) { cur = ch; continue; }
     const prev = cps[i - 1];
+    // chillu attaches as a syllable CODA (അവർ is one spoken unit); a join
+    // char (ZWJ/ZWNJ) attaches to the current cluster but does NOT license
+    // the next consonant to attach — ZWNJ means "break here" (ശേ‌ഷം is two
+    // clusters), and legacy virama+ZWJ chillus must not weld what follows.
     const attaches =
       k === 'vowel-sign' || k === 'virama' || k === 'anusvara' || k === 'visarga' || k === 'join' ||
-      kindOf(prev) === 'virama' || kindOf(prev) === 'join';
+      k === 'chillu' ||
+      kindOf(prev) === 'virama';
     if (attaches) { cur += ch; continue; }
     out.push(cur);
     cur = ch;
@@ -195,6 +200,84 @@ function clusterStory(cluster: string): { assembly: string; note?: string } {
   return { assembly, note: notes.join(' · ') || undefined };
 }
 
+/**
+ * Deterministic practical romanization of one cluster — the Tier-1 sound
+ * line, generated (not hand-written) so it scales to whole books.
+ *
+ * Rules, in the order the eye meets them:
+ *  - consonant carries inherent 'a'; a vowel sign replaces it; a weld ്
+ *    strips it and joins the next consonant.
+ *  - geminates double the first letter (ക്ക → kka, ത്ത → ttha).
+ *  - post-nasal stops voice (ണ്ട → nda, മ്പ → mba) — categorical in speech.
+ *  - single ട voices intervocalically (തിരുവടി → thiruvadi) — the one
+ *    softening clear enough to bake in; other letter-vs-mouth gaps stay
+ *    letter-value and are explained by the etym tooltip's softening note.
+ *  - word-final ് whispers the half-u (പണ്ട് → pandu); chillu = bare sound.
+ */
+const ROMAN_SIGN: Record<string, string> = {
+  'ാ': 'aa', 'ി': 'i', 'ീ': 'ee', 'ു': 'u', 'ൂ': 'oo', 'ൃ': 'ru',
+  'െ': 'e', 'േ': 'e', 'ൈ': 'ai', 'ൊ': 'o', 'ോ': 'o', 'ൌ': 'au', 'ൗ': 'au',
+};
+const ROMAN_VOWEL: Record<string, string> = {
+  അ: 'a', ആ: 'aa', ഇ: 'i', ഈ: 'ee', ഉ: 'u', ഊ: 'oo', ഋ: 'ru',
+  എ: 'e', ഏ: 'e', ഐ: 'ai', ഒ: 'o', ഓ: 'o', ഔ: 'au',
+};
+/** Practical letter-values where the tooltip table's phonetic tags read wrong in running sound. */
+const ROMAN_CONS_OVERRIDE: Record<string, string> = { ദ: 'da', ധ: 'dha', ഢ: 'dha' };
+const NASALS = new Set(['ങ', 'ഞ', 'ണ', 'ന', 'മ']);
+const POST_NASAL_VOICED: Record<string, string> = { ക: 'ga', ച: 'ja', ട: 'da', ത: 'dha', പ: 'ba' };
+
+const consSound = (c: string) => ROMAN_CONS_OVERRIDE[c] ?? CONSONANTS[c];
+
+export function romanizeCluster(cluster: string, opts?: { wordFinal?: boolean; afterVowel?: boolean }): string {
+  const cps = Array.from(cluster).filter((c) => kindOf(c) !== 'join');
+  let out = '';
+  for (let i = 0; i < cps.length; i++) {
+    const c = cps[i];
+    const k = kindOf(c);
+    if (k === 'vowel') { out += ROMAN_VOWEL[c] ?? ''; continue; }
+    if (k === 'chillu') { out += CHILLUS[c].sound; continue; }
+    if (k === 'anusvara') { out += 'm'; continue; }
+    if (k === 'visarga') { out += 'h'; continue; }
+    if (k === 'vowel-sign') { out = out.replace(/a$/, '') + (ROMAN_SIGN[c] ?? ''); continue; }
+    if (k === 'virama') {
+      if (i === cps.length - 1) out = out.replace(/a$/, '') + (opts?.wordFinal ? 'u' : '');
+      else out = out.replace(/a$/, '');
+      continue;
+    }
+    if (k === 'consonant') {
+      const prev = cps[i - 1];
+      const prevCons = i >= 2 && prev === '്' ? cps[i - 2] : undefined;
+      let s = consSound(c);
+      if (prevCons === c) {
+        // Geminate: the virama already left the residue (out ends with base-minus-a).
+        // Single-letter sounds double naturally (m+ma → mma); digraph sounds
+        // collapse — practical writing uses one 'tha' for ത്ത, not 'ththa'.
+        const residue = s.replace(/a$/, '');
+        if (residue.length > 1) out = out.slice(0, -residue.length);
+      } else if (prevCons && NASALS.has(prevCons) && POST_NASAL_VOICED[c]) s = POST_NASAL_VOICED[c];
+      else if (prevCons && c === 'വ') s = 'wa'; // welded വ reads w (സ്വ → swa)
+      else if (i === 0 && opts?.afterVowel && c === 'ട' && cps[i + 1] !== '്') s = 'da'; // single intervocalic ട only — geminates (ട്ട) never soften
+      out += s;
+      continue;
+    }
+  }
+  return out;
+}
+
+/** Romanize a whole word: clusters romanized in context, joined. */
+export function romanizeWord(word: string): string {
+  const cls = clustersOf(word);
+  return cls
+    .map((cl, i) =>
+      romanizeCluster(cl, {
+        wordFinal: i === cls.length - 1,
+        afterVowel: i > 0 && endsVocalic(cls[i - 1]),
+      }),
+    )
+    .join('');
+}
+
 export type ClusterPart = { glyph: string; sound: string };
 export type EtymFacet = { primary: string; secondary: string; parts?: ClusterPart[] };
 
@@ -224,6 +307,11 @@ export function clusterParts(cluster: string): ClusterPart[] {
 
 /** Unvoiced stops that Malayalam speech often softens after a vowel. */
 const SOFTENED: Record<string, string> = { ക: 'ga', ച: 'ja', ട: 'da', ത: 'dha', പ: 'ba' };
+
+/** Does this cluster contain any Malayalam at all? (false for bare punctuation clusters) */
+export function isMalayalamCluster(cluster: string): boolean {
+  return /[ഀ-ൿ]/.test(cluster);
+}
 
 /** Does this cluster END in a vowel sound? (consonant = inherent a; chillu/ം/് = no) */
 export function endsVocalic(cluster: string): boolean {

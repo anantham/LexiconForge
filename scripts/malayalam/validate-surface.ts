@@ -8,7 +8,8 @@
  */
 
 import { URAKAM_SENTENCE_1 } from '../../data/malayalam/urakam-ammathiruvadi';
-import { clustersOf, syllabify } from '../../services/malayalam/graphemes';
+import { URAKAM_TIER1 } from '../../data/malayalam/urakam-tier1';
+import { clustersOf, isMalayalamCluster, syllabify } from '../../services/malayalam/graphemes';
 
 let failures = 0;
 const fail = (msg: string) => {
@@ -16,7 +17,7 @@ const fail = (msg: string) => {
   console.error(`✗ ${msg}`);
 };
 
-for (const seg of URAKAM_SENTENCE_1) {
+for (const seg of [...URAKAM_SENTENCE_1, ...URAKAM_TIER1]) {
   for (const r of seg.renderings) {
     if (!r.lang.startsWith('ml')) continue;
     for (const token of r.tokens) {
@@ -34,7 +35,8 @@ for (const seg of URAKAM_SENTENCE_1) {
         : [{ text: token.text, pronunciation: token.pronunciation }];
       for (const p of pieces) {
         if (!p.pronunciation) continue;
-        const n = clustersOf(p.text).length;
+        // Count only Malayalam clusters — punctuation clusters carry no sound.
+        const n = clustersOf(p.text).filter(isMalayalamCluster).length;
         if (!syllabify(p.pronunciation, n)) {
           fail(`${seg.id}: "${p.text}" (${n} clusters) ↮ sound "${p.pronunciation}" — syllabify fallback`);
         }
