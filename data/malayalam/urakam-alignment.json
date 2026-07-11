@@ -1,0 +1,200 @@
+{
+  "p01s02": {
+    "units": [
+      { "id": "u-time", "gloss": "in the course of time" },
+      { "id": "u-ooralar", "gloss": "being the temple's proprietors (ooralar)" },
+      { "id": "u-nambooris", "gloss": "the Namboothiris, and—" },
+      { "id": "u-menon", "gloss": "the Menon, and—" },
+      { "id": "u-between", "gloss": "between one another" },
+      { "id": "u-great", "gloss": "great" },
+      { "id": "u-quarrel", "gloss": "turned into a quarrel" }
+    ],
+    "ml": [["u-time"], ["u-ooralar"], ["u-nambooris"], ["u-menon"], ["u-between"], ["u-great"], ["u-quarrel"]],
+    "en": [
+      ["In the course of time,", ["u-time"]],
+      ["a great", ["u-great"]],
+      ["quarrel arose", ["u-quarrel"]],
+      ["between", ["u-between"]],
+      ["the Menon", ["u-menon"]],
+      ["and the Namboothiris", ["u-nambooris"]],
+      ["who were the temple's proprietors.", ["u-ooralar"]]
+    ]
+  },
+  "p01s03": {
+    "units": [
+      { "id": "u-therefore", "gloss": "because of this" },
+      { "id": "u-menon", "gloss": "the Menon" },
+      { "id": "u-devaswom", "gloss": "belonging to the Devaswom" },
+      { "id": "u-accounts", "gloss": "the accounts, and—" },
+      { "id": "u-books", "gloss": "the record-books, and—" },
+      { "id": "u-rest", "gloss": "and the rest" },
+      { "id": "u-burned", "gloss": "burned and destroyed utterly" }
+    ],
+    "ml": [["u-therefore"], ["u-menon"], ["u-devaswom"], ["u-accounts"], ["u-books"], ["u-rest"], ["u-burned"]],
+    "en": [
+      ["Because of this,", ["u-therefore"]],
+      ["the Menon", ["u-menon"]],
+      ["burned and destroyed", ["u-burned"]],
+      ["the Devaswom's", ["u-devaswom"]],
+      ["accounts,", ["u-accounts"]],
+      ["record-books", ["u-books"]],
+      ["and everything else.", ["u-rest"]]
+    ]
+  },
+  "p01s04": {
+    "units": [
+      { "id": "u-reason", "gloss": "for that reason" },
+      { "id": "u-now", "gloss": "now" },
+      { "id": "u-temple-rel", "gloss": "relating to the temple" },
+      { "id": "u-old", "gloss": "old" },
+      { "id": "u-know-history", "gloss": "for knowing the history" },
+      { "id": "u-no-document", "gloss": "no documentary evidence at all" },
+      { "id": "u-is-without", "gloss": "stands in the state of not existing" }
+    ],
+    "ml": [["u-reason"], ["u-now"], ["u-temple-rel"], ["u-old"], ["u-know-history"], ["u-no-document"], ["u-is-without"]],
+    "en": [
+      ["For that reason", ["u-reason"]],
+      ["there now exists", ["u-now", "u-is-without"]],
+      ["no documentary evidence at all", ["u-no-document"]],
+      ["for knowing", ["u-know-history"]],
+      ["the temple's", ["u-temple-rel"]],
+      ["old", ["u-old"]],
+      ["history.", ["u-know-history"]]
+    ]
+  },
+  "p01s05": {
+    "units": [
+      { "id": "u-so", "gloss": "so, by this" },
+      { "id": "u-this-writing", "gloss": "this that is being written" },
+      { "id": "u-old-familiar", "gloss": "familiar with the old days" },
+      { "id": "u-elders", "gloss": "from aged elders" },
+      { "id": "u-received", "gloss": "received" },
+      { "id": "u-heard", "gloss": "heard —" },
+      { "id": "u-hearsay-only", "gloss": "hearsay, and only that" },
+      { "id": "u-basis", "gloss": "taking as the basis" }
+    ],
+    "ml": [["u-so"], ["u-this-writing"], ["u-old-familiar"], ["u-elders"], ["u-received"], ["u-heard"], ["u-hearsay-only"], ["u-basis"]],
+    "en": [
+      ["So", ["u-so"]],
+      ["this is being written", ["u-this-writing"]],
+      ["relying", ["u-basis"]],
+      ["only on the hearsay", ["u-hearsay-only", "u-heard"]],
+      ["received", ["u-received"]],
+      ["from aged elders", ["u-elders"]],
+      ["familiar with the old days.", ["u-old-familiar"]]
+    ]
+  },
+  "p02s01": {
+    "units": [
+      { "id": "u-temple", "gloss": "at the Ammathiruvadi temple" },
+      { "id": "u-office-acct", "gloss": "the hereditary-office (karayma) account" },
+      { "id": "u-still-a", "gloss": "even now" },
+      { "id": "u-vazhappilly", "gloss": "Vazhappilly" },
+      { "id": "u-menons", "gloss": "of the Menon" },
+      { "id": "u-family", "gloss": "in the family home (tharavad)" },
+      { "id": "u-each-day", "gloss": "on any given day" },
+      { "id": "u-eldest", "gloss": "being the eldest" },
+      { "id": "u-person", "gloss": "the person who" },
+      { "id": "u-a", "gloss": "a" },
+      { "id": "u-ola-bundle", "gloss": "bundle of palm-leaf accounts" },
+      { "id": "u-carrying", "gloss": "taking up and carrying" },
+      { "id": "u-procession", "gloss": "the procession" },
+      { "id": "u-before", "gloss": "in front of" },
+      { "id": "u-walk", "gloss": "to walk" },
+      { "id": "u-still-b", "gloss": "even now" },
+      { "id": "u-custom", "gloss": "is the custom" }
+    ],
+    "ml": [
+      ["u-temple"], ["u-office-acct"], ["u-still-a"], ["u-vazhappilly"], ["u-menons"], ["u-family"],
+      ["u-each-day"], ["u-eldest"], ["u-person"], ["u-a"], ["u-ola-bundle"], ["u-carrying"],
+      ["u-procession"], ["u-before"], ["u-walk"], ["u-still-b"], ["u-custom"]
+    ],
+    "en": [
+      ["At the Ammathiruvadi temple", ["u-temple"]],
+      ["the hereditary office-holder's account", ["u-office-acct"]],
+      ["is still", ["u-still-a"]],
+      ["with the Vazhappilly", ["u-vazhappilly"]],
+      ["Menon's", ["u-menons"]],
+      ["family:", ["u-family"]],
+      ["it is still", ["u-still-b"]],
+      ["the custom", ["u-custom"]],
+      ["that whoever is eldest", ["u-eldest", "u-person"]],
+      ["in that family", ["u-family"]],
+      ["walks", ["u-walk"]],
+      ["before", ["u-before"]],
+      ["the procession", ["u-procession"]],
+      ["carrying", ["u-carrying"]],
+      ["a", ["u-a"]],
+      ["bundle of palm-leaf accounts.", ["u-ola-bundle"]]
+    ]
+  },
+  "p02s02": {
+    "units": [
+      { "id": "u-for-that", "gloss": "toward that (service)" },
+      { "id": "u-from-dev", "gloss": "from the Devaswom" },
+      { "id": "u-certain", "gloss": "certain" },
+      { "id": "u-perqs", "gloss": "perquisites (anubhavams)" },
+      { "id": "u-to-them", "gloss": "to them" },
+      { "id": "u-still", "gloss": "even now" },
+      { "id": "u-keep-giving", "gloss": "continue to be given" }
+    ],
+    "ml": [["u-for-that"], ["u-from-dev"], ["u-certain"], ["u-perqs"], ["u-to-them"], ["u-still"], ["u-keep-giving"]],
+    "en": [
+      ["For that service,", ["u-for-that"]],
+      ["certain", ["u-certain"]],
+      ["perquisites", ["u-perqs"]],
+      ["from the Devaswom", ["u-from-dev"]],
+      ["are still", ["u-still"]],
+      ["given", ["u-keep-giving"]],
+      ["to them.", ["u-to-them"]]
+    ]
+  },
+  "p02s03": {
+    "units": [
+      { "id": "u-that", "gloss": "that" },
+      { "id": "u-family", "gloss": "in the family home" },
+      { "id": "u-each-day", "gloss": "on any given day" },
+      { "id": "u-eldest", "gloss": "being eldest" },
+      { "id": "u-menon-obj", "gloss": "the Menon (him)" },
+      { "id": "u-earlier", "gloss": "in earlier times" },
+      { "id": "u-everyone", "gloss": "everyone" },
+      { "id": "u-kaakkunna", "gloss": "\"Kaakkunna\" — the guarding one" },
+      { "id": "u-menon-name", "gloss": "Menon (the name)" },
+      { "id": "u-thus", "gloss": "thus, by that name" },
+      { "id": "u-used-to-say", "gloss": "used to say" }
+    ],
+    "ml": [
+      ["u-that"], ["u-family"], ["u-each-day"], ["u-eldest"], ["u-menon-obj"], ["u-earlier"],
+      ["u-everyone"], ["u-kaakkunna"], ["u-menon-name"], ["u-thus"], ["u-used-to-say"]
+    ],
+    "en": [
+      ["In earlier times", ["u-earlier"]],
+      ["everyone", ["u-everyone"]],
+      ["used to call", ["u-used-to-say", "u-thus"]],
+      ["the eldest", ["u-eldest"]],
+      ["Menon", ["u-menon-obj"]],
+      ["of that", ["u-that"]],
+      ["family", ["u-family"]],
+      ["the \"Kaakkunna", ["u-kaakkunna"]],
+      ["Menon\"", ["u-menon-name"]],
+      ["— the Guarding Menon.", ["u-kaakkunna"]]
+    ]
+  },
+  "p02s04": {
+    "units": [
+      { "id": "u-that", "gloss": "that" },
+      { "id": "u-worn", "gloss": "having worn down (lopam — sounds eroding)" },
+      { "id": "u-kaakkara", "gloss": "\"Kaakkara\"" },
+      { "id": "u-menon", "gloss": "Menon" },
+      { "id": "u-has-become", "gloss": "has come to be (so said)" }
+    ],
+    "ml": [["u-that"], ["u-worn"], ["u-kaakkara"], ["u-menon"], ["u-has-become"]],
+    "en": [
+      ["That", ["u-that"]],
+      ["has worn down", ["u-worn"]],
+      ["to", ["u-has-become"]],
+      ["\"Kaakkara", ["u-kaakkara"]],
+      ["Menon\".", ["u-menon"]]
+    ]
+  }
+}

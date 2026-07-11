@@ -18,6 +18,34 @@ const fail = (msg: string) => {
 };
 
 for (const seg of [...URAKAM_SENTENCE_1, ...URAKAM_TIER1]) {
+  // 0. Alignment integrity: every token binding points at a real unit, and
+  //    every unit is realized by at least one Malayalam token (no dead spine
+  //    slots). English chunks must reconstruct the sentence gloss exactly.
+  if (seg.units.length > 0) {
+    const unitIds = new Set(seg.units.map((u) => u.id));
+    const realized = new Set<string>();
+    for (const r of seg.renderings) {
+      for (const t of r.tokens) {
+        for (const u of t.units) {
+          if (!unitIds.has(u)) fail(`${seg.id}: token "${t.text}" binds unknown unit "${u}"`);
+          if (r.lang.startsWith('ml')) realized.add(u);
+        }
+      }
+    }
+    for (const u of seg.units) {
+      if (!realized.has(u.id)) fail(`${seg.id}: unit "${u.id}" realized by no Malayalam token`);
+    }
+    // Chunks-reconstruct-the-translation is the CONVERTER's contract (its
+    // gloss IS the english.json sentence). Hand-curated segments carry clause
+    // summaries as glosses — exempt (their ids are urk-title / urk-s1c*).
+    const generated = /^urk-p\d/.test(seg.id);
+    const enR = seg.renderings.find((r) => r.lang === 'en');
+    if (generated && enR && seg.gloss && enR.tokens.length > 1) {
+      const joined = enR.tokens.map((t) => t.text).join(' ').replace(/\s+/g, ' ').trim();
+      const gloss = seg.gloss.replace(/\s+/g, ' ').trim();
+      if (joined !== gloss) fail(`${seg.id}: en chunks join ≠ translation:\n  "${joined}"\n  "${gloss}"`);
+    }
+  }
   for (const r of seg.renderings) {
     if (!r.lang.startsWith('ml')) continue;
     for (const token of r.tokens) {

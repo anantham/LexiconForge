@@ -9,7 +9,36 @@ export const URAKAM_TIER1: AlignSegment[] = [
  {
   "id": "urk-p01s02",
   "gloss": "In the course of time, a great quarrel arose between the Menon and the Namboothiris who were the temple's proprietors.",
-  "units": [],
+  "units": [
+   {
+    "id": "u-time",
+    "gloss": "in the course of time"
+   },
+   {
+    "id": "u-ooralar",
+    "gloss": "being the temple's proprietors (ooralar)"
+   },
+   {
+    "id": "u-nambooris",
+    "gloss": "the Namboothiris, and—"
+   },
+   {
+    "id": "u-menon",
+    "gloss": "the Menon, and—"
+   },
+   {
+    "id": "u-between",
+    "gloss": "between one another"
+   },
+   {
+    "id": "u-great",
+    "gloss": "great"
+   },
+   {
+    "id": "u-quarrel",
+    "gloss": "turned into a quarrel"
+   }
+  ],
   "renderings": [
    {
     "lang": "ml-Mlym",
@@ -17,37 +46,51 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "tokens": [
      {
       "text": "കാലക്രമേണ",
-      "units": [],
+      "units": [
+       "u-time"
+      ],
       "pronunciation": "kaalakramena"
      },
      {
       "text": "ഊരാളന്മാരായ",
-      "units": [],
+      "units": [
+       "u-ooralar"
+      ],
       "pronunciation": "ooraalanmaaraaya"
      },
      {
       "text": "നമ്പൂരിമാരും",
-      "units": [],
+      "units": [
+       "u-nambooris"
+      ],
       "pronunciation": "namboorimaarum"
      },
      {
       "text": "മേനവനും",
-      "units": [],
+      "units": [
+       "u-menon"
+      ],
       "pronunciation": "menavanum"
      },
      {
       "text": "തമ്മിൽ",
-      "units": [],
+      "units": [
+       "u-between"
+      ],
       "pronunciation": "thammil"
      },
      {
       "text": "വലിയ",
-      "units": [],
+      "units": [
+       "u-great"
+      ],
       "pronunciation": "valiya"
      },
      {
       "text": "പിണക്കമായിത്തീർന്നു.",
-      "units": [],
+      "units": [
+       "u-quarrel"
+      ],
       "pronunciation": "pinakkamaayitheernnu"
      }
     ]
@@ -58,9 +101,46 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "by": "opus-draft",
     "tokens": [
      {
-      "text": "In the course of time, a great quarrel arose between the Menon and the Namboothiris who were the temple's proprietors.",
-      "units": [],
-      "relation": "interpretive"
+      "text": "In the course of time,",
+      "units": [
+       "u-time"
+      ]
+     },
+     {
+      "text": "a great",
+      "units": [
+       "u-great"
+      ]
+     },
+     {
+      "text": "quarrel arose",
+      "units": [
+       "u-quarrel"
+      ]
+     },
+     {
+      "text": "between",
+      "units": [
+       "u-between"
+      ]
+     },
+     {
+      "text": "the Menon",
+      "units": [
+       "u-menon"
+      ]
+     },
+     {
+      "text": "and the Namboothiris",
+      "units": [
+       "u-nambooris"
+      ]
+     },
+     {
+      "text": "who were the temple's proprietors.",
+      "units": [
+       "u-ooralar"
+      ]
      }
     ]
    }
@@ -69,7 +149,36 @@ export const URAKAM_TIER1: AlignSegment[] = [
  {
   "id": "urk-p01s03",
   "gloss": "Because of this, the Menon burned and destroyed the Devaswom's accounts, record-books and everything else.",
-  "units": [],
+  "units": [
+   {
+    "id": "u-therefore",
+    "gloss": "because of this"
+   },
+   {
+    "id": "u-menon",
+    "gloss": "the Menon"
+   },
+   {
+    "id": "u-devaswom",
+    "gloss": "belonging to the Devaswom"
+   },
+   {
+    "id": "u-accounts",
+    "gloss": "the accounts, and—"
+   },
+   {
+    "id": "u-books",
+    "gloss": "the record-books, and—"
+   },
+   {
+    "id": "u-rest",
+    "gloss": "and the rest"
+   },
+   {
+    "id": "u-burned",
+    "gloss": "burned and destroyed utterly"
+   }
+  ],
   "renderings": [
    {
     "lang": "ml-Mlym",
@@ -77,37 +186,51 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "tokens": [
      {
       "text": "അതിനാൽ",
-      "units": [],
+      "units": [
+       "u-therefore"
+      ],
       "pronunciation": "athinaal"
      },
      {
       "text": "മേനോൻ",
-      "units": [],
+      "units": [
+       "u-menon"
+      ],
       "pronunciation": "menon"
      },
      {
       "text": "ദേവസ്വംവക",
-      "units": [],
+      "units": [
+       "u-devaswom"
+      ],
       "pronunciation": "devaswamvaka"
      },
      {
       "text": "കണക്കുകളും",
-      "units": [],
+      "units": [
+       "u-accounts"
+      ],
       "pronunciation": "kanakkukalum"
      },
      {
       "text": "ഗ്രന്ഥവരികളും",
-      "units": [],
+      "units": [
+       "u-books"
+      ],
       "pronunciation": "granthhavarikalum"
      },
      {
       "text": "മറ്റും",
-      "units": [],
+      "units": [
+       "u-rest"
+      ],
       "pronunciation": "marrum"
      },
      {
       "text": "ചുട്ടുനശിപ്പിച്ചുകളഞ്ഞു.",
-      "units": [],
+      "units": [
+       "u-burned"
+      ],
       "pronunciation": "chuttunashippichukalanju"
      }
     ]
@@ -118,9 +241,46 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "by": "opus-draft",
     "tokens": [
      {
-      "text": "Because of this, the Menon burned and destroyed the Devaswom's accounts, record-books and everything else.",
-      "units": [],
-      "relation": "interpretive"
+      "text": "Because of this,",
+      "units": [
+       "u-therefore"
+      ]
+     },
+     {
+      "text": "the Menon",
+      "units": [
+       "u-menon"
+      ]
+     },
+     {
+      "text": "burned and destroyed",
+      "units": [
+       "u-burned"
+      ]
+     },
+     {
+      "text": "the Devaswom's",
+      "units": [
+       "u-devaswom"
+      ]
+     },
+     {
+      "text": "accounts,",
+      "units": [
+       "u-accounts"
+      ]
+     },
+     {
+      "text": "record-books",
+      "units": [
+       "u-books"
+      ]
+     },
+     {
+      "text": "and everything else.",
+      "units": [
+       "u-rest"
+      ]
      }
     ]
    }
@@ -129,7 +289,36 @@ export const URAKAM_TIER1: AlignSegment[] = [
  {
   "id": "urk-p01s04",
   "gloss": "For that reason there now exists no documentary evidence at all for knowing the temple's old history.",
-  "units": [],
+  "units": [
+   {
+    "id": "u-reason",
+    "gloss": "for that reason"
+   },
+   {
+    "id": "u-now",
+    "gloss": "now"
+   },
+   {
+    "id": "u-temple-rel",
+    "gloss": "relating to the temple"
+   },
+   {
+    "id": "u-old",
+    "gloss": "old"
+   },
+   {
+    "id": "u-know-history",
+    "gloss": "for knowing the history"
+   },
+   {
+    "id": "u-no-document",
+    "gloss": "no documentary evidence at all"
+   },
+   {
+    "id": "u-is-without",
+    "gloss": "stands in the state of not existing"
+   }
+  ],
   "renderings": [
    {
     "lang": "ml-Mlym",
@@ -137,37 +326,51 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "tokens": [
      {
       "text": "തന്നിമിത്തം",
-      "units": [],
+      "units": [
+       "u-reason"
+      ],
       "pronunciation": "thannimitham"
      },
      {
       "text": "ഇപ്പോൾ",
-      "units": [],
+      "units": [
+       "u-now"
+      ],
       "pronunciation": "ippol"
      },
      {
       "text": "ക്ഷേത്രസംബന്ധമായ",
-      "units": [],
+      "units": [
+       "u-temple-rel"
+      ],
       "pronunciation": "kshethrasambandhamaaya"
      },
      {
       "text": "പഴയ",
-      "units": [],
+      "units": [
+       "u-old"
+      ],
       "pronunciation": "pazhaya"
      },
      {
       "text": "ചരിത്രമറിയുന്നതിനു",
-      "units": [],
+      "units": [
+       "u-know-history"
+      ],
       "pronunciation": "charithramariyunnathinu"
      },
      {
       "text": "രേഖാപ്രമാണമൊന്നും",
-      "units": [],
+      "units": [
+       "u-no-document"
+      ],
       "pronunciation": "rekhaapramaanamonnum"
      },
      {
       "text": "ഇല്ലാതെയാണിരിക്കുന്നത്.",
-      "units": [],
+      "units": [
+       "u-is-without"
+      ],
       "pronunciation": "illaatheyaanirikkunnathu"
      }
     ]
@@ -178,9 +381,47 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "by": "opus-draft",
     "tokens": [
      {
-      "text": "For that reason there now exists no documentary evidence at all for knowing the temple's old history.",
-      "units": [],
-      "relation": "interpretive"
+      "text": "For that reason",
+      "units": [
+       "u-reason"
+      ]
+     },
+     {
+      "text": "there now exists",
+      "units": [
+       "u-now",
+       "u-is-without"
+      ]
+     },
+     {
+      "text": "no documentary evidence at all",
+      "units": [
+       "u-no-document"
+      ]
+     },
+     {
+      "text": "for knowing",
+      "units": [
+       "u-know-history"
+      ]
+     },
+     {
+      "text": "the temple's",
+      "units": [
+       "u-temple-rel"
+      ]
+     },
+     {
+      "text": "old",
+      "units": [
+       "u-old"
+      ]
+     },
+     {
+      "text": "history.",
+      "units": [
+       "u-know-history"
+      ]
      }
     ]
    }
@@ -189,7 +430,40 @@ export const URAKAM_TIER1: AlignSegment[] = [
  {
   "id": "urk-p01s05",
   "gloss": "So this is being written relying only on the hearsay received from aged elders familiar with the old days.",
-  "units": [],
+  "units": [
+   {
+    "id": "u-so",
+    "gloss": "so, by this"
+   },
+   {
+    "id": "u-this-writing",
+    "gloss": "this that is being written"
+   },
+   {
+    "id": "u-old-familiar",
+    "gloss": "familiar with the old days"
+   },
+   {
+    "id": "u-elders",
+    "gloss": "from aged elders"
+   },
+   {
+    "id": "u-received",
+    "gloss": "received"
+   },
+   {
+    "id": "u-heard",
+    "gloss": "heard —"
+   },
+   {
+    "id": "u-hearsay-only",
+    "gloss": "hearsay, and only that"
+   },
+   {
+    "id": "u-basis",
+    "gloss": "taking as the basis"
+   }
+  ],
   "renderings": [
    {
     "lang": "ml-Mlym",
@@ -197,42 +471,58 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "tokens": [
      {
       "text": "ഇതിനാൽ",
-      "units": [],
+      "units": [
+       "u-so"
+      ],
       "pronunciation": "ithinaal"
      },
      {
       "text": "ഇതെഴുതുന്നത്",
-      "units": [],
+      "units": [
+       "u-this-writing"
+      ],
       "pronunciation": "ithezhuthunnathu"
      },
      {
       "text": "പഴമപരിചയമുള്ള",
-      "units": [],
+      "units": [
+       "u-old-familiar"
+      ],
       "pronunciation": "pazhamaparichayamulla"
      },
      {
       "text": "വയോവൃദ്ധന്മാരിൽനിന്നു",
-      "units": [],
+      "units": [
+       "u-elders"
+      ],
       "pronunciation": "vayovruddhanmaarilninnu"
      },
      {
       "text": "ലഭിച്ചിട്ടുള്ള",
-      "units": [],
+      "units": [
+       "u-received"
+      ],
       "pronunciation": "labhichittulla"
      },
      {
       "text": "കേട്ടു",
-      "units": [],
+      "units": [
+       "u-heard"
+      ],
       "pronunciation": "kettu"
      },
      {
       "text": "കേൾവിയെമാത്രം",
-      "units": [],
+      "units": [
+       "u-hearsay-only"
+      ],
       "pronunciation": "kelviyemaathram"
      },
      {
       "text": "അടിസ്ഥാനപ്പെടുത്തിയാണ്.",
-      "units": [],
+      "units": [
+       "u-basis"
+      ],
       "pronunciation": "adisthhaanappeduthiyaanu"
      }
     ]
@@ -243,9 +533,47 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "by": "opus-draft",
     "tokens": [
      {
-      "text": "So this is being written relying only on the hearsay received from aged elders familiar with the old days.",
-      "units": [],
-      "relation": "interpretive"
+      "text": "So",
+      "units": [
+       "u-so"
+      ]
+     },
+     {
+      "text": "this is being written",
+      "units": [
+       "u-this-writing"
+      ]
+     },
+     {
+      "text": "relying",
+      "units": [
+       "u-basis"
+      ]
+     },
+     {
+      "text": "only on the hearsay",
+      "units": [
+       "u-hearsay-only",
+       "u-heard"
+      ]
+     },
+     {
+      "text": "received",
+      "units": [
+       "u-received"
+      ]
+     },
+     {
+      "text": "from aged elders",
+      "units": [
+       "u-elders"
+      ]
+     },
+     {
+      "text": "familiar with the old days.",
+      "units": [
+       "u-old-familiar"
+      ]
      }
     ]
    }
@@ -254,7 +582,76 @@ export const URAKAM_TIER1: AlignSegment[] = [
  {
   "id": "urk-p02s01",
   "gloss": "At the Ammathiruvadi temple the hereditary office-holder's account is still with the Vazhappilly Menon's family: it is still the custom that whoever is eldest in that family walks before the procession carrying a bundle of palm-leaf accounts.",
-  "units": [],
+  "units": [
+   {
+    "id": "u-temple",
+    "gloss": "at the Ammathiruvadi temple"
+   },
+   {
+    "id": "u-office-acct",
+    "gloss": "the hereditary-office (karayma) account"
+   },
+   {
+    "id": "u-still-a",
+    "gloss": "even now"
+   },
+   {
+    "id": "u-vazhappilly",
+    "gloss": "Vazhappilly"
+   },
+   {
+    "id": "u-menons",
+    "gloss": "of the Menon"
+   },
+   {
+    "id": "u-family",
+    "gloss": "in the family home (tharavad)"
+   },
+   {
+    "id": "u-each-day",
+    "gloss": "on any given day"
+   },
+   {
+    "id": "u-eldest",
+    "gloss": "being the eldest"
+   },
+   {
+    "id": "u-person",
+    "gloss": "the person who"
+   },
+   {
+    "id": "u-a",
+    "gloss": "a"
+   },
+   {
+    "id": "u-ola-bundle",
+    "gloss": "bundle of palm-leaf accounts"
+   },
+   {
+    "id": "u-carrying",
+    "gloss": "taking up and carrying"
+   },
+   {
+    "id": "u-procession",
+    "gloss": "the procession"
+   },
+   {
+    "id": "u-before",
+    "gloss": "in front of"
+   },
+   {
+    "id": "u-walk",
+    "gloss": "to walk"
+   },
+   {
+    "id": "u-still-b",
+    "gloss": "even now"
+   },
+   {
+    "id": "u-custom",
+    "gloss": "is the custom"
+   }
+  ],
   "renderings": [
    {
     "lang": "ml-Mlym",
@@ -262,87 +659,121 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "tokens": [
      {
       "text": "അമ്മതിരുവടിക്ഷേത്രത്തിൽ",
-      "units": [],
+      "units": [
+       "u-temple"
+      ],
       "pronunciation": "ammathiruvadikshethrathil"
      },
      {
       "text": "സ്ഥാന(കാരയ്മ)ക്കണക്ക്",
-      "units": [],
+      "units": [
+       "u-office-acct"
+      ],
       "pronunciation": "sthhaanakaaraymakkanakku"
      },
      {
       "text": "ഇപ്പോഴും",
-      "units": [],
+      "units": [
+       "u-still-a"
+      ],
       "pronunciation": "ippozhum"
      },
      {
       "text": "വാഴപ്പിള്ള",
-      "units": [],
+      "units": [
+       "u-vazhappilly"
+      ],
       "pronunciation": "vaazhappilla"
      },
      {
       "text": "മേനോന്റെ",
-      "units": [],
+      "units": [
+       "u-menons"
+      ],
       "pronunciation": "menonre"
      },
      {
       "text": "തറവാട്ടിൽ",
-      "units": [],
+      "units": [
+       "u-family"
+      ],
       "pronunciation": "tharavaattil"
      },
      {
       "text": "അന്നന്നു",
-      "units": [],
+      "units": [
+       "u-each-day"
+      ],
       "pronunciation": "annannu"
      },
      {
       "text": "മൂപ്പായിട്ടുള്ള",
-      "units": [],
+      "units": [
+       "u-eldest"
+      ],
       "pronunciation": "mooppaayittulla"
      },
      {
       "text": "ആൾ",
-      "units": [],
+      "units": [
+       "u-person"
+      ],
       "pronunciation": "aal"
      },
      {
       "text": "ഒരു",
-      "units": [],
+      "units": [
+       "u-a"
+      ],
       "pronunciation": "oru"
      },
      {
       "text": "ഓലക്കണക്കുകെട്ട്",
-      "units": [],
+      "units": [
+       "u-ola-bundle"
+      ],
       "pronunciation": "olakkanakkukettu"
      },
      {
       "text": "എടുത്തുകൊണ്ട്",
-      "units": [],
+      "units": [
+       "u-carrying"
+      ],
       "pronunciation": "eduthukondu"
      },
      {
       "text": "എഴുന്നള്ളത്തിനു",
-      "units": [],
+      "units": [
+       "u-procession"
+      ],
       "pronunciation": "ezhunnallathinu"
      },
      {
       "text": "മുൻപിൽ",
-      "units": [],
+      "units": [
+       "u-before"
+      ],
       "pronunciation": "munpil"
      },
      {
       "text": "നടക്കുക",
-      "units": [],
+      "units": [
+       "u-walk"
+      ],
       "pronunciation": "nadakkuka"
      },
      {
       "text": "ഇപ്പോഴും",
-      "units": [],
+      "units": [
+       "u-still-b"
+      ],
       "pronunciation": "ippozhum"
      },
      {
       "text": "പതിവുണ്ട്.",
-      "units": [],
+      "units": [
+       "u-custom"
+      ],
       "pronunciation": "pathivundu"
      }
     ]
@@ -353,9 +784,101 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "by": "opus-draft",
     "tokens": [
      {
-      "text": "At the Ammathiruvadi temple the hereditary office-holder's account is still with the Vazhappilly Menon's family: it is still the custom that whoever is eldest in that family walks before the procession carrying a bundle of palm-leaf accounts.",
-      "units": [],
-      "relation": "interpretive"
+      "text": "At the Ammathiruvadi temple",
+      "units": [
+       "u-temple"
+      ]
+     },
+     {
+      "text": "the hereditary office-holder's account",
+      "units": [
+       "u-office-acct"
+      ]
+     },
+     {
+      "text": "is still",
+      "units": [
+       "u-still-a"
+      ]
+     },
+     {
+      "text": "with the Vazhappilly",
+      "units": [
+       "u-vazhappilly"
+      ]
+     },
+     {
+      "text": "Menon's",
+      "units": [
+       "u-menons"
+      ]
+     },
+     {
+      "text": "family:",
+      "units": [
+       "u-family"
+      ]
+     },
+     {
+      "text": "it is still",
+      "units": [
+       "u-still-b"
+      ]
+     },
+     {
+      "text": "the custom",
+      "units": [
+       "u-custom"
+      ]
+     },
+     {
+      "text": "that whoever is eldest",
+      "units": [
+       "u-eldest",
+       "u-person"
+      ]
+     },
+     {
+      "text": "in that family",
+      "units": [
+       "u-family"
+      ]
+     },
+     {
+      "text": "walks",
+      "units": [
+       "u-walk"
+      ]
+     },
+     {
+      "text": "before",
+      "units": [
+       "u-before"
+      ]
+     },
+     {
+      "text": "the procession",
+      "units": [
+       "u-procession"
+      ]
+     },
+     {
+      "text": "carrying",
+      "units": [
+       "u-carrying"
+      ]
+     },
+     {
+      "text": "a",
+      "units": [
+       "u-a"
+      ]
+     },
+     {
+      "text": "bundle of palm-leaf accounts.",
+      "units": [
+       "u-ola-bundle"
+      ]
      }
     ]
    }
@@ -364,7 +887,36 @@ export const URAKAM_TIER1: AlignSegment[] = [
  {
   "id": "urk-p02s02",
   "gloss": "For that service, certain perquisites from the Devaswom are still given to them.",
-  "units": [],
+  "units": [
+   {
+    "id": "u-for-that",
+    "gloss": "toward that (service)"
+   },
+   {
+    "id": "u-from-dev",
+    "gloss": "from the Devaswom"
+   },
+   {
+    "id": "u-certain",
+    "gloss": "certain"
+   },
+   {
+    "id": "u-perqs",
+    "gloss": "perquisites (anubhavams)"
+   },
+   {
+    "id": "u-to-them",
+    "gloss": "to them"
+   },
+   {
+    "id": "u-still",
+    "gloss": "even now"
+   },
+   {
+    "id": "u-keep-giving",
+    "gloss": "continue to be given"
+   }
+  ],
   "renderings": [
    {
     "lang": "ml-Mlym",
@@ -372,37 +924,51 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "tokens": [
      {
       "text": "അതിലേക്കു",
-      "units": [],
+      "units": [
+       "u-for-that"
+      ],
       "pronunciation": "athilekku"
      },
      {
       "text": "ദേവസ്വത്തിൽനിന്നു",
-      "units": [],
+      "units": [
+       "u-from-dev"
+      ],
       "pronunciation": "devaswathilninnu"
      },
      {
       "text": "ചില",
-      "units": [],
+      "units": [
+       "u-certain"
+      ],
       "pronunciation": "chila"
      },
      {
       "text": "അനുഭവങ്ങൾ",
-      "units": [],
+      "units": [
+       "u-perqs"
+      ],
       "pronunciation": "anubhavangal"
      },
      {
       "text": "അവർക്കു",
-      "units": [],
+      "units": [
+       "u-to-them"
+      ],
       "pronunciation": "avarkku"
      },
      {
       "text": "ഇപ്പോഴും",
-      "units": [],
+      "units": [
+       "u-still"
+      ],
       "pronunciation": "ippozhum"
      },
      {
       "text": "കൊടുത്തുവരുന്നുണ്ട്.",
-      "units": [],
+      "units": [
+       "u-keep-giving"
+      ],
       "pronunciation": "koduthuvarunnundu"
      }
     ]
@@ -413,9 +979,46 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "by": "opus-draft",
     "tokens": [
      {
-      "text": "For that service, certain perquisites from the Devaswom are still given to them.",
-      "units": [],
-      "relation": "interpretive"
+      "text": "For that service,",
+      "units": [
+       "u-for-that"
+      ]
+     },
+     {
+      "text": "certain",
+      "units": [
+       "u-certain"
+      ]
+     },
+     {
+      "text": "perquisites",
+      "units": [
+       "u-perqs"
+      ]
+     },
+     {
+      "text": "from the Devaswom",
+      "units": [
+       "u-from-dev"
+      ]
+     },
+     {
+      "text": "are still",
+      "units": [
+       "u-still"
+      ]
+     },
+     {
+      "text": "given",
+      "units": [
+       "u-keep-giving"
+      ]
+     },
+     {
+      "text": "to them.",
+      "units": [
+       "u-to-them"
+      ]
      }
     ]
    }
@@ -424,7 +1027,52 @@ export const URAKAM_TIER1: AlignSegment[] = [
  {
   "id": "urk-p02s03",
   "gloss": "In earlier times everyone used to call the eldest Menon of that family the \"Kaakkunna Menon\" — the Guarding Menon.",
-  "units": [],
+  "units": [
+   {
+    "id": "u-that",
+    "gloss": "that"
+   },
+   {
+    "id": "u-family",
+    "gloss": "in the family home"
+   },
+   {
+    "id": "u-each-day",
+    "gloss": "on any given day"
+   },
+   {
+    "id": "u-eldest",
+    "gloss": "being eldest"
+   },
+   {
+    "id": "u-menon-obj",
+    "gloss": "the Menon (him)"
+   },
+   {
+    "id": "u-earlier",
+    "gloss": "in earlier times"
+   },
+   {
+    "id": "u-everyone",
+    "gloss": "everyone"
+   },
+   {
+    "id": "u-kaakkunna",
+    "gloss": "\"Kaakkunna\" — the guarding one"
+   },
+   {
+    "id": "u-menon-name",
+    "gloss": "Menon (the name)"
+   },
+   {
+    "id": "u-thus",
+    "gloss": "thus, by that name"
+   },
+   {
+    "id": "u-used-to-say",
+    "gloss": "used to say"
+   }
+  ],
   "renderings": [
    {
     "lang": "ml-Mlym",
@@ -432,57 +1080,79 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "tokens": [
      {
       "text": "ആ",
-      "units": [],
+      "units": [
+       "u-that"
+      ],
       "pronunciation": "aa"
      },
      {
       "text": "തറവാട്ടിൽ",
-      "units": [],
+      "units": [
+       "u-family"
+      ],
       "pronunciation": "tharavaattil"
      },
      {
       "text": "അന്നന്നു",
-      "units": [],
+      "units": [
+       "u-each-day"
+      ],
       "pronunciation": "annannu"
      },
      {
       "text": "മൂപ്പായിട്ടുള്ള",
-      "units": [],
+      "units": [
+       "u-eldest"
+      ],
       "pronunciation": "mooppaayittulla"
      },
      {
       "text": "മേനവനെ",
-      "units": [],
+      "units": [
+       "u-menon-obj"
+      ],
       "pronunciation": "menavane"
      },
      {
       "text": "മുൻകാലങ്ങളിൽ",
-      "units": [],
+      "units": [
+       "u-earlier"
+      ],
       "pronunciation": "munkaalangalil"
      },
      {
       "text": "എല്ലാവരും",
-      "units": [],
+      "units": [
+       "u-everyone"
+      ],
       "pronunciation": "ellaavarum"
      },
      {
       "text": "\"കാക്കുന്ന",
-      "units": [],
+      "units": [
+       "u-kaakkunna"
+      ],
       "pronunciation": "kaakkunna"
      },
      {
       "text": "മേനോൻ\"",
-      "units": [],
+      "units": [
+       "u-menon-name"
+      ],
       "pronunciation": "menon"
      },
      {
       "text": "എന്നാണ്",
-      "units": [],
+      "units": [
+       "u-thus"
+      ],
       "pronunciation": "ennaanu"
      },
      {
       "text": "പറഞ്ഞുവന്നിരുന്നത്.",
-      "units": [],
+      "units": [
+       "u-used-to-say"
+      ],
       "pronunciation": "paranjuvannirunnathu"
      }
     ]
@@ -493,9 +1163,65 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "by": "opus-draft",
     "tokens": [
      {
-      "text": "In earlier times everyone used to call the eldest Menon of that family the \"Kaakkunna Menon\" — the Guarding Menon.",
-      "units": [],
-      "relation": "interpretive"
+      "text": "In earlier times",
+      "units": [
+       "u-earlier"
+      ]
+     },
+     {
+      "text": "everyone",
+      "units": [
+       "u-everyone"
+      ]
+     },
+     {
+      "text": "used to call",
+      "units": [
+       "u-used-to-say",
+       "u-thus"
+      ]
+     },
+     {
+      "text": "the eldest",
+      "units": [
+       "u-eldest"
+      ]
+     },
+     {
+      "text": "Menon",
+      "units": [
+       "u-menon-obj"
+      ]
+     },
+     {
+      "text": "of that",
+      "units": [
+       "u-that"
+      ]
+     },
+     {
+      "text": "family",
+      "units": [
+       "u-family"
+      ]
+     },
+     {
+      "text": "the \"Kaakkunna",
+      "units": [
+       "u-kaakkunna"
+      ]
+     },
+     {
+      "text": "Menon\"",
+      "units": [
+       "u-menon-name"
+      ]
+     },
+     {
+      "text": "— the Guarding Menon.",
+      "units": [
+       "u-kaakkunna"
+      ]
      }
     ]
    }
@@ -504,7 +1230,28 @@ export const URAKAM_TIER1: AlignSegment[] = [
  {
   "id": "urk-p02s04",
   "gloss": "That has worn down to \"Kaakkara Menon\".",
-  "units": [],
+  "units": [
+   {
+    "id": "u-that",
+    "gloss": "that"
+   },
+   {
+    "id": "u-worn",
+    "gloss": "having worn down (lopam — sounds eroding)"
+   },
+   {
+    "id": "u-kaakkara",
+    "gloss": "\"Kaakkara\""
+   },
+   {
+    "id": "u-menon",
+    "gloss": "Menon"
+   },
+   {
+    "id": "u-has-become",
+    "gloss": "has come to be (so said)"
+   }
+  ],
   "renderings": [
    {
     "lang": "ml-Mlym",
@@ -512,27 +1259,37 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "tokens": [
      {
       "text": "അതു",
-      "units": [],
+      "units": [
+       "u-that"
+      ],
       "pronunciation": "athu"
      },
      {
       "text": "ലോപിച്ച്",
-      "units": [],
+      "units": [
+       "u-worn"
+      ],
       "pronunciation": "lopichu"
      },
      {
       "text": "\"കാക്കര",
-      "units": [],
+      "units": [
+       "u-kaakkara"
+      ],
       "pronunciation": "kaakkara"
      },
      {
       "text": "മേനോൻ\"",
-      "units": [],
+      "units": [
+       "u-menon"
+      ],
       "pronunciation": "menon"
      },
      {
       "text": "എന്നായിരിക്കുന്നു.",
-      "units": [],
+      "units": [
+       "u-has-become"
+      ],
       "pronunciation": "ennaayirikkunnu"
      }
     ]
@@ -543,9 +1300,34 @@ export const URAKAM_TIER1: AlignSegment[] = [
     "by": "opus-draft",
     "tokens": [
      {
-      "text": "That has worn down to \"Kaakkara Menon\".",
-      "units": [],
-      "relation": "interpretive"
+      "text": "That",
+      "units": [
+       "u-that"
+      ]
+     },
+     {
+      "text": "has worn down",
+      "units": [
+       "u-worn"
+      ]
+     },
+     {
+      "text": "to",
+      "units": [
+       "u-has-become"
+      ]
+     },
+     {
+      "text": "\"Kaakkara",
+      "units": [
+       "u-kaakkara"
+      ]
+     },
+     {
+      "text": "Menon\".",
+      "units": [
+       "u-menon"
+      ]
      }
     ]
    }

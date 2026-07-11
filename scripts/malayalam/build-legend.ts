@@ -26,7 +26,21 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const RAW = path.join(ROOT, 'data/malayalam/urakam-raw.txt');
 const SENTENCES = path.join(ROOT, 'data/malayalam/urakam-sentences.json');
 const ENGLISH = path.join(ROOT, 'data/malayalam/urakam-english.json');
+const ALIGNMENT = path.join(ROOT, 'data/malayalam/urakam-alignment.json');
 const OUT = path.join(ROOT, 'data/malayalam/urakam-tier1.ts');
+
+/**
+ * Optional per-sentence alignment (Tier-1.5): a unit spine + per-word unit
+ * bindings + English phrase chunks. Authored in batches (LLM-drafted,
+ * review-gated) — sentences without an entry stay flat. Shape:
+ *   { "p01s02": { units: [{id, gloss}], ml: string[][],  // per WORD, in order
+ *                 en: [text, unitIds[]][] } }
+ */
+type SentenceAlignment = {
+  units: { id: string; gloss: string }[];
+  ml: string[][];
+  en: [string, string[]][];
+};
 const SKIP = new Set([
   'p01s01', // hand-curated in urakam-ammathiruvadi.ts
   'p31s01', // wiki category line (വർഗ്ഗം:ഐതിഹ്യമാല), not text
@@ -50,21 +64,25 @@ function sentences(): Sentence[] {
 
 const stripPunct = (w: string) => w.replace(/^[^ഀ-ൿ]+|[^ഀ-ൿ]+$/g, '');
 
-function buildSegment(s: Sentence, en: string | undefined) {
+function buildSegment(s: Sentence, en: string | undefined, align: SentenceAlignment | undefined) {
   const words = s.ml.split(/\s+/).filter(Boolean);
+  if (align && align.ml.length !== words.length) {
+    console.error(`✗ ${s.id}: alignment has ${align.ml.length} word bindings, sentence has ${words.length} words`);
+    process.exit(1);
+  }
   return {
     id: `urk-${s.id}`,
     gloss: en ?? '',
-    units: [],
+    units: align ? align.units : [],
     renderings: [
       {
         lang: 'ml-Mlym',
         label: 'Malayalam',
-        tokens: words.map((w) => {
+        tokens: words.map((w, i) => {
           const core = stripPunct(w);
           return {
             text: w,
-            units: [] as string[],
+            units: align ? align.ml[i] : ([] as string[]),
             ...(core ? { pronunciation: romanizeWord(core) } : {}),
           };
         }),
@@ -75,7 +93,9 @@ function buildSegment(s: Sentence, en: string | undefined) {
               lang: 'en',
               label: 'English (Opus draft)',
               by: 'opus-draft',
-              tokens: [{ text: en, units: [] as string[], relation: 'interpretive' as const }],
+              tokens: align
+                ? align.en.map(([text, units]) => ({ text, units }))
+                : [{ text: en, units: [] as string[], relation: 'interpretive' as const }],
             },
           ]
         : []),
@@ -91,12 +111,17 @@ if (mode === '--list') {
   console.log(`${all.length} sentences → ${path.relative(ROOT, SENTENCES)}`);
 } else if (mode === '--build') {
   const en: Record<string, string> = JSON.parse(fs.readFileSync(ENGLISH, 'utf8'));
+  const alignment: Record<string, SentenceAlignment> = fs.existsSync(ALIGNMENT)
+    ? JSON.parse(fs.readFileSync(ALIGNMENT, 'utf8'))
+    : {};
   const missing = all.filter((s) => !SKIP.has(s.id) && !en[s.id]);
   if (missing.length) {
     console.error(`✗ ${missing.length} sentences missing translations: ${missing.slice(0, 5).map((m) => m.id).join(', ')}…`);
     process.exit(1);
   }
-  const segs = all.filter((s) => !SKIP.has(s.id)).map((s) => buildSegment(s, en[s.id]));
+  const segs = all.filter((s) => !SKIP.has(s.id)).map((s) => buildSegment(s, en[s.id], alignment[s.id]));
+  const aligned = Object.keys(alignment).length;
+  console.log(`${aligned} sentences aligned (unit spines); ${segs.length - aligned} flat`);
   const body =
     '/**\n' +
     ' * GENERATED — do not edit. Rebuild: npx tsx scripts/malayalam/build-legend.ts --build\n' +
