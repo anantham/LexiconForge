@@ -48,6 +48,29 @@ Element-by-element verdicts:
 | Witness provenance | named, disclosed | named, disclosed (Weaver 1981 is a real witness — see sourcing below) |
 | Font slider | KEEP | KEEP |
 
+## What is special about Italian (the lens's load-bearing facts)
+
+1. **Register-inverted cognate web.** Everyday Italian maps to LEARNED English
+   (notte→nocturnal, acqua→aquatic, libro→library, leggere→lecture): plain
+   Italian *is* scholarly English. The inverse of Malayalam, whose two
+   registers live INSIDE the language (tatsama vs Dravidian); Italian's
+   register split runs ACROSS the bridge. This is why the cognate bridge is
+   the primary lens: it teaches through vocabulary the reader already owns.
+2. **The verb ending is the sentence's engine.** Pronouns are absorbed into
+   endings (*diranno* = "they will say"). The ending-decoder answers the
+   reader's live question — who is acting, when — not a grammar checkbox.
+3. **Stress is sometimes grammar.** *parlo* "I speak" vs *parlò* "he spoke":
+   the only difference is stress, and it is TENSE. Stress marks ship only
+   where they carry meaning or surprise — as semantics, not elocution.
+4. **Fusion confesses in print.** Italian sandhi is typographically visible
+   (*d'inverno*, *nel* = in+il, *leggerlo* = read+it) — same surface law as
+   Malayalam, easier because the seams show.
+5. **Book-Italian ≠ spoken Italian.** Novels run on the passato remoto, the
+   storytelling past modern speech has abandoned. Name it plainly, once:
+   "the story-telling past — the tense books use." (Calvino ch. 1 is the
+   gentle exception: second-person PRESENT — the easiest grammar in the
+   language, doing metafiction.)
+
 ## Rendering function, not fact dump
 
 The `local-grounding` branch's substrate (spaCy facts + kaikki glosses) is the
