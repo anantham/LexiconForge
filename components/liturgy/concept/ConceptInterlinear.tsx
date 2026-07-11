@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { AlignSegment, AlignRelation, AlignRendering, AlignToken, AlignSegmentPiece } from '../../../types/liturgyAlign';
 import { getConcept } from '../../../data/concepts/lookup';
 import { conceptFacets } from '../../../data/concepts/tooltipFacets';
-import { malayalamEtymFacets } from '../../../services/malayalam/graphemes';
+import { clustersOf, clusterTip } from '../../../services/malayalam/graphemes';
 
 /**
  * Concept-aligned phrase reader (DESIGN.md). Centered classical serif, words in
@@ -190,6 +190,7 @@ const PhraseBlock: React.FC<{
 }> = ({ segment, shown, mode, large = false }) => {
   const [hot, setHot] = React.useState<string[] | null>(null); // matching unit ids (align mode)
   const [over, setOver] = React.useState<string | null>(null); // hovered piece key
+  const [overCl, setOverCl] = React.useState<string | null>(null); // hovered letter-cluster (Mlym etym mode)
   const [facetIdx, setFacetIdx] = React.useState(0); // click-to-cycle tooltip facet
   const [threads, setThreads] = React.useState<{ x: number; y: number }[] | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -313,15 +314,7 @@ const PhraseBlock: React.FC<{
   // how-to-say (the Sanskrit respelling). Facet 0 is the hover gloss; the rest
   // come from the concept registry. (No "grammar" facet — there's no per-token
   // grammatical data, and the curation protocol bans the jargon.)
-  const facetsFor = (token: AlignToken, piece: AlignSegmentPiece | null, effUnits: string[], lang?: string) => {
-    // ETYMOLOGY reaches INWARD (per the mode's own contract): for Malayalam that
-    // means the script itself — how the akshara is assembled (മ്മ = മ + ് + മ,
-    // doubled). Deterministic Unicode decomposition, so it never shares tooltips
-    // with alignment mode. Other scripts keep the meaning facets untouched.
-    if (mode === 'etym' && lang && scriptOf(lang) === 'Mlym') {
-      const g = malayalamEtymFacets((piece ?? token).text);
-      if (g.length) return g.map((f) => ({ primary: f.primary, secondary: f.secondary }));
-    }
+  const facetsFor = (token: AlignToken, piece: AlignSegmentPiece | null, effUnits: string[]) => {
     const base = buildTip(token, piece, effUnits);
     const out = base.primary ? [base] : [];
     const cids = effUnits.map((u) => unitById[u]?.conceptId).filter((x): x is string => !!x);
@@ -345,6 +338,11 @@ const PhraseBlock: React.FC<{
   // stick. Calling renderLine(r) reconciles the same DOM in place instead.
   const renderLine = (r: AlignRendering) => {
     const english = isEnglish(r.lang);
+    // Malayalam etymology: granularity follows the mode. Align mode grabs
+    // MORPHEMES (meaning-sized pieces); etym mode grabs the SYMBOLS — each
+    // letter-cluster is its own hover target with its own assembly tooltip
+    // (deterministic Unicode decomposition), no click-cycling.
+    const mlymEtym = mode === 'etym' && scriptOf(r.lang) === 'Mlym';
     const showRom = !english; // romanization always shown for non-Latin scripts
     // Whole-line romanization fallback (e.g. Tibetan) when the tokens carry no
     // per-token sound — reliable, vs. mis-paired per-word sounds.
@@ -363,11 +361,11 @@ const PhraseBlock: React.FC<{
             {piecesOf(token).map((piece, si) => {
               const effUnits = piece.units ?? token.units;
               const key = `${r.lang}:${ti}:${si}`;
-              const match = mode === 'etym' ? over === key : !!hot && effUnits.some((u) => hot.includes(u));
-              const muted = over !== null && !match;
+              const match = mode === 'etym' ? (mlymEtym ? false : over === key) : !!hot && effUnits.some((u) => hot.includes(u));
+              const muted = over !== null && !match && !(mlymEtym && over === key);
               const ghost = piece.faint || token.relation === 'ghost';
               const phonetic = !!piece.phonetic;
-              const facets = over === key ? facetsFor(token, piece, effUnits, r.lang) : null;
+              const facets = over === key && !mlymEtym ? facetsFor(token, piece, effUnits) : null;
               const facet = facets ? facets[facetIdx % facets.length] : null;
               const multiFacet = !!facets && facets.length > 1;
               const romLines = piece.readings ? Object.entries(piece.readings) : piece.pronunciation ? [['', piece.pronunciation] as [string, string]] : [];
@@ -381,7 +379,7 @@ const PhraseBlock: React.FC<{
                     setFacetIdx(0);
                     if (mode === 'align') { setHot(effUnits); computeThread(effUnits); } else { setHot(null); setThreads(null); }
                   }}
-                  onMouseLeave={() => { window.clearTimeout(pressTimer.current); setOver(null); setHot(null); setThreads(null); }}
+                  onMouseLeave={() => { window.clearTimeout(pressTimer.current); setOver(null); setOverCl(null); setHot(null); setThreads(null); }}
                   onPointerDown={(e) => {
                     if (e.button && e.button !== 0) return; // left / touch only
                     longPressed.current = false;
@@ -402,7 +400,7 @@ const PhraseBlock: React.FC<{
                     e.stopPropagation();
                     setFacetIdx((n) => (n + 1) % facets.length);
                   }}
-                  title={multiFacet ? 'click to cycle · hold for source' : effUnits.length ? 'hold for source' : undefined}
+                  title={mlymEtym ? undefined : multiFacet ? 'click to cycle · hold for source' : effUnits.length ? 'hold for source' : undefined}
                 >
                   <span
                     className="transition-colors duration-200 motion-reduce:transition-none"
@@ -412,11 +410,36 @@ const PhraseBlock: React.FC<{
                       color: match ? C.match : ghost ? C.faint : english ? C.english : C.ink,
                       opacity: muted ? 0.4 : 1,
                       lineHeight: 1.15,
-                      borderBottom: english ? 'none' : `1px ${ghost || phonetic ? 'dotted' : 'solid'} ${match ? '#34d399' : ghost ? 'transparent' : 'rgba(52,211,153,0.16)'}`,
-                      paddingBottom: '2px',
+                      borderBottom: english || mlymEtym ? 'none' : `1px ${ghost || phonetic ? 'dotted' : 'solid'} ${match ? '#34d399' : ghost ? 'transparent' : 'rgba(52,211,153,0.16)'}`,
+                      paddingBottom: mlymEtym ? undefined : '2px',
                     }}
                   >
-                    {piece.text}
+                    {mlymEtym
+                      ? clustersOf(piece.text).map((cl, ci) => {
+                          const ck = `${key}:${ci}`;
+                          const tip = overCl === ck ? clusterTip(cl) : null;
+                          return (
+                            <span
+                              key={ci}
+                              className="relative transition-colors duration-150 motion-reduce:transition-none"
+                              onMouseEnter={() => setOverCl(ck)}
+                              onMouseLeave={() => setOverCl(null)}
+                              style={{
+                                color: overCl === ck ? C.match : undefined,
+                                // every cluster shows its seam faintly; the hovered one lights up
+                                borderBottom: `1px solid ${overCl === ck ? '#34d399' : 'rgba(52,211,153,0.16)'}`,
+                                paddingBottom: '2px',
+                                marginRight: '0.04em',
+                              }}
+                            >
+                              {cl}
+                              <AnimatePresence>
+                                {tip?.primary && <Tooltip primary={tip.primary} secondary={tip.secondary} />}
+                              </AnimatePresence>
+                            </span>
+                          );
+                        })
+                      : piece.text}
                   </span>
                   {showRom && romLines.map(([rid, val], k) => (
                     <span key={k} className="text-[0.74rem] italic leading-tight transition-colors duration-200 motion-reduce:transition-none"

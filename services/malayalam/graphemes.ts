@@ -183,6 +183,19 @@ function clusterStory(cluster: string): { assembly: string; note?: string } {
 export type EtymFacet = { primary: string; secondary: string };
 
 /**
+ * The hover tooltip for ONE letter-cluster — used by the interlinear's
+ * etymology mode, where each cluster is its own hover target (no cycling).
+ */
+export function clusterTip(cluster: string): EtymFacet {
+  const story = clusterStory(cluster);
+  const single = Array.from(cluster).filter((c) => kindOf(c) !== 'join').length === 1;
+  return {
+    primary: single ? story.assembly : `${cluster} = ${story.assembly}`,
+    secondary: story.note ?? '',
+  };
+}
+
+/**
  * Facets for the etymology tooltip: first the cluster map of the whole piece,
  * then one facet per cluster telling its assembly story. Single-cluster pieces
  * skip the map and go straight to the story.
