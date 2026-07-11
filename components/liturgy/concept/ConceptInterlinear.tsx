@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { AlignSegment, AlignRelation, AlignRendering, AlignToken, AlignSegmentPiece } from '../../../types/liturgyAlign';
 import { getConcept } from '../../../data/concepts/lookup';
 import { conceptFacets } from '../../../data/concepts/tooltipFacets';
+import { malayalamEtymFacets } from '../../../services/malayalam/graphemes';
 
 /**
  * Concept-aligned phrase reader (DESIGN.md). Centered classical serif, words in
@@ -312,7 +313,15 @@ const PhraseBlock: React.FC<{
   // how-to-say (the Sanskrit respelling). Facet 0 is the hover gloss; the rest
   // come from the concept registry. (No "grammar" facet — there's no per-token
   // grammatical data, and the curation protocol bans the jargon.)
-  const facetsFor = (token: AlignToken, piece: AlignSegmentPiece | null, effUnits: string[]) => {
+  const facetsFor = (token: AlignToken, piece: AlignSegmentPiece | null, effUnits: string[], lang?: string) => {
+    // ETYMOLOGY reaches INWARD (per the mode's own contract): for Malayalam that
+    // means the script itself — how the akshara is assembled (മ്മ = മ + ് + മ,
+    // doubled). Deterministic Unicode decomposition, so it never shares tooltips
+    // with alignment mode. Other scripts keep the meaning facets untouched.
+    if (mode === 'etym' && lang && scriptOf(lang) === 'Mlym') {
+      const g = malayalamEtymFacets((piece ?? token).text);
+      if (g.length) return g.map((f) => ({ primary: f.primary, secondary: f.secondary }));
+    }
     const base = buildTip(token, piece, effUnits);
     const out = base.primary ? [base] : [];
     const cids = effUnits.map((u) => unitById[u]?.conceptId).filter((x): x is string => !!x);
@@ -358,7 +367,7 @@ const PhraseBlock: React.FC<{
               const muted = over !== null && !match;
               const ghost = piece.faint || token.relation === 'ghost';
               const phonetic = !!piece.phonetic;
-              const facets = over === key ? facetsFor(token, piece, effUnits) : null;
+              const facets = over === key ? facetsFor(token, piece, effUnits, r.lang) : null;
               const facet = facets ? facets[facetIdx % facets.length] : null;
               const multiFacet = !!facets && facets.length > 1;
               const romLines = piece.readings ? Object.entries(piece.readings) : piece.pronunciation ? [['', piece.pronunciation] as [string, string]] : [];
