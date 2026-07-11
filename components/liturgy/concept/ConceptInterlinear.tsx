@@ -53,7 +53,17 @@ const Tooltip: React.FC<{ primary: string; secondary?: string; facetIndex?: numb
     exit={{ opacity: 0, y: 4 }}
     transition={{ duration: 0.12 }}
     className="absolute bottom-full left-1/2 z-30 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md border border-slate-700/80 bg-slate-900/95 px-2.5 py-1 text-center shadow-lg pointer-events-none"
-    style={{ fontFamily: FONT.Latn, fontStyle: 'normal', maxWidth: '22rem', whiteSpace: 'normal' }}
+    style={{
+      fontFamily: FONT.Latn,
+      fontStyle: 'normal',
+      // width: max-content — an absolutely-positioned box otherwise shrink-wraps
+      // to its POSITIONED PARENT (the hovered word), so any gloss longer than the
+      // word rendered as a tall one-word-per-line column. Size to the text
+      // itself, capped for long definitions.
+      width: 'max-content',
+      maxWidth: '26rem',
+      whiteSpace: 'normal',
+    }}
   >
     <span className="block text-[13px] text-slate-100">{primary}</span>
     {secondary && <span className="mt-0.5 block text-[11px] text-slate-500">{secondary}</span>}
