@@ -152,7 +152,8 @@ export function scoreAlignment(phaseId: string, outAnat: AnatomistPass, weaverTo
 // ── dry run ──────────────────────────────────────────────────────────────────
 if (process.argv[1]?.endsWith('align-scorer.ts')) {
   const ROOT = 'reports/sutta-studio';
-  const DIRS = ['2026-07-01T10-11-40-333Z', '2026-07-01T17-39-07-313Z'];
+  const argDirs = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+  const DIRS = argDirs.length ? argDirs : ['2026-07-01T10-11-40-333Z', '2026-07-01T17-39-07-313Z'];
   const rows = new Map<string, number[]>();
   const prs = new Map<string, { p: number[]; r: number[] }>();
   for (const d of DIRS) {
