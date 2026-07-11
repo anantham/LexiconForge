@@ -78,12 +78,26 @@ export type DpdLookup = (surface: string) => LexiconEntry[];
 
 export type FactsBreakdown = { correct: number; total: number };
 
+/** Root checks distinguish HOW a model was wrong: asserting alien roots is
+ * fabrication (a deterministic hallucination signal, cross-checkable against
+ * the judge's flags); asserting none is omission; a dropped word never got
+ * the chance. All three are wrong, but they are different vices. */
+export type RootBreakdown = FactsBreakdown & {
+  fabricated: number;
+  silent: number;
+  dropped: number;
+};
+
 export type FactsDetail = {
-  /** correct/total over all pooled checks, null when nothing was checkable. */
+  /** Micro accuracy: correct/total over all pooled checks. Dominated by
+   * whichever category has the most checks — use macro for ranking. */
   accuracy: number | null;
+  /** Macro accuracy: mean of the available categories' accuracies, so 111
+   * easy word-class checks cannot drown 82 discriminative root checks. */
+  macro: number | null;
   correct: number;
   total: number;
-  root: FactsBreakdown;
+  root: RootBreakdown;
   pos: FactsBreakdown;
   morph: FactsBreakdown;
 };
@@ -125,7 +139,7 @@ export function scoreFactsDetail(
 ): FactsDetail | null {
   if (!goldAnat?.words?.length) return null;
   const pairs = new Map(alignWords(goldAnat.words, outAnat.words || []).map(([gi, mi]) => [gi, mi]));
-  const root: FactsBreakdown = { correct: 0, total: 0 };
+  const root: RootBreakdown = { correct: 0, total: 0, fabricated: 0, silent: 0, dropped: 0 };
   const pos: FactsBreakdown = { correct: 0, total: 0 };
   const morph: FactsBreakdown = { correct: 0, total: 0 };
 
@@ -139,9 +153,13 @@ export function scoreFactsDetail(
     const authority = dpdSet.size > 0 ? dpdSet : extractRoots(wordTooltipBlob(gw.id, goldAnat));
     if (authority.size > 0) {
       root.total += 1;
-      if (mw) {
+      if (!mw) {
+        root.dropped += 1;
+      } else {
         const modelRoots = extractRoots(wordTooltipBlob(mw.id, outAnat));
         if ([...modelRoots].some((r) => authority.has(r))) root.correct += 1;
+        else if (modelRoots.size > 0) root.fabricated += 1;
+        else root.silent += 1;
       }
     }
 
@@ -163,7 +181,11 @@ export function scoreFactsDetail(
   const total = root.total + pos.total + morph.total;
   const correct = root.correct + pos.correct + morph.correct;
   if (total === 0) return null;
-  return { accuracy: correct / total, correct, total, root, pos, morph };
+  const catAccs = [root, pos, morph]
+    .filter((c) => c.total > 0)
+    .map((c) => c.correct / c.total);
+  const macro = catAccs.length ? catAccs.reduce((a, b) => a + b, 0) / catAccs.length : null;
+  return { accuracy: correct / total, macro, correct, total, root, pos, morph };
 }
 
 // ── senses-only fidelity ─────────────────────────────────────────────────────
