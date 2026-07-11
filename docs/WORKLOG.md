@@ -1,3 +1,14 @@
+### [2026-07-11 09:38 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Refresh PR #106 onto current `main` and clarify the reviewed durability scope.
+**Progress:** Merged current `main` without force-pushing and reverified the transaction changes. This PR fixes the shared `withTxn` lifecycle and the named direct `TranslationRepository` write/deactivate/delete paths. It does not close the codebase-wide duplicate transaction-wrapper pattern: settings, feedback, prompt templates, chapter metadata, backup storage, and summary operations remain the explicit scope of the immediate durability-kernel consolidation.
+**Tests:**
+- `tests/services/db`: 46 passed.
+- Full Vitest suite: 8,775 passed, 356 skipped.
+- `git diff --check` passed.
+- `npx tsc --noEmit --pretty false` remains blocked only by the pre-existing repo-wide errors in Sutta/liturgy/script files; no PR file appears in the error list.
+**PR:** https://github.com/anantham/LexiconForge/pull/106
+
 ### [2026-07-08 19:15 IST] [Agent: Codex]
 **Status:** Complete
 **Task:** P0.1 IndexedDB transaction durability fix.
