@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { AlignSegment, AlignRelation, AlignRendering, AlignToken, AlignSegmentPiece } from '../../../types/liturgyAlign';
 import { getConcept } from '../../../data/concepts/lookup';
 import { conceptFacets } from '../../../data/concepts/tooltipFacets';
-import { clustersOf, clusterTip } from '../../../services/malayalam/graphemes';
+import { clustersOf, clusterTip, syllabify } from '../../../services/malayalam/graphemes';
 
 /**
  * Concept-aligned phrase reader (DESIGN.md). Centered classical serif, words in
@@ -369,6 +369,11 @@ const PhraseBlock: React.FC<{
               const facet = facets ? facets[facetIdx % facets.length] : null;
               const multiFacet = !!facets && facets.length > 1;
               const romLines = piece.readings ? Object.entries(piece.readings) : piece.pronunciation ? [['', piece.pronunciation] as [string, string]] : [];
+              // Mlym etym mode: cluster list + per-cluster sound slices, so the
+              // glyph and its syllable in the sound line highlight TOGETHER
+              // (hover either — both directions work). null slices → whole line.
+              const mlymClusters = mlymEtym ? clustersOf(piece.text) : null;
+              const romSlices = mlymClusters && piece.pronunciation ? syllabify(piece.pronunciation, mlymClusters.length) : null;
               return (
                 <span
                   key={si}
@@ -414,8 +419,8 @@ const PhraseBlock: React.FC<{
                       paddingBottom: mlymEtym ? undefined : '2px',
                     }}
                   >
-                    {mlymEtym
-                      ? clustersOf(piece.text).map((cl, ci) => {
+                    {mlymClusters
+                      ? mlymClusters.map((cl, ci) => {
                           const ck = `${key}:${ci}`;
                           const tip = overCl === ck ? clusterTip(cl) : null;
                           return (
@@ -441,7 +446,24 @@ const PhraseBlock: React.FC<{
                         })
                       : piece.text}
                   </span>
-                  {showRom && romLines.map(([rid, val], k) => (
+                  {showRom && romSlices ? (
+                    <span className="text-[0.74rem] italic leading-tight" style={{ fontFamily: FONT.Latn, marginTop: '0.28rem', opacity: muted ? 0.4 : 1 }}>
+                      {romSlices.map((s, ci) => {
+                        const ck = `${key}:${ci}`;
+                        return (
+                          <span
+                            key={ci}
+                            className="transition-colors duration-150 motion-reduce:transition-none"
+                            onMouseEnter={() => setOverCl(ck)}
+                            onMouseLeave={() => setOverCl(null)}
+                            style={{ color: overCl === ck ? '#5eead4' : C.sub }}
+                          >
+                            {s}
+                          </span>
+                        );
+                      })}
+                    </span>
+                  ) : showRom && romLines.map(([rid, val], k) => (
                     <span key={k} className="text-[0.74rem] italic leading-tight transition-colors duration-200 motion-reduce:transition-none"
                       style={{ fontFamily: FONT.Latn, color: match ? '#5eead4' : C.sub, opacity: muted ? 0.4 : 1, marginTop: k === 0 ? '0.28rem' : '0.05rem' }}>
                       {rid && <span style={{ opacity: 0.5, marginRight: '0.3em' }}>{READING_LABEL[rid] ?? rid}</span>}

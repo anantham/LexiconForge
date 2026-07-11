@@ -148,39 +148,76 @@ function describe(ch: string): { label: string; note?: string } {
   }
 }
 
-/** The one-line story of how a cluster is assembled. */
+/**
+ * The one-line story of how a cluster is assembled.
+ *
+ * Honest about visibility: an INTERNAL ് (between two consonants) is typed
+ * but never drawn — the fusion swallows the crescent (മ്മ shows no ്). Only
+ * a TRAILING ് is the crescent the reader can actually see (ഊരകത്ത്). The
+ * assembly line lists what the eye can find; the hidden weld lives in the note.
+ */
 function clusterStory(cluster: string): { assembly: string; note?: string } {
   const cps = Array.from(cluster).filter((c) => kindOf(c) !== 'join');
   if (cps.length === 1) {
     const d = describe(cps[0]);
     return { assembly: d.label, note: d.note };
   }
-  const assembly = cps.map((c) => describe(c).label).join(' + ');
-  // Pattern notes, most specific first.
+  const isInternalVirama = (c: string, i: number) =>
+    c === '്' && i < cps.length - 1 && kindOf(cps[i + 1]) === 'consonant';
+  const visible = cps.filter((c, i) => !isInternalVirama(c, i));
+  const assembly = visible
+    .map((c) => (c === '്' ? '് (chandrakkala — the crescent you can see)' : describe(c).label))
+    .join(' + ');
+
   const cons = cps.filter((c) => kindOf(c) === 'consonant');
-  const hasVirama = cps.includes('്');
+  const weld = cps.some((c, i) => isInternalVirama(c, i));
   const endsVirama = cps[cps.length - 1] === '്';
-  if (cons.length === 2 && hasVirama && cons[0] === cons[1]) {
-    return {
-      assembly,
-      note: `doubled — ് silences the first ${CONSONANTS[cons[0]]} and welds the pair: pressed and held (${CONSONANTS[cons[0]].replace(/a$/, '')}${CONSONANTS[cons[0]]})`,
-    };
-  }
-  if (cons.length >= 2 && hasVirama) {
-    return {
-      assembly,
-      note: 'a weld (koottaksharam) — the ് drops the first consonant\'s vowel and stacks it onto the next',
-    };
+  const notes: string[] = [];
+  if (weld && cons.length >= 2 && cons[0] === cons[1]) {
+    const s = CONSONANTS[cons[0]];
+    notes.push(
+      `doubled — the two ${cons[0]} fuse into one sign, pressed and held (${s.replace(/a$/, '')}${s}). The weld is typed as ് but the fusion swallows the crescent — nothing extra is drawn`,
+    );
+  } else if (weld) {
+    notes.push(
+      'a koottaksharam — an invisible ് silences the first consonant\'s vowel and stacks it onto the next (the fusion swallows the crescent)',
+    );
   }
   if (endsVirama) {
-    return { assembly, note: 'ends bare — the ് cuts the vowel; at word-end it whispers a half-u' };
+    notes.push('the final ് IS visible — it cuts the vowel, and at word-end whispers a half-u');
   }
   const sign = cps.find((c) => kindOf(c) === 'vowel-sign');
-  if (sign) return { assembly, note: VOWEL_SIGNS[sign].note };
-  return { assembly };
+  if (sign) {
+    const vs = VOWEL_SIGNS[sign];
+    if (vs.note) notes.push(`${sign} (${vs.sound}): ${vs.note}`);
+    else if (!weld && !endsVirama) notes.push(`${sign} changes the built-in a to ${vs.sound}`);
+  }
+  return { assembly, note: notes.join(' · ') || undefined };
 }
 
 export type EtymFacet = { primary: string; secondary: string };
+
+/**
+ * Split a practical romanization into per-cluster syllable slices, so the
+ * sound line can light up with its glyph (hover ടി → "di" glows too).
+ * Onset-maximizing vowel-run split: each slice is consonants + the vowel run
+ * that follows (thi·ru·va·di). A consonant-only leftover (chillu ൻ → "n")
+ * becomes its own final slice when that makes the counts meet. Returns null
+ * when the slice count can't be reconciled — caller falls back to the
+ * un-sliced line rather than guessing a wrong pairing.
+ */
+export function syllabify(rom: string, clusterCount: number): string[] | null {
+  if (!rom || clusterCount < 1) return null;
+  const runs = rom.match(/[^aeiou]*[aeiou]+/gi);
+  if (!runs) return clusterCount === 1 ? [rom] : null;
+  const sylls = [...runs];
+  const leftover = rom.slice(runs.join('').length);
+  if (leftover) {
+    if (sylls.length + 1 === clusterCount) sylls.push(leftover);
+    else sylls[sylls.length - 1] += leftover;
+  }
+  return sylls.length === clusterCount ? sylls : null;
+}
 
 /**
  * The hover tooltip for ONE letter-cluster — used by the interlinear's
