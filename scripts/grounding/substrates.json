@@ -1,0 +1,46 @@
+{
+  "_doc": "Language substrate registry for the reusable source-grounding pipeline. A source language is groundable iff it has an entry here. Adding a language = add an entry + download its Wiktionary extract (spaCy model is pip-installed by the ground stage). Only 'it' is verified; the rest are documented stubs to make the next book a config change, and MUST be verified before use (spaCy model quality and Wiktionary coverage vary by language).",
+  "substrates": {
+    "it": {
+      "verified": true,
+      "spacyModel": "it_core_news_lg",
+      "spacyInstall": "python -m spacy download it_core_news_lg",
+      "wiktionaryLang": "Italian",
+      "wiktionaryExtract": "https://kaikki.org/dictionary/Italian/kaikki.org-dictionary-Italian.jsonl",
+      "morphItOptional": "https://docs.sslmit.unibo.it/doku.php?id=resources:morph-it",
+      "notes": "spaCy handles clitics/elisions (sporgendosi, s'allacciano, dell') that a dictionary lookup cannot. Wiktionary JSONL is keyed by lemma -> senses[]."
+    },
+    "fr": {
+      "verified": false,
+      "spacyModel": "fr_core_news_lg",
+      "spacyInstall": "python -m spacy download fr_core_news_lg",
+      "wiktionaryLang": "French",
+      "wiktionaryExtract": "https://kaikki.org/dictionary/French/kaikki.org-dictionary-French.jsonl",
+      "notes": "STUB — verify spaCy lemmatization + Wiktionary coverage before first use."
+    },
+    "de": {
+      "verified": false,
+      "spacyModel": "de_core_news_lg",
+      "spacyInstall": "python -m spacy download de_core_news_lg",
+      "wiktionaryLang": "German",
+      "wiktionaryExtract": "https://kaikki.org/dictionary/German/kaikki.org-dictionary-German.jsonl",
+      "notes": "STUB — German compounds/separable verbs need spot-checking before first use."
+    },
+    "es": {
+      "verified": false,
+      "spacyModel": "es_core_news_lg",
+      "spacyInstall": "python -m spacy download es_core_news_lg",
+      "wiktionaryLang": "Spanish",
+      "wiktionaryExtract": "https://kaikki.org/dictionary/Spanish/kaikki.org-dictionary-Spanish.jsonl",
+      "notes": "STUB — verify before first use."
+    },
+    "ru": {
+      "verified": false,
+      "spacyModel": "ru_core_news_lg",
+      "spacyInstall": "python -m spacy download ru_core_news_lg",
+      "wiktionaryLang": "Russian",
+      "wiktionaryExtract": "https://kaikki.org/dictionary/Russian/kaikki.org-dictionary-Russian.jsonl",
+      "notes": "STUB — Cyrillic + rich inflection; verify before first use."
+    }
+  }
+}

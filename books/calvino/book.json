@@ -1,0 +1,52 @@
+{
+  "workId": "calvino-se-una-notte",
+  "title": "Se una notte d'inverno un viaggiatore",
+  "titleEn": "If on a winter's night a traveler",
+  "author": "Italo Calvino",
+  "source": {
+    "lang": "it",
+    "epub": "import/calvino/calvino_it_se-una-notte.epub"
+  },
+  "witnesses": [
+    {
+      "lang": "en",
+      "label": "Weaver 1981",
+      "translator": "William Weaver",
+      "epub": "import/calvino/calvino_en_weaver.epub",
+      "note": "The sole English translation of this work; no competing English version exists."
+    }
+  ],
+  "alignment": {
+    "unitCount": 22,
+    "scheme": "12 second-person frame chapters + 10 titled incipits, interleaved (frame, incipit, frame, incipit, ...) then frames 11 and 12 to close",
+    "incipitTitlesIt": [
+      "Se una notte d'inverno un viaggiatore",
+      "Fuori dell'abitato di Malbork",
+      "Sporgendosi dalla costa scoscesa",
+      "Senza temere il vento e la vertigine",
+      "Guarda in basso dove l'ombra s'addensa",
+      "In una rete di linee che s'allacciano",
+      "In una rete di linee che s'intersecano",
+      "Sul tappeto di foglie illuminate dalla luna",
+      "Intorno a una fossa vuota",
+      "Quale storia laggiù attende la fine?"
+    ],
+    "incipitTitlesEn": [
+      "If on a winter's night a traveler",
+      "Outside the town of Malbork",
+      "Leaning from the steep slope",
+      "Without fear of wind or vertigo",
+      "Looks down in the gathering shadow",
+      "In a network of lines that enlace",
+      "In a network of lines that intersect",
+      "On the carpet of leaves illuminated by the moon",
+      "Around an empty grave",
+      "What story down there awaits its end?"
+    ],
+    "notes": "VERIFIED by extraction 2026-07-11: The English EPUB extracts cleanly into 22 units — 12 frame chapters titled [1]..[12] plus the 10 titled incipits above, each in its own file. The Italian EPUB extracts into 14 chunks that MERGE each frame chapter with the incipit that follows it; split each Italian chunk at its incipit-title heading (incipitTitlesIt) to recover the 22 units, then pair Italian unit N with English unit N by reading order. Frontmatter/backmatter (Contents, About the Author, cover) must be dropped, not counted as units."
+  },
+  "grounding": {
+    "sourceSubstrate": "it",
+    "llmPedagogyPass": false
+  }
+}

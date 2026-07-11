@@ -67,11 +67,19 @@ export class EpubAdapter implements TranslationSourceAdapter {
     console.log(`   Publisher: ${publisher || 'N/A'}`);
 
     const spineMatches = [...opfContent.matchAll(/<itemref[^>]*idref="([^"]+)"[^>]*\/?>/g)];
-    const manifestMatches = [...opfContent.matchAll(/<item[^>]*id="([^"]+)"[^>]*href="([^"]+)"[^>]*\/?>/g)];
+    // Parse each <item> tag and read id/href independently so attribute ORDER
+    // does not matter (many EPUBs emit `href` before `id`, which an ordered
+    // id-then-href regex silently misses → empty manifest → 0 chapters).
+    const manifestMatches = [...opfContent.matchAll(/<item\b[^>]*>/g)];
 
     const manifest: Record<string, string> = {};
     for (const match of manifestMatches) {
-      manifest[match[1]] = match[2];
+      const tag = match[0];
+      const id = tag.match(/\bid="([^"]+)"/)?.[1];
+      const href = tag.match(/\bhref="([^"]+)"/)?.[1];
+      if (id && href) {
+        manifest[id] = href;
+      }
     }
 
     const chapters: TranslationSourceOutput['chapters'] = [];
