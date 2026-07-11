@@ -49,9 +49,11 @@ describe('scoreFactsDetail', () => {
 
     const r = scoreFactsDetail(model, gold, dpd)!;
 
-    expect(r.root).toEqual({ correct: 1, total: 3 });
+    expect(r.root).toEqual({ correct: 1, total: 3, fabricated: 1, silent: 1, dropped: 0 });
     expect(r.pos).toEqual({ correct: 3, total: 3 });
     expect(r.accuracy).toBeCloseTo(4 / 6);
+    // macro: mean of root (1/3) and pos (3/3) — morph ungraded here
+    expect(r.macro).toBeCloseTo((1 / 3 + 1) / 2);
   });
 
   it('falls back to golden √tooltips when DPD lacks the word', () => {
@@ -60,7 +62,7 @@ describe('scoreFactsDetail', () => {
 
     const r = scoreFactsDetail(model, gold, () => [])!;
 
-    expect(r.root).toEqual({ correct: 1, total: 1 });
+    expect(r.root).toEqual({ correct: 1, total: 1, fabricated: 0, silent: 0, dropped: 0 });
   });
 
   it('checks morph pairs individually and skips function words entirely', () => {
@@ -87,10 +89,11 @@ describe('scoreFactsDetail', () => {
 
     const r = scoreFactsDetail(model, gold, () => [])!;
 
-    expect(r.root).toEqual({ correct: 0, total: 1 });
+    expect(r.root).toEqual({ correct: 0, total: 1, fabricated: 0, silent: 0, dropped: 1 });
     expect(r.pos).toEqual({ correct: 0, total: 1 });
     expect(r.morph).toEqual({ correct: 0, total: 1 });
     expect(r.accuracy).toBe(0);
+    expect(r.macro).toBe(0);
   });
 
   it('returns null when nothing is checkable', () => {
