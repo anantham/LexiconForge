@@ -91,7 +91,7 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
       },
       {
         lang: 'en',
-        label: 'English',
+        label: 'English (Opus draft)',
         by: 'opus-draft',
         tokens: [
           { text: 'At', units: ['u-in-b'] },
@@ -145,7 +145,7 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
       },
       {
         lang: 'en',
-        label: 'English',
+        label: 'English (Opus draft)',
         by: 'opus-draft',
         tokens: [
           {
@@ -234,7 +234,7 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
       },
       {
         lang: 'en',
-        label: 'English',
+        label: 'English (Opus draft)',
         by: 'opus-draft',
         tokens: [
           { text: 'one man', units: ['u-one-man'] },
@@ -303,7 +303,7 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
       },
       {
         lang: 'en',
-        label: 'English',
+        label: 'English (Opus draft)',
         by: 'opus-draft',
         tokens: [
           { text: 'first', units: ['u-first'] },
@@ -368,7 +368,7 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
       },
       {
         lang: 'en',
-        label: 'English',
+        label: 'English (Opus draft)',
         by: 'opus-draft',
         tokens: [
           { text: 'and later', units: ['u-later', 'u-and-b'] },
