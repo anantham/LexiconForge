@@ -6,6 +6,10 @@
 - `Mlym` font/size in ConceptInterlinear + Noto Serif Malayalam in index.html; route `/malayalam` in App.tsx.
 **Why hand-curated:** UI-first pilot to converge the interface before automating (mlmorph FST + Olam glosses are the planned substrate; see session discussion). Reader is a heritage speaker relearning script — romanization always-on is the point.
 **Next:** native review of glosses; remaining ~30 paragraphs via semi-automated pipeline; Jnanappana verse mode; ISO 15919 facet.
+**Captured (user observations, not yet built):**
+- SURFACE-FIDELITY DECISION (gates everything downstream): big glyphs as true written words (പണ്ടൊരു) with akshara pieces vs. current sandhi-resolved morpheme display. Recommended: surface-true (SUTTA-025's law).
+- Sub-cluster hover in etym mode (ര vs ു separately inside രു): CONSTRAINT — splitting a combining sequence into separate DOM spans breaks font shaping (രു is one drawn ligature; the sign would detach or dotted-circle). Candidate approaches: pointer-x position within the cluster span mapping to parts, or tooltip-internal part emphasis that follows the mouse. Needs a spike, not a quick edit.
+- Letter-value vs spoken-value: tooltip says ട (ta) while the sound line says 'di' (intervocalic softening) — both are true; the tooltip should eventually NAME the softening rule instead of leaving the mismatch silent.
 
 ### [2026-07-01 → 2026-07-03] [Agents: Opus 4.8 / Fable 5] — sutta-studio benchmark + MN117 production arc
 **Status:** All merged to main and deployed. Written retroactively after a codex review flagged the missing WORKLOG entries for this burst (~34 commits over ~45h; data commits separate from code commits).
