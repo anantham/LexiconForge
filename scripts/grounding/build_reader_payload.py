@@ -30,16 +30,24 @@ def main():
     else:
         print("glosses: none yet (senses omitted; rebuild after glosses.json lands)")
 
+    # Wiktionary "form-of" glosses ("inflection of stare", "plural of staio") are
+    # noise — the base lemma already carries the real definition. Drop them unless
+    # nothing else survives.
+    FORM_OF = ("inflection of", "plural of", "singular of", "feminine ", "masculine ",
+               "past participle of", "gerund of", "present participle of", "form of",
+               "alternative ", "obsolete ", "misspelling of", "abbreviation of")
+
     def senses_for(lemma):
         e = glosses.get((lemma or "").lower())
         if not e:
             return []
-        out = []
+        real, formof = [], []
         for pos, sl in e.items():
             for s in sl:
-                if s not in out:
-                    out.append(s)
-        return out[:3]
+                bucket = formof if s.lower().startswith(FORM_OF) else real
+                if s not in bucket:
+                    bucket.append(s)
+        return (real or formof)[:3]
 
     units = []
     for ch in session["chapters"]:

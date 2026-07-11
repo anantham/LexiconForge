@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { renderItalian, type LensFacet } from '../../services/italian/lens/render';
 
 /**
  * Source-grounded bilingual reader for Calvino's *Se una notte d'inverno un
- * viaggiatore*: the Italian original foregrounded, every content word hover-to-
- * reveal / click-to-cycle its facets (lemma · part of speech · morphology ·
- * gloss), with William Weaver's English as the aligned witness. One unit at a
- * time (22 units: 12 frame chapters + 10 incipits).
+ * viaggiatore*: the Italian original foregrounded; every content word hover-to-
+ * reveal / click-to-cycle its lens copy — MEANING, who-acts, cognate anchor,
+ * false-friend warning, word-building — with Weaver's English as the witness.
  *
- * Data: data/calvino/reader-payload.json, produced by scripts/grounding/
- * build_reader_payload.py (spaCy fact layer + optional Wiktionary glosses).
+ * The tooltip copy comes from services/italian/lens (the render(facts,lens)
+ * layer), NOT the raw spaCy/Wiktionary facts. See docs/reader/LENSES.md.
  */
 
 const SERIF = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
@@ -17,66 +17,71 @@ type Tok = { s: string; ws?: boolean; pbr?: boolean; l?: string; p?: string; m?:
 type Unit = { n: number; id: string; title: string; italian: Tok[]; english: string };
 type Payload = { work: string; witness: string; hasGlosses: boolean; units: Unit[] };
 
-const UPOS: Record<string, string> = {
-  NOUN: 'noun', VERB: 'verb', ADJ: 'adjective', ADV: 'adverb', PROPN: 'proper noun',
-  PRON: 'pronoun', DET: 'determiner', ADP: 'preposition', AUX: 'auxiliary',
-  NUM: 'numeral', SCONJ: 'conjunction', CCONJ: 'conjunction',
-};
-
-type Facet = { label: string; val: string };
-function facetsFor(t: Tok): Facet[] {
-  const f: Facet[] = [];
-  if (t.l && t.l.toLowerCase() !== t.s.toLowerCase()) f.push({ label: 'lemma', val: t.l });
-  if (t.p) f.push({ label: 'part of speech', val: UPOS[t.p] || t.p.toLowerCase() });
-  if (t.m) f.push({ label: 'morphology', val: t.m.replace(/\|/g, ' · ') });
-  (t.g || []).forEach((g) => f.push({ label: 'gloss', val: g }));
-  return f;
-}
+const CONTENT_POS = new Set(['NOUN', 'VERB', 'ADJ', 'ADV', 'PROPN', 'AUX']);
 
 function Word({ t }: { t: Tok }) {
-  const facets = useMemo(() => facetsFor(t), [t]);
+  const facets: LensFacet[] = useMemo(
+    () => renderItalian({ surface: t.s, lemma: t.l, upos: t.p, morph: t.m, senses: t.g }),
+    [t],
+  );
   const [i, setI] = useState(0);
   const [over, setOver] = useState(false);
   const trailing = t.ws === false ? '' : ' ';
 
-  if (facets.length === 0) return <>{t.s}{trailing}</>;
+  // A word earns a tooltip only if it's a content word (or a fused preposition)
+  // AND the lens produced something beyond the surface itself.
+  const fused = !!(t.l && t.l.includes(' '));
+  const meaningful = facets.length > 1 || (facets[0] && facets[0].text.toLowerCase() !== t.s.toLowerCase());
+  const hoverable = !!t.l && (CONTENT_POS.has(t.p || '') || fused) && meaningful;
+
+  if (!hoverable) return <>{t.s}{trailing}</>;
+
+  const cur = facets[i % facets.length];
+  const warn = cur?.kind === 'warn';
 
   return (
     <>
       <span
         className="relative inline-block"
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: facets.length > 1 ? 'pointer' : 'help' }}
         onMouseEnter={() => { setOver(true); setI(0); }}
         onMouseLeave={() => setOver(false)}
-        onClick={() => setI((n) => (n + 1) % facets.length)}
+        onClick={() => facets.length > 1 && setI((n) => (n + 1) % facets.length)}
       >
         <span
           style={{
-            color: over ? '#6ee7b7' : 'inherit',
-            borderBottom: over ? '1px solid #6ee7b7' : '1px dotted rgba(4,120,87,0.45)',
+            color: over ? (warn ? '#fbbf24' : '#6ee7b7') : 'inherit',
+            borderBottom: over
+              ? `1px solid ${warn ? '#fbbf24' : '#6ee7b7'}`
+              : '1px dotted rgba(4,120,87,0.45)',
             transition: 'color .12s',
           }}
         >
           {t.s}
         </span>
-        {over && facets[i] && (
+        {over && cur && (
           <span
             className="absolute left-1/2 bottom-full z-30"
             style={{
-              transform: 'translateX(-50%)', marginBottom: 8, whiteSpace: 'nowrap',
-              background: 'rgba(15,23,42,0.97)', border: '1px solid #1e293b', borderRadius: 6,
-              padding: '6px 11px', boxShadow: '0 10px 30px rgba(0,0,0,.55)',
-              fontFamily: 'system-ui, -apple-system, sans-serif',
+              transform: 'translateX(-50%)', marginBottom: 8, maxWidth: 280, width: 'max-content',
+              background: 'rgba(15,23,42,0.98)',
+              border: `1px solid ${warn ? 'rgba(251,191,36,0.5)' : '#1e293b'}`, borderRadius: 6,
+              padding: '7px 12px', boxShadow: '0 10px 30px rgba(0,0,0,.55)',
+              fontFamily: 'system-ui, -apple-system, sans-serif', textAlign: 'center',
             }}
           >
-            <span className="block" style={{ fontSize: 10, letterSpacing: '.06em', textTransform: 'uppercase', color: '#64748b' }}>
-              {facets[i].label}
+            <span className="block" style={{ fontSize: 14.5, lineHeight: 1.35, color: warn ? '#fde68a' : '#f1f5f9' }}>
+              {warn ? '⚠ ' : ''}{cur.text}
             </span>
-            <span className="block" style={{ fontSize: 14, color: '#f1f5f9' }}>{facets[i].val}</span>
+            {cur.note && (
+              <span className="block" style={{ fontSize: 11, marginTop: 2, letterSpacing: '.02em', color: '#64748b' }}>
+                {cur.note}
+              </span>
+            )}
             {facets.length > 1 && (
-              <span className="flex gap-1 mt-1 justify-center">
+              <span className="flex gap-1 mt-1.5 justify-center">
                 {facets.map((_, k) => (
-                  <span key={k} style={{ width: 5, height: 5, borderRadius: 9, background: k === i ? '#6ee7b7' : '#334155' }} />
+                  <span key={k} style={{ width: 5, height: 5, borderRadius: 9, background: k === i % facets.length ? '#6ee7b7' : '#334155' }} />
                 ))}
               </span>
             )}
@@ -107,7 +112,6 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
 
   const match = pathname.match(/^\/calvino\/(\d+)/);
   const idx = match ? Math.max(1, Math.min(22, parseInt(match[1], 10))) : 1;
-
   const go = useCallback((n: number) => navigate(n <= 1 ? '/calvino' : `/calvino/${n}`), []);
 
   useEffect(() => {
@@ -129,7 +133,6 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
 
   const unit = payload.units[idx - 1];
 
-  // group the flat token stream into paragraphs on the pbr flag
   const paragraphs: Tok[][] = [[]];
   for (const t of unit.italian) {
     paragraphs[paragraphs.length - 1].push(t);
@@ -152,7 +155,7 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
           {unit.title}
         </h1>
         <div style={{ textAlign: 'center', color: '#475569', fontSize: 12, marginBottom: 32 }}>
-          hover a word for its lemma & grammar · click to cycle facets{payload.hasGlosses ? ' · glosses on' : ' · glosses building…'}
+          hover a word for its meaning · click to cycle (cognate · grammar · word-building)
         </div>
 
         <div style={{ fontFamily: SERIF, fontSize: 20, lineHeight: 1.9, color: '#e2e8f0', marginBottom: 40 }}>

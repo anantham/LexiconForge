@@ -41,6 +41,24 @@ def main():
     chapters = session.get("chapters", [])
     print(f"Grounding {len(chapters)} units with {args.model}...")
 
+    # Sentence-initial capitals defeat the lemmatizer (Stai -> "Stai" not "stare",
+    # Leggere -> "Leggere"). Re-lemmatize the lowercased form for capitalised
+    # content words (never PROPN, so Calvino/Italo stay intact). Cached by surface.
+    _lemma_cache = {}
+    def corrected_lemma(t):
+        lem = t.lemma_
+        # Any capitalised content word whose lemma stayed capitalised is almost
+        # always a mis-lemmatised post-capital word (proper nouns are PROPN, excluded),
+        # not gated on is_sent_start because a heading like "I" can absorb the start.
+        if t.text[:1].isupper() and t.pos_ in ("VERB", "AUX", "NOUN", "ADJ", "ADV") and lem[:1].isupper():
+            low = t.text.lower()
+            if low not in _lemma_cache:
+                _lemma_cache[low] = nlp(low)[0].lemma_
+            cand = _lemma_cache[low]
+            if cand and cand[:1].islower():
+                return cand
+        return lem
+
     index = []
     for ch in chapters:
         text = ch.get("content", "") or ""
@@ -64,7 +82,7 @@ def main():
                 toks.append({
                     "i": t.i,
                     "surface": t.text,
-                    "lemma": t.lemma_,
+                    "lemma": corrected_lemma(t),
                     "upos": t.pos_,
                     "morph": str(t.morph),
                     "isAlpha": t.is_alpha,
