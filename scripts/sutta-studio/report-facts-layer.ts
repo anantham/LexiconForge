@@ -16,7 +16,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { loadDpdSubsetFromFs } from '../../services/providers/dpd-loader-fs';
 import type { LexiconEntry } from '../../services/providers/types';
-import { scoreContentFidelityDetail } from './quality-scorer';
+import { scoreContentFidelityDetail, scoreSegmentationFidelity } from './quality-scorer';
 import { scoreFactsDetail, scoreSenseFidelityDetail, type DpdLookup } from './facts-scorer';
 
 const ROOT = 'reports/sutta-studio';
@@ -74,6 +74,7 @@ function collectPhase(file: string) {
     content: scoreContentFidelityDetail(outAnat, goldAnat, outLex, goldLex),
     sense: scoreSenseFidelityDetail(outAnat, goldAnat, outLex, goldLex),
     facts: scoreFactsDetail(outAnat, goldAnat, dpdLookup),
+    seg: scoreSegmentationFidelity(outAnat, goldAnat),
   };
 }
 
@@ -93,18 +94,40 @@ for (const runDir of runDirs) {
   }
 }
 
+// judge means (independent instrument) for the weight-grid agreement check
+const judgeMean = new Map<string, number>();
+for (const runDir of runDirs) {
+  for (const f of fs.existsSync(runDir) ? fs.readdirSync(runDir) : []) {
+    const m = f.match(/^judge-scores-(.+)\.json$/);
+    if (!m) continue;
+    const j = JSON.parse(fs.readFileSync(path.join(runDir, f), 'utf8'));
+    if (typeof j.avgContentSemantic === 'number') judgeMean.set(m[1], j.avgContentSemantic);
+  }
+}
+
 const rows: Row[] = [];
+const perModel = new Map<string, { seg: number; factsMacro: number; sense: number }>();
 for (const [model, phases] of byModel) {
   const c = phases.map((p) => p?.content?.f1).filter((x): x is number => x != null);
   const sf = phases.map((p) => p?.sense?.f1).filter((x): x is number => x != null);
   const sp = phases.map((p) => p?.sense?.precision).filter((x): x is number => x != null);
   const sr = phases.map((p) => p?.sense?.recall).filter((x): x is number => x != null);
   const fa = phases.map((p) => p?.facts?.accuracy).filter((x): x is number => x != null);
-  const agg = (k: 'root' | 'pos' | 'morph') => {
-    const correct = phases.reduce((a, p) => a + (p?.facts?.[k].correct ?? 0), 0);
-    const total = phases.reduce((a, p) => a + (p?.facts?.[k].total ?? 0), 0);
+  const fm = phases.map((p) => p?.facts?.macro).filter((x): x is number => x != null);
+  const sg = phases.map((p) => p?.seg).filter((x): x is number => x != null);
+  const sum = (fn: (p: NonNullable<ReturnType<typeof collectPhase>>['facts']) => number) =>
+    phases.reduce((a, p) => a + (p?.facts ? fn(p.facts) : 0), 0);
+  const rootCorrect = sum((f) => f!.root.correct);
+  const rootTotal = sum((f) => f!.root.total);
+  const rootFab = sum((f) => f!.root.fabricated);
+  const rootSil = sum((f) => f!.root.silent);
+  const rootDrop = sum((f) => f!.root.dropped);
+  const agg = (k: 'pos' | 'morph') => {
+    const correct = sum((f) => f![k].correct);
+    const total = sum((f) => f![k].total);
     return total ? `${((100 * correct) / total).toFixed(0)}% (${correct}/${total})` : '—';
   };
+  perModel.set(model, { seg: mean(sg), factsMacro: mean(fm), sense: mean(sf) });
   rows.push({
     model,
     phases: phases.length,
@@ -112,8 +135,10 @@ for (const [model, phases] of byModel) {
     senseF1: mean(sf),
     senseP: mean(sp),
     senseR: mean(sr),
-    facts: mean(fa),
-    root: agg('root'),
+    facts: mean(fm),
+    root: rootTotal
+      ? `${((100 * rootCorrect) / rootTotal).toFixed(0)}% (fab ${rootFab}·sil ${rootSil}·drop ${rootDrop})`
+      : '—',
     pos: agg('pos'),
     morph: agg('morph'),
   });
@@ -121,13 +146,52 @@ for (const [model, phases] of byModel) {
 
 rows.sort((a, b) => b.contentF1 - a.contentF1);
 const f = (x: number) => (Number.isNaN(x) ? '  —  ' : x.toFixed(3));
-console.log('SUTTA-013 facts-layer dry run (v2.1 contentF1 vs facts/sense decomposition)');
+console.log('SUTTA-013 facts-layer dry run (facts = MACRO mean of root/pos/morph accuracies)');
 console.log('');
-console.log('model                | ph | contentF1 | senseF1 | senseP | senseR | facts | root         | pos           | morph');
-console.log('---------------------|----|-----------|---------|--------|--------|-------|--------------|---------------|--------------');
+console.log('model                | ph | contentF1 | senseF1 | senseP | senseR | facts | root                        | pos           | morph');
+console.log('---------------------|----|-----------|---------|--------|--------|-------|-----------------------------|---------------|--------------');
 for (const r of rows) {
   console.log(
-    `${r.model.padEnd(20)} | ${String(r.phases).padStart(2)} | ${f(r.contentF1).padStart(9)} | ${f(r.senseF1).padStart(7)} | ${f(r.senseP).padStart(6)} | ${f(r.senseR).padStart(6)} | ${f(r.facts).padStart(5)} | ${r.root.padEnd(12)} | ${r.pos.padEnd(13)} | ${r.morph}`
+    `${r.model.padEnd(20)} | ${String(r.phases).padStart(2)} | ${f(r.contentF1).padStart(9)} | ${f(r.senseF1).padStart(7)} | ${f(r.senseP).padStart(6)} | ${f(r.senseR).padStart(6)} | ${f(r.facts).padStart(5)} | ${r.root.padEnd(27)} | ${r.pos.padEnd(13)} | ${r.morph}`
+  );
+}
+
+// ── weight-grid sensitivity: does the v2.2 fidelity ordering depend on the weights? ──
+const GRID: Array<[number, number, number]> = [
+  [0.5, 0.25, 0.25],
+  [0.4, 0.3, 0.3],
+  [0.34, 0.33, 0.33],
+  [0.3, 0.4, 0.3],
+  [0.3, 0.3, 0.4],
+  [0.25, 0.5, 0.25],
+];
+
+const spearman = (a: string[], b: string[]): number => {
+  const rank = (xs: string[]) => new Map(xs.map((x, i) => [x, i]));
+  const ra = rank(a);
+  const rb = rank(b);
+  const common = a.filter((x) => rb.has(x));
+  const n = common.length;
+  if (n < 3) return NaN;
+  let d2 = 0;
+  for (const x of common) d2 += (ra.get(x)! - rb.get(x)!) ** 2;
+  return 1 - (6 * d2) / (n * (n * n - 1));
+};
+
+const judgeOrder = [...judgeMean.entries()].sort((a, b) => b[1] - a[1]).map(([m]) => m);
+console.log('\nWeight-grid sensitivity — fidelity = w_seg·segF1 + w_facts·facts(macro) + w_sense·senseF1');
+console.log('(ranking per weights; ρ = Spearman rank agreement with the semantic judge, the independent instrument)');
+console.log('');
+for (const [ws, wf, wn] of GRID) {
+  const ranked = [...perModel.entries()]
+    .filter(([, v]) => !Number.isNaN(v.seg) && !Number.isNaN(v.factsMacro) && !Number.isNaN(v.sense))
+    .map(([m, v]) => [m, ws * v.seg + wf * v.factsMacro + wn * v.sense] as const)
+    .sort((a, b) => b[1] - a[1]);
+  const rho = spearman(ranked.map(([m]) => m), judgeOrder);
+  console.log(
+    `  ${ws}/${wf}/${wn}`.padEnd(16) +
+      `ρ=${Number.isNaN(rho) ? ' — ' : rho.toFixed(2)}  ` +
+      ranked.map(([m, s]) => `${m}:${s.toFixed(3)}`).join(' > ')
   );
 }
 console.log('\nREPORT COMPLETE');

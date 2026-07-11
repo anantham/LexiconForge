@@ -1,0 +1,2883 @@
+{
+  "_description": "SUTTA-013 alignment golden: (Pāli word ↔ Sujato English token) links per segment group. Provenance layered: mechanical = dictionary gloss + unambiguous string match (align-golden-draft.ts); curated = gemini-3-flash proposal surviving a grok-4.20 skeptic, invariants enforced in code (align-golden-curate.ts). See docs/benchmarks/alignment-golden-curation-log.json.",
+  "_generatedAt": "2026-07-11T03:56:09.975Z",
+  "_curator": "google/gemini-3-flash-preview",
+  "_skeptic": "x-ai/grok-4.20",
+  "groups": [
+    {
+      "segmentIds": [
+        "mn10:1.1"
+      ],
+      "phaseIds": [
+        "phase-a"
+      ],
+      "english": "So I have heard.",
+      "tokens": [
+        "So",
+        "I",
+        "have",
+        "heard."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-a",
+          "wordId": "a3",
+          "surface": "sutaṁ",
+          "tokenIdxs": [
+            2,
+            3
+          ],
+          "via": "mechanical+extended"
+        }
+      ],
+      "ghosts": []
+    },
+    {
+      "segmentIds": [
+        "mn10:1.2"
+      ],
+      "phaseIds": [
+        "phase-b",
+        "phase-c",
+        "phase-d"
+      ],
+      "english": "At one time the Buddha was staying in the land of the Kurus, near the Kuru town named Kammāsadamma.",
+      "tokens": [
+        "At",
+        "one",
+        "time",
+        "the",
+        "Buddha",
+        "was",
+        "staying",
+        "in",
+        "the",
+        "land",
+        "of",
+        "the",
+        "Kurus,",
+        "near",
+        "the",
+        "Kuru",
+        "town",
+        "named",
+        "Kammāsadamma."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-b",
+          "wordId": "b2",
+          "surface": "samayaṁ",
+          "tokenIdxs": [
+            2
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-b",
+          "wordId": "b3",
+          "surface": "bhagavā",
+          "tokenIdxs": [
+            4
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-c",
+          "wordId": "c2",
+          "surface": "viharati",
+          "tokenIdxs": [
+            6
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-d",
+          "wordId": "d2",
+          "surface": "nāma",
+          "tokenIdxs": [
+            17
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-b",
+          "wordId": "b1",
+          "surface": "ekaṁ",
+          "tokenIdxs": [
+            1
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-c",
+          "wordId": "c1",
+          "surface": "kurūsu",
+          "tokenIdxs": [
+            12
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-d",
+          "wordId": "d1",
+          "surface": "Kammāsadhammaṁ",
+          "tokenIdxs": [
+            18
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-d",
+          "wordId": "d4",
+          "surface": "nigamo",
+          "tokenIdxs": [
+            16
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "At",
+          "kind": "required"
+        },
+        {
+          "idx": 3,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 5,
+          "token": "was",
+          "kind": "required"
+        },
+        {
+          "idx": 7,
+          "token": "in",
+          "kind": "required"
+        },
+        {
+          "idx": 8,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 10,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 11,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 13,
+          "token": "near",
+          "kind": "interpretive"
+        },
+        {
+          "idx": 14,
+          "token": "the",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:1.3"
+      ],
+      "phaseIds": [
+        "phase-e"
+      ],
+      "english": "There the Buddha addressed the mendicants,",
+      "tokens": [
+        "There",
+        "the",
+        "Buddha",
+        "addressed",
+        "the",
+        "mendicants,"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-e",
+          "wordId": "e1",
+          "surface": "tatra",
+          "tokenIdxs": [
+            0
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-e",
+          "wordId": "e3",
+          "surface": "bhagavā",
+          "tokenIdxs": [
+            2
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-e",
+          "wordId": "e4",
+          "surface": "bhikkhū",
+          "tokenIdxs": [
+            5
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-e",
+          "wordId": "e5",
+          "surface": "āmantesi",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "mechanical"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 1,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 4,
+          "token": "the",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:1.4"
+      ],
+      "phaseIds": [
+        "phase-f"
+      ],
+      "english": "“Mendicants!”",
+      "tokens": [
+        "“Mendicants!”"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-f",
+          "wordId": "f1",
+          "surface": "Bhikkhavo",
+          "tokenIdxs": [
+            0
+          ],
+          "via": "mechanical"
+        }
+      ],
+      "ghosts": []
+    },
+    {
+      "segmentIds": [
+        "mn10:1.5"
+      ],
+      "phaseIds": [
+        "phase-g"
+      ],
+      "english": "“Venerable sir,” they replied.",
+      "tokens": [
+        "“Venerable",
+        "sir,”",
+        "they",
+        "replied."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-g",
+          "wordId": "g1",
+          "surface": "Bhadante",
+          "tokenIdxs": [
+            0
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-g",
+          "wordId": "g3",
+          "surface": "te",
+          "tokenIdxs": [
+            2
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-g",
+          "wordId": "g6",
+          "surface": "paccassosuṁ",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "mechanical"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 1,
+          "token": "sir,”",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:1.6"
+      ],
+      "phaseIds": [
+        "phase-h"
+      ],
+      "english": "The Buddha said this:",
+      "tokens": [
+        "The",
+        "Buddha",
+        "said",
+        "this:"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-h",
+          "wordId": "h1",
+          "surface": "Bhagavā",
+          "tokenIdxs": [
+            0,
+            1
+          ],
+          "via": "mechanical+extended"
+        },
+        {
+          "phaseId": "phase-h",
+          "wordId": "h2",
+          "surface": "etad",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-h",
+          "wordId": "h3",
+          "surface": "avoca",
+          "tokenIdxs": [
+            2
+          ],
+          "via": "mechanical"
+        }
+      ],
+      "ghosts": []
+    },
+    {
+      "segmentIds": [
+        "mn10:2.1"
+      ],
+      "phaseIds": [
+        "phase-1",
+        "phase-2",
+        "phase-3",
+        "phase-4",
+        "phase-5",
+        "phase-6",
+        "phase-7"
+      ],
+      "english": "“Mendicants, the four kinds of mindfulness meditation are the path to convergence. They are in order to purify sentient beings, to get past sorrow and crying, to make an end of pain and sadness, to discover the system, and to realize extinguishment.",
+      "tokens": [
+        "“Mendicants,",
+        "the",
+        "four",
+        "kinds",
+        "of",
+        "mindfulness",
+        "meditation",
+        "are",
+        "the",
+        "path",
+        "to",
+        "convergence.",
+        "They",
+        "are",
+        "in",
+        "order",
+        "to",
+        "purify",
+        "sentient",
+        "beings,",
+        "to",
+        "get",
+        "past",
+        "sorrow",
+        "and",
+        "crying,",
+        "to",
+        "make",
+        "an",
+        "end",
+        "of",
+        "pain",
+        "and",
+        "sadness,",
+        "to",
+        "discover",
+        "the",
+        "system,",
+        "and",
+        "to",
+        "realize",
+        "extinguishment."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-1",
+          "wordId": "p3",
+          "surface": "Bhikkhave",
+          "tokenIdxs": [
+            0
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-1",
+          "wordId": "p4",
+          "surface": "maggo",
+          "tokenIdxs": [
+            9
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-3",
+          "wordId": "p7",
+          "surface": "sokaparidevānaṁ",
+          "tokenIdxs": [
+            25
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-4",
+          "wordId": "p9",
+          "surface": "dukkhadomanassānaṁ",
+          "tokenIdxs": [
+            31
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-5",
+          "wordId": "p11",
+          "surface": "ñāyassa",
+          "tokenIdxs": [
+            37
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-7",
+          "wordId": "p16",
+          "surface": "cattāro",
+          "tokenIdxs": [
+            2
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-7",
+          "wordId": "p17",
+          "surface": "satipaṭṭhānā",
+          "tokenIdxs": [
+            5
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-2",
+          "wordId": "p5",
+          "surface": "sattānaṁ",
+          "tokenIdxs": [
+            18,
+            19
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-2",
+          "wordId": "p6",
+          "surface": "visuddhiyā",
+          "tokenIdxs": [
+            17
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-3",
+          "wordId": "p8",
+          "surface": "samatikkamāya",
+          "tokenIdxs": [
+            21,
+            22
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-4",
+          "wordId": "p10",
+          "surface": "atthaṅgamāya",
+          "tokenIdxs": [
+            27,
+            29
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-5",
+          "wordId": "p12",
+          "surface": "adhigamāya",
+          "tokenIdxs": [
+            35
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-6",
+          "wordId": "p13",
+          "surface": "nibbānassa",
+          "tokenIdxs": [
+            41
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-6",
+          "wordId": "p14",
+          "surface": "sacchikiriyāya",
+          "tokenIdxs": [
+            40
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-7",
+          "wordId": "p15",
+          "surface": "yadidaṁ",
+          "tokenIdxs": [
+            13
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 1,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 3,
+          "token": "kinds",
+          "kind": "required"
+        },
+        {
+          "idx": 4,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 6,
+          "token": "meditation",
+          "kind": "interpretive"
+        },
+        {
+          "idx": 7,
+          "token": "are",
+          "kind": "required"
+        },
+        {
+          "idx": 10,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 14,
+          "token": "in",
+          "kind": "required"
+        },
+        {
+          "idx": 15,
+          "token": "order",
+          "kind": "required"
+        },
+        {
+          "idx": 16,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 20,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 23,
+          "token": "sorrow",
+          "kind": "required"
+        },
+        {
+          "idx": 24,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 26,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 28,
+          "token": "an",
+          "kind": "required"
+        },
+        {
+          "idx": 30,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 32,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 33,
+          "token": "sadness,",
+          "kind": "required"
+        },
+        {
+          "idx": 34,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 36,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 38,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 39,
+          "token": "to",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:3.1"
+      ],
+      "phaseIds": [
+        "phase-x"
+      ],
+      "english": "What four?",
+      "tokens": [
+        "What",
+        "four?"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-x",
+          "wordId": "x1",
+          "surface": "Katame",
+          "tokenIdxs": [
+            0
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-x",
+          "wordId": "x2",
+          "surface": "cattāro",
+          "tokenIdxs": [
+            1
+          ],
+          "via": "mechanical"
+        }
+      ],
+      "ghosts": []
+    },
+    {
+      "segmentIds": [
+        "mn10:3.2"
+      ],
+      "phaseIds": [
+        "phase-y",
+        "phase-z",
+        "phase-aa",
+        "phase-ab"
+      ],
+      "english": "It’s when a mendicant meditates by observing an aspect of the body—keen, aware, and mindful, rid of covetousness and displeasure for the world.",
+      "tokens": [
+        "It’s",
+        "when",
+        "a",
+        "mendicant",
+        "meditates",
+        "by",
+        "observing",
+        "an",
+        "aspect",
+        "of",
+        "the",
+        "body—keen,",
+        "aware,",
+        "and",
+        "mindful,",
+        "rid",
+        "of",
+        "covetousness",
+        "and",
+        "displeasure",
+        "for",
+        "the",
+        "world."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-y",
+          "wordId": "y3",
+          "surface": "bhikkhu",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-z",
+          "wordId": "z2",
+          "surface": "kāyānupassī",
+          "tokenIdxs": [
+            6
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-aa",
+          "wordId": "aa2",
+          "surface": "sampajāno",
+          "tokenIdxs": [
+            12
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-aa",
+          "wordId": "aa3",
+          "surface": "satimā",
+          "tokenIdxs": [
+            14
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ab",
+          "wordId": "ab1",
+          "surface": "vineyya",
+          "tokenIdxs": [
+            15
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ab",
+          "wordId": "ab3",
+          "surface": "abhijjhādomanassaṁ",
+          "tokenIdxs": [
+            17
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-y",
+          "wordId": "y1",
+          "surface": "Idha",
+          "tokenIdxs": [
+            0,
+            1
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-z",
+          "wordId": "z1",
+          "surface": "kāye",
+          "tokenIdxs": [
+            9,
+            10,
+            11
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-z",
+          "wordId": "z3",
+          "surface": "viharati",
+          "tokenIdxs": [
+            4
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ab",
+          "wordId": "ab2",
+          "surface": "loke",
+          "tokenIdxs": [
+            20,
+            21,
+            22
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 2,
+          "token": "a",
+          "kind": "required"
+        },
+        {
+          "idx": 5,
+          "token": "by",
+          "kind": "required"
+        },
+        {
+          "idx": 7,
+          "token": "an",
+          "kind": "required"
+        },
+        {
+          "idx": 13,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 16,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 18,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 19,
+          "token": "displeasure",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:3.3"
+      ],
+      "phaseIds": [
+        "phase-ac",
+        "phase-ad",
+        "phase-ae"
+      ],
+      "english": "They meditate observing an aspect of feelings—keen, aware, and mindful, rid of covetousness and displeasure for the world.",
+      "tokens": [
+        "They",
+        "meditate",
+        "observing",
+        "an",
+        "aspect",
+        "of",
+        "feelings—keen,",
+        "aware,",
+        "and",
+        "mindful,",
+        "rid",
+        "of",
+        "covetousness",
+        "and",
+        "displeasure",
+        "for",
+        "the",
+        "world."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-ac",
+          "wordId": "ac2",
+          "surface": "vedanānupassī",
+          "tokenIdxs": [
+            2
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ad",
+          "wordId": "ad2",
+          "surface": "sampajāno",
+          "tokenIdxs": [
+            7
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ad",
+          "wordId": "ad3",
+          "surface": "satimā",
+          "tokenIdxs": [
+            9
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ae",
+          "wordId": "ae1",
+          "surface": "vineyya",
+          "tokenIdxs": [
+            10
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ae",
+          "wordId": "ae2",
+          "surface": "loke",
+          "tokenIdxs": [
+            17
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ae",
+          "wordId": "ae3",
+          "surface": "abhijjhādomanassaṁ",
+          "tokenIdxs": [
+            12
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ac",
+          "wordId": "ac1",
+          "surface": "vedanāsu",
+          "tokenIdxs": [
+            4,
+            5,
+            6
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "They",
+          "kind": "required"
+        },
+        {
+          "idx": 8,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 11,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 13,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 14,
+          "token": "displeasure",
+          "kind": "required"
+        },
+        {
+          "idx": 15,
+          "token": "for",
+          "kind": "required"
+        },
+        {
+          "idx": 16,
+          "token": "the",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:3.4"
+      ],
+      "phaseIds": [
+        "phase-af",
+        "phase-ag",
+        "phase-ah"
+      ],
+      "english": "They meditate observing an aspect of the mind—keen, aware, and mindful, rid of covetousness and displeasure for the world.",
+      "tokens": [
+        "They",
+        "meditate",
+        "observing",
+        "an",
+        "aspect",
+        "of",
+        "the",
+        "mind—keen,",
+        "aware,",
+        "and",
+        "mindful,",
+        "rid",
+        "of",
+        "covetousness",
+        "and",
+        "displeasure",
+        "for",
+        "the",
+        "world."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-af",
+          "wordId": "af2",
+          "surface": "cittānupassī",
+          "tokenIdxs": [
+            2
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ag",
+          "wordId": "ag2",
+          "surface": "sampajāno",
+          "tokenIdxs": [
+            8
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ag",
+          "wordId": "ag3",
+          "surface": "satimā",
+          "tokenIdxs": [
+            10
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ah",
+          "wordId": "ah1",
+          "surface": "vineyya",
+          "tokenIdxs": [
+            11
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ah",
+          "wordId": "ah2",
+          "surface": "loke",
+          "tokenIdxs": [
+            18
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ah",
+          "wordId": "ah3",
+          "surface": "abhijjhādomanassaṁ",
+          "tokenIdxs": [
+            13
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-af",
+          "wordId": "af1",
+          "surface": "citte",
+          "tokenIdxs": [
+            5,
+            6,
+            7
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "They",
+          "kind": "required"
+        },
+        {
+          "idx": 3,
+          "token": "an",
+          "kind": "required"
+        },
+        {
+          "idx": 9,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 12,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 14,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 15,
+          "token": "displeasure",
+          "kind": "interpretive"
+        },
+        {
+          "idx": 16,
+          "token": "for",
+          "kind": "required"
+        },
+        {
+          "idx": 17,
+          "token": "the",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:3.5"
+      ],
+      "phaseIds": [
+        "phase-ai",
+        "phase-aj",
+        "phase-ak"
+      ],
+      "english": "They meditate observing an aspect of principles—keen, aware, and mindful, rid of covetousness and displeasure for the world.",
+      "tokens": [
+        "They",
+        "meditate",
+        "observing",
+        "an",
+        "aspect",
+        "of",
+        "principles—keen,",
+        "aware,",
+        "and",
+        "mindful,",
+        "rid",
+        "of",
+        "covetousness",
+        "and",
+        "displeasure",
+        "for",
+        "the",
+        "world."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-ai",
+          "wordId": "ai1",
+          "surface": "dhammesu",
+          "tokenIdxs": [
+            15
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ai",
+          "wordId": "ai2",
+          "surface": "dhammānupassī",
+          "tokenIdxs": [
+            2,
+            4
+          ],
+          "via": "mechanical+extended"
+        },
+        {
+          "phaseId": "phase-aj",
+          "wordId": "aj2",
+          "surface": "sampajāno",
+          "tokenIdxs": [
+            7
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-aj",
+          "wordId": "aj3",
+          "surface": "satimā",
+          "tokenIdxs": [
+            9
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ak",
+          "wordId": "ak1",
+          "surface": "vineyya",
+          "tokenIdxs": [
+            10
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ak",
+          "wordId": "ak2",
+          "surface": "loke",
+          "tokenIdxs": [
+            17
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ak",
+          "wordId": "ak3",
+          "surface": "abhijjhādomanassaṁ",
+          "tokenIdxs": [
+            12
+          ],
+          "via": "mechanical"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "They",
+          "kind": "required"
+        },
+        {
+          "idx": 3,
+          "token": "an",
+          "kind": "required"
+        },
+        {
+          "idx": 5,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 8,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 11,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 13,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 14,
+          "token": "displeasure",
+          "kind": "interpretive"
+        },
+        {
+          "idx": 16,
+          "token": "the",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:3.6"
+      ],
+      "phaseIds": [
+        "phase-al"
+      ],
+      "english": "",
+      "tokens": [],
+      "links": [],
+      "ghosts": []
+    },
+    {
+      "segmentIds": [
+        "mn10:4.1"
+      ],
+      "phaseIds": [
+        "phase-am"
+      ],
+      "english": "And how does a mendicant meditate observing an aspect of the body?",
+      "tokens": [
+        "And",
+        "how",
+        "does",
+        "a",
+        "mendicant",
+        "meditate",
+        "observing",
+        "an",
+        "aspect",
+        "of",
+        "the",
+        "body?"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-am",
+          "wordId": "am1",
+          "surface": "Kathañca",
+          "tokenIdxs": [
+            1
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-am",
+          "wordId": "am5",
+          "surface": "kāyānupassī",
+          "tokenIdxs": [
+            6
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-am",
+          "wordId": "am3",
+          "surface": "bhikkhu",
+          "tokenIdxs": [
+            4
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-am",
+          "wordId": "am4",
+          "surface": "kāye",
+          "tokenIdxs": [
+            9,
+            10,
+            11
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "And",
+          "kind": "required"
+        },
+        {
+          "idx": 2,
+          "token": "does",
+          "kind": "required"
+        },
+        {
+          "idx": 3,
+          "token": "a",
+          "kind": "required"
+        },
+        {
+          "idx": 7,
+          "token": "an",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:4.2"
+      ],
+      "phaseIds": [
+        "phase-an",
+        "phase-ao",
+        "phase-ap"
+      ],
+      "english": "It’s when a mendicant—gone to a wilderness, or to the root of a tree, or to an empty hut—sits down cross-legged, sets their body straight, and establishes mindfulness in their presence.",
+      "tokens": [
+        "It’s",
+        "when",
+        "a",
+        "mendicant—gone",
+        "to",
+        "a",
+        "wilderness,",
+        "or",
+        "to",
+        "the",
+        "root",
+        "of",
+        "a",
+        "tree,",
+        "or",
+        "to",
+        "an",
+        "empty",
+        "hut—sits",
+        "down",
+        "cross-legged,",
+        "sets",
+        "their",
+        "body",
+        "straight,",
+        "and",
+        "establishes",
+        "mindfulness",
+        "in",
+        "their",
+        "presence."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-an",
+          "wordId": "an4",
+          "surface": "araññagato",
+          "tokenIdxs": [
+            6
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-an",
+          "wordId": "an6",
+          "surface": "rukkhamūlagato",
+          "tokenIdxs": [
+            13
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-an",
+          "wordId": "an7",
+          "surface": "suññāgāragato",
+          "tokenIdxs": [
+            17
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ao",
+          "wordId": "ao2",
+          "surface": "pallaṅkaṁ",
+          "tokenIdxs": [
+            20
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ao",
+          "wordId": "ao4",
+          "surface": "ujuṁ",
+          "tokenIdxs": [
+            24
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ao",
+          "wordId": "ao5",
+          "surface": "kāyaṁ",
+          "tokenIdxs": [
+            23
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ap",
+          "wordId": "ap2",
+          "surface": "satiṁ",
+          "tokenIdxs": [
+            27
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-an",
+          "wordId": "an3",
+          "surface": "bhikkhu",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-an",
+          "wordId": "an5",
+          "surface": "vā",
+          "tokenIdxs": [
+            14
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ao",
+          "wordId": "ao1",
+          "surface": "nisīdati",
+          "tokenIdxs": [
+            19
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ap",
+          "wordId": "ap1",
+          "surface": "parimukhaṁ",
+          "tokenIdxs": [
+            30
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "It’s",
+          "kind": "required"
+        },
+        {
+          "idx": 4,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 5,
+          "token": "a",
+          "kind": "required"
+        },
+        {
+          "idx": 8,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 9,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 10,
+          "token": "root",
+          "kind": "required"
+        },
+        {
+          "idx": 11,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 12,
+          "token": "a",
+          "kind": "required"
+        },
+        {
+          "idx": 15,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 16,
+          "token": "an",
+          "kind": "required"
+        },
+        {
+          "idx": 22,
+          "token": "their",
+          "kind": "required"
+        },
+        {
+          "idx": 25,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 29,
+          "token": "their",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:4.3"
+      ],
+      "phaseIds": [
+        "phase-aq"
+      ],
+      "english": "Just mindful, they breathe in. Mindful, they breathe out.",
+      "tokens": [
+        "Just",
+        "mindful,",
+        "they",
+        "breathe",
+        "in.",
+        "Mindful,",
+        "they",
+        "breathe",
+        "out."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-aq",
+          "wordId": "aq5",
+          "surface": "passasati",
+          "tokenIdxs": [
+            8
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-aq",
+          "wordId": "aq1",
+          "surface": "So",
+          "tokenIdxs": [
+            2,
+            6
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-aq",
+          "wordId": "aq2",
+          "surface": "sato",
+          "tokenIdxs": [
+            1,
+            5
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-aq",
+          "wordId": "aq4",
+          "surface": "assasati",
+          "tokenIdxs": [
+            4,
+            7
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": []
+    },
+    {
+      "segmentIds": [
+        "mn10:4.4"
+      ],
+      "phaseIds": [
+        "phase-ar"
+      ],
+      "english": "Breathing in heavily they know: ‘I’m breathing in heavily.’ Breathing out heavily they know: ‘I’m breathing out heavily.’",
+      "tokens": [
+        "Breathing",
+        "in",
+        "heavily",
+        "they",
+        "know:",
+        "‘I’m",
+        "breathing",
+        "in",
+        "heavily.’",
+        "Breathing",
+        "out",
+        "heavily",
+        "they",
+        "know:",
+        "‘I’m",
+        "breathing",
+        "out",
+        "heavily.’"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-ar",
+          "wordId": "ar1",
+          "surface": "Dīghaṁ",
+          "tokenIdxs": [
+            2
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ar",
+          "wordId": "ar3",
+          "surface": "assasanto",
+          "tokenIdxs": [
+            1
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ar",
+          "wordId": "ar4",
+          "surface": "assasāmī",
+          "tokenIdxs": [
+            6,
+            7
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ar",
+          "wordId": "ar6",
+          "surface": "pajānāti",
+          "tokenIdxs": [
+            4
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ar",
+          "wordId": "ar7",
+          "surface": "dīghaṁ",
+          "tokenIdxs": [
+            11
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ar",
+          "wordId": "ar9",
+          "surface": "passasanto",
+          "tokenIdxs": [
+            10
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ar",
+          "wordId": "ar10",
+          "surface": "passasāmī",
+          "tokenIdxs": [
+            15,
+            16
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ar",
+          "wordId": "ar12",
+          "surface": "pajānāti",
+          "tokenIdxs": [
+            13
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 3,
+          "token": "they",
+          "kind": "required"
+        },
+        {
+          "idx": 12,
+          "token": "they",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:4.5"
+      ],
+      "phaseIds": [
+        "phase-as"
+      ],
+      "english": "When breathing in lightly they know: ‘I’m breathing in lightly.’ Breathing out lightly they know: ‘I’m breathing out lightly.’",
+      "tokens": [
+        "When",
+        "breathing",
+        "in",
+        "lightly",
+        "they",
+        "know:",
+        "‘I’m",
+        "breathing",
+        "in",
+        "lightly.’",
+        "Breathing",
+        "out",
+        "lightly",
+        "they",
+        "know:",
+        "‘I’m",
+        "breathing",
+        "out",
+        "lightly.’"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-as",
+          "wordId": "as1",
+          "surface": "Rassaṁ",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-as",
+          "wordId": "as3",
+          "surface": "assasanto",
+          "tokenIdxs": [
+            1,
+            2
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-as",
+          "wordId": "as4",
+          "surface": "assasāmī",
+          "tokenIdxs": [
+            7,
+            8
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-as",
+          "wordId": "as6",
+          "surface": "pajānāti",
+          "tokenIdxs": [
+            5
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-as",
+          "wordId": "as7",
+          "surface": "rassaṁ",
+          "tokenIdxs": [
+            12
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-as",
+          "wordId": "as9",
+          "surface": "passasanto",
+          "tokenIdxs": [
+            10,
+            11
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-as",
+          "wordId": "as10",
+          "surface": "passasāmī",
+          "tokenIdxs": [
+            16,
+            17
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-as",
+          "wordId": "as12",
+          "surface": "pajānāti",
+          "tokenIdxs": [
+            14
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "When",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:4.6"
+      ],
+      "phaseIds": [
+        "phase-at"
+      ],
+      "english": "They practice like this: ‘I’ll breathe in experiencing the whole body.’ They practice like this: ‘I’ll breathe out experiencing the whole body.’",
+      "tokens": [
+        "They",
+        "practice",
+        "like",
+        "this:",
+        "‘I’ll",
+        "breathe",
+        "in",
+        "experiencing",
+        "the",
+        "whole",
+        "body.’",
+        "They",
+        "practice",
+        "like",
+        "this:",
+        "‘I’ll",
+        "breathe",
+        "out",
+        "experiencing",
+        "the",
+        "whole",
+        "body.’"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-at",
+          "wordId": "at6",
+          "surface": "passasissāmī",
+          "tokenIdxs": [
+            17
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-at",
+          "wordId": "at1",
+          "surface": "'Sabbakāyapaṭisaṁvedī",
+          "tokenIdxs": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-at",
+          "wordId": "at2",
+          "surface": "assasissāmī",
+          "tokenIdxs": [
+            6
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-at",
+          "wordId": "at3",
+          "surface": "'ti",
+          "tokenIdxs": [
+            4
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-at",
+          "wordId": "at4",
+          "surface": "sikkhati",
+          "tokenIdxs": [
+            1,
+            2,
+            3
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-at",
+          "wordId": "at5",
+          "surface": "'sabbakāyapaṭisaṁvedī",
+          "tokenIdxs": [
+            18,
+            19,
+            20,
+            21
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-at",
+          "wordId": "at7",
+          "surface": "'ti",
+          "tokenIdxs": [
+            15
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-at",
+          "wordId": "at8",
+          "surface": "sikkhati",
+          "tokenIdxs": [
+            12,
+            13,
+            14
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "They",
+          "kind": "required"
+        },
+        {
+          "idx": 11,
+          "token": "They",
+          "kind": "required"
+        },
+        {
+          "idx": 16,
+          "token": "breathe",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:4.7"
+      ],
+      "phaseIds": [
+        "phase-au"
+      ],
+      "english": "They practice like this: ‘I’ll breathe in stilling the physical process.’ They practice like this: ‘I’ll breathe out stilling the physical process.’",
+      "tokens": [
+        "They",
+        "practice",
+        "like",
+        "this:",
+        "‘I’ll",
+        "breathe",
+        "in",
+        "stilling",
+        "the",
+        "physical",
+        "process.’",
+        "They",
+        "practice",
+        "like",
+        "this:",
+        "‘I’ll",
+        "breathe",
+        "out",
+        "stilling",
+        "the",
+        "physical",
+        "process.’"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-au",
+          "wordId": "au8",
+          "surface": "passasissāmī",
+          "tokenIdxs": [
+            17
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-au",
+          "wordId": "au1",
+          "surface": "'Passambhayaṁ",
+          "tokenIdxs": [
+            7
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-au",
+          "wordId": "au2",
+          "surface": "kāyasaṅkhāraṁ",
+          "tokenIdxs": [
+            8,
+            9,
+            10
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-au",
+          "wordId": "au3",
+          "surface": "assasissāmī",
+          "tokenIdxs": [
+            5,
+            6
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-au",
+          "wordId": "au4",
+          "surface": "'ti",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-au",
+          "wordId": "au5",
+          "surface": "sikkhati",
+          "tokenIdxs": [
+            0,
+            1,
+            2
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-au",
+          "wordId": "au6",
+          "surface": "'passambhayaṁ",
+          "tokenIdxs": [
+            18
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-au",
+          "wordId": "au7",
+          "surface": "kāyasaṅkhāraṁ",
+          "tokenIdxs": [
+            19,
+            20,
+            21
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-au",
+          "wordId": "au9",
+          "surface": "'ti",
+          "tokenIdxs": [
+            14
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-au",
+          "wordId": "au10",
+          "surface": "sikkhati",
+          "tokenIdxs": [
+            11,
+            12,
+            13
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 15,
+          "token": "‘I’ll",
+          "kind": "required"
+        },
+        {
+          "idx": 16,
+          "token": "breathe",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:4.8"
+      ],
+      "phaseIds": [
+        "phase-av"
+      ],
+      "english": "It’s like a deft carpenter or carpenter’s apprentice. When making a deep cut they know: ‘I’m making a deep cut,’ and when making a shallow cut they know: ‘I’m making a shallow cut.’",
+      "tokens": [
+        "It’s",
+        "like",
+        "a",
+        "deft",
+        "carpenter",
+        "or",
+        "carpenter’s",
+        "apprentice.",
+        "When",
+        "making",
+        "a",
+        "deep",
+        "cut",
+        "they",
+        "know:",
+        "‘I’m",
+        "making",
+        "a",
+        "deep",
+        "cut,’",
+        "and",
+        "when",
+        "making",
+        "a",
+        "shallow",
+        "cut",
+        "they",
+        "know:",
+        "‘I’m",
+        "making",
+        "a",
+        "shallow",
+        "cut.’"
+      ],
+      "links": [
+        {
+          "phaseId": "phase-av",
+          "wordId": "av1",
+          "surface": "Seyyathāpi",
+          "tokenIdxs": [
+            1
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av3",
+          "surface": "dakkho",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av6",
+          "surface": "bhamakārantevāsī",
+          "tokenIdxs": [
+            7
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av4",
+          "surface": "bhamakāro",
+          "tokenIdxs": [
+            4
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av5",
+          "surface": "vā",
+          "tokenIdxs": [
+            5
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av8",
+          "surface": "dīghaṁ",
+          "tokenIdxs": [
+            11
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av10",
+          "surface": "añchanto",
+          "tokenIdxs": [
+            8,
+            9
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av10b",
+          "surface": "'dīghaṁ",
+          "tokenIdxs": [
+            18
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av11",
+          "surface": "añchāmī",
+          "tokenIdxs": [
+            15,
+            16
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av13",
+          "surface": "pajānāti",
+          "tokenIdxs": [
+            13,
+            14
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av14",
+          "surface": "rassaṁ",
+          "tokenIdxs": [
+            24
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av16",
+          "surface": "añchanto",
+          "tokenIdxs": [
+            21,
+            22
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av16b",
+          "surface": "'rassaṁ",
+          "tokenIdxs": [
+            31
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av17",
+          "surface": "añchāmī",
+          "tokenIdxs": [
+            28,
+            29
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-av",
+          "wordId": "av19",
+          "surface": "pajānāti",
+          "tokenIdxs": [
+            26,
+            27
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "It’s",
+          "kind": "required"
+        },
+        {
+          "idx": 2,
+          "token": "a",
+          "kind": "required"
+        },
+        {
+          "idx": 10,
+          "token": "a",
+          "kind": "required"
+        },
+        {
+          "idx": 17,
+          "token": "a",
+          "kind": "required"
+        },
+        {
+          "idx": 23,
+          "token": "a",
+          "kind": "required"
+        },
+        {
+          "idx": 30,
+          "token": "a",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:4.9"
+      ],
+      "phaseIds": [
+        "phase-aw"
+      ],
+      "english": "",
+      "tokens": [],
+      "links": [],
+      "ghosts": []
+    },
+    {
+      "segmentIds": [
+        "mn10:4.10"
+      ],
+      "phaseIds": [
+        "phase-ax"
+      ],
+      "english": "",
+      "tokens": [],
+      "links": [],
+      "ghosts": []
+    },
+    {
+      "segmentIds": [
+        "mn10:5.1"
+      ],
+      "phaseIds": [
+        "phase-ay",
+        "phase-az",
+        "phase-ba"
+      ],
+      "english": "And so they meditate observing an aspect of the body internally, externally, and both internally and externally.",
+      "tokens": [
+        "And",
+        "so",
+        "they",
+        "meditate",
+        "observing",
+        "an",
+        "aspect",
+        "of",
+        "the",
+        "body",
+        "internally,",
+        "externally,",
+        "and",
+        "both",
+        "internally",
+        "and",
+        "externally."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-ba",
+          "wordId": "ba1",
+          "surface": "ajjhattabahiddhā",
+          "tokenIdxs": [
+            13
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-ay",
+          "wordId": "ay1",
+          "surface": "Iti",
+          "tokenIdxs": [
+            0,
+            1
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ay",
+          "wordId": "ay2",
+          "surface": "ajjhattaṁ",
+          "tokenIdxs": [
+            10,
+            14
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ay",
+          "wordId": "ay4",
+          "surface": "kāye",
+          "tokenIdxs": [
+            9
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ay",
+          "wordId": "ay5",
+          "surface": "kāyānupassī",
+          "tokenIdxs": [
+            6
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ay",
+          "wordId": "ay6",
+          "surface": "viharati",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-az",
+          "wordId": "az1",
+          "surface": "bahiddhā",
+          "tokenIdxs": [
+            11,
+            16
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-ba",
+          "wordId": "ba2",
+          "surface": "vā",
+          "tokenIdxs": [
+            15
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 5,
+          "token": "an",
+          "kind": "required"
+        },
+        {
+          "idx": 7,
+          "token": "of",
+          "kind": "required"
+        },
+        {
+          "idx": 8,
+          "token": "the",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:5.2"
+      ],
+      "phaseIds": [
+        "phase-bb",
+        "phase-bc",
+        "phase-bd"
+      ],
+      "english": "They meditate observing the body as liable to originate, as liable to fall, and as liable to both originate and vanish.",
+      "tokens": [
+        "They",
+        "meditate",
+        "observing",
+        "the",
+        "body",
+        "as",
+        "liable",
+        "to",
+        "originate,",
+        "as",
+        "liable",
+        "to",
+        "fall,",
+        "and",
+        "as",
+        "liable",
+        "to",
+        "both",
+        "originate",
+        "and",
+        "vanish."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-bc",
+          "wordId": "bc1",
+          "surface": "vayadhammānupassī",
+          "tokenIdxs": [
+            20
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-bb",
+          "wordId": "bb1",
+          "surface": "samudayadhammānupassī",
+          "tokenIdxs": [
+            6,
+            7,
+            8
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-bb",
+          "wordId": "bb3",
+          "surface": "kāyasmiṁ",
+          "tokenIdxs": [
+            4
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-bb",
+          "wordId": "bb4",
+          "surface": "viharati",
+          "tokenIdxs": [
+            1
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-bd",
+          "wordId": "bd1",
+          "surface": "samudayavayadhammānupassī",
+          "tokenIdxs": [
+            16,
+            17,
+            18
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 0,
+          "token": "They",
+          "kind": "required"
+        },
+        {
+          "idx": 3,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 5,
+          "token": "as",
+          "kind": "required"
+        },
+        {
+          "idx": 9,
+          "token": "as",
+          "kind": "required"
+        },
+        {
+          "idx": 10,
+          "token": "liable",
+          "kind": "required"
+        },
+        {
+          "idx": 11,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 12,
+          "token": "fall,",
+          "kind": "required"
+        },
+        {
+          "idx": 13,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 14,
+          "token": "as",
+          "kind": "required"
+        },
+        {
+          "idx": 19,
+          "token": "and",
+          "kind": "required"
+        }
+      ]
+    },
+    {
+      "segmentIds": [
+        "mn10:5.3"
+      ],
+      "phaseIds": [
+        "phase-be",
+        "phase-bf",
+        "phase-bg"
+      ],
+      "english": "Or mindfulness is established that the body exists, to the extent necessary for knowledge and mindfulness. They meditate independent, not grasping at anything in the world.",
+      "tokens": [
+        "Or",
+        "mindfulness",
+        "is",
+        "established",
+        "that",
+        "the",
+        "body",
+        "exists,",
+        "to",
+        "the",
+        "extent",
+        "necessary",
+        "for",
+        "knowledge",
+        "and",
+        "mindfulness.",
+        "They",
+        "meditate",
+        "independent,",
+        "not",
+        "grasping",
+        "at",
+        "anything",
+        "in",
+        "the",
+        "world."
+      ],
+      "links": [
+        {
+          "phaseId": "phase-be",
+          "wordId": "be2",
+          "surface": "kāyo",
+          "tokenIdxs": [
+            6
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-be",
+          "wordId": "be7",
+          "surface": "paccupaṭṭhitā",
+          "tokenIdxs": [
+            3
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-bf",
+          "wordId": "bf1",
+          "surface": "yāvadeva",
+          "tokenIdxs": [
+            10
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-bf",
+          "wordId": "bf2",
+          "surface": "ñāṇamattāya",
+          "tokenIdxs": [
+            13
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-bg",
+          "wordId": "bg1",
+          "surface": "anissito",
+          "tokenIdxs": [
+            18
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-bg",
+          "wordId": "bg6",
+          "surface": "kiñci",
+          "tokenIdxs": [
+            22
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-bg",
+          "wordId": "bg7",
+          "surface": "loke",
+          "tokenIdxs": [
+            25
+          ],
+          "via": "mechanical"
+        },
+        {
+          "phaseId": "phase-be",
+          "wordId": "be1",
+          "surface": "'Atthi",
+          "tokenIdxs": [
+            7
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-be",
+          "wordId": "be8",
+          "surface": "hoti",
+          "tokenIdxs": [
+            2
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-bg",
+          "wordId": "bg4",
+          "surface": "na",
+          "tokenIdxs": [
+            19
+          ],
+          "via": "curated"
+        },
+        {
+          "phaseId": "phase-bg",
+          "wordId": "bg8",
+          "surface": "upādiyati",
+          "tokenIdxs": [
+            20
+          ],
+          "via": "curated"
+        }
+      ],
+      "ghosts": [
+        {
+          "idx": 5,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 8,
+          "token": "to",
+          "kind": "required"
+        },
+        {
+          "idx": 9,
+          "token": "the",
+          "kind": "required"
+        },
+        {
+          "idx": 11,
+          "token": "necessary",
+          "kind": "interpretive"
+        },
+        {
+          "idx": 12,
+          "token": "for",
+          "kind": "required"
+        },
+        {
+          "idx": 14,
+          "token": "and",
+          "kind": "required"
+        },
+        {
+          "idx": 16,
+          "token": "They",
+          "kind": "required"
+        },
+        {
+          "idx": 21,
+          "token": "at",
+          "kind": "required"
+        },
+        {
+          "idx": 23,
+          "token": "in",
+          "kind": "required"
+        },
+        {
+          "idx": 24,
+          "token": "the",
+          "kind": "required"
+        }
+      ]
+    }
+  ],
+  "_refinedAt": "2026-07-11T03:59:33.185Z"
+}
