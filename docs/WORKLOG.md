@@ -1,3 +1,12 @@
+### [2026-07-11] [Agent: Opus 4.8] — Malayalam studio reader, pilot slice (`/malayalam`)
+**Status:** In progress on `feat/opus-malayalam-reader` (worktree `../LexiconForge.worktrees/opus-malayalam-reader`).
+**What:** First slice of a Malayalam decomposition lens (POLYGLOT.md charter applied to Malayalam): sentence 1 of Aithihyamala ch. 64 (ഊരകത്ത് അമ്മതിരുവടി, ml.wikisource, PUBLIC DOMAIN 1909) hand-curated as `AlignSegment[]` — clause-per-line, sandhi-resolved morpheme pieces with practical romanization under each glyph, English as an `opus-draft` witness rendering (page-level toggle, off by default).
+- `data/malayalam/urakam-ammathiruvadi.ts` — curated segments (design decisions in header).
+- `data/concepts/malayalam.ts` — 4 pilot ConceptNodes (Urakam geography, thiruvadi, kṣetra tatsama, Menon title), all `ungroundedCitation`-flagged pending native review; merged into `lookup.ts` registry (`ALL_CONCEPTS`).
+- `Mlym` font/size in ConceptInterlinear + Noto Serif Malayalam in index.html; route `/malayalam` in App.tsx.
+**Why hand-curated:** UI-first pilot to converge the interface before automating (mlmorph FST + Olam glosses are the planned substrate; see session discussion). Reader is a heritage speaker relearning script — romanization always-on is the point.
+**Next:** native review of glosses; remaining ~30 paragraphs via semi-automated pipeline; Jnanappana verse mode; ISO 15919 facet.
+
 ### [2026-07-01 → 2026-07-03] [Agents: Opus 4.8 / Fable 5] — sutta-studio benchmark + MN117 production arc
 **Status:** All merged to main and deployed. Written retroactively after a codex review flagged the missing WORKLOG entries for this burst (~34 commits over ~45h; data commits separate from code commits).
 **Arc 1 — public leaderboard + fairness overhaul** (`/bench/sutta-studio`):

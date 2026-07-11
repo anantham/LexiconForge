@@ -27,8 +27,9 @@ const FONT: Record<string, string> = {
   Tibt: "'Noto Serif Tibetan', 'Cardo', serif",
   Hant: "'Noto Serif SC', 'Cardo', serif",
   Jpan: "'Noto Serif JP', 'Cardo', serif",
+  Mlym: "'Noto Serif Malayalam', 'Manjari', 'Cardo', serif",
 };
-const SIZE: Record<string, string> = { Latn: '1.7rem', Deva: '1.85rem', Tibt: '2rem', Hant: '2.05rem', Jpan: '2.05rem' };
+const SIZE: Record<string, string> = { Latn: '1.7rem', Deva: '1.85rem', Tibt: '2rem', Hant: '2.05rem', Jpan: '2.05rem', Mlym: '2.1rem' };
 
 const isEnglish = (lang: string) => lang.split('-')[0] === 'en';
 const scriptOf = (lang: string) => lang.split('-')[1] ?? 'Latn';
