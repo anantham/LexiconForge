@@ -48,6 +48,57 @@ Element-by-element verdicts:
 | Witness provenance | named, disclosed | named, disclosed (Weaver 1981 is a real witness — see sourcing below) |
 | Font slider | KEEP | KEEP |
 
+## What is special about Malayalam (the lens's load-bearing facts)
+
+1. **One word is a clause.** Agglutination stacks noun+plural+case+clitic and
+   verb+auxiliary chains into single written words (കണക്കെഴുത്തുമുണ്ടായിരുന്നു
+   = "and he also had the accounts-writing"). Token ≠ unit is the norm, not
+   the exception — the whole AlignSegment many-to-many model earns its keep here.
+2. **The script is assembled, and the akshara is the atomic unit of ink.**
+   Welds (koottaksharam), gemination, chillu finals, and a chandrakkala that is
+   typed but often not drawn. Hover granularity must follow ink (cluster), with
+   typed symbols inspected by drawing them apart (exploded tooltip) — pointing
+   at sub-glyph ink that doesn't exist is false precision.
+3. **Two registers live INSIDE the language.** Sanskrit-borrowed (tatsama,
+   conjuncts intact: ക്ഷേത്രം) vs the Dravidian core (നട, കാവൽ, എഴുത്ത്) —
+   every literary sentence plays them against each other. The register lens is
+   to Malayalam what the cognate bridge is to Italian.
+4. **Grammar the reader won't expect from English:** no articles (English
+   "the/a" are ghost units flowing the other way); possession is dative
+   ("to him there was" = he had); postpositions and SOV order make the
+   alignment threads genuinely informative.
+5. **The letter and the mouth diverge lawfully.** Single unvoiced stops soften
+   after vowels (ട ta → spoken da in തിരുവടി) — name the rule, never leave
+   the glyph/sound mismatch silent. Geminates never soften.
+6. **This reader** (heritage speaker, rusty script): sound line always-on is
+   the point of the instrument; meaning tooltips are support, not the lead.
+
+## What is special about Aithihyamala (the work-lens)
+
+A lens is language × work × reader. This work adds:
+
+1. **It marks its own transmission.** The prose is dense with evidential
+   forms — പറയപ്പെടുന്നു "it is said", കേട്ടുകേൾവി "heard-hearing"
+   (hearsay), അത്രേ "so they say" — a legend collection continuously citing
+   its own epistemics. Surface these as a facet: HOW the legend knows what it
+   claims is the memeplex-transmission data the graphic-novel research wants.
+   (Ch. 64 opens by saying the temple's records were burned and the account
+   rests on the memory of the very old — the frame is load-bearing.)
+2. **Honorific machinery.** Temple-and-court register: തിരു- prefixes,
+   തിരുമനസ്സുകൊണ്ട് ("by the sacred mind" = His Highness), respect-plurals.
+   Kerala's social hierarchy is IN the morphology; glossing it plainly is
+   cultural translation, not grammar.
+3. **Titles are a social map.** Menon, Namboothiri, Bhattathiri, Moosad,
+   Kathanar… each encodes community and role the text assumes. Title concept
+   cards (like `concept.menon`) are first-class, not optional trivia.
+4. **Legends are territorial.** Deities have jurisdictions; place names
+   decompose (ഊരകം = ūru+akam, "village-inside") and geography cards tie
+   legends to walkable places — for this reader, literally a field guide.
+5. **1909 formal prose.** Higher tatsama density and heavier sandhi fusion
+   than modern print, occasional old orthography on Wikisource, dates in the
+   Malayalam era (Kollavarsham — convert to CE in a facet), archaic measures.
+   The Tier-1 converter must expect all of these.
+
 ## What is special about Italian (the lens's load-bearing facts)
 
 1. **Register-inverted cognate web.** Everyday Italian maps to LEARNED English
