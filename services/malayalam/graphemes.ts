@@ -195,7 +195,32 @@ function clusterStory(cluster: string): { assembly: string; note?: string } {
   return { assembly, note: notes.join(' · ') || undefined };
 }
 
-export type EtymFacet = { primary: string; secondary: string };
+export type ClusterPart = { glyph: string; sound: string };
+export type EtymFacet = { primary: string; secondary: string; parts?: ClusterPart[] };
+
+/**
+ * The cluster EXPLODED into its typed symbols, each drawable in isolation —
+ * the per-symbol inspection running text cannot offer (splitting a combining
+ * sequence into DOM spans breaks shaping; ligature parts have no separate
+ * ink). Drawn alone, combining marks get the standard dotted circle — the
+ * script's own way of saying "I attach to something".
+ */
+export function clusterParts(cluster: string): ClusterPart[] {
+  return Array.from(cluster)
+    .filter((c) => kindOf(c) !== 'join')
+    .map((c) => {
+      switch (kindOf(c)) {
+        case 'consonant': return { glyph: c, sound: CONSONANTS[c] };
+        case 'vowel': return { glyph: c, sound: VOWELS[c] };
+        case 'vowel-sign': return { glyph: c, sound: VOWEL_SIGNS[c].sound };
+        case 'virama': return { glyph: c, sound: 'weld' };
+        case 'chillu': return { glyph: c, sound: CHILLUS[c].sound };
+        case 'anusvara': return { glyph: c, sound: 'm' };
+        case 'visarga': return { glyph: c, sound: 'h' };
+        default: return { glyph: c, sound: '' };
+      }
+    });
+}
 
 /** Unvoiced stops that Malayalam speech often softens after a vowel. */
 const SOFTENED: Record<string, string> = { ക: 'ga', ച: 'ja', ട: 'da', ത: 'dha', പ: 'ba' };
@@ -253,6 +278,9 @@ export function clusterTip(cluster: string, afterVowel = false): EtymFacet {
   return {
     primary: single ? story.assembly : `${cluster} = ${story.assembly}`,
     secondary,
+    // Exploded per-symbol view for multi-symbol clusters — the renderer shows
+    // this INSTEAD of the primary text line (same information, drawn not told).
+    parts: single ? undefined : clusterParts(cluster),
   };
 }
 

@@ -42,11 +42,19 @@ const safeId = (s: string) => s.replace(/[^a-zA-Z0-9]/g, '-');
 const C = { ink: '#e2e8f0', match: '#6ee7b7', faint: '#64748b', english: '#94a3b8', sub: '#94a3b8' };
 const READING_LABEL: Record<string, string> = { zh: '中', ja: '日', ko: '한', vi: 'vi' };
 
-const Tooltip: React.FC<{ primary: string; secondary?: string; facetIndex?: number; facetTotal?: number }> = ({
+const Tooltip: React.FC<{
+  primary: string;
+  secondary?: string;
+  facetIndex?: number;
+  facetTotal?: number;
+  /** Exploded per-symbol stacks (Mlym etym mode) — drawn INSTEAD of `primary`. */
+  parts?: { glyph: string; sound: string }[];
+}> = ({
   primary,
   secondary,
   facetIndex,
   facetTotal,
+  parts,
 }) => (
   <motion.span
     initial={{ opacity: 0, y: 4 }}
@@ -66,7 +74,18 @@ const Tooltip: React.FC<{ primary: string; secondary?: string; facetIndex?: numb
       whiteSpace: 'normal',
     }}
   >
-    <span className="block text-[13px] text-slate-100">{primary}</span>
+    {parts ? (
+      <span className="mb-1 flex items-end justify-center gap-3" style={{ fontFamily: FONT.Mlym }}>
+        {parts.map((p, i) => (
+          <span key={i} className="inline-flex flex-col items-center">
+            <span className="text-slate-100" style={{ fontSize: '1.5rem', lineHeight: 1.25 }}>{p.glyph}</span>
+            <span className="text-[10px] italic text-slate-500" style={{ fontFamily: FONT.Latn }}>{p.sound}</span>
+          </span>
+        ))}
+      </span>
+    ) : (
+      <span className="block text-[13px] text-slate-100">{primary}</span>
+    )}
     {secondary && <span className="mt-0.5 block text-[11px] text-slate-500">{secondary}</span>}
     {!!facetTotal && facetTotal > 1 && (
       <span className="mt-1.5 flex items-center justify-center gap-1" aria-hidden>
@@ -441,7 +460,9 @@ const PhraseBlock: React.FC<{
                             >
                               {cl}
                               <AnimatePresence>
-                                {tip?.primary && <Tooltip primary={tip.primary} secondary={tip.secondary} />}
+                                {tip && (tip.parts || tip.primary) && (
+                                  <Tooltip primary={tip.primary} secondary={tip.secondary} parts={tip.parts} />
+                                )}
                               </AnimatePresence>
                             </span>
                           );
