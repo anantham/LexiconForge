@@ -1,3 +1,33 @@
+### [2026-07-11 09:32 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** PR #107 review correction after merging current `main`.
+**Progress:** Kept the verified same-key retry guard and removed the incomplete post-await stale-pointer branch. That branch could preserve numeric pointers only after `ImageGenerationService` had already written the captured version to cache and chapter persistence, leaving the rendered image and durable version metadata inconsistent. This entry supersedes the stale-version protection claim in the 2026-07-08 completion entry; cross-path version reservation remains intentionally deferred to the image-job consolidation PR.
+**Files modified (line numbers + why):**
+- `store/slices/imageSlice.ts:520-530` — remove the misleading stale-pointer branch while retaining normal successful version updates.
+- `tests/store/slices/imageSlice.leak-on-throw.test.ts:125-149` — retain the deferred double-click regression and remove the test that accepted incoherent stale image state.
+- `docs/WORKLOG.md` — record the review correction, evidence, and remaining consolidation scope.
+**Tests:**
+- Focused image tests: 6 passed.
+- `tests/store/slices`: 37 passed.
+- Full Vitest suite: 8,771 passed, 356 skipped.
+- `git diff --check` passed.
+- `npx tsc --noEmit --pretty false` remains blocked only by the pre-existing repo-wide errors in Sutta/liturgy/script files; no changed file appears in the error list.
+**PR:** https://github.com/anantham/LexiconForge/pull/107
+
+### [2026-07-10 18:35 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Correct the review finding on PR #107 without pretending post-await state checks can undo an earlier cache/persistence write.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-image-retry-guard`
+**Branch:** `fix/codex-image-retry-guard`
+**Files likely affected:**
+- `store/slices/imageSlice.ts`
+- `tests/store/slices/imageSlice.leak-on-throw.test.ts`
+- `docs/WORKLOG.md`
+**Hypothesis:** The same-key `isLoading` guard is sufficient for the verified double-click defect. The added stale-pointer branch is incomplete because `ImageGenerationService.retryImage` mutates cache and chapter persistence before returning, so it should be removed rather than advertised as protection. Full pre-await version reservation belongs in the planned image-job consolidation.
+**Predicted tests:** The duplicate retry regression remains green; the removed stale-pointer test no longer encodes an internally inconsistent state as success.
+**Confidence:** 0.95
+**Fallback:** If duplicate calls can still enter the provider, replace the UI-state guard with a dedicated synchronous per-key in-flight registry in the consolidation PR.
+
 ### [2026-07-08 20:22 IST] [Agent: Codex]
 **Status:** Complete
 **Task:** P0.5 image retry double-fire/version race.

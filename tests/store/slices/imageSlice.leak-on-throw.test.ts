@@ -147,26 +147,6 @@ describe('imageSlice — handleRetryImage cleans up isLoading on service throw',
     expect(slice.activeImageVersion[key]).toBe(2);
   });
 
-  it('does not move the version pointer backwards when retry state advanced while awaiting', async () => {
-    const slice = createSlice();
-    const key = 'chapter-1:[ILLUSTRATION-1]';
-    retryImageMock.mockImplementationOnce(async () => {
-      slice.imageVersions[key] = 3;
-      slice.activeImageVersion[key] = 3;
-      return {
-        imageState: { isLoading: false, data: 'late-image-v2', error: null },
-        metrics: { count: 1, totalTime: 2, totalCost: 0.03, lastModel: mockSettings.imageModel },
-      };
-    });
-    slice.imageVersions[key] = 1;
-    slice.activeImageVersion[key] = 1;
-
-    await slice.handleRetryImage('chapter-1', '[ILLUSTRATION-1]');
-
-    expect(retryImageMock).toHaveBeenCalledTimes(1);
-    expect(slice.imageVersions[key]).toBe(3);
-    expect(slice.activeImageVersion[key]).toBe(3);
-  });
 });
 
 describe('imageSlice — handleGenerateImages cleans up isLoading on service throw', () => {

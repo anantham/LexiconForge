@@ -518,19 +518,14 @@ export const createImageSlice: StateCreator<
       };
 
       if (generationSucceeded) {
-        const latestVersion = prevState.imageVersions[key] || 0;
-        if (latestVersion < nextVersion) {
-          updates.imageVersions = {
-            ...prevState.imageVersions,
-            [key]: nextVersion
-          };
-          updates.activeImageVersion = {
-            ...prevState.activeImageVersion,
-            [key]: nextVersion
-          };
-        } else {
-          debugLog('image', 'summary', `[ImageSlice] Retry result for ${key} was stale; latest=${latestVersion}, retry=${nextVersion}`);
-        }
+        updates.imageVersions = {
+          ...prevState.imageVersions,
+          [key]: nextVersion
+        };
+        updates.activeImageVersion = {
+          ...prevState.activeImageVersion,
+          [key]: nextVersion
+        };
       }
 
       return updates;
