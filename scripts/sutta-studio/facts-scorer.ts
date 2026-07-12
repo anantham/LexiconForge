@@ -59,15 +59,24 @@ export const extractRoots = (text: string): Set<string> => {
 
 /** DPD's authoritative root set for a word: √roots from every homonym entry +
  *  the Sanskrit-root bracket in citations ("Sanskrit: bhikṣu [bhikṣ]"). */
+/** English fragments the citation-bracket regex sometimes captures ("[in]",
+ * "[of]") — never legitimate Pāli root stems; they would leniently credit
+ * fabricated roots and pollute probe answer keys. */
+const ROOT_NOISE = new Set(['in', 'of', 'to', 'on', 'or', 'and', 'the', 'is', 'a', 'an', 'at', 'it']);
+
 export const dpdRoots = (entries: LexiconEntry[]): Set<string> => {
   const out = new Set<string>();
+  const add = (stem: string) => {
+    const s = stem.trim();
+    if (s && !ROOT_NOISE.has(s)) out.add(s);
+  };
   for (const e of entries) {
     const raw = (e.rawExcerpt ?? '') + ' ' + (e.senses?.map((s) => s.citation ?? '').join(' ') ?? '');
-    for (const r of extractRoots(raw)) out.add(r);
+    for (const r of extractRoots(raw)) add(r);
     const cite = e.senses?.map((s) => s.citation ?? '').join(' ') ?? '';
     const br = /\[([a-zāīūṁṅñṭḍḷṇṃ√\s]+)\]/gi;
     let m: RegExpExecArray | null;
-    while ((m = br.exec(cite)) !== null) out.add(norm(m[1].replace(/√/g, '')));
+    while ((m = br.exec(cite)) !== null) add(norm(m[1].replace(/√/g, '')));
   }
   return out;
 };
@@ -88,6 +97,10 @@ export type RootBreakdown = FactsBreakdown & {
   dropped: number;
 };
 
+/** One legitimate DPD analysis of an inflected surface form. */
+export type MorphReading = { pos?: string; gender?: string; case?: string; number?: string };
+export type GrammarLookup = (cleanSurface: string) => MorphReading[] | undefined;
+
 export type FactsDetail = {
   /** Micro accuracy: correct/total over all pooled checks. Dominated by
    * whichever category has the most checks — use macro for ranking. */
@@ -99,7 +112,13 @@ export type FactsDetail = {
   total: number;
   root: RootBreakdown;
   pos: FactsBreakdown;
+  /** Morph is a CONSISTENCY check: graded only on words where the model
+   * ASSERTED morph, correct iff the assertion fits some legitimate DPD
+   * reading of that surface (golden hints as fallback authority). The
+   * prompt only exemplifies morph, so omission is not charged here —
+   * morphCoverage makes it visible instead. */
   morph: FactsBreakdown;
+  morphCoverage: { asserted: number; eligible: number };
 };
 
 const wordTooltipBlob = (wordId: string, anat: AnatomistPass): string =>
@@ -108,14 +127,26 @@ const wordTooltipBlob = (wordId: string, anat: AnatomistPass): string =>
     .flatMap((s) => s.tooltips || [])
     .join(' ');
 
-const wordMorphPairs = (wordId: string, anat: AnatomistPass): Set<string> => {
-  const out = new Set<string>();
+const wordMorphMap = (wordId: string, anat: AnatomistPass): Map<string, string> => {
+  const out = new Map<string, string>();
   for (const seg of (anat.segments || []).filter((s) => s.wordId === wordId)) {
     for (const [k, v] of Object.entries(seg.morph || {})) {
-      if (v != null && v !== '') out.add(`${k}=${String(v).toLowerCase()}`);
+      if (v != null && v !== '') out.set(k, String(v).toLowerCase());
     }
   }
   return out;
+};
+
+const cleanSurface = (s: string) => (s || '').toLowerCase().normalize('NFC').replace(/[^a-zāīūṁṃṅñṭḍṇḷ'']/g, '');
+
+/** Model assertions fit a reading when every asserted key either matches the
+ * reading's value or the reading is silent on that key (unknown ≠ wrong). */
+const fitsReading = (asserted: Map<string, string>, reading: MorphReading): boolean => {
+  for (const [k, v] of asserted) {
+    const rv = (reading as Record<string, string | undefined>)[k];
+    if (rv != null && rv !== v) return false;
+  }
+  return true;
 };
 
 /**
@@ -135,13 +166,15 @@ const wordMorphPairs = (wordId: string, anat: AnatomistPass): Set<string> => {
 export function scoreFactsDetail(
   outAnat: AnatomistPass,
   goldAnat: AnatomistPass | null | undefined,
-  dpdLookup?: DpdLookup
+  dpdLookup?: DpdLookup,
+  grammarLookup?: GrammarLookup
 ): FactsDetail | null {
   if (!goldAnat?.words?.length) return null;
   const pairs = new Map(alignWords(goldAnat.words, outAnat.words || []).map(([gi, mi]) => [gi, mi]));
   const root: RootBreakdown = { correct: 0, total: 0, fabricated: 0, silent: 0, dropped: 0 };
   const pos: FactsBreakdown = { correct: 0, total: 0 };
   const morph: FactsBreakdown = { correct: 0, total: 0 };
+  const morphCoverage = { asserted: 0, eligible: 0 };
 
   goldAnat.words.forEach((gw, gi) => {
     if (gw.wordClass !== 'content') return;
@@ -167,13 +200,22 @@ export function scoreFactsDetail(
     pos.total += 1;
     if (mw && mw.wordClass === gw.wordClass) pos.correct += 1;
 
-    // MORPH
-    const goldPairs = wordMorphPairs(gw.id, goldAnat);
-    if (goldPairs.size > 0) {
-      const modelPairs = mw ? wordMorphPairs(mw.id, outAnat) : new Set<string>();
-      for (const pair of goldPairs) {
+    // MORPH — consistency vs the DPD reading set (golden hints as fallback)
+    const dpdReadings = grammarLookup?.(cleanSurface(gw.surface));
+    const goldHint = wordMorphMap(gw.id, goldAnat);
+    const readings: MorphReading[] =
+      dpdReadings && dpdReadings.length
+        ? dpdReadings
+        : goldHint.size
+          ? [Object.fromEntries(goldHint) as MorphReading]
+          : [];
+    if (readings.length > 0 && mw) {
+      morphCoverage.eligible += 1;
+      const asserted = wordMorphMap(mw.id, outAnat);
+      if (asserted.size > 0) {
+        morphCoverage.asserted += 1;
         morph.total += 1;
-        if (modelPairs.has(pair)) morph.correct += 1;
+        if (readings.some((r) => fitsReading(asserted, r))) morph.correct += 1;
       }
     }
   });
@@ -185,7 +227,7 @@ export function scoreFactsDetail(
     .filter((c) => c.total > 0)
     .map((c) => c.correct / c.total);
   const macro = catAccs.length ? catAccs.reduce((a, b) => a + b, 0) / catAccs.length : null;
-  return { accuracy: correct / total, macro, correct, total, root, pos, morph };
+  return { accuracy: correct / total, macro, correct, total, root, pos, morph, morphCoverage };
 }
 
 // ── senses-only fidelity ─────────────────────────────────────────────────────

@@ -58,18 +58,19 @@ const occurrenceKeys = (tokens: string[]): Array<string | null> => {
 
 type WeaverToken = { tokenIndex?: number; text?: string; isGhost?: boolean; linkedPaliId?: string; linkedSegmentId?: string };
 
-export function scoreAlignment(
-  phaseId: string,
+export type AlignScore = { f1: number; precision: number; recall: number; tp: number; fp: number; fn: number };
+
+/** Disk-free core — see scoreAlignment for the fixture-backed entry point. */
+export function scoreAlignmentAgainst(
+  goldenLinks: Array<{ wordId: string; tokenIdxs: number[] }>,
+  goldenTokens: string[],
+  goldAnat: AnatomistPass,
   outAnat: AnatomistPass,
   weaverTokens: WeaverToken[]
-): { f1: number; precision: number; recall: number; tp: number; fp: number; fn: number } | null {
-  const group = groupByPhase.get(phaseId);
-  const goldAnat = anatGolden[phaseId];
-  if (!group || !goldAnat || group.tokens.length === 0) return null; // empty-English groups ungraded
-  const goldenLinks = group.links.filter((l) => l.phaseId === phaseId);
-  if (goldenLinks.length === 0) return null;
+): AlignScore | null {
+  if (goldenTokens.length === 0 || goldenLinks.length === 0) return null;
 
-  const goldenKeys = occurrenceKeys(group.tokens);
+  const goldenKeys = occurrenceKeys(goldenTokens);
   const goldenPairs = new Set<string>();
   const gradedGoldWords = new Set<string>();
   for (const l of goldenLinks) {
@@ -88,9 +89,22 @@ export function scoreAlignment(
     if (mw) modelToGold.set(mw.id, goldAnat.words[gi].id);
   }
 
-  // model english tokens in tokenIndex order → occurrence keys
+  // Model english tokens → occurrence keys. Prefer INDEX-VERIFIED matching:
+  // both sides tokenize the same harness-provided English, so when a model
+  // token's index lands on a golden token with the same folded text, use the
+  // golden key at that index. Fall back to own-list occurrence counting only
+  // when indexes disagree (different tokenization) — a partial model token
+  // list would otherwise shift occurrence numbers and mis-credit repeats.
   const ordered = [...weaverTokens].sort((a, b) => (a.tokenIndex ?? 0) - (b.tokenIndex ?? 0));
-  const modelKeys = occurrenceKeys(ordered.map((t) => t.text || ''));
+  const fallbackKeys = occurrenceKeys(ordered.map((t) => t.text || ''));
+  const modelKeys = ordered.map((t, i) => {
+    const idx = t.tokenIndex;
+    if (Number.isInteger(idx) && idx! >= 0 && idx! < goldenTokens.length) {
+      const gk = goldenKeys[idx!];
+      if (gk && gk.startsWith(`${foldKey(t.text || '')}#`)) return gk;
+    }
+    return fallbackKeys[i];
+  });
 
   let tp = 0;
   let fp = 0;
@@ -122,10 +136,24 @@ export function scoreAlignment(
   };
 }
 
+export function scoreAlignment(phaseId: string, outAnat: AnatomistPass, weaverTokens: WeaverToken[]): AlignScore | null {
+  const group = groupByPhase.get(phaseId);
+  const goldAnat = anatGolden[phaseId];
+  if (!group || !goldAnat) return null;
+  return scoreAlignmentAgainst(
+    group.links.filter((l) => l.phaseId === phaseId),
+    group.tokens,
+    goldAnat,
+    outAnat,
+    weaverTokens
+  );
+}
+
 // ── dry run ──────────────────────────────────────────────────────────────────
 if (process.argv[1]?.endsWith('align-scorer.ts')) {
   const ROOT = 'reports/sutta-studio';
-  const DIRS = ['2026-07-01T10-11-40-333Z', '2026-07-01T17-39-07-313Z'];
+  const argDirs = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+  const DIRS = argDirs.length ? argDirs : ['2026-07-01T10-11-40-333Z', '2026-07-01T17-39-07-313Z'];
   const rows = new Map<string, number[]>();
   const prs = new Map<string, { p: number[]; r: number[] }>();
   for (const d of DIRS) {
