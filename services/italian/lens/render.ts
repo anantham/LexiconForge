@@ -130,3 +130,39 @@ export function isGrounded(facts: ItalianFacts): boolean {
   const facets = renderItalian(facts);
   return facets.length > 0 && !(facets.length === 1 && facets[0].text.toLowerCase() === facts.surface.toLowerCase());
 }
+
+// Common function words an anglophone doesn't already own — kept short for the
+// interlinear gloss line (content words get their gloss from Wiktionary senses).
+const FUNCTION_GLOSS: Record<string, string> = {
+  di: 'of', a: 'to', da: 'from', in: 'in', con: 'with', su: 'on', per: 'for',
+  tra: 'among', fra: 'among', e: 'and', ma: 'but', o: 'or', né: 'nor',
+  che: 'that/which', chi: 'who', non: 'not', se: 'if', come: 'as/like',
+  più: 'more', meno: 'less', molto: 'very', poco: 'little', anche: 'also',
+  ancora: 'still', già: 'already', sempre: 'always', mai: 'never', qui: 'here',
+  là: 'there', lì: 'there', ora: 'now', poi: 'then', quando: 'when', dove: 'where',
+  mentre: 'while', perché: 'because', così: 'so', dopo: 'after', prima: 'before',
+  senza: 'without', sotto: 'under', sopra: 'above', dentro: 'inside', fuori: 'outside',
+  il: 'the', lo: 'the', la: 'the', i: 'the', gli: 'the', le: 'the', un: 'a', uno: 'a', una: 'a',
+  mi: 'me', ti: 'you', si: '-self', ci: 'us', vi: 'you', ne: 'of-it',
+  questo: 'this', quello: 'that', ogni: 'every', tutto: 'all', altro: 'other',
+};
+
+// A SHORT gloss for the interlinear line under each word. Meaning first, terse.
+export function glossWord(facts: ItalianFacts): string {
+  const lemma = (facts.lemma || facts.surface).toLowerCase();
+  const f = parseMorph(facts.morph);
+  if ((facts.upos === 'ADP' || facts.upos === 'DET') && lemma.includes(' ')) {
+    return lemma.split(' ').map((p) => PREP[p] || FUNCTION_GLOSS[p] || p).join(' ');
+  }
+  const s = (facts.senses || [])[0];
+  if (s) {
+    const g = s.replace(/^to /, '').split(/[;,(]/)[0].trim();
+    // for a verb, prefix the person so the ending is legible ("you stay")
+    if ((facts.upos === 'VERB' || facts.upos === 'AUX') && f.Person && f.Number && f.Mood !== 'Imp' && f.VerbForm === 'Fin') {
+      const subj = SUBJECT[f.Person + f.Number];
+      if (subj) return `${subj} ${g}`;
+    }
+    return g;
+  }
+  return FUNCTION_GLOSS[lemma] || '';
+}

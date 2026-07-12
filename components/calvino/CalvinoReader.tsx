@@ -1,26 +1,35 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { motion, LayoutGroup } from 'framer-motion';
 import { renderItalian, type LensFacet } from '../../services/italian/lens/render';
 
 /**
  * Source-grounded bilingual reader for Calvino's *Se una notte d'inverno un
- * viaggiatore*: the Italian original foregrounded; every content word hover-to-
- * reveal / click-to-cycle its lens copy — MEANING, who-acts, cognate anchor,
- * false-friend warning, word-building — with Weaver's English as the witness.
+ * viaggiatore*.
  *
- * The tooltip copy comes from services/italian/lens (the render(facts,lens)
- * layer), NOT the raw spaCy/Wiktionary facts. See docs/reader/LENSES.md.
+ * The reading unit is the SENTENCE, not the word: Weaver's English maps
+ * phrase-to-phrase but not word-to-word ("per … a" -> "about to"), so a sentence
+ * pair can carry his real prose against the Italian instead of a pidgin gloss.
+ * Pairs are aligned by a Gale-Church length model + a lexical anchor from the
+ * Italian words' glosses (build_reader_payload.py) — deterministic, no LLM.
+ *
+ * A mode toggle swaps which language leads: the other slides beneath it, smaller
+ * and dimmer. Every Italian word still carries the lens tooltip (meaning, who-acts,
+ * cognate, false friend) — see services/italian/lens + docs/reader/LENSES.md.
  */
 
 const SERIF = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
+const EASE = [0.4, 0, 0.2, 1] as const;
 
 type Tok = { s: string; ws?: boolean; pbr?: boolean; l?: string; p?: string; m?: string; g?: string[] };
-type Block = { it: Tok[][]; en: string[] };
+type Pair = { it: Tok[]; en: string };
+type Block = { pairs: Pair[] };
 type Unit = { n: number; id: string; title: string; blocks: Block[] };
 type Payload = { work: string; witness: string; hasGlosses: boolean; units: Unit[] };
+type Mode = 'it' | 'en';
 
 const CONTENT_POS = new Set(['NOUN', 'VERB', 'ADJ', 'ADV', 'PROPN', 'AUX']);
 
-function Word({ t }: { t: Tok }) {
+function Word({ t, dim }: { t: Tok; dim: boolean }) {
   const facets: LensFacet[] = useMemo(
     () => renderItalian({ surface: t.s, lemma: t.l, upos: t.p, morph: t.m, senses: t.g }),
     [t],
@@ -29,8 +38,6 @@ function Word({ t }: { t: Tok }) {
   const [over, setOver] = useState(false);
   const trailing = t.ws === false ? '' : ' ';
 
-  // A word earns a tooltip only if it's a content word (or a fused preposition)
-  // AND the lens produced something beyond the surface itself.
   const fused = !!(t.l && t.l.includes(' '));
   const meaningful = facets.length > 1 || (facets[0] && facets[0].text.toLowerCase() !== t.s.toLowerCase());
   const hoverable = !!t.l && (CONTENT_POS.has(t.p || '') || fused) && meaningful;
@@ -47,14 +54,14 @@ function Word({ t }: { t: Tok }) {
         style={{ cursor: facets.length > 1 ? 'pointer' : 'help' }}
         onMouseEnter={() => { setOver(true); setI(0); }}
         onMouseLeave={() => setOver(false)}
-        onClick={() => facets.length > 1 && setI((n) => (n + 1) % facets.length)}
+        onClick={(e) => { e.stopPropagation(); if (facets.length > 1) setI((n) => (n + 1) % facets.length); }}
       >
         <span
           style={{
             color: over ? (warn ? '#fbbf24' : '#6ee7b7') : 'inherit',
             borderBottom: over
               ? `1px solid ${warn ? '#fbbf24' : '#6ee7b7'}`
-              : '1px dotted rgba(4,120,87,0.45)',
+              : `1px dotted rgba(4,120,87,${dim ? 0.25 : 0.45})`,
             transition: 'color .12s',
           }}
         >
@@ -69,15 +76,14 @@ function Word({ t }: { t: Tok }) {
               border: `1px solid ${warn ? 'rgba(251,191,36,0.5)' : '#1e293b'}`, borderRadius: 6,
               padding: '7px 12px', boxShadow: '0 10px 30px rgba(0,0,0,.55)',
               fontFamily: 'system-ui, -apple-system, sans-serif', textAlign: 'center',
+              fontStyle: 'normal', opacity: 1,
             }}
           >
             <span className="block" style={{ fontSize: 14.5, lineHeight: 1.35, color: warn ? '#fde68a' : '#f1f5f9' }}>
               {warn ? '⚠ ' : ''}{cur.text}
             </span>
             {cur.note && (
-              <span className="block" style={{ fontSize: 11, marginTop: 2, letterSpacing: '.02em', color: '#64748b' }}>
-                {cur.note}
-              </span>
+              <span className="block" style={{ fontSize: 11, marginTop: 2, color: '#64748b' }}>{cur.note}</span>
             )}
             {facets.length > 1 && (
               <span className="flex gap-1 mt-1.5 justify-center">
@@ -94,6 +100,59 @@ function Word({ t }: { t: Tok }) {
   );
 }
 
+/** One aligned sentence pair. The lead language sits on top, full size; the other
+ *  slides beneath it, smaller and dimmer. Toggling `mode` animates the swap. */
+function SentencePair({ pair, mode }: { pair: Pair; mode: Mode }) {
+  const itLead = mode === 'it';
+  const lines: Mode[] = itLead ? ['it', 'en'] : ['en', 'it'];
+  const tr = { layout: { duration: 0.5, ease: EASE } };
+
+  return (
+    <div style={{ marginBottom: '0.85em' }}>
+      {lines.map((which) =>
+        which === 'it' ? (
+          <motion.p
+            key="it"
+            layout
+            transition={tr}
+            style={{
+              fontFamily: SERIF, margin: '0 0 .12em',
+              fontSize: itLead ? 20 : 14,
+              lineHeight: itLead ? 1.75 : 1.6,
+              color: itLead ? '#e2e8f0' : '#64748b',
+              opacity: itLead ? 1 : 0.75,
+              paddingLeft: itLead ? 0 : 14,
+              borderLeft: itLead ? 'none' : '2px solid #1e293b',
+              transition: 'font-size .5s cubic-bezier(.4,0,.2,1), color .5s, opacity .5s, padding-left .5s',
+            }}
+          >
+            {pair.it.map((t, k) => <Word key={k} t={t} dim={!itLead} />)}
+          </motion.p>
+        ) : (
+          <motion.p
+            key="en"
+            layout
+            transition={tr}
+            style={{
+              fontFamily: SERIF, margin: '0 0 .12em',
+              fontSize: itLead ? 14 : 19,
+              lineHeight: itLead ? 1.6 : 1.75,
+              color: itLead ? '#64748b' : '#e2e8f0',
+              opacity: itLead ? 0.75 : 1,
+              fontStyle: itLead ? 'italic' : 'normal',
+              paddingLeft: itLead ? 14 : 0,
+              borderLeft: itLead ? '2px solid #1e293b' : 'none',
+              transition: 'font-size .5s cubic-bezier(.4,0,.2,1), color .5s, opacity .5s, padding-left .5s',
+            }}
+          >
+            {pair.en}
+          </motion.p>
+        ),
+      )}
+    </div>
+  );
+}
+
 function navigate(path: string) {
   window.history.pushState({}, '', path);
   window.dispatchEvent(new PopStateEvent('popstate'));
@@ -101,7 +160,7 @@ function navigate(path: string) {
 
 export function CalvinoReader({ pathname }: { pathname: string }) {
   const [payload, setPayload] = useState<Payload | null>(null);
-  const [showEn, setShowEn] = useState(true);
+  const [mode, setMode] = useState<Mode>('it');
 
   useEffect(() => {
     let live = true;
@@ -119,6 +178,7 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight' && idx < 22) go(idx + 1);
       if (e.key === 'ArrowLeft' && idx > 1) go(idx - 1);
+      if (e.key.toLowerCase() === 'm') setMode((v) => (v === 'it' ? 'en' : 'it'));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -134,6 +194,20 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
 
   const unit = payload.units[idx - 1];
 
+  const seg = (m: Mode, label: string) => (
+    <button
+      onClick={() => setMode(m)}
+      style={{
+        background: mode === m ? 'rgba(52,211,153,.14)' : 'transparent',
+        border: 'none', cursor: 'pointer', padding: '3px 12px', borderRadius: 4,
+        fontSize: 12, letterSpacing: '.04em',
+        color: mode === m ? '#6ee7b7' : '#64748b', transition: 'all .25s',
+      }}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <div style={shell}>
       <div style={col}>
@@ -143,39 +217,33 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
         </div>
 
         <div style={{ textAlign: 'center', marginBottom: 8, color: '#475569', fontSize: 12, letterSpacing: '.08em', textTransform: 'uppercase' }}>
-          Unit {unit.n} of 22 · Italian source · Weaver English
+          Unit {unit.n} of 22 · sentence-aligned · {payload.witness}
         </div>
-        <h1 style={{ fontFamily: SERIF, textAlign: 'center', fontSize: 26, color: '#f1f5f9', marginBottom: 6 }}>
+        <h1 style={{ fontFamily: SERIF, textAlign: 'center', fontSize: 26, color: '#f1f5f9', marginBottom: 14 }}>
           {unit.title}
         </h1>
-        <div className="flex items-center justify-center" style={{ gap: 16, marginBottom: 34 }}>
-          <span style={{ color: '#475569', fontSize: 12 }}>hover a word · click to cycle facets</span>
-          <button
-            onClick={() => setShowEn((v) => !v)}
-            style={{ ...link, background: 'none', border: `1px solid ${showEn ? 'rgba(52,211,153,.4)' : '#334155'}`, borderRadius: 5, padding: '2px 9px', fontSize: 12, color: showEn ? 'rgba(52,211,153,.85)' : '#64748b' }}
-          >
-            {showEn ? '✓ ' : ''}Weaver English
-          </button>
+
+        <div className="flex items-center justify-center" style={{ gap: 4, marginBottom: 6 }}>
+          <div style={{ display: 'inline-flex', gap: 2, border: '1px solid #1e293b', borderRadius: 6, padding: 2 }}>
+            {seg('it', 'Italiano')}
+            {seg('en', 'English')}
+          </div>
+        </div>
+        <div style={{ textAlign: 'center', color: '#334155', fontSize: 11, marginBottom: 30 }}>
+          press <b style={{ color: '#475569' }}>m</b> to swap · hover any Italian word
         </div>
 
-        <div style={{ marginBottom: 40 }}>
-          {unit.blocks.map((b, bi) => (
-            <div key={bi} style={{ marginBottom: '1.5em' }}>
-              {b.it.map((para, pi) => (
-                <p key={pi} style={{ fontFamily: SERIF, fontSize: 20, lineHeight: 1.85, color: '#e2e8f0', margin: '0 0 .25em' }}>
-                  {para.map((t, k) => <Word key={k} t={t} />)}
-                </p>
-              ))}
-              {showEn && b.en.map((para, pi) => (
-                <p key={pi} style={{ fontFamily: SERIF, fontSize: 15, lineHeight: 1.65, fontStyle: 'italic', color: '#64748b', margin: '.2em 0 0', paddingLeft: 14, borderLeft: '2px solid #1e293b' }}>
-                  {para}
-                </p>
-              ))}
-            </div>
-          ))}
-        </div>
+        <LayoutGroup>
+          <div>
+            {unit.blocks.map((b, bi) => (
+              <div key={bi} style={{ marginBottom: '1.5em' }}>
+                {b.pairs.map((p, pi) => <SentencePair key={pi} pair={p} mode={mode} />)}
+              </div>
+            ))}
+          </div>
+        </LayoutGroup>
 
-        <div className="flex items-center justify-between" style={{ borderTop: '1px solid #1e293b', paddingTop: 20 }}>
+        <div className="flex items-center justify-between" style={{ borderTop: '1px solid #1e293b', paddingTop: 20, marginTop: 40 }}>
           <span style={idx > 1 ? link : { ...link, color: '#1e293b', cursor: 'default' }} onClick={() => idx > 1 && go(idx - 1)}>← previous</span>
           <span style={{ color: '#334155', fontSize: 12 }}>{unit.n} / 22</span>
           <span style={idx < 22 ? link : { ...link, color: '#1e293b', cursor: 'default' }} onClick={() => idx < 22 && go(idx + 1)}>next →</span>
