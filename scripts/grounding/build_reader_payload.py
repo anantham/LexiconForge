@@ -404,6 +404,30 @@ def main():
             last = blocks[-1]["pairs"][-1]
             last["en"] = (last["en"] + " " + pending_en).strip()
 
+        # ---- per-pair alignment CONFIDENCE (deterministic) ----
+        # The heuristic has a real ceiling on literary translation. Rather than hide the
+        # residual, score it: a pair whose Italian glosses find NO support in its own
+        # English (or whose length is wildly off) is marked, so the reader is told the
+        # pairing is uncertain instead of being quietly shown the wrong sentence.
+        allp = [pr for b in blocks for pr in b["pairs"]]
+        li = [sum(len(t["s"]) for t in pr["it"]) for pr in allp]
+        le = [len(pr["en"]) for pr in allp]
+        cratio = (sum(le) or 1) / (sum(li) or 1)
+        for k, pr in enumerate(allp):
+            ib = _it_bag(pr["it"])
+            eb = set(_words(pr["en"]))
+            z = 0.0
+            if li[k] >= 20:
+                z = abs((le[k] - li[k] * cratio) / math.sqrt(max(li[k], 1) * _S2))
+            if ib and eb:
+                lex = len(ib & eb) / max(1, min(len(ib), len(eb)))
+                if lex == 0 or z > 4:
+                    pr["conf"] = "low"
+                elif lex < 0.12:
+                    pr["conf"] = "mid"
+            elif z > 4:
+                pr["conf"] = "low"
+
         units.append({
             "n": ch["chapterNumber"],
             "id": uid,

@@ -21,7 +21,10 @@ const SERIF = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
 const EASE = [0.4, 0, 0.2, 1] as const;
 
 type Tok = { s: string; ws?: boolean; pbr?: boolean; l?: string; p?: string; m?: string; g?: string[] };
-type Pair = { it: Tok[]; en: string };
+/** `conf` is the deterministic alignment confidence. Length + gloss-bag alignment has a
+ *  real ceiling on literary translation, so a weakly-evidenced pairing is MARKED rather
+ *  than silently presented as fact. See scripts/grounding/validate_alignment.py. */
+type Pair = { it: Tok[]; en: string; conf?: 'low' | 'mid'; refined?: boolean };
 type Block = { pairs: Pair[] };
 type Unit = { n: number; id: string; title: string; blocks: Block[] };
 type Payload = { work: string; witness: string; hasGlosses: boolean; units: Unit[] };
@@ -106,6 +109,12 @@ function SentencePair({ pair, mode }: { pair: Pair; mode: Mode }) {
   const itLead = mode === 'it';
   const lines: Mode[] = itLead ? ['it', 'en'] : ['en', 'it'];
   const tr = { layout: { duration: 0.5, ease: EASE } };
+  // Weak alignment evidence -> a DOTTED rule instead of a solid one. Understated on
+  // purpose: many low-evidence pairs are still correct (Weaver paraphrases freely), so
+  // this informs without crying wolf.
+  const weak = pair.conf === 'low';
+  const rule = weak ? '2px dotted #713f12' : '2px solid #1e293b';
+  const weakTitle = weak ? 'alignment evidence is weak here — this pairing may be off' : undefined;
 
   return (
     <div style={{ marginBottom: '0.85em' }}>
@@ -122,7 +131,7 @@ function SentencePair({ pair, mode }: { pair: Pair; mode: Mode }) {
               color: itLead ? '#e2e8f0' : '#64748b',
               opacity: itLead ? 1 : 0.75,
               paddingLeft: itLead ? 0 : 14,
-              borderLeft: itLead ? 'none' : '2px solid #1e293b',
+              borderLeft: itLead ? 'none' : rule,
               transition: 'font-size .5s cubic-bezier(.4,0,.2,1), color .5s, opacity .5s, padding-left .5s',
             }}
           >
@@ -132,6 +141,7 @@ function SentencePair({ pair, mode }: { pair: Pair; mode: Mode }) {
           <motion.p
             key="en"
             layout
+            title={weakTitle}
             transition={tr}
             style={{
               fontFamily: SERIF, margin: '0 0 .12em',
@@ -141,7 +151,7 @@ function SentencePair({ pair, mode }: { pair: Pair; mode: Mode }) {
               opacity: itLead ? 0.75 : 1,
               fontStyle: itLead ? 'italic' : 'normal',
               paddingLeft: itLead ? 14 : 0,
-              borderLeft: itLead ? '2px solid #1e293b' : 'none',
+              borderLeft: itLead ? rule : 'none',
               transition: 'font-size .5s cubic-bezier(.4,0,.2,1), color .5s, opacity .5s, padding-left .5s',
             }}
           >
