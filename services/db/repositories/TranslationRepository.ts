@@ -127,8 +127,13 @@ export class TranslationRepository implements ITranslationRepository {
       const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
       const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
       const request = store.put(record);
-      request.onsuccess = () => resolve();
+      // Durability (P0.1): settle from the TRANSACTION, not the request —
+      // request.onsuccess fires before the commit, which can still abort
+      // (QuotaExceededError on a large translation being the canonical case).
       request.onerror = () => reject(request.error);
+      transaction.oncomplete = () => resolve();
+      transaction.onabort = () =>
+        reject(transaction.error ?? new Error('Translation write rolled back (transaction aborted before commit)'));
     });
   }
 
@@ -143,16 +148,17 @@ export class TranslationRepository implements ITranslationRepository {
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
       const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
-      let remaining = updates.length;
 
+      // Durability (P0.1): oncomplete fires only after EVERY request in the
+      // transaction has committed, which also replaces the old per-request
+      // countdown (that resolved on in-memory success, before the commit).
       updates.forEach(update => {
         const request = store.put(update);
-        request.onsuccess = () => {
-          remaining -= 1;
-          if (remaining === 0) resolve();
-        };
         request.onerror = () => reject(request.error);
       });
+      transaction.oncomplete = () => resolve();
+      transaction.onabort = () =>
+        reject(transaction.error ?? new Error('Translation deactivation rolled back (transaction aborted before commit)'));
     });
   }
 
