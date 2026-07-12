@@ -50,6 +50,7 @@ def main():
     ap.add_argument("--grounded", required=True)
     ap.add_argument("--max-unanchored", type=float, default=0.25)
     ap.add_argument("--max-outliers", type=float, default=0.05)
+    ap.add_argument("--max-drift", type=float, default=0.005)
     args = ap.parse_args()
 
     payload = json.load(open(args.payload, encoding="utf-8"))
@@ -58,6 +59,8 @@ def main():
 
     errors, warns = [], []
     tot_pairs = unanchored = outliers = 0
+    refined_pairs = unanchored_refined = 0
+    drift = []
     gran = []
 
     for u in payload["units"]:
@@ -84,18 +87,60 @@ def main():
             errors.append(f"[I2] unit {un}: English not conserved "
                           f"(witness={len(src_w)} words, pairs={len(got_w)}, lost={lost})")
 
+        # ---- I5: NEIGHBOUR-LEXICAL-DOMINANCE (the local-correspondence check) ----
+        # Global conservation (I1/I2) cannot see a pair-i/pair-i+1 content SWAP: the flat
+        # concatenation is unchanged. This is the direct mechanical signature of drift —
+        # the Italian's glosses match the NEXT pair's English better than their own.
+        for i in range(len(pairs) - 1):
+            ib = it_bag(pairs[i]["it"])
+            own = set(words(pairs[i]["en"]))
+            nxt = set(words(pairs[i + 1]["en"]))
+            if not ib or not own or not nxt:
+                continue
+            if len(ib & nxt) > len(ib & own):
+                drift.append((un, i))
+
+        # ---- I6: orphaned swallow (empty English, then an oversized neighbour) ----
+        for i in range(len(pairs) - 1):
+            if pairs[i]["en"].strip():
+                continue
+            if pairs[i]["it"] and len(pairs[i + 1]["en"]) > 2.5 * max(
+                    sum(len(t["s"]) for t in pairs[i + 1]["it"]), 1):
+                errors.append(f"[I6] unit {un} pair {i}: empty English followed by an oversized neighbour "
+                              f"(dropout-then-dump signature)")
+
+        last_in_block = set()
+        k = 0
+        for b in u["blocks"]:
+            k += len(b["pairs"])
+            if b["pairs"]:
+                last_in_block.add(k - 1)
+
         for i, p in enumerate(pairs):
             tot_pairs += 1
+            if p.get("refined"):
+                refined_pairs += 1
             # ---- I3 ----
             if not p["it"]:
                 errors.append(f"[I3] unit {un} pair {i}: empty Italian side")
                 continue
+            # ---- I8: a NON-refined, NON-block-final pair must not end at a ; : seam.
+            # A paragraph may legitimately END on ';' (Calvino writes semicolon-separated
+            # LIST items, each its own paragraph) — that is the real text, not a fake
+            # boundary. Only a ';'-ending fragment with MORE text still to come inside the
+            # same paragraph is a missed glue.
+            if (not p.get("refined") and i not in last_in_block
+                    and p["it"][-1]["s"] in (";", ":", "\u2014", "\u2013")):
+                errors.append(f"[I8] unit {un} pair {i}: mid-paragraph pair ends at a '{p['it'][-1]['s']}' seam "
+                              f"(fake sentence boundary not glued)")
             it_text = "".join(t["s"] + (" " if t.get("ws", True) else "") for t in p["it"]).strip()
             gran.append(len(it_text))
             # ---- Q1: lexical anchor ----
             ib, eb = it_bag(p["it"]), set(words(p["en"]))
             if ib and eb and not (ib & eb):
                 unanchored += 1
+                if p.get("refined"):
+                    unanchored_refined += 1
 
         # ---- Q2: length outliers (per unit ratio) ----
         li = [sum(len(t["s"]) for t in p["it"]) for p in pairs]
@@ -119,6 +164,15 @@ def main():
     print(f"[Q1] unanchored pairs (no gloss<->english word overlap): {unanchored} ({ua:.1%})  "
           f"threshold {args.max_unanchored:.0%}")
     print(f"[Q2] length outliers (|z|>4): {outliers} ({ol:.1%})  threshold {args.max_outliers:.0%}")
+    ur = unanchored_refined / refined_pairs if refined_pairs else 0
+    print(f"[I7] clause-refined pairs: {refined_pairs}; of those unanchored: {unanchored_refined} ({ur:.1%})")
+    dr = len(drift) / tot_pairs if tot_pairs else 0
+    print(f"[I5] neighbour-dominant (drift signature): {len(drift)} ({dr:.2%})  threshold {args.max_drift:.2%}")
+    if drift[:10]:
+        print("     e.g. " + ", ".join(f"u{u}p{i}" for u, i in drift[:10]))
+    if dr > args.max_drift:
+        errors.append(f"[I5] {len(drift)} pairs ({dr:.2%}) whose Italian matches the NEXT pair's English better "
+                      f"than their own — drift; threshold {args.max_drift:.2%}")
 
     if ua > args.max_unanchored:
         warns.append(f"[Q1] unanchored {ua:.1%} exceeds {args.max_unanchored:.0%}")

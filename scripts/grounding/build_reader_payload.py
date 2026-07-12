@@ -17,13 +17,27 @@ import argparse, glob, json, math, os, re
 _SENT_RE = re.compile(r'(?<=[.!?…])["\'”»\)\]]*\s+(?=[A-Z"“«\'(—])')
 
 
+_ABBR_TAIL = re.compile(r"\b(?:Mr|Mrs|Ms|Dr|St|Mme|Mlle|Prof|Sig|etc|vs)\.$", re.I)
+
+
 def split_sentences(text):
-    return [p.strip() for p in _SENT_RE.split(text or "") if p.strip()]
+    """Sentence split that does NOT fire on a title abbreviation's period ("Mr.")."""
+    out = []
+    for p in _SENT_RE.split(text or ""):
+        p = p.strip()
+        if not p:
+            continue
+        if out and _ABBR_TAIL.search(out[-1]):
+            out[-1] = (out[-1] + " " + p).strip()
+        else:
+            out.append(p)
+    return out
 
 
 _PRIORS = {(1, 1): 0.89, (1, 0): 0.0099, (0, 1): 0.0099,
            (2, 1): 0.089, (1, 2): 0.089, (2, 2): 0.011,
-           (1, 3): 0.004, (3, 1): 0.004}
+           (1, 3): 0.004, (3, 1): 0.004,
+           (1, 4): 0.0015, (4, 1): 0.0015, (2, 3): 0.0015, (3, 2): 0.0015}
 _S2 = 6.8  # Gale & Church's char-length variance
 
 
@@ -146,16 +160,37 @@ def align_sentences(it_sents, en_sents, lex_weight=8.0):
     return beads
 
 
+_TERM = (".", "!", "?", "…")
+_CLOSERS = set(")]»”\"'")
+
+
+def _ends_sentence(sent_toks):
+    """True only if this run really ends a sentence (terminal punctuation),
+    ignoring trailing quotes/brackets. A run ending in ; : - does NOT."""
+    for t in reversed(sent_toks):
+        srf = t["s"].strip()
+        if not srf or srf[-1] in _CLOSERS:
+            continue
+        return srf.endswith(_TERM)
+    return False
+
+
 _STRONG = {";", ":", "—", "–"}
 _STRONG_RE = re.compile(r'(?<=[;:—–])\s+')
 
 
 def _clause_tokens(tokens):
-    """Split a token run into clauses at STRONG internal punctuation."""
-    out, cur = [], []
+    """Split a token run into clauses at STRONG internal punctuation - but NOT inside
+    a parenthetical, whose own ; : must not count as a clause seam."""
+    out, cur, depth = [], [], 0
     for t in tokens:
         cur.append(t)
-        if t["s"] in _STRONG:
+        srf = t["s"]
+        if srf in "([":
+            depth += 1
+        elif srf in ")]":
+            depth = max(0, depth - 1)
+        elif srf in _STRONG and depth == 0:
             out.append(cur); cur = []
     if cur:
         out.append(cur)
@@ -163,20 +198,37 @@ def _clause_tokens(tokens):
 
 
 def _clause_texts(text):
-    return [p.strip() for p in _STRONG_RE.split(text or "") if p.strip()]
+    out, cur, depth = [], "", 0
+    for ch in (text or ""):
+        cur += ch
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth = max(0, depth - 1)
+        elif ch in _STRONG and depth == 0:
+            out.append(cur); cur = ""
+    if cur.strip():
+        out.append(cur)
+    return [p.strip() for p in out if p.strip()]
 
 
 def refine_pair(it_toks, en_text):
-    """Shortest RELIABLE phrase: if both sides break into the same number of clauses
-    at strong punctuation (; : —), pair them 1:1 — translators preserve these seams.
-    If the counts disagree, the evidence doesn't support a finer split, so keep the
-    sentence intact rather than inventing a false correspondence."""
+    """Shortest RELIABLE phrase. A matching clause COUNT is NOT evidence of matching
+    clause ORDER - a translator routinely keeps the count while moving which content
+    sits on each side of the seam. So after a count match, require that EVERY clause
+    pair shares at least one word between the Italian glosses and the English words
+    (when both bags are non-empty). If any clause fails, the evidence does not support
+    the split: back off to the whole sentence - coarser, but honest."""
     if not en_text:
         return [{"it": it_toks, "en": en_text}]
     ic = _clause_tokens(it_toks)
     ec = _clause_texts(en_text)
     if len(ic) > 1 and len(ic) == len(ec):
-        return [{"it": a, "en": b} for a, b in zip(ic, ec)]
+        for a, b in zip(ic, ec):
+            ib, eb = _it_bag(a), set(_words(b))
+            if ib and eb and not (ib & eb):
+                return [{"it": it_toks, "en": en_text}]  # count matched, evidence did not
+        return [{"it": a, "en": b, "refined": True} for a, b in zip(ic, ec)]
     return [{"it": it_toks, "en": en_text}]
 
 
@@ -254,10 +306,10 @@ def main():
         if cur:
             it_paras.append(cur)
         en_paras = [p.strip() for p in (english[uid] or "").split("\n\n") if p.strip()]
-        beads = align_paragraphs(
-            [sum(len(t["s"]) for t in p) for p in it_paras],
-            [len(p) for p in en_paras],
-        )
+        # Paragraph alignment ALSO gets the lexical anchor: a paragraph misaligned on
+        # length alone cascades into every sentence inside it (the worst failure class).
+        # align_sentences takes exactly this shape (token-lists vs strings).
+        beads = align_sentences(it_paras, en_paras)
 
         blocks = []
         pending_en = ""  # English with no Italian counterpart — carried, NEVER dropped
@@ -275,6 +327,16 @@ def main():
                 curs.append(t); last_si = t.get("si")
             if curs:
                 it_sents.append(curs)
+            # spaCy splits Calvino's ;/:-chained sentences into fake "sentences" whose
+            # last real token is ; or : - Weaver's single English sentence cannot match
+            # them, forcing the DP into a wrong local optimum that cascades. Glue them.
+            merged = []
+            for sgrp in it_sents:
+                if merged and not _ends_sentence(merged[-1]):
+                    merged[-1].extend(sgrp)
+                else:
+                    merged.append(sgrp)
+            it_sents = merged
             en_sents = split_sentences(en_text)
             if not en_sents:
                 pairs = [{"it": s, "en": ""} for s in it_sents]
@@ -297,7 +359,10 @@ def main():
                 if pending_en:
                     en_txt = (pending_en + " " + en_txt).strip()
                     pending_en = ""
-                pairs.extend(refine_pair([t for s in it_sents[i0:i1] for t in s], en_txt))
+                shape = [i1 - i0, j1 - j0]
+                for pr in refine_pair([t for s in it_sents[i0:i1] for t in s], en_txt):
+                    pr["beadShape"] = shape
+                    pairs.append(pr)
             blocks.append({"pairs": pairs})
         if pending_en and blocks and blocks[-1]["pairs"]:
             last = blocks[-1]["pairs"][-1]
