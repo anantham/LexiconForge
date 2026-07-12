@@ -1,0 +1,31 @@
+{
+  "workId": "collodi-pinocchio",
+  "title": "Le avventure di Pinocchio: Storia di un burattino",
+  "titleEn": "The Adventures of Pinocchio",
+  "author": "Carlo Collodi",
+  "publicDomain": true,
+  "source": {
+    "lang": "it",
+    "epub": "import/pinocchio/pinocchio_it_52484.epub",
+    "provenance": "Project Gutenberg #52484 (public domain)"
+  },
+  "witnesses": [
+    {
+      "lang": "en",
+      "label": "PG #16865 (attr. M. A. Murray)",
+      "translator": "uncredited in PG metadata; commonly attributed to Mary Alice Murray (1892)",
+      "epub": "import/pinocchio/pinocchio_en_murray_16865.epub",
+      "provenance": "Project Gutenberg #16865, 'Pinocchio: The Tale of a Puppet' (public domain in the USA)"
+    }
+  ],
+  "alignment": {
+    "unitCount": 36,
+    "scheme": "36 chapters, 1:1 across editions (no interleaved structures)",
+    "notes": "VERIFIED 2026-07-12: the Italian EPUB extracts 37 chunks (intro + 36 chapters) with the fixed adapter. The ENGLISH EPUB extracts only 6 chunks — Gutenberg packs MULTIPLE CHAPTERS PER XHTML FILE, so ingest needs within-file chapter splitting (split at chapter headings, e.g. <h2>/CHAPTER anchors) before the 1:1 pairing. That within-file split is the one remaining ingest gap; alignment itself should be trivial (clean 1:1 chapter structure, unlike Calvino's interleaved frames/incipits)."
+  },
+  "grounding": {
+    "sourceSubstrate": "it",
+    "llmPedagogyPass": false
+  },
+  "distribution": "PUBLIC — both texts public domain; unlike Calvino, this book's data (session, grounded JSON, payload) MAY be committed, so the full completeness/alignment gate can run in CI."
+}
