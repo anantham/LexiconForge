@@ -146,6 +146,40 @@ def align_sentences(it_sents, en_sents, lex_weight=8.0):
     return beads
 
 
+_STRONG = {";", ":", "—", "–"}
+_STRONG_RE = re.compile(r'(?<=[;:—–])\s+')
+
+
+def _clause_tokens(tokens):
+    """Split a token run into clauses at STRONG internal punctuation."""
+    out, cur = [], []
+    for t in tokens:
+        cur.append(t)
+        if t["s"] in _STRONG:
+            out.append(cur); cur = []
+    if cur:
+        out.append(cur)
+    return [c for c in out if any(x["s"].strip(" ,.") for x in c)]
+
+
+def _clause_texts(text):
+    return [p.strip() for p in _STRONG_RE.split(text or "") if p.strip()]
+
+
+def refine_pair(it_toks, en_text):
+    """Shortest RELIABLE phrase: if both sides break into the same number of clauses
+    at strong punctuation (; : —), pair them 1:1 — translators preserve these seams.
+    If the counts disagree, the evidence doesn't support a finer split, so keep the
+    sentence intact rather than inventing a false correspondence."""
+    if not en_text:
+        return [{"it": it_toks, "en": en_text}]
+    ic = _clause_tokens(it_toks)
+    ec = _clause_texts(en_text)
+    if len(ic) > 1 and len(ic) == len(ec):
+        return [{"it": a, "en": b} for a, b in zip(ic, ec)]
+    return [{"it": it_toks, "en": en_text}]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--session", required=True)
@@ -226,8 +260,13 @@ def main():
         )
 
         blocks = []
+        pending_en = ""  # English with no Italian counterpart — carried, NEVER dropped
         for (a, b, c, d) in beads:
             bead_toks = [t for p in it_paras[a:b] for t in p]
+            en_text = " ".join(en_paras[c:d])
+            if not bead_toks:
+                pending_en = (pending_en + " " + en_text).strip()
+                continue
             # regroup this bead's tokens into sentences (spaCy boundaries, via si)
             it_sents, curs, last_si = [], [], None
             for t in bead_toks:
@@ -236,19 +275,33 @@ def main():
                 curs.append(t); last_si = t.get("si")
             if curs:
                 it_sents.append(curs)
-            en_sents = split_sentences(" ".join(en_paras[c:d]))
-            if not it_sents:
-                continue
+            en_sents = split_sentences(en_text)
             if not en_sents:
-                blocks.append({"pairs": [{"it": s, "en": ""} for s in it_sents]})
+                pairs = [{"it": s, "en": ""} for s in it_sents]
+                if pending_en and pairs:
+                    pairs[0]["en"] = pending_en
+                    pending_en = ""
+                blocks.append({"pairs": pairs})
                 continue
             sb = align_sentences(it_sents, en_sents)
-            pairs = [
-                {"it": [t for s in it_sents[i0:i1] for t in s], "en": " ".join(en_sents[j0:j1])}
-                for (i0, i1, j0, j1) in sb
-                if i1 > i0
-            ]
+            pairs = []
+            for (i0, i1, j0, j1) in sb:
+                en_txt = " ".join(en_sents[j0:j1])
+                if i1 <= i0:
+                    if en_txt:
+                        if pairs:
+                            pairs[-1]["en"] = (pairs[-1]["en"] + " " + en_txt).strip()
+                        else:
+                            pending_en = (pending_en + " " + en_txt).strip()
+                    continue
+                if pending_en:
+                    en_txt = (pending_en + " " + en_txt).strip()
+                    pending_en = ""
+                pairs.extend(refine_pair([t for s in it_sents[i0:i1] for t in s], en_txt))
             blocks.append({"pairs": pairs})
+        if pending_en and blocks and blocks[-1]["pairs"]:
+            last = blocks[-1]["pairs"][-1]
+            last["en"] = (last["en"] + " " + pending_en).strip()
 
         units.append({
             "n": ch["chapterNumber"],
