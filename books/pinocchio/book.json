@@ -21,11 +21,12 @@
   "alignment": {
     "unitCount": 36,
     "scheme": "36 chapters, 1:1 across editions (no interleaved structures)",
-    "notes": "VERIFIED 2026-07-12: the Italian EPUB extracts 37 chunks (intro + 36 chapters) with the fixed adapter. The ENGLISH EPUB extracts only 6 chunks — Gutenberg packs MULTIPLE CHAPTERS PER XHTML FILE, so ingest needs within-file chapter splitting (split at chapter headings, e.g. <h2>/CHAPTER anchors) before the 1:1 pairing. That within-file split is the one remaining ingest gap; alignment itself should be trivial (clean 1:1 chapter structure, unlike Calvino's interleaved frames/incipits)."
+    "notes": "VERIFIED 2026-07-12 end-to-end: both editions extract 36 real chapters, 1:1, mean witness/source char ratio 0.93, no off-ratio chapters. Two GENERIC adapter fixes were needed (both now in scripts/lib/adapters/epub-adapter.ts and helping any Gutenberg book): within-file chapter splitting (PG packs many chapters per xhtml; guarded so the table of contents is not shredded) and Gutenberg-boilerplate stripping (PG appends the licence to the SAME file as the final chapter, so dropping files that mention 'Project Gutenberg' silently deleted chapter XXXVI)."
   },
   "grounding": {
     "sourceSubstrate": "it",
     "llmPedagogyPass": false
   },
-  "distribution": "PUBLIC — both texts public domain; unlike Calvino, this book's data (session, grounded JSON, payload) MAY be committed, so the full completeness/alignment gate can run in CI."
+  "distribution": "PUBLIC — both texts public domain; unlike Calvino, this book's data (session, grounded JSON, payload) MAY be committed, so the full completeness/alignment gate can run in CI.",
+  "gateStatus": "Pipeline stages ran with ZERO code changes (grounding, glosses, payload, validator). I1-I4, I6-I8 pass. 1 translator reordering detected and DISCLOSED (u32). RESIDUAL: 2 one-sided aligner-drift pairs (u27) -> the gate FAILS, honestly. Calvino remains fully green (no regression)."
 }

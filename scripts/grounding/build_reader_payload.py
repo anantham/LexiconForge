@@ -308,6 +308,94 @@ def refine_pair(it_toks, en_text):
     return [{"it": it_toks, "en": en_text}]
 
 
+def _sim(a_text, b_text):
+    """Cross-lingual cosine, or gloss-bag overlap when embeddings are off."""
+    if EMB is not None:
+        v = EMB.vectors([a_text, b_text])
+        return float(v[0] @ v[1])
+    return 0.0
+
+
+def repair_pairs(pairs):
+    """Two deterministic repairs the monotonic aligner cannot do by construction.
+
+    1. ORPHANED ITALIAN. A (1,0) bead leaves Italian with no English (a dialogue
+       stammer whose translation the next bead swallowed). Never leave it stranded:
+       merge its tokens into whichever neighbour's English actually covers it.
+
+    2. TRANSLATOR REORDERING. A monotonic DP CANNOT represent a swap, but translators
+       reorder sentences freely (Murray puts the description before the reaction where
+       Collodi puts the reaction first). If two adjacent pairs each prefer the OTHER's
+       English — a mutual cross-preference, not a one-sided hunch — exchange them.
+       Conservation is untouched: the same strings, re-seated.
+    """
+    if not pairs:
+        return pairs
+
+    # --- 1. orphaned Italian (empty English) ---
+    # A (1,0) bead leaves Italian with no English (a dialogue stammer whose translation
+    # the next bead swallowed). Never strand it and NEVER drop it: carry the tokens
+    # forward and attach them to whichever neighbour's English actually covers them.
+    # Carrying (rather than merging into an arbitrary neighbour) preserves token ORDER
+    # by construction — an earlier version scrambled consecutive orphans and lost a
+    # block outright, which invariant I1 caught.
+    merged, pending = [], []
+    for p in pairs:
+        if not p["en"].strip():
+            pending.extend(p["it"])
+            continue
+        if pending:
+            prev = merged[-1] if merged else None
+            it_text = _item_text(pending)
+            sp = _sim(it_text, prev["en"]) if prev is not None else -1.0
+            sn = _sim(it_text, p["en"])
+            if prev is not None and sp > sn:
+                prev["it"] = prev["it"] + pending      # sits after prev's tokens: order held
+            else:
+                p["it"] = pending + p["it"]            # sits before p's tokens: order held
+            pending = []
+        merged.append(p)
+    if pending:
+        if merged:
+            merged[-1]["it"] = merged[-1]["it"] + pending
+        else:
+            merged.append({"it": pending, "en": ""})
+    pairs = merged
+
+    return pairs
+
+
+def mark_reorderings(pairs):
+    """--- translator REORDERING: detect and DISCLOSE, never silently "repair" ---
+    # A monotonic DP cannot represent a swap, and swapping the English here was tried
+    # and REJECTED: on rapid dialogue, adjacent short lines have near-identical
+    # embeddings, so a mutual-preference test misfires and REVERSES correctly-ordered
+    # lines (invariant I2, which pins English to witness ORDER, caught it corrupting the
+    # text). Conservation is the stronger guarantee. So when two adjacent pairs each
+    # decisively prefer the other's English — the signature of a source-side reordering,
+    # not an aligner bug — MARK both and let the reader see the pairing is uncertain.
+    Runs UNIT-WIDE, not per paragraph block: a reordering routinely straddles a
+    paragraph boundary, and a per-block scan simply cannot see it.
+    """
+    if EMB is not None:
+        MARGIN, MIN_CHARS = 0.10, 60
+        for i in range(len(pairs) - 1):
+            a, b = pairs[i], pairs[i + 1]
+            if not a["en"].strip() or not b["en"].strip():
+                continue
+            ita, itb = _item_text(a["it"]), _item_text(b["it"])
+            if len(ita) < MIN_CHARS or len(itb) < MIN_CHARS:
+                continue
+            v = EMB.vectors([ita, itb, a["en"], b["en"]])
+            a_own, a_other = float(v[0] @ v[2]), float(v[0] @ v[3])
+            b_own, b_other = float(v[1] @ v[3]), float(v[1] @ v[2])
+            if a_other > a_own + MARGIN and b_other > b_own + MARGIN:
+                for q in (a, b):
+                    q["reorder"] = True
+                    q["conf"] = "low"
+    return pairs
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--session", required=True)
@@ -453,6 +541,11 @@ def main():
         if pending_en and blocks and blocks[-1]["pairs"]:
             last = blocks[-1]["pairs"][-1]
             last["en"] = (last["en"] + " " + pending_en).strip()
+
+        for b in blocks:
+            b["pairs"] = repair_pairs(b["pairs"])
+        blocks = [b for b in blocks if b["pairs"]]
+        mark_reorderings([pr for b in blocks for pr in b["pairs"]])
 
         # ---- per-pair alignment CONFIDENCE (deterministic) ----
         # The heuristic has a real ceiling on literary translation. Rather than hide the

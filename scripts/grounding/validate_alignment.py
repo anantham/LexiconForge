@@ -61,6 +61,7 @@ def main():
     tot_pairs = unanchored = outliers = 0
     refined_pairs = unanchored_refined = 0
     drift = []
+    reordered = []
     gran = []
 
     for u in payload["units"]:
@@ -111,7 +112,14 @@ def main():
             # diagnostic signal is: NO support for its own English, and clearly more for
             # the next. Everything else is noise, and thresholding noise hides real bugs.
             if own_n == 0 and nxt_n - own_n >= 2:
-                drift.append((un, i))
+                # A pair flagged `reorder` is a TRANSLATOR reordering (mutual
+                # cross-preference), which a monotonic aligner cannot fix and which is
+                # disclosed to the reader as low-confidence. That is a source property,
+                # not an aligner bug — report it, do not fail the build on it.
+                if pairs[i].get("reorder"):
+                    reordered.append((un, i))
+                else:
+                    drift.append((un, i))
 
         # ---- I6: orphaned swallow (empty English, then an oversized neighbour) ----
         for i in range(len(pairs) - 1):
@@ -179,6 +187,7 @@ def main():
     print(f"[Q2] length outliers (|z|>4): {outliers} ({ol:.1%})  threshold {args.max_outliers:.0%}")
     ur = unanchored_refined / refined_pairs if refined_pairs else 0
     print(f"[I7] clause-refined pairs: {refined_pairs}; of those unanchored: {unanchored_refined} ({ur:.1%})")
+    print(f"[I5r] translator reorderings (disclosed, not failed): {len(reordered)}")
     dr = len(drift) / tot_pairs if tot_pairs else 0
     print(f"[I5] neighbour-dominant (drift signature): {len(drift)} ({dr:.2%})  threshold {args.max_drift:.2%}")
     if drift[:10]:
