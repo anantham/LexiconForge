@@ -28,19 +28,30 @@ type Side = {
   /** rendered Pāli words / canonical words — catches silent word-dropping
    * (a model can be locally faithful while omitting most of the text). */
   wordCoverage: number | null;
+  /** share of phases that fell back to raw text because the model CALL failed
+   * (truncated output, connection error) — an infrastructure interaction, not
+   * model ability; without this the coverage chip blames the model for it. */
+  degradedShare: number | null;
+  degradedCount: number;
+  phaseCount: number;
 };
 
 const stripToLetters = (s: string): string =>
   (s || '').normalize('NFC').toLowerCase().replace(/[^a-zāīūṁṃṅñṭḍṇḷ]/g, '');
 
-const measurePacket = (packet: DeepLoomPacket): { surfaceIntegrity: number | null; wordCoverage: number | null } => {
+const measurePacket = (
+  packet: DeepLoomPacket
+): { surfaceIntegrity: number | null; wordCoverage: number | null; degradedShare: number | null; degradedCount: number; phaseCount: number } => {
+  const phaseCount = (packet.phases || []).length;
+  const degradedCount = (packet.phases || []).filter((ph) => ph.degraded).length;
+  const degradedShare = phaseCount > 0 ? degradedCount / phaseCount : null;
   const segments = packet.canonicalSegments || [];
   const canonWords = segments.flatMap((s) => splitPaliTokens(s.pali || ''));
   // Exact-token membership (letters-only), mirroring the packet validator's
   // surface check — substring-of-the-whole-text would let corruptions ride on
   // other words or across word boundaries.
   const canonTokens = new Set(canonWords.map(stripToLetters).filter(Boolean));
-  if (canonTokens.size === 0) return { surfaceIntegrity: null, wordCoverage: null };
+  if (canonTokens.size === 0) return { surfaceIntegrity: null, wordCoverage: null, degradedShare, degradedCount, phaseCount };
   let total = 0;
   let ok = 0;
   for (const phase of packet.phases || []) {
@@ -54,6 +65,9 @@ const measurePacket = (packet: DeepLoomPacket): { surfaceIntegrity: number | nul
   return {
     surfaceIntegrity: total === 0 ? null : ok / total,
     wordCoverage: canonWords.length === 0 ? null : Math.min(1, total / canonWords.length),
+    degradedShare,
+    degradedCount,
+    phaseCount,
   };
 };
 
@@ -68,7 +82,7 @@ const labelFromUrl = (url: string): string => {
 };
 
 const useSide = (url: string): Side => {
-  const empty = { packet: null, error: null, surfaceIntegrity: null, wordCoverage: null };
+  const empty = { packet: null, error: null, surfaceIntegrity: null, wordCoverage: null, degradedShare: null, degradedCount: 0, phaseCount: 0 };
   const [side, setSide] = useState<Side>({ url, label: labelFromUrl(url), ...empty });
 
   useEffect(() => {
@@ -150,6 +164,14 @@ export function SuttaStudioCompareView() {
             title="Share of rendered Pāli words whose morpheme segments concatenate to an exact word of the canonical text. Measured in your browser against the packet's own canonical segments — no reference answer involved."
           >
             surface integrity {(side.surfaceIntegrity * 100).toFixed(1)}%
+          </span>
+        )}
+        {side.degradedShare != null && side.degradedCount > 0 && (
+          <span
+            className="mt-2 rounded-full bg-slate-900/95 border border-amber-700 px-3 py-1 text-xs text-amber-300 shadow-lg"
+            title={`${side.degradedCount} of ${side.phaseCount} phases fell back to raw un-analyzed text because the model's call FAILED (truncated output, connection error) — an infrastructure interaction, not model ability alone. The coverage and integrity numbers include these phases; judge this side with that in mind.`}
+          >
+            ⚠ {side.degradedCount}/{side.phaseCount} phases degraded
           </span>
         )}
       </div>
