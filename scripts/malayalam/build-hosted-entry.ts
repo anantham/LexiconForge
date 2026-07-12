@@ -95,7 +95,23 @@ const chapter = {
   nextUrl: null,
   prevUrl: null,
   chapterNumber: 64,
-  translations: [] as unknown[],
+  // The book SHIPS with its translation — model it as an ACTIVE translation
+  // version, not an empty slot. Otherwise every keyless visitor lands in
+  // 'english' view with hasTranslation:false, the visit-triggered
+  // auto-translate fires, and the site's trial-key path 401s at them.
+  translations: [
+    {
+      translatedTitle: 'The Ammathiruvadi of Urakam',
+      translation: fanTranslation,
+      footnotes: [] as unknown[],
+      suggestedIllustrations: [] as unknown[],
+      provider: 'Claude',
+      model: 'claude-opus-4-8',
+      isActive: true,
+      customVersionLabel: 'Opus draft (unreviewed)',
+      systemPrompt: '',
+    },
+  ],
 };
 
 const session = {
