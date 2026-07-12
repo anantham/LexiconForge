@@ -1,0 +1,1757 @@
+[
+  {
+    "group": 1,
+    "type": "skeptic-rejected",
+    "wordId": "a1",
+    "idx": 0,
+    "reason": "'evaṁ' (thus) does not correspond to 'So'; the demonstrative 'so' is implicit in the standard opening formula and is not supplied by 'evaṁ'.",
+    "action": "dropped"
+  },
+  {
+    "group": 1,
+    "type": "skeptic-rejected",
+    "wordId": "a2",
+    "idx": 1,
+    "reason": "'me' is the enclitic 'by me' indicating the agent of hearing; it does not align with the subject pronoun 'I'.",
+    "action": "dropped"
+  },
+  {
+    "group": 1,
+    "type": "skeptic-suggests-missing",
+    "wordId": "a3",
+    "tokenIdx": 2,
+    "reason": "'sutaṁ' (heard) is the past participle supplying the passive 'have heard'; the English auxiliary 'have' is required by the perfect construction and is missing from the alignment.",
+    "action": "logged only"
+  },
+  {
+    "group": 1,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      0,
+      1
+    ],
+    "tokens": [
+      "So",
+      "I"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 2,
+    "type": "skeptic-rejected",
+    "wordId": "c1",
+    "idx": 9,
+    "reason": "kurūsu is the locative plural of the proper name Kuru, meaning 'among the Kurus'; it does not mean 'land' and should align only to the 'Kurus' token, not to both 'land' and 'Kurus,'.",
+    "action": "dropped"
+  },
+  {
+    "group": 2,
+    "type": "skeptic-rejected",
+    "wordId": "d3",
+    "idx": 15,
+    "reason": "kurūnaṁ is the genitive plural of Kuru, meaning 'of the Kurus'; it does not correspond to the singular adjective 'Kuru' which modifies 'town'.",
+    "action": "dropped"
+  },
+  {
+    "group": 2,
+    "type": "skeptic-suggests-missing",
+    "wordId": "b4",
+    "tokenIdx": 3,
+    "reason": "The definite article 'the' before 'Buddha' has no explicit Pāli counterpart but is supplied by context; the alignment should note that bhagavā is rendered as 'the Buddha'.",
+    "action": "logged only"
+  },
+  {
+    "group": 2,
+    "type": "skeptic-suggests-missing",
+    "wordId": "c3",
+    "tokenIdx": 7,
+    "reason": "The locative construction (kurūsu ... nigamo) indicates location and is rendered by the English prepositional phrase 'in the land of the Kurus, near the Kuru town'; no single Pāli word is aligned to 'in'.",
+    "action": "logged only"
+  },
+  {
+    "group": 2,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      9,
+      15
+    ],
+    "tokens": [
+      "land",
+      "Kuru"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 3,
+    "type": "skeptic-suggests-missing",
+    "wordId": "e1",
+    "tokenIdx": 1,
+    "reason": "'tatra' ('there') is dictionary-linked only to token 0, but in this idiomatic opening, it commonly absorbs or aligns with the following article 'the' (token 1) in natural English rendering by Sujato.",
+    "action": "logged only"
+  },
+  {
+    "group": 5,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "g1",
+    "tokenIdx": 0,
+    "reason": "'Bhadante' is a vocative form of address meaning 'venerable sir' or 'O venerable one'; it is not correctly aligned solely to 'Venerable' as the full English phrase 'Venerable sir' (tokens 0 and 1) translates it.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 5,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "g3",
+    "tokenIdx": 2,
+    "reason": "'te' is the plural pronoun 'they' but is not the subject of the verb here; the subject is implicit in the verb ending, and 'te' functions more as a particle or redundant pronoun in this formulaic reply, making the dictionary link imprecise.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 5,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "g6",
+    "tokenIdx": 3,
+    "reason": "'paccassosuṁ' is the aorist 3rd plural of paṭi+ā+√su, meaning 'they replied' or 'they assented'; it cannot be isolated to the single token 'replied.' without accounting for the full verb phrase and the period.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 5,
+    "type": "skeptic-suggests-missing",
+    "wordId": "g4",
+    "tokenIdx": 1,
+    "reason": "'bhikkhū' (vocative plural, 'monks' or 'bhikkhus') is the addressee implied in the English 'sir' (part of the vocative address), but is left unlinked.",
+    "action": "logged only"
+  },
+  {
+    "group": 5,
+    "type": "skeptic-suggests-missing",
+    "wordId": "g5",
+    "tokenIdx": 0,
+    "reason": "'bhagavato' is the genitive 'of the Blessed One' or 'to the Blessed One', indicating whose speech is being replied to; this is implicit in the context of the English but unlinked.",
+    "action": "logged only"
+  },
+  {
+    "group": 6,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "h2",
+    "tokenIdx": 3,
+    "reason": "'etad' (this) is the direct object of 'avoca' and should align to the English object 'this', but the proposal links it to the punctuation-inclusive token 'this:' which is a mistranslation of the particle's role; the colon is not part of the word.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 6,
+    "type": "skeptic-suggests-missing",
+    "wordId": "h1",
+    "tokenIdx": 0,
+    "reason": "'Bhagavā' (nominative subject) is rendered by the compound 'The Buddha', but the proposal only links to 'Buddha' and leaves the determiner 'The' unaligned.",
+    "action": "logged only"
+  },
+  {
+    "group": 7,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "p7",
+    "tokenIdx": 25,
+    "reason": "sokaparidevānaṁ (sorrow and lamentation) is mistranslated and misaligned to only \"crying,\"; it properly corresponds to \"sorrow and crying,\" (tokens 23 and 25), with the following dukkhadomanassānaṁ covering \"pain and sadness\"",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 7,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "p9",
+    "tokenIdx": 31,
+    "reason": "dukkhadomanassānaṁ (pain and displeasure/sadness) is mistranslated and misaligned to only \"pain\"; it properly corresponds to \"pain and sadness\" (tokens 31 and 33)",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 7,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "p11",
+    "tokenIdx": 37,
+    "reason": "ñāyassa (of the method/way) is mistranslated as \"system\" and misaligned; in this context it refers to the Noble Eightfold Path (the \"path\" already given for maggo), not a separate \"system\" to be discovered",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 7,
+    "type": "skeptic-rejected",
+    "wordId": "p1",
+    "idx": 11,
+    "reason": "Ekāyano (the direct/only way) is mistranslated as \"convergence\" (a rendering of samatikkama or atthaṅgama sense) and misaligned; it qualifies the path as \"the direct way\" or \"the one-way path\"",
+    "action": "dropped"
+  },
+  {
+    "group": 7,
+    "type": "skeptic-rejected",
+    "wordId": "p2",
+    "idx": 8,
+    "reason": "ayaṁ (this) is misaligned to the generic \"the\"; it refers specifically to the path just mentioned and should align nearer to the demonstrative sense in the opening clause",
+    "action": "dropped"
+  },
+  {
+    "group": 7,
+    "type": "skeptic-rejected",
+    "wordId": "p15",
+    "idx": 12,
+    "reason": "yadidaṁ (that is to say, namely) is a specifier introducing the list of purposes; it cannot correspond to \"They are\" which renders the separate sentence about the four satipaṭṭhānā",
+    "action": "dropped"
+  },
+  {
+    "group": 7,
+    "type": "skeptic-suggests-missing",
+    "wordId": "p3",
+    "tokenIdx": 0,
+    "reason": "Bhikkhave (vocative \"monks/mendicants\") is listed but the alignment is marked only as dictionary; however the English opening \"Mendicants,\" is its direct equivalent and should be recognized as correctly aligned",
+    "action": "logged only"
+  },
+  {
+    "group": 7,
+    "type": "skeptic-suggests-missing",
+    "wordId": "p4",
+    "tokenIdx": 9,
+    "reason": "maggo (the path) is aligned only to \"path\" but the English has \"the path to convergence\" where the full phrase also absorbs the sense of Ekāyano; the link is incomplete without noting the compound structure",
+    "action": "logged only"
+  },
+  {
+    "group": 7,
+    "type": "skeptic-suggests-missing",
+    "wordId": "p16",
+    "tokenIdx": 2,
+    "reason": "cattāro (four) is aligned only to the isolated \"four\" but the English \"the four kinds of mindfulness meditation\" distributes the numeral across a larger noun phrase; the link is too narrow",
+    "action": "logged only"
+  },
+  {
+    "group": 7,
+    "type": "skeptic-suggests-missing",
+    "wordId": "p17",
+    "tokenIdx": 5,
+    "reason": "satipaṭṭhānā (establishments of mindfulness) is aligned only to \"mindfulness\" but the English expands it to the full \"four kinds of mindfulness meditation\"; the link is incomplete",
+    "action": "logged only"
+  },
+  {
+    "group": 7,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      8,
+      11,
+      12
+    ],
+    "tokens": [
+      "the",
+      "convergence.",
+      "They"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 8,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "x2",
+    "tokenIdx": 1,
+    "reason": "'cattāro' (nominative plural of catu, 'four') is aligned to the question mark, but the question mark is English punctuation, not a translation of the numeral; the actual English rendering of 'cattāro' is the word 'four'.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 9,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "z2",
+    "tokenIdx": 6,
+    "reason": "kāyānupassī means 'observing the body' or 'body-observer', not simply 'observing'; the link ignores the kāya- component already covered separately by other words.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 9,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "ab3",
+    "tokenIdx": 17,
+    "reason": "abhijjhādomanassaṁ is a compound meaning 'covetousness and displeasure'; linking only to 'covetousness' leaves 'displeasure' (domanassa) unaccounted for and splits the compound incorrectly.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 9,
+    "type": "skeptic-rejected",
+    "wordId": "z1",
+    "idx": 8,
+    "reason": "kāye means 'in the body'; linking it to 'aspect of the body—keen,' incorrectly bundles the locative with the following adjective ātāpī and misaligns the sense of 'aspect' which belongs to anupassī.",
+    "action": "dropped"
+  },
+  {
+    "group": 9,
+    "type": "token-already-claimed",
+    "wordId": "aa1",
+    "idx": 11,
+    "action": "dropped"
+  },
+  {
+    "group": 9,
+    "type": "skeptic-suggests-missing",
+    "wordId": "z3",
+    "tokenIdx": 5,
+    "reason": "viharati means 'dwells, abides, lives' and is the main verb corresponding to the English 'meditates' in this context; the current link of viharati solely to 'meditates' at token 4 is retained but the proposal fails to account for the idiomatic rendering of the full phrase 'kāye viharati' as 'meditates by observing an aspect of the body', leaving the structural 'by' and integration of 'observing' mismatched.",
+    "action": "logged only"
+  },
+  {
+    "group": 9,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      8
+    ],
+    "tokens": [
+      "aspect"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 10,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "ac2",
+    "tokenIdx": 2,
+    "reason": "vedanānupassī is the compound \"observing feelings\" (or \"one who contemplates feelings\"); the token \"observing\" alone is too incomplete for this major structural term.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 10,
+    "type": "skeptic-rejected",
+    "wordId": "ac1",
+    "idx": 3,
+    "reason": "vedanāsu means \"in/among feelings\" (locative plural); it does not include or justify the tokens \"an aspect of\" which belong to vedanānupassī.",
+    "action": "dropped"
+  },
+  {
+    "group": 10,
+    "type": "skeptic-rejected",
+    "wordId": "ac3",
+    "idx": 1,
+    "reason": "viharati means \"dwells/abides/remains\"; it does not mean \"meditate\" (that sense is carried by the overall satipaṭṭhāna idiom and by ātāpī).",
+    "action": "dropped"
+  },
+  {
+    "group": 10,
+    "type": "token-already-claimed",
+    "wordId": "ad1",
+    "idx": 6,
+    "action": "dropped"
+  },
+  {
+    "group": 10,
+    "type": "skeptic-suggests-missing",
+    "wordId": "vedanānupassī",
+    "tokenIdx": 4,
+    "reason": "the sense \"aspect\" (or equivalent) for anupassī is entirely unlinked.",
+    "action": "logged only"
+  },
+  {
+    "group": 10,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ātāpī",
+    "tokenIdx": 0,
+    "reason": "the English \"keen\" (or \"ardent\") has no Pali source linked to it.",
+    "action": "logged only"
+  },
+  {
+    "group": 10,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      1,
+      3
+    ],
+    "tokens": [
+      "meditate",
+      "an"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 11,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "af2",
+    "tokenIdx": 2,
+    "reason": "cittānupassī means 'observing the mind' or 'contemplating mind'; it is not a generic 'observing' and should align with the 'mind' phrase, not the isolated verb 'observing'.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 11,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "ag2",
+    "tokenIdx": 8,
+    "reason": "sampajāno means 'clearly knowing' or 'comprehending'; it is distinct from 'aware' (which better renders satimā) and is misplaced here.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 11,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "ag3",
+    "tokenIdx": 10,
+    "reason": "satimā means 'mindful' or 'remembering'; it is not the best match for the token 'mindful' in this alignment as the surrounding structure is off, and sampajāno is the clearer 'aware' term.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 11,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "ah1",
+    "tokenIdx": 11,
+    "reason": "vineyya is the absolutive of vineti, meaning 'having removed', 'restraining', or 'having driven out'; it does not mean 'rid' in a passive adjectival sense and is wrongly paired.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 11,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "ah3",
+    "tokenIdx": 13,
+    "reason": "abhijjhādomanassaṁ is a compound (abhijjhā + domanassa) meaning 'covetousness and displeasure'; it cannot map to only one token 'covetousness' while ignoring the second half of the compound.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 11,
+    "type": "skeptic-rejected",
+    "wordId": "af1",
+    "idx": 4,
+    "reason": "citte is the locative 'in the mind' or 'regarding the mind'; mapping it to the entire phrase 'aspect of the mind—keen' is inaccurate and overlaps incorrectly with other terms.",
+    "action": "dropped"
+  },
+  {
+    "group": 11,
+    "type": "skeptic-rejected",
+    "wordId": "af3",
+    "idx": 1,
+    "reason": "viharati means 'dwells', 'abides', or 'lives (in a certain state)'; it is the main verb for the meditative abiding and does not mean 'meditate'.",
+    "action": "dropped"
+  },
+  {
+    "group": 11,
+    "type": "token-already-claimed",
+    "wordId": "ag1",
+    "idx": 7,
+    "action": "dropped"
+  },
+  {
+    "group": 11,
+    "type": "skeptic-suggests-missing",
+    "wordId": "none",
+    "tokenIdx": 0,
+    "reason": "The translation includes 'They' (subject), 'an aspect of', 'and', 'for the', and the full 'displeasure' which have no corresponding Pāli links; several key Pāli terms like the full compound and main verb are either missing or incorrectly assigned.",
+    "action": "logged only"
+  },
+  {
+    "group": 11,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      1,
+      4
+    ],
+    "tokens": [
+      "meditate",
+      "aspect"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 12,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "ai1",
+    "tokenIdx": 15,
+    "reason": "dhammesu is locative plural of dhamma, corresponding to 'in principles' or 'among principles', not 'for'.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 12,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "ak3",
+    "tokenIdx": 12,
+    "reason": "abhijjhādomanassaṁ is a compound (abhijjhā + domanassa) meaning 'covetousness and displeasure'; the link ignores the second half of the compound and the following 'and displeasure' in the English.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 12,
+    "type": "skeptic-rejected",
+    "wordId": "ai3",
+    "idx": 1,
+    "reason": "viharati means 'dwells', 'abides', or 'lives' (here in the sense of practicing meditation); it is not the verb 'meditate'.",
+    "action": "dropped"
+  },
+  {
+    "group": 12,
+    "type": "skeptic-rejected",
+    "wordId": "aj1",
+    "idx": 6,
+    "reason": "ātāpī means 'ardent', 'diligent', or 'with fervor' (the 'keen' of the translation); it has no semantic connection to 'principles—'.",
+    "action": "dropped"
+  },
+  {
+    "group": 12,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ai3",
+    "tokenIdx": 0,
+    "reason": "The subject pronoun 'They' (token 0) has no explicit counterpart in the Pāli but is conventionally supplied; it should be linked to the implied subject of the verbs.",
+    "action": "logged only"
+  },
+  {
+    "group": 12,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ai2",
+    "tokenIdx": 4,
+    "reason": "The core sense of dhammānupassī ('contemplating dhammas' or 'observing principles') is split across tokens 2–6; the link to only 'observing' leaves 'an aspect of principles' unaccounted for.",
+    "action": "logged only"
+  },
+  {
+    "group": 12,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      1,
+      6
+    ],
+    "tokens": [
+      "meditate",
+      "principles—keen,"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 13,
+    "type": "idx-out-of-range",
+    "wordId": "al1",
+    "idx": 1,
+    "action": "dropped"
+  },
+  {
+    "group": 13,
+    "type": "idx-out-of-range",
+    "wordId": "al2",
+    "idx": 2,
+    "action": "dropped"
+  },
+  {
+    "group": 13,
+    "type": "idx-out-of-range",
+    "wordId": "al2",
+    "idx": 3,
+    "action": "dropped"
+  },
+  {
+    "group": 14,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "am1",
+    "tokenIdx": 1,
+    "reason": "'Kathañca' means 'And how' as an interrogative adverbial phrase; it should align to tokens 0 and 1, not only 'how'.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 14,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "am5",
+    "tokenIdx": 6,
+    "reason": "'kāyānupassī' is a compound meaning 'body-observer' or 'one who contemplates the body'; it corresponds to the full phrase 'observing an aspect of the body' (tokens 6-11), not solely 'observing'.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 14,
+    "type": "skeptic-rejected",
+    "wordId": "am4",
+    "idx": 8,
+    "reason": "'kāye' is the locative of 'kāya' meaning 'in the body'; it should align primarily to 'body' (token 11), not the entire 'aspect of the body?' phrase.",
+    "action": "dropped"
+  },
+  {
+    "group": 14,
+    "type": "skeptic-rejected",
+    "wordId": "am6",
+    "idx": 5,
+    "reason": "'viharati' means 'dwells', 'abides', or 'lives [in a certain way]'; in this context it is better rendered by 'meditate' only in a very loose sense, but the link ignores that the English 'meditate' also renders the implied sense of the whole 'kāyānupassī ... viharati' construction.",
+    "action": "dropped"
+  },
+  {
+    "group": 14,
+    "type": "skeptic-suggests-missing",
+    "wordId": "am2",
+    "tokenIdx": 0,
+    "reason": "'bhikkhave' is the vocative plural 'monks' or 'bhikkhus', directly corresponding to the implied audience in the English but unlinked in the proposal.",
+    "action": "logged only"
+  },
+  {
+    "group": 14,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      5,
+      8
+    ],
+    "tokens": [
+      "meditate",
+      "aspect"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 15,
+    "type": "skeptic-rejected",
+    "wordId": "an1",
+    "idx": 1,
+    "reason": "Idha means 'here' or 'in this case', not 'when'",
+    "action": "dropped"
+  },
+  {
+    "group": 15,
+    "type": "skeptic-rejected",
+    "wordId": "an3",
+    "idx": 2,
+    "reason": "bhikkhu is the subject 'mendicant' or 'monk'; the token range [2,3] incorrectly bundles it with 'gone' which belongs to the prior compound verbs",
+    "action": "dropped"
+  },
+  {
+    "group": 15,
+    "type": "skeptic-rejected",
+    "wordId": "an5",
+    "idx": 7,
+    "reason": "vā is the disjunctive 'or' appearing three times in the Pāli; linking it only to two 'or' tokens and labeling as 'or or' is imprecise and incomplete",
+    "action": "dropped"
+  },
+  {
+    "group": 15,
+    "type": "skeptic-rejected",
+    "wordId": "ao1",
+    "idx": 18,
+    "reason": "nisīdati means 'sits' or 'sits down'; it cannot correctly align to tokens that include 'hut' (from suññāgāragato)",
+    "action": "dropped"
+  },
+  {
+    "group": 15,
+    "type": "skeptic-rejected",
+    "wordId": "ao6",
+    "idx": 21,
+    "reason": "paṇidhāya means 'having directed' or 'having set up'; it does not mean 'sets' (which renders the following verb) and is wrongly separated from the 'straight' sense",
+    "action": "dropped"
+  },
+  {
+    "group": 15,
+    "type": "skeptic-rejected",
+    "wordId": "ap1",
+    "idx": 28,
+    "reason": "parimukhaṁ means 'in front' (of the body/mind); the link to 'in presence' is acceptable in Sujato's rendering but the token indices [28,30] skip the intervening 'their' and the alignment is too loose",
+    "action": "dropped"
+  },
+  {
+    "group": 15,
+    "type": "skeptic-rejected",
+    "wordId": "ap3",
+    "idx": 26,
+    "reason": "upaṭṭhapetvā means 'having established' or 'having set up (mindfulness)'; it is the verb that properly corresponds to 'establishes', not the prior paṇidhāya",
+    "action": "dropped"
+  },
+  {
+    "group": 15,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ao2",
+    "tokenIdx": 20,
+    "reason": "pallaṅkaṁ (cross-legged posture) is correctly linked by dictionary but the ābhujitvā participle that actually produces the 'cross-legged' sense in the English is entirely unlinked",
+    "action": "logged only"
+  },
+  {
+    "group": 15,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ao4",
+    "tokenIdx": 24,
+    "reason": "ujuṁ (straight) is linked, but the participle paṇidhāya that governs 'sets ... straight' is wrongly assigned to 'sets' instead",
+    "action": "logged only"
+  },
+  {
+    "group": 15,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      1,
+      2,
+      7,
+      18,
+      21,
+      26,
+      28
+    ],
+    "tokens": [
+      "when",
+      "a",
+      "or",
+      "hut—sits",
+      "sets",
+      "establishes",
+      "in"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 16,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "aq5",
+    "tokenIdx": 8,
+    "reason": "'passasati' means 'breathes out' or 'exhales'; it cannot align to the English token 'out.' which is merely the adverb completing the phrasal verb 'breathe out.' The verb itself is rendered by 'breathe' (tokens 3 and 7).",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 16,
+    "type": "skeptic-rejected",
+    "wordId": "aq3",
+    "idx": 0,
+    "reason": "'va' is the emphatic particle 'just' or 'indeed'; the proposed link to token 0 is acceptable, but the overall alignment leaves the second occurrence of 'mindful' (token 5) without any corresponding Pāli word, and the particle is duplicated in sense across two English 'mindful' phrases.",
+    "action": "dropped"
+  },
+  {
+    "group": 16,
+    "type": "skeptic-rejected",
+    "wordId": "aq4",
+    "idx": 3,
+    "reason": "'assasati' means 'breathes in' or 'inhales'; it cannot be aligned to the English verb 'breathe' (tokens 3 and 7) because those English verbs are already the rendering of the two distinct Pāli verbs; the link conflates the two Pāli breathing verbs into a single English verb.",
+    "action": "dropped"
+  },
+  {
+    "group": 16,
+    "type": "skeptic-suggests-missing",
+    "wordId": "aq2",
+    "tokenIdx": 5,
+    "reason": "The second 'Mindful,' (token 5) has no corresponding Pāli word in the given excerpt; 'sato' occurs only once and cannot cover both English occurrences of 'mindful' without distorting the syntax of the Pāli.",
+    "action": "logged only"
+  },
+  {
+    "group": 16,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      0,
+      3
+    ],
+    "tokens": [
+      "Just",
+      "breathe"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 17,
+    "type": "skeptic-rejected",
+    "wordId": "ar3",
+    "idx": 0,
+    "reason": "'assasanto' (present participle of assasati, 'breathing in') is mistranslated as 'Breathing in' in the English; Sujato's actual rendering is 'long' for the following 'dīghaṁ', making the alignment of the participle to the adverbial phrase incorrect.",
+    "action": "dropped"
+  },
+  {
+    "group": 17,
+    "type": "skeptic-rejected",
+    "wordId": "ar3b",
+    "idx": 8,
+    "reason": "The quotation mark and 'dīghaṁ' (long) are aligned to the end of the first sentence, but this duplicates the alignment of the initial 'Dīghaṁ' and misplaces the structural repetition in the Pāli.",
+    "action": "dropped"
+  },
+  {
+    "group": 17,
+    "type": "skeptic-rejected",
+    "wordId": "ar4",
+    "idx": 5,
+    "reason": "'assasāmī' (I breathe in) is aligned to '‘I’m breathing in', but this overlaps with the prior 'assasanto' alignment and ignores that Sujato uses 'long' to render 'dīghaṁ' rather than treating the verb as carrying the 'heavily' sense.",
+    "action": "dropped"
+  },
+  {
+    "group": 17,
+    "type": "skeptic-rejected",
+    "wordId": "ar9",
+    "idx": 9,
+    "reason": "'passasanto' (present participle of passasati, 'breathing out') is mistranslated as 'Breathing out'; Sujato actually renders the preceding 'dīghaṁ' as 'long', so the participle does not correspond to the adverbial phrase given.",
+    "action": "dropped"
+  },
+  {
+    "group": 17,
+    "type": "skeptic-rejected",
+    "wordId": "ar9b",
+    "idx": 17,
+    "reason": "The quotation mark and 'dīghaṁ' (long) are aligned to the end of the second sentence, duplicating the alignment of the initial 'dīghaṁ' and disrupting the parallel structure.",
+    "action": "dropped"
+  },
+  {
+    "group": 17,
+    "type": "skeptic-rejected",
+    "wordId": "ar10",
+    "idx": 14,
+    "reason": "'passasāmī' (I breathe out) is aligned to '‘I’m breathing out', but this overlaps with the prior 'passasanto' alignment and ignores that Sujato uses 'long' to render 'dīghaṁ' rather than treating the verb as carrying the 'heavily' sense.",
+    "action": "dropped"
+  },
+  {
+    "group": 17,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ar1",
+    "tokenIdx": 2,
+    "reason": "'Dīghaṁ' (long) is the key adverbial qualified by 'vā' and should align to 'long' (missing from the given English tokens, which use 'heavily' instead), not solely to 'heavily'.",
+    "action": "logged only"
+  },
+  {
+    "group": 17,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ar7",
+    "tokenIdx": 11,
+    "reason": "The second 'dīghaṁ' (long) should align to the missing 'long' in the second clause rather than to 'heavily'.",
+    "action": "logged only"
+  },
+  {
+    "group": 17,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      0,
+      5,
+      8,
+      9,
+      14,
+      17
+    ],
+    "tokens": [
+      "Breathing",
+      "‘I’m",
+      "heavily.’",
+      "Breathing",
+      "‘I’m",
+      "heavily.’"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 18,
+    "type": "skeptic-rejected",
+    "wordId": "as4",
+    "idx": 6,
+    "reason": "'I’m breathing in' should align to 'assasāmī' only; the quote-open and contraction 'I’m' are not part of the verb.",
+    "action": "dropped"
+  },
+  {
+    "group": 18,
+    "type": "skeptic-rejected",
+    "wordId": "as5",
+    "idx": 9,
+    "reason": "'ti' is the quotative particle and should align to the closing quote, not to 'lightly.’' which belongs to 'rassaṁ'.",
+    "action": "dropped"
+  },
+  {
+    "group": 18,
+    "type": "skeptic-rejected",
+    "wordId": "as6",
+    "idx": 4,
+    "reason": "'pajānāti' means 'knows' and should align only to 'know:', not to the pronoun 'they' which renders the participle 'assasanto'.",
+    "action": "dropped"
+  },
+  {
+    "group": 18,
+    "type": "skeptic-rejected",
+    "wordId": "as10",
+    "idx": 15,
+    "reason": "'I’m breathing out' should align to 'passasāmī' only; the quote-open and contraction 'I’m' are not part of the verb.",
+    "action": "dropped"
+  },
+  {
+    "group": 18,
+    "type": "skeptic-rejected",
+    "wordId": "as11",
+    "idx": 18,
+    "reason": "'ti' is the quotative particle and should align to the closing quote, not to 'lightly.’' which belongs to 'rassaṁ'.",
+    "action": "dropped"
+  },
+  {
+    "group": 18,
+    "type": "skeptic-rejected",
+    "wordId": "as12",
+    "idx": 13,
+    "reason": "'pajānāti' means 'knows' and should align only to 'know:', not to the pronoun 'they' which renders the participle 'passasanto'.",
+    "action": "dropped"
+  },
+  {
+    "group": 18,
+    "type": "skeptic-suggests-missing",
+    "wordId": "as1",
+    "tokenIdx": 12,
+    "reason": "The second 'rassaṁ' (in the out-breath clause) is untranslated in the given English; it should link to the second 'lightly'.",
+    "action": "logged only"
+  },
+  {
+    "group": 18,
+    "type": "skeptic-suggests-missing",
+    "wordId": "as3",
+    "tokenIdx": 10,
+    "reason": "The subject participle 'passasanto' ('breathing out') is covered only by the English participle, but the alignment leaves the parallel structure of the first clause incomplete.",
+    "action": "logged only"
+  },
+  {
+    "group": 18,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      4,
+      6,
+      9,
+      13,
+      15,
+      18
+    ],
+    "tokens": [
+      "they",
+      "‘I’m",
+      "lightly.’",
+      "they",
+      "‘I’m",
+      "lightly.’"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 19,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "at6",
+    "tokenIdx": 17,
+    "reason": "'passasissāmī' means 'I will breathe in' (from pa + assasati, 'in-breath'), not 'out'; this is the wrong English token and contradicts the standard ānāpānasati terminology where assāsa = in-breath, passāsa = out-breath.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 19,
+    "type": "skeptic-rejected",
+    "wordId": "at2",
+    "idx": 5,
+    "reason": "'assasissāmī' means 'I will breathe in' (in-breath), but is linked to the first 'breathe in' (correct sense) while the parallel 'passasissāmī' is wrongly mapped to 'out'; the pairing is inverted relative to the Pāli order and standard equivalences.",
+    "action": "dropped"
+  },
+  {
+    "group": 19,
+    "type": "skeptic-suggests-missing",
+    "wordId": "at1",
+    "tokenIdx": 7,
+    "reason": "'Sabbakāyapaṭisaṁvedī' (experiencing the whole body) is a compound whose semantic core 'paṭisaṁvedī' (experiencing/perceiving) has no dedicated token link; the curated span [7,8,9,10] covers only the object, leaving the verb participle unaligned.",
+    "action": "logged only"
+  },
+  {
+    "group": 19,
+    "type": "skeptic-suggests-missing",
+    "wordId": "at5",
+    "tokenIdx": 18,
+    "reason": "'sabbakāyapaṭisaṁvedī' (experiencing the whole body) is a compound whose semantic core 'paṭisaṁvedī' (experiencing/perceiving) has no dedicated token link; the curated span [18,19,20,21] covers only the object, leaving the verb participle unaligned.",
+    "action": "logged only"
+  },
+  {
+    "group": 19,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      5
+    ],
+    "tokens": [
+      "breathe"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 20,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "au8",
+    "tokenIdx": 17,
+    "reason": "'passasissāmī' means 'I will breathe in', not 'out'; this is the wrong half of the in/out pair (cf. au3 correctly linking 'assasissāmī' to in-breathing).",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 20,
+    "type": "skeptic-rejected",
+    "wordId": "au3",
+    "idx": 4,
+    "reason": "'assasissāmī' is the second verb and should align to the 'out' clause, not the 'in' clause; the proposed span [4,5,6] is the first quoted clause.",
+    "action": "dropped"
+  },
+  {
+    "group": 20,
+    "type": "skeptic-suggests-missing",
+    "wordId": "au5",
+    "tokenIdx": 2,
+    "reason": "'sikkhati' (they train/practice) is not fully covered by linking only to 'They practice'; the adverbial 'like this' (evam) is implicit in the quote structure and should be represented.",
+    "action": "logged only"
+  },
+  {
+    "group": 20,
+    "type": "skeptic-suggests-missing",
+    "wordId": "au10",
+    "tokenIdx": 13,
+    "reason": "Second 'sikkhati' likewise leaves 'like this' unlinked in the second sentence.",
+    "action": "logged only"
+  },
+  {
+    "group": 20,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      4
+    ],
+    "tokens": [
+      "‘I’ll"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 21,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "av6",
+    "tokenIdx": 7,
+    "reason": "'bhamakārantevāsī' is a compound (bhamakāra + antevāsī) meaning 'carpenter's apprentice'; it cannot map solely to 'apprentice.' while the preceding 'bhamakāro' maps to 'carpenter' and 'vā' to 'carpenter’s'—this splits the compound incorrectly and leaves 'carpenter’s' without a proper Pāli source.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-rejected",
+    "wordId": "av7",
+    "idx": 6,
+    "reason": "'vā' is a disjunctive particle ('or'); it has no semantic link to the possessive 'carpenter’s'.",
+    "action": "dropped"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-rejected",
+    "wordId": "av10",
+    "idx": 12,
+    "reason": "'añchanto' (present participle: 'pulling'/'cutting') is linked to three disparate tokens including the noun 'cut', but 'cut' renders the implied action of 'añchati' (to draw/pull, here a cut); the participle itself does not supply the noun 'cut'.",
+    "action": "dropped"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-rejected",
+    "wordId": "av11",
+    "idx": 19,
+    "reason": "'añchāmī' is the 1st-person verb 'I pull/I cut'; it cannot cover the noun 'cut’' in the English.",
+    "action": "dropped"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-rejected",
+    "wordId": "av15",
+    "idx": 20,
+    "reason": "'vā' here is the correlative 'or' (in 'whether deep or shallow'); mapping it to 'and' is semantically wrong.",
+    "action": "dropped"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-rejected",
+    "wordId": "av16",
+    "idx": 25,
+    "reason": "Same error as av10: 'añchanto' does not supply the noun 'cut'.",
+    "action": "dropped"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-rejected",
+    "wordId": "av17",
+    "idx": 32,
+    "reason": "Same error as av11: 'añchāmī' does not supply the noun 'cut.’'.",
+    "action": "dropped"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-suggests-missing",
+    "wordId": "av4",
+    "tokenIdx": 4,
+    "reason": "'bhamakāro' (carpenter) is curated to token 4 but the English 'carpenter' at token 4 is already the rendering of the compound 'bhamakārantevāsī'; this leaves the explicit 'bhamakāro vā' ('a carpenter or') without any token.",
+    "action": "logged only"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-suggests-missing",
+    "wordId": "av5",
+    "tokenIdx": 5,
+    "reason": "'vā' (or) is curated to token 5 but token 5 is already occupied by the erroneous link of av7; the disjunction is left unmapped.",
+    "action": "logged only"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-suggests-missing",
+    "wordId": "av8",
+    "tokenIdx": 18,
+    "reason": "The second 'dīghaṁ' (deep) in the direct-speech clause has no dedicated link; av8 covers only the first occurrence.",
+    "action": "logged only"
+  },
+  {
+    "group": 21,
+    "type": "skeptic-suggests-missing",
+    "wordId": "av14",
+    "tokenIdx": 24,
+    "reason": "'rassaṁ' (shallow) is mapped only to the first 'shallow' but the English has two parallel clauses; the second 'shallow' (token 31) is covered only by the erroneous av16b.",
+    "action": "logged only"
+  },
+  {
+    "group": 21,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      6,
+      12,
+      19,
+      20,
+      25,
+      32
+    ],
+    "tokens": [
+      "carpenter’s",
+      "cut",
+      "cut,’",
+      "and",
+      "cut",
+      "cut.’"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw1",
+    "idx": 0,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw1",
+    "idx": 1,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw3",
+    "idx": 3,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw4",
+    "idx": 5,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw5",
+    "idx": 10,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw6",
+    "idx": 11,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw7",
+    "idx": 7,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw7",
+    "idx": 8,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw7b",
+    "idx": 14,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw8",
+    "idx": 15,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw8",
+    "idx": 16,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw8",
+    "idx": 17,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw10",
+    "idx": 12,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw11",
+    "idx": 22,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw12",
+    "idx": 23,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw13",
+    "idx": 19,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw13",
+    "idx": 20,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw13b",
+    "idx": 26,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw14",
+    "idx": 27,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw14",
+    "idx": 28,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw14",
+    "idx": 29,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw16",
+    "idx": 24,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw17",
+    "idx": 34,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw18",
+    "idx": 35,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw19",
+    "idx": 31,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw19",
+    "idx": 32,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw19b",
+    "idx": 38,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw20",
+    "idx": 39,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw20",
+    "idx": 40,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw20",
+    "idx": 41,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw22",
+    "idx": 36,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw23",
+    "idx": 46,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw24",
+    "idx": 47,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw25",
+    "idx": 43,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw25",
+    "idx": 44,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw25b",
+    "idx": 50,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw26",
+    "idx": 51,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw26",
+    "idx": 52,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw26",
+    "idx": 53,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "idx-out-of-range",
+    "wordId": "aw28",
+    "idx": 48,
+    "action": "dropped"
+  },
+  {
+    "group": 22,
+    "type": "skeptic-suggests-missing",
+    "wordId": "aw9",
+    "tokenIdx": 0,
+    "reason": "'ti' (quote particle) has no link but typically corresponds to the closing quote or implied end of reported speech after 'long'.",
+    "action": "logged only"
+  },
+  {
+    "group": 22,
+    "type": "skeptic-suggests-missing",
+    "wordId": "aw15",
+    "tokenIdx": 0,
+    "reason": "Second 'ti' lacks any token link despite marking the end of the second reported clause.",
+    "action": "logged only"
+  },
+  {
+    "group": 22,
+    "type": "skeptic-suggests-missing",
+    "wordId": "aw21",
+    "tokenIdx": 0,
+    "reason": "Third 'ti' is unlinked while the English has a corresponding quote closure after the third 'short'.",
+    "action": "logged only"
+  },
+  {
+    "group": 22,
+    "type": "skeptic-suggests-missing",
+    "wordId": "aw27",
+    "tokenIdx": 0,
+    "reason": "Final 'ti' has no alignment despite parallel structure with the closing quote in the last clause.",
+    "action": "logged only"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax1",
+    "idx": 2,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax1",
+    "idx": 3,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax1",
+    "idx": 4,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax2",
+    "idx": 5,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax2",
+    "idx": 6,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax2",
+    "idx": 7,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax4",
+    "idx": 0,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax4",
+    "idx": 1,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax5",
+    "idx": 11,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax5",
+    "idx": 12,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax5",
+    "idx": 13,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax6",
+    "idx": 14,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax6",
+    "idx": 15,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax6",
+    "idx": 16,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax8",
+    "idx": 9,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "idx-out-of-range",
+    "wordId": "ax8",
+    "idx": 10,
+    "action": "dropped"
+  },
+  {
+    "group": 23,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ax3",
+    "tokenIdx": 8,
+    "reason": "The quotative particle 'ti' (marking the end of direct speech or the training formula) has no corresponding English token aligned, yet it structures the clause and should link to the quotation or implied 'thus'.",
+    "action": "logged only"
+  },
+  {
+    "group": 23,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ax7",
+    "tokenIdx": 17,
+    "reason": "The second 'ti' likewise ends the parallel clause and requires alignment to the English quotation structure or an implied marker that is currently unlinked.",
+    "action": "logged only"
+  },
+  {
+    "group": 24,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "ba1",
+    "tokenIdx": 13,
+    "reason": "ajjhattabahiddhā is a single compound adverb meaning 'internally and externally' (or 'both internally and externally'); it does not correspond specifically or exclusively to the token 'both'.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 24,
+    "type": "skeptic-rejected",
+    "wordId": "ay5",
+    "idx": 4,
+    "reason": "kāyānupassī is a bahubbīhi compound (one who observes the body / body-observer); it does not mean 'observing' alone. The gerund 'observing' more properly renders anupassī in the larger verbal construction, but the link treats it as if it supplies the verb 'observing' plus the noun 'aspect'.",
+    "action": "dropped"
+  },
+  {
+    "group": 24,
+    "type": "skeptic-rejected",
+    "wordId": "ay6",
+    "idx": 2,
+    "reason": "viharati is the main verb (dwells / abides / meditates); linking it to the pronoun 'they' is incorrect. The subject 'they' is implicit in the finite verb but is not supplied by viharati itself.",
+    "action": "dropped"
+  },
+  {
+    "group": 24,
+    "type": "skeptic-rejected",
+    "wordId": "az2",
+    "idx": 12,
+    "reason": "The first vā after bahiddhā is the second member of the vā … vā correlative ('either … or'); it does not mean 'and'. The English 'and' before 'both' is a translational insertion, not a direct equivalent of this vā.",
+    "action": "dropped"
+  },
+  {
+    "group": 24,
+    "type": "skeptic-suggests-missing",
+    "wordId": "ay2",
+    "tokenIdx": 14,
+    "reason": "ajjhattaṁ (internal) is the counterpart to the later bahiddhā (external) and should also align with the second occurrence of 'internally' in the English phrase 'both internally and externally'.",
+    "action": "logged only"
+  },
+  {
+    "group": 24,
+    "type": "skeptic-suggests-missing",
+    "wordId": "az1",
+    "tokenIdx": 16,
+    "reason": "bahiddhā (external) should align with the final 'externally' in 'both internally and externally'.",
+    "action": "logged only"
+  },
+  {
+    "group": 24,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      2,
+      4,
+      12
+    ],
+    "tokens": [
+      "they",
+      "observing",
+      "and"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 25,
+    "type": "SKEPTIC-OBJECTS-TO-MECHANICAL",
+    "wordId": "bc1",
+    "tokenIdx": 20,
+    "reason": "'vayadhammānupassī' means 'observing the nature of passing away/falling away'; it is mistranslated and misaligned to only 'vanish.' which is too narrow and loses the anupassī component.",
+    "action": "kept — needs human review"
+  },
+  {
+    "group": 25,
+    "type": "skeptic-rejected",
+    "wordId": "bb1",
+    "idx": 2,
+    "reason": "'samudayadhammānupassī' is aligned only to 'observing liable to originate' but this duplicates the sense of the following compound and ignores that the English has already used 'observing' for the first term; the link overclaims coverage.",
+    "action": "dropped"
+  },
+  {
+    "group": 25,
+    "type": "skeptic-rejected",
+    "wordId": "bd1",
+    "idx": 15,
+    "reason": "'samudayavayadhammānupassī' (the both-together compound) is aligned only to 'liable to both originate' but this is incomplete: it should cover the full 'liable to both originate and vanish' and the anupassī sense; moreover the preceding terms have already consumed most of the English leaving this under-aligned.",
+    "action": "dropped"
+  },
+  {
+    "group": 25,
+    "type": "skeptic-suggests-missing",
+    "wordId": "vayadhammānupassī",
+    "tokenIdx": 10,
+    "reason": "The English 'as liable to fall' directly renders the first compound vayadhammānupassī but no link is proposed to tokens 9-12.",
+    "action": "logged only"
+  },
+  {
+    "group": 25,
+    "type": "skeptic-suggests-missing",
+    "wordId": "samudayavayadhammānupassī",
+    "tokenIdx": 18,
+    "reason": "The final English phrase 'and vanish' (or the full 'both originate and vanish') is the natural counterpart of the both-compound but the proposed link stops short at 'originate'.",
+    "action": "logged only"
+  },
+  {
+    "group": 25,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      2,
+      15
+    ],
+    "tokens": [
+      "observing",
+      "liable"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 26,
+    "type": "skeptic-rejected",
+    "wordId": "be3",
+    "idx": 4,
+    "reason": "'ti is the quotative particle that closes the reported thought 'atthi'; it does not correspond to the subordinating 'that' which introduces the content clause in English.",
+    "action": "dropped"
+  },
+  {
+    "group": 26,
+    "type": "skeptic-rejected",
+    "wordId": "be4",
+    "idx": 0,
+    "reason": "vā does not mean 'Or'; it is a particle meaning 'or' within the embedded quotation 'atthi ti vā' (whether 'it exists' or ...), not the sentence-initial 'Or' that introduces the whole clause in the translation.",
+    "action": "dropped"
+  },
+  {
+    "group": 26,
+    "type": "skeptic-rejected",
+    "wordId": "be6",
+    "idx": 1,
+    "reason": "sati here is the subject of hoti within the clause 'paṇassa sati hoti' (for him there is mindfulness); it is not the same 'mindfulness' rendered by the opening 'mindfulness is established'.",
+    "action": "dropped"
+  },
+  {
+    "group": 26,
+    "type": "skeptic-rejected",
+    "wordId": "bf3",
+    "idx": 15,
+    "reason": "paṭissatimattāya is the second purpose clause ('only for the purpose of recollection / continuous mindfulness'); mapping it to the period after the first 'mindfulness' is wrong both positionally and semantically.",
+    "action": "dropped"
+  },
+  {
+    "group": 26,
+    "type": "skeptic-rejected",
+    "wordId": "bg3",
+    "idx": 17,
+    "reason": "viharati means 'he dwells / abides / lives'; rendering it as 'They meditate' is a loose contextual gloss rather than a direct equivalent, especially when the sentence already contains a verb of meditation in the preceding clause.",
+    "action": "dropped"
+  },
+  {
+    "group": 26,
+    "type": "skeptic-suggests-missing",
+    "wordId": "be2",
+    "tokenIdx": 7,
+    "reason": "The clause 'kāyo paccupaṭṭhitā' is better rendered as 'the body is attended to / is present' or 'mindfulness of the body is established'; the given English 'that the body exists' is not a faithful translation of the Pāli construction and leaves the actual sense of paccupaṭṭhitā unaccounted for.",
+    "action": "logged only"
+  },
+  {
+    "group": 26,
+    "type": "tokens-unaccounted",
+    "idxs": [
+      0,
+      1,
+      4,
+      15,
+      17
+    ],
+    "tokens": [
+      "Or",
+      "mindfulness",
+      "that",
+      "mindfulness.",
+      "meditate"
+    ],
+    "action": "left unclassified — human review"
+  },
+  {
+    "group": 1,
+    "type": "extension-accepted",
+    "wordId": "a3",
+    "tokenIdx": 2,
+    "via": "skeptic-proposed, curator-confirmed"
+  },
+  {
+    "group": 6,
+    "type": "extension-accepted",
+    "wordId": "h1",
+    "tokenIdx": 0,
+    "via": "skeptic-proposed, curator-confirmed"
+  },
+  {
+    "group": 12,
+    "type": "extension-accepted",
+    "wordId": "ai2",
+    "tokenIdx": 4,
+    "via": "skeptic-proposed, curator-confirmed"
+  },
+  {
+    "group": 20,
+    "type": "extension-accepted",
+    "wordId": "au5",
+    "tokenIdx": 2,
+    "via": "skeptic-proposed, curator-confirmed"
+  },
+  {
+    "group": 20,
+    "type": "extension-accepted",
+    "wordId": "au10",
+    "tokenIdx": 13,
+    "via": "skeptic-proposed, curator-confirmed"
+  },
+  {
+    "group": 24,
+    "type": "extension-accepted",
+    "wordId": "ay2",
+    "tokenIdx": 14,
+    "via": "skeptic-proposed, curator-confirmed"
+  },
+  {
+    "group": 24,
+    "type": "extension-accepted",
+    "wordId": "az1",
+    "tokenIdx": 16,
+    "via": "skeptic-proposed, curator-confirmed"
+  }
+]

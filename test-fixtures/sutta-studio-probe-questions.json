@@ -1,0 +1,8507 @@
+{
+ "_description": "Pedagogical-probe question bank: deterministic comprehension questions with human-authority answer keys, generated from DPD + the curated goldens by probe-questions.ts. The probe grades a compiled packet by whether a weak student model reading ONLY the packet can answer these.",
+ "_generatedAt": "2026-07-11T04:43:55.102Z",
+ "questions": [
+  {
+   "phaseId": "phase-a",
+   "type": "root",
+   "surface": "sutaṁ",
+   "wordId": "a3",
+   "question": "According to the material, what is the verbal root of \"sutaṁ\"?",
+   "accepted": [
+    "su",
+    "sū"
+   ],
+   "authority": "dpd-roots",
+   "id": "q1",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-a",
+   "type": "sense",
+   "surface": "sutaṁ",
+   "wordId": "a3",
+   "question": "What does \"sutaṁ\" mean in this passage?",
+   "accepted": [
+    "heard",
+    "what was heard",
+    "that which has been received"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q2",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-a",
+   "type": "align",
+   "surface": "sutaṁ",
+   "wordId": "a3",
+   "question": "Which word(s) in the English translation render \"sutaṁ\"?",
+   "accepted": [
+    "have",
+    "heard"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q3",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-b",
+   "type": "root",
+   "surface": "samayaṁ",
+   "wordId": "b2",
+   "question": "According to the material, what is the verbal root of \"samayaṁ\"?",
+   "accepted": [
+    "i",
+    "sami",
+    "sam"
+   ],
+   "authority": "dpd-roots",
+   "id": "q4",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-b",
+   "type": "sense",
+   "surface": "samayaṁ",
+   "wordId": "b2",
+   "question": "What does \"samayaṁ\" mean in this passage?",
+   "accepted": [
+    "occasion",
+    "time",
+    "opportunity"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q5",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-b",
+   "type": "align",
+   "surface": "samayaṁ",
+   "wordId": "b2",
+   "question": "Which word(s) in the English translation render \"samayaṁ\"?",
+   "accepted": [
+    "time"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q6",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-b",
+   "type": "root",
+   "surface": "bhagavā",
+   "wordId": "b3",
+   "question": "According to the material, what is the verbal root of \"bhagavā\"?",
+   "accepted": [
+    "bhaj"
+   ],
+   "authority": "dpd-roots",
+   "id": "q7",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-b",
+   "type": "sense",
+   "surface": "bhagavā",
+   "wordId": "b3",
+   "question": "What does \"bhagavā\" mean in this passage?",
+   "accepted": [
+    "the Blessed One",
+    "the Fortunate One",
+    "the Lucky One"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q8",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-b",
+   "type": "align",
+   "surface": "bhagavā",
+   "wordId": "b3",
+   "question": "Which word(s) in the English translation render \"bhagavā\"?",
+   "accepted": [
+    "Buddha"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q9",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-c",
+   "type": "case",
+   "surface": "kurūsu",
+   "wordId": "c1",
+   "question": "What grammatical case is \"kurūsu\" in?",
+   "accepted": [
+    "locative",
+    "loc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q10",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-c",
+   "type": "number",
+   "surface": "kurūsu",
+   "wordId": "c1",
+   "question": "Is \"kurūsu\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q11",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-c",
+   "type": "sense",
+   "surface": "kurūsu",
+   "wordId": "c1",
+   "question": "What does \"kurūsu\" mean in this passage?",
+   "accepted": [
+    "among the Kurus",
+    "in Kuru territory",
+    "with the Kuru people"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q12",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-c",
+   "type": "align",
+   "surface": "kurūsu",
+   "wordId": "c1",
+   "question": "Which word(s) in the English translation render \"kurūsu\"?",
+   "accepted": [
+    "Kurus"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q13",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-c",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "c2",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q14",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-c",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "c2",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q15",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-c",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "c2",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "was dwelling",
+    "was staying",
+    "was abiding"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q16",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-c",
+   "type": "align",
+   "surface": "viharati",
+   "wordId": "c2",
+   "question": "Which word(s) in the English translation render \"viharati\"?",
+   "accepted": [
+    "staying"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q17",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-d",
+   "type": "root",
+   "surface": "Kammāsadhammaṁ",
+   "wordId": "d1",
+   "question": "According to the material, what is the verbal root of \"Kammāsadhammaṁ\"?",
+   "accepted": [
+    "dam"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q18",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-d",
+   "type": "sense",
+   "surface": "Kammāsadhammaṁ",
+   "wordId": "d1",
+   "question": "What does \"Kammāsadhammaṁ\" mean in this passage?",
+   "accepted": [
+    "Kammāsadhamma",
+    "\"Where the Spotted One was Tamed\"",
+    "the spotted-dhamma place",
+    "name of a town in the Kuru country"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q19",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-d",
+   "type": "align",
+   "surface": "Kammāsadhammaṁ",
+   "wordId": "d1",
+   "question": "Which word(s) in the English translation render \"Kammāsadhammaṁ\"?",
+   "accepted": [
+    "Kammāsadamma"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q20",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-d",
+   "type": "sense",
+   "surface": "kurūnaṁ",
+   "wordId": "d3",
+   "question": "What does \"kurūnaṁ\" mean in this passage?",
+   "accepted": [
+    "of the Kurus",
+    "belonging to the Kurus",
+    "the Kurus'",
+    "name of the people of Kuru; Kurus"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q21",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-d",
+   "type": "root",
+   "surface": "nigamo",
+   "wordId": "d4",
+   "question": "According to the material, what is the verbal root of \"nigamo\"?",
+   "accepted": [
+    "gam",
+    "nigam"
+   ],
+   "authority": "dpd-roots",
+   "id": "q22",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-d",
+   "type": "case",
+   "surface": "nigamo",
+   "wordId": "d4",
+   "question": "What grammatical case is \"nigamo\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q23",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-d",
+   "type": "number",
+   "surface": "nigamo",
+   "wordId": "d4",
+   "question": "Is \"nigamo\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q24",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-d",
+   "type": "sense",
+   "surface": "nigamo",
+   "wordId": "d4",
+   "question": "What does \"nigamo\" mean in this passage?",
+   "accepted": [
+    "a market town",
+    "a township",
+    "a trading center"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q25",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-d",
+   "type": "align",
+   "surface": "nigamo",
+   "wordId": "d4",
+   "question": "Which word(s) in the English translation render \"nigamo\"?",
+   "accepted": [
+    "town"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q26",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "root",
+   "surface": "bhagavā",
+   "wordId": "e3",
+   "question": "According to the material, what is the verbal root of \"bhagavā\"?",
+   "accepted": [
+    "bhaj"
+   ],
+   "authority": "dpd-roots",
+   "id": "q27",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "sense",
+   "surface": "bhagavā",
+   "wordId": "e3",
+   "question": "What does \"bhagavā\" mean in this passage?",
+   "accepted": [
+    "the Blessed One",
+    "the Fortunate One",
+    "the Lucky One"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q28",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "align",
+   "surface": "bhagavā",
+   "wordId": "e3",
+   "question": "Which word(s) in the English translation render \"bhagavā\"?",
+   "accepted": [
+    "Buddha"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q29",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "root",
+   "surface": "bhikkhū",
+   "wordId": "e4",
+   "question": "According to the material, what is the verbal root of \"bhikkhū\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q30",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "number",
+   "surface": "bhikkhū",
+   "wordId": "e4",
+   "question": "Is \"bhikkhū\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q31",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "sense",
+   "surface": "bhikkhū",
+   "wordId": "e4",
+   "question": "What does \"bhikkhū\" mean in this passage?",
+   "accepted": [
+    "the bhikkhus",
+    "the monks",
+    "the mendicants"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q32",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "align",
+   "surface": "bhikkhū",
+   "wordId": "e4",
+   "question": "Which word(s) in the English translation render \"bhikkhū\"?",
+   "accepted": [
+    "mendicants"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q33",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "root",
+   "surface": "āmantesi",
+   "wordId": "e5",
+   "question": "According to the material, what is the verbal root of \"āmantesi\"?",
+   "accepted": [
+    "mant",
+    "mantr",
+    "āmantr"
+   ],
+   "authority": "dpd-roots",
+   "id": "q34",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "number",
+   "surface": "āmantesi",
+   "wordId": "e5",
+   "question": "Is \"āmantesi\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q35",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "sense",
+   "surface": "āmantesi",
+   "wordId": "e5",
+   "question": "What does \"āmantesi\" mean in this passage?",
+   "accepted": [
+    "addressed",
+    "summoned",
+    "spoke to"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q36",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-e",
+   "type": "align",
+   "surface": "āmantesi",
+   "wordId": "e5",
+   "question": "Which word(s) in the English translation render \"āmantesi\"?",
+   "accepted": [
+    "addressed"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q37",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-f",
+   "type": "root",
+   "surface": "Bhikkhavo",
+   "wordId": "f1",
+   "question": "According to the material, what is the verbal root of \"Bhikkhavo\"?",
+   "accepted": [
+    "bhikkh"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q38",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-f",
+   "type": "number",
+   "surface": "Bhikkhavo",
+   "wordId": "f1",
+   "question": "Is \"Bhikkhavo\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q39",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-f",
+   "type": "sense",
+   "surface": "Bhikkhavo",
+   "wordId": "f1",
+   "question": "What does \"Bhikkhavo\" mean in this passage?",
+   "accepted": [
+    "Bhikkhus!",
+    "Monks!",
+    "Mendicants!"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q40",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-f",
+   "type": "align",
+   "surface": "Bhikkhavo",
+   "wordId": "f1",
+   "question": "Which word(s) in the English translation render \"Bhikkhavo\"?",
+   "accepted": [
+    "“Mendicants!”"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q41",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "root",
+   "surface": "Bhadante",
+   "wordId": "g1",
+   "question": "According to the material, what is the verbal root of \"Bhadante\"?",
+   "accepted": [
+    "bhad"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q42",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "sense",
+   "surface": "Bhadante",
+   "wordId": "g1",
+   "question": "What does \"Bhadante\" mean in this passage?",
+   "accepted": [
+    "Venerable sir!",
+    "Good sir!",
+    "Reverend!"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q43",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "align",
+   "surface": "Bhadante",
+   "wordId": "g1",
+   "question": "Which word(s) in the English translation render \"Bhadante\"?",
+   "accepted": [
+    "“Venerable"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q44",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "root",
+   "surface": "bhikkhū",
+   "wordId": "g4",
+   "question": "According to the material, what is the verbal root of \"bhikkhū\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q45",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "number",
+   "surface": "bhikkhū",
+   "wordId": "g4",
+   "question": "Is \"bhikkhū\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q46",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "sense",
+   "surface": "bhikkhū",
+   "wordId": "g4",
+   "question": "What does \"bhikkhū\" mean in this passage?",
+   "accepted": [
+    "bhikkhus",
+    "monks",
+    "mendicants"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q47",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "root",
+   "surface": "bhagavato",
+   "wordId": "g5",
+   "question": "According to the material, what is the verbal root of \"bhagavato\"?",
+   "accepted": [
+    "bhaj"
+   ],
+   "authority": "dpd-roots",
+   "id": "q48",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "number",
+   "surface": "bhagavato",
+   "wordId": "g5",
+   "question": "Is \"bhagavato\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q49",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "sense",
+   "surface": "bhagavato",
+   "wordId": "g5",
+   "question": "What does \"bhagavato\" mean in this passage?",
+   "accepted": [
+    "to the Blessed One",
+    "to the Fortunate One",
+    "to the Lucky One"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q50",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "root",
+   "surface": "paccassosuṁ",
+   "wordId": "g6",
+   "question": "According to the material, what is the verbal root of \"paccassosuṁ\"?",
+   "accepted": [
+    "su"
+   ],
+   "authority": "dpd-roots",
+   "id": "q51",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "sense",
+   "surface": "paccassosuṁ",
+   "wordId": "g6",
+   "question": "What does \"paccassosuṁ\" mean in this passage?",
+   "accepted": [
+    "replied",
+    "answered",
+    "acknowledged"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q52",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-g",
+   "type": "align",
+   "surface": "paccassosuṁ",
+   "wordId": "g6",
+   "question": "Which word(s) in the English translation render \"paccassosuṁ\"?",
+   "accepted": [
+    "replied"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q53",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-h",
+   "type": "root",
+   "surface": "Bhagavā",
+   "wordId": "h1",
+   "question": "According to the material, what is the verbal root of \"Bhagavā\"?",
+   "accepted": [
+    "bhaj"
+   ],
+   "authority": "dpd-roots",
+   "id": "q54",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-h",
+   "type": "sense",
+   "surface": "Bhagavā",
+   "wordId": "h1",
+   "question": "What does \"Bhagavā\" mean in this passage?",
+   "accepted": [
+    "The Blessed One",
+    "The Fortunate One",
+    "The Lucky One"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q55",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-h",
+   "type": "align",
+   "surface": "Bhagavā",
+   "wordId": "h1",
+   "question": "Which word(s) in the English translation render \"Bhagavā\"?",
+   "accepted": [
+    "The",
+    "Buddha"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q56",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-h",
+   "type": "root",
+   "surface": "avoca",
+   "wordId": "h3",
+   "question": "According to the material, what is the verbal root of \"avoca\"?",
+   "accepted": [
+    "vac"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q57",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-h",
+   "type": "number",
+   "surface": "avoca",
+   "wordId": "h3",
+   "question": "Is \"avoca\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q58",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-h",
+   "type": "sense",
+   "surface": "avoca",
+   "wordId": "h3",
+   "question": "What does \"avoca\" mean in this passage?",
+   "accepted": [
+    "said",
+    "declared",
+    "spoke"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q59",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-h",
+   "type": "align",
+   "surface": "avoca",
+   "wordId": "h3",
+   "question": "Which word(s) in the English translation render \"avoca\"?",
+   "accepted": [
+    "said"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q60",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "root",
+   "surface": "Ekāyano",
+   "wordId": "p1",
+   "question": "According to the material, what is the verbal root of \"Ekāyano\"?",
+   "accepted": [
+    "i"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q61",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "case",
+   "surface": "Ekāyano",
+   "wordId": "p1",
+   "question": "What grammatical case is \"Ekāyano\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q62",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "number",
+   "surface": "Ekāyano",
+   "wordId": "p1",
+   "question": "Is \"Ekāyano\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q63",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "sense",
+   "surface": "Ekāyano",
+   "wordId": "p1",
+   "question": "What does \"Ekāyano\" mean in this passage?",
+   "accepted": [
+    "direct",
+    "one-way",
+    "solitary",
+    "convergent",
+    "only"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q64",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "root",
+   "surface": "Bhikkhave",
+   "wordId": "p3",
+   "question": "According to the material, what is the verbal root of \"Bhikkhave\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q65",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "case",
+   "surface": "Bhikkhave",
+   "wordId": "p3",
+   "question": "What grammatical case is \"Bhikkhave\" in?",
+   "accepted": [
+    "vocative",
+    "voc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q66",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "number",
+   "surface": "Bhikkhave",
+   "wordId": "p3",
+   "question": "Is \"Bhikkhave\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q67",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "sense",
+   "surface": "Bhikkhave",
+   "wordId": "p3",
+   "question": "What does \"Bhikkhave\" mean in this passage?",
+   "accepted": [
+    "Mendicants,",
+    "Monks,",
+    "Sharers,",
+    "Seekers,",
+    "Friends,"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q68",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "align",
+   "surface": "Bhikkhave",
+   "wordId": "p3",
+   "question": "Which word(s) in the English translation render \"Bhikkhave\"?",
+   "accepted": [
+    "“Mendicants"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q69",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "root",
+   "surface": "maggo",
+   "wordId": "p4",
+   "question": "According to the material, what is the verbal root of \"maggo\"?",
+   "accepted": [
+    "magg",
+    "mārg"
+   ],
+   "authority": "dpd-roots",
+   "id": "q70",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "case",
+   "surface": "maggo",
+   "wordId": "p4",
+   "question": "What grammatical case is \"maggo\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q71",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "number",
+   "surface": "maggo",
+   "wordId": "p4",
+   "question": "Is \"maggo\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q72",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "sense",
+   "surface": "maggo",
+   "wordId": "p4",
+   "question": "What does \"maggo\" mean in this passage?",
+   "accepted": [
+    "path",
+    "road",
+    "method"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q73",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-1",
+   "type": "align",
+   "surface": "maggo",
+   "wordId": "p4",
+   "question": "Which word(s) in the English translation render \"maggo\"?",
+   "accepted": [
+    "path"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q74",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-2",
+   "type": "root",
+   "surface": "sattānaṁ",
+   "wordId": "p5",
+   "question": "According to the material, what is the verbal root of \"sattānaṁ\"?",
+   "accepted": [
+    "as",
+    "saj",
+    "sañj",
+    "sajj",
+    "sap"
+   ],
+   "authority": "dpd-roots",
+   "id": "q75",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-2",
+   "type": "sense",
+   "surface": "sattānaṁ",
+   "wordId": "p5",
+   "question": "What does \"sattānaṁ\" mean in this passage?",
+   "accepted": [
+    "beings",
+    "stuck ones"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q76",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-2",
+   "type": "align",
+   "surface": "sattānaṁ",
+   "wordId": "p5",
+   "question": "Which word(s) in the English translation render \"sattānaṁ\"?",
+   "accepted": [
+    "sentient",
+    "beings"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q77",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-2",
+   "type": "root",
+   "surface": "visuddhiyā",
+   "wordId": "p6",
+   "question": "According to the material, what is the verbal root of \"visuddhiyā\"?",
+   "accepted": [
+    "sudh"
+   ],
+   "authority": "dpd-roots",
+   "id": "q78",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-2",
+   "type": "number",
+   "surface": "visuddhiyā",
+   "wordId": "p6",
+   "question": "Is \"visuddhiyā\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q79",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-2",
+   "type": "sense",
+   "surface": "visuddhiyā",
+   "wordId": "p6",
+   "question": "What does \"visuddhiyā\" mean in this passage?",
+   "accepted": [
+    "purification",
+    "clarity",
+    "cleansing",
+    "brightening",
+    "refinement"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q80",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-2",
+   "type": "align",
+   "surface": "visuddhiyā",
+   "wordId": "p6",
+   "question": "Which word(s) in the English translation render \"visuddhiyā\"?",
+   "accepted": [
+    "purify"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q81",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-3",
+   "type": "root",
+   "surface": "sokaparidevānaṁ",
+   "wordId": "p7",
+   "question": "According to the material, what is the verbal root of \"sokaparidevānaṁ\"?",
+   "accepted": [
+    "suc"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q82",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-3",
+   "type": "sense",
+   "surface": "sokaparidevānaṁ",
+   "wordId": "p7",
+   "question": "What does \"sokaparidevānaṁ\" mean in this passage?",
+   "accepted": [
+    "grief & lamentation",
+    "burning & crying",
+    "sorrow & wailing"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q83",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-3",
+   "type": "align",
+   "surface": "sokaparidevānaṁ",
+   "wordId": "p7",
+   "question": "Which word(s) in the English translation render \"sokaparidevānaṁ\"?",
+   "accepted": [
+    "crying"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q84",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-3",
+   "type": "root",
+   "surface": "samatikkamāya",
+   "wordId": "p8",
+   "question": "According to the material, what is the verbal root of \"samatikkamāya\"?",
+   "accepted": [
+    "kam",
+    "kram",
+    "samatikram"
+   ],
+   "authority": "dpd-roots",
+   "id": "q85",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-3",
+   "type": "case",
+   "surface": "samatikkamāya",
+   "wordId": "p8",
+   "question": "What grammatical case is \"samatikkamāya\" in?",
+   "accepted": [
+    "dative",
+    "dat"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q86",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-3",
+   "type": "number",
+   "surface": "samatikkamāya",
+   "wordId": "p8",
+   "question": "Is \"samatikkamāya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q87",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-3",
+   "type": "sense",
+   "surface": "samatikkamāya",
+   "wordId": "p8",
+   "question": "What does \"samatikkamāya\" mean in this passage?",
+   "accepted": [
+    "surmounting",
+    "transcending",
+    "overcoming",
+    "crossing over",
+    "leaving behind"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q88",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-3",
+   "type": "align",
+   "surface": "samatikkamāya",
+   "wordId": "p8",
+   "question": "Which word(s) in the English translation render \"samatikkamāya\"?",
+   "accepted": [
+    "get",
+    "past"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q89",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-4",
+   "type": "sense",
+   "surface": "dukkhadomanassānaṁ",
+   "wordId": "p9",
+   "question": "What does \"dukkhadomanassānaṁ\" mean in this passage?",
+   "accepted": [
+    "pain & distress",
+    "suffering & sadness",
+    "discomfort & displeasure"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q90",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-4",
+   "type": "align",
+   "surface": "dukkhadomanassānaṁ",
+   "wordId": "p9",
+   "question": "Which word(s) in the English translation render \"dukkhadomanassānaṁ\"?",
+   "accepted": [
+    "pain"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q91",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-4",
+   "type": "root",
+   "surface": "atthaṅgamāya",
+   "wordId": "p10",
+   "question": "According to the material, what is the verbal root of \"atthaṅgamāya\"?",
+   "accepted": [
+    "as",
+    "gam"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q92",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-4",
+   "type": "case",
+   "surface": "atthaṅgamāya",
+   "wordId": "p10",
+   "question": "What grammatical case is \"atthaṅgamāya\" in?",
+   "accepted": [
+    "dative",
+    "dat"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q93",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-4",
+   "type": "number",
+   "surface": "atthaṅgamāya",
+   "wordId": "p10",
+   "question": "Is \"atthaṅgamāya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q94",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-4",
+   "type": "sense",
+   "surface": "atthaṅgamāya",
+   "wordId": "p10",
+   "question": "What does \"atthaṅgamāya\" mean in this passage?",
+   "accepted": [
+    "disappearance",
+    "ending",
+    "extinguishing"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q95",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-4",
+   "type": "align",
+   "surface": "atthaṅgamāya",
+   "wordId": "p10",
+   "question": "Which word(s) in the English translation render \"atthaṅgamāya\"?",
+   "accepted": [
+    "make",
+    "end"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q96",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-5",
+   "type": "root",
+   "surface": "ñāyassa",
+   "wordId": "p11",
+   "question": "According to the material, what is the verbal root of \"ñāyassa\"?",
+   "accepted": [
+    "i",
+    "nye"
+   ],
+   "authority": "dpd-roots",
+   "id": "q97",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-5",
+   "type": "number",
+   "surface": "ñāyassa",
+   "wordId": "p11",
+   "question": "Is \"ñāyassa\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q98",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-5",
+   "type": "sense",
+   "surface": "ñāyassa",
+   "wordId": "p11",
+   "question": "What does \"ñāyassa\" mean in this passage?",
+   "accepted": [
+    "of the true method",
+    "of the truth",
+    "of the right way"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q99",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-5",
+   "type": "align",
+   "surface": "ñāyassa",
+   "wordId": "p11",
+   "question": "Which word(s) in the English translation render \"ñāyassa\"?",
+   "accepted": [
+    "system"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q100",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-5",
+   "type": "root",
+   "surface": "adhigamāya",
+   "wordId": "p12",
+   "question": "According to the material, what is the verbal root of \"adhigamāya\"?",
+   "accepted": [
+    "gam",
+    "adhigam"
+   ],
+   "authority": "dpd-roots",
+   "id": "q101",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-5",
+   "type": "case",
+   "surface": "adhigamāya",
+   "wordId": "p12",
+   "question": "What grammatical case is \"adhigamāya\" in?",
+   "accepted": [
+    "dative",
+    "dat"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q102",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-5",
+   "type": "number",
+   "surface": "adhigamāya",
+   "wordId": "p12",
+   "question": "Is \"adhigamāya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q103",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-5",
+   "type": "sense",
+   "surface": "adhigamāya",
+   "wordId": "p12",
+   "question": "What does \"adhigamāya\" mean in this passage?",
+   "accepted": [
+    "attainment",
+    "acquisition",
+    "realization"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q104",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-5",
+   "type": "align",
+   "surface": "adhigamāya",
+   "wordId": "p12",
+   "question": "Which word(s) in the English translation render \"adhigamāya\"?",
+   "accepted": [
+    "discover"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q105",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-6",
+   "type": "root",
+   "surface": "nibbānassa",
+   "wordId": "p13",
+   "question": "According to the material, what is the verbal root of \"nibbānassa\"?",
+   "accepted": [
+    "vā",
+    "nirvā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q106",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-6",
+   "type": "number",
+   "surface": "nibbānassa",
+   "wordId": "p13",
+   "question": "Is \"nibbānassa\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q107",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-6",
+   "type": "sense",
+   "surface": "nibbānassa",
+   "wordId": "p13",
+   "question": "What does \"nibbānassa\" mean in this passage?",
+   "accepted": [
+    "of Nibbana",
+    "of Unbinding",
+    "of extinguishing",
+    "of cooling",
+    "of liberation"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q108",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-6",
+   "type": "align",
+   "surface": "nibbānassa",
+   "wordId": "p13",
+   "question": "Which word(s) in the English translation render \"nibbānassa\"?",
+   "accepted": [
+    "extinguishment"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q109",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-6",
+   "type": "root",
+   "surface": "sacchikiriyāya",
+   "wordId": "p14",
+   "question": "According to the material, what is the verbal root of \"sacchikiriyāya\"?",
+   "accepted": [
+    "k"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q110",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-6",
+   "type": "number",
+   "surface": "sacchikiriyāya",
+   "wordId": "p14",
+   "question": "Is \"sacchikiriyāya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q111",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-6",
+   "type": "sense",
+   "surface": "sacchikiriyāya",
+   "wordId": "p14",
+   "question": "What does \"sacchikiriyāya\" mean in this passage?",
+   "accepted": [
+    "realization",
+    "witnessing",
+    "direct experience",
+    "making visible",
+    "touching"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q112",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-6",
+   "type": "align",
+   "surface": "sacchikiriyāya",
+   "wordId": "p14",
+   "question": "Which word(s) in the English translation render \"sacchikiriyāya\"?",
+   "accepted": [
+    "realize"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q113",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-7",
+   "type": "number",
+   "surface": "cattāro",
+   "wordId": "p16",
+   "question": "Is \"cattāro\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q114",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-7",
+   "type": "sense",
+   "surface": "cattāro",
+   "wordId": "p16",
+   "question": "What does \"cattāro\" mean in this passage?",
+   "accepted": [
+    "the four",
+    "four",
+    "the quartet"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q115",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-7",
+   "type": "align",
+   "surface": "cattāro",
+   "wordId": "p16",
+   "question": "Which word(s) in the English translation render \"cattāro\"?",
+   "accepted": [
+    "four"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q116",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-7",
+   "type": "root",
+   "surface": "satipaṭṭhānā",
+   "wordId": "p17",
+   "question": "According to the material, what is the verbal root of \"satipaṭṭhānā\"?",
+   "accepted": [
+    "sm",
+    "sthā"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q117",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-7",
+   "type": "sense",
+   "surface": "satipaṭṭhānā",
+   "wordId": "p17",
+   "question": "What does \"satipaṭṭhānā\" mean in this passage?",
+   "accepted": [
+    "foundations of mindfulness",
+    "establishments of awareness",
+    "presencings of remembering",
+    "ways of keeping present",
+    "lucid abodes"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q118",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-7",
+   "type": "align",
+   "surface": "satipaṭṭhānā",
+   "wordId": "p17",
+   "question": "Which word(s) in the English translation render \"satipaṭṭhānā\"?",
+   "accepted": [
+    "mindfulness"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q119",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-x",
+   "type": "number",
+   "surface": "cattāro",
+   "wordId": "x2",
+   "question": "Is \"cattāro\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q120",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-x",
+   "type": "sense",
+   "surface": "cattāro",
+   "wordId": "x2",
+   "question": "What does \"cattāro\" mean in this passage?",
+   "accepted": [
+    "four",
+    "the four",
+    "a tetrad"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q121",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-x",
+   "type": "align",
+   "surface": "cattāro",
+   "wordId": "x2",
+   "question": "Which word(s) in the English translation render \"cattāro\"?",
+   "accepted": [
+    "four"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q122",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-y",
+   "type": "root",
+   "surface": "bhikkhave",
+   "wordId": "y2",
+   "question": "According to the material, what is the verbal root of \"bhikkhave\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q123",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-y",
+   "type": "case",
+   "surface": "bhikkhave",
+   "wordId": "y2",
+   "question": "What grammatical case is \"bhikkhave\" in?",
+   "accepted": [
+    "vocative",
+    "voc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q124",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-y",
+   "type": "number",
+   "surface": "bhikkhave",
+   "wordId": "y2",
+   "question": "Is \"bhikkhave\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q125",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-y",
+   "type": "sense",
+   "surface": "bhikkhave",
+   "wordId": "y2",
+   "question": "What does \"bhikkhave\" mean in this passage?",
+   "accepted": [
+    "bhikkhus",
+    "O monks",
+    "fellow practitioners"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q126",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-y",
+   "type": "root",
+   "surface": "bhikkhu",
+   "wordId": "y3",
+   "question": "According to the material, what is the verbal root of \"bhikkhu\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q127",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-y",
+   "type": "number",
+   "surface": "bhikkhu",
+   "wordId": "y3",
+   "question": "Is \"bhikkhu\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q128",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-y",
+   "type": "sense",
+   "surface": "bhikkhu",
+   "wordId": "y3",
+   "question": "What does \"bhikkhu\" mean in this passage?",
+   "accepted": [
+    "a bhikkhu",
+    "a practitioner",
+    "a mendicant"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q129",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-y",
+   "type": "align",
+   "surface": "bhikkhu",
+   "wordId": "y3",
+   "question": "Which word(s) in the English translation render \"bhikkhu\"?",
+   "accepted": [
+    "mendicant"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q130",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "root",
+   "surface": "kāye",
+   "wordId": "z1",
+   "question": "According to the material, what is the verbal root of \"kāye\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q131",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "sense",
+   "surface": "kāye",
+   "wordId": "z1",
+   "question": "What does \"kāye\" mean in this passage?",
+   "accepted": [
+    "in the body",
+    "in this heap",
+    "in this mass",
+    "body as body",
+    "in what's assembled"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q132",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "align",
+   "surface": "kāye",
+   "wordId": "z1",
+   "question": "Which word(s) in the English translation render \"kāye\"?",
+   "accepted": [
+    "of",
+    "the",
+    "body—keen"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q133",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "root",
+   "surface": "kāyānupassī",
+   "wordId": "z2",
+   "question": "According to the material, what is the verbal root of \"kāyānupassī\"?",
+   "accepted": [
+    "d",
+    "pass"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q134",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "sense",
+   "surface": "kāyānupassī",
+   "wordId": "z2",
+   "question": "What does \"kāyānupassī\" mean in this passage?",
+   "accepted": [
+    "observing body",
+    "a body-watcher",
+    "contemplating form",
+    "tracking the physical",
+    "seeing body as body"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q135",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "align",
+   "surface": "kāyānupassī",
+   "wordId": "z2",
+   "question": "Which word(s) in the English translation render \"kāyānupassī\"?",
+   "accepted": [
+    "observing"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q136",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "z3",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q137",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "z3",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q138",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "z3",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains",
+    "lives",
+    "keeps at it"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q139",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-z",
+   "type": "align",
+   "surface": "viharati",
+   "wordId": "z3",
+   "question": "Which word(s) in the English translation render \"viharati\"?",
+   "accepted": [
+    "meditates"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q140",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "root",
+   "surface": "ātāpī",
+   "wordId": "aa1",
+   "question": "According to the material, what is the verbal root of \"ātāpī\"?",
+   "accepted": [
+    "tap",
+    "ātap"
+   ],
+   "authority": "dpd-roots",
+   "id": "q141",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "sense",
+   "surface": "ātāpī",
+   "wordId": "aa1",
+   "question": "What does \"ātāpī\" mean in this passage?",
+   "accepted": [
+    "ardent",
+    "with heat",
+    "diligent",
+    "keen"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q142",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "root",
+   "surface": "sampajāno",
+   "wordId": "aa2",
+   "question": "According to the material, what is the verbal root of \"sampajāno\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "samprajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q143",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "case",
+   "surface": "sampajāno",
+   "wordId": "aa2",
+   "question": "What grammatical case is \"sampajāno\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q144",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "number",
+   "surface": "sampajāno",
+   "wordId": "aa2",
+   "question": "Is \"sampajāno\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q145",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "sense",
+   "surface": "sampajāno",
+   "wordId": "aa2",
+   "question": "What does \"sampajāno\" mean in this passage?",
+   "accepted": [
+    "clearly knowing",
+    "with clear comprehension",
+    "discerning",
+    "fully aware"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q146",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "align",
+   "surface": "sampajāno",
+   "wordId": "aa2",
+   "question": "Which word(s) in the English translation render \"sampajāno\"?",
+   "accepted": [
+    "aware"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q147",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "root",
+   "surface": "satimā",
+   "wordId": "aa3",
+   "question": "According to the material, what is the verbal root of \"satimā\"?",
+   "accepted": [
+    "sar",
+    "sm"
+   ],
+   "authority": "dpd-roots",
+   "id": "q148",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "sense",
+   "surface": "satimā",
+   "wordId": "aa3",
+   "question": "What does \"satimā\" mean in this passage?",
+   "accepted": [
+    "possessing mindfulness",
+    "mindful",
+    "equipped with awareness",
+    "recollected"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q149",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aa",
+   "type": "align",
+   "surface": "satimā",
+   "wordId": "aa3",
+   "question": "Which word(s) in the English translation render \"satimā\"?",
+   "accepted": [
+    "mindful"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q150",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "root",
+   "surface": "vineyya",
+   "wordId": "ab1",
+   "question": "According to the material, what is the verbal root of \"vineyya\"?",
+   "accepted": [
+    "nī",
+    "vinī"
+   ],
+   "authority": "dpd-roots",
+   "id": "q151",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "case",
+   "surface": "vineyya",
+   "wordId": "ab1",
+   "question": "What grammatical case is \"vineyya\" in?",
+   "accepted": [
+    "vocative",
+    "voc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q152",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "number",
+   "surface": "vineyya",
+   "wordId": "ab1",
+   "question": "Is \"vineyya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q153",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "sense",
+   "surface": "vineyya",
+   "wordId": "ab1",
+   "question": "What does \"vineyya\" mean in this passage?",
+   "accepted": [
+    "putting aside",
+    "having removed",
+    "disciplining",
+    "training away",
+    "freeing from"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q154",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "align",
+   "surface": "vineyya",
+   "wordId": "ab1",
+   "question": "Which word(s) in the English translation render \"vineyya\"?",
+   "accepted": [
+    "rid"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q155",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "root",
+   "surface": "loke",
+   "wordId": "ab2",
+   "question": "According to the material, what is the verbal root of \"loke\"?",
+   "accepted": [
+    "lok"
+   ],
+   "authority": "dpd-roots",
+   "id": "q156",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "sense",
+   "surface": "loke",
+   "wordId": "ab2",
+   "question": "What does \"loke\" mean in this passage?",
+   "accepted": [
+    "regarding the world",
+    "in the world",
+    "concerning experience"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q157",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "align",
+   "surface": "loke",
+   "wordId": "ab2",
+   "question": "Which word(s) in the English translation render \"loke\"?",
+   "accepted": [
+    "for",
+    "the",
+    "world"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q158",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "root",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ab3",
+   "question": "According to the material, what is the verbal root of \"abhijjhādomanassaṁ\"?",
+   "accepted": [
+    "jhā",
+    "dhyai"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q159",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "sense",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ab3",
+   "question": "What does \"abhijjhādomanassaṁ\" mean in this passage?",
+   "accepted": [
+    "covetousness & displeasure",
+    "the five hindrances",
+    "wanting & not-wanting"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q160",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ab",
+   "type": "align",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ab3",
+   "question": "Which word(s) in the English translation render \"abhijjhādomanassaṁ\"?",
+   "accepted": [
+    "covetousness"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q161",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "root",
+   "surface": "vedanāsu",
+   "wordId": "ac1",
+   "question": "According to the material, what is the verbal root of \"vedanāsu\"?",
+   "accepted": [
+    "vid"
+   ],
+   "authority": "dpd-roots",
+   "id": "q162",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "case",
+   "surface": "vedanāsu",
+   "wordId": "ac1",
+   "question": "What grammatical case is \"vedanāsu\" in?",
+   "accepted": [
+    "locative",
+    "loc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q163",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "number",
+   "surface": "vedanāsu",
+   "wordId": "ac1",
+   "question": "Is \"vedanāsu\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q164",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "sense",
+   "surface": "vedanāsu",
+   "wordId": "ac1",
+   "question": "What does \"vedanāsu\" mean in this passage?",
+   "accepted": [
+    "in feelings",
+    "regarding felt tones",
+    "within sensations"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q165",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "align",
+   "surface": "vedanāsu",
+   "wordId": "ac1",
+   "question": "Which word(s) in the English translation render \"vedanāsu\"?",
+   "accepted": [
+    "aspect",
+    "of",
+    "feelings—keen"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q166",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "root",
+   "surface": "vedanānupassī",
+   "wordId": "ac2",
+   "question": "According to the material, what is the verbal root of \"vedanānupassī\"?",
+   "accepted": [
+    "d",
+    "pass"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q167",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "sense",
+   "surface": "vedanānupassī",
+   "wordId": "ac2",
+   "question": "What does \"vedanānupassī\" mean in this passage?",
+   "accepted": [
+    "observing feelings",
+    "a feeling-watcher",
+    "tracking sensations",
+    "seeing feeling as feeling"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q168",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "align",
+   "surface": "vedanānupassī",
+   "wordId": "ac2",
+   "question": "Which word(s) in the English translation render \"vedanānupassī\"?",
+   "accepted": [
+    "observing"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q169",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "ac3",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q170",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "ac3",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q171",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ac",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "ac3",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q172",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "root",
+   "surface": "ātāpī",
+   "wordId": "ad1",
+   "question": "According to the material, what is the verbal root of \"ātāpī\"?",
+   "accepted": [
+    "tap",
+    "ātap"
+   ],
+   "authority": "dpd-roots",
+   "id": "q173",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "sense",
+   "surface": "ātāpī",
+   "wordId": "ad1",
+   "question": "What does \"ātāpī\" mean in this passage?",
+   "accepted": [
+    "ardent",
+    "with heat",
+    "diligent",
+    "keen"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q174",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "root",
+   "surface": "sampajāno",
+   "wordId": "ad2",
+   "question": "According to the material, what is the verbal root of \"sampajāno\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "samprajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q175",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "case",
+   "surface": "sampajāno",
+   "wordId": "ad2",
+   "question": "What grammatical case is \"sampajāno\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q176",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "number",
+   "surface": "sampajāno",
+   "wordId": "ad2",
+   "question": "Is \"sampajāno\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q177",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "sense",
+   "surface": "sampajāno",
+   "wordId": "ad2",
+   "question": "What does \"sampajāno\" mean in this passage?",
+   "accepted": [
+    "clearly knowing",
+    "with clear comprehension",
+    "discerning",
+    "fully aware"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q178",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "align",
+   "surface": "sampajāno",
+   "wordId": "ad2",
+   "question": "Which word(s) in the English translation render \"sampajāno\"?",
+   "accepted": [
+    "aware"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q179",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "root",
+   "surface": "satimā",
+   "wordId": "ad3",
+   "question": "According to the material, what is the verbal root of \"satimā\"?",
+   "accepted": [
+    "sar",
+    "sm"
+   ],
+   "authority": "dpd-roots",
+   "id": "q180",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "sense",
+   "surface": "satimā",
+   "wordId": "ad3",
+   "question": "What does \"satimā\" mean in this passage?",
+   "accepted": [
+    "possessing mindfulness",
+    "mindful",
+    "equipped with awareness",
+    "recollected"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q181",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ad",
+   "type": "align",
+   "surface": "satimā",
+   "wordId": "ad3",
+   "question": "Which word(s) in the English translation render \"satimā\"?",
+   "accepted": [
+    "mindful"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q182",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "root",
+   "surface": "vineyya",
+   "wordId": "ae1",
+   "question": "According to the material, what is the verbal root of \"vineyya\"?",
+   "accepted": [
+    "nī",
+    "vinī"
+   ],
+   "authority": "dpd-roots",
+   "id": "q183",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "case",
+   "surface": "vineyya",
+   "wordId": "ae1",
+   "question": "What grammatical case is \"vineyya\" in?",
+   "accepted": [
+    "vocative",
+    "voc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q184",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "number",
+   "surface": "vineyya",
+   "wordId": "ae1",
+   "question": "Is \"vineyya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q185",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "sense",
+   "surface": "vineyya",
+   "wordId": "ae1",
+   "question": "What does \"vineyya\" mean in this passage?",
+   "accepted": [
+    "putting aside",
+    "having removed",
+    "disciplining",
+    "training away",
+    "freeing from"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q186",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "align",
+   "surface": "vineyya",
+   "wordId": "ae1",
+   "question": "Which word(s) in the English translation render \"vineyya\"?",
+   "accepted": [
+    "rid"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q187",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "root",
+   "surface": "loke",
+   "wordId": "ae2",
+   "question": "According to the material, what is the verbal root of \"loke\"?",
+   "accepted": [
+    "lok"
+   ],
+   "authority": "dpd-roots",
+   "id": "q188",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "sense",
+   "surface": "loke",
+   "wordId": "ae2",
+   "question": "What does \"loke\" mean in this passage?",
+   "accepted": [
+    "regarding the world",
+    "in the world",
+    "concerning experience"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q189",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "align",
+   "surface": "loke",
+   "wordId": "ae2",
+   "question": "Which word(s) in the English translation render \"loke\"?",
+   "accepted": [
+    "world"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q190",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "sense",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ae3",
+   "question": "What does \"abhijjhādomanassaṁ\" mean in this passage?",
+   "accepted": [
+    "covetousness & displeasure",
+    "the five hindrances",
+    "wanting & not-wanting"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q191",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ae",
+   "type": "align",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ae3",
+   "question": "Which word(s) in the English translation render \"abhijjhādomanassaṁ\"?",
+   "accepted": [
+    "covetousness"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q192",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-af",
+   "type": "root",
+   "surface": "citte",
+   "wordId": "af1",
+   "question": "According to the material, what is the verbal root of \"citte\"?",
+   "accepted": [
+    "cit",
+    "cint",
+    "citt",
+    "citraya"
+   ],
+   "authority": "dpd-roots",
+   "id": "q193",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-af",
+   "type": "sense",
+   "surface": "citte",
+   "wordId": "af1",
+   "question": "What does \"citte\" mean in this passage?",
+   "accepted": [
+    "in the mind",
+    "in the heart",
+    "regarding consciousness"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q194",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-af",
+   "type": "align",
+   "surface": "citte",
+   "wordId": "af1",
+   "question": "Which word(s) in the English translation render \"citte\"?",
+   "accepted": [
+    "of",
+    "the",
+    "mind—keen"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q195",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-af",
+   "type": "root",
+   "surface": "cittānupassī",
+   "wordId": "af2",
+   "question": "According to the material, what is the verbal root of \"cittānupassī\"?",
+   "accepted": [
+    "d",
+    "pass"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q196",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-af",
+   "type": "sense",
+   "surface": "cittānupassī",
+   "wordId": "af2",
+   "question": "What does \"cittānupassī\" mean in this passage?",
+   "accepted": [
+    "observing mind",
+    "a mind-watcher",
+    "tracking consciousness",
+    "seeing mind as mind"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q197",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-af",
+   "type": "align",
+   "surface": "cittānupassī",
+   "wordId": "af2",
+   "question": "Which word(s) in the English translation render \"cittānupassī\"?",
+   "accepted": [
+    "observing"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q198",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-af",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "af3",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q199",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-af",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "af3",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q200",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-af",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "af3",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains",
+    "lives",
+    "keeps at it"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q201",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "root",
+   "surface": "ātāpī",
+   "wordId": "ag1",
+   "question": "According to the material, what is the verbal root of \"ātāpī\"?",
+   "accepted": [
+    "tap",
+    "ātap"
+   ],
+   "authority": "dpd-roots",
+   "id": "q202",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "sense",
+   "surface": "ātāpī",
+   "wordId": "ag1",
+   "question": "What does \"ātāpī\" mean in this passage?",
+   "accepted": [
+    "ardent",
+    "with heat",
+    "diligent",
+    "keen"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q203",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "root",
+   "surface": "sampajāno",
+   "wordId": "ag2",
+   "question": "According to the material, what is the verbal root of \"sampajāno\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "samprajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q204",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "case",
+   "surface": "sampajāno",
+   "wordId": "ag2",
+   "question": "What grammatical case is \"sampajāno\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q205",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "number",
+   "surface": "sampajāno",
+   "wordId": "ag2",
+   "question": "Is \"sampajāno\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q206",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "sense",
+   "surface": "sampajāno",
+   "wordId": "ag2",
+   "question": "What does \"sampajāno\" mean in this passage?",
+   "accepted": [
+    "clearly knowing",
+    "with clear comprehension",
+    "discerning",
+    "fully aware"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q207",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "align",
+   "surface": "sampajāno",
+   "wordId": "ag2",
+   "question": "Which word(s) in the English translation render \"sampajāno\"?",
+   "accepted": [
+    "aware"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q208",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "root",
+   "surface": "satimā",
+   "wordId": "ag3",
+   "question": "According to the material, what is the verbal root of \"satimā\"?",
+   "accepted": [
+    "sar",
+    "sm"
+   ],
+   "authority": "dpd-roots",
+   "id": "q209",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "sense",
+   "surface": "satimā",
+   "wordId": "ag3",
+   "question": "What does \"satimā\" mean in this passage?",
+   "accepted": [
+    "possessing mindfulness",
+    "mindful",
+    "equipped with awareness",
+    "recollected"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q210",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ag",
+   "type": "align",
+   "surface": "satimā",
+   "wordId": "ag3",
+   "question": "Which word(s) in the English translation render \"satimā\"?",
+   "accepted": [
+    "mindful"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q211",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "root",
+   "surface": "vineyya",
+   "wordId": "ah1",
+   "question": "According to the material, what is the verbal root of \"vineyya\"?",
+   "accepted": [
+    "nī",
+    "vinī"
+   ],
+   "authority": "dpd-roots",
+   "id": "q212",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "case",
+   "surface": "vineyya",
+   "wordId": "ah1",
+   "question": "What grammatical case is \"vineyya\" in?",
+   "accepted": [
+    "vocative",
+    "voc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q213",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "number",
+   "surface": "vineyya",
+   "wordId": "ah1",
+   "question": "Is \"vineyya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q214",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "sense",
+   "surface": "vineyya",
+   "wordId": "ah1",
+   "question": "What does \"vineyya\" mean in this passage?",
+   "accepted": [
+    "putting aside",
+    "having removed",
+    "disciplining",
+    "training away",
+    "freeing from"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q215",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "align",
+   "surface": "vineyya",
+   "wordId": "ah1",
+   "question": "Which word(s) in the English translation render \"vineyya\"?",
+   "accepted": [
+    "rid"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q216",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "root",
+   "surface": "loke",
+   "wordId": "ah2",
+   "question": "According to the material, what is the verbal root of \"loke\"?",
+   "accepted": [
+    "lok"
+   ],
+   "authority": "dpd-roots",
+   "id": "q217",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "sense",
+   "surface": "loke",
+   "wordId": "ah2",
+   "question": "What does \"loke\" mean in this passage?",
+   "accepted": [
+    "regarding the world",
+    "in the world",
+    "concerning experience"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q218",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "align",
+   "surface": "loke",
+   "wordId": "ah2",
+   "question": "Which word(s) in the English translation render \"loke\"?",
+   "accepted": [
+    "world"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q219",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "root",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ah3",
+   "question": "According to the material, what is the verbal root of \"abhijjhādomanassaṁ\"?",
+   "accepted": [
+    "jhā",
+    "dhyai"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q220",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "sense",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ah3",
+   "question": "What does \"abhijjhādomanassaṁ\" mean in this passage?",
+   "accepted": [
+    "covetousness & displeasure",
+    "the five hindrances",
+    "wanting & not-wanting"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q221",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ah",
+   "type": "align",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ah3",
+   "question": "Which word(s) in the English translation render \"abhijjhādomanassaṁ\"?",
+   "accepted": [
+    "covetousness"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q222",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "root",
+   "surface": "dhammesu",
+   "wordId": "ai1",
+   "question": "According to the material, what is the verbal root of \"dhammesu\"?",
+   "accepted": [
+    "dhar",
+    "dh"
+   ],
+   "authority": "dpd-roots",
+   "id": "q223",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "case",
+   "surface": "dhammesu",
+   "wordId": "ai1",
+   "question": "What grammatical case is \"dhammesu\" in?",
+   "accepted": [
+    "locative",
+    "loc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q224",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "number",
+   "surface": "dhammesu",
+   "wordId": "ai1",
+   "question": "Is \"dhammesu\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q225",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "sense",
+   "surface": "dhammesu",
+   "wordId": "ai1",
+   "question": "What does \"dhammesu\" mean in this passage?",
+   "accepted": [
+    "in principles",
+    "regarding phenomena",
+    "within the categories",
+    "in the way things work"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q226",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "align",
+   "surface": "dhammesu",
+   "wordId": "ai1",
+   "question": "Which word(s) in the English translation render \"dhammesu\"?",
+   "accepted": [
+    "for"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q227",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "root",
+   "surface": "dhammānupassī",
+   "wordId": "ai2",
+   "question": "According to the material, what is the verbal root of \"dhammānupassī\"?",
+   "accepted": [
+    "d",
+    "pass"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q228",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "sense",
+   "surface": "dhammānupassī",
+   "wordId": "ai2",
+   "question": "What does \"dhammānupassī\" mean in this passage?",
+   "accepted": [
+    "observing phenomena",
+    "a dhamma-watcher",
+    "tracking principles",
+    "seeing dhamma as dhamma"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q229",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "align",
+   "surface": "dhammānupassī",
+   "wordId": "ai2",
+   "question": "Which word(s) in the English translation render \"dhammānupassī\"?",
+   "accepted": [
+    "observing",
+    "aspect"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q230",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "ai3",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q231",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "ai3",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q232",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ai",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "ai3",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains",
+    "lives",
+    "keeps at it"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q233",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "root",
+   "surface": "ātāpī",
+   "wordId": "aj1",
+   "question": "According to the material, what is the verbal root of \"ātāpī\"?",
+   "accepted": [
+    "tap",
+    "ātap"
+   ],
+   "authority": "dpd-roots",
+   "id": "q234",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "sense",
+   "surface": "ātāpī",
+   "wordId": "aj1",
+   "question": "What does \"ātāpī\" mean in this passage?",
+   "accepted": [
+    "ardent",
+    "with heat",
+    "diligent",
+    "keen"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q235",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "root",
+   "surface": "sampajāno",
+   "wordId": "aj2",
+   "question": "According to the material, what is the verbal root of \"sampajāno\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "samprajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q236",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "case",
+   "surface": "sampajāno",
+   "wordId": "aj2",
+   "question": "What grammatical case is \"sampajāno\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q237",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "number",
+   "surface": "sampajāno",
+   "wordId": "aj2",
+   "question": "Is \"sampajāno\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q238",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "sense",
+   "surface": "sampajāno",
+   "wordId": "aj2",
+   "question": "What does \"sampajāno\" mean in this passage?",
+   "accepted": [
+    "clearly knowing",
+    "with clear comprehension",
+    "discerning",
+    "fully aware"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q239",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "align",
+   "surface": "sampajāno",
+   "wordId": "aj2",
+   "question": "Which word(s) in the English translation render \"sampajāno\"?",
+   "accepted": [
+    "aware"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q240",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "root",
+   "surface": "satimā",
+   "wordId": "aj3",
+   "question": "According to the material, what is the verbal root of \"satimā\"?",
+   "accepted": [
+    "sar",
+    "sm"
+   ],
+   "authority": "dpd-roots",
+   "id": "q241",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "sense",
+   "surface": "satimā",
+   "wordId": "aj3",
+   "question": "What does \"satimā\" mean in this passage?",
+   "accepted": [
+    "possessing mindfulness",
+    "mindful",
+    "equipped with awareness",
+    "recollected"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q242",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aj",
+   "type": "align",
+   "surface": "satimā",
+   "wordId": "aj3",
+   "question": "Which word(s) in the English translation render \"satimā\"?",
+   "accepted": [
+    "mindful"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q243",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "root",
+   "surface": "vineyya",
+   "wordId": "ak1",
+   "question": "According to the material, what is the verbal root of \"vineyya\"?",
+   "accepted": [
+    "nī",
+    "vinī"
+   ],
+   "authority": "dpd-roots",
+   "id": "q244",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "case",
+   "surface": "vineyya",
+   "wordId": "ak1",
+   "question": "What grammatical case is \"vineyya\" in?",
+   "accepted": [
+    "vocative",
+    "voc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q245",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "number",
+   "surface": "vineyya",
+   "wordId": "ak1",
+   "question": "Is \"vineyya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q246",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "sense",
+   "surface": "vineyya",
+   "wordId": "ak1",
+   "question": "What does \"vineyya\" mean in this passage?",
+   "accepted": [
+    "putting aside",
+    "having removed",
+    "disciplining",
+    "training away",
+    "freeing from"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q247",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "align",
+   "surface": "vineyya",
+   "wordId": "ak1",
+   "question": "Which word(s) in the English translation render \"vineyya\"?",
+   "accepted": [
+    "rid"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q248",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "root",
+   "surface": "loke",
+   "wordId": "ak2",
+   "question": "According to the material, what is the verbal root of \"loke\"?",
+   "accepted": [
+    "lok"
+   ],
+   "authority": "dpd-roots",
+   "id": "q249",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "sense",
+   "surface": "loke",
+   "wordId": "ak2",
+   "question": "What does \"loke\" mean in this passage?",
+   "accepted": [
+    "regarding the world",
+    "in the world",
+    "concerning experience"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q250",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "align",
+   "surface": "loke",
+   "wordId": "ak2",
+   "question": "Which word(s) in the English translation render \"loke\"?",
+   "accepted": [
+    "world"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q251",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "root",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ak3",
+   "question": "According to the material, what is the verbal root of \"abhijjhādomanassaṁ\"?",
+   "accepted": [
+    "jhā",
+    "dhyai"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q252",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "sense",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ak3",
+   "question": "What does \"abhijjhādomanassaṁ\" mean in this passage?",
+   "accepted": [
+    "covetousness & displeasure",
+    "the five hindrances",
+    "wanting & not-wanting"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q253",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ak",
+   "type": "align",
+   "surface": "abhijjhādomanassaṁ",
+   "wordId": "ak3",
+   "question": "Which word(s) in the English translation render \"abhijjhādomanassaṁ\"?",
+   "accepted": [
+    "covetousness"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q254",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-al",
+   "type": "root",
+   "surface": "Uddeso",
+   "wordId": "al1",
+   "question": "According to the material, what is the verbal root of \"Uddeso\"?",
+   "accepted": [
+    "dis",
+    "di"
+   ],
+   "authority": "dpd-roots",
+   "id": "q255",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-al",
+   "type": "case",
+   "surface": "Uddeso",
+   "wordId": "al1",
+   "question": "What grammatical case is \"Uddeso\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q256",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-al",
+   "type": "number",
+   "surface": "Uddeso",
+   "wordId": "al1",
+   "question": "Is \"Uddeso\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q257",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-al",
+   "type": "sense",
+   "surface": "Uddeso",
+   "wordId": "al1",
+   "question": "What does \"Uddeso\" mean in this passage?",
+   "accepted": [
+    "The outline",
+    "The overview",
+    "The pointing-out"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q258",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-al",
+   "type": "root",
+   "surface": "niṭṭhito",
+   "wordId": "al2",
+   "question": "According to the material, what is the verbal root of \"niṭṭhito\"?",
+   "accepted": [
+    "ṭhā",
+    "sthā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q259",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-al",
+   "type": "case",
+   "surface": "niṭṭhito",
+   "wordId": "al2",
+   "question": "What grammatical case is \"niṭṭhito\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q260",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-al",
+   "type": "number",
+   "surface": "niṭṭhito",
+   "wordId": "al2",
+   "question": "Is \"niṭṭhito\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q261",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-al",
+   "type": "sense",
+   "surface": "niṭṭhito",
+   "wordId": "al2",
+   "question": "What does \"niṭṭhito\" mean in this passage?",
+   "accepted": [
+    "is complete",
+    "is concluded",
+    "stands established"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q262",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "root",
+   "surface": "bhikkhave",
+   "wordId": "am2",
+   "question": "According to the material, what is the verbal root of \"bhikkhave\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q263",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "case",
+   "surface": "bhikkhave",
+   "wordId": "am2",
+   "question": "What grammatical case is \"bhikkhave\" in?",
+   "accepted": [
+    "vocative",
+    "voc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q264",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "number",
+   "surface": "bhikkhave",
+   "wordId": "am2",
+   "question": "Is \"bhikkhave\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q265",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "sense",
+   "surface": "bhikkhave",
+   "wordId": "am2",
+   "question": "What does \"bhikkhave\" mean in this passage?",
+   "accepted": [
+    "monks",
+    "O monastics",
+    "mendicants"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q266",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "root",
+   "surface": "bhikkhu",
+   "wordId": "am3",
+   "question": "According to the material, what is the verbal root of \"bhikkhu\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q267",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "number",
+   "surface": "bhikkhu",
+   "wordId": "am3",
+   "question": "Is \"bhikkhu\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q268",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "sense",
+   "surface": "bhikkhu",
+   "wordId": "am3",
+   "question": "What does \"bhikkhu\" mean in this passage?",
+   "accepted": [
+    "a monk",
+    "a monastic",
+    "a mendicant"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q269",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "align",
+   "surface": "bhikkhu",
+   "wordId": "am3",
+   "question": "Which word(s) in the English translation render \"bhikkhu\"?",
+   "accepted": [
+    "mendicant"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q270",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "root",
+   "surface": "kāye",
+   "wordId": "am4",
+   "question": "According to the material, what is the verbal root of \"kāye\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q271",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "sense",
+   "surface": "kāye",
+   "wordId": "am4",
+   "question": "What does \"kāye\" mean in this passage?",
+   "accepted": [
+    "in the body",
+    "in this heap",
+    "in this mass",
+    "body as body",
+    "in what's assembled"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q272",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "align",
+   "surface": "kāye",
+   "wordId": "am4",
+   "question": "Which word(s) in the English translation render \"kāye\"?",
+   "accepted": [
+    "of",
+    "the",
+    "body"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q273",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "root",
+   "surface": "kāyānupassī",
+   "wordId": "am5",
+   "question": "According to the material, what is the verbal root of \"kāyānupassī\"?",
+   "accepted": [
+    "d",
+    "pass"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q274",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "sense",
+   "surface": "kāyānupassī",
+   "wordId": "am5",
+   "question": "What does \"kāyānupassī\" mean in this passage?",
+   "accepted": [
+    "observing body",
+    "a body-watcher",
+    "contemplating form",
+    "tracking the physical",
+    "seeing body as body"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q275",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "align",
+   "surface": "kāyānupassī",
+   "wordId": "am5",
+   "question": "Which word(s) in the English translation render \"kāyānupassī\"?",
+   "accepted": [
+    "observing"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q276",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "am6",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q277",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "am6",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q278",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-am",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "am6",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q279",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "root",
+   "surface": "bhikkhave",
+   "wordId": "an2",
+   "question": "According to the material, what is the verbal root of \"bhikkhave\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q280",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "case",
+   "surface": "bhikkhave",
+   "wordId": "an2",
+   "question": "What grammatical case is \"bhikkhave\" in?",
+   "accepted": [
+    "vocative",
+    "voc"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q281",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "number",
+   "surface": "bhikkhave",
+   "wordId": "an2",
+   "question": "Is \"bhikkhave\" grammatically singular or plural?",
+   "accepted": [
+    "plural",
+    "pl"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q282",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "sense",
+   "surface": "bhikkhave",
+   "wordId": "an2",
+   "question": "What does \"bhikkhave\" mean in this passage?",
+   "accepted": [
+    "monks",
+    "O monastics",
+    "mendicants"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q283",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "root",
+   "surface": "bhikkhu",
+   "wordId": "an3",
+   "question": "According to the material, what is the verbal root of \"bhikkhu\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q284",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "number",
+   "surface": "bhikkhu",
+   "wordId": "an3",
+   "question": "Is \"bhikkhu\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q285",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "sense",
+   "surface": "bhikkhu",
+   "wordId": "an3",
+   "question": "What does \"bhikkhu\" mean in this passage?",
+   "accepted": [
+    "a monk",
+    "a monastic",
+    "a mendicant"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q286",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "align",
+   "surface": "bhikkhu",
+   "wordId": "an3",
+   "question": "Which word(s) in the English translation render \"bhikkhu\"?",
+   "accepted": [
+    "mendicant—gone"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q287",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "root",
+   "surface": "araññagato",
+   "wordId": "an4",
+   "question": "According to the material, what is the verbal root of \"araññagato\"?",
+   "accepted": [
+    "gam"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q288",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "case",
+   "surface": "araññagato",
+   "wordId": "an4",
+   "question": "What grammatical case is \"araññagato\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q289",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "number",
+   "surface": "araññagato",
+   "wordId": "an4",
+   "question": "Is \"araññagato\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q290",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "sense",
+   "surface": "araññagato",
+   "wordId": "an4",
+   "question": "What does \"araññagato\" mean in this passage?",
+   "accepted": [
+    "gone to the wilderness",
+    "gone to the forest",
+    "gone to the wild"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q291",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "align",
+   "surface": "araññagato",
+   "wordId": "an4",
+   "question": "Which word(s) in the English translation render \"araññagato\"?",
+   "accepted": [
+    "wilderness"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q292",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "case",
+   "surface": "rukkhamūlagato",
+   "wordId": "an6",
+   "question": "What grammatical case is \"rukkhamūlagato\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q293",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "number",
+   "surface": "rukkhamūlagato",
+   "wordId": "an6",
+   "question": "Is \"rukkhamūlagato\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q294",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "sense",
+   "surface": "rukkhamūlagato",
+   "wordId": "an6",
+   "question": "What does \"rukkhamūlagato\" mean in this passage?",
+   "accepted": [
+    "gone to a tree root",
+    "at the foot of a tree",
+    "to the base of a tree"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q295",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "align",
+   "surface": "rukkhamūlagato",
+   "wordId": "an6",
+   "question": "Which word(s) in the English translation render \"rukkhamūlagato\"?",
+   "accepted": [
+    "tree"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q296",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "case",
+   "surface": "suññāgāragato",
+   "wordId": "an7",
+   "question": "What grammatical case is \"suññāgāragato\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q297",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "number",
+   "surface": "suññāgāragato",
+   "wordId": "an7",
+   "question": "Is \"suññāgāragato\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q298",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "sense",
+   "surface": "suññāgāragato",
+   "wordId": "an7",
+   "question": "What does \"suññāgāragato\" mean in this passage?",
+   "accepted": [
+    "gone to an empty house",
+    "in an empty building",
+    "to a void dwelling place"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q299",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-an",
+   "type": "align",
+   "surface": "suññāgāragato",
+   "wordId": "an7",
+   "question": "Which word(s) in the English translation render \"suññāgāragato\"?",
+   "accepted": [
+    "empty"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q300",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "root",
+   "surface": "nisīdati",
+   "wordId": "ao1",
+   "question": "According to the material, what is the verbal root of \"nisīdati\"?",
+   "accepted": [
+    "sad"
+   ],
+   "authority": "dpd-roots",
+   "id": "q301",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "number",
+   "surface": "nisīdati",
+   "wordId": "ao1",
+   "question": "Is \"nisīdati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q302",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "sense",
+   "surface": "nisīdati",
+   "wordId": "ao1",
+   "question": "What does \"nisīdati\" mean in this passage?",
+   "accepted": [
+    "sits down",
+    "is seated",
+    "sits"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q303",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "align",
+   "surface": "nisīdati",
+   "wordId": "ao1",
+   "question": "Which word(s) in the English translation render \"nisīdati\"?",
+   "accepted": [
+    "down"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q304",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "root",
+   "surface": "pallaṅkaṁ",
+   "wordId": "ao2",
+   "question": "According to the material, what is the verbal root of \"pallaṅkaṁ\"?",
+   "accepted": [
+    "añc",
+    "ac",
+    "paryañc"
+   ],
+   "authority": "dpd-roots",
+   "id": "q305",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "sense",
+   "surface": "pallaṅkaṁ",
+   "wordId": "ao2",
+   "question": "What does \"pallaṅkaṁ\" mean in this passage?",
+   "accepted": [
+    "cross-legged",
+    "in lotus position",
+    "folded"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q306",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "align",
+   "surface": "pallaṅkaṁ",
+   "wordId": "ao2",
+   "question": "Which word(s) in the English translation render \"pallaṅkaṁ\"?",
+   "accepted": [
+    "cross-legged"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q307",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "root",
+   "surface": "ābhujitvā",
+   "wordId": "ao3",
+   "question": "According to the material, what is the verbal root of \"ābhujitvā\"?",
+   "accepted": [
+    "bhuj",
+    "ābhuj"
+   ],
+   "authority": "dpd-roots",
+   "id": "q308",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "sense",
+   "surface": "ābhujitvā",
+   "wordId": "ao3",
+   "question": "What does \"ābhujitvā\" mean in this passage?",
+   "accepted": [
+    "having bent",
+    "having coiled",
+    "having contracted"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q309",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "root",
+   "surface": "ujuṁ",
+   "wordId": "ao4",
+   "question": "According to the material, what is the verbal root of \"ujuṁ\"?",
+   "accepted": [
+    "uj"
+   ],
+   "authority": "dpd-roots",
+   "id": "q310",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "sense",
+   "surface": "ujuṁ",
+   "wordId": "ao4",
+   "question": "What does \"ujuṁ\" mean in this passage?",
+   "accepted": [
+    "straight",
+    "upright",
+    "erect"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q311",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "align",
+   "surface": "ujuṁ",
+   "wordId": "ao4",
+   "question": "Which word(s) in the English translation render \"ujuṁ\"?",
+   "accepted": [
+    "straight"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q312",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "root",
+   "surface": "kāyaṁ",
+   "wordId": "ao5",
+   "question": "According to the material, what is the verbal root of \"kāyaṁ\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q313",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "sense",
+   "surface": "kāyaṁ",
+   "wordId": "ao5",
+   "question": "What does \"kāyaṁ\" mean in this passage?",
+   "accepted": [
+    "the body",
+    "the frame",
+    "the torso"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q314",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "align",
+   "surface": "kāyaṁ",
+   "wordId": "ao5",
+   "question": "Which word(s) in the English translation render \"kāyaṁ\"?",
+   "accepted": [
+    "body"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q315",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "root",
+   "surface": "paṇidhāya",
+   "wordId": "ao6",
+   "question": "According to the material, what is the verbal root of \"paṇidhāya\"?",
+   "accepted": [
+    "dhā",
+    "praṇidhā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q316",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ao",
+   "type": "sense",
+   "surface": "paṇidhāya",
+   "wordId": "ao6",
+   "question": "What does \"paṇidhāya\" mean in this passage?",
+   "accepted": [
+    "having directed",
+    "having set",
+    "having determined"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q317",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ap",
+   "type": "sense",
+   "surface": "parimukhaṁ",
+   "wordId": "ap1",
+   "question": "What does \"parimukhaṁ\" mean in this passage?",
+   "accepted": [
+    "in front",
+    "around the nostrils",
+    "as foremost"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q318",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ap",
+   "type": "align",
+   "surface": "parimukhaṁ",
+   "wordId": "ap1",
+   "question": "Which word(s) in the English translation render \"parimukhaṁ\"?",
+   "accepted": [
+    "presence"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q319",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ap",
+   "type": "root",
+   "surface": "satiṁ",
+   "wordId": "ap2",
+   "question": "According to the material, what is the verbal root of \"satiṁ\"?",
+   "accepted": [
+    "sar",
+    "sm",
+    "as",
+    "sam"
+   ],
+   "authority": "dpd-roots",
+   "id": "q320",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ap",
+   "type": "sense",
+   "surface": "satiṁ",
+   "wordId": "ap2",
+   "question": "What does \"satiṁ\" mean in this passage?",
+   "accepted": [
+    "mindfulness",
+    "recollection",
+    "presence of mind"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q321",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ap",
+   "type": "align",
+   "surface": "satiṁ",
+   "wordId": "ap2",
+   "question": "Which word(s) in the English translation render \"satiṁ\"?",
+   "accepted": [
+    "mindfulness"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q322",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ap",
+   "type": "root",
+   "surface": "upaṭṭhapetvā",
+   "wordId": "ap3",
+   "question": "According to the material, what is the verbal root of \"upaṭṭhapetvā\"?",
+   "accepted": [
+    "ṭhā",
+    "sthā",
+    "upasthā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q323",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ap",
+   "type": "sense",
+   "surface": "upaṭṭhapetvā",
+   "wordId": "ap3",
+   "question": "What does \"upaṭṭhapetvā\" mean in this passage?",
+   "accepted": [
+    "having set up",
+    "having brought near",
+    "having readied"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q324",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "root",
+   "surface": "sato",
+   "wordId": "aq2",
+   "question": "According to the material, what is the verbal root of \"sato\"?",
+   "accepted": [
+    "as"
+   ],
+   "authority": "dpd-roots",
+   "id": "q325",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "sense",
+   "surface": "sato",
+   "wordId": "aq2",
+   "question": "What does \"sato\" mean in this passage?",
+   "accepted": [
+    "mindfully",
+    "with awareness",
+    "recollected"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q326",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "align",
+   "surface": "sato",
+   "wordId": "aq2",
+   "question": "Which word(s) in the English translation render \"sato\"?",
+   "accepted": [
+    "mindful",
+    "Mindful"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q327",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "root",
+   "surface": "assasati",
+   "wordId": "aq4",
+   "question": "According to the material, what is the verbal root of \"assasati\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q328",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "number",
+   "surface": "assasati",
+   "wordId": "aq4",
+   "question": "Is \"assasati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q329",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "sense",
+   "surface": "assasati",
+   "wordId": "aq4",
+   "question": "What does \"assasati\" mean in this passage?",
+   "accepted": [
+    "breathes in",
+    "inhales",
+    "breathes"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q330",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "align",
+   "surface": "assasati",
+   "wordId": "aq4",
+   "question": "Which word(s) in the English translation render \"assasati\"?",
+   "accepted": [
+    "in",
+    "breathe"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q331",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "root",
+   "surface": "passasati",
+   "wordId": "aq5",
+   "question": "According to the material, what is the verbal root of \"passasati\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q332",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "number",
+   "surface": "passasati",
+   "wordId": "aq5",
+   "question": "Is \"passasati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q333",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "sense",
+   "surface": "passasati",
+   "wordId": "aq5",
+   "question": "What does \"passasati\" mean in this passage?",
+   "accepted": [
+    "breathes out",
+    "exhales",
+    "out-breathes"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q334",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aq",
+   "type": "align",
+   "surface": "passasati",
+   "wordId": "aq5",
+   "question": "Which word(s) in the English translation render \"passasati\"?",
+   "accepted": [
+    "out"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q335",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "Dīghaṁ",
+   "wordId": "ar1",
+   "question": "What does \"Dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "slowly",
+    "deeply"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q336",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "align",
+   "surface": "Dīghaṁ",
+   "wordId": "ar1",
+   "question": "Which word(s) in the English translation render \"Dīghaṁ\"?",
+   "accepted": [
+    "heavily"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q337",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "root",
+   "surface": "assasanto",
+   "wordId": "ar3",
+   "question": "According to the material, what is the verbal root of \"assasanto\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q338",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "assasanto",
+   "wordId": "ar3",
+   "question": "What does \"assasanto\" mean in this passage?",
+   "accepted": [
+    "breathing in",
+    "inhaling",
+    "taking a breath"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q339",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "align",
+   "surface": "assasanto",
+   "wordId": "ar3",
+   "question": "Which word(s) in the English translation render \"assasanto\"?",
+   "accepted": [
+    "in"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q340",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "dīghaṁ",
+   "wordId": "ar3b",
+   "question": "What does \"dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "deep",
+    "tall"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q341",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "assasāmī",
+   "wordId": "ar4",
+   "question": "What does \"assasāmī\" mean in this passage?",
+   "accepted": [
+    "I breathe in",
+    "I inhale",
+    "I am breathing in"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q342",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "align",
+   "surface": "assasāmī",
+   "wordId": "ar4",
+   "question": "Which word(s) in the English translation render \"assasāmī\"?",
+   "accepted": [
+    "breathing",
+    "in"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q343",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "ar6",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q344",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "ar6",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q345",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "ar6",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q346",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "align",
+   "surface": "pajānāti",
+   "wordId": "ar6",
+   "question": "Which word(s) in the English translation render \"pajānāti\"?",
+   "accepted": [
+    "know"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q347",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "dīghaṁ",
+   "wordId": "ar7",
+   "question": "What does \"dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "slowly",
+    "deeply"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q348",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "align",
+   "surface": "dīghaṁ",
+   "wordId": "ar7",
+   "question": "Which word(s) in the English translation render \"dīghaṁ\"?",
+   "accepted": [
+    "heavily"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q349",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "root",
+   "surface": "passasanto",
+   "wordId": "ar9",
+   "question": "According to the material, what is the verbal root of \"passasanto\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q350",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "passasanto",
+   "wordId": "ar9",
+   "question": "What does \"passasanto\" mean in this passage?",
+   "accepted": [
+    "breathing out",
+    "exhaling",
+    "letting go"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q351",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "align",
+   "surface": "passasanto",
+   "wordId": "ar9",
+   "question": "Which word(s) in the English translation render \"passasanto\"?",
+   "accepted": [
+    "out"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q352",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "dīghaṁ",
+   "wordId": "ar9b",
+   "question": "What does \"dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "deep",
+    "tall"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q353",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "passasāmī",
+   "wordId": "ar10",
+   "question": "What does \"passasāmī\" mean in this passage?",
+   "accepted": [
+    "I breathe out",
+    "I exhale",
+    "I am breathing out"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q354",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "align",
+   "surface": "passasāmī",
+   "wordId": "ar10",
+   "question": "Which word(s) in the English translation render \"passasāmī\"?",
+   "accepted": [
+    "breathing",
+    "out"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q355",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "ar12",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q356",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "ar12",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q357",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "ar12",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q358",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ar",
+   "type": "align",
+   "surface": "pajānāti",
+   "wordId": "ar12",
+   "question": "Which word(s) in the English translation render \"pajānāti\"?",
+   "accepted": [
+    "know"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q359",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "Rassaṁ",
+   "wordId": "as1",
+   "question": "What does \"Rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "quickly",
+    "lightly",
+    "(of breathing) for a short time; shallowly"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q360",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "align",
+   "surface": "Rassaṁ",
+   "wordId": "as1",
+   "question": "Which word(s) in the English translation render \"Rassaṁ\"?",
+   "accepted": [
+    "lightly"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q361",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "root",
+   "surface": "assasanto",
+   "wordId": "as3",
+   "question": "According to the material, what is the verbal root of \"assasanto\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q362",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "assasanto",
+   "wordId": "as3",
+   "question": "What does \"assasanto\" mean in this passage?",
+   "accepted": [
+    "breathing in",
+    "inhaling",
+    "taking a breath"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q363",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "align",
+   "surface": "assasanto",
+   "wordId": "as3",
+   "question": "Which word(s) in the English translation render \"assasanto\"?",
+   "accepted": [
+    "breathing",
+    "in"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q364",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "rassaṁ",
+   "wordId": "as3b",
+   "question": "What does \"rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "dwarfish",
+    "stunted"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q365",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "assasāmī",
+   "wordId": "as4",
+   "question": "What does \"assasāmī\" mean in this passage?",
+   "accepted": [
+    "I breathe in",
+    "I inhale",
+    "I am breathing in"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q366",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "align",
+   "surface": "assasāmī",
+   "wordId": "as4",
+   "question": "Which word(s) in the English translation render \"assasāmī\"?",
+   "accepted": [
+    "breathing",
+    "in"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q367",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "as6",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q368",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "as6",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q369",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "as6",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q370",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "align",
+   "surface": "pajānāti",
+   "wordId": "as6",
+   "question": "Which word(s) in the English translation render \"pajānāti\"?",
+   "accepted": [
+    "know"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q371",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "rassaṁ",
+   "wordId": "as7",
+   "question": "What does \"rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "quickly",
+    "lightly",
+    "(of breathing) for a short time; shallowly"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q372",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "align",
+   "surface": "rassaṁ",
+   "wordId": "as7",
+   "question": "Which word(s) in the English translation render \"rassaṁ\"?",
+   "accepted": [
+    "lightly"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q373",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "root",
+   "surface": "passasanto",
+   "wordId": "as9",
+   "question": "According to the material, what is the verbal root of \"passasanto\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q374",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "passasanto",
+   "wordId": "as9",
+   "question": "What does \"passasanto\" mean in this passage?",
+   "accepted": [
+    "breathing out",
+    "exhaling",
+    "letting go"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q375",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "align",
+   "surface": "passasanto",
+   "wordId": "as9",
+   "question": "Which word(s) in the English translation render \"passasanto\"?",
+   "accepted": [
+    "Breathing",
+    "out"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q376",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "rassaṁ",
+   "wordId": "as9b",
+   "question": "What does \"rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "dwarfish",
+    "stunted"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q377",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "passasāmī",
+   "wordId": "as10",
+   "question": "What does \"passasāmī\" mean in this passage?",
+   "accepted": [
+    "I breathe out",
+    "I exhale",
+    "I am breathing out"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q378",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "align",
+   "surface": "passasāmī",
+   "wordId": "as10",
+   "question": "Which word(s) in the English translation render \"passasāmī\"?",
+   "accepted": [
+    "breathing",
+    "out"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q379",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "as12",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q380",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "as12",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q381",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "as12",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q382",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-as",
+   "type": "align",
+   "surface": "pajānāti",
+   "wordId": "as12",
+   "question": "Which word(s) in the English translation render \"pajānāti\"?",
+   "accepted": [
+    "know"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q383",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "root",
+   "surface": "Sabbakāyapaṭisaṁvedī",
+   "wordId": "at1",
+   "question": "According to the material, what is the verbal root of \"Sabbakāyapaṭisaṁvedī\"?",
+   "accepted": [
+    "vid"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q384",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "sense",
+   "surface": "Sabbakāyapaṭisaṁvedī",
+   "wordId": "at1",
+   "question": "What does \"Sabbakāyapaṭisaṁvedī\" mean in this passage?",
+   "accepted": [
+    "experiencing the whole body",
+    "experiencing the whole breath",
+    "sensitive to the entire form"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q385",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "align",
+   "surface": "Sabbakāyapaṭisaṁvedī",
+   "wordId": "at1",
+   "question": "Which word(s) in the English translation render \"Sabbakāyapaṭisaṁvedī\"?",
+   "accepted": [
+    "experiencing",
+    "the",
+    "whole",
+    "body.’"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q386",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "sense",
+   "surface": "assasissāmī",
+   "wordId": "at2",
+   "question": "What does \"assasissāmī\" mean in this passage?",
+   "accepted": [
+    "I will breathe in",
+    "I shall inhale",
+    "I will be breathing in"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q387",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "align",
+   "surface": "assasissāmī",
+   "wordId": "at2",
+   "question": "Which word(s) in the English translation render \"assasissāmī\"?",
+   "accepted": [
+    "in"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q388",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "root",
+   "surface": "sikkhati",
+   "wordId": "at4",
+   "question": "According to the material, what is the verbal root of \"sikkhati\"?",
+   "accepted": [
+    "sikkh"
+   ],
+   "authority": "dpd-roots",
+   "id": "q389",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "number",
+   "surface": "sikkhati",
+   "wordId": "at4",
+   "question": "Is \"sikkhati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q390",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "sense",
+   "surface": "sikkhati",
+   "wordId": "at4",
+   "question": "What does \"sikkhati\" mean in this passage?",
+   "accepted": [
+    "trains",
+    "learns",
+    "cultivates"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q391",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "align",
+   "surface": "sikkhati",
+   "wordId": "at4",
+   "question": "Which word(s) in the English translation render \"sikkhati\"?",
+   "accepted": [
+    "practice",
+    "like",
+    "this"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q392",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "root",
+   "surface": "sabbakāyapaṭisaṁvedī",
+   "wordId": "at5",
+   "question": "According to the material, what is the verbal root of \"sabbakāyapaṭisaṁvedī\"?",
+   "accepted": [
+    "vid"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q393",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "sense",
+   "surface": "sabbakāyapaṭisaṁvedī",
+   "wordId": "at5",
+   "question": "What does \"sabbakāyapaṭisaṁvedī\" mean in this passage?",
+   "accepted": [
+    "experiencing the whole body",
+    "experiencing the whole breath",
+    "sensitive to the entire form"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q394",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "align",
+   "surface": "sabbakāyapaṭisaṁvedī",
+   "wordId": "at5",
+   "question": "Which word(s) in the English translation render \"sabbakāyapaṭisaṁvedī\"?",
+   "accepted": [
+    "experiencing",
+    "the",
+    "whole",
+    "body.’"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q395",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "sense",
+   "surface": "passasissāmī",
+   "wordId": "at6",
+   "question": "What does \"passasissāmī\" mean in this passage?",
+   "accepted": [
+    "I will breathe out",
+    "I shall exhale",
+    "I will be breathing out"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q396",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "align",
+   "surface": "passasissāmī",
+   "wordId": "at6",
+   "question": "Which word(s) in the English translation render \"passasissāmī\"?",
+   "accepted": [
+    "out"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q397",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "root",
+   "surface": "sikkhati",
+   "wordId": "at8",
+   "question": "According to the material, what is the verbal root of \"sikkhati\"?",
+   "accepted": [
+    "sikkh"
+   ],
+   "authority": "dpd-roots",
+   "id": "q398",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "number",
+   "surface": "sikkhati",
+   "wordId": "at8",
+   "question": "Is \"sikkhati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q399",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "sense",
+   "surface": "sikkhati",
+   "wordId": "at8",
+   "question": "What does \"sikkhati\" mean in this passage?",
+   "accepted": [
+    "trains",
+    "learns",
+    "cultivates"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q400",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-at",
+   "type": "align",
+   "surface": "sikkhati",
+   "wordId": "at8",
+   "question": "Which word(s) in the English translation render \"sikkhati\"?",
+   "accepted": [
+    "practice",
+    "like",
+    "this"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q401",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "sense",
+   "surface": "Passambhayaṁ",
+   "wordId": "au1",
+   "question": "What does \"Passambhayaṁ\" mean in this passage?",
+   "accepted": [
+    "stilling",
+    "tranquilizing",
+    "letting settle"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q402",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "align",
+   "surface": "Passambhayaṁ",
+   "wordId": "au1",
+   "question": "Which word(s) in the English translation render \"Passambhayaṁ\"?",
+   "accepted": [
+    "stilling"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q403",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "root",
+   "surface": "kāyasaṅkhāraṁ",
+   "wordId": "au2",
+   "question": "According to the material, what is the verbal root of \"kāyasaṅkhāraṁ\"?",
+   "accepted": [
+    "k"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q404",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "sense",
+   "surface": "kāyasaṅkhāraṁ",
+   "wordId": "au2",
+   "question": "What does \"kāyasaṅkhāraṁ\" mean in this passage?",
+   "accepted": [
+    "the bodily formation",
+    "the breath",
+    "physical fabrication"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q405",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "align",
+   "surface": "kāyasaṅkhāraṁ",
+   "wordId": "au2",
+   "question": "Which word(s) in the English translation render \"kāyasaṅkhāraṁ\"?",
+   "accepted": [
+    "the",
+    "physical",
+    "process.’"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q406",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "sense",
+   "surface": "assasissāmī",
+   "wordId": "au3",
+   "question": "What does \"assasissāmī\" mean in this passage?",
+   "accepted": [
+    "I will breathe in",
+    "I shall inhale",
+    "I will be breathing in"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q407",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "align",
+   "surface": "assasissāmī",
+   "wordId": "au3",
+   "question": "Which word(s) in the English translation render \"assasissāmī\"?",
+   "accepted": [
+    "breathe",
+    "in"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q408",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "root",
+   "surface": "sikkhati",
+   "wordId": "au5",
+   "question": "According to the material, what is the verbal root of \"sikkhati\"?",
+   "accepted": [
+    "sikkh"
+   ],
+   "authority": "dpd-roots",
+   "id": "q409",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "number",
+   "surface": "sikkhati",
+   "wordId": "au5",
+   "question": "Is \"sikkhati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q410",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "sense",
+   "surface": "sikkhati",
+   "wordId": "au5",
+   "question": "What does \"sikkhati\" mean in this passage?",
+   "accepted": [
+    "trains",
+    "learns",
+    "cultivates"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q411",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "align",
+   "surface": "sikkhati",
+   "wordId": "au5",
+   "question": "Which word(s) in the English translation render \"sikkhati\"?",
+   "accepted": [
+    "They",
+    "practice",
+    "like"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q412",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "sense",
+   "surface": "passambhayaṁ",
+   "wordId": "au6",
+   "question": "What does \"passambhayaṁ\" mean in this passage?",
+   "accepted": [
+    "stilling",
+    "tranquilizing",
+    "letting settle"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q413",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "align",
+   "surface": "passambhayaṁ",
+   "wordId": "au6",
+   "question": "Which word(s) in the English translation render \"passambhayaṁ\"?",
+   "accepted": [
+    "stilling"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q414",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "sense",
+   "surface": "kāyasaṅkhāraṁ",
+   "wordId": "au7",
+   "question": "What does \"kāyasaṅkhāraṁ\" mean in this passage?",
+   "accepted": [
+    "the bodily formation",
+    "the breath",
+    "physical fabrication"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q415",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "align",
+   "surface": "kāyasaṅkhāraṁ",
+   "wordId": "au7",
+   "question": "Which word(s) in the English translation render \"kāyasaṅkhāraṁ\"?",
+   "accepted": [
+    "the",
+    "physical",
+    "process.’"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q416",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "sense",
+   "surface": "passasissāmī",
+   "wordId": "au8",
+   "question": "What does \"passasissāmī\" mean in this passage?",
+   "accepted": [
+    "I will breathe out",
+    "I shall exhale",
+    "I will be breathing out"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q417",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "align",
+   "surface": "passasissāmī",
+   "wordId": "au8",
+   "question": "Which word(s) in the English translation render \"passasissāmī\"?",
+   "accepted": [
+    "out"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q418",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "root",
+   "surface": "sikkhati",
+   "wordId": "au10",
+   "question": "According to the material, what is the verbal root of \"sikkhati\"?",
+   "accepted": [
+    "sikkh"
+   ],
+   "authority": "dpd-roots",
+   "id": "q419",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "number",
+   "surface": "sikkhati",
+   "wordId": "au10",
+   "question": "Is \"sikkhati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q420",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "sense",
+   "surface": "sikkhati",
+   "wordId": "au10",
+   "question": "What does \"sikkhati\" mean in this passage?",
+   "accepted": [
+    "trains",
+    "learns",
+    "cultivates"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q421",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-au",
+   "type": "align",
+   "surface": "sikkhati",
+   "wordId": "au10",
+   "question": "Which word(s) in the English translation render \"sikkhati\"?",
+   "accepted": [
+    "They",
+    "practice",
+    "like"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q422",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "root",
+   "surface": "dakkho",
+   "wordId": "av3",
+   "question": "According to the material, what is the verbal root of \"dakkho\"?",
+   "accepted": [
+    "dakkh",
+    "dak",
+    "dis",
+    "d"
+   ],
+   "authority": "dpd-roots",
+   "id": "q423",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "case",
+   "surface": "dakkho",
+   "wordId": "av3",
+   "question": "What grammatical case is \"dakkho\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q424",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "number",
+   "surface": "dakkho",
+   "wordId": "av3",
+   "question": "Is \"dakkho\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q425",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "dakkho",
+   "wordId": "av3",
+   "question": "What does \"dakkho\" mean in this passage?",
+   "accepted": [
+    "skilled",
+    "dexterous",
+    "deft"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q426",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "dakkho",
+   "wordId": "av3",
+   "question": "Which word(s) in the English translation render \"dakkho\"?",
+   "accepted": [
+    "deft"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q427",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "root",
+   "surface": "bhamakāro",
+   "wordId": "av4",
+   "question": "According to the material, what is the verbal root of \"bhamakāro\"?",
+   "accepted": [
+    "bhram",
+    "k"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q428",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "case",
+   "surface": "bhamakāro",
+   "wordId": "av4",
+   "question": "What grammatical case is \"bhamakāro\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q429",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "number",
+   "surface": "bhamakāro",
+   "wordId": "av4",
+   "question": "Is \"bhamakāro\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q430",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "bhamakāro",
+   "wordId": "av4",
+   "question": "What does \"bhamakāro\" mean in this passage?",
+   "accepted": [
+    "a turner",
+    "turner",
+    "lathe operator"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q431",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "bhamakāro",
+   "wordId": "av4",
+   "question": "Which word(s) in the English translation render \"bhamakāro\"?",
+   "accepted": [
+    "carpenter"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q432",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "root",
+   "surface": "bhamakārantevāsī",
+   "wordId": "av6",
+   "question": "According to the material, what is the verbal root of \"bhamakārantevāsī\"?",
+   "accepted": [
+    "vas"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q433",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "bhamakārantevāsī",
+   "wordId": "av6",
+   "question": "What does \"bhamakārantevāsī\" mean in this passage?",
+   "accepted": [
+    "a turner's apprentice",
+    "turner's student",
+    "apprentice turner"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q434",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "bhamakārantevāsī",
+   "wordId": "av6",
+   "question": "Which word(s) in the English translation render \"bhamakārantevāsī\"?",
+   "accepted": [
+    "apprentice"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q435",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "dīghaṁ",
+   "wordId": "av8",
+   "question": "What does \"dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "tall",
+    "deep"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q436",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "dīghaṁ",
+   "wordId": "av8",
+   "question": "Which word(s) in the English translation render \"dīghaṁ\"?",
+   "accepted": [
+    "deep"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q437",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "root",
+   "surface": "añchanto",
+   "wordId": "av10",
+   "question": "According to the material, what is the verbal root of \"añchanto\"?",
+   "accepted": [
+    "añch",
+    "āñch"
+   ],
+   "authority": "dpd-roots",
+   "id": "q438",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "añchanto",
+   "wordId": "av10",
+   "question": "What does \"añchanto\" mean in this passage?",
+   "accepted": [
+    "pulling",
+    "stretching",
+    "turns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q439",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "añchanto",
+   "wordId": "av10",
+   "question": "Which word(s) in the English translation render \"añchanto\"?",
+   "accepted": [
+    "When",
+    "making"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q440",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "dīghaṁ",
+   "wordId": "av10b",
+   "question": "What does \"dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "tall",
+    "deep"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q441",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "dīghaṁ",
+   "wordId": "av10b",
+   "question": "Which word(s) in the English translation render \"dīghaṁ\"?",
+   "accepted": [
+    "deep"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q442",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "añchāmī",
+   "wordId": "av11",
+   "question": "What does \"añchāmī\" mean in this passage?",
+   "accepted": [
+    "I pull",
+    "I stretch",
+    "I turn"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q443",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "añchāmī",
+   "wordId": "av11",
+   "question": "Which word(s) in the English translation render \"añchāmī\"?",
+   "accepted": [
+    "‘I’m",
+    "making"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q444",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "av13",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q445",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "av13",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q446",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "av13",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q447",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "pajānāti",
+   "wordId": "av13",
+   "question": "Which word(s) in the English translation render \"pajānāti\"?",
+   "accepted": [
+    "they",
+    "know"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q448",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "rassaṁ",
+   "wordId": "av14",
+   "question": "What does \"rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "dwarfish",
+    "stunted"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q449",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "rassaṁ",
+   "wordId": "av14",
+   "question": "Which word(s) in the English translation render \"rassaṁ\"?",
+   "accepted": [
+    "shallow"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q450",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "root",
+   "surface": "añchanto",
+   "wordId": "av16",
+   "question": "According to the material, what is the verbal root of \"añchanto\"?",
+   "accepted": [
+    "añch",
+    "āñch"
+   ],
+   "authority": "dpd-roots",
+   "id": "q451",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "añchanto",
+   "wordId": "av16",
+   "question": "What does \"añchanto\" mean in this passage?",
+   "accepted": [
+    "pulling",
+    "stretching",
+    "turning"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q452",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "añchanto",
+   "wordId": "av16",
+   "question": "Which word(s) in the English translation render \"añchanto\"?",
+   "accepted": [
+    "when",
+    "making"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q453",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "rassaṁ",
+   "wordId": "av16b",
+   "question": "What does \"rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "dwarfish",
+    "stunted"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q454",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "rassaṁ",
+   "wordId": "av16b",
+   "question": "Which word(s) in the English translation render \"rassaṁ\"?",
+   "accepted": [
+    "shallow"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q455",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "añchāmī",
+   "wordId": "av17",
+   "question": "What does \"añchāmī\" mean in this passage?",
+   "accepted": [
+    "I pull",
+    "I stretch",
+    "I turn"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q456",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "añchāmī",
+   "wordId": "av17",
+   "question": "Which word(s) in the English translation render \"añchāmī\"?",
+   "accepted": [
+    "‘I’m",
+    "making"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q457",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "av19",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q458",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "av19",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q459",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "av19",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q460",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-av",
+   "type": "align",
+   "surface": "pajānāti",
+   "wordId": "av19",
+   "question": "Which word(s) in the English translation render \"pajānāti\"?",
+   "accepted": [
+    "they",
+    "know"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q461",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "root",
+   "surface": "bhikkhu",
+   "wordId": "aw4",
+   "question": "According to the material, what is the verbal root of \"bhikkhu\"?",
+   "accepted": [
+    "bhikkh",
+    "bhik"
+   ],
+   "authority": "dpd-roots",
+   "id": "q462",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "number",
+   "surface": "bhikkhu",
+   "wordId": "aw4",
+   "question": "Is \"bhikkhu\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q463",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "bhikkhu",
+   "wordId": "aw4",
+   "question": "What does \"bhikkhu\" mean in this passage?",
+   "accepted": [
+    "a monk",
+    "monk; monastic; mendicant; fully ordained monk; lit. beggar"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q464",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "dīghaṁ",
+   "wordId": "aw5",
+   "question": "What does \"dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "for a long time; deeply"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q465",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "root",
+   "surface": "assasanto",
+   "wordId": "aw7",
+   "question": "According to the material, what is the verbal root of \"assasanto\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q466",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "assasanto",
+   "wordId": "aw7",
+   "question": "What does \"assasanto\" mean in this passage?",
+   "accepted": [
+    "breathing in",
+    "inhaling",
+    "breathing"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q467",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "dīghaṁ",
+   "wordId": "aw7b",
+   "question": "What does \"dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "tall",
+    "deep"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q468",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "assasāmī",
+   "wordId": "aw8",
+   "question": "What does \"assasāmī\" mean in this passage?",
+   "accepted": [
+    "I breathe in"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q469",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "aw10",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q470",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "aw10",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q471",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "aw10",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q472",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "dīghaṁ",
+   "wordId": "aw11",
+   "question": "What does \"dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "for a long time; deeply"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q473",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "root",
+   "surface": "passasanto",
+   "wordId": "aw13",
+   "question": "According to the material, what is the verbal root of \"passasanto\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q474",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "passasanto",
+   "wordId": "aw13",
+   "question": "What does \"passasanto\" mean in this passage?",
+   "accepted": [
+    "breathing out",
+    "exhaling",
+    "out-breathing"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q475",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "dīghaṁ",
+   "wordId": "aw13b",
+   "question": "What does \"dīghaṁ\" mean in this passage?",
+   "accepted": [
+    "long",
+    "tall",
+    "deep"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q476",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "passasāmī",
+   "wordId": "aw14",
+   "question": "What does \"passasāmī\" mean in this passage?",
+   "accepted": [
+    "I breathe out"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q477",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "aw16",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q478",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "aw16",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q479",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "aw16",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q480",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "rassaṁ",
+   "wordId": "aw17",
+   "question": "What does \"rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "(of breathing) for a short time; shallowly"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q481",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "root",
+   "surface": "assasanto",
+   "wordId": "aw19",
+   "question": "According to the material, what is the verbal root of \"assasanto\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q482",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "assasanto",
+   "wordId": "aw19",
+   "question": "What does \"assasanto\" mean in this passage?",
+   "accepted": [
+    "breathing in"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q483",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "rassaṁ",
+   "wordId": "aw19b",
+   "question": "What does \"rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "dwarfish",
+    "stunted"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q484",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "assasāmī",
+   "wordId": "aw20",
+   "question": "What does \"assasāmī\" mean in this passage?",
+   "accepted": [
+    "I breathe in"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q485",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "aw22",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q486",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "aw22",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q487",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "aw22",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q488",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "rassaṁ",
+   "wordId": "aw23",
+   "question": "What does \"rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "(of breathing) for a short time; shallowly"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q489",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "root",
+   "surface": "passasanto",
+   "wordId": "aw25",
+   "question": "According to the material, what is the verbal root of \"passasanto\"?",
+   "accepted": [
+    "sas"
+   ],
+   "authority": "dpd-roots",
+   "id": "q490",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "passasanto",
+   "wordId": "aw25",
+   "question": "What does \"passasanto\" mean in this passage?",
+   "accepted": [
+    "breathing out"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q491",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "rassaṁ",
+   "wordId": "aw25b",
+   "question": "What does \"rassaṁ\" mean in this passage?",
+   "accepted": [
+    "short",
+    "dwarfish",
+    "stunted"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q492",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "passasāmī",
+   "wordId": "aw26",
+   "question": "What does \"passasāmī\" mean in this passage?",
+   "accepted": [
+    "I breathe out"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q493",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "root",
+   "surface": "pajānāti",
+   "wordId": "aw28",
+   "question": "According to the material, what is the verbal root of \"pajānāti\"?",
+   "accepted": [
+    "ñā",
+    "jñā",
+    "prajñā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q494",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "number",
+   "surface": "pajānāti",
+   "wordId": "aw28",
+   "question": "Is \"pajānāti\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q495",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-aw",
+   "type": "sense",
+   "surface": "pajānāti",
+   "wordId": "aw28",
+   "question": "What does \"pajānāti\" mean in this passage?",
+   "accepted": [
+    "knows",
+    "clearly knows",
+    "discerns"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q496",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "root",
+   "surface": "Sabbakāyapaṭisaṁvedī",
+   "wordId": "ax1",
+   "question": "According to the material, what is the verbal root of \"Sabbakāyapaṭisaṁvedī\"?",
+   "accepted": [
+    "vid"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q497",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "sense",
+   "surface": "Sabbakāyapaṭisaṁvedī",
+   "wordId": "ax1",
+   "question": "What does \"Sabbakāyapaṭisaṁvedī\" mean in this passage?",
+   "accepted": [
+    "experiencing the whole body",
+    "experiencing the whole breath",
+    "sensitive to entire form"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q498",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "sense",
+   "surface": "assasissāmī",
+   "wordId": "ax2",
+   "question": "What does \"assasissāmī\" mean in this passage?",
+   "accepted": [
+    "I will breathe in",
+    "I shall inhale",
+    "breathing in will occur"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q499",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "root",
+   "surface": "sikkhati",
+   "wordId": "ax4",
+   "question": "According to the material, what is the verbal root of \"sikkhati\"?",
+   "accepted": [
+    "sikkh"
+   ],
+   "authority": "dpd-roots",
+   "id": "q500",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "number",
+   "surface": "sikkhati",
+   "wordId": "ax4",
+   "question": "Is \"sikkhati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q501",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "sense",
+   "surface": "sikkhati",
+   "wordId": "ax4",
+   "question": "What does \"sikkhati\" mean in this passage?",
+   "accepted": [
+    "trains",
+    "learns",
+    "cultivates"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q502",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "sense",
+   "surface": "sabbakāyapaṭisaṁvedī",
+   "wordId": "ax5",
+   "question": "What does \"sabbakāyapaṭisaṁvedī\" mean in this passage?",
+   "accepted": [
+    "experiencing the whole body",
+    "experiencing the whole breath"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q503",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "sense",
+   "surface": "passasissāmī",
+   "wordId": "ax6",
+   "question": "What does \"passasissāmī\" mean in this passage?",
+   "accepted": [
+    "I will breathe out",
+    "I shall exhale",
+    "breathing out will occur"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q504",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "root",
+   "surface": "sikkhati",
+   "wordId": "ax8",
+   "question": "According to the material, what is the verbal root of \"sikkhati\"?",
+   "accepted": [
+    "sikkh"
+   ],
+   "authority": "dpd-roots",
+   "id": "q505",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "number",
+   "surface": "sikkhati",
+   "wordId": "ax8",
+   "question": "Is \"sikkhati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q506",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ax",
+   "type": "sense",
+   "surface": "sikkhati",
+   "wordId": "ax8",
+   "question": "What does \"sikkhati\" mean in this passage?",
+   "accepted": [
+    "trains",
+    "learns",
+    "cultivates"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q507",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "sense",
+   "surface": "ajjhattaṁ",
+   "wordId": "ay2",
+   "question": "What does \"ajjhattaṁ\" mean in this passage?",
+   "accepted": [
+    "internally",
+    "in one's own",
+    "inwardly"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q508",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "align",
+   "surface": "ajjhattaṁ",
+   "wordId": "ay2",
+   "question": "Which word(s) in the English translation render \"ajjhattaṁ\"?",
+   "accepted": [
+    "internally",
+    "internally"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q509",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "root",
+   "surface": "kāye",
+   "wordId": "ay4",
+   "question": "According to the material, what is the verbal root of \"kāye\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q510",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "sense",
+   "surface": "kāye",
+   "wordId": "ay4",
+   "question": "What does \"kāye\" mean in this passage?",
+   "accepted": [
+    "in the body",
+    "in this heap",
+    "in this mass",
+    "body as body",
+    "in what's assembled"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q511",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "align",
+   "surface": "kāye",
+   "wordId": "ay4",
+   "question": "Which word(s) in the English translation render \"kāye\"?",
+   "accepted": [
+    "body"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q512",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "root",
+   "surface": "kāyānupassī",
+   "wordId": "ay5",
+   "question": "According to the material, what is the verbal root of \"kāyānupassī\"?",
+   "accepted": [
+    "pa"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q513",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "sense",
+   "surface": "kāyānupassī",
+   "wordId": "ay5",
+   "question": "What does \"kāyānupassī\" mean in this passage?",
+   "accepted": [
+    "contemplating the body",
+    "body-observer"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q514",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "align",
+   "surface": "kāyānupassī",
+   "wordId": "ay5",
+   "question": "Which word(s) in the English translation render \"kāyānupassī\"?",
+   "accepted": [
+    "aspect"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q515",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "ay6",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q516",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "ay6",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q517",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "ay6",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "remains",
+    "lives"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q518",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-ay",
+   "type": "align",
+   "surface": "viharati",
+   "wordId": "ay6",
+   "question": "Which word(s) in the English translation render \"viharati\"?",
+   "accepted": [
+    "meditate"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q519",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "root",
+   "surface": "bahiddhā",
+   "wordId": "az1",
+   "question": "According to the material, what is the verbal root of \"bahiddhā\"?",
+   "accepted": [
+    "bah",
+    "vah"
+   ],
+   "authority": "dpd-roots",
+   "id": "q520",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "sense",
+   "surface": "bahiddhā",
+   "wordId": "az1",
+   "question": "What does \"bahiddhā\" mean in this passage?",
+   "accepted": [
+    "externally",
+    "in others",
+    "outwardly"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q521",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "align",
+   "surface": "bahiddhā",
+   "wordId": "az1",
+   "question": "Which word(s) in the English translation render \"bahiddhā\"?",
+   "accepted": [
+    "externally",
+    "externally"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q522",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "root",
+   "surface": "kāye",
+   "wordId": "az3",
+   "question": "According to the material, what is the verbal root of \"kāye\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q523",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "sense",
+   "surface": "kāye",
+   "wordId": "az3",
+   "question": "What does \"kāye\" mean in this passage?",
+   "accepted": [
+    "in the body",
+    "in this heap",
+    "in this mass",
+    "body as body",
+    "in what's assembled"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q524",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "root",
+   "surface": "kāyānupassī",
+   "wordId": "az4",
+   "question": "According to the material, what is the verbal root of \"kāyānupassī\"?",
+   "accepted": [
+    "pa"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q525",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "sense",
+   "surface": "kāyānupassī",
+   "wordId": "az4",
+   "question": "What does \"kāyānupassī\" mean in this passage?",
+   "accepted": [
+    "observing body",
+    "a body-watcher",
+    "contemplating form",
+    "tracking the physical",
+    "seeing body as body"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q526",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "az5",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q527",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "az5",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q528",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-az",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "az5",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains",
+    "lives",
+    "keeps at it"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q529",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ba",
+   "type": "sense",
+   "surface": "ajjhattabahiddhā",
+   "wordId": "ba1",
+   "question": "What does \"ajjhattabahiddhā\" mean in this passage?",
+   "accepted": [
+    "both internally and externally",
+    "in oneself and others",
+    "inwardly and outwardly"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q530",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ba",
+   "type": "align",
+   "surface": "ajjhattabahiddhā",
+   "wordId": "ba1",
+   "question": "Which word(s) in the English translation render \"ajjhattabahiddhā\"?",
+   "accepted": [
+    "both"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q531",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ba",
+   "type": "root",
+   "surface": "kāye",
+   "wordId": "ba3",
+   "question": "According to the material, what is the verbal root of \"kāye\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q532",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ba",
+   "type": "sense",
+   "surface": "kāye",
+   "wordId": "ba3",
+   "question": "What does \"kāye\" mean in this passage?",
+   "accepted": [
+    "in the body",
+    "in this heap",
+    "in this mass",
+    "body as body",
+    "in what's assembled"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q533",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ba",
+   "type": "root",
+   "surface": "kāyānupassī",
+   "wordId": "ba4",
+   "question": "According to the material, what is the verbal root of \"kāyānupassī\"?",
+   "accepted": [
+    "pa"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q534",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ba",
+   "type": "sense",
+   "surface": "kāyānupassī",
+   "wordId": "ba4",
+   "question": "What does \"kāyānupassī\" mean in this passage?",
+   "accepted": [
+    "observing body",
+    "a body-watcher",
+    "contemplating form",
+    "tracking the physical",
+    "seeing body as body"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q535",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ba",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "ba5",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q536",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ba",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "ba5",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q537",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-ba",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "ba5",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains",
+    "lives",
+    "keeps at it"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q538",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "root",
+   "surface": "samudayadhammānupassī",
+   "wordId": "bb1",
+   "question": "According to the material, what is the verbal root of \"samudayadhammānupassī\"?",
+   "accepted": [
+    "pa"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q539",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "sense",
+   "surface": "samudayadhammānupassī",
+   "wordId": "bb1",
+   "question": "What does \"samudayadhammānupassī\" mean in this passage?",
+   "accepted": [
+    "observing the arising nature",
+    "seeing how things come to be",
+    "watching phenomena originate"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q540",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "align",
+   "surface": "samudayadhammānupassī",
+   "wordId": "bb1",
+   "question": "Which word(s) in the English translation render \"samudayadhammānupassī\"?",
+   "accepted": [
+    "liable",
+    "to",
+    "originate"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q541",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "root",
+   "surface": "kāyasmiṁ",
+   "wordId": "bb3",
+   "question": "According to the material, what is the verbal root of \"kāyasmiṁ\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q542",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "sense",
+   "surface": "kāyasmiṁ",
+   "wordId": "bb3",
+   "question": "What does \"kāyasmiṁ\" mean in this passage?",
+   "accepted": [
+    "in regard to body",
+    "concerning the body",
+    "in the body"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q543",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "align",
+   "surface": "kāyasmiṁ",
+   "wordId": "bb3",
+   "question": "Which word(s) in the English translation render \"kāyasmiṁ\"?",
+   "accepted": [
+    "body"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q544",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "bb4",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q545",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "bb4",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q546",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "bb4",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains",
+    "lives",
+    "keeps at it"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q547",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bb",
+   "type": "align",
+   "surface": "viharati",
+   "wordId": "bb4",
+   "question": "Which word(s) in the English translation render \"viharati\"?",
+   "accepted": [
+    "meditate"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q548",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bc",
+   "type": "sense",
+   "surface": "vayadhammānupassī",
+   "wordId": "bc1",
+   "question": "What does \"vayadhammānupassī\" mean in this passage?",
+   "accepted": [
+    "observing the passing nature",
+    "seeing how things cease",
+    "watching phenomena vanish"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q549",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bc",
+   "type": "align",
+   "surface": "vayadhammānupassī",
+   "wordId": "bc1",
+   "question": "Which word(s) in the English translation render \"vayadhammānupassī\"?",
+   "accepted": [
+    "vanish"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q550",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bc",
+   "type": "root",
+   "surface": "kāyasmiṁ",
+   "wordId": "bc3",
+   "question": "According to the material, what is the verbal root of \"kāyasmiṁ\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q551",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bc",
+   "type": "sense",
+   "surface": "kāyasmiṁ",
+   "wordId": "bc3",
+   "question": "What does \"kāyasmiṁ\" mean in this passage?",
+   "accepted": [
+    "in regard to body",
+    "concerning the body",
+    "in the body"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q552",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bc",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "bc4",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q553",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bc",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "bc4",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q554",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bc",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "bc4",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains",
+    "lives",
+    "keeps at it"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q555",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bd",
+   "type": "sense",
+   "surface": "samudayavayadhammānupassī",
+   "wordId": "bd1",
+   "question": "What does \"samudayavayadhammānupassī\" mean in this passage?",
+   "accepted": [
+    "observing arising-and-passing nature",
+    "seeing impermanence fully",
+    "watching the full flux"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q556",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bd",
+   "type": "align",
+   "surface": "samudayavayadhammānupassī",
+   "wordId": "bd1",
+   "question": "Which word(s) in the English translation render \"samudayavayadhammānupassī\"?",
+   "accepted": [
+    "to",
+    "both",
+    "originate"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q557",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bd",
+   "type": "root",
+   "surface": "kāyasmiṁ",
+   "wordId": "bd3",
+   "question": "According to the material, what is the verbal root of \"kāyasmiṁ\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q558",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bd",
+   "type": "sense",
+   "surface": "kāyasmiṁ",
+   "wordId": "bd3",
+   "question": "What does \"kāyasmiṁ\" mean in this passage?",
+   "accepted": [
+    "in regard to body",
+    "concerning the body",
+    "in the body"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q559",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bd",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "bd4",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q560",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bd",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "bd4",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q561",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bd",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "bd4",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains",
+    "lives",
+    "keeps at it"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q562",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "root",
+   "surface": "Atthi",
+   "wordId": "be1",
+   "question": "According to the material, what is the verbal root of \"Atthi\"?",
+   "accepted": [
+    "as"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q563",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "sense",
+   "surface": "Atthi",
+   "wordId": "be1",
+   "question": "What does \"Atthi\" mean in this passage?",
+   "accepted": [
+    "there is",
+    "exists",
+    "is present"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q564",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "align",
+   "surface": "Atthi",
+   "wordId": "be1",
+   "question": "Which word(s) in the English translation render \"Atthi\"?",
+   "accepted": [
+    "exists"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q565",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "root",
+   "surface": "kāyo",
+   "wordId": "be2",
+   "question": "According to the material, what is the verbal root of \"kāyo\"?",
+   "accepted": [
+    "ci"
+   ],
+   "authority": "dpd-roots",
+   "id": "q566",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "sense",
+   "surface": "kāyo",
+   "wordId": "be2",
+   "question": "What does \"kāyo\" mean in this passage?",
+   "accepted": [
+    "body",
+    "a body",
+    "physical form"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q567",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "align",
+   "surface": "kāyo",
+   "wordId": "be2",
+   "question": "Which word(s) in the English translation render \"kāyo\"?",
+   "accepted": [
+    "body"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q568",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "root",
+   "surface": "sati",
+   "wordId": "be6",
+   "question": "According to the material, what is the verbal root of \"sati\"?",
+   "accepted": [
+    "sar",
+    "sm",
+    "as"
+   ],
+   "authority": "dpd-roots",
+   "id": "q569",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "sense",
+   "surface": "sati",
+   "wordId": "be6",
+   "question": "What does \"sati\" mean in this passage?",
+   "accepted": [
+    "mindfulness",
+    "remembrance",
+    "presence of mind"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q570",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "root",
+   "surface": "paccupaṭṭhitā",
+   "wordId": "be7",
+   "question": "According to the material, what is the verbal root of \"paccupaṭṭhitā\"?",
+   "accepted": [
+    "ṭhā",
+    "sthā",
+    "pratyupasthā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q571",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "sense",
+   "surface": "paccupaṭṭhitā",
+   "wordId": "be7",
+   "question": "What does \"paccupaṭṭhitā\" mean in this passage?",
+   "accepted": [
+    "is established",
+    "stands present",
+    "appears clearly"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q572",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-be",
+   "type": "align",
+   "surface": "paccupaṭṭhitā",
+   "wordId": "be7",
+   "question": "Which word(s) in the English translation render \"paccupaṭṭhitā\"?",
+   "accepted": [
+    "established"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q573",
+   "split": "train"
+  },
+  {
+   "phaseId": "phase-bf",
+   "type": "root",
+   "surface": "ñāṇamattāya",
+   "wordId": "bf2",
+   "question": "According to the material, what is the verbal root of \"ñāṇamattāya\"?",
+   "accepted": [
+    "jñā"
+   ],
+   "authority": "golden-tooltips(dpd-verified)",
+   "id": "q574",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bf",
+   "type": "number",
+   "surface": "ñāṇamattāya",
+   "wordId": "bf2",
+   "question": "Is \"ñāṇamattāya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q575",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bf",
+   "type": "sense",
+   "surface": "ñāṇamattāya",
+   "wordId": "bf2",
+   "question": "What does \"ñāṇamattāya\" mean in this passage?",
+   "accepted": [
+    "for bare knowledge",
+    "just for knowing"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q576",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bf",
+   "type": "align",
+   "surface": "ñāṇamattāya",
+   "wordId": "bf2",
+   "question": "Which word(s) in the English translation render \"ñāṇamattāya\"?",
+   "accepted": [
+    "knowledge"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q577",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bf",
+   "type": "number",
+   "surface": "paṭissatimattāya",
+   "wordId": "bf3",
+   "question": "Is \"paṭissatimattāya\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q578",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bf",
+   "type": "sense",
+   "surface": "paṭissatimattāya",
+   "wordId": "bf3",
+   "question": "What does \"paṭissatimattāya\" mean in this passage?",
+   "accepted": [
+    "for bare mindfulness",
+    "just for awareness"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q579",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "root",
+   "surface": "anissito",
+   "wordId": "bg1",
+   "question": "According to the material, what is the verbal root of \"anissito\"?",
+   "accepted": [
+    "si"
+   ],
+   "authority": "dpd-roots",
+   "id": "q580",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "case",
+   "surface": "anissito",
+   "wordId": "bg1",
+   "question": "What grammatical case is \"anissito\" in?",
+   "accepted": [
+    "nominative",
+    "nom"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q581",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "number",
+   "surface": "anissito",
+   "wordId": "bg1",
+   "question": "Is \"anissito\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q582",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "sense",
+   "surface": "anissito",
+   "wordId": "bg1",
+   "question": "What does \"anissito\" mean in this passage?",
+   "accepted": [
+    "independent",
+    "not dependent",
+    "unsupported",
+    "detached (from); disengaged (from); separated (from); independent (of)"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q583",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "align",
+   "surface": "anissito",
+   "wordId": "bg1",
+   "question": "Which word(s) in the English translation render \"anissito\"?",
+   "accepted": [
+    "independent"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q584",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "root",
+   "surface": "viharati",
+   "wordId": "bg3",
+   "question": "According to the material, what is the verbal root of \"viharati\"?",
+   "accepted": [
+    "har",
+    "h"
+   ],
+   "authority": "dpd-roots",
+   "id": "q585",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "number",
+   "surface": "viharati",
+   "wordId": "bg3",
+   "question": "Is \"viharati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q586",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "sense",
+   "surface": "viharati",
+   "wordId": "bg3",
+   "question": "What does \"viharati\" mean in this passage?",
+   "accepted": [
+    "dwells",
+    "abides",
+    "remains",
+    "lives",
+    "keeps at it"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q587",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "number",
+   "surface": "kiñci",
+   "wordId": "bg6",
+   "question": "Is \"kiñci\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q588",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "sense",
+   "surface": "kiñci",
+   "wordId": "bg6",
+   "question": "What does \"kiñci\" mean in this passage?",
+   "accepted": [
+    "anything",
+    "something",
+    "whatever"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q589",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "align",
+   "surface": "kiñci",
+   "wordId": "bg6",
+   "question": "Which word(s) in the English translation render \"kiñci\"?",
+   "accepted": [
+    "anything"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q590",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "root",
+   "surface": "loke",
+   "wordId": "bg7",
+   "question": "According to the material, what is the verbal root of \"loke\"?",
+   "accepted": [
+    "lok"
+   ],
+   "authority": "dpd-roots",
+   "id": "q591",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "sense",
+   "surface": "loke",
+   "wordId": "bg7",
+   "question": "What does \"loke\" mean in this passage?",
+   "accepted": [
+    "in the world"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q592",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "align",
+   "surface": "loke",
+   "wordId": "bg7",
+   "question": "Which word(s) in the English translation render \"loke\"?",
+   "accepted": [
+    "world"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q593",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "root",
+   "surface": "upādiyati",
+   "wordId": "bg8",
+   "question": "According to the material, what is the verbal root of \"upādiyati\"?",
+   "accepted": [
+    "ādā",
+    "dā",
+    "upādā"
+   ],
+   "authority": "dpd-roots",
+   "id": "q594",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "number",
+   "surface": "upādiyati",
+   "wordId": "bg8",
+   "question": "Is \"upādiyati\" grammatically singular or plural?",
+   "accepted": [
+    "singular",
+    "sg"
+   ],
+   "authority": "dpd-grammar(unambiguous)",
+   "id": "q595",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "sense",
+   "surface": "upādiyati",
+   "wordId": "bg8",
+   "question": "What does \"upādiyati\" mean in this passage?",
+   "accepted": [
+    "clings to",
+    "takes up"
+   ],
+   "authority": "golden-v2-senses(dpd-verbatim)",
+   "id": "q596",
+   "split": "test"
+  },
+  {
+   "phaseId": "phase-bg",
+   "type": "align",
+   "surface": "upādiyati",
+   "wordId": "bg8",
+   "question": "Which word(s) in the English translation render \"upādiyati\"?",
+   "accepted": [
+    "grasping"
+   ],
+   "authority": "alignment-golden-v1",
+   "id": "q597",
+   "split": "test"
+  }
+ ]
+}
