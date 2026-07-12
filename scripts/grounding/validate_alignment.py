@@ -50,7 +50,7 @@ def main():
     ap.add_argument("--grounded", required=True)
     ap.add_argument("--max-unanchored", type=float, default=0.25)
     ap.add_argument("--max-outliers", type=float, default=0.05)
-    ap.add_argument("--max-drift", type=float, default=0.005)
+    ap.add_argument("--max-drift", type=float, default=0.0)
     args = ap.parse_args()
 
     payload = json.load(open(args.payload, encoding="utf-8"))
@@ -97,7 +97,13 @@ def main():
             nxt = set(words(pairs[i + 1]["en"]))
             if not ib or not own or not nxt:
                 continue
-            if len(ib & nxt) > len(ib & own):
+            own_n, nxt_n = len(ib & own), len(ib & nxt)
+            # CALIBRATED on inspection: a bare "next overlaps by one more" fires on ~50
+            # pairs that are CORRECTLY aligned — a gloss bag shares one common word with
+            # the neighbour by coincidence (e.g. "Ora si."/"Now." trips on 'yes'). The
+            # diagnostic signal is: NO support for its own English, and clearly more for
+            # the next. Everything else is noise, and thresholding noise hides real bugs.
+            if own_n == 0 and nxt_n - own_n >= 2:
                 drift.append((un, i))
 
         # ---- I6: orphaned swallow (empty English, then an oversized neighbour) ----

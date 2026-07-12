@@ -175,6 +175,42 @@ def _ends_sentence(sent_toks):
     return False
 
 
+def _bead_score(it_sents, en_sents, sb):
+    """Mean normalised gloss<->English overlap of a proposed alignment. This is the
+    EVIDENCE a bead assignment is right — independent of the length prior that produced it."""
+    tot, n = 0.0, 0
+    for (i0, i1, j0, j1) in sb:
+        if i1 <= i0 or j1 <= j0:
+            continue
+        ib = set()
+        for sgrp in it_sents[i0:i1]:
+            ib |= _it_bag(sgrp)
+        eb = set(_words(" ".join(en_sents[j0:j1])))
+        if ib and eb:
+            tot += len(ib & eb) / max(1, min(len(ib), len(eb)))
+            n += 1
+    return tot / n if n else 0.0
+
+
+def best_alignment(it_sents, en_sents, weights=(8.0, 14.0, 20.0, 28.0), margin=0.05):
+    """Pick the lexical weight PER BEAD on measured evidence, instead of forcing one
+    global weight: a high weight rescues drifting passages but corrupts clean ones, and
+    no single global value is right for both.
+
+    Prefer the CONSERVATIVE baseline weight and only switch to a more aggressive one on a
+    CLEAR win (> margin). Switching on a marginal score gain is how a heavier weight
+    silently re-seats a 1:2 bead onto the wrong sentence — an error the drift detector
+    cannot see, because both pairs keep some overlap."""
+    best = align_sentences(it_sents, en_sents, lex_weight=weights[0])
+    best_score = _bead_score(it_sents, en_sents, best)
+    for w in weights[1:]:
+        sb = align_sentences(it_sents, en_sents, lex_weight=w)
+        sc = _bead_score(it_sents, en_sents, sb)
+        if sc > best_score + margin:
+            best, best_score = sb, sc
+    return best
+
+
 _STRONG = {";", ":", "—", "–"}
 _STRONG_RE = re.compile(r'(?<=[;:—–])\s+')
 
@@ -345,7 +381,7 @@ def main():
                     pending_en = ""
                 blocks.append({"pairs": pairs})
                 continue
-            sb = align_sentences(it_sents, en_sents)
+            sb = best_alignment(it_sents, en_sents)
             pairs = []
             for (i0, i1, j0, j1) in sb:
                 en_txt = " ".join(en_sents[j0:j1])
