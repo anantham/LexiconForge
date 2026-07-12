@@ -1,10 +1,64 @@
 # SUTTA-013 — Facts-vs-prose scoring split (scoping) + alignment golden (scoping)
 
-**Status:** Part 1 IMPLEMENTED as advisory 2026-07-03 (`facts-scorer.ts`, 8 tests,
-`report-facts-layer.ts` dry run below); ranked-total wiring waits for the v2.2 bump
-with SUTTA-014. Part 2 (alignment golden) still scoped-only — its curation workflow
-needs an ultracode session. Target: rubric v2.2.
+**Status:** Parts 1 AND 2 IMPLEMENTED as advisory (part 1: 2026-07-03; part 2 +
+refinements: 2026-07-10/11). Ranked-total wiring waits for the v2.2 bump with
+SUTTA-014. Target: rubric v2.2.
 **Why:** the two remaining validity gaps the operator prioritized after v2.1/golden-v2.
+
+## Part 2 as built (2026-07-10/11) — alignment golden v1 + Align scorer
+
+The scoped "curator + adversarial skeptic per phrase" workflow was REDESIGNED
+before spending: a dictionary-anchored MECHANICAL draft first (golden-sense/DPD
+gloss tokens matched against Sujato's phrase under a strict unambiguity rule),
+model curation only for the residue. Result: 160 links + 117 ghost tags,
+provenance layered per link (71 mechanical, 3 mechanical+extended, 86 curated =
+gemini-3-flash proposal surviving a grok-4.20 skeptic; extensions each
+skeptic-proposed AND curator-confirmed), invariants enforced in the assembly
+code (caught 59 hallucinated token indexes). Disclosed holes: 68% of content
+words linked; 55 tokens unclassified (logged); mn10:4.9 ungraded (its segment's
+baseEnglish is EMPTY — Sujato merges segments). ~70 API calls total.
+
+Align scorer: F1 over (golden word ↔ english token) pairs; tokens identified by
+INDEX-VERIFIED matching with folded-text+occurrence fallback; both link
+encodings normalized; golden-silent words ungraded; dropped words owe their
+links; empty-English groups ungraded. Dry run over stored outputs (free):
+
+| model | alignF1 | P | R |
+|---|---|---|---|
+| mistral-small-3.2 | 0.694 | 0.725 | 0.715 |
+| grok-4.20 | 0.682 | 0.718 | 0.695 |
+| deepseek-v3.2 | 0.619 | 0.677 | 0.604 |
+| gemini-3-flash | 0.612 | 0.711 | 0.589 |
+| deepseek-v4-flash | 0.572 | 0.655 | 0.586 |
+| gemini-2.5-flash | 0.542 | 0.713 | 0.466 |
+| qwen3-235b | 0.451 | 0.497 | 0.524 |
+
+mistral leads alignment AND facts while sitting 3rd on v2.1 contentF1 — the
+prose-overlap metric was hiding real strengths (the ADR's thesis, twice over).
+
+## Morph redesign (2026-07-11) — consistency vs DPD readings, not golden enrichment
+
+The morph-sparsity problem (17 checks/30 phases) is solved WITHOUT touching the
+golden: DPD's lookup.grammar carries every legitimate analysis of an inflected
+form (kāye → acc pl | loc sg …), extracted per sutta by
+`extract-dpd-grammar.ts` (mn10: 66/98 content surfaces). The check is now
+CONSISTENCY: graded only on words where the model ASSERTED morph, correct iff
+the assertion fits SOME legitimate reading (fabricated case/number = fits none;
+contextual disambiguation stays judge territory). Because the prompt only
+exemplifies morph, omission is NOT charged — a separate morphCoverage stat
+makes it visible (grok asserts on 90% of eligible words at 99% consistency;
+gemini-2.5/gemma assert none). If v2.2 wants morph REQUIRED, strengthen the
+prompt first, then flip to silence-is-wrong.
+
+## Weight selection (2026-07-10) — measured, not hand-picked
+
+A 6-point weight grid over stored outputs shows the v2.2 fidelity ranking is
+STABLE across all reasonable weightings (one adjacent swap) — the proposed
+0.4·seg + 0.3·facts + 0.3·sense is disclosable as "the ordering does not
+depend on this choice". MEASURED CAVEAT: rank agreement with the semantic
+judge is NEGATIVE (ρ≈-0.27) because the judge grades only surviving words
+(survivorship) — judge agreement is invalid as a weight-selection criterion,
+and the judge's own scores must never be read as drop-adjusted.
 
 ## Part 1 dry run (2026-07-03, existing board runs re-scored, zero API cost)
 

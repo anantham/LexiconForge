@@ -65,20 +65,34 @@ describe('scoreFactsDetail', () => {
     expect(r.root).toEqual({ correct: 1, total: 1, fabricated: 0, silent: 0, dropped: 0 });
   });
 
-  it('checks morph pairs individually and skips function words entirely', () => {
+  it('grades asserted morph for consistency with SOME legitimate DPD reading', () => {
     const gold = anat([
-      { id: 'g1', surface: 'kurūnaṁ', wordClass: 'content', morph: { case: 'gen', number: 'pl' } },
-      { id: 'g2', surface: 'ca', wordClass: 'function', tips: ['√xx: bogus'], morph: { case: 'nom' } },
+      { id: 'g1', surface: 'kāye', wordClass: 'content' },
+      { id: 'g2', surface: 'kurūnaṁ', wordClass: 'content' },
+      { id: 'g3', surface: 'satiyā', wordClass: 'content' },
+      { id: 'g4', surface: 'ca', wordClass: 'function', morph: { case: 'nom' } },
     ]);
     const model = anat([
-      { id: 'p1', surface: 'kurūnaṁ', wordClass: 'content', morph: { case: 'gen', number: 'sg' } }, // 1 of 2 pairs
-      { id: 'p2', surface: 'ca', wordClass: 'function' },
+      { id: 'p1', surface: 'kāye', wordClass: 'content', morph: { case: 'loc', number: 'sg' } }, // fits 2nd reading
+      { id: 'p2', surface: 'kurūnaṁ', wordClass: 'content', morph: { case: 'nom', number: 'sg' } }, // fits nothing → fabricated
+      { id: 'p3', surface: 'satiyā', wordClass: 'content' }, // silent → coverage only, not charged
+      { id: 'p4', surface: 'ca', wordClass: 'function' },
     ]);
+    const grammar = (s: string) =>
+      ({
+        kāye: [
+          { pos: 'noun', gender: 'm', case: 'acc', number: 'pl' },
+          { pos: 'noun', gender: 'm', case: 'loc', number: 'sg' },
+        ],
+        kurūnaṁ: [{ pos: 'noun', gender: 'm', case: 'gen', number: 'pl' }],
+        satiyā: [{ pos: 'noun', gender: 'f', case: 'instr', number: 'sg' }],
+      })[s];
 
-    const r = scoreFactsDetail(model, gold, () => [])!;
+    const r = scoreFactsDetail(model, gold, () => [], grammar)!;
 
-    expect(r.morph).toEqual({ correct: 1, total: 2 });
-    expect(r.pos.total).toBe(1); // function word contributes nothing
+    expect(r.morph).toEqual({ correct: 1, total: 2 }); // kāye fits, kurūnaṁ fabricated, satiyā ungraded
+    expect(r.morphCoverage).toEqual({ asserted: 2, eligible: 3 });
+    expect(r.pos.total).toBe(3); // function word contributes nothing
   });
 
   it('charges every available check for a dropped golden content word (SUTTA-012)', () => {
@@ -91,7 +105,10 @@ describe('scoreFactsDetail', () => {
 
     expect(r.root).toEqual({ correct: 0, total: 1, fabricated: 0, silent: 0, dropped: 1 });
     expect(r.pos).toEqual({ correct: 0, total: 1 });
-    expect(r.morph).toEqual({ correct: 0, total: 1 });
+    // morph is a consistency check on ASSERTED morph — a dropped word cannot
+    // assert anything, so it lands in neither morph.total nor coverage
+    expect(r.morph).toEqual({ correct: 0, total: 0 });
+    expect(r.morphCoverage).toEqual({ asserted: 0, eligible: 0 });
     expect(r.accuracy).toBe(0);
     expect(r.macro).toBe(0);
   });
