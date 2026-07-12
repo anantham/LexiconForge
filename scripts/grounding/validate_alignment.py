@@ -78,14 +78,21 @@ def main():
                 errors.append(f"[I1] unit {un}: Italian token stream not conserved "
                               f"(grounded={len(src)} pairs={len(got)}, delta={miss})")
 
-        # ---- I2: english conservation ----
-        src_w = words(en_of[uid])
-        got_w = words(" ".join(p["en"] for p in pairs))
-        if src_w != got_w:
-            # find what was dropped (order-preserving diff)
-            lost = len(src_w) - len(got_w)
-            errors.append(f"[I2] unit {un}: English not conserved "
-                          f"(witness={len(src_w)} words, pairs={len(got_w)}, lost={lost})")
+        # ---- I2: english conservation — EXACT, not filtered ----
+        # A filtered word-bag comparison is blind to swallowed phrases made only of
+        # stopwords/short words ("So do I.") or digits ("Here is 115."). Compare the
+        # FULL normalised character stream: every character of the witness, in order.
+        # Whitespace-free streams: pair-joining legitimately reflows spacing (clause
+        # splits, carried English), but every non-space CHARACTER must survive in order.
+        src_t = re.sub(r"\s+", "", en_of[uid] or "")
+        got_t = re.sub(r"\s+", "", " ".join(p["en"] for p in pairs))
+        if src_t != got_t:
+            k = next((j for j, (a, b) in enumerate(zip(src_t, got_t)) if a != b),
+                     min(len(src_t), len(got_t)))
+            errors.append(f"[I2] unit {un}: English not conserved EXACTLY "
+                          f"(witness {len(src_t)} chars, pairs {len(got_t)}; first divergence at "
+                          f"char {k}: witness '...{src_t[max(0,k-30):k+30]}...' vs "
+                          f"pairs '...{got_t[max(0,k-30):k+30]}...')")
 
         # ---- I5: NEIGHBOUR-LEXICAL-DOMINANCE (the local-correspondence check) ----
         # Global conservation (I1/I2) cannot see a pair-i/pair-i+1 content SWAP: the flat

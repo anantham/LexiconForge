@@ -14,16 +14,27 @@ import argparse, glob, json, math, os, re
 
 # Split English prose into sentences: end punctuation, optional closing quote/bracket,
 # whitespace, then an opening capital/quote. Good enough for Weaver's prose.
-_SENT_RE = re.compile(r'(?<=[.!?…])["\'”»\)\]]*\s+(?=[A-Z"“«\'(—])')
+# The closing-quote run is a CAPTURE GROUP: re.split removes the whole match, so an
+# uncaptured ["”»)]* silently DELETED closing quotes from every sentence that ends
+# inside dialogue (watch TV!” -> watch TV!). Captured, split returns them as segments
+# and split_sentences reattaches them to the sentence they close.
+_SENT_RE = re.compile(r'(?<=[.!?…])(["\'”»\)\]]*)\s+(?=[A-Z"“«\'(—])')
 
 
 _ABBR_TAIL = re.compile(r"\b(?:Mr|Mrs|Ms|Dr|St|Mme|Mlle|Prof|Sig|etc|vs)\.$", re.I)
 
 
 def split_sentences(text):
-    """Sentence split that does NOT fire on a title abbreviation's period ("Mr.")."""
+    """Sentence split that reattaches captured closing quotes and does NOT fire on a
+    title abbreviation's period ("Mr.")."""
+    parts = _SENT_RE.split(text or "")
+    # with one capture group, parts = [seg, closers, seg, closers, ..., seg]
+    segs = []
+    for i in range(0, len(parts), 2):
+        seg = (parts[i] or "") + (parts[i + 1] if i + 1 < len(parts) else "")
+        segs.append(seg)
     out = []
-    for p in _SENT_RE.split(text or ""):
+    for p in segs:
         p = p.strip()
         if not p:
             continue

@@ -24,7 +24,8 @@
     "discover-chapter-alignment": "tsx scripts/discover-chapter-alignment.ts",
     "build:dpd": "tsx scripts/build-dpd.ts",
     "sutta:lookup": "tsx scripts/sutta-studio/lookup-phase.ts",
-    "check:loc": "node scripts/check-loc.js"
+    "check:loc": "node scripts/check-loc.js",
+    "check:calvino": "./scripts/grounding/.venv/bin/python scripts/grounding/validate_alignment.py --payload data/calvino/reader-payload.json --session out/calvino-session.json --grounded data/calvino && playwright test --config playwright.calvino.config.ts --reporter=list"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.59.0",
