@@ -1,3 +1,18 @@
+### [2026-07-12] [Agent: Opus 4.8 (1M)] — alignment GATE FULLY GREEN (embedding anchor) + completeness gates
+**Status:** `feat/local-grounding-pipeline` — all invariants pass on all 22 units; both completeness gates green.
+An adversarial sonnet workflow (44 confirmed misalignments vs 1 refuted) exposed that global-conservation
+checks cannot see local pair swaps → new I5-I8 invariants (neighbour-lexical-dominance etc.). Heuristic fixes
+(fake-sentence glue, per-clause lexical guard, bracket-depth clauses, abbrev-aware splits, per-bead weight
+selection) got real drift 5→2; the last two (dialogue-paragraph mismatch u6, early 1:2 bead u19) were the
+proven CEILING of length+gloss alignment. Closed by a **cross-lingual embedding anchor**
+(`scripts/grounding/embeddings.py`, MiniLM multilingual, local/free/deterministic-inference, npz cache in
+data/) weighted into the alignment DP + a per-clause cosine guard → **I5 = 0**. Completeness: I2 is now EXACT
+(whitespace-free char stream; caught the sentence-splitter EATING closing quotes at dialogue ends — uncaptured
+["")]* in re.split) and a Playwright DOM gate (`tests/e2e/calvino-completeness.spec.ts`, 22/22) proves every
+pair renders. `npm run check:calvino` = validator + DOM gate. CI reality: Calvino data is gitignored
+(copyright) so this is a LOCAL gate; a PD book (Pinocchio+Murray) gets it in CI. Remaining unchecked link:
+EPUB→session adapter coverage. Next: Pinocchio manifest (reusability acceptance test), then PR.
+
 ### [2026-07-11] [Agent: Opus 4.8 (1M)] — reusable source-grounding pipeline (Calvino first) — IN PROGRESS
 **Status:** Stage 1 (align) COMPLETE on branch `feat/local-grounding-pipeline` (worktree `../LexiconForge.worktrees/local-grounding`). Building a reusable pipeline: source-language original + witness translation(s) → per-word grounded (spaCy+Wiktionary) library work. First book: Calvino *Se una notte d'inverno un viaggiatore* (IT source, import/calvino/, gitignored) + Weaver EN witness. `scripts/grounding/align-calvino.ts` emits a 22-unit bilingual session (IT `content` + Weaver `fanTranslation`) to `out/calvino-session.json` (gitignored — full prose); all 22 units verified 1:1 by eyeball (frames [1]..[12] + 10 incipits, incipit titles line up exactly).
 **Stage 2a (grounding fact layer) DONE:** `scripts/grounding/ground_source.py` (spaCy, Python 3.12 venv at scripts/grounding/.venv, requirements.txt) grounds all 22 IT units → **87,919 tokens** with lemma/UPOS/morph → `data/calvino/<unitId>.grounded.json` (gitignored — reconstructs prose). Verified: elisions (dell'→di il), gerunds (leggendo→leggere), clitics handled; it_core_news_sm == it_core_news_lg here so sm (13MB) chosen. Stage 2b Wiktionary gloss layer (kaikki Italian JSONL, lemma→senses) downloads untended (build_glosses.py); slots into the payload on rebuild.

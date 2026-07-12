@@ -3,3 +3,4 @@
 # Then: ./scripts/grounding/.venv/bin/python -m spacy download it_core_news_sm
 spacy==3.8.14
 click
+sentence-transformers==5.6.0

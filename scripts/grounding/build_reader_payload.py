@@ -101,6 +101,18 @@ def align_paragraphs(it_lens, en_lens):
     return beads
 
 
+# Optional cross-lingual embedding anchor (scripts/grounding/embeddings.py).
+# Set in main() when --embed-cache is given; None keeps the pure gloss-bag path.
+EMB = None
+
+
+def _item_text(item):
+    """Text of an alignment item: a token list (Italian) or a plain string (English)."""
+    if isinstance(item, str):
+        return item
+    return "".join(t["s"] + (" " if t.get("ws", True) else "") for t in item).strip()
+
+
 _STOP = set(("the a an of to in on at is are was were be been being and or but it its this that "
              "these those with for as by from you your i me my he she they them we us not no so "
              "if then there here what which who will would can could shall should may might must "
@@ -133,6 +145,14 @@ def align_sentences(it_sents, en_sents, lex_weight=8.0):
     en_bags = [set(_words(s)) for s in en_sents]
     c = (sum(en_lens) or 1) / (sum(it_lens) or 1)
 
+    # Embedding anchor: cross-lingual cosine per candidate span. Stronger evidence
+    # than gloss bags (the gloss anchor's proven ceiling), so it carries more weight.
+    it_vecs = en_vecs = None
+    if EMB is not None:
+        from embeddings import span_sim
+        it_vecs = EMB.vectors([_item_text(x) for x in it_sents])
+        en_vecs = EMB.vectors([_item_text(x) for x in en_sents])
+
     def cost(i0, i1, j0, j1):
         li = sum(it_lens[i0:i1]); lj = sum(en_lens[j0:j1])
         base = -math.log(_PRIORS.get((i1 - i0, j1 - j0), 1e-4))
@@ -140,6 +160,9 @@ def align_sentences(it_sents, en_sents, lex_weight=8.0):
             mean = max(li, 1) * c
             z = abs((lj - mean) / math.sqrt(max(li, 1) * _S2))
             base += -math.log(max(2.0 * (1.0 - _cdf(z)), 1e-12))
+        if it_vecs is not None and i1 > i0 and j1 > j0:
+            from embeddings import span_sim as _ss
+            base -= 14.0 * _ss(it_vecs, en_vecs, i0, i1, j0, j1)
         ib = set().union(*it_bags[i0:i1]) if i1 > i0 else set()
         eb = set().union(*en_bags[j0:j1]) if j1 > j0 else set()
         if ib and eb:
@@ -275,6 +298,12 @@ def refine_pair(it_toks, en_text):
             ib, eb = _it_bag(a), set(_words(b))
             if ib and eb and not (ib & eb):
                 return [{"it": it_toks, "en": en_text}]  # count matched, evidence did not
+        if EMB is not None:
+            iv = EMB.vectors([_item_text(a) for a in ic])
+            ev = EMB.vectors([_item_text(b) for b in ec])
+            for k in range(len(ic)):
+                if float(iv[k] @ ev[k]) < 0.25:
+                    return [{"it": it_toks, "en": en_text}]  # semantically unsupported zip
         return [{"it": a, "en": b, "refined": True} for a, b in zip(ic, ec)]
     return [{"it": it_toks, "en": en_text}]
 
@@ -284,7 +313,17 @@ def main():
     ap.add_argument("--session", required=True)
     ap.add_argument("--grounded", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--embed-cache", default=None,
+                    help="npz vector cache; enables the cross-lingual embedding anchor")
     args = ap.parse_args()
+
+    global EMB
+    if args.embed_cache:
+        import sys as _sys, os as _os
+        _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+        from embeddings import SentenceSim
+        EMB = SentenceSim(args.embed_cache)
+        print(f"embedding anchor ON (cache: {args.embed_cache})")
 
     session = json.load(open(args.session, encoding="utf-8"))
     english = {c["stableId"]: (c.get("fanTranslation") or "") for c in session["chapters"]}
@@ -454,6 +493,8 @@ def main():
     }
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     json.dump(payload, open(args.out, "w", encoding="utf-8"), ensure_ascii=False)
+    if EMB is not None:
+        EMB.save()
     tot = sum(len(p["it"]) for u in units for b in u["blocks"] for p in b["pairs"])
     nblocks = sum(len(u["blocks"]) for u in units)
     print(f"wrote {args.out}: {len(units)} units, {nblocks} aligned blocks, glosses={'yes' if glosses else 'no'}")
