@@ -73,8 +73,35 @@ for (const seg of [...URAKAM_SENTENCE_1, ...URAKAM_TIER1]) {
   }
 }
 
+// ── Chunk-granularity checks ─────────────────────────────────────────────
+// Highlighting is per-token: an EN chunk carrying ≥2 units lights WHOLE when
+// any of its units is hovered. That is CORRECT for fused idioms ("Once upon
+// a time,") and WRONG for word-splittable chunks ("of Urakam"). Judgment
+// call → curated data is held to it (hard failure, allowlist for idioms);
+// fleet-draft data gets an advisory count for the native-review queue.
+const CURATED_COARSE_ALLOWLIST = new Set(['Once upon a time,']);
+let draftCoarse = 0;
+for (const seg of [...URAKAM_SENTENCE_1, ...URAKAM_TIER1]) {
+  const curated = !/^urk-p\d/.test(seg.id);
+  for (const r of seg.renderings) {
+    if (r.lang !== 'en') continue;
+    for (const t of r.tokens) {
+      if (t.units.length >= 2 && t.text.trim().split(/\s+/).length >= 2) {
+        if (curated && !CURATED_COARSE_ALLOWLIST.has(t.text)) {
+          fail(`${seg.id}: curated EN chunk "${t.text}" carries ${t.units.length} units — split it or allowlist it`);
+        } else if (!curated) {
+          draftCoarse++;
+        }
+      }
+    }
+  }
+}
+
 if (failures) {
   console.error(`\n${failures} surface-law violation(s).`);
   process.exit(1);
 }
 console.log('✓ surface law holds: all Malayalam pieces reconstruct their written surface, all sounds slice cleanly.');
+if (draftCoarse) {
+  console.log(`ℹ ${draftCoarse} multi-unit multi-word EN chunks in fleet-draft segments — native-review queue, not failures.`);
+}

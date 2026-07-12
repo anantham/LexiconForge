@@ -80,7 +80,10 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
         tokens: [
           { text: 'The', units: [], gloss: 'supplied by English — Malayalam has no "the"' },
           { text: 'Ammathiruvadi', units: ['ut-amma', 'ut-thiruvadi'], relation: 'transliteration' },
-          { text: 'of Urakam', units: ['ut-at', 'ut-urakam'], relation: 'interpretive' },
+          // Two tokens, not one chunk: highlighting is per-token, so a fused
+          // "of Urakam" would light BOTH words when hovering either unit.
+          { text: 'of', units: ['ut-at'], relation: 'interpretive' },
+          { text: 'Urakam', units: ['ut-urakam'], relation: 'transliteration' },
         ],
       },
     ],
@@ -393,7 +396,8 @@ export const URAKAM_SENTENCE_1: AlignSegment[] = [
         label: 'English (Opus draft)',
         by: 'opus-draft',
         tokens: [
-          { text: 'and later', units: ['u-later', 'u-and-b'] },
+          { text: 'and', units: ['u-and-b'] },
+          { text: 'later', units: ['u-later'] },
           {
             text: 'he had',
             units: ['u-had'],
