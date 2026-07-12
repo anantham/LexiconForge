@@ -376,9 +376,13 @@ const PhraseBlock: React.FC<{
     const showTranslit = !english && scriptOf(r.lang) !== 'Latn' && !!r.transliteration && !allRom;
     return (
       <div key={r.lang}>
-        <div className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: '0.5em', rowGap: '0.5rem' }}>
+        {/* Malayalam: pieces of ONE written word nearly touch (the page prints
+            them contiguous — surface fidelity is visual too), while separate
+            WORDS get a gap wide enough to actually read as a boundary. Other
+            scripts keep the chant reader's original rhythm. */}
+        <div className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: scriptOf(r.lang) === 'Mlym' ? '1.1em' : '0.5em', rowGap: '0.5rem' }}>
         {r.tokens.map((token, ti) => (
-          <span key={ti} className="inline-flex items-start" style={{ columnGap: '0.12em' }}>
+          <span key={ti} className="inline-flex items-start" style={{ columnGap: scriptOf(r.lang) === 'Mlym' ? '0.05em' : '0.12em' }}>
             {piecesOf(token).map((piece, si) => {
               const effUnits = piece.units ?? token.units;
               const key = `${r.lang}:${ti}:${si}`;
