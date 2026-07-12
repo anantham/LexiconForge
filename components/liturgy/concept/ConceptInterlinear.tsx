@@ -206,7 +206,9 @@ const PhraseBlock: React.FC<{
   mode: Mode;
   /** Title segment — render the glyphs and English a step larger. */
   large?: boolean;
-}> = ({ segment, shown, mode, large = false }) => {
+  /** Reader preference: suppress hover tooltips (highlights/threads stay). */
+  tooltips?: boolean;
+}> = ({ segment, shown, mode, large = false, tooltips = true }) => {
   const [hot, setHot] = React.useState<string[] | null>(null); // matching unit ids (align mode)
   const [over, setOver] = React.useState<string | null>(null); // hovered piece key
   const [overCl, setOverCl] = React.useState<string | null>(null); // hovered letter-cluster (Mlym etym mode)
@@ -471,7 +473,7 @@ const PhraseBlock: React.FC<{
                             >
                               {cl}
                               <AnimatePresence>
-                                {tip && (tip.parts || tip.primary) && (
+                                {tooltips && tip && (tip.parts || tip.primary) && (
                                   <Tooltip primary={tip.primary} secondary={tip.secondary} parts={tip.parts} />
                                 )}
                               </AnimatePresence>
@@ -505,7 +507,7 @@ const PhraseBlock: React.FC<{
                     </span>
                   ))}
                   <AnimatePresence>
-                    {over === key && facet?.primary && (
+                    {tooltips && over === key && facet?.primary && (
                       <Tooltip primary={facet.primary} secondary={facet.secondary} facetIndex={facetIdx % facets!.length} facetTotal={facets!.length} />
                     )}
                   </AnimatePresence>
@@ -543,7 +545,10 @@ const PhraseBlock: React.FC<{
   );
 };
 
-export const ConceptInterlinear: React.FC<{ segments: AlignSegment[] }> = ({ segments }) => {
+export const ConceptInterlinear: React.FC<{ segments: AlignSegment[]; tooltips?: boolean }> = ({
+  segments,
+  tooltips = true,
+}) => {
   const langs: { lang: string; label: string }[] = [];
   const seen = new Set<string>();
   for (const seg of segments) for (const r of seg.renderings) if (!seen.has(r.lang)) { seen.add(r.lang); langs.push({ lang: r.lang, label: r.label }); }
@@ -591,10 +596,10 @@ export const ConceptInterlinear: React.FC<{ segments: AlignSegment[] }> = ({ seg
         {segments.map((seg) =>
           seg.title ? (
             <div key={seg.id} className="mb-10 border-b border-slate-800 pb-16">
-              <PhraseBlock segment={seg} shown={shown} mode={mode} large />
+              <PhraseBlock segment={seg} shown={shown} mode={mode} large tooltips={tooltips} />
             </div>
           ) : (
-            <PhraseBlock key={seg.id} segment={seg} shown={shown} mode={mode} />
+            <PhraseBlock key={seg.id} segment={seg} shown={shown} mode={mode} tooltips={tooltips} />
           )
         )}
       </div>
