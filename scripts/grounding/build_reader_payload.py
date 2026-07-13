@@ -272,7 +272,15 @@ def _clause_tokens(tokens):
             out.append(cur); cur = []
     if cur:
         out.append(cur)
-    return [c for c in out if any(x["s"].strip(" ,.") for x in c)]
+    out = [c for c in out if any(x["s"].strip(" ,.") for x in c)]
+    # same rule as the English side: a run with no letters is not a clause
+    merged = []
+    for c in out:
+        if merged and not any(re.search(r"[^\W\d_]", t["s"], re.UNICODE) for t in c):
+            merged[-1] = merged[-1] + c
+        else:
+            merged.append(c)
+    return merged
 
 
 def _clause_texts(text):
@@ -287,7 +295,25 @@ def _clause_texts(text):
             out.append(cur); cur = ""
     if cur.strip():
         out.append(cur)
-    return [p.strip() for p in out if p.strip()]
+    return _merge_letterless([p.strip() for p in out if p.strip()])
+
+
+def _merge_letterless(pieces):
+    """A "clause" with no letters in it is not a clause.
+
+    Fiction marks INTERRUPTED SPEECH with an em-dash ('"But I--"'), and the dash is not a
+    clause seam: splitting there strands the closing quote as its own empty "clause", which
+    then consumes a bead slot and drags the whole neighbourhood out of alignment. Merge any
+    letterless fragment back into its predecessor — conservation is untouched (the pieces
+    still concatenate to the exact surface), we just refuse to call punctuation a clause.
+    """
+    out = []
+    for p in pieces:
+        if out and not re.search(r"[^\W\d_]", p, re.UNICODE):
+            out[-1] = (out[-1] + " " + p).strip()
+        else:
+            out.append(p)
+    return out
 
 
 def refine_pair(it_toks, en_text):

@@ -78,8 +78,17 @@ Authoritative list (never stale): `git log --oneline main..HEAD`. Highlights bel
    - **What this PROVES:** paragraph-bead capacity explains part of Calvino's drift and NONE of
      Pinocchio's. Measured split of Pinocchio's 16: **8 dialogue-led, 10 non-dialogue.** So
      dialogue is at most half the story, and there is a second, unidentified cause.
-   - **Next probe (not yet done):** characterise the 10 non-dialogue Pinocchio pairs — they are
-     the untouched half. Use `dump_pairs.py` and the embedding own-vs-next margins.
+   - **SECOND CAUSE FOUND (fixed):** the em-dash marking INTERRUPTED SPEECH. Fiction writes a
+     cut-off utterance as `"But I--"`. The clause refiner treated the dash as a strong clause
+     seam, splitting it into `"But I--"` plus **a bare closing quote as its own "clause"**. That
+     letterless fragment consumed a bead slot and dragged its whole neighbourhood out of
+     alignment. Guard added (`_merge_letterless`, both sides): *a clause with no letters in it
+     is not a clause* — merge it back into its predecessor (conservation untouched; the pieces
+     still concatenate to the exact surface). **Pinocchio 16 -> 11.** It never surfaced in
+     Calvino because Weaver's short segments ("Now.", "No.") are legitimate sentences.
+   - **Next probe (not yet done):** the remaining 11 Pinocchio / 3 Calvino pairs. Both prior
+     causes are now fixed, so what is left is a THIRD cause — do not assume it is either of the
+     two above. Characterise before theorising (that is what found both of these).
    - Current: I5 = **3 drift pairs (Calvino)**, **16 (Pinocchio)** → both gates FAIL.
    - Files: `scripts/grounding/build_reader_payload.py` (`align_paragraphs`, `best_alignment`).
    - Verify: `npm run check:calvino` / `check:pinocchio` (pass `--embed-cache data/<book>/emb-cache.npz`).
