@@ -1,13 +1,13 @@
 ### [2026-07-13 06:57 IST] [Agent: Codex]
-**Status:** Progress
+**Status:** Complete
 **Task:** Rebase the durable transaction kernel onto current `main` after overnight P0.1 overlap.
 **Progress:** Current `main` independently landed commit-waiting and operation-abort behavior in `txn.ts` and `TranslationRepository`, superseding focused PR #106. The kernel branch now targets `main` directly. Conflicts were resolved in favor of the shared terminal-event kernel because main's inline implementation still rejected from pre-terminal `transaction.onerror` and duplicated repository lifecycles. Main's new fake-indexeddb durability test was retained and passes against the kernel.
 **Files affected:**
 - `services/db/core/txn.ts` - retain the small connection/retry facade over `runTransaction`.
 - `services/db/repositories/TranslationRepository.ts` - retain shared-kernel delegation instead of main's repeated direct wrappers.
 - `services/db/core/txn.durability.test.ts` - retain main's real fake-indexeddb commit/rollback coverage.
-**Verification:** 24 focused transaction/repository tests passed after conflict resolution.
-**Next:** run DB/full verification, publish the replacement PR against `main`, then close #106 as superseded.
+**Verification:** 24 focused transaction/repository tests, 55 DB tests, and the full 8,790-test Vitest suite passed after conflict resolution; `tsc --noEmit` remains blocked only by the unchanged repository baseline errors.
+**Next:** publish the replacement PR against `main`, then close #106 as superseded.
 
 ### [2026-07-12 08:50 IST] [Agent: Codex]
 **Status:** Complete
