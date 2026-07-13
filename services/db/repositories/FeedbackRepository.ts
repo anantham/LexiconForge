@@ -1,4 +1,9 @@
 import type { FeedbackItem } from '../../../types';
+import {
+  promisifyRequest,
+  runTransaction,
+  type TransactionMode,
+} from '../core/txn';
 import type { FeedbackRecord } from '../types';
 import type { IFeedbackRepository } from './interfaces/IFeedbackRepository';
 
@@ -32,100 +37,81 @@ const mapEmojiToFeedbackType = (
 export class FeedbackRepository implements IFeedbackRepository {
   constructor(private readonly deps: FeedbackRepositoryDeps) {}
 
-  private async runOnStore<T>(
-    mode: IDBTransactionMode,
+  private async withStore<T>(
+    mode: TransactionMode,
+    operationName: string,
     fn: (store: IDBObjectStore) => Promise<T> | T
   ): Promise<T> {
     const db = await this.deps.getDb();
-    return await new Promise<T>((resolve, reject) => {
-      const tx = db.transaction([this.deps.stores.FEEDBACK], mode);
-      const store = tx.objectStore(this.deps.stores.FEEDBACK);
-      Promise.resolve(fn(store))
-        .then(resolve)
-        .catch(reject);
-      tx.onerror = () => reject(tx.error);
-    });
+    const storeName = this.deps.stores.FEEDBACK;
+    return runTransaction(
+      db,
+      storeName,
+      mode,
+      (_transaction, stores) => fn(stores[storeName]),
+      'feedback',
+      'FeedbackRepository',
+      operationName
+    );
   }
 
-  async storeFeedback(chapterUrl: string, feedback: FeedbackItem, translationId?: string): Promise<void> {
+  async storeFeedback(
+    chapterUrl: string,
+    feedback: FeedbackItem,
+    translationId?: string
+  ): Promise<void> {
+    const legacyFeedback = feedback as FeedbackItem & {
+      createdAt?: string | number | Date;
+    };
     const record: FeedbackRecord = {
-      id: (feedback as any).id || generateId(),
+      id: feedback.id || generateId(),
       chapterUrl,
       translationId,
       type: mapEmojiToFeedbackType(feedback.type),
       selection: feedback.selection ?? '',
       comment: feedback.comment ?? '',
-      createdAt:
-        (feedback as any).createdAt
-          ? new Date((feedback as any).createdAt).toISOString()
-          : new Date().toISOString(),
+      createdAt: legacyFeedback.createdAt
+        ? new Date(legacyFeedback.createdAt).toISOString()
+        : new Date().toISOString(),
     };
 
-    await this.runOnStore('readwrite', async store => {
-      await new Promise<void>((resolve, reject) => {
-        const req = store.put(record);
-        req.onsuccess = () => resolve();
-        req.onerror = () => reject(req.error);
-      });
+    await this.withStore('readwrite', 'storeFeedback', async store => {
+      await promisifyRequest(store.put(record));
     });
   }
 
   async getFeedbackByChapter(chapterUrl: string): Promise<FeedbackRecord[]> {
-    return this.runOnStore('readonly', store => {
+    return this.withStore('readonly', 'getFeedbackByChapter', async store => {
       const index = store.index('chapterUrl');
-      return new Promise<FeedbackRecord[]>((resolve, reject) => {
-        const req = index.getAll(IDBKeyRange.only(chapterUrl));
-        req.onsuccess = () => {
-          const items = (req.result as FeedbackRecord[] | undefined) ?? [];
-          resolve(
-            items.sort(
-              (a, b) =>
-                new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-            )
-          );
-        };
-        req.onerror = () => reject(req.error);
-      });
+      const items = await promisifyRequest<FeedbackRecord[]>(
+        index.getAll(IDBKeyRange.only(chapterUrl))
+      );
+      return items.sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
     });
   }
 
   async updateFeedbackComment(feedbackId: string, comment: string): Promise<void> {
-    await this.runOnStore('readwrite', async store => {
-      await new Promise<void>((resolve, reject) => {
-        const req = store.get(feedbackId);
-        req.onsuccess = () => {
-          const record = req.result as FeedbackRecord | undefined;
-          if (!record) {
-            resolve();
-            return;
-          }
-          record.comment = comment;
-          const putReq = store.put(record);
-          putReq.onsuccess = () => resolve();
-          putReq.onerror = () => reject(putReq.error);
-        };
-        req.onerror = () => reject(req.error);
-      });
+    await this.withStore('readwrite', 'updateFeedbackComment', async store => {
+      const record = await promisifyRequest<FeedbackRecord | undefined>(
+        store.get(feedbackId)
+      );
+      if (!record) return;
+
+      await promisifyRequest(store.put({ ...record, comment }));
     });
   }
 
   async deleteFeedback(feedbackId: string): Promise<void> {
-    await this.runOnStore('readwrite', async store => {
-      await new Promise<void>((resolve, reject) => {
-        const req = store.delete(feedbackId);
-        req.onsuccess = () => resolve();
-        req.onerror = () => reject(req.error);
-      });
+    await this.withStore('readwrite', 'deleteFeedback', async store => {
+      await promisifyRequest(store.delete(feedbackId));
     });
   }
 
   async getAllFeedback(): Promise<FeedbackRecord[]> {
-    return this.runOnStore('readonly', store => {
-      return new Promise<FeedbackRecord[]>((resolve, reject) => {
-        const req = store.getAll();
-        req.onsuccess = () => resolve((req.result as FeedbackRecord[]) || []);
-        req.onerror = () => reject(req.error);
-      });
+    return this.withStore('readonly', 'getAllFeedback', async store => {
+      return promisifyRequest<FeedbackRecord[]>(store.getAll());
     });
   }
 }

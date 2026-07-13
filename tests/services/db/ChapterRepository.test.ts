@@ -6,14 +6,16 @@ import { ChapterRepository } from '../../../services/db/repositories/ChapterRepo
 const DB_NAME = 'chapter-repo-test';
 const CHAPTER_STORE = 'chapters';
 
-const openTestDb = async (): Promise<IDBDatabase> => {
+const openTestDb = async (withStableIdIndex = true): Promise<IDBDatabase> => {
   return await new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(CHAPTER_STORE)) {
         const store = db.createObjectStore(CHAPTER_STORE, { keyPath: 'url' });
-        store.createIndex('stableId', 'stableId', { unique: true });
+        if (withStableIdIndex) {
+          store.createIndex('stableId', 'stableId', { unique: true });
+        }
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -92,6 +94,31 @@ describe('ChapterRepository', () => {
     await repo.setChapterNumberByStableId(record.stableId!, 5);
     const updated = await repo.getChapter(baseChapter.originalUrl);
     expect(updated?.chapterNumber).toBe(5);
+  });
+
+  it('uses one cursor fallback for stableId reads and updates on legacy databases', async () => {
+    db.close();
+    await deleteTestDb();
+    db = await openTestDb(false);
+    repo = makeRepo(db);
+
+    const record = await repo.storeChapter(baseChapter);
+    const byStable = await repo.getChapterByStableId(record.stableId!);
+    expect(byStable?.url).toBe(baseChapter.originalUrl);
+
+    await repo.setChapterNumberByStableId(record.stableId!, 7);
+    const updated = await repo.getChapter(baseChapter.originalUrl);
+    expect(updated?.chapterNumber).toBe(7);
+  });
+
+  it('throws a descriptive typed error when stableId is missing', async () => {
+    await expect(
+      repo.setChapterNumberByStableId('missing-stable-id', 5)
+    ).rejects.toMatchObject({
+      name: 'DbError',
+      kind: 'NotFound',
+      message: 'Cannot set chapter number: no chapter found for stableId=missing-stable-id',
+    });
   });
 
   it('lists all chapters', async () => {
