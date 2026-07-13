@@ -12,6 +12,12 @@ vi.mock('../../../services/db/operations/budgetOps', () => ({
   getNovelTranslationCost: vi.fn(),
 }));
 
+// Mock pricing check (dynamic import target). Defaults to "priced" so the
+// spend-cap tests exercise the budget branch; the unpriced-model tests flip it.
+vi.mock('../../../services/ai/cost', () => ({
+  hasKnownPricing: vi.fn(async () => true),
+}));
+
 // Mock translation service to prevent real API calls
 vi.mock('../../../services/translationService', () => ({
   TranslationService: {
@@ -60,6 +66,7 @@ vi.mock('../../../services/explanationService', () => ({
 }));
 
 import { getNovelTranslationCost } from '../../../services/db/operations/budgetOps';
+import { hasKnownPricing } from '../../../services/ai/cost';
 import { createTranslationsSlice } from '../../../store/slices/translationsSlice';
 
 const createTestSlice = (settingsOverrides: Partial<AppSettings> = {}) => {
@@ -103,6 +110,24 @@ const createTestSlice = (settingsOverrides: Partial<AppSettings> = {}) => {
 describe('budget enforcement in handleTranslate', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // clearAllMocks wipes implementations; restore the "priced" default.
+    vi.mocked(hasKnownPricing).mockResolvedValue(true);
+  });
+
+  it('refuses to translate an unpriced model in budget mode (P0.4: the gate must not fail open)', async () => {
+    vi.mocked(hasKnownPricing).mockResolvedValue(false);
+    vi.mocked(getNovelTranslationCost).mockResolvedValue(0);
+    const { state, notifications } = createTestSlice({ preloadBudget: 4.00, model: 'mystery/unpriced-model' });
+
+    await state.handleTranslate('ch-1', 'manual_translate');
+
+    expect(hasKnownPricing).toHaveBeenCalledWith('mystery/unpriced-model');
+    expect(notifications).toHaveLength(1);
+    expect(notifications[0].message).toContain("can't verify pricing");
+    expect(notifications[0].type).toBe('warning');
+    // The spend sum is meaningless for an unpriced model; the gate must not
+    // have proceeded to it and then waved the translation through.
+    expect(state.pendingTranslations?.size ?? 0).toBe(0);
   });
 
   it('blocks translation when budget mode is active and budget is exhausted', async () => {

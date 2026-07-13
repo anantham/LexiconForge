@@ -276,6 +276,20 @@ export const createTranslationsSlice: StateCreator<
     if (context.settings.preloadMode === 'budget' && context.settings.preloadBudget && context.settings.preloadBudget > 0) {
       const { activeNovelId, activeVersionId } = state as any;
       if (activeNovelId) {
+        // A budget can only be enforced for a model whose cost is computable.
+        // An unpriced model records $0/chapter, so the gate would wave through
+        // unlimited spend believing it free (TECH-DEBT P0.4): refuse instead.
+        const { hasKnownPricing } = await import('../../services/ai/cost');
+        if (!(await hasKnownPricing(context.settings.model))) {
+          const showNotification = (state as any).showNotification;
+          if (showNotification) {
+            showNotification(
+              `Budget mode can't verify pricing for model "${context.settings.model}", so the $${context.settings.preloadBudget.toFixed(2)} cap can't be enforced. Pick a priced model or switch off budget mode in Settings > Providers.`,
+              'warning'
+            );
+          }
+          return;
+        }
         const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
         const spent = await getNovelTranslationCost(activeNovelId, activeVersionId);
         if (spent >= context.settings.preloadBudget) {
@@ -1072,17 +1086,55 @@ export const createTranslationsSlice: StateCreator<
   },
   
   updateFeedbackComment: (feedbackId, comment) => {
+    // P0.6: this was a session-local mutation of feedbackHistory only — it
+    // never touched chapter.feedback (so prior-session feedback was a total
+    // no-op) and never persisted (so even in-session edits vanished on
+    // reload). Mirrors the deleteFeedback structure: chapter.feedback is the
+    // canonical home, feedbackHistory the legacy mirror, FeedbackOps the
+    // durable record.
+    const state = get();
+
+    let chapterIdToUpdate: string | null = null;
+    let updatedFeedback: FeedbackItem[] | null = null;
+    for (const [chapterId, chapter] of (state.chapters as Map<string, EnhancedChapter>).entries()) {
+      if (chapter.feedback?.some(f => f.id === feedbackId)) {
+        chapterIdToUpdate = chapterId;
+        updatedFeedback = (chapter.feedback || []).map(f =>
+          f.id === feedbackId ? { ...f, comment } : f
+        );
+        break;
+      }
+    }
+
+    if (chapterIdToUpdate && updatedFeedback && state.updateChapter) {
+      state.updateChapter(chapterIdToUpdate, { feedback: updatedFeedback });
+    }
+
+    // Legacy mirror, updated with NEW array/item objects — the old in-place
+    // `feedback.comment = comment` mutated the existing item, invisible to
+    // anything doing reference-equality checks.
     set(prevState => {
       const newFeedbackHistory = { ...prevState.feedbackHistory };
       for (const chapterId in newFeedbackHistory) {
-        const feedback = newFeedbackHistory[chapterId].find(f => f.id === feedbackId);
-        if (feedback) {
-          feedback.comment = comment;
+        if (newFeedbackHistory[chapterId].some(f => f.id === feedbackId)) {
+          newFeedbackHistory[chapterId] = newFeedbackHistory[chapterId].map(f =>
+            f.id === feedbackId ? { ...f, comment } : f
+          );
           break;
         }
       }
       return { feedbackHistory: newFeedbackHistory };
     });
+
+    // Persist. The repository method existed all along; nothing called it.
+    void FeedbackOps.updateComment(feedbackId, comment).then(
+      () => debugLog('translation', 'summary', '[Feedback] Comment update persisted', { feedbackId }),
+      (e) =>
+        debugWarn('translation', 'summary', '[Feedback] Comment update persist failed', {
+          feedbackId,
+          error: e instanceof Error ? e.message : String(e),
+        })
+    );
   },
   
   // Amendment proposals (queue-based)

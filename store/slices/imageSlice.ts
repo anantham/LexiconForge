@@ -424,6 +424,18 @@ export const createImageSlice: StateCreator<
     const state = get();
     const key = `${chapterId}:${placementMarker}`;
 
+    // P0.5: a generation for this slot is already in flight — refuse. The
+    // retry button is only disabled on isSaving, which the common
+    // retry-without-editing path never sets, so a physical double-click (or
+    // a manual retry racing the auto-trigger) used to launch TWO paid
+    // generations keyed to the same version; the second overwrote the first.
+    // Everything between here and the awaited service call is synchronous,
+    // so this check plus the isLoading set below closes the race.
+    if (state.generatedImages[key]?.isLoading) {
+      debugLog('image', 'summary', `[ImageSlice] Retry ignored for ${key} — a generation is already in flight`);
+      return;
+    }
+
     // Get next version number
     const currentMaxVersion = state.imageVersions[key] || 0;
     const nextVersion = currentMaxVersion + 1;
@@ -513,13 +525,16 @@ export const createImageSlice: StateCreator<
       };
 
       if (generationSucceeded) {
+        // max() so a completion can never regress the counter below a
+        // version some other path has already committed (the persisted
+        // image is keyed by nextVersion, so we must not renumber here).
         updates.imageVersions = {
           ...prevState.imageVersions,
-          [key]: nextVersion
+          [key]: Math.max(prevState.imageVersions[key] || 0, nextVersion)
         };
         updates.activeImageVersion = {
           ...prevState.activeImageVersion,
-          [key]: nextVersion
+          [key]: Math.max(prevState.activeImageVersion[key] || 0, nextVersion)
         };
       }
 

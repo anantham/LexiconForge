@@ -36,4 +36,7 @@ export class FeedbackOps {
   static async getAll() {
     return feedbackRepository.getAllFeedback();
   }
+  static async updateComment(feedbackId: string, comment: string) {
+    return feedbackRepository.updateFeedbackComment(feedbackId, comment);
+  }
 }
