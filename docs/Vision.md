@@ -71,7 +71,7 @@ This project is bigger than translation; it is about Interoperability between Re
 
 In the age of AI, we face an explosion of subcultures (echo chambers), each generating their own jargon, rituals, and values. A "Rationalist" speaking about calibration and a "Poet" speaking about attunement may be pointing at the same truth, but their language prohibits connection.
 
-By distinguishing Content (the root insight) from Packaging (the medium/style), this interface allows us to re-publish wisdom in a way that integrates with the local context of the receiver.
+The answer is NOT to repackage the other side's ideas into the receiver's own dialect — a summary adapted to your priors is the echo chamber's mechanism politely extended, and it asks you to trust the assimilation. The answer is interoperation: keep the source visible, anchor every rendering to it, cite the authorities, and show where interpreters disagree, so the reader can climb toward the other worldview in its own terms. Context may adapt the scaffolding (what gets explained first, how technically); it must never silently rewrite the source, suppress a disagreement, or decide what the source is permitted to mean. Personalize the path to the source, not the source. The full argument, threat model, and evidence live in [THEORY_OF_IMPACT.md](./THEORY_OF_IMPACT.md).
 
 5. Roadmap: The Evolution of the Tool
 

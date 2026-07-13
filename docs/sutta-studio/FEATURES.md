@@ -271,7 +271,7 @@ Ratified after batch-3 curation surfaced this question 3 times. **A relation ear
     note?: string;
   };
   ```
-- **Renderer behavior:** **never used in current demo.** Renderer would surface citation badges next to senses, click → modal with reference details.
+- **Renderer behavior:** SHIPPED (2026-05/07 grounding arc). Senses carry `citationIds` minted by the grounding pass (`ground-packet.ts`; DPD + Visuddhimagga glosses + contested-term registry); the renderer surfaces them as per-sense chips in the lens/audit panel (`LensPanel.tsx`, settings toggle `citationChips`). The published MN10/MN117 packets carry ~80 citations each.
 - **Example:**
   ```json
   // packet.citations
