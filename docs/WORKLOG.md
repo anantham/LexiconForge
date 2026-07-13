@@ -2172,4 +2172,5 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 - `tsc --noEmit --pretty false` reports only the unchanged baseline diagnostics; no modified file appears.
 - Initial full-suite run without the Node flag failed 71 unrelated localStorage tests; isolated rerun confirmed the Node 26/jsdom environment cause, and the corrected full run passed.
 **Review:** External Grok execution was denied because it would transmit private repository context to xAI. No external review was performed; local adversarial review found no actionable defect.
-**Next:** Push a stacked draft PR with base `debt/codex-db-transaction-kernel`; after review, migrate raw summary deletion and backup-storage writes in a separate PR.
+**PR:** https://github.com/anantham/LexiconForge/pull/110 (draft, stacked on PR #109)
+**Next:** After review of PRs #109 and #110, migrate raw summary deletion and backup-storage writes in a separate PR.
