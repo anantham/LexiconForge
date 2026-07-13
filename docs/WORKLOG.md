@@ -1,3 +1,14 @@
+### [2026-07-10 → 2026-07-11] [Agent: Fable 5] — suttabench construct + probe + baseline + dogfood arc
+**Status:** All merged to main and deployed. A PARALLEL session was active simultaneously (its a4f4431 committed the coverage tripwire + MN117 hand-repairs + the 2026-07-07 tech-debt fixes).
+**Construct RATIFIED by operator:** suttabench measures LLMs as INTERFACE COMPILERS ("designing UI and populating UI"); human pedagogy explicitly unmeasured; probe renamed in spirit to SUFFICIENCY+RETENTION (code/ADR rename still pending).
+- **SUTTA-013 completed in advisory mode:** facts layer v2 (macro categories; fabricated/silent/dropped roots; morph = consistency vs DPD reading sets from data/dpd/mn10/grammar.json + morphCoverage); alignment golden v1 (160 links, layered provenance, ~70 API calls, holes disclosed) + Align scorer (index-verified matching, tests); weight-grid stability; negative judge-Spearman = survivorship caveat.
+- **Pedagogical→sufficiency probe stages 1+2:** 597-question deterministic bank (authority-tagged) + gemma-4-26b student; closed-book control 46.3%; conditional lift ranks grok 72.8% … dictionary 57.2% … deepseek-v3.2 49.4%; NEW retention dimension (baseline material CONFUSES readers, 49% vs 66-85%).
+- **Dictionary baseline** (non-LLM floor): contentF1 0.071 but facts 0.510 beats three models with zero fabrications.
+- **Flagship dogfood:** published mn10 packet had EMPTY canonicalSegments (unmeasurable) + 2 real a+ā corruptions — fixed, goldens verified clean; 46 remaining flags = pedagogical sub-token splits → partition-aware matching queued.
+- **Design-consequences table** (4 MN117 compiles): same model, 175 vs 121 self-chosen phases = 99% vs 77% coverage — design is load-bearing.
+- **Mistral MN117 audition REJECTED:** fine 147-phase design but 78% coverage / 88 repairs / 12 degraded — benchmark facts lead ≠ production packet quality; production stays gemini-3-flash.
+Full thread state: portfolio auto-memory `_session-handover-2026-07-11.md`.
+
 ### [2026-07-01 → 2026-07-03] [Agents: Opus 4.8 / Fable 5] — sutta-studio benchmark + MN117 production arc
 **Status:** All merged to main and deployed. Written retroactively after a codex review flagged the missing WORKLOG entries for this burst (~34 commits over ~45h; data commits separate from code commits).
 **Arc 1 — public leaderboard + fairness overhaul** (`/bench/sutta-studio`):
