@@ -9,7 +9,7 @@
 ## Session Summary (narrative)
 
 Built a **reusable source-grounded bilingual reader pipeline** end-to-end on branch
-`feat/local-grounding-pipeline` (19 commits, **unmerged, unpushed**, main clean). Two books run
+`feat/local-grounding-pipeline` (**unmerged, unpushed**, main clean). Two books run
 through it: Calvino (`/calvino`, live at :5210) and Collodi's Pinocchio (ingested; no reader route
 yet). The reader foregrounds the Italian with per-word lens tooltips (meaning / who-acts / cognate /
 false-friend), pairs each phrase with the real English translation, and swaps which language leads
@@ -21,8 +21,8 @@ reasons. Both books' gates now **FAIL honestly**. *Do not "fix" this by loosenin
 
 ## Commits This Session
 
-Branch `feat/local-grounding-pipeline` — **19 commits. PUSHED: no — awaits user authorization.**
-(`git log --oneline main..HEAD` for the full list.)
+Branch `feat/local-grounding-pipeline` — **PUSHED: no — awaits user authorization.**
+Authoritative list (never stale): `git log --oneline main..HEAD`. Highlights below.
 
 - `77b73ee` Fix EPUB adapter manifest parse (order-independent id/href) + Calvino scaffold
 - `bfa68ab` Stage 1: deterministic 22-unit Calvino IT↔Weaver session
@@ -156,9 +156,18 @@ Status: **all still pending**; I did not work in this lane. Full text: `git show
 ## Learnings Captured
 
 - [x] Project memory `parallel-grounding-pipeline.md` — corrected (it wrongly said "Calvino was never built")
+- [x] Project memory `validator-must-not-be-weaker-than-system.md` — new
 - [x] This handover doc (committed)
-- [ ] **`/mu` candidate (cross-project):** *"A validator weaker than the system it validates will report
-      green while broken."* Strong generalization — worth promoting to the shared LIBRARY.
+- [x] **`/mu` DONE** — promoted to the cross-project union store (`~/.claude-sync/`):
+      - `LIBRARY.md` **testing** ← *validator-must-not-be-weaker-than-the-system* (filed as the sharper
+        sibling of the existing "never P-hack" note: there you mask a failing test; here the test
+        CANNOT fail, which is worse — a passing gate stops you looking)
+      - `LIBRARY.md` **data-pipeline** ← parallel-text alignment (Gale-Church + cross-lingual embedding
+        anchor; phrase-not-word; monotonic≠reordering) + the two Project-Gutenberg EPUB traps
+      - `SHARED-MEMORY.md` Index updated; Journal entry **`[0064]`**
+      - *Collision note:* another agent claimed `[0063]` mid-write. **Re-check the top journal index
+        immediately before writing — never from memory.** If a duplicate appears post-Syncthing,
+        renumber YOUR entry, never theirs.
 
 ## Running Processes
 
