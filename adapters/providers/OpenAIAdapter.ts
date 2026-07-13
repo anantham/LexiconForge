@@ -13,6 +13,7 @@ import { getTranslationOnlyResponseJsonSchema } from '../../services/translate/t
 import { getTranslationSystemPrompt } from '../../utils/promptUtils';
 import { getDefaultApiKey } from '../../services/defaultApiKeyService';
 import { apiMetricsService } from '../../services/apiMetricsService';
+import { extractBalancedJson } from '../../services/ai/textUtils';
 
 // Parameter validation utility
 const validateAndClampParameter = (value: any, paramName: string): any => {
@@ -533,28 +534,64 @@ ${schemaString}`;
    * Detect if JSON response appears truncated
    * Checks for unbalanced braces and missing closing structures
    */
+  /**
+   * Remove JSON string literals, leaving only the structural skeleton.
+   *
+   * Brace/bracket counting MUST ignore string contents. The translated prose is itself a JSON
+   * string and routinely contains brackets — footnote markers like `[1]`, illustration markers
+   * like `[ILLUSTRATION-2]`, or a lone `[` in dialogue. Counting those made a complete response
+   * look unbalanced.
+   *
+   * A genuinely truncated response is still caught: it ends mid-string, so the unterminated
+   * literal swallows the remaining text and the closing braces go missing from the skeleton.
+   */
+  private jsonSkeleton(text: string): string {
+    let out = '';
+    let i = 0;
+    while (i < text.length) {
+      const ch = text[i];
+      if (ch === '"') {
+        i++;
+        while (i < text.length) {
+          if (text[i] === '\\') { i += 2; continue; }
+          if (text[i] === '"') { i++; break; }
+          i++;
+        }
+        continue;
+      }
+      out += ch;
+      i++;
+    }
+    return out;
+  }
+
+  /**
+   * Detect if a JSON response appears truncated.
+   *
+   * Call this with FENCE-STRIPPED text: a ```json-wrapped response does not end with `}`, and
+   * treating that as truncation threw `length_cap`, which sent a perfectly good translation
+   * into the chunked-retry path and billed the model a second time for nothing.
+   */
   private seemsTruncated(text: string): boolean {
     const trimmed = text.trim();
 
-    // Check if ends with complete JSON
     if (!trimmed.endsWith('}') && !trimmed.endsWith(']')) {
       dlog('Truncation detected: Response does not end with } or ]');
       return true;
     }
 
-    // Check for balanced braces
-    const openBraces = (trimmed.match(/{/g) || []).length;
-    const closeBraces = (trimmed.match(/}/g) || []).length;
+    const skeleton = this.jsonSkeleton(trimmed);
+    const count = (haystack: string, needle: string) => haystack.split(needle).length - 1;
 
+    const openBraces = count(skeleton, '{');
+    const closeBraces = count(skeleton, '}');
     if (openBraces !== closeBraces) {
       dlog('Truncation detected: Unbalanced braces', { openBraces, closeBraces });
       return true;
     }
 
-    // Check for balanced brackets
-    const openBrackets = (trimmed.match(/\[/g) || []).length;
-    const closeBrackets = (trimmed.match(/\]/g) || []).length;
-
+    const openBrackets = count(skeleton, '[');
+    const closeBrackets = count(skeleton, ']');
     if (openBrackets !== closeBrackets) {
       dlog('Truncation detected: Unbalanced brackets', { openBrackets, closeBrackets });
       return true;
@@ -564,41 +601,18 @@ ${schemaString}`;
   }
 
   /**
-   * Extract first balanced JSON block from text
-   * Handles cases where response has preamble or postamble text
-   * Properly skips braces inside strings and handles escaped characters
+   * Extract the first balanced JSON object from text that may carry a preamble/postamble.
+   *
+   * Delegates to the shared scanner. The local copy this replaced decided a quote was escaped
+   * by looking at the previous character, so a string ending in an escaped backslash (`"...\\"`)
+   * had its own closing quote read as escaped, and the scan ran past the end of the object.
    */
   private extractBalancedJson(text: string): string | null {
-    const scan = (open: string, close: string): string | null => {
-      let depth = 0;
-      let inString = false;
-      const start = text.indexOf(open);
-      if (start === -1) return null;
-
-      for (let i = start; i < text.length; i++) {
-        const char = text[i];
-        const prevChar = i > 0 ? text[i - 1] : '';
-
-        // Handle string boundaries (but not escaped quotes)
-        if (char === '"' && prevChar !== '\\') {
-          inString = !inString;
-          continue;
-        }
-
-        // Skip characters inside strings
-        if (inString) continue;
-
-        if (char === open) depth++;
-        if (char === close) depth--;
-        if (depth === 0) {
-          return text.substring(start, i + 1);
-        }
-      }
+    try {
+      return extractBalancedJson(text);
+    } catch {
       return null;
-    };
-
-    // Try object notation first, then array notation
-    return scan('{', '}') || scan('[', ']');
+    }
   }
 
   private async processResponse(
@@ -618,21 +632,60 @@ ${schemaString}`;
 
     dlogFull('Raw response text:', responseText.substring(0, 500));
 
-    // Check for truncation BEFORE parsing
-    if (finishReason === 'length' || this.seemsTruncated(responseText)) {
-      dlog('Response appears truncated', {
-        finishReason,
-        responseLength: responseText.length,
-        endsWithBrace: responseText.trim().endsWith('}')
-      });
-      throw new Error('length_cap: Model hit token limit. Increase max_tokens or reduce output size.');
-    }
+    // Cost and timing are computed up-front, from response.usage. The provider bills for this
+    // call whether or not we can parse it, so every exit below records a metric — a
+    // billed-but-unparseable response that recorded nothing was spend the budget gate could
+    // not see (TECH-DEBT P1.4).
+    const promptTokens = response.usage?.prompt_tokens || 0;
+    const completionTokens = response.usage?.completion_tokens || 0;
+    const costUsd = await calculateCost(settings.model, promptTokens, completionTokens);
+    const requestTime = (endTime - startTime) / 1000;
 
-    // Strip markdown code fences if present
-    let cleanedText = this.stripMarkdownCodeFences(responseText);
+    const usageMetrics: UsageMetrics = {
+        promptTokens,
+        completionTokens,
+        totalTokens: promptTokens + completionTokens,
+        estimatedCost: costUsd,
+        requestTime,
+        provider: settings.provider,
+        model: settings.model,
+    };
+
+    const recordMetric = (success: boolean) => apiMetricsService.recordMetric({
+      apiType: 'translation',
+      provider: settings.provider,
+      model: settings.model,
+      costUsd,
+      duration: requestTime,
+      tokens: {
+        prompt: promptTokens,
+        completion: completionTokens,
+        total: promptTokens + completionTokens,
+      },
+      chapterId,
+      success,
+    });
+
+    const failWith = async (message: string): Promise<never> => {
+      await recordMetric(false);
+      throw new Error(message);
+    };
+
+    // Strip fences BEFORE the truncation check: a ```json-wrapped response does not end with
+    // `}`, and reading that as truncation would throw length_cap and trigger a chunked re-bill.
+    const cleanedText = this.stripMarkdownCodeFences(responseText);
 
     if (cleanedText !== responseText) {
       dlog('Stripped markdown code fences from response');
+    }
+
+    if (finishReason === 'length' || this.seemsTruncated(cleanedText)) {
+      dlog('Response appears truncated', {
+        finishReason,
+        responseLength: responseText.length,
+        endsWithBrace: cleanedText.trim().endsWith('}')
+      });
+      await failWith('length_cap: Model hit token limit. Increase max_tokens or reduce output size.');
     }
 
     let parsedResponse: any;
@@ -653,45 +706,15 @@ ${schemaString}`;
           dlog('Successfully parsed JSON after extraction');
         } catch (extractError) {
           dlogFull('Extraction also failed. Cleaned text:', cleanedText.substring(0, 500));
-          throw new Error(`Failed to parse JSON response after extraction: ${cleanedText.substring(0, 200)}...`);
+          await failWith(`Failed to parse JSON response after extraction: ${cleanedText.substring(0, 200)}...`);
         }
       } else {
         dlogFull('Could not extract balanced JSON. Original text:', responseText.substring(0, 500));
-        throw new Error(`Failed to parse JSON response (no balanced JSON found): ${responseText.substring(0, 200)}...`);
+        await failWith(`Failed to parse JSON response (no balanced JSON found): ${responseText.substring(0, 200)}...`);
       }
     }
 
-    // Calculate cost and timing
-    const promptTokens = response.usage?.prompt_tokens || 0;
-    const completionTokens = response.usage?.completion_tokens || 0;
-    const costUsd = await calculateCost(settings.model, promptTokens, completionTokens);
-    const requestTime = (endTime - startTime) / 1000;
-
-    const usageMetrics: UsageMetrics = {
-        promptTokens,
-        completionTokens,
-        totalTokens: promptTokens + completionTokens,
-        estimatedCost: costUsd,
-        requestTime,
-        provider: settings.provider,
-        model: settings.model,
-    };
-
-    // Record successful API call in metrics
-    await apiMetricsService.recordMetric({
-      apiType: 'translation',
-      provider: settings.provider,
-      model: settings.model,
-      costUsd,
-      duration: requestTime,
-      tokens: {
-        prompt: promptTokens,
-        completion: completionTokens,
-        total: promptTokens + completionTokens,
-      },
-      chapterId,
-      success: true,
-    });
+    await recordMetric(true);
 
     const result = {
       translatedTitle: parsedResponse.translatedTitle || '',

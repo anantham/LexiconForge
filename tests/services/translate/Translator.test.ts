@@ -17,6 +17,12 @@ const baseTranslationResult = (): TranslationResult =>
   createMockTranslationResult({
     translatedTitle: 'Mock Title',
     translation: 'Mock translation content',
+    // Self-consistent by construction: this translation carries no markers, so it declares no
+    // footnotes or illustrations either. Translator.sanitizeResult reconciles markers against
+    // metadata, so a fixture whose metadata cites markers absent from the text would (correctly)
+    // have them appended, which would obscure what these tests actually assert.
+    footnotes: [],
+    suggestedIllustrations: [],
     usageMetrics: { ...baseUsageMetrics },
     model: 'claude-3-opus',
     provider: 'Claude',
@@ -317,6 +323,126 @@ describe('Translator', () => {
       expect(result.amendments).toEqual([]);
       expect(result.costUsd).toBeUndefined();
       expect(result.tokensUsed).toBeUndefined();
+    });
+  });
+
+  // Marker reconciliation used to live inside each provider: Claude had its own (buggy) copy,
+  // while OpenAI and Gemini did none at all. It now happens once, here, for every provider.
+  describe('marker reconciliation (all providers)', () => {
+    it('leaves a well-formed result untouched', async () => {
+      mockProvider.mockResult = {
+        ...baseTranslationResult(),
+        translation: 'Scene one. [ILLUSTRATION-1] A claim.[1]',
+        suggestedIllustrations: [{ placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'a scene' }],
+        footnotes: [{ marker: '[1]', text: 'a note' }],
+      };
+
+      const result = await translator.translate(mockRequest);
+
+      expect(result.translation).toBe('Scene one. [ILLUSTRATION-1] A claim.[1] [sanitized]');
+      expect(result.suggestedIllustrations).toHaveLength(1);
+      expect(result.footnotes).toHaveLength(1);
+    });
+
+    it('appends markers the model declared in metadata but omitted from the text', async () => {
+      mockProvider.mockResult = {
+        ...baseTranslationResult(),
+        translation: 'A scene with no markers.',
+        suggestedIllustrations: [{ placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'a scene' }],
+        footnotes: [],
+      };
+
+      const result = await translator.translate(mockRequest);
+
+      // Recovered rather than dropped: an illustration whose marker is absent from the text
+      // would otherwise never render.
+      expect(result.translation).toContain('[ILLUSTRATION-1]');
+    });
+
+    it('does NOT duplicate a marker that is already in the text', async () => {
+      // Regression guard: claudeService's forked validator used an over-escaped regex, so it
+      // never matched a marker, concluded the text had none, and appended every marker the model
+      // had already placed inline — duplicating all of them on every Claude translation.
+      mockProvider.mockResult = {
+        ...baseTranslationResult(),
+        translation: 'Scene one. [ILLUSTRATION-1] Scene two. [ILLUSTRATION-2]',
+        suggestedIllustrations: [
+          { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'one' },
+          { placementMarker: '[ILLUSTRATION-2]', imagePrompt: 'two' },
+        ],
+        footnotes: [],
+      };
+
+      const result = await translator.translate(mockRequest);
+
+      expect(result.translation.match(/\[ILLUSTRATION-1\]/g)).toHaveLength(1);
+      expect(result.translation.match(/\[ILLUSTRATION-2\]/g)).toHaveLength(1);
+    });
+
+    it('rejects a text marker that has no matching illustration prompt', async () => {
+      // A dangling marker renders to the reader as literal "[ILLUSTRATION-2]" with no image.
+      // Failing sends it back to the model instead of shipping it.
+      mockProvider.mockResult = {
+        ...baseTranslationResult(),
+        translation: 'Scene one. [ILLUSTRATION-1] Scene two. [ILLUSTRATION-2]',
+        suggestedIllustrations: [{ placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'one' }],
+        footnotes: [],
+      };
+
+      await expect(translator.translate(mockRequest)).rejects.toThrow(/missing illustration prompts/i);
+    });
+
+    it('honors footnoteStrictMode: fail — previously a no-op for every live provider', async () => {
+      mockProvider.mockResult = {
+        ...baseTranslationResult(),
+        translation: 'A claim with no footnote marker.',
+        suggestedIllustrations: [],
+        footnotes: [{ marker: '[1]', text: 'an orphaned note' }],
+      };
+
+      const strictRequest: TranslationRequest = {
+        ...mockRequest,
+        settings: { ...mockRequest.settings, footnoteStrictMode: 'fail' },
+      };
+
+      await expect(translator.translate(strictRequest)).rejects.toThrow(/Extra footnotes/i);
+    });
+  });
+
+  describe('chunked translation', () => {
+    it('renumbers markers in the merged TEXT, not just the metadata', async () => {
+      // Each chunk is translated independently, so both chunks come back numbered from 1.
+      // The merge renumbers metadata onto a global sequence; it used to leave the text alone,
+      // so the text held two [ILLUSTRATION-1] while the metadata claimed -1 and -2 — and the
+      // second image, keyed to a marker absent from the text, could never render.
+      let call = 0;
+      mockProvider.translate = vi.fn(async () => {
+        call += 1;
+        if (call === 1) throw new Error('length_cap: model hit token limit');
+        return {
+          ...baseTranslationResult(),
+          translation: `Chunk ${call - 1}. [ILLUSTRATION-1] A claim.[1]`,
+          suggestedIllustrations: [{ placementMarker: '[ILLUSTRATION-1]', imagePrompt: `scene ${call - 1}` }],
+          footnotes: [{ marker: '[1]', text: `note ${call - 1}` }],
+        };
+      });
+
+      const longRequest: TranslationRequest = {
+        ...mockRequest,
+        content: ['Para one.', 'Para two.', 'Para three.', 'Para four.'].join('\n\n'),
+      };
+
+      const result = await translator.translate(longRequest, { maxRetries: 1 });
+
+      expect(result.suggestedIllustrations.map(i => i.placementMarker))
+        .toEqual(['[ILLUSTRATION-1]', '[ILLUSTRATION-2]']);
+      expect(result.footnotes.map(f => f.marker)).toEqual(['[1]', '[2]']);
+
+      // The invariant that was broken: every marker in the metadata appears in the text exactly once.
+      for (const marker of ['[ILLUSTRATION-1]', '[ILLUSTRATION-2]', '[1]', '[2]']) {
+        const escaped = marker.replace(/[[\]]/g, '\\$&');
+        expect(result.translation.match(new RegExp(escaped, 'g')) ?? []).toHaveLength(1);
+      }
     });
   });
 });

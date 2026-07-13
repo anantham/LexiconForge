@@ -209,113 +209,21 @@ CRITICAL JSON FORMATTING: Properly escape all special characters:
                 throw new Error('Invalid JSON structure in Claude response.');
             }
 
-            // Apply the same illustration validation as other providers
-            // We need to import this locally to avoid circular imports
-            const validateAndFixIllustrations = (translation: string, suggestedIllustrations: any[] | undefined): { translation: string; suggestedIllustrations: any[] } => {
-                const textMarkers = translation.match(/\\[ILLUSTRATION-\\d+[A-Za-z]*\\]/g) || [];
-                const jsonIllustrations = suggestedIllustrations || [];
-                const jsonMarkers = jsonIllustrations.map(item => item.placementMarker);
-
-                // Case 1: Perfect match - no changes needed
-                if (textMarkers.length === jsonMarkers.length) {
-                    const textMarkerSet = new Set(textMarkers);
-                    const jsonMarkerSet = new Set(jsonMarkers);
-                    
-                    if (textMarkers.every(marker => jsonMarkerSet.has(marker)) && 
-                        jsonMarkers.every(marker => textMarkerSet.has(marker))) {
-                        console.log('[IllustrationFix] Perfect match - no changes needed');
-                        return { translation, suggestedIllustrations: jsonIllustrations };
-                    }
-                }
-
-                // Case 2: More JSON prompts than text markers - auto-insert missing markers
-                if (jsonMarkers.length > textMarkers.length) {
-                    const textMarkerSet = new Set(textMarkers);
-                    const unmatchedPrompts = jsonIllustrations.filter(item => !textMarkerSet.has(item.placementMarker));
-                    
-                    console.log(`[IllustrationFix] Auto-recovery: ${unmatchedPrompts.length} unmatched prompts, inserting at end of text`);
-                    
-                    let updatedTranslation = translation;
-                    for (const prompt of unmatchedPrompts) {
-                        updatedTranslation = updatedTranslation.trim() + ` ${prompt.placementMarker}`;
-                    }
-                    
-                    console.log('[IllustrationFix] Auto-recovery successful - saved translation with inserted markers');
-                    return { translation: updatedTranslation, suggestedIllustrations: jsonIllustrations };
-                }
-
-                // For other cases, just return as-is (Claude service can be more lenient initially)
-                return { translation, suggestedIllustrations: jsonIllustrations };
-            };
-            
-            const { translation: fixedTranslation_1, suggestedIllustrations: fixedIllustrations } = 
-                validateAndFixIllustrations(parsedJson.translation, parsedJson.suggestedIllustrations);
-
-            // Basic footnote validator (align markers in text with JSON footnotes)
-            const validateAndFixFootnotes = (translation: string, footnotes: any[] | undefined): { translation: string; footnotes: any[] } => {
-                // Unique markers from text (first appearance), exclude illustrations
-                const all = translation.match(/\[(\d+)\]/g) || [];
-                const seen = new Set<string>();
-                const textMarkers: string[] = [];
-                for (const m of all) { if (/\[ILLUSTRATION-/i.test(m)) continue; if (!seen.has(m)) { seen.add(m); textMarkers.push(m); } }
-                const jsonFootnotes = Array.isArray(footnotes) ? footnotes.slice() : [];
-                const normalize = (m: string) => m.startsWith('[') ? m : `[${m.replace(/\[|\]/g, '')}]`;
-                const jsonMarkersRaw = jsonFootnotes.map(fn => normalize(String(fn.marker || '')));
-                const jsonMarkers = Array.from(new Set(jsonMarkersRaw));
-                if (textMarkers.length === jsonMarkers.length) {
-                    const tSet = new Set(textMarkers), jSet = new Set(jsonMarkers);
-                    if (textMarkers.every(m => jSet.has(m)) && jsonMarkers.every(m => tSet.has(m))) {
-                        const fixed = jsonFootnotes.map(fn => ({ ...fn, marker: normalize(String(fn.marker || '')) }));
-                        return { translation, footnotes: fixed };
-                    }
-                    const textOnly = textMarkers.filter(m => !jSet.has(m));
-                    if (textOnly.length > 0) console.warn(`[FootnoteFix] (Claude) Remapping ${textOnly.length} JSON footnotes to unmatched text markers`);
-                    const fixed = jsonFootnotes.map(fn => {
-                        const nm = normalize(String(fn.marker || ''));
-                        if (!tSet.has(nm) && textOnly.length > 0) {
-                            const use = textOnly.shift()!;
-                            return { ...fn, marker: use };
-                        }
-                        return { ...fn, marker: nm };
-                    });
-                    return { translation, footnotes: fixed };
-                }
-                if (jsonMarkers.length > textMarkers.length) {
-                    const tSet = new Set(textMarkers);
-                    const extra = jsonMarkers.filter(m => !tSet.has(m));
-                    if (extra.length > 0) console.warn(`[FootnoteFix] (Claude) Detected ${extra.length} footnotes without text markers; appending markers at end of translation`);
-                    let updated = translation.trim();
-                    for (const m of extra) updated += ` ${m}`;
-                    const fixed = jsonFootnotes.map(fn => ({ ...fn, marker: normalize(String(fn.marker || '')) }));
-                    return { translation: updated, footnotes: fixed };
-                }
-                const errorMessage = `AI response validation failed: Missing footnotes for markers.\n- Text markers (unique): ${textMarkers.join(', ')}\n- JSON markers: ${jsonMarkers.join(', ')}\n\nRequires regeneration with matching footnotes.`;
-                throw new Error(errorMessage);
-            };
-
-            const { translation: fixedTranslation, footnotes: fixedFootnotes } = validateAndFixFootnotes(
-              fixedTranslation_1,
-              parsedJson.footnotes
-            );
-
-            // Debug: Log what we're about to return
-            console.log('[Claude Debug] Final result check:', {
+            // Illustration/footnote marker reconciliation is NOT done here. It happens once,
+            // for every provider, in Translator.sanitizeResult() — see services/ai/responseValidators.ts.
+            dlog('[Claude Debug] Parsed result:', {
                 translatedTitleLength: parsedJson.translatedTitle?.length || 0,
-                translatedTitlePreview: parsedJson.translatedTitle?.substring(0, 50),
                 rawTranslationLength: parsedJson.translation?.length || 0,
-                rawTranslationPreview: parsedJson.translation?.substring(0, 100),
-                fixedTranslationLength: fixedTranslation?.length || 0,
-                fixedTranslationPreview: fixedTranslation?.substring(0, 100),
-                footnotesCount: fixedFootnotes?.length || 0,
-                illustrationsCount: fixedIllustrations?.length || 0,
+                footnotesCount: parsedJson.footnotes?.length || 0,
+                illustrationsCount: parsedJson.suggestedIllustrations?.length || 0,
             });
 
             return {
                 translatedTitle: parsedJson.translatedTitle,
-                translation: fixedTranslation,
+                translation: parsedJson.translation,
                 proposal: null,
-                footnotes: fixedFootnotes || [],
-                suggestedIllustrations: fixedIllustrations,
+                footnotes: parsedJson.footnotes || [],
+                suggestedIllustrations: parsedJson.suggestedIllustrations || [],
                 usageMetrics: usageMetrics,
             };
         } catch (parseError) {

@@ -1,5 +1,6 @@
 import type { ImagePlan } from '../../types';
 import { ensureIllustrationPlan } from '../imagePlanService';
+import { findIllustrationMarkers } from './illustrationMarkers';
 
 type Illustration = {
   placementMarker: string;
@@ -16,7 +17,7 @@ export const validateAndFixIllustrations = (
   translation: string,
   suggestedIllustrations: Illustration[] | undefined
 ): { translation: string; suggestedIllustrations: Illustration[] } => {
-  const textMarkers = translation.match(/\[ILLUSTRATION-\d+[A-Za-z]*\]/g) || [];
+  const textMarkers = findIllustrationMarkers(translation);
   const jsonIllustrations = (suggestedIllustrations || []).map((illustration) => ensureIllustrationPlan(illustration));
   const jsonMarkers = jsonIllustrations.map(item => item.placementMarker);
 
