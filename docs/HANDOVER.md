@@ -86,9 +86,24 @@ Authoritative list (never stale): `git log --oneline main..HEAD`. Highlights bel
      is not a clause* — merge it back into its predecessor (conservation untouched; the pieces
      still concatenate to the exact surface). **Pinocchio 16 -> 11.** It never surfaced in
      Calvino because Weaver's short segments ("Now.", "No.") are legitimate sentences.
-   - **Next probe (not yet done):** the remaining 11 Pinocchio / 3 Calvino pairs. Both prior
-     causes are now fixed, so what is left is a THIRD cause — do not assume it is either of the
-     two above. Characterise before theorising (that is what found both of these).
+   - **THE I5 COUNT IS AN OVERCOUNT — read this before chasing the remainder.** Inspecting the
+     residual showed I5 (embedding form: `next > own + 0.15` and `own < 0.50`) **flags correctly-
+     aligned pairs**. Verified example: a sentence describing the poodle-coachman's livery is
+     paired with its *correct* English, yet I5 fires because the NEXT sentence continues the same
+     description and scores higher (own 0.28 / next 0.49, margin 0.21). Contrast a genuine
+     misalignment (own 0.32 / next 0.89, margin **0.57**).
+     **The discriminator is the MARGIN, not the flag.** So the headline number ("11 / 3 drift")
+     mixes real bugs with false positives; the true bug count is lower and currently unknown.
+   - **How to proceed (and how NOT to):** do NOT simply raise the margin until the gate goes
+     green — that is the exact anti-pattern this session was built to avoid. Legitimate route:
+     inspect the full residual population pair-by-pair, label each correct/incorrect, THEN
+     calibrate the margin to that inspected ground truth (this is how the gloss-bag I5 was
+     calibrated earlier, when ~50 of 55 hits proved to be false positives). Calibration against
+     inspected truth is honest; thresholding to hit a number is not.
+   - **Residual real drift looks like dialogue-line offset:** inside a spoken exchange the two
+     editions bundle turns differently, so English lines sit one slot off (Pinocchio u22/u27/u19).
+     Note this is a SENTENCE-level effect inside dialogue — NOT the paragraph-level dialogue
+     hypothesis I originally asserted and which testing falsified.
    - Current: I5 = **3 drift pairs (Calvino)**, **16 (Pinocchio)** → both gates FAIL.
    - Files: `scripts/grounding/build_reader_payload.py` (`align_paragraphs`, `best_alignment`).
    - Verify: `npm run check:calvino` / `check:pinocchio` (pass `--embed-cache data/<book>/emb-cache.npz`).
