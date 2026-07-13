@@ -611,8 +611,43 @@ ${schemaString}`;
     const choice = response.choices?.[0];
     const finishReason = choice?.finish_reason || (choice as any)?.native_finish_reason || null;
 
+    // P1.4 (TECH-DEBT-FIX-PRIORITY-2026-07-07): the provider bills for this
+    // response whether or not it is usable. Every throw below (empty content,
+    // token-limit truncation, unparseable JSON) used to escape BEFORE any
+    // metric was written, so that spend hit neither cost ledger and stayed
+    // invisible to the budget gate — the same "budget is a lie" family as
+    // P0.4. Price the response up front and record a success:false metric on
+    // the way out, so a call is counted exactly once either way.
+    const billedPromptTokens = response.usage?.prompt_tokens || 0;
+    const billedCompletionTokens = response.usage?.completion_tokens || 0;
+    const requestSeconds = (endTime - startTime) / 1000;
+    const recordFailedSpend = async (reason: string): Promise<void> => {
+      try {
+        const failedCost = await calculateCost(settings.model, billedPromptTokens, billedCompletionTokens);
+        await apiMetricsService.recordMetric({
+          apiType: 'translation',
+          provider: settings.provider,
+          model: settings.model,
+          costUsd: failedCost,
+          duration: requestSeconds,
+          tokens: {
+            prompt: billedPromptTokens,
+            completion: billedCompletionTokens,
+            total: billedPromptTokens + billedCompletionTokens,
+          },
+          chapterId,
+          success: false,
+          errorMessage: reason,
+        });
+      } catch (metricError) {
+        // Never let ledger bookkeeping mask the real failure.
+        console.warn('[OpenAI] Failed to record billed-but-unusable response in the cost ledger:', metricError);
+      }
+    };
+
     const responseText = choice?.message?.content;
     if (!responseText) {
+      await recordFailedSpend('Empty response from API');
       throw new Error('Empty response from API');
     }
 
@@ -625,6 +660,7 @@ ${schemaString}`;
         responseLength: responseText.length,
         endsWithBrace: responseText.trim().endsWith('}')
       });
+      await recordFailedSpend('length_cap: model hit token limit');
       throw new Error('length_cap: Model hit token limit. Increase max_tokens or reduce output size.');
     }
 
@@ -653,19 +689,21 @@ ${schemaString}`;
           dlog('Successfully parsed JSON after extraction');
         } catch (extractError) {
           dlogFull('Extraction also failed. Cleaned text:', cleanedText.substring(0, 500));
+          await recordFailedSpend('Failed to parse JSON response after extraction');
           throw new Error(`Failed to parse JSON response after extraction: ${cleanedText.substring(0, 200)}...`);
         }
       } else {
         dlogFull('Could not extract balanced JSON. Original text:', responseText.substring(0, 500));
+        await recordFailedSpend('Failed to parse JSON response (no balanced JSON found)');
         throw new Error(`Failed to parse JSON response (no balanced JSON found): ${responseText.substring(0, 200)}...`);
       }
     }
 
-    // Calculate cost and timing
-    const promptTokens = response.usage?.prompt_tokens || 0;
-    const completionTokens = response.usage?.completion_tokens || 0;
+    // Calculate cost and timing (same billed figures the failure path prices)
+    const promptTokens = billedPromptTokens;
+    const completionTokens = billedCompletionTokens;
     const costUsd = await calculateCost(settings.model, promptTokens, completionTokens);
-    const requestTime = (endTime - startTime) / 1000;
+    const requestTime = requestSeconds;
 
     const usageMetrics: UsageMetrics = {
         promptTokens,

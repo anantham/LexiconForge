@@ -22,7 +22,7 @@ import type { EnhancedChapter } from './stableIdService';
 import { normalizeUrlAggressively, generateStableChapterId } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
 import { HtmlRepairService } from './translate/HtmlRepairService';
-import { ChapterOps, FeedbackOps, TranslationOps } from './db/operations';
+import { ChapterOps, FeedbackOps, TranslationOps, feedbackRecordToItem } from './db/operations';
 import { extractBalancedJson, replacePlaceholders } from './ai/textUtils';
 import {
   buildAmendmentReviewSystemPrompt,
@@ -201,24 +201,18 @@ export class TranslationService {
   }
 
   /**
-   * Convert FeedbackRecord from IndexedDB to FeedbackItem format
+   * Convert FeedbackRecord from IndexedDB to FeedbackItem format.
+   *
+   * P1.5 (TECH-DEBT-FIX-PRIORITY-2026-07-07): this used to be a private
+   * copy that never set `comment`. formatHistory renders feedback as
+   * `- 👎 on: "<selection>" (User comment: <comment>)`, so every piece of
+   * IDB-hydrated feedback reached the model with the user's ACTUAL GUIDANCE
+   * stripped out — the thing they typed to steer the translation was dropped
+   * before it could influence anything. Delegating to the canonical
+   * converter, which carries `comment`.
    */
   private static convertFeedbackRecordToItem(record: any): any {
-    const typeMap: Record<string, '👍' | '👎' | '?'> = {
-      'positive': '👍',
-      'negative': '👎',
-      'suggestion': '?'
-    };
-
-    return {
-      id: record.id,
-      text: record.comment,
-      category: record.type,
-      timestamp: new Date(record.createdAt).getTime(),
-      chapterId: record.chapterUrl,
-      selection: record.selection,
-      type: typeMap[record.type] || '?'
-    };
+    return feedbackRecordToItem(record);
   }
 
   private static async runSequential<T>(task: () => Promise<T>): Promise<T> {
@@ -880,8 +874,15 @@ export class TranslationService {
         }
       }
 
-      // We built oldest-first (walking backward). Return as-is; history formatter handles order.
-      return results;
+      // P1.5 (TECH-DEBT-FIX-PRIORITY-2026-07-07): the old comment here claimed
+      // "we built oldest-first" and returned as-is. It is the opposite: walking
+      // BACKWARD from the current chapter pushes the NEAREST prior chapter
+      // first, so `results` is newest-first. The formatter labels entry 1
+      // "(OLDEST)" and the primary history path sorts ascending by chapter
+      // number, so this fallback fed every model its prior chapters in
+      // reverse chronological order while asserting they were chronological.
+      // Reverse to oldest-first, matching both the label and the primary path.
+      return results.reverse();
     } catch (e) {
       swarn('[HistoryAsync] PrevUrl chain failed', e);
       return [];

@@ -1,5 +1,6 @@
 import prompts from '../config/prompts.json';
 import { HistoricalChapter, FeedbackItem } from '../types';
+import { extractIllustrationMarkers } from './ai/responseValidators';
 
 export const buildFanTranslationContext = (fanTranslation: string | null): string => {
   if (!fanTranslation) return '';
@@ -23,7 +24,10 @@ export const formatHistory = (history: HistoricalChapter[]): string => {
   }
   return history.map((h, index) => {
     // Derive structured-output hints from the previous translated text
-    const illuCount = (h.translatedContent.match(/\\[ILLUSTRATION-\\d+\\]/g) || []).length;
+    // P1.1: was a double-escaped regex that could never match, so this count
+    // was ALWAYS 0 — the structured-output summary told the model every prior
+    // chapter had zero illustrations, suppressing illustration output.
+    const illuCount = extractIllustrationMarkers(h.translatedContent).length;
     const footMarkerCount = (h.footnotes || []).length;
     const feedbackCount = h.feedback?.length || 0;
     const feedbackStr = h.feedback.length > 0

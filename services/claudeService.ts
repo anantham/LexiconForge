@@ -4,6 +4,7 @@ import { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from 
 import prompts from '../config/prompts.json';
 import { calculateCost } from './aiService';
 import { buildFanTranslationContext, formatHistory } from './prompts';
+import { extractIllustrationMarkers } from './ai/responseValidators';
 import { buildPreambleFromSettings } from './prompts/metadataPreamble';
 import { getEnvVar } from './env';
 import { getTranslationSystemPrompt } from '../utils/promptUtils';
@@ -212,7 +213,11 @@ CRITICAL JSON FORMATTING: Properly escape all special characters:
             // Apply the same illustration validation as other providers
             // We need to import this locally to avoid circular imports
             const validateAndFixIllustrations = (translation: string, suggestedIllustrations: any[] | undefined): { translation: string; suggestedIllustrations: any[] } => {
-                const textMarkers = translation.match(/\\[ILLUSTRATION-\\d+[A-Za-z]*\\]/g) || [];
+                // P1.1: was a double-escaped regex that could never match, so
+                // textMarkers was ALWAYS empty — the "markers missing from
+                // text" branch fired on every translation carrying
+                // illustrations and appended a duplicate of each marker.
+                const textMarkers = extractIllustrationMarkers(translation);
                 const jsonIllustrations = suggestedIllustrations || [];
                 const jsonMarkers = jsonIllustrations.map(item => item.placementMarker);
 

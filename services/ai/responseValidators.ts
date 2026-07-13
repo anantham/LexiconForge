@@ -12,11 +12,31 @@ type Footnote = {
   text: string;
 };
 
+/**
+ * THE illustration-marker pattern. Import this; never re-type it.
+ *
+ * P1.1 (TECH-DEBT-FIX-PRIORITY-2026-07-07): the same copy-paste typo
+ * (`/\\[ILLUSTRATION-\\d+\\]/`, double-escaped inside a regex LITERAL, so it
+ * matched a literal backslash and could never match real text) had been
+ * pasted into two other files and caused two distinct user-facing failures:
+ * Claude duplicated markers on every translation, and the prior-chapter
+ * context always reported "Illustration markers: 0", actively teaching the
+ * model that previous chapters had no illustrations.
+ *
+ * A regex with /g carries lastIndex state across .test()/.exec() calls, so
+ * this is a FACTORY, not a shared mutable instance.
+ */
+export const illustrationMarkerRegex = (): RegExp => /\[ILLUSTRATION-\d+[A-Za-z]*\]/g;
+
+/** Every illustration marker in a piece of translated text, in order. */
+export const extractIllustrationMarkers = (text: string): string[] =>
+  text?.match(illustrationMarkerRegex()) || [];
+
 export const validateAndFixIllustrations = (
   translation: string,
   suggestedIllustrations: Illustration[] | undefined
 ): { translation: string; suggestedIllustrations: Illustration[] } => {
-  const textMarkers = translation.match(/\[ILLUSTRATION-\d+[A-Za-z]*\]/g) || [];
+  const textMarkers = extractIllustrationMarkers(translation);
   const jsonIllustrations = (suggestedIllustrations || []).map((illustration) => ensureIllustrationPlan(illustration));
   const jsonMarkers = jsonIllustrations.map(item => item.placementMarker);
 
