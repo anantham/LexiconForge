@@ -11,6 +11,11 @@ const makeRequest = () => ({
 
 const makeRepositoryWithControlledStore = () => {
   const requests: ReturnType<typeof makeRequest>[] = [];
+  const listeners: Record<'complete' | 'error' | 'abort', Array<() => void>> = {
+    complete: [],
+    error: [],
+    abort: [],
+  };
   const store = {
     put: vi.fn(() => {
       const request = makeRequest();
@@ -25,10 +30,14 @@ const makeRepositoryWithControlledStore = () => {
   };
   const transaction = {
     error: null as unknown,
+    abort: vi.fn(),
     objectStore: vi.fn(() => store),
-    oncomplete: null as null | (() => void),
-    onerror: null as null | (() => void),
-    onabort: null as null | (() => void),
+    addEventListener: vi.fn((event: 'complete' | 'error' | 'abort', listener: () => void) => {
+      listeners[event].push(listener);
+    }),
+    emit: (event: 'complete' | 'error' | 'abort') => {
+      listeners[event].forEach(listener => listener());
+    },
   };
   const db = {
     transaction: vi.fn(() => transaction),
@@ -88,7 +97,7 @@ describe('TranslationRepository write durability', () => {
     await flushAsync();
     expect(resolved).toBe(false);
 
-    transaction.oncomplete?.();
+    transaction.emit('complete');
 
     await expect(promise).resolves.toBeUndefined();
     expect(resolved).toBe(true);
@@ -104,10 +113,29 @@ describe('TranslationRepository write durability', () => {
     requests[0].onsuccess?.();
 
     transaction.error = new DOMException('quota full', 'QuotaExceededError');
-    transaction.onabort?.();
+    transaction.emit('abort');
 
     await expect(promise).rejects.toMatchObject({
-      name: 'QuotaExceededError',
+      name: 'DbError',
+      kind: 'Quota',
+    });
+  });
+
+  it('aborts the transaction and preserves a put request failure', async () => {
+    const { repo, requests, transaction } = makeRepositoryWithControlledStore();
+    const promise = repo.writeTranslation(translationRecord);
+
+    await flushAsync();
+    requests[0].error = new DOMException('duplicate version', 'ConstraintError');
+    requests[0].onerror?.();
+    await flushAsync();
+
+    expect(transaction.abort).toHaveBeenCalledTimes(1);
+    transaction.emit('abort');
+
+    await expect(promise).rejects.toMatchObject({
+      name: 'DbError',
+      kind: 'Constraint',
     });
   });
 
@@ -131,7 +159,7 @@ describe('TranslationRepository write durability', () => {
     await flushAsync();
     expect(resolved).toBe(false);
 
-    transaction.oncomplete?.();
+    transaction.emit('complete');
 
     await expect(promise).resolves.toBeUndefined();
     expect(resolved).toBe(true);

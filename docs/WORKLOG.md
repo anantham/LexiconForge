@@ -1,3 +1,46 @@
+### [2026-07-12 08:50 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Durable IndexedDB transaction kernel, stacked on PR #106.
+**Progress:** Added an injected-database transaction state machine that waits for terminal commit/abort events, captures but does not settle on pre-terminal `error`, aborts scheduled writes when an operation fails, and preserves the operation error through the resulting abort. `withTxn()` now owns only connection/retry policy, and `TranslationRepository` delegates its write/deactivate/delete paths to the same kernel instead of maintaining a second lifecycle implementation.
+**Files modified (line numbers + why):**
+- `services/db/core/transactionKernel.ts:1-153` - canonical transaction lifecycle and event-ordering state machine.
+- `services/db/core/txn.ts:8-55` - public re-export plus connection/retry facade; existing request and batch helpers retained.
+- `services/db/repositories/TranslationRepository.ts:3,125-165,365-370` - remove local commit helper and use the shared kernel for durable writes.
+- `tests/services/db/txn.test.ts:13-172` - cover operation-first/commit-first ordering, pre-terminal error, abort, and typed error preservation.
+- `tests/services/db/TranslationRepository.durability.test.ts:13-165` - cover commit waits, quota abort, request-triggered abort, and multi-put durability.
+- `docs/adr/DB-002-atomic-transaction-boundaries.md:8-27` - record the corrected implementation contract and migration sequence.
+**Refactoring metrics:**
+- Lifecycle implementations: 2 -> 1; `withTxn()` delegates and `awaitTransactionCommit()` is removed.
+- File size: `txn.ts` 214 -> 163 LOC; `TranslationRepository.ts` 430 -> 400 LOC; new focused kernel 153 LOC. Total production LOC 644 -> 716 (+11.2%) in exchange for explicit state/error handling and one reusable lifecycle.
+- Cyclomatic proxy (TypeScript AST branch count including callbacks): `withTxn` 13 -> 2; new `runTransaction` 22; repository lifecycle helper removed. Complexity is concentrated in one tested state machine rather than duplicated across callers.
+- Targeted coverage: statements 72.54% -> 74.75%, branches 52.10% -> 58.01%, functions 69.89% -> 78.88%, lines 77.82% -> 78.70%; new kernel lines 88.52%.
+- Main production chunk: 4,146.22 -> 4,145.93 kB minified (-0.29 kB); gzip 992.89 -> 992.93 kB (+0.04 kB, effectively neutral).
+- Type safety: no `any` added; repository interfaces unchanged. Runtime transaction count and IndexedDB I/O are unchanged.
+**Tests:**
+- Focused durability/repository tests: 19 passed.
+- `tests/services/db`: 50 passed.
+- Full Vitest suite: 8,785 passed, 356 skipped.
+- Production build passed with the repository's existing chunk warnings.
+- `git diff --check` passed.
+- `npx tsc --noEmit --pretty false` reports only the pre-existing baseline errors; no changed file remains in the error list.
+**Next:** migrate Settings, Feedback, Prompt Templates, and Chapter metadata in the next stacked PR after review of this kernel.
+
+### [2026-07-12 08:40 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Durable IndexedDB transaction kernel, stacked on PR #106.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-db-transaction-kernel`
+**Branch:** `debt/codex-db-transaction-kernel`
+**Files likely affected:**
+- `services/db/core/transactionKernel.ts` and `services/db/core/txn.ts` - extract one injected-database transaction lifecycle that settles only on terminal commit/abort events while keeping the public facade small.
+- `services/db/repositories/TranslationRepository.ts` - replace the repository-local lifecycle implementation with the shared kernel.
+- `tests/services/db/txn.test.ts` and `tests/services/db/TranslationRepository.durability.test.ts` - cover event ordering, operation-triggered aborts, error precedence, and exactly-once settlement.
+- `docs/adr/DB-002-atomic-transaction-boundaries.md` - append an implementation correction to the existing transaction-boundary decision.
+- `docs/WORKLOG.md` - record hypothesis, verification, and final scope.
+**Hypothesis:** A low-level runner that accepts an `IDBDatabase` can serve both `withTxn()` and injected repositories, eliminating divergent commit/error lifecycles without changing repository interfaces.
+**Predicted tests:** success waits for both operation fulfillment and `oncomplete`; `onerror` alone does not settle; operation rejection calls `abort()` and survives the later `onabort`; commit-time quota aborts remain typed; repository writes retain commit durability.
+**Confidence:** 0.92
+**Fallback:** Keep the kernel internal to `txn.ts` and defer repository migration if callers prove dependent on raw DOMException error shapes.
+
 ### [2026-07-11 09:38 IST] [Agent: Codex]
 **Status:** Complete
 **Task:** Refresh PR #106 onto current `main` and clarify the reviewed durability scope.

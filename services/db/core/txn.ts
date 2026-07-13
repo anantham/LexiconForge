@@ -6,10 +6,20 @@
  */
 
 import { getConnection } from './connection';
-import { DbError, mapDomError, RetryPolicy } from './errors';
+import { DbError, RetryPolicy } from './errors';
+import {
+  runTransaction,
+  type StoreNames,
+  type TransactionMode,
+  type TransactionOperation,
+} from './transactionKernel';
 
-export type TransactionMode = 'readonly' | 'readwrite';
-export type StoreNames = string | string[];
+export { runTransaction } from './transactionKernel';
+export type {
+  StoreNames,
+  TransactionMode,
+  TransactionOperation,
+} from './transactionKernel';
 
 /**
  * Execute a function within a database transaction with proper error handling
@@ -17,83 +27,22 @@ export type StoreNames = string | string[];
 export async function withTxn<T>(
   storeNames: StoreNames,
   mode: TransactionMode,
-  operation: (transaction: IDBTransaction, stores: Record<string, IDBObjectStore>) => Promise<T>,
+  operation: TransactionOperation<T>,
   domain: string = 'unknown',
   service: string = 'unknown',
   operationName?: string
 ): Promise<T> {
   return RetryPolicy.execute(async () => {
     const db = await getConnection();
-    const storeArray = Array.isArray(storeNames) ? storeNames : [storeNames];
-    
-    return new Promise<T>((resolve, reject) => {
-      const transaction = db.transaction(storeArray, mode);
-      let operationResult: T | undefined;
-      let operationSettled = false;
-      let transactionCompleted = false;
-      let promiseSettled = false;
-
-      const resolveIfComplete = () => {
-        if (!promiseSettled && operationSettled && transactionCompleted) {
-          promiseSettled = true;
-          resolve(operationResult as T);
-        }
-      };
-
-      const rejectOnce = (error: unknown) => {
-        if (!promiseSettled) {
-          promiseSettled = true;
-          reject(error);
-        }
-      };
-      
-      // Build stores object for easy access
-      const stores: Record<string, IDBObjectStore> = {};
-      for (const storeName of storeArray) {
-        stores[storeName] = transaction.objectStore(storeName);
-      }
-      
-      // Handle transaction events
-      transaction.onerror = () => {
-        const error = mapDomError(
-          transaction.error, 
-          domain, 
-          service, 
-          operationName || 'transaction'
-        );
-        rejectOnce(error);
-      };
-      
-      transaction.onabort = () => {
-        const error = transaction.error
-          ? mapDomError(transaction.error, domain, service, operationName || 'transaction')
-          : new DbError('Transient', domain, service,
-            `Transaction aborted in ${domain}${operationName ? `.${operationName}` : ''}`,
-            transaction.error
-          );
-        rejectOnce(error);
-      };
-      
-      transaction.oncomplete = () => {
-        transactionCompleted = true;
-        resolveIfComplete();
-      };
-      
-      // Execute the operation
-      operation(transaction, stores)
-        .then(result => {
-          operationResult = result;
-          operationSettled = true;
-          resolveIfComplete();
-        })
-        .catch(error => {
-          // Convert any operation errors to DbError
-          const dbError = error instanceof DbError 
-            ? error 
-            : mapDomError(error, domain, service, operationName);
-          rejectOnce(dbError);
-        });
-    });
+    return runTransaction(
+      db,
+      storeNames,
+      mode,
+      operation,
+      domain,
+      service,
+      operationName
+    );
   }, domain, service, operationName || 'transaction');
 }
 
@@ -102,7 +51,7 @@ export async function withTxn<T>(
  */
 export async function withReadTxn<T>(
   storeNames: StoreNames,
-  operation: (transaction: IDBTransaction, stores: Record<string, IDBObjectStore>) => Promise<T>,
+  operation: TransactionOperation<T>,
   domain: string = 'unknown',
   service: string = 'unknown',
   operationName?: string
@@ -115,7 +64,7 @@ export async function withReadTxn<T>(
  */
 export async function withWriteTxn<T>(
   storeNames: StoreNames,
-  operation: (transaction: IDBTransaction, stores: Record<string, IDBObjectStore>) => Promise<T>,
+  operation: TransactionOperation<T>,
   domain: string = 'unknown',
   service: string = 'unknown',
   operationName?: string

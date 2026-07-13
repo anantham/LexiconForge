@@ -5,6 +5,25 @@
 **Authors:** Development Team
 **Depends on:** DB-001 (Service Decomposition)
 
+## Implementation Correction (2026-07-12)
+
+The 2026-03-05 implementation note overstated the consistency of the transaction layer.
+`withTxn()` existed, but several injected repositories implemented their own lifecycle,
+and request success could be observed before the enclosing transaction committed.
+
+The durable kernel amendment requires every durable transaction helper to:
+
+1. resolve only after both the operation result and `transaction.oncomplete`;
+2. reject only from a terminal abort, an operation failure, or transaction creation failure;
+3. abort scheduled writes when the operation fails;
+4. preserve the operation error when the resulting abort fires; and
+5. expose the same lifecycle to injected databases without changing repository interfaces.
+
+PR #106 establishes the immediate commit-waiting safety fix. The follow-up transaction-kernel
+PR centralizes the lifecycle in `services/db/core/transactionKernel.ts`, exposed through
+`services/db/core/txn.ts`; later repository-migration PRs move
+settings, feedback, prompt templates, chapter metadata, summaries, and backup storage onto it.
+
 ## Implementation Notes (2026-03-05)
 Atomic transaction boundaries enforced via `withTxn()` in `services/db/core/txn.ts`.
 Multi-store transactions use the `storeNames: string[]` parameter. Retry policy and

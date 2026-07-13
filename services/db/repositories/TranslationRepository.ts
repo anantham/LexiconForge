@@ -1,6 +1,7 @@
 import { generateStableChapterId } from '../../stableIdService';
 import type { ChapterRecord, TranslationRecord, UrlMappingRecord } from '../types';
 import type { TranslationResult } from '../../../types';
+import { promisifyRequest, runTransaction } from '../core/txn';
 import type {
   ChapterRef,
   ITranslationRepository,
@@ -121,46 +122,26 @@ export class TranslationRepository implements ITranslationRepository {
     );
   }
 
-  private awaitTransactionCommit(
-    transaction: IDBTransaction,
+  private async withTranslationWrite<T>(
     operationName: string,
-    attachRequests: (fail: (stage: string, error?: unknown) => void) => void
-  ): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      let settled = false;
-      const fail = (stage: string, error?: unknown) => {
-        if (settled) return;
-        settled = true;
-        reject(
-          error ||
-            transaction.error ||
-            new Error(`[TranslationRepository] ${operationName} ${stage}`)
-        );
-      };
-
-      transaction.oncomplete = () => {
-        if (settled) return;
-        settled = true;
-        resolve();
-      };
-      transaction.onerror = () => fail('transaction failed', transaction.error);
-      transaction.onabort = () => fail('transaction aborted', transaction.error);
-
-      try {
-        attachRequests(fail);
-      } catch (error) {
-        fail('request scheduling failed', error);
-      }
-    });
+    operation: (store: IDBObjectStore) => Promise<T> | T
+  ): Promise<T> {
+    const db = await this.deps.getDb();
+    const storeName = this.deps.stores.TRANSLATIONS;
+    return runTransaction(
+      db,
+      storeName,
+      'readwrite',
+      (_transaction, stores) => operation(stores[storeName]),
+      'translations',
+      'TranslationRepository',
+      operationName
+    );
   }
 
   private async writeTranslation(record: TranslationRecord): Promise<void> {
-    const db = await this.deps.getDb();
-    const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
-    const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
-    await this.awaitTransactionCommit(transaction, 'writeTranslation', fail => {
-      const request = store.put(record);
-      request.onerror = () => fail('put request failed', request.error);
+    await this.withTranslationWrite('writeTranslation', async store => {
+      await promisifyRequest(store.put(record));
     });
   }
 
@@ -171,14 +152,8 @@ export class TranslationRepository implements ITranslationRepository {
 
     if (!updates.length) return;
 
-    const db = await this.deps.getDb();
-    const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
-    const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
-    await this.awaitTransactionCommit(transaction, 'deactivateTranslations', fail => {
-      updates.forEach(update => {
-        const request = store.put(update);
-        request.onerror = () => fail('put request failed', request.error);
-      });
+    await this.withTranslationWrite('deactivateTranslations', async store => {
+      await Promise.all(updates.map(update => promisifyRequest(store.put(update))));
     });
   }
 
@@ -387,13 +362,8 @@ export class TranslationRepository implements ITranslationRepository {
   async deleteTranslationVersion(translationId: string): Promise<void> {
     const translation = await this.fetchTranslationById(translationId);
     if (!translation) return;
-    const db = await this.deps.getDb();
-
-    const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
-    const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
-    await this.awaitTransactionCommit(transaction, 'deleteTranslationVersion', fail => {
-      const request = store.delete(translationId);
-      request.onerror = () => fail('delete request failed', request.error);
+    await this.withTranslationWrite('deleteTranslationVersion', async store => {
+      await promisifyRequest(store.delete(translationId));
     });
 
     const remaining = await this.fetchTranslationsByUrl(translation.chapterUrl);
