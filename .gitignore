@@ -130,3 +130,6 @@ scripts/grounding/.venv/
 # Pinocchio derived data (31MB, regenerable). PD sources may be committed instead —
 # see docs/HANDOVER.md: CI should commit import/pinocchio/*.epub (460KB) and REGENERATE.
 data/pinocchio/
+
+__pycache__/
+*.pyc
