@@ -51,6 +51,14 @@ _PRIORS = {(1, 1): 0.89, (1, 0): 0.0099, (0, 1): 0.0099,
            (1, 4): 0.0015, (4, 1): 0.0015, (2, 3): 0.0015, (3, 2): 0.0015}
 _S2 = 6.8  # Gale & Church's char-length variance
 
+# PARAGRAPH structure diverges far more than sentence structure: an editor's title line,
+# a translator splitting one paragraph in two, a dialogue exchange collapsed into one
+# block. The sentence-level bead vocabulary (capped at 1:4) cannot express those, and an
+# inexpressible bead forces the DP into a wrong local optimum that cascades forward.
+_PRIORS_PARA = dict(_PRIORS)
+for _k in [(1, 5), (5, 1), (1, 6), (6, 1), (2, 4), (4, 2), (3, 3), (2, 5), (5, 2)]:
+    _PRIORS_PARA[_k] = 0.0008
+
 
 def _cdf(z):
     return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
@@ -132,7 +140,7 @@ def _it_bag(tokens):
     return bag
 
 
-def align_sentences(it_sents, en_sents, lex_weight=8.0):
+def align_sentences(it_sents, en_sents, lex_weight=8.0, priors=None):
     """Gale-Church length model PLUS a LEXICAL anchor taken from the Italian tokens'
     English glosses. Length alone cannot align runs of short sentences
     ("Rilassati." / "Relax." / "Concentrate.") — gloss overlap disambiguates them."""
@@ -155,7 +163,7 @@ def align_sentences(it_sents, en_sents, lex_weight=8.0):
 
     def cost(i0, i1, j0, j1):
         li = sum(it_lens[i0:i1]); lj = sum(en_lens[j0:j1])
-        base = -math.log(_PRIORS.get((i1 - i0, j1 - j0), 1e-4))
+        base = -math.log((priors or _PRIORS).get((i1 - i0, j1 - j0), 1e-4))
         if li or lj:
             mean = max(li, 1) * c
             z = abs((lj - mean) / math.sqrt(max(li, 1) * _S2))
@@ -177,7 +185,7 @@ def align_sentences(it_sents, en_sents, lex_weight=8.0):
         for j in range(m + 1):
             if dp[i][j] == INF:
                 continue
-            for (di, dj) in _PRIORS:
+            for (di, dj) in (priors or _PRIORS):
                 if i + di <= n and j + dj <= m and (di or dj):
                     v = dp[i][j] + cost(i, i + di, j, j + dj)
                     if v < dp[i + di][j + dj]:
@@ -483,7 +491,7 @@ def main():
         # Paragraph alignment ALSO gets the lexical anchor: a paragraph misaligned on
         # length alone cascades into every sentence inside it (the worst failure class).
         # align_sentences takes exactly this shape (token-lists vs strings).
-        beads = align_sentences(it_paras, en_paras)
+        beads = align_sentences(it_paras, en_paras, priors=_PRIORS_PARA)
 
         blocks = []
         pending_en = ""  # English with no Italian counterpart — carried, NEVER dropped

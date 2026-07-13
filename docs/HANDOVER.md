@@ -67,11 +67,20 @@ Authoritative list (never stale): `git log --oneline main..HEAD`. Highlights bel
 
 ### Continue Immediately
 
-1. **THE BLOCKER — dialogue-aware paragraph alignment.** Root cause of *all* remaining drift in
-   *both* books, fully diagnosed: Italian puts each spoken line in its own dash-led paragraph;
-   the English editions merge them differently → **paragraph beads misalign** and every sentence
-   inside inherits the drift.
-   - Current: I5 = **5 drift pairs (Calvino)**, **16 (Pinocchio)** → both gates FAIL.
+1. **THE BLOCKER — residual alignment drift.** *(Root cause is NOT yet fully known — an earlier
+   version of this doc claimed "dialogue paragraph structure" was the single cause. That was
+   TESTED and is FALSE; see below. Do not inherit the wrong hypothesis.)*
+   - **What was tried and DID help:** widening the *paragraph-level* bead vocabulary (paragraph
+     structure diverges far more than sentence structure — an editor's title line, a translator
+     splitting one paragraph, a dialogue exchange collapsed into one block; beads capped at 1:4
+     could not express these). `_PRIORS_PARA` in `build_reader_payload.py`.
+     **Calvino 5 → 3 drift pairs. Pinocchio 16 → 16 (no effect).**
+   - **What this PROVES:** paragraph-bead capacity explains part of Calvino's drift and NONE of
+     Pinocchio's. Measured split of Pinocchio's 16: **8 dialogue-led, 10 non-dialogue.** So
+     dialogue is at most half the story, and there is a second, unidentified cause.
+   - **Next probe (not yet done):** characterise the 10 non-dialogue Pinocchio pairs — they are
+     the untouched half. Use `dump_pairs.py` and the embedding own-vs-next margins.
+   - Current: I5 = **3 drift pairs (Calvino)**, **16 (Pinocchio)** → both gates FAIL.
    - Files: `scripts/grounding/build_reader_payload.py` (`align_paragraphs`, `best_alignment`).
    - Verify: `npm run check:calvino` / `check:pinocchio` (pass `--embed-cache data/<book>/emb-cache.npz`).
    - **Do NOT loosen thresholds to go green.** The failing gate is correct.
