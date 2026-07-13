@@ -24,6 +24,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { compileSuttaStudioPacket } from '../../services/compiler/index';
+import { splitPaliTokens } from '../../services/sutta-studio/utils';
 import { loadAllDpdSubsetsFromFs } from '../../services/providers/dpd-loader-fs';
 import { resolveSettingsForModel } from './benchmark-config';
 
@@ -83,6 +84,28 @@ const writePacket = (packet: unknown) => {
   fs.renameSync(tmp, packetPath);
 };
 
+// Coverage tripwire: both deepseek-v4-flash and gemini-3.5-flash passed an
+// early-phases quality gate, then quietly collapsed MID-sutta (lumping whole
+// sentences as single words / degrading on truncated output) — each burned
+// hours of paid compute to report what a running coverage check would have
+// said in minutes. If rendered-words per canonical-token falls below the
+// floor once enough phases exist, abort and keep the evidence.
+const noTripwire = process.argv.includes('--no-tripwire');
+const TRIPWIRE_MIN_PHASES = 20;
+const TRIPWIRE_FLOOR = 0.6;
+const coverageSoFar = (packet: { phases?: Array<{ paliWords?: unknown[]; sourceSpan?: Array<{ segmentId: string }> }>; canonicalSegments?: Array<{ ref: { segmentId: string }; pali?: string }> }): { rendered: number; expected: number } => {
+  const segIds = new Set<string>();
+  let rendered = 0;
+  for (const ph of packet.phases || []) {
+    rendered += (ph.paliWords || []).length;
+    for (const r of ph.sourceSpan || []) segIds.add(r.segmentId);
+  }
+  const byId = new Map((packet.canonicalSegments || []).map((s) => [s.ref.segmentId, s.pali || '']));
+  let expected = 0;
+  for (const id of segIds) expected += splitPaliTokens(byId.get(id) || '').length;
+  return { rendered, expected };
+};
+
 const started = Date.now();
 compileSuttaStudioPacket({
   uid,
@@ -100,6 +123,17 @@ compileSuttaStudioPacket({
     if (Date.now() - lastCheckpoint > 15_000) {
       writePacket(packet);
       lastCheckpoint = Date.now();
+    }
+    if (!noTripwire && stage === 'phase' && (packet.phases?.length ?? 0) >= TRIPWIRE_MIN_PHASES) {
+      const { rendered, expected } = coverageSoFar(packet);
+      const cov = expected > 0 ? rendered / expected : 1;
+      if (cov < TRIPWIRE_FLOOR) {
+        writePacket(packet);
+        console.error(
+          `COVERAGE TRIPWIRE: ${(100 * cov).toFixed(0)}% (${rendered}/${expected} rendered words) after ${packet.phases.length} phases — the model is dropping or lumping text mid-sutta; aborting to save spend. Partial packet kept at ${packetPath}. Override with --no-tripwire.`
+        );
+        process.exit(2);
+      }
     }
   },
 })

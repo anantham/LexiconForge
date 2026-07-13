@@ -2542,7 +2542,7 @@
           "segments": [
             {
               "id": "p1s1",
-              "text": "bhikkhav",
+              "text": "“bhikkhav",
               "type": "root",
               "tooltips": [
                 "The root 'bhikkh' relates to religious mendicancy — living on alms.",
@@ -2551,12 +2551,27 @@
             },
             {
               "id": "p1s2",
-              "text": "o",
+              "text": "o”",
               "type": "suffix",
               "tooltips": [
                 "The -o ending is vocative plural — used when calling out to a group.",
                 "Equivalent to 'O monks!' or 'Mendicants!'"
               ]
+            },
+            {
+              "id": "p2s1",
+              "text": "ti.",
+              "type": "stem",
+              "tooltips": [
+                "A marker that functions like quotation marks.",
+                "Shows that the preceding word was spoken aloud."
+              ],
+              "relation": {
+                "targetWordId": "p1",
+                "type": "action",
+                "label": "Quotes",
+                "status": "confirmed"
+              }
             }
           ],
           "senses": [
@@ -2583,31 +2598,7 @@
               "citationIds": [
                 "cite:vism-gloss:bhikkhu"
               ]
-            }
-          ],
-          "isAnchor": true,
-          "wordClass": "vocative"
-        },
-        {
-          "id": "p2",
-          "segments": [
-            {
-              "id": "p2s1",
-              "text": "ti",
-              "type": "stem",
-              "tooltips": [
-                "A marker that functions like quotation marks.",
-                "Shows that the preceding word was spoken aloud."
-              ],
-              "relation": {
-                "targetWordId": "p1",
-                "type": "action",
-                "label": "Quotes",
-                "status": "confirmed"
-              }
-            }
-          ],
-          "senses": [
+            },
             {
               "english": "\"",
               "nuance": "Closing quotation marker indicating the end of direct speech",
@@ -2619,7 +2610,8 @@
               "id": "s5"
             }
           ],
-          "wordClass": "function"
+          "isAnchor": true,
+          "wordClass": "vocative"
         }
       ],
       "englishStructure": [
@@ -2637,8 +2629,7 @@
       ],
       "layoutBlocks": [
         [
-          "p1",
-          "p2"
+          "p1"
         ]
       ]
     },
@@ -2658,11 +2649,20 @@
           "segments": [
             {
               "id": "p1s1",
-              "text": "Bhadante",
+              "text": "“Bhadante”",
               "type": "stem",
               "tooltips": [
                 "A respectful way to say 'Venerable Sir' or 'Lord'.",
                 "The -e ending is vocative singular — used when calling out to one person."
+              ]
+            },
+            {
+              "id": "p2s1",
+              "text": "ti",
+              "type": "stem",
+              "tooltips": [
+                "The 'quote mark' of Pāli — signals the end of a spoken thought.",
+                "Shortened form of 'iti'."
               ]
             }
           ],
@@ -2681,31 +2681,14 @@
               "english": "Lord",
               "nuance": "highly formal or devotional address",
               "id": "s3"
-            }
-          ],
-          "wordClass": "vocative"
-        },
-        {
-          "id": "p2",
-          "segments": [
-            {
-              "id": "p2s1",
-              "text": "ti",
-              "type": "stem",
-              "tooltips": [
-                "The 'quote mark' of Pāli — signals the end of a spoken thought.",
-                "Shortened form of 'iti'."
-              ]
-            }
-          ],
-          "senses": [
+            },
             {
               "english": "\"",
               "nuance": "quotation marker closing the speech",
               "id": "s1"
             }
           ],
-          "wordClass": "function"
+          "wordClass": "vocative"
         },
         {
           "id": "p3",
@@ -2873,7 +2856,7 @@
             },
             {
               "id": "p6s4",
-              "text": "suṁ",
+              "text": "suṁ.",
               "type": "suffix",
               "tooltips": [
                 "The -suṁ ending marks the third-person plural past tense — 'they replied'."
@@ -2940,8 +2923,7 @@
       ],
       "layoutBlocks": [
         [
-          "p1",
-          "p2"
+          "p1"
         ],
         [
           "p3",
@@ -7214,7 +7196,29 @@
               "tooltips": [
                 "Punctuation dash"
               ]
+            }
+          ],
+          "senses": [
+            {
+              "english": "understands",
+              "nuance": "comprehension leading to personal integration",
+              "ripples": []
             },
+            {
+              "english": "knows",
+              "nuance": "recognition as a personal quality"
+            },
+            {
+              "english": "discerns",
+              "nuance": "distinction as a personal factor"
+            }
+          ],
+          "wordClass": "content"
+        },
+        {
+          "id": "p6b",
+          "wordClass": "function",
+          "segments": [
             {
               "id": "p6s4",
               "text": "sā",
@@ -7250,20 +7254,19 @@
           ],
           "senses": [
             {
-              "english": "understands—that is his",
-              "nuance": "comprehension leading to personal integration",
+              "english": "that is his",
+              "nuance": "sā + assa (contraction): \"this is his/theirs\"",
               "ripples": []
             },
             {
-              "english": "knows—that is one's",
-              "nuance": "recognition as a personal quality"
+              "english": "that is one's",
+              "nuance": "sā + assa (contraction): \"this is his/theirs\""
             },
             {
-              "english": "discerns—that is their",
-              "nuance": "distinction as a personal factor"
+              "english": "that is their",
+              "nuance": "sā + assa (contraction): \"this is his/theirs\""
             }
-          ],
-          "wordClass": "content"
+          ]
         }
       ],
       "englishStructure": [
@@ -7362,7 +7365,8 @@
         [
           "p4",
           "p5",
-          "p6"
+          "p6",
+          "p6b"
         ]
       ]
     },
@@ -29499,7 +29503,7 @@
             },
             {
               "id": "p6s4",
-              "text": "anti",
+              "text": "anti,",
               "type": "suffix",
               "tooltips": [
                 "The -anti ending marks a 3rd person plural action: 'they circle'."
@@ -29561,7 +29565,40 @@
               "tooltips": [
                 "Punctuation separator."
               ]
+            }
+          ],
+          "senses": [
+            {
+              "english": "namely",
+              "nuance": "specification of the triad",
+              "citationIds": [
+                "cite:vism-gloss:di-hi",
+                "cite:vism-gloss:samm"
+              ]
             },
+            {
+              "english": "that is to say",
+              "nuance": "explanatory list",
+              "citationIds": [
+                "cite:vism-gloss:di-hi",
+                "cite:vism-gloss:samm"
+              ]
+            },
+            {
+              "english": "specifically",
+              "nuance": "precise identification",
+              "citationIds": [
+                "cite:vism-gloss:di-hi",
+                "cite:vism-gloss:samm"
+              ]
+            }
+          ],
+          "wordClass": "content"
+        },
+        {
+          "id": "p7b",
+          "wordClass": "content",
+          "segments": [
             {
               "id": "p7s4",
               "text": "sammā",
@@ -29572,7 +29609,7 @@
             },
             {
               "id": "p7s5",
-              "text": "diṭṭhi",
+              "text": "diṭṭhi,",
               "type": "root",
               "tooltips": [
                 "Diṭṭhi: View or vision.",
@@ -29582,31 +29619,30 @@
           ],
           "senses": [
             {
-              "english": "namely: right view",
-              "nuance": "specification of the triad",
+              "english": "right view",
+              "nuance": "the first of the three factors that circle around",
               "citationIds": [
                 "cite:vism-gloss:di-hi",
                 "cite:vism-gloss:samm"
               ]
             },
             {
-              "english": "that is to say: right view",
-              "nuance": "explanatory list",
+              "english": "right view",
+              "nuance": "the first of the three factors that circle around",
               "citationIds": [
                 "cite:vism-gloss:di-hi",
                 "cite:vism-gloss:samm"
               ]
             },
             {
-              "english": "specifically: right view",
-              "nuance": "precise identification",
+              "english": "right view",
+              "nuance": "the first of the three factors that circle around",
               "citationIds": [
                 "cite:vism-gloss:di-hi",
                 "cite:vism-gloss:samm"
               ]
             }
-          ],
-          "wordClass": "content"
+          ]
         },
         {
           "id": "p8",
@@ -29630,7 +29666,7 @@
             },
             {
               "id": "p8s3",
-              "text": "o",
+              "text": "o,",
               "type": "suffix",
               "tooltips": [
                 "The -o ending marks the nominative singular."
@@ -29676,7 +29712,7 @@
             },
             {
               "id": "p9s2",
-              "text": "sati",
+              "text": "sati.",
               "type": "root",
               "tooltips": [
                 "Sati: Mindfulness.",
@@ -29836,6 +29872,7 @@
         ],
         [
           "p7",
+          "p7b",
           "p8",
           "p9"
         ]

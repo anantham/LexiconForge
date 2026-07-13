@@ -80,9 +80,12 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
   });
 }
 
-// Clear localStorage before each test
+// Clear localStorage before each test. Guard on localStorage ITSELF — in the
+// current jsdom build `window` exists while `localStorage` is undefined, and
+// guarding only on window made this beforeEach throw, killing every
+// jsdom-environment test in setup (the machine-wide "41 failures" of 2026-07).
 beforeEach(() => {
-  if (typeof window !== 'undefined') {
+  if (typeof localStorage !== 'undefined' && localStorage) {
     localStorage.clear();
   }
 });
