@@ -154,17 +154,31 @@ describe('Translator', () => {
       expect(result.translation).toBe('Raw translation content [sanitized]');
     });
 
-    it('handles empty translations gracefully', async () => {
+    it('trims a whitespace-only title', async () => {
       mockProvider.mockResult = {
         ...mockProvider.mockResult as TranslationResult,
         translatedTitle: '  ',
-        translation: ''
+        translation: 'Real content'
       };
 
       const result = await translator.translate(mockRequest);
 
       expect(result.translatedTitle).toBe('');
-      expect(result.translation).toBe(' [sanitized]');
+      expect(result.translation).toBe('Real content [sanitized]');
+    });
+
+    it('rejects an empty translation instead of persisting a blank chapter', async () => {
+      // This previously succeeded, and the empty string was stored as a completed translation:
+      // the reader got a blank chapter, and because the app then believed the chapter WAS
+      // translated, nothing ever retried it. GeminiAdapter reaches this by coercing a missing
+      // `translation` field to '' and returning success.
+      mockProvider.mockResult = {
+        ...mockProvider.mockResult as TranslationResult,
+        translatedTitle: 'Title',
+        translation: '   '
+      };
+
+      await expect(translator.translate(mockRequest)).rejects.toThrow(/empty translation/i);
     });
   });
 
@@ -406,6 +420,51 @@ describe('Translator', () => {
       };
 
       await expect(translator.translate(strictRequest)).rejects.toThrow(/Extra footnotes/i);
+    });
+  });
+
+  describe('per-attempt timeout', () => {
+    it('ABORTS the timed-out call instead of leaving it running and billing', async () => {
+      // The timeout used to be a bare Promise.race, which only abandons the loser. The original
+      // request kept running — and kept billing — while the retry fired a second paid call for
+      // the same chapter. The provider must see its signal aborted.
+      let seenSignal: AbortSignal | undefined;
+
+      mockProvider.translate = vi.fn((request: TranslationRequest) => {
+        seenSignal = request.abortSignal;
+        return new Promise<TranslationResult>(() => {}); // never settles, like a stalled connection
+      });
+
+      await expect(
+        translator.translate(mockRequest, { maxRetries: 1, timeoutMs: 20 }),
+      ).rejects.toThrow(/timed out/i);
+
+      expect(seenSignal).toBeDefined();
+      expect(seenSignal!.aborted).toBe(true);
+    });
+
+    it("rejects on the caller's abort even if the provider ignores its signal", async () => {
+      // The abort handler used to just clear the timeout timer — disarming the only thing that
+      // could still settle the race. A provider that does not honour its signal (claudeService
+      // never reads one) therefore left the user's Cancel hanging forever: the request neither
+      // finished nor timed out. This mock is deliberately non-cooperative, like Claude's.
+      let seenSignal: AbortSignal | undefined;
+      mockProvider.translate = vi.fn((request: TranslationRequest) => {
+        seenSignal = request.abortSignal;
+        return new Promise<TranslationResult>(() => {}); // never settles, ignores the signal
+      });
+
+      const controller = new AbortController();
+      const pending = translator.translate(
+        { ...mockRequest, abortSignal: controller.signal },
+        { maxRetries: 1, timeoutMs: 5_000 },
+      );
+
+      await Promise.resolve(); // let translate() reach the provider call
+      controller.abort();
+
+      await expect(pending).rejects.toThrow(/aborted/i);
+      expect(seenSignal!.aborted).toBe(true);
     });
   });
 

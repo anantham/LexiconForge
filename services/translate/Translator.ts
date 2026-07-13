@@ -110,15 +110,36 @@ export class Translator {
           throw new DOMException('Aborted', 'AbortError');
         }
 
-        const { promise: timeoutPromise, cancel: cancelTimeout } = this.timeout(timeoutMs, workingRequest.abortSignal);
+        // A per-attempt controller, so a timed-out attempt actually CANCELS the provider call.
+        // Racing a timeout against a still-running request only abandoned the promise: the
+        // original call kept going — and kept billing — while the retry fired a second paid
+        // request for the same chapter. The user's own signal is chained into it so a manual
+        // abort still cancels the attempt.
+        const attemptController = new AbortController();
+        const userSignal = workingRequest.abortSignal;
+        const abortAttempt = () => attemptController.abort();
+        userSignal?.addEventListener('abort', abortAttempt, { once: true });
+
+        const attemptRequest: TranslationRequest = {
+          ...workingRequest,
+          abortSignal: attemptController.signal,
+        };
+
+        const { promise: timeoutPromise, cancel: cancelTimeout } = this.timeout(timeoutMs, userSignal);
         try {
-          const result = await Promise.race([
-            provider.translate(workingRequest),
-            timeoutPromise,
-          ]);
+          const providerPromise = provider.translate(attemptRequest);
+          // The race abandons this promise on timeout; once we abort the attempt it rejects with
+          // an AbortError that nothing is awaiting. Handle it here so it isn't an unhandled
+          // rejection. The race still sees the original rejection.
+          providerPromise.catch(() => {});
+
+          const result = await Promise.race([providerPromise, timeoutPromise]);
           return this.sanitizeResult(result, workingRequest.settings);
         } finally {
           cancelTimeout();
+          // Cancels the in-flight call on timeout or error. A no-op when the call already settled.
+          attemptController.abort();
+          userSignal?.removeEventListener('abort', abortAttempt);
         }
 
       } catch (error: any) {
@@ -358,8 +379,20 @@ export class Translator {
    * translateSingle, which is the intended recovery: ask the model again.
    */
   private sanitizeResult(result: TranslationResult, settings: AppSettings): TranslationResult {
+    // A provider that returns no text has failed, whatever it reports. Accepting it persists a
+    // BLANK chapter as a completed translation: the reader sees an empty chapter, and because the
+    // app now believes the chapter is translated, nothing ever retries it. Throw instead — the
+    // retry loop in translateSingle will ask the model again.
+    //
+    // This has to run BEFORE reconciliation: if the model also returned illustrations, the
+    // auto-recovery below would append their markers to the empty string and it would no longer
+    // look empty. (GeminiAdapter coerces a missing `translation` field to '' and returns success.)
+    if (!result.translation?.trim()) {
+      throw new Error('Provider returned an empty translation.');
+    }
+
     const { translation: illustrationsFixed, suggestedIllustrations } = validateAndFixIllustrations(
-      result.translation || '',
+      result.translation,
       result.suggestedIllustrations,
     );
 
@@ -391,14 +424,33 @@ export class Translator {
 
   private timeout(ms: number, abortSignal?: AbortSignal): { promise: Promise<never>; cancel: () => void } {
     let timer: ReturnType<typeof setTimeout>;
+    let onAbort: (() => void) | null = null;
+
     const promise = new Promise<never>((_, reject) => {
       timer = setTimeout(
         () => reject(new Error(`Translation timed out after ${Math.round(ms / 1000)}s. The model may be overloaded — try again or switch models.`)),
         ms
       );
-      abortSignal?.addEventListener('abort', () => clearTimeout(timer), { once: true });
+
+      // On abort this used to only clear the timer. That disarms the one thing that could still
+      // settle the race, so a provider which ignores its abort signal (claudeService never reads
+      // one) left the user's Cancel hanging forever — the request neither finished nor timed out.
+      // Reject instead, and let translateSingle turn it into the user-abort error.
+      onAbort = () => {
+        clearTimeout(timer);
+        reject(new DOMException('Aborted', 'AbortError'));
+      };
+      abortSignal?.addEventListener('abort', onAbort, { once: true });
     });
-    const cancel = () => clearTimeout(timer!);
+
+    // The race abandons this promise whenever the provider wins; a later abort would then reject
+    // it with nothing awaiting. Keep that from surfacing as an unhandled rejection.
+    promise.catch(() => {});
+
+    const cancel = () => {
+      clearTimeout(timer!);
+      if (onAbort) abortSignal?.removeEventListener('abort', onAbort);
+    };
     return { promise, cancel };
   }
 
