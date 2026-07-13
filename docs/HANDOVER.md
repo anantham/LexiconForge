@@ -15,9 +15,16 @@ yet). The reader foregrounds the Italian with per-word lens tooltips (meaning / 
 false-friend), pairs each phrase with the real English translation, and swaps which language leads
 on a toggle.
 
-**The session's hardest-won lesson, and the current blocker:** an adversarial audit proved the
-deterministic gate was reporting **green while the alignment was broken** — twice, for two different
-reasons. Both books' gates now **FAIL honestly**. *Do not "fix" this by loosening thresholds.*
+**The session's hardest-won lesson:** an adversarial audit proved the deterministic gate was
+reporting **green while the alignment was broken** — twice, for two different reasons. Both books'
+gates now **FAIL honestly**. *Do not "fix" this by loosening thresholds.*
+
+**Late-session addendum (read Thread 1 in full):** two more root causes were found and FIXED after
+the first handover was written — paragraph bead capacity, and an em-dash of interrupted speech being
+misread as a clause seam (Calvino 5→3, Pinocchio 16→11 drift). More importantly, **I5 itself was
+found to OVERCOUNT** — it flags some correctly-aligned pairs, so the residual bug count is lower than
+the gate reports and is currently unknown. Three of my confident hypotheses were falsified by
+measurement this session. **Characterise before theorising, and re-derive rather than inherit.**
 
 ## Commits This Session
 
@@ -104,7 +111,11 @@ Authoritative list (never stale): `git log --oneline main..HEAD`. Highlights bel
      editions bundle turns differently, so English lines sit one slot off (Pinocchio u22/u27/u19).
      Note this is a SENTENCE-level effect inside dialogue — NOT the paragraph-level dialogue
      hypothesis I originally asserted and which testing falsified.
-   - Current: I5 = **3 drift pairs (Calvino)**, **16 (Pinocchio)** → both gates FAIL.
+   - **Live numbers (never trust a frozen count — regenerate):**
+     `npm run check:calvino` / `check:pinocchio`, or:
+     `./scripts/grounding/.venv/bin/python scripts/grounding/validate_alignment.py --payload data/<book>/reader-payload.json --session out/<book>-session.json --grounded data/<book> --embed-cache data/<book>/emb-cache.npz`
+     At last run: Calvino **3**, Pinocchio **11** → both gates FAIL. **But see the I5-overcount
+     note above: an unknown fraction of those are false positives, so the true bug count is lower.**
    - Files: `scripts/grounding/build_reader_payload.py` (`align_paragraphs`, `best_alignment`).
    - Verify: `npm run check:calvino` / `check:pinocchio` (pass `--embed-cache data/<book>/emb-cache.npz`).
    - **Do NOT loosen thresholds to go green.** The failing gate is correct.
