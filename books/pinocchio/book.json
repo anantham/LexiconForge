@@ -28,5 +28,5 @@
     "llmPedagogyPass": false
   },
   "distribution": "PUBLIC — both texts public domain; unlike Calvino, this book's data (session, grounded JSON, payload) MAY be committed, so the full completeness/alignment gate can run in CI.",
-  "gateStatus": "Pipeline stages ran with ZERO code changes (grounding, glosses, payload, validator). I1-I4, I6-I8 pass. 1 translator reordering detected and DISCLOSED (u32). RESIDUAL: 2 one-sided aligner-drift pairs (u27) -> the gate FAILS, honestly. Calvino remains fully green (no regression)."
+  "gateStatus": "Stages ran with ZERO code changes. I1-I4, I6-I8 pass. I5 (now embedding-based) = 16 drift pairs + 2 disclosed reorderings -> gate FAILS honestly. Root cause shared with Calvino u6: DIALOGUE paragraph structure diverges between editions, so paragraph beads misalign and everything inside drifts."
 }

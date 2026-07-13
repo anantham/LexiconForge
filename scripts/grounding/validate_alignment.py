@@ -51,7 +51,18 @@ def main():
     ap.add_argument("--max-unanchored", type=float, default=0.25)
     ap.add_argument("--max-outliers", type=float, default=0.05)
     ap.add_argument("--max-drift", type=float, default=0.0)
+    ap.add_argument("--embed-cache", default=None,
+                    help="npz vector cache; upgrades I5 from gloss-bag to cross-lingual cosine")
     args = ap.parse_args()
+
+    EMB = None
+    if args.embed_cache and os.path.exists(args.embed_cache):
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from embeddings import SentenceSim
+        EMB = SentenceSim(args.embed_cache)
+
+    def _pair_it_text(toks):
+        return "".join(t["s"] + (" " if t.get("ws", True) else "") for t in toks).strip()
 
     payload = json.load(open(args.payload, encoding="utf-8"))
     session = json.load(open(args.session, encoding="utf-8"))
@@ -100,6 +111,20 @@ def main():
         # concatenation is unchanged. This is the direct mechanical signature of drift —
         # the Italian's glosses match the NEXT pair's English better than their own.
         for i in range(len(pairs) - 1):
+            # Prefer the EMBEDDING signal when available: it is what the aligner itself
+            # now uses, and it is strictly stronger. Judging alignment with the weaker
+            # gloss bag while ALIGNING with embeddings is inconsistent — and the gloss bag
+            # demonstrably false-fires on pairs the embeddings score as correct.
+            if EMB is not None:
+                a, b = pairs[i], pairs[i + 1]
+                if not a["en"].strip() or not b["en"].strip() or not a["it"]:
+                    continue
+                v = EMB.vectors([_pair_it_text(a["it"]), a["en"], b["en"]])
+                own_s, nxt_s = float(v[0] @ v[1]), float(v[0] @ v[2])
+                if nxt_s > own_s + 0.15 and own_s < 0.50:
+                    (reordered if a.get("reorder") else drift).append((un, i))
+                continue
+
             ib = it_bag(pairs[i]["it"])
             own = set(words(pairs[i]["en"]))
             nxt = set(words(pairs[i + 1]["en"]))
