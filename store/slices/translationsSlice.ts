@@ -89,6 +89,23 @@ const isGlossaryProposal = (proposal: AmendmentProposal): boolean =>
   proposal.kind === 'glossary' && !!proposal.glossaryEntry;
 
 /**
+ * Proposals currently being applied or dismissed.
+ *
+ * accept/reject/edit all await (a settings write, an IndexedDB log) between reading the proposal
+ * at `index` and removing it from the queue. A second click on the same proposal slipped through
+ * that window — and because removal was by POSITIONAL INDEX against the post-await state, the
+ * second removal deleted whatever had shifted into that slot: the NEXT queued proposal, silently
+ * discarded without ever being applied or logged. Identity-keyed, so it blocks a repeat of the
+ * same proposal without blocking a genuinely different one.
+ */
+const resolvingProposals = new Set<AmendmentProposal>();
+
+/** Remove by identity, never by index — a concurrent append or removal reshuffles indices. */
+const withoutProposal = (proposal: AmendmentProposal) => (state: { amendmentProposals: AmendmentProposal[] }) => ({
+  amendmentProposals: state.amendmentProposals.filter(p => p !== proposal),
+});
+
+/**
  * CORE-012 failure routing: failures whose root cause makes every subsequent
  * translation also fail (auth, quota). For these we surface globally and
  * stop spamming per-chapter errors. Per-chapter failures (timeout,
@@ -270,6 +287,24 @@ export const createTranslationsSlice: StateCreator<
       return;
     }
 
+    // Claim the chapter NOW, synchronously, before anything below awaits. The duplicate guard at
+    // the top of this function reads pendingTranslations — but nothing added to it until after
+    // the budget checks, which await. So two rapid triggers (a double-click, or a manual retry
+    // racing the auto-translate mediator) both passed the guard, both awaited, and both paid for
+    // a translation, producing duplicate versions. Every early return below must release it.
+    const claimPending = () => set(prevState => {
+      const nextPending = new Set(prevState.pendingTranslations);
+      nextPending.add(chapterId);
+      return { pendingTranslations: nextPending };
+    });
+    const releasePending = () => set(prevState => {
+      const nextPending = new Set(prevState.pendingTranslations);
+      nextPending.delete(chapterId);
+      return { pendingTranslations: nextPending };
+    });
+
+    claimPending();
+
     // Budget enforcement (budget mode only) — landed from feat/opus-budget-preload.
     // Applies to all origins (manual_translate, auto_visit, auto_preload).
     // The user can lift the cap in Settings > Providers per the toast guidance.
@@ -288,6 +323,7 @@ export const createTranslationsSlice: StateCreator<
               'warning'
             );
           }
+          releasePending();
           return;
         }
         const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
@@ -300,6 +336,7 @@ export const createTranslationsSlice: StateCreator<
               'warning'
             );
           }
+          releasePending();
           return;
         }
       }
@@ -1143,50 +1180,54 @@ export const createTranslationsSlice: StateCreator<
     if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
     const proposal = amendmentProposals[index];
-    const state = get();
-    const settingsActions = state;
-    const currentChapterId = state.currentChapterId;
+    if (resolvingProposals.has(proposal)) return;
+    resolvingProposals.add(proposal);
 
-    if (settingsActions.updateSettings && settingsActions.settings) {
-      let finalPromptChange: string | undefined;
-      let finalGlossaryEntry: typeof proposal.glossaryEntry | undefined;
+    try {
+      const state = get();
+      const settingsActions = state;
+      const currentChapterId = state.currentChapterId;
 
-      if (isGlossaryProposal(proposal)) {
-        const glossaryUpdate = applyGlossaryProposal(settingsActions.settings, proposal);
-        if (glossaryUpdate) {
-          settingsActions.updateSettings(glossaryUpdate.nextSettings);
-          finalGlossaryEntry = glossaryUpdate.appliedEntry;
+      if (settingsActions.updateSettings && settingsActions.settings) {
+        let finalPromptChange: string | undefined;
+        let finalGlossaryEntry: typeof proposal.glossaryEntry | undefined;
+
+        if (isGlossaryProposal(proposal)) {
+          const glossaryUpdate = applyGlossaryProposal(settingsActions.settings, proposal);
+          if (glossaryUpdate) {
+            settingsActions.updateSettings(glossaryUpdate.nextSettings);
+            finalGlossaryEntry = glossaryUpdate.appliedEntry;
+          }
+        } else {
+          const currentSystemPrompt = settingsActions.settings.systemPrompt;
+          const cleanChange = proposal.proposedChange.replace(/^[+-]\s/gm, '');
+          const newPrompt = currentSystemPrompt.replace(
+            proposal.currentRule,
+            cleanChange
+          );
+
+          settingsActions.updateSettings({ systemPrompt: newPrompt });
+          finalPromptChange = cleanChange;
         }
-      } else {
-        const currentSystemPrompt = settingsActions.settings.systemPrompt;
-        const cleanChange = proposal.proposedChange.replace(/^[+-]\s/gm, '');
-        const newPrompt = currentSystemPrompt.replace(
-          proposal.currentRule,
-          cleanChange
-        );
 
-        settingsActions.updateSettings({ systemPrompt: newPrompt });
-        finalPromptChange = cleanChange;
+        // Log the accepted amendment
+        try {
+          await AmendmentOps.logAction({
+            chapterId: currentChapterId,
+            proposal,
+            action: 'accepted',
+            finalPromptChange,
+            finalGlossaryEntry,
+          });
+        } catch (error) {
+          console.warn('[TranslationsSlice] Failed to log amendment action:', error);
+        }
       }
 
-      // Log the accepted amendment
-      try {
-        await AmendmentOps.logAction({
-          chapterId: currentChapterId,
-          proposal,
-          action: 'accepted',
-          finalPromptChange,
-          finalGlossaryEntry,
-        });
-      } catch (error) {
-        console.warn('[TranslationsSlice] Failed to log amendment action:', error);
-      }
+      set(withoutProposal(proposal));
+    } finally {
+      resolvingProposals.delete(proposal);
     }
-
-    // Remove proposal from queue
-    set((state) => ({
-      amendmentProposals: state.amendmentProposals.filter((_, i) => i !== index)
-    }));
   },
 
   rejectProposal: async (index = 0) => {
@@ -1194,24 +1235,27 @@ export const createTranslationsSlice: StateCreator<
     if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
     const proposal = amendmentProposals[index];
-    const state = get();
-    const currentChapterId = state.currentChapterId;
+    if (resolvingProposals.has(proposal)) return;
+    resolvingProposals.add(proposal);
 
-    // Log the rejected amendment
     try {
-      await AmendmentOps.logAction({
-        chapterId: currentChapterId,
-        proposal,
-        action: 'rejected'
-      });
-    } catch (error) {
-      console.warn('[TranslationsSlice] Failed to log amendment action:', error);
-    }
+      const currentChapterId = get().currentChapterId;
 
-    // Remove proposal from queue
-    set((state) => ({
-      amendmentProposals: state.amendmentProposals.filter((_, i) => i !== index)
-    }));
+      // Log the rejected amendment
+      try {
+        await AmendmentOps.logAction({
+          chapterId: currentChapterId,
+          proposal,
+          action: 'rejected'
+        });
+      } catch (error) {
+        console.warn('[TranslationsSlice] Failed to log amendment action:', error);
+      }
+
+      set(withoutProposal(proposal));
+    } finally {
+      resolvingProposals.delete(proposal);
+    }
   },
 
   editAndAcceptProposal: async (modifiedChange: string, index = 0) => {
@@ -1220,40 +1264,47 @@ export const createTranslationsSlice: StateCreator<
 
     const proposal = amendmentProposals[index];
     if (isGlossaryProposal(proposal)) {
+      // Delegate BEFORE claiming the proposal — acceptProposal does its own in-flight guard and
+      // would bail out immediately if it saw our claim.
       await get().acceptProposal(index);
       return;
     }
-    const state = get();
-    const settingsActions = state;
-    const currentChapterId = state.currentChapterId;
 
-    if (settingsActions.updateSettings && settingsActions.settings) {
-      const currentSystemPrompt = settingsActions.settings.systemPrompt;
-      const cleanChange = modifiedChange.replace(/^[+-]\s/gm, '');
-      const newPrompt = currentSystemPrompt.replace(
-        proposal.currentRule,
-        cleanChange
-      );
+    if (resolvingProposals.has(proposal)) return;
+    resolvingProposals.add(proposal);
 
-      settingsActions.updateSettings({ systemPrompt: newPrompt });
+    try {
+      const state = get();
+      const settingsActions = state;
+      const currentChapterId = state.currentChapterId;
 
-      // Log the modified amendment
-      try {
-        await AmendmentOps.logAction({
-          chapterId: currentChapterId,
-          proposal,
-          action: 'modified',
-          finalPromptChange: cleanChange
-        });
-      } catch (error) {
-        console.warn('[TranslationsSlice] Failed to log amendment action:', error);
+      if (settingsActions.updateSettings && settingsActions.settings) {
+        const currentSystemPrompt = settingsActions.settings.systemPrompt;
+        const cleanChange = modifiedChange.replace(/^[+-]\s/gm, '');
+        const newPrompt = currentSystemPrompt.replace(
+          proposal.currentRule,
+          cleanChange
+        );
+
+        settingsActions.updateSettings({ systemPrompt: newPrompt });
+
+        // Log the modified amendment
+        try {
+          await AmendmentOps.logAction({
+            chapterId: currentChapterId,
+            proposal,
+            action: 'modified',
+            finalPromptChange: cleanChange
+          });
+        } catch (error) {
+          console.warn('[TranslationsSlice] Failed to log amendment action:', error);
+        }
       }
-    }
 
-    // Remove proposal from queue
-    set((state) => ({
-      amendmentProposals: state.amendmentProposals.filter((_, i) => i !== index)
-    }));
+      set(withoutProposal(proposal));
+    } finally {
+      resolvingProposals.delete(proposal);
+    }
   },
 
   addAmendmentProposal: (proposal) => {

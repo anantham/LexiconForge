@@ -206,35 +206,10 @@ describe('MainApp appScreen integration', () => {
     expect(screen.queryByText('LandingPageMock')).not.toBeInTheDocument();
   });
 
-  // The auto-retry-suppression behaviour previously lived in MainApp; it now
-  // lives in store/autoTranslateMediator.ts, which subscribes to the live
-  // Zustand store via useAppStore.subscribe. This test mocks the entire
-  // `../../store` module, so the mediator's subscription never wires up and
-  // handleTranslate is never dispatched — the assertion that it's called once
-  // is testing behaviour that no longer flows through MainApp. Skipping until
-  // a focused unit test is added against the mediator directly.
-  it.skip('does not auto-retry the same chapter after an unexpected auto-translate failure', async () => {
-    const chapter = createChapter();
-    storeState.chapters.set(chapter.id, chapter);
-    storeState.currentChapterId = chapter.id;
-    storeState.appScreen = 'reader';
-    storeState.handleTranslate = vi.fn().mockRejectedValue(new Error('network down'));
-
-    const MainApp = (await import('../../MainApp')).default;
-    const { rerender } = render(<MainApp />);
-
-    await waitFor(() => {
-      expect(storeState.handleTranslate).toHaveBeenCalledTimes(1);
-    });
-
-    storeState.chapters.delete(chapter.id);
-    rerender(<MainApp />);
-
-    storeState.chapters.set(chapter.id, chapter);
-    rerender(<MainApp />);
-
-    await waitFor(() => {
-      expect(storeState.handleTranslate).toHaveBeenCalledTimes(1);
-    });
-  });
+  // The auto-retry-suppression behaviour used to live in MainApp and now lives in
+  // store/autoTranslateMediator.ts. This suite mocks the whole `../../store` module, so the
+  // mediator's subscription never wires up and it could never have exercised that behaviour —
+  // it sat here skipped, and the guard it was meant to protect was in fact missing from the
+  // mediator entirely. It is now covered directly, against the mediator, in
+  // tests/store/autoTranslateMediator.test.ts.
 });
