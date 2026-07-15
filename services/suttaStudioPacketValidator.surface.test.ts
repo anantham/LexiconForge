@@ -71,6 +71,51 @@ describe('validatePacket surface integrity (check 0)', () => {
     expect(r.stats.surfaceMismatches).toBe(0);
   });
 
+  it('accepts consecutive words that jointly spell one canonical token (pedagogical sub-splits)', () => {
+    // quotative ti and sandhi compounds: "Bhikkhavo"ti → Bhikkhavo + ti,
+    // etadavoca → etad + avoca — the flagship's 46 false flags.
+    const r = validatePacket(
+      packet(
+        [
+          { id: 'p1', surface: 'Bhikkhavo' },
+          { id: 'p2', surface: 'ti' },
+          { id: 'p3', surface: 'etad' },
+          { id: 'p4', surface: 'avoca' },
+        ],
+        ['"Bhikkhavo"ti bhagavā, etadavoca:']
+      )
+    );
+    expect(r.stats.surfaceMismatches).toBe(0);
+  });
+
+  it('a corrupt word is flagged without stranding its sound neighbours', () => {
+    const r = validatePacket(
+      packet(
+        [
+          { id: 'p1', surface: 'etad' },
+          { id: 'p2', surface: 'XXcorruptXX' },
+          { id: 'p3', surface: 'avoca' },
+        ],
+        ['etadavoca bhagavā'] // etad+avoca only spell a token TOGETHER; the corrupt word sits between
+      )
+    );
+    // etad and avoca are separated by the corrupt word, so they cannot form
+    // the token as CONSECUTIVE words — all three flag. The DP never invents
+    // non-adjacent groupings.
+    expect(r.stats.surfaceMismatches).toBe(3);
+    const r2 = validatePacket(
+      packet(
+        [
+          { id: 'p1', surface: 'etad' },
+          { id: 'p2', surface: 'avoca' },
+          { id: 'p3', surface: 'XXcorruptXX' },
+        ],
+        ['etadavoca bhagavā']
+      )
+    );
+    expect(r2.stats.surfaceMismatches).toBe(1); // only the corrupt word
+  });
+
   it('summarizes beyond the report cap instead of flooding issues', () => {
     const words = Array.from({ length: 30 }, (_, i) => ({ id: `p${i + 1}`, surface: `zzz${i}` }));
     const r = validatePacket(packet(words, ['atthi bhikkhave']));

@@ -11,7 +11,7 @@ import type {
   PhaseView,
   ValidationIssue,
 } from '../types/suttaStudio';
-import { splitPaliTokens } from './sutta-studio/utils';
+import { partitionSurfaceMismatches, splitPaliTokens } from './sutta-studio/utils';
 
 const VALIDATOR_VERSION = '1.0.0';
 
@@ -52,15 +52,16 @@ export function validatePacket(
     surfaceMismatches: 0,
   };
 
-  // 0. Surface integrity: every rendered word's segment-concat must equal
-  // some whitespace-token of the canonical text (letters-only). Catches
-  // model-mangled surfaces (asthi for atthi, saāsavā for sāsavā) that earlier
-  // checks miss — uses the packet's own embedded canonicalSegments, so it
-  // runs even when no sourceSegments are passed. Exact-token membership, not
-  // substring-of-the-whole-text: a substring check lets corruptions ride on
-  // other words or across word boundaries. Warn-level: the compiler's
-  // repairAnatomistSurfaces should have fixed these; anything left here means
-  // the repair was skipped or missed.
+  // 0. Surface integrity, PARTITION-AWARE (metric v2): a rendered word is
+  // sound when it — alone or as part of a run of consecutive words — spells
+  // out some canonical whitespace-token's letters. Curators legitimately
+  // sub-split one token into several teaching words (quotative ti, sandhi
+  // like etad+avoca); exact-token membership false-flagged 46 such words on
+  // the flagship page. Still catches model-mangled surfaces (asthi, saāsavā)
+  // and still rejects cross-boundary rides (a lone "vaā" spells no full
+  // token). Uses the packet's own embedded canonicalSegments. Warn-level:
+  // the compiler's repairAnatomistSurfaces should have fixed real
+  // corruption; anything here means the repair was skipped or missed.
   {
     const canonTokens = new Set(
       (packet.canonicalSegments || [])
@@ -72,18 +73,27 @@ export function validatePacket(
     if (canonTokens.size > 0) {
       for (const phase of packet.phases) {
         if (phase.degraded) continue;
-        for (const word of phase.paliWords || []) {
-          const surface = (word.segments || []).map((s) => s.text || '').join('');
-          const letters = paliLetters(surface);
-          if (!letters || canonTokens.has(letters)) continue;
+        const entries = (phase.paliWords || [])
+          .map((word) => ({
+            word,
+            surface: (word.segments || []).map((s) => s.text || '').join(''),
+          }))
+          .map((e) => ({ ...e, letters: paliLetters(e.surface) }))
+          .filter((e) => e.letters);
+        const { mismatchedIdx } = partitionSurfaceMismatches(
+          entries.map((e) => e.letters),
+          canonTokens
+        );
+        for (const idx of mismatchedIdx) {
+          const e = entries[idx];
           stats.surfaceMismatches++;
           if (stats.surfaceMismatches <= MAX_REPORTED) {
             issues.push({
               level: 'warn',
               code: 'surface_mismatch',
-              message: `Rendered word "${surface}" not found in canonical text`,
+              message: `Rendered word "${e.surface}" spells no canonical token (alone or with neighbours)`,
               phaseId: phase.id,
-              wordId: word.id,
+              wordId: e.word.id,
             });
           }
         }
@@ -92,7 +102,7 @@ export function validatePacket(
         issues.push({
           level: 'warn',
           code: 'surface_mismatch',
-          message: `${stats.surfaceMismatches} rendered words not found in canonical text (first ${MAX_REPORTED} reported individually)`,
+          message: `${stats.surfaceMismatches} rendered words spell no canonical token (first ${MAX_REPORTED} reported individually)`,
         });
       }
     }
