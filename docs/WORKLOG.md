@@ -1,3 +1,56 @@
+### [2026-07-15 17:09 IST] [Agent: Codex]
+**Status:** Ready to publish
+**Task:** Resume the approved README publication through local Git plus the connected GitHub app.
+**Authentication finding:** The stale `gh` token is not a workflow blocker. `git ls-remote origin HEAD` succeeded through the repository's HTTPS/macOS-Keychain path, and the connected GitHub app exposes PR creation, inspection, and merge operations.
+**Scope:** `README.md`; `docs/WORKLOG.md` only. The dirty root checkout remains untouched.
+**Verification:** 20 relative README links checked with 0 missing; all five public interface/evaluation URLs returned HTTP 200; no em dashes remain in `README.md`; `git diff --check` passed.
+**Upstream state:** `origin/main` is 9 commits ahead of the branch base. `README.md` is unchanged upstream; `docs/WORKLOG.md` has one upstream entry to preserve during rebase.
+
+### [2026-07-13 13:18 IST] [Agent: Codex]
+**Status:** Publishing
+**Task:** Commit, push, review, and merge the approved README interface-hub rewrite.
+**Recovery note:** The OS removed the uncommitted `/private/tmp` worktree between review turns. The exact approved patch was reconstructed in the persistent sibling worktree without touching the dirty root checkout.
+**Worktree:** `/Users/aditya/Documents/Ongoing Local/LexiconForge.worktrees/codex-readme-interface-index`
+**Branch:** `docs/codex-interface-index`
+**Files in scope:** `README.md`; `docs/WORKLOG.md` only.
+**Verification plan:** Re-run local link checks, public URL checks, em-dash check, and `git diff --check`; stage only the two scoped files; use the required PR and automated-review gate before merging.
+
+### [2026-07-13 12:50 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Remove em dashes from the README draft and determine whether a canonical web-novel reader documentation folder already exists.
+**Files modified (line numbers + why):**
+- `README.md:3,50-54,60,97` — replace em-dash constructions with commas, colons, or complete sentences while preserving meaning.
+- `docs/WORKLOG.md:10-17` — record the follow-up and the documentation-location finding.
+**Finding:** No existing web-novel or reader-specific documentation directory was found. The old README has been condensed into the root README's collapsed Web Novel Reader section; it has not been moved wholesale. Creating a dedicated reader document remains a human-gated documentation-structure decision.
+**Verification:** `rg -n "—" README.md` returns no matches. Application tests not run; documentation-only change.
+
+### [2026-07-13 12:44 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Restructure the root README as a maturity-labelled hub for LexiconForge's distinct translation interfaces and shared inspectable-interoperation vision.
+**Progress:** Replaced the web-novel-first product catalogue with a progressive project hub: separate public reader links, honest research-prototype statuses, language-specific interface rationale, an inspectability contract, model-as-interface-compiler evaluation framing, and a bounded catastrophic-risk coordination theory of impact. Preserved the web-novel product material in a collapsed section.
+**Files modified (line numbers + why):**
+- `README.md:1-159` — make the umbrella vision and interface choices visible before product detail; distinguish live, early-foundation, branch-only, and pipeline-only states; include the previously omitted Italian reader and Pinocchio pipeline; correct all moved documentation links.
+- `docs/WORKLOG.md:19-40` — record the approved option, hypotheses, affected files, verification, and handoff state.
+**Verification:**
+- All 16 relative README targets resolve to files or directories in this worktree.
+- All five public interface/evaluation URLs returned HTTP 200 on 2026-07-13.
+- `git diff --check` passed.
+- Branch evidence confirms Malayalam routes exist only on `feat/opus-malayalam-reader`; the local Calvino route and route-less, failing-gate Pinocchio artifact exist only on `feat/local-grounding-pipeline`.
+- Application tests not run; documentation-only change with no runtime files modified.
+**Outcome against prediction:** The first screenful now names the shared protocol and the public interfaces; later sections reveal design, evaluation, impact, limitations, and legacy web-novel detail progressively.
+
+### [2026-07-13 12:38 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Restructure the root README as a maturity-labelled hub for LexiconForge's distinct translation interfaces and shared inspectable-interoperation vision.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-readme-interface-index`
+**Branch:** `docs/codex-interface-index`
+**Files likely affected:** `README.md`; `docs/WORKLOG.md`.
+**Hypotheses:**
+- H1 (0.85): The current web-novel-first README hides the umbrella project's reader-and-evaluation architecture.
+- H2 (0.90): A status-labelled interface index can expose Pāli, liturgy, Chinese, Malayalam, and Italian work without implying every prototype is deployed.
+- H3 (0.80): Progressive disclosure can preserve useful web-novel product details without making them compete with the project thesis.
+**Predicted outcome:** Readers should be able to identify the shared protocol, choose an interface, and distinguish live, partial, branch-only, and pipeline-only work from the first screenful.
+
 ### [2026-07-10 → 2026-07-11] [Agent: Fable 5] — suttabench construct + probe + baseline + dogfood arc
 **Status:** All merged to main and deployed. A PARALLEL session was active simultaneously (its a4f4431 committed the coverage tripwire + MN117 hand-repairs + the 2026-07-07 tech-debt fixes).
 **Construct RATIFIED by operator:** suttabench measures LLMs as INTERFACE COMPILERS ("designing UI and populating UI"); human pedagogy explicitly unmeasured; probe renamed in spirit to SUFFICIENCY+RETENTION (code/ADR rename still pending).
