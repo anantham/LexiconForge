@@ -16,6 +16,7 @@ import { tokenizeEnglish, type EnglishTokenInput } from '../../suttaStudioTokeni
 import { weaverResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, PassCallResult } from './types';
+import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../passBudgets';
 
 export const runWeaverPass = async (params: {
   phaseId: string;
@@ -43,7 +44,7 @@ export const runWeaverPass = async (params: {
     structuredOutputs,
     signal,
     llmCaller = defaultLLMCaller,
-    maxTokens = 16000,
+    maxTokens = SUTTA_STUDIO_TOKEN_BUDGETS.weaver,
   } = params;
 
   const phaseState = buildPhaseStateEnvelope({

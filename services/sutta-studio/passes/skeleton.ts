@@ -17,6 +17,7 @@ import { parseJsonResponse, type BoundaryNote, type SkeletonPhase } from '../uti
 import { skeletonResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, SkeletonChunkResult, SkeletonRunResult } from './types';
+import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../passBudgets';
 
 const fallbackChunkPhases = (
   segments: CanonicalSegment[],
@@ -66,7 +67,7 @@ export const runSkeletonPass = async (params: {
     signal,
     llmCaller = defaultLLMCaller,
     chunkSize = 50,
-    maxTokens = 16000, // High default for reasoning models (kimi, lfm, etc.)
+    maxTokens = SUTTA_STUDIO_TOKEN_BUDGETS.skeleton,
   } = params;
 
   const phases: SkeletonPhase[] = [];

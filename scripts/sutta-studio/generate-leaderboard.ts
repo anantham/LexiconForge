@@ -12,6 +12,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { BENCHMARK_CONFIG } from './benchmark-config';
+import { readBenchmarkRunStatus } from './benchmark-run-status';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -58,6 +59,62 @@ type QualityScores = {
 /** The rubric version the leaderboard ranks on. Mixing versions is a build failure. */
 const RANKED_RUBRIC_VERSION = '2.1';
 
+/**
+ * A golden-backed phase the model never completed, scored 0 everywhere it is ranked on.
+ * Precision is left null (no predictions → precision is undefined), but recall is 0 — the model
+ * recalled none of the golden — so the F1/recall columns are penalised honestly.
+ */
+function zeroPhase(phaseId: string, model: string): PhaseScore {
+  return {
+    phase: phaseId,
+    model,
+    rubricVersion: RANKED_RUBRIC_VERSION,
+    fidelityScore: 0,
+    segmentationFidelity: 0,
+    contentFidelity: 0,
+    paliWordCoverage: 0,
+    coverageScore: 0,
+    validityScore: 0,
+    richnessScore: 0,
+    grammarScore: 0,
+    overallScore: 0,
+    alignmentCoverage: 0,
+    ...({ contentPrecision: null, contentRecall: 0 } as Record<string, unknown>),
+  };
+}
+
+/**
+ * Charge every golden-backed phase the model did NOT complete as a 0, so every model's mean is
+ * over the SAME denominator: the configured held-out phase universe.
+ *
+ * The bug this fixes: a phase a model failed or never ran is simply ABSENT from its
+ * `quality-scores.json.phases[]`, so `mean(overallScore)` divided by the count of SURVIVING
+ * phases only. A model that failed the hard phases was averaged over the easy ones it survived,
+ * so failing looked like an advantage — phase-level survivorship bias, the same class the v2.1
+ * word-level drop penalty fought (dropped golden words charged as misses, ADR SUTTA-012).
+ *
+ * Pure and deterministic — the unit test drives this directly.
+ */
+export function chargeMissingGoldenPhases(
+  scored: PhaseScore[],
+  goldenUniverse: readonly string[],
+): { phases: PhaseScore[]; missing: string[]; completed: number } {
+  const byId = new Map(scored.map((p) => [p.phase, p]));
+  const model = scored[0]?.model ?? '';
+  const phases: PhaseScore[] = [];
+  const missing: string[] = [];
+  for (const phaseId of goldenUniverse) {
+    const hit = byId.get(phaseId);
+    if (hit) {
+      phases.push(hit);
+    } else {
+      phases.push(zeroPhase(phaseId, model));
+      missing.push(phaseId);
+    }
+  }
+  return { phases, missing, completed: phases.length - missing.length };
+}
+
 type LeaderboardEntry = {
   rank: number;
   modelId: string;
@@ -96,7 +153,9 @@ type LeaderboardEntry = {
   costUsd: number | null;
 
   // Metadata
-  phasesCount: number;
+  phasesCount: number;       // phases the model actually completed
+  phasesExpected: number;    // size of the held-out ranking universe (the mean's denominator)
+  phasesCharged: number;     // golden-backed phases not completed, charged as 0
   runTimestamp: string;
   runId: string;
   packetPath: string;
@@ -245,6 +304,15 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 
   for (const timestamp of timestampDirs) {
     const runDir = path.join(reportsRoot, timestamp);
+    const runStatus = await readBenchmarkRunStatus(runDir);
+    if (runStatus !== 'complete') {
+      const reason = `${timestamp}: status ${runStatus ?? 'missing'} (only complete runs are rankable)`;
+      if (pinned.includes(timestamp)) {
+        throw new Error(`[Leaderboard] Refusing pinned run ${reason}`);
+      }
+      console.warn(`[Leaderboard] Skipping ${reason}`);
+      continue;
+    }
     const outputsDir = path.join(runDir, 'outputs');
     const metricsPath = path.join(runDir, 'metrics.json');
 
@@ -339,11 +407,15 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 
   console.log(`[Leaderboard] ${byModel.size} ranked models`);
 
-  // Coverage floor: a model scored on far fewer phases than the board isn't comparable —
-  // its mean is over a different, smaller (often easier) sample. Exclude best-runs below
-  // 50% of the board's max coverage (e.g. a circuit-broken 4/30 run).
-  const maxPhases = Math.max(0, ...[...byModel.values()].map((runs) => Math.max(...runs.map((r) => r.phases.length))));
-  const coverageFloor = Math.max(1, Math.floor(maxPhases * 0.5));
+  // The held-out ranking universe. Every ranked model is scored over exactly THIS set — missing
+  // golden-backed phases are charged 0 (below), not dropped — so the denominator is fixed and the
+  // same for all, instead of being whatever each model happened to survive.
+  const goldenUniverse = BENCHMARK_CONFIG.phasesToTest;
+
+  // Coverage floor: even with missing phases charged as 0, a model that completed only a handful
+  // of phases has too little real signal to rank — its few completions may be unrepresentative.
+  // Exclude best-runs that COMPLETED fewer than 50% of the universe (e.g. a circuit-broken 4/30).
+  const coverageFloor = Math.max(1, Math.floor(goldenUniverse.length * 0.5));
 
   // Per model, pick the SINGLE best run (highest mean overallScore; tie-break: more phases).
   // Use ONLY that run's phases, metrics, and semantic score — never a Frankenstein of
@@ -369,22 +441,34 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     goldenSuspectCount: number | null;
     overallCI: [number, number] | null;
     phasesCount: number;
+    phasesExpected: number;
+    phasesCharged: number;
     metrics: { tokensTotal: number; durationMs: number; costUsd: number | null };
     bestRun: ModelRun;
   }> = [];
 
   for (const [modelId, runs] of byModel) {
     const ranked = runs
-      .map(({ run, phases }) => ({ run, phases, meanOverall: mean(phases.map((p) => p.overallScore)) }))
-      // Prefer the MOST COMPLETE run (most phases), THEN the higher mean. Sorting by score
-      // first would let a 1-phase lucky/aborted run beat a stable full run — Goodhart (Gemini review).
-      .sort((a, b) => b.phases.length - a.phases.length || b.meanOverall - a.meanOverall);
+      .map(({ run, phases }) => {
+        // Charge missing golden-backed phases as 0 BEFORE ranking, so every run of every model
+        // is compared over the same universe-sized denominator.
+        const charged = chargeMissingGoldenPhases(phases, goldenUniverse);
+        return { run, ...charged, meanOverall: mean(charged.phases.map((p) => p.overallScore)) };
+      })
+      // Best = highest survivorship-corrected mean. All runs now share the universe denominator,
+      // so this can no longer be gamed by a 1-phase lucky/aborted run (its 29 zeros sink it);
+      // tie-break on phases actually completed.
+      .sort((a, b) => b.meanOverall - a.meanOverall || b.completed - a.completed);
     const best = ranked[0];
-    if (best.phases.length < coverageFloor) {
+    if (best.completed < coverageFloor) {
       excludedModels.add(modelId);
-      excludedReasons.add(`${modelId}: ${best.phases.length}/${maxPhases} phases (< ${coverageFloor} coverage floor) — insufficient coverage to rank`);
+      excludedReasons.add(`${modelId}: ${best.completed}/${goldenUniverse.length} phases completed (< ${coverageFloor} floor) — insufficient coverage to rank`);
       continue;
     }
+    if (best.missing.length) {
+      excludedReasons.add(`${modelId}: charged 0 on ${best.missing.length}/${goldenUniverse.length} golden-backed phase(s) not completed (${best.missing.slice(0, 5).join(', ')}${best.missing.length > 5 ? ', …' : ''})`);
+    }
+    // Universe-length: completed phases plus a 0 for each one not completed.
     const phases = best.phases;
     modelScores.push({
       modelId,
@@ -410,7 +494,11 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       // Statistical honesty (operator request): 95% bootstrap CI over this run's per-phase
       // overall scores — sub-CI gaps between models are ties, not rankings.
       overallCI: bootstrapCI(phases.map((p) => p.overallScore)),
-      phasesCount: phases.length,
+      // phasesCount = how many the model actually COMPLETED; the mean above is over the full
+      // universe (completed + zero-charged), so phasesCharged makes the shortfall explicit.
+      phasesCount: best.completed,
+      phasesExpected: goldenUniverse.length,
+      phasesCharged: best.missing.length,
       metrics: best.run.metrics, // the chosen run's metrics — NOT summed across runs
       bestRun: best.run,
     });
@@ -450,6 +538,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     durationMs: Math.round(m.metrics.durationMs),
     costUsd: m.metrics.costUsd == null ? null : Number(m.metrics.costUsd.toFixed(6)),
     phasesCount: m.phasesCount,
+    phasesExpected: m.phasesExpected,
+    phasesCharged: m.phasesCharged,
     runTimestamp: m.bestRun.runTimestamp,
     runId: m.bestRun.runId,
     packetPath: m.bestRun.packetPath,
@@ -588,7 +678,12 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error('[Leaderboard] Failed:', error);
-  process.exitCode = 1;
-});
+// Only run the CLI when invoked as a script — importing this module (e.g. from a test that
+// exercises chargeMissingGoldenPhases) must not read/write the filesystem. Same guard shape as
+// align-scorer.ts.
+if (process.argv[1]?.endsWith('generate-leaderboard.ts')) {
+  main().catch((error) => {
+    console.error('[Leaderboard] Failed:', error);
+    process.exitCode = 1;
+  });
+}

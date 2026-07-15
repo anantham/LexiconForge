@@ -23,14 +23,15 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import {
   alignWords,
-  tokenize,
+  RUBRIC_VERSION,
+  scorePhase,
   wordKnowledgeTokensById,
-  scoreSegmentationFidelity,
-  scoreContentFidelityDetail,
 } from './quality-scorer';
+import type { PipelineOutput, QualityScore } from './quality-scorer';
+import { assertBenchmarkRunComplete } from './benchmark-run-status';
 import type { AnatomistPass, LexicographerPass } from '../../types/suttaStudio';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -66,6 +67,35 @@ type CompareWord = {
   judge: JudgeEntry | null;
 };
 
+const SCORE_EPSILON = 1e-10;
+
+/**
+ * Publication replays the current scorer, then verifies the persisted score receipt.
+ * A mismatch means the run was scored under different code and must be re-scored before
+ * publication; mixing old aggregate fields with current component fields is never allowed.
+ */
+export function assertPublishedScoreParity(
+  frozen: QualityScore,
+  current: QualityScore,
+  context: string,
+): void {
+  for (const key of Object.keys(current) as Array<keyof QualityScore>) {
+    const frozenValue = frozen[key];
+    const currentValue = current[key];
+    const matches = typeof currentValue === 'number'
+      ? typeof frozenValue === 'number' && Math.abs(frozenValue - currentValue) <= SCORE_EPSILON
+      : frozenValue === currentValue;
+
+    if (!matches) {
+      throw new Error(
+        `[publish-compare] Scorer drift for ${context} at ${String(key)}: ` +
+        `quality-scores.json=${JSON.stringify(frozenValue)}, current=${JSON.stringify(currentValue)}. ` +
+        'Re-run quality scoring for this completed benchmark before publication.',
+      );
+    }
+  }
+}
+
 /** The exact per-word token diff scoreContentFidelity pools — same helpers, zero drift. */
 function tokenDiff(
   goldWordId: string, modelWordId: string,
@@ -83,17 +113,26 @@ function tokenDiff(
 }
 
 function buildPhase(
-  data: any,
+  data: PipelineOutput,
   phaseId: string,
+  model: string,
   judgeByWord: Map<string, JudgeEntry> | undefined,
-  phaseScores: any | undefined
+  phaseScores: QualityScore,
 ) {
   const ga: AnatomistPass | null = data.golden?.anatomist ?? null;
   const oa: AnatomistPass | null = data.output?.anatomist ?? null;
   const gl: LexicographerPass | null = data.golden?.lexicographer ?? null;
   const ol: LexicographerPass | null = data.output?.lexicographer ?? null;
   const pali = (data.segments || []).map((s: any) => s.pali).join(' ');
-  if (!ga?.words?.length || !oa) return null; // only phases the golden grades
+  if (!ga?.words?.length) return null; // only phases the golden grades
+  if (!oa || !data.output?.lexicographer || !data.output?.weaver) {
+    throw new Error(`[publish-compare] ${model}/${phaseId} has incomplete pipeline output.`);
+  }
+
+  // Preserve the score receipt's model identity: live benchmark runs store the provider slug,
+  // while historical backfills store the directory id. Identity is metadata, not a rubric input.
+  const currentScores = scorePhase(data, phaseId, phaseScores.model);
+  assertPublishedScoreParity(phaseScores, currentScores, `${model}/${phaseId}`);
 
   const pairs = alignWords(ga.words, oa.words || []);
   const modelMatched = new Set(pairs.map(([, mi]) => mi));
@@ -119,19 +158,19 @@ function buildPhase(
     .filter((_, mi) => !modelMatched.has(mi))
     .map((w) => ({ surface: w.surface, seg: segText(w, oa), tips: segTips(w, oa).slice(0, 3) }));
 
-  // Per-phase stage scores — recomputed with the scorer's own functions (identical to
-  // quality-scores.json; kept live here so the artifact can't drift from the metric).
+  // Semantic verdicts come from the independent judge. Every rubric field comes from one
+  // current scorePhase replay whose parity with quality-scores.json was asserted above.
   const judged = words.map((w) => w.judge).filter(Boolean) as JudgeEntry[];
-  const contentDetail = scoreContentFidelityDetail(oa, ga, ol, gl);
   const scores = {
-    segF1: scoreSegmentationFidelity(oa, ga),
-    contentF1: contentDetail?.f1 ?? null,
-    contentPrecision: contentDetail?.precision ?? null,
-    contentRecall: contentDetail?.recall ?? null,
+    rubricVersion: currentScores.rubricVersion,
+    segF1: currentScores.segmentationFidelity,
+    contentF1: currentScores.contentFidelity,
+    contentPrecision: currentScores.contentPrecision,
+    contentRecall: currentScores.contentRecall,
     semantic: judged.length ? judged.reduce((a, j) => a + j.score, 0) / judged.length : null,
-    coverage: ga.words.length ? pairs.length / ga.words.length : null,
-    overall: phaseScores?.overallScore ?? null,
-    textIntegrity: phaseScores?.textIntegrity ?? null,
+    coverage: currentScores.paliWordCoverage,
+    overall: currentScores.overallScore,
+    textIntegrity: currentScores.textIntegrity,
   };
 
   return {
@@ -160,24 +199,32 @@ function loadJudge(reportDir: string, model: string): Map<string, Map<string, Ju
   return byPhase;
 }
 
-function loadPhaseScores(modelDir: string): Map<string, any> {
-  const byPhase = new Map<string, any>();
+function loadPhaseScores(modelDir: string): Map<string, QualityScore> {
+  const byPhase = new Map<string, QualityScore>();
   const p = path.join(modelDir, 'quality-scores.json');
-  if (!fs.existsSync(p)) return byPhase;
+  if (!fs.existsSync(p)) {
+    throw new Error(`[publish-compare] Missing score receipt ${p}; refusing publication.`);
+  }
   try {
     const d = JSON.parse(fs.readFileSync(p, 'utf8'));
     for (const ph of d.phases || []) if (ph?.phase) byPhase.set(ph.phase, ph);
-  } catch { /* absent → phase strip omits overall/gate */ }
+  } catch (error) {
+    throw new Error(
+      `[publish-compare] Could not parse score receipt ${p}: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
+  }
   return byPhase;
 }
 
-function main() {
+async function main() {
   const dirs = (process.argv.slice(2).length
     ? process.argv.slice(2)
     : (process.env.LEADERBOARD_DIRS || '').split(',').filter(Boolean).map((t) => path.join(REPORTS, t))
   ).map((d) => path.resolve(d));
   if (!dirs.length) throw new Error('give report dir(s) as args or LEADERBOARD_DIRS');
 
+  await Promise.all(dirs.map((reportDir) => assertBenchmarkRunComplete(reportDir, 'publish-compare')));
   fs.mkdirSync(OUT_DIR, { recursive: true });
   let written = 0;
   for (const reportDir of dirs) {
@@ -192,13 +239,25 @@ function main() {
       const phases = [];
       for (const pf of phaseFiles) {
         const phaseId = pf.replace('pipeline-', '').replace('.json', '');
-        const data = JSON.parse(fs.readFileSync(path.join(modelDir, pf), 'utf8'));
-        const built = buildPhase(data, phaseId, judgeByPhase.get(phaseId), scoresByPhase.get(phaseId));
+        const data = JSON.parse(fs.readFileSync(path.join(modelDir, pf), 'utf8')) as PipelineOutput;
+        const phaseScores = scoresByPhase.get(phaseId);
+        if (!phaseScores) {
+          throw new Error(`[publish-compare] Missing score receipt for ${model}/${phaseId}.`);
+        }
+        const built = buildPhase(data, phaseId, model, judgeByPhase.get(phaseId), phaseScores);
         if (built) phases.push(built);
       }
       if (!phases.length) continue;
       const outPath = path.join(OUT_DIR, `${model}.json`);
-      fs.writeFileSync(outPath, JSON.stringify({ model, run, phases }, null, 2));
+      fs.writeFileSync(outPath, JSON.stringify({
+        model,
+        run,
+        scoreProvenance: {
+          rubricVersion: RUBRIC_VERSION,
+          verifiedAgainst: 'quality-scores.json',
+        },
+        phases,
+      }, null, 2));
       console.log(`  ${model}: ${phases.length} phases → ${path.relative(REPO, outPath)}`);
       written++;
     }
@@ -206,4 +265,10 @@ function main() {
   console.log(`\nWrote ${written} comparison artifact(s) to public/benchmarks/compare/`);
 }
 
-main();
+const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : '';
+if (import.meta.url === invokedPath) {
+  main().catch((error) => {
+    console.error('[publish-compare] Failed:', error);
+    process.exitCode = 1;
+  });
+}
