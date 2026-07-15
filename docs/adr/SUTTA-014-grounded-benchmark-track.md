@@ -26,7 +26,8 @@ Two things changed this week:
 
 | Input | Production (`compiler/index.ts`) | Benchmark (`benchmark.ts`) |
 |---|---|---|
-| DPD attestations (`dpdLookups`) | fed to anatomist + lexicographer | **already fed** (since #21) — at parity |
+| DPD attestations (`dpdLookups`) — lexicographer | fed per content word, cached | fed — at parity |
+| DPD attestations (`dpdLookups`) — anatomist | fed since 2026-07-15 (P2.1); ungrounded before that | fed. **Correction:** the row above previously claimed the anatomist was "already fed — at parity"; it was NOT — production passed no `dpdLookups` to `buildAnatomistPrompt`, so the benchmark ranked a grounded anatomist pass real users never ran. Both now ground the anatomist through the shared `services/sutta-studio/dpdGrounding` helper, whose punctuation-stripping tokenization also lifts the DPD hit rate on mn10 from ~59% to ~89% (the old raw whitespace split counted `Idha,`/`abhijjhādomanassaṁ.` as misses). |
 | SC dictionary (`dictionaryEntries`) | fetched per content word, cached | **hardcoded `{}`** |
 | `retrievalContext` | built from segments | **never passed** |
 | Prior-phases window (`priorPhases`, v12-b) | last 3 compiled phases | **never passed** |

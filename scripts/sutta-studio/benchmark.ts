@@ -35,6 +35,7 @@ import { generateLeaderboard } from './generate-leaderboard';
 import { DpdProvider } from '../../services/providers/dpd';
 import { loadDpdSubsetFromFs } from '../../services/providers/dpd-loader-fs';
 import type { LexiconEntry } from '../../services/providers/types';
+import { buildAnatomistGrounding } from '../../services/sutta-studio/dpdGrounding';
 
 type MetricRow = {
   timestamp: string;
@@ -952,13 +953,11 @@ const runPipelineForPhase = async (params: {
     typesetter: { output: null, error: null, llm: null },
   };
 
-  // DPD grounding (matches production): give the Anatomist + Lexicographer real
-  // lexical data instead of letting the model guess etymology/senses.
+  // DPD-ground the Anatomist through the SAME helper production uses (services/sutta-studio/
+  // dpdGrounding), so the two stay in parity (ADR SUTTA-014) and share the punctuation-stripping
+  // tokenization — the old raw whitespace split here grounded at only ~59% DPD hit rate on mn10.
   const dpdProvider = getDpdProvider(workId);
-  const surfaceWords = Array.from(
-    new Set(segments.flatMap((s) => (s.pali || '').split(/\s+/).filter(Boolean)))
-  ).map((w) => ({ key: w, surface: w }));
-  const anatomistDpd = await buildDpdLookups(dpdProvider, surfaceWords);
+  const anatomistDpd = await buildAnatomistGrounding(dpdProvider, segments);
 
   // 1. ANATOMIST
   const anatomistResult = await runAnatomistPass({

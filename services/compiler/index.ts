@@ -41,6 +41,7 @@ import {
   buildDegradedPhaseView,
 } from '../suttaStudioRehydrator';
 import { V12_PRIOR_PHASES_WINDOW, repairAnatomistSurfaces } from '../sutta-studio/utils';
+import { buildAnatomistGrounding } from '../sutta-studio/dpdGrounding';
 import {
   tokenizeEnglish,
   getWordTokens,
@@ -406,7 +407,19 @@ export const compileSuttaStudioPacket = async (options: {
             currentStageLabel: 'Anatomist (1/4)', currentStageKey: 'anatomist', completed: {},
             priorPhases,
           });
-          const anatomistPrompt = buildAnatomistPrompt(phase.id, effectiveSegments, phaseState, retrievalContext || undefined);
+          // DPD-ground the Anatomist, exactly as the benchmark does (ADR SUTTA-014 parity). The
+          // prompt builder already renders the attestation block; production simply never supplied
+          // the lookups, so the leaderboard ranked a grounded pass real users never ran. Local,
+          // best-effort, no network — falls back to ungrounded if the subset or a lookup fails.
+          let anatomistDpd: Record<string, LexiconEntry[]> | undefined;
+          try {
+            const dpdProvider = new DpdProvider(options.dpdData ?? getBundledDpdData());
+            anatomistDpd = await buildAnatomistGrounding(dpdProvider, effectiveSegments);
+            log(`  Anatomist DPD attestations: ${Object.keys(anatomistDpd).length} word(s) matched`);
+          } catch (e) {
+            warn(`  Anatomist DPD grounding failed; continuing ungrounded`, e);
+          }
+          const anatomistPrompt = buildAnatomistPrompt(phase.id, effectiveSegments, phaseState, retrievalContext || undefined, anatomistDpd);
           await throttle(signal);
           const anatomistRaw = await callCompilerLLM(
             settings,
