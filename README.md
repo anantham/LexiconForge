@@ -1,193 +1,159 @@
-# LexiconForge : Let the AI customize the translation for you!
+# LexiconForge
 
-**Tired of waiting for official translations? Wish you could continue the story right after the anime or manga ends?**
+**An early prototype of inspectable semantic interoperation across languages, and eventually worldviews.**
 
-LexiconForge is your gateway to the world of web novels. It is an interface that lets you translate chapters from almost any source (let me know and I can add support), in any language, to any language!
+LexiconForge explores a different answer to translation: not a single replacement text, but a just-in-time interface over a source. A reader can begin with a fluent rendering, then progressively reveal pronunciation, alternative meanings, many-to-many alignments, dictionary evidence, translation witnesses, omissions, and scholarly disagreement only when needed.
 
-This was a passion project because of how much I love going into these worlds.
+The source should remain stable while the scaffolding adapts to the reader. Personal context may decide which explanation appears first or how much detail is useful; it must not silently rewrite the source, evidence, attribution, or disagreement.
 
-> 🎮 **Use it instantly:** [lexicon-forge.vercel.app](https://lexicon-forge.vercel.app/) is live for anyone to read and translate right now.  
+These readers are experiments toward that goal. They are at different levels of maturity, and none should be treated as proof that the full vision has been achieved.
 
-> 💎 **Patreon concierge:** Subscribers get 1:1 onboarding, priority feature requests, bug fixes, and a complimentary $10 API credit to start reading. [Join here](https://www.patreon.com/posts/lexicon-forge-is-141128641?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link).
+## Choose an interface
 
-![Demo gif](media/demo_2x_24fps.gif)
+### Public readers
 
-[Watch full video here](https://youtu.be/KtzXbnZNLs8)
+| Interface | What it currently exposes | Status |
+| --- | --- | --- |
+| [Web Novel Reader](https://lexiconforge.vercel.app/) | Raw, AI, and attributed reference renderings; span-level questions, feedback, editing, and export | Live |
+| [Pāli Reader / Sutta Studio](https://read.adityaarpitha.com/sutta/mn10) | Source surface, morphemes, word senses, phrase alignment, dictionary grounding, and translation witnesses | Live experiment; deepest inspectability testbed |
+| [Liturgy Reader](https://read.adityaarpitha.com/liturgy) | Script, sound, word and morpheme detail, concept links, and community-specific translation witnesses | Live and evolving |
+| [Classical Chinese Buddhist Reader](https://read.adityaarpitha.com/sutta/fojin/9?juan=1) | Independent source and English columns plus source metadata | Early foundation on `main`; the full Chinese-specific lens is not implemented |
 
----
+The Pāli, Chinese, and liturgy interfaces share infrastructure, but they do not inherit one universal display. Their designs are documented in [Pāli–English](./docs/sutta-studio/PALI_ENGLISH_DESIGN.md), [Classical Chinese](./docs/sutta-studio/CHINESE_DESIGN.md), and the [community chant model](./docs/sutta-studio/COMMUNITY_CHANT_MODEL.md).
 
-## ✨ Key Features: The Ultimate Reading Experience
+### Research prototypes not yet public
 
-LexiconForge is more than just a translator; it's a power tool for readers.
+| Interface | Language-specific question | Current status |
+| --- | --- | --- |
+| Malayalam Studio | How should a heritage reader cross the script-decoding barrier using sound, akshara, agglutination, register, and sentence alignment? | Unmerged prototype on `feat/opus-malayalam-reader` |
+| Italian Reader | For an English speaker who can already pronounce Italian, should the interface foreground clauses, cognates and false friends, fused forms, and verb endings instead of a sound layer? | Local-only Calvino prototype on `feat/local-grounding-pipeline`; copyrighted text is not publishable |
+| Pinocchio pipeline | Can the same Italian evidence pipeline work on a public-domain text and fail visibly when sentence alignment drifts? | Pipeline artifact only; no reader route, and its alignment gate currently fails honestly |
 
-### **📚 Reader Feedback Loop Highlights**
-1. 👍 / 👎 on any line to teach the model your taste and steadily improve every chapter.
-2. 🔒 Privacy-first architecture keeps your API keys and translation history on-device.
-3. 🧠 Bring your own favorite model—Gemini, Claude, DeepSeek, OpenRouter, Flux, more—all supported.
-4. ❓ Use the question emoji to generate cultural footnotes and etymology explanations on demand.
-5. 🎨 Summon bespoke illustrations by reacting to your favorite scene with the art emoji.
-6. ✏️ Tap the edit button to surgically refine the AI's output before saving it.
-7. 📖 Compare against trusted fan translations inline, toggling between AI, raw, and fan versions—use Settings to control whether fan translations are sent as reference to the AI or kept purely for comparison.
-8. 📦 Export polished EPUBs for offline reading once you've curated the perfect translation.
-9. 🎛️ Experiment with prompts, OST generation, img2img steering, session analytics, and more quality-of-life tools built for deep reading.
+These statuses are deliberate. “Exists in a branch,” “passes an evidence gate,” and “has a working public reader” are different claims.
 
-![Floating toolbar with emoji reactions](<Marketing/Features/Select any span of text to see floating toolbar of emojis to press.png>)
-![Footnotes explaining translation choices](<Marketing/Features/Footnotes elaborate on why that choice of english word was used to translate, etymology, context.png>)
-![Compare AI vs fan translation inline](<Marketing/Features/Insert comparison text inline for comparing AI translation with Human translation - toggle to see raw text.png>)
-![Hundreds of AI models to choose from](<Marketing/Features/Hundreds of AI models to chose from.png>)
-![Illustration generation example](<Marketing/Features/example illustration.png>)
-![Versioned translations snapshot](<Marketing/Features/version 6 english translation of DD ch 224 by grok.png>)
+## One protocol, different interfaces
 
+A UI element belongs only when it answers a question this reader has about this language's hidden machinery. Nothing is inherited from another reader by default.
 
-### **🌐 Universal Web Novel Access**
-*   📖 **Multi-Site Support:** Currently supports 8 web novel platforms:
-    - **Kakuyomu** (kakuyomu.jp) - Japanese light novels
-    - **Syosetu** (ncode.syosetu.com) - Japanese web novels
-    - **Dxmwx** (dxmwx.org) - Chinese web novels
-    - **Kanunu** (kanunu8.com, kanunu.net) - Chinese literature archive
-    - **NovelCool** (novelcool.com) - Multi-language novel platform
-    - **BookToki** (booktoki468.com) - Korean web novels
-    - **SuttaCentral** (suttacentral.net) - Pali Buddhist suttas
+- Pāli makes inflection, compounds, and lexicographic witnesses unusually important.
+- Malayalam may need sound and script support before semantic detail becomes useful.
+- Italian–English can often use cognates as a bridge, while emphasizing false friends and fused grammar.
+- Classical Chinese needs character, compound, phrase, and textual-witness layers that do not pretend whitespace gives the word boundaries.
+- Multilingual liturgy must preserve community recitation, script, and translation differences rather than force every tradition through one canonical pivot.
 
-*   🌐 **Intelligent CORS Proxy System:** 10+ redundant proxy servers with automatic health monitoring and failover for reliable content fetching.
-*   ⚡ **Smart Preloading:** Background fetching of upcoming chapters for seamless reading (configurable 0-50 chapters ahead).
-*   🔗 **Navigation Memory:** Intelligent usage of Disk and Ram to ensure the app does not slow your computer down.
+Alignment is therefore not a 1:1 word map. It may connect sounds, written units, morphemes, words, phrases, concepts, and textual witnesses; it must also represent fusion, splitting, reordering, and grammatical material that appears on only one side.
 
-### **🤖 Advanced AI Translation**
-*   🔑 **Multi-Provider Support:** Use your own API keys for Gemini, Claude, DeepSeek, or OpenRouter. You control your usage and data. If you need help contact admin in the [@webnovels](https://t.me/webnovels) group to get an API key that works!
-*   📊 **22+ AI Models:** Access the latest generation of AI models across all providers to find your perfect translator. Quality and style varies across models and prompt combinations.
-*   🔮 **OpenAI Supported:** Use your own API key directly or access OpenAI models via OpenRouter.
-*   🎛️ **Fine-Tuned Control:** Adjust temperature (creativity), context depth (0-5 previous chapters), and model-specific settings.
-*   💰 **Real-Time Cost Tracking:** Obsessive focus on cost-efficiency. See exactly how much each translation costs, down to the fraction of a cent, with 2025 pricing.
-*   🛑 **Cancelable Requests:** Click the red spinner to abort in‑flight translations instantly.
-*   ✅ **Structure Guarantees:** Built-in validation for illustration and footnote markers keeps body text and JSON aligned.
-*   🎯 **Fan Translation Control:** Toggle whether fan translations are sent to the AI as reference (Settings → General → "Include Fan Translation as Reference"). When enabled (default), the AI uses fan translations as ground truth to improve quality. When disabled, test pure translation quality with only raw text and previous chapters—fan translations remain available for side-by-side comparison.
+## Progressive inspectability
 
-### **🧠 Collaborative AI Training & Interactive Features**
-*   💬 **Text Selection Feedback:** Select any text and rate it 👍👎? to teach the AI your preferences.
-*   ❓ **Smart Explanations:** Click the **?** emoji on selected text to generate detailed footnotes explaining translation choices, cultural context, or literary techniques.
-*   🎨 **Illustration Generation:** Click the **🎨** emoji on selected passages to automatically generate contextual illustration prompts that capture key story moments.
-*   ✍️ **Prompt Template Library:** Create, save, and manage custom system prompts for different novel types (Wuxia, Romance, Technical, etc.).
-*   🔄 **Amendment Proposals:** AI suggests prompt improvements based on your feedback patterns.
-*   📝 **Inline Annotations:** Collaborative feedback system with comments and rating history.
+The intended reading path is progressive and on demand:
 
-### **🎨 Rich Media & Export**
-*   🖼️ **Advanced AI Image Generation:** Bring pivotal story moments to life with cutting-edge image generation:
-  - **Multi-Model Support:** Flux models (PiAPI), Imagen 3.0/4.0, and Gemini image generation
-  - **21 LoRA Style Models:** XLabs (7) and CivitAI (14) collections for artistic transformation - anime, realism, cyberpunk, art deco, and more
-  - **img2img with Steering Images:** Guide generation with reference images for consistent character/scene styling
-  - **Advanced Controls:** Negative prompts, guidance scale (1.5-5.0), and LoRA strength tuning (0.1-2.0)
-  - **Smart Context Placement:** AI automatically places illustration markers at key story moments
-  - **Collapsible Interface:** Advanced controls hidden by default for distraction-free reading
-*   📚 **Professional EPUB Export:** Generate beautiful e-books with:
-  - Comprehensive translation statistics and cost breakdowns
-  - Provider/model usage analytics across your entire library
-  - Embedded AI-generated illustrations with captions
-  - Customizable acknowledgments and project descriptions
-*   💾 **Complete Data Ownership:** Export/import your entire session as JSON. Your reading history, translations, feedback, and settings belong to you.
+1. **Read:** See the source with one coherent rendering.
+2. **Inspect:** Ask for sound, segmentation, alternatives, or local context at the point of uncertainty.
+3. **Trace:** Follow many-to-many links across meaning-bearing chunks rather than trusting a paragraph-level paraphrase.
+4. **Verify:** Open the cited dictionary, source passage, or named translation witness through a working URL.
+5. **Compare:** Surface omissions, low-confidence claims, and real disagreements without silently resolving them.
 
-### **🎵 Audio Generation**
-*   🎧 **Scene Music & Cues:** Generate background music or ambient tracks from style prompts
-*   🧩 **Two Modes:** `txt2audio` (from text prompt) and `audio2audio` (style transfer)
-*   🎛️ **Style Presets:** Curated prompts (Dark Cinematic, Strategist’s Gambit, etc.)
-*   📈 **Cost Awareness:** Provider‑reported durations and simple cost estimates
-*   🔐 **Opt‑In:** Works with your PiAPI key; entirely client‑side
+The interface should lower the cost of checking a translation, not overwhelm the reader with the entire audit trail at once.
 
-### **⚡ Performance & Storage**
-*   🗄️ **Dual-Tier Architecture:** Instant UI updates (Zustand) + unlimited persistent storage (IndexedDB) for the best of both worlds.
-*   🔄 **Session Persistence:** Survive browser crashes and restarts. Your progress is never lost.
-*   📊 **Professional Statistics:** Detailed breakdowns of token usage, costs, translation time, and model performance across your entire library.
-*   🚀 **Smart Preloading:** Configurable background fetching (0-10 chapters ahead) with intelligent rate limiting and deduplication.
-*   🎯 **Advanced Navigation:** Smart URL mapping, browser history integration, and cross-session chapter hydration.
-*   🔧 **Developer-Friendly Debugging:** Optional console logging system to monitor translation performance and troubleshoot issues.
+## The contract under test
 
----
+The long-term contract below is not a description of every screen already shipped.
 
-## 🚀 Getting Started
+- Keep the exact source surface recoverable.
+- Reveal detail progressively rather than as an information dump.
+- Treat translations as attributed witnesses, not ground truth by default.
+- Anchor claims to inspectable evidence and working provenance links.
+- Measure coverage so omissions cannot disappear silently.
+- Distinguish source text, deterministic analysis, model inference, and human interpretation.
+- Preserve uncertainty, alternatives, and expert disagreement.
+- Personalize the scaffolding, never the evidence.
+- Make unsupported or failed analysis visibly fail closed.
+- Translate consensually; legibility is not always owed.
 
-### The Easy Way: Use the Live Version
-The easiest way to start is with the official hosted version on Vercel. No installation required!
+Current interfaces satisfy this contract unevenly. For example, the public MN10 reader is a substantial prototype, but it still has low-hanging inspectability work. Those gaps are inputs to the evaluation program, not details to hide behind the word “inspectable.”
 
-**[➡️ Click here to launch LexiconForge](https://lexicon-forge.vercel.app/)**
+## Evaluation: models as interface compilers
 
-If you’d like a guided setup, tailored prompts, or bespoke feature development, hop onto the [Patreon](https://www.patreon.com/posts/lexicon-forge-is-141128641?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link)—I’ll work with you directly to craft the perfect reading experience.
+The readers discover what a faithful bridge must preserve. The benchmarks test whether models can preserve it.
 
-### For Developers: Self-Hosting
-Want to run your own instance? It's easy.
+[Open the public Sutta Studio benchmark](https://read.adityaarpitha.com/bench/sutta-studio)
 
-1.  **Clone the repository.**
-2.  **Install dependencies:** `npm install`
-3.  **Add your API keys** to a new `.env.local` file:
-    ```env
-    VITE_GEMINI_API_KEY=your_gemini_key_here
-    VITE_DEEPSEEK_API_KEY=your_deepseek_key_here
-    VITE_CLAUDE_API_KEY=your_claude_key_here
-    VITE_OPENROUTER_API_KEY=your_openrouter_key # Access to 100+ models including GPT-4o
-    VITE_PIAPI_API_KEY=your_piapi_key_here      # For Flux models and LoRA
-    VITE_OPENAI_API_KEY=your_openai_key_here   # Direct OpenAI access (or use OpenRouter)
-    ```
-4.  **Run the app:** `npm run dev`
+Models are evaluated as **interface compilers**: systems that assemble reader-facing layers from a source and a set of authorities. The public Pāli benchmark is currently the deepest multi-model implementation. It tests questions such as:
 
-#### Fan Translation Merge (Optional)
-If you have reference fan translations (e.g., from human translators), you can merge them into an exported session JSON:
+- Did every part of the source survive?
+- Is the displayed surface exact, or was it normalized toward the model's prior?
+- Are morphological and semantic alignments plausible?
+- Are dictionary and factual claims grounded, attributed, and reachable?
+- Did the model fabricate evidence or conceal missing coverage?
+
+The broader evaluation contract also includes whether omitted claims, contested interpretations, and genuine cruxes remain visible. Benchmarking every interface and every model to equal depth is a direction of travel, not a current claim.
+
+## Why this might matter for catastrophic-risk coordination
+
+Pandemics, biosecurity threats, and AI security incidents require people from different disciplines, institutions, languages, and political communities to identify enough common ground for joint action. Mutual intelligibility does not guarantee cooperation, but slow or false understanding can delay it at exactly the wrong time.
+
+Generative AI makes customized persuasive media cheap while object-level verification remains expensive. Under pressure, people rationally fall back to speaker reputation, institutional trust, or tribal heuristics. AI interfaces are likely to mediate more claims across those trust boundaries; if they become load-bearing before their failures are measurable, switching costs and institutional dependence will make honest auditing harder.
+
+LexiconForge's proposed contribution is narrower than “solve coordination”: reduce the time and effort required to justify reliance on, or rejection of, a mediated claim. Source-visible interfaces, coverage and integrity measures, attributed witnesses, and claim-level provenance make bridge failure more legible.
+
+> Cheaper generation → greater verification pressure → more reliance on AI-mediated bridges → measurable bridge failures → lower time to justified reliance or rejection → less avoidable coordination delay.
+
+This is an indirect theory of impact, not a claim to solve model control or alignment. Read the full [theory of impact](./docs/THEORY_OF_IMPACT.md) and [project vision](./docs/Vision.md).
+
+### Honest limits
+
+- Better translation cannot create goodwill, aligned incentives, or political cooperation; sometimes clarity sharpens conflict.
+- The move from natural-language testbeds to translation between living subcultures and worldviews is still an untested transfer hypothesis.
+- Perfect inspectability is not the goal. People and communities retain a right to opacity, privacy, consent, and contestation.
+- The project may reduce one coordination and epistemic-risk factor; it is not itself a complete x-risk intervention.
+
+<details>
+<summary><strong>Web Novel Reader: current product features</strong></summary>
+
+The original LexiconForge application is a local-first web-novel reading and translation workbench.
+
+- Bring API keys for Gemini, Claude, OpenAI, DeepSeek, OpenRouter, image, and audio providers.
+- Compare raw text, AI renderings, and attributed human or fan translation witnesses inline.
+- Ask contextual questions about selected spans, give feedback, edit output, and retain version history.
+- Generate illustrations or audio, track cost and usage, and export curated EPUB or session data.
+- Persist reading state in IndexedDB and preload chapters for smoother navigation.
+- Import from adapters including Kakuyomu, Syosetu, Dxmwx, Kanunu, NovelCool, BookToki, SuttaCentral, and FoJin.
+
+API keys and reading data are stored locally by default, but translation and media requests are sent to the providers the reader selects; their data policies still apply.
+
+![LexiconForge web novel reader demo](media/demo_2x_24fps.gif)
+
+[Watch the full demo](https://youtu.be/KtzXbnZNLs8)
+
+</details>
+
+## Run locally
 
 ```bash
-npm run merge-fan-translations path/to/session.json path/to/fan-translations/ [output.json]
+git clone <your-fork-url>
+cd LexiconForge
+npm install
+npm run dev
 ```
 
-**What this does:**
-- Matches fan translation files by chapter number (e.g., `chapter-256.txt` → chapter 256)
-- Adds them to the session as `fanTranslation` field for each chapter
-- Prints merge coverage statistics (how many chapters got fan translations)
+Add only the provider keys you intend to use to `.env.local`. See the [environment variable reference](./docs/guides/EnvVars.md) and [provider guide](./docs/guides/Providers.md) for current names and behavior.
 
-**Fan translations unlock:**
-- **Side-by-side comparison:** Toggle between AI, raw, and fan versions while reading
-- **AI reference mode:** When "Include Fan Translation as Reference" is enabled (Settings → General), the AI uses fan translations as ground truth to improve quality
-- **Quality benchmarking:** Disable the reference mode to test how well the AI translates from raw text alone, using fan translations purely for comparison
+Reference translations can be merged into an exported session as attributed witnesses:
 
-### Technical Architecture
+```bash
+npm run merge-fan-translations path/to/session.json path/to/reference-translations/ [output.json]
+```
 
+## Documentation
 
-For detailed technical information, see the [Architecture Decision Records](./docs/adr/).
+- Start with the [documentation index](./docs/START_HERE.md), [vision](./docs/Vision.md), and [theory of impact](./docs/THEORY_OF_IMPACT.md).
+- Read the [Architecture Decision Records](./docs/adr/) for significant design decisions.
+- Configure [settings](./docs/guides/Settings.md), [environment variables](./docs/guides/EnvVars.md), and [providers](./docs/guides/Providers.md).
+- Inspect [schemas](./docs/guides/Schemas.md), [workers](./docs/guides/Workers.md), and [debugging flags](./docs/guides/Debugging.md).
+- See the [audio](./docs/features/Audio.md), [EPUB](./docs/features/EPUB.md), and [Chrome extension](./chrome_extension/README.md) documentation.
 
----
+## Community and support
 
-## 📚 Documentation
-
-- Settings Reference: `docs/Settings.md`
-- Environment Variables: `docs/EnvVars.md`
-- Providers & Models: `docs/Providers.md`
-- Image/Illustrations: see Rich Media section above
-- Audio Generation: `docs/Audio.md`
-- Workers & Batch Jobs: `docs/Workers.md`
-- Data Schemas (Translation/Session): `docs/Schemas.md`
-- EPUB Export & Templates: `docs/EPUB.md`
-- Architecture Decisions (ADRs): `docs/adr/`
-- Chrome Extension (BookToki scraper): `chrome_extension/README.md`
-
----
-
-## 💬 Community & Support
-
-Have a question, a feature request, or want to see what's next? The project is fully open source—hack on it with me, or just hang out with other readers.
-
-*   **Join our Telegram Group:** Get help, suggest new site adapters, and chat with other users at [@webnovels](https://t.me/webnovels).
-*   **Patreon concierge:** [Become a patron](https://www.patreon.com/posts/lexicon-forge-is-141128641?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link) for bespoke support, new feature prototypes, and API credits.
-* You can try [readomni](https://readomni.com/) and let me know if you like it more than LexiconForge and why! 
-
----
-
-## ❤️ Support the Project
-
-LexiconForge is a passion project. If you find it useful, please consider supporting its continued development.
-
-*   **Donate via Ethereum:** `adityaarpitha.eth`
-*   **Sponsor ongoing work:** [Patreon link](https://www.patreon.com/posts/lexicon-forge-is-141128641?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link)
-
----
-
-## 🔧 Developer Quick Links
-
-- Contributing Guide: `CONTRIBUTING.md`
-- Debugging Flags: `docs/Debugging.md`
-- Prompt Configuration: `config/PROMPT_DOCUMENTATION.md`
+- Join the [Telegram group](https://t.me/webnovels) for help and discussion.
+- Use the [Patreon concierge](https://www.patreon.com/posts/lexicon-forge-is-141128641?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link) for guided setup, bespoke prototypes, priority requests, and API credit.
+- Support ongoing work through Patreon or Ethereum at `adityaarpitha.eth`.
