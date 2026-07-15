@@ -53,7 +53,10 @@ const testQs = bank.filter((q) => q.split === 'test');
 const byPhase = new Map<string, typeof testQs>();
 for (const q of testQs) byPhase.set(q.phaseId, [...(byPhase.get(q.phaseId) ?? []), q]);
 
-const RESULTS = path.join(ROOT, 'probe-results.json');
+// Results are keyed by (contestant, phase) and reruns SKIP completed cells —
+// so a change to renderMaterial requires a FRESH results path or the rerun
+// silently reuses answers from the old material.
+const RESULTS = argValue('--results') || path.join(ROOT, 'probe-results.json');
 const results: Record<string, Record<string, { correct: string[]; wrong: string[] }>> = fs.existsSync(RESULTS)
   ? JSON.parse(fs.readFileSync(RESULTS, 'utf8')).cells ?? {}
   : {};
@@ -117,11 +120,20 @@ function renderMaterial(data: Record<string, any>): string {
     const segs = (anat.segments || []).filter((s: any) => s.wordId === w.id);
     const parts = segs.map((s: any) => s.text).join('·');
     const tips = segs.flatMap((s: any) => s.tooltips || []).join(' | ');
+    // v1.1: structured morph fields ARE part of the interface (the view shows
+    // them); omitting them under-served morph-asserting packets on grammar
+    // questions (grok most, 90% morph coverage).
+    const CASE_NAMES: Record<string, string> = { nom: 'nominative', acc: 'accusative', instr: 'instrumental', dat: 'dative', abl: 'ablative', gen: 'genitive', loc: 'locative', voc: 'vocative' };
+    const NUM_NAMES: Record<string, string> = { sg: 'singular', pl: 'plural' };
+    const morph = segs
+      .flatMap((s: any) => Object.entries(s.morph || {}))
+      .map(([k, v]: [string, any]) => (k === 'case' ? CASE_NAMES[String(v)] ?? v : k === 'number' ? NUM_NAMES[String(v)] ?? v : `${k}:${v}`))
+      .join(', ');
     const senses = (lex?.senses || [])
       .filter((e: any) => e.wordId === w.id)
       .flatMap((e: any) => e.senses.map((x: any) => x.english))
       .join('; ');
-    lines.push(`  ${w.surface}${parts && parts !== w.surface ? `  [${parts}]` : ''}${senses ? `  — meanings: ${senses}` : ''}${tips ? `  — notes: ${tips}` : ''}`);
+    lines.push(`  ${w.surface}${parts && parts !== w.surface ? `  [${parts}]` : ''}${senses ? `  — meanings: ${senses}` : ''}${morph ? `  — grammar: ${morph}` : ''}${tips ? `  — notes: ${tips}` : ''}`);
   }
   if (data.englishText) lines.push(`\nENGLISH TRANSLATION: ${data.englishText}`);
   const links = (weaver?.tokens || []).filter((t: any) => !t.isGhost && (t.linkedPaliId || t.linkedSegmentId));
