@@ -12,6 +12,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { BENCHMARK_CONFIG } from './benchmark-config';
+import { readBenchmarkRunStatus } from './benchmark-run-status';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -303,6 +304,15 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
 
   for (const timestamp of timestampDirs) {
     const runDir = path.join(reportsRoot, timestamp);
+    const runStatus = await readBenchmarkRunStatus(runDir);
+    if (runStatus !== 'complete') {
+      const reason = `${timestamp}: status ${runStatus ?? 'missing'} (only complete runs are rankable)`;
+      if (pinned.includes(timestamp)) {
+        throw new Error(`[Leaderboard] Refusing pinned run ${reason}`);
+      }
+      console.warn(`[Leaderboard] Skipping ${reason}`);
+      continue;
+    }
     const outputsDir = path.join(runDir, 'outputs');
     const metricsPath = path.join(runDir, 'metrics.json');
 

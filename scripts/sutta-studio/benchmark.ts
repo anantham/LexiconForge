@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { getModelPricing, supportsStructuredOutputs } from '../../services/capabilityService';
 import {
   runAnatomistPass,
@@ -36,6 +37,10 @@ import { DpdProvider } from '../../services/providers/dpd';
 import { loadDpdSubsetFromFs } from '../../services/providers/dpd-loader-fs';
 import type { LexiconEntry } from '../../services/providers/types';
 import { buildAnatomistGrounding } from '../../services/sutta-studio/dpdGrounding';
+import {
+  readBenchmarkRunStatus,
+  type BenchmarkRunStatus,
+} from './benchmark-run-status';
 
 type MetricRow = {
   timestamp: string;
@@ -207,10 +212,8 @@ type BenchIndexPayload = {
   entries: BenchIndexEntry[];
 };
 
-type BenchProgressStatus = 'running' | 'complete' | 'error';
-
 type BenchProgressState = {
-  status: BenchProgressStatus;
+  status: BenchmarkRunStatus;
   startedAt: string;
   updatedAt: string;
   timestamp: string;
@@ -341,7 +344,7 @@ const summarizeMetricsByRun = async (metricsPath: string) => {
   return summaryMap;
 };
 
-const buildBenchIndex = async (outputRoot: string): Promise<BenchIndexPayload> => {
+export const buildBenchIndex = async (outputRoot: string): Promise<BenchIndexPayload> => {
   const entries: BenchIndexEntry[] = [];
   const rootAbs = path.resolve(outputRoot);
   let latestTimestamp: string | null = null;
@@ -351,13 +354,16 @@ const buildBenchIndex = async (outputRoot: string): Promise<BenchIndexPayload> =
   for (const dirent of timestampDirs) {
     if (!dirent.isDirectory()) continue;
     const timestamp = dirent.name;
+    const runRoot = path.join(rootAbs, timestamp);
+    const status = await readBenchmarkRunStatus(runRoot);
+    if (status !== 'complete') continue;
     if (!latestTimestamp || timestamp > latestTimestamp) {
       latestTimestamp = timestamp;
     }
 
-    const metricsPath = path.join(rootAbs, timestamp, 'metrics.json');
+    const metricsPath = path.join(runRoot, 'metrics.json');
     const summaryMap = await summarizeMetricsByRun(metricsPath);
-    const outputsDir = path.join(rootAbs, timestamp, 'outputs');
+    const outputsDir = path.join(runRoot, 'outputs');
     if (!(await pathExists(outputsDir))) continue;
 
     const goldenPath = path.join(outputsDir, 'skeleton-golden.json');
@@ -938,12 +944,12 @@ const runPipelineForPhase = async (params: {
   englishText: string;
   settings: any;
   structuredOutputs: boolean;
-  maxTokens?: number;
+  passMaxTokens?: Partial<Record<'anatomist' | 'lexicographer' | 'weaver' | 'typesetter', number>>;
   goldenFixtures: AllGoldenFixtures;
   dependencyMode: 'live' | 'fixture';
   llmCaller?: LLMCaller;
 }): Promise<PipelinePhaseResult> => {
-  const { phaseId, workId, segments, englishText, settings, structuredOutputs, maxTokens, goldenFixtures, dependencyMode, llmCaller: caller = openRouterLLMCaller } = params;
+  const { phaseId, workId, segments, englishText, settings, structuredOutputs, passMaxTokens, goldenFixtures, dependencyMode, llmCaller: caller = openRouterLLMCaller } = params;
 
   const result: PipelinePhaseResult = {
     phaseId,
@@ -968,7 +974,7 @@ const runPipelineForPhase = async (params: {
     structuredOutputs,
     dpdLookups: anatomistDpd,
     llmCaller: caller,
-    maxTokens,
+    maxTokens: passMaxTokens?.anatomist,
   });
   result.anatomist = {
     output: anatomistResult.output ?? null,
@@ -1003,7 +1009,7 @@ const runPipelineForPhase = async (params: {
     settings,
     structuredOutputs,
     llmCaller: caller,
-    maxTokens,
+    maxTokens: passMaxTokens?.lexicographer,
   });
   result.lexicographer = {
     output: lexicographerResult.output ?? null,
@@ -1027,7 +1033,7 @@ const runPipelineForPhase = async (params: {
     settings,
     structuredOutputs,
     llmCaller: caller,
-    maxTokens,
+    maxTokens: passMaxTokens?.weaver,
   });
   result.weaver = {
     output: weaverResult.output ?? null,
@@ -1050,7 +1056,7 @@ const runPipelineForPhase = async (params: {
     settings,
     structuredOutputs,
     llmCaller: caller,
-    maxTokens,
+    maxTokens: passMaxTokens?.typesetter,
   });
   result.typesetter = {
     output: typesetterResult.output ?? null,
@@ -1439,7 +1445,12 @@ const runBenchmark = async () => {
               englishText,
               settings,
               structuredOutputs,
-              maxTokens: maxTokens ?? undefined,
+              passMaxTokens: {
+                anatomist: run.passOverrides?.anatomist?.maxTokens,
+                lexicographer: run.passOverrides?.lexicographer?.maxTokens,
+                weaver: run.passOverrides?.weaver?.maxTokens,
+                typesetter: run.passOverrides?.typesetter?.maxTokens,
+              },
               goldenFixtures,
               dependencyMode: dependencyMode as 'live' | 'fixture',
               llmCaller,
@@ -2259,6 +2270,16 @@ const runBenchmark = async () => {
 
     await fs.writeFile(jsonPath, JSON.stringify(payload, null, 2), 'utf8');
     await writeCsv(rows, csvPath);
+
+    // Completion is the publication boundary. Index/leaderboard discovery now filters on this
+    // marker, so set it only after every run artifact is durably written and before discovery.
+    progressState.status = 'complete';
+    progressState.updatedAt = new Date().toISOString();
+    progressState.percent = 100;
+    progressState.message = 'Benchmark complete.';
+    progressState.current = null;
+    await writeProgressState(BENCHMARK_CONFIG.outputRoot, progressPath, progressState);
+
     await writeBenchIndex(BENCHMARK_CONFIG.outputRoot);
 
     // Generate/update leaderboard with latest results
@@ -2267,13 +2288,6 @@ const runBenchmark = async () => {
     } catch (err) {
       console.warn('[SuttaStudioBenchmark] Leaderboard generation failed:', err);
     }
-
-    progressState.status = 'complete';
-    progressState.updatedAt = new Date().toISOString();
-    progressState.percent = 100;
-    progressState.message = 'Benchmark complete.';
-    progressState.current = null;
-    await writeProgressState(BENCHMARK_CONFIG.outputRoot, progressPath, progressState);
 
     console.log(`[SuttaStudioBenchmark] Wrote ${rows.length} rows to ${outputDir}`);
   }
@@ -2295,7 +2309,10 @@ const runBenchmark = async () => {
   }
 };
 
-runBenchmark().catch((error) => {
-  console.error('[SuttaStudioBenchmark] Failed:', error);
-  process.exitCode = 1;
-});
+const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : '';
+if (import.meta.url === invokedPath) {
+  runBenchmark().catch((error) => {
+    console.error('[SuttaStudioBenchmark] Failed:', error);
+    process.exitCode = 1;
+  });
+}

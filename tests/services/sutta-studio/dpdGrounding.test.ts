@@ -1,7 +1,9 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
+import type { CanonicalSegment } from '../../../types/suttaStudio';
+import type { LexiconEntry } from '../../../services/providers/types';
 import {
   stripTokenEnds,
   extractAnatomistGroundingTokens,
@@ -10,7 +12,13 @@ import {
 import { DpdProvider } from '../../../services/providers/dpd';
 import { loadDpdSubsetFromFs } from '../../../services/providers/dpd-loader-fs';
 
-const seg = (pali: string) => ({ pali } as any);
+const seg = (pali: string): CanonicalSegment => ({
+  ref: { provider: 'suttacentral', workId: 'mn10', segmentId: 'mn10:test' },
+  order: 0,
+  pali,
+});
+
+const entry = (lemma: string): LexiconEntry => ({ lemma, senses: [{ english: lemma }] });
 
 describe('stripTokenEnds', () => {
   it('removes trailing daṇḍa / period / semicolon / comma', () => {
@@ -71,5 +79,27 @@ describe('buildAnatomistGrounding', () => {
     for (const key of Object.keys(grounding)) {
       expect(key).toBe(stripTokenEnds(key));
     }
+  });
+
+  it('keeps successful lookups and reports individual failures with token context', async () => {
+    const lookup = vi.fn(async (token: string) => {
+      if (token === 'bhikkhave') throw new Error('fixture lookup failed');
+      return token === 'Idha' ? [entry('idha')] : [];
+    });
+    const warn = vi.fn();
+
+    const result = await buildAnatomistGrounding(
+      { lookup },
+      [seg('Idha, bhikkhave.')],
+      warn,
+    );
+
+    expect(result).toEqual({ Idha: [entry('idha')] });
+    expect(lookup).toHaveBeenCalledWith('Idha');
+    expect(lookup).toHaveBeenCalledWith('bhikkhave');
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('token "bhikkhave"'),
+      expect.any(Error),
+    );
   });
 });

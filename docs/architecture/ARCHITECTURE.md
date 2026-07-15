@@ -189,6 +189,7 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 
 | File | LOC | Verdict | Reason |
 |------|-----|---------|--------|
+| `scripts/sutta-studio/benchmark.ts` | 2,316 | Split candidate | Run orchestration, pipeline execution, artifact indexing, metrics, and progress lifecycle share one module; completion-boundary testing required a main-module guard |
 | `services/exportService.ts` | ~1,054 | Split candidate | EPUB export and session export are unrelated concerns |
 | `components/bench/SuttaStudioBenchmarkView.tsx` | 1,272 | Split candidate | Fixture loading + runner orchestration + metrics display |
 | `services/suttaStudioPassPrompts.ts` | 725 | Watchlist | Prompt builders + schemas + parsing in one file; no tests |
