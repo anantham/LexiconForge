@@ -211,19 +211,7 @@ export const createTranslationsSlice: StateCreator<
   [],
   [],
   TranslationsSlice
-> = (set, get) => {
-
-// P1.6 (TECH-DEBT-FIX-PRIORITY-2026-07-07): one click is ONE decision.
-// accept/rejectProposal are async (they log to IDB), and the queue's head
-// shifts the moment a proposal is dequeued — so a double-click had the second
-// call re-read the queue and act on the NEXT proposal, one the user never saw.
-// (Pre-fix, index-based removal silently DISCARDED that proposal; identity
-// removal alone would silently APPLY it. Both are wrong.) This latch makes a
-// second click during an in-flight decision a no-op, exactly like P0.5's
-// isLoading guard.
-let proposalActionInFlight = false;
-
-return {
+> = (set, get) => ({
   // Initial state
   activeTranslations: {},
   pendingTranslations: new Set(),
@@ -233,41 +221,11 @@ return {
   
   // Translation operations
   handleTranslate: async (chapterId, origin = 'manual_translate') => {
-    // P1.6 (TECH-DEBT-FIX-PRIORITY-2026-07-07): CLAIM the chapter
-    // synchronously. This guard used to READ pendingTranslations while the
-    // chapter was not ADDED to it until after the API-key check and the
-    // budget awaits — so two concurrent calls (a double-click, or a manual
-    // translate racing the auto-preloader) both passed the guard and both
-    // paid for the same chapter, producing duplicate versions. Same
-    // snapshot-before-await shape as P0.5.
-    let claimed = false;
-    // queue_depth telemetry means "work ALREADY in flight, not counting this
-    // one", so it must be read from the pre-claim state (the claim adds this
-    // chapter synchronously now).
-    let queueDepthBeforeClaim = 0;
-    set(prevState => {
-      if (prevState.pendingTranslations.has(chapterId)) return {};
-      claimed = true;
-      queueDepthBeforeClaim = prevState.pendingTranslations.size;
-      const nextPending = new Set(prevState.pendingTranslations);
-      nextPending.add(chapterId);
-      return { pendingTranslations: nextPending };
-    });
-    if (!claimed) {
+    const state = get();
+    if (state.pendingTranslations.has(chapterId)) {
       console.warn('[Retranslate] ⏳ Blocked: translation already in progress for this chapter', { chapterId });
       return;
     }
-    // Every early return below must release the claim, or the chapter stays
-    // permanently un-translatable for the session.
-    const releasePending = () => {
-      set(prevState => {
-        const nextPending = new Set(prevState.pendingTranslations);
-        nextPending.delete(chapterId);
-        return { pendingTranslations: nextPending };
-      });
-    };
-
-    const state = get();
     const context: TranslationContext = {
       chapters: state.chapters || new Map(),
       settings: state.settings,
@@ -309,7 +267,6 @@ return {
       if (uiActions.setError) {
         uiActions.setError(failureMessage, telemetryContext);
       }
-      releasePending();
       return;
     }
 
@@ -331,7 +288,6 @@ return {
               'warning'
             );
           }
-          releasePending();
           return;
         }
         const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
@@ -344,7 +300,6 @@ return {
               'warning'
             );
           }
-          releasePending();
           return;
         }
       }
@@ -361,10 +316,7 @@ return {
     // Capture lifecycle context BEFORE the set() so queue_depth reflects work
     // that was already in flight (not including this one).
     const enqueuedAt = Date.now();
-    // P1.6: read from the pre-claim snapshot — `state.pendingTranslations` now
-    // contains THIS chapter (claimed synchronously at the top), and queue_depth
-    // is defined as the work that was already in flight without it.
-    const queueDepthAtStart = queueDepthBeforeClaim;
+    const queueDepthAtStart = state.pendingTranslations.size;
     const isBackgroundAtStart = chapterId !== state.currentChapterId;
 
     set(prevState => {
@@ -1187,29 +1139,10 @@ return {
   
   // Amendment proposals (queue-based)
   acceptProposal: async (index = 0) => {
-    if (proposalActionInFlight) return; // P1.6: a second click is a no-op, not a second decision
     const { amendmentProposals } = get();
     if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
     const proposal = amendmentProposals[index];
-
-    // Claim by IDENTITY, synchronously. Removal used to be by positional
-    // INDEX after the awaits, so it could delete a proposal that had merely
-    // SHIFTED into that slot. (A background translation can also append to
-    // this queue at any time.)
-    proposalActionInFlight = true;
-    let claimed = false;
-    set((prevState) => {
-      if (!prevState.amendmentProposals.includes(proposal)) return {};
-      claimed = true;
-      return { amendmentProposals: prevState.amendmentProposals.filter(p => p !== proposal) };
-    });
-    if (!claimed) {
-      proposalActionInFlight = false;
-      return;
-    }
-
-    try {
     const state = get();
     const settingsActions = state;
     const currentChapterId = state.currentChapterId;
@@ -1249,48 +1182,36 @@ return {
         console.warn('[TranslationsSlice] Failed to log amendment action:', error);
       }
     }
-    // (queue removal happened up front — see the identity claim above)
-    } finally {
-      proposalActionInFlight = false;
-    }
+
+    // Remove proposal from queue
+    set((state) => ({
+      amendmentProposals: state.amendmentProposals.filter((_, i) => i !== index)
+    }));
   },
 
   rejectProposal: async (index = 0) => {
-    if (proposalActionInFlight) return; // P1.6: see acceptProposal
     const { amendmentProposals } = get();
     if (amendmentProposals.length === 0 || index >= amendmentProposals.length) return;
 
     const proposal = amendmentProposals[index];
+    const state = get();
+    const currentChapterId = state.currentChapterId;
 
-    proposalActionInFlight = true;
-    let claimed = false;
-    set((prevState) => {
-      if (!prevState.amendmentProposals.includes(proposal)) return {};
-      claimed = true;
-      return { amendmentProposals: prevState.amendmentProposals.filter(p => p !== proposal) };
-    });
-    if (!claimed) {
-      proposalActionInFlight = false;
-      return;
-    }
-
+    // Log the rejected amendment
     try {
-      const state = get();
-      const currentChapterId = state.currentChapterId;
-
-      // Log the rejected amendment
-      try {
-        await AmendmentOps.logAction({
-          chapterId: currentChapterId,
-          proposal,
-          action: 'rejected'
-        });
-      } catch (error) {
-        console.warn('[TranslationsSlice] Failed to log amendment action:', error);
-      }
-    } finally {
-      proposalActionInFlight = false;
+      await AmendmentOps.logAction({
+        chapterId: currentChapterId,
+        proposal,
+        action: 'rejected'
+      });
+    } catch (error) {
+      console.warn('[TranslationsSlice] Failed to log amendment action:', error);
     }
+
+    // Remove proposal from queue
+    set((state) => ({
+      amendmentProposals: state.amendmentProposals.filter((_, i) => i !== index)
+    }));
   },
 
   editAndAcceptProposal: async (modifiedChange: string, index = 0) => {
@@ -1666,5 +1587,4 @@ return {
       }
     }
   }
-};
-};
+});
