@@ -62,15 +62,38 @@ export function setupAutoTranslateMediator(
 ): () => void {
   let prev = deriveSnapshot(getState());
 
+  /**
+   * Chapters this mediator has already auto-triggered, so it never does so twice.
+   *
+   * Auto-translate is a PAID call, and nothing else stops a repeat: after a failed attempt the
+   * chapter still has no translation, so shouldAutoTranslate() is true again, and any later
+   * change to the watched state — the user toggling viewMode back to 'english', hydration
+   * flapping — would fire another billed request, indefinitely.
+   *
+   * The suppression used to live in MainApp and was dropped when the decision moved here; the
+   * test that covered it was skipped with a note that a focused mediator test should replace it
+   * (tests/store/appScreen.integration.test.tsx). This is that guard, and
+   * tests/store/autoTranslateMediator.test.ts is that test.
+   *
+   * A manual retranslate does not go through the mediator, so the user can always retry.
+   */
+  const autoTriggered = new Set<string>();
+
   return subscribe((state, _prevState) => {
     const curr = deriveSnapshot(state);
 
-    // Only evaluate if something relevant changed
+    // Only evaluate if something relevant changed. isPending/isTranslationActive belong here:
+    // shouldAutoTranslate() reads them, so a chapter skipped *because* a translation was already
+    // in flight was never re-evaluated once that cleared, and could be left permanently
+    // untranslated. Watching them is only safe because of the autoTriggered guard above — it is
+    // what keeps a released pending flag from immediately re-firing a failed translation.
     const changed =
       curr.currentChapterId !== prev.currentChapterId ||
       curr.viewMode !== prev.viewMode ||
       curr.hasTranslation !== prev.hasTranslation ||
-      curr.isHydrating !== prev.isHydrating;
+      curr.isHydrating !== prev.isHydrating ||
+      curr.isTranslationActive !== prev.isTranslationActive ||
+      curr.isPending !== prev.isPending;
 
     prev = curr;
     if (!changed) return;
@@ -85,10 +108,16 @@ export function setupAutoTranslateMediator(
     });
 
     if (shouldAutoTranslate(curr)) {
-      console.log(`[AutoTranslateMediator] ✅ Triggering auto-translate for ${curr.currentChapterId}`);
+      const chapterId = curr.currentChapterId!;
+      if (autoTriggered.has(chapterId)) {
+        console.log(`[AutoTranslateMediator] ⏸ Already auto-translated ${chapterId} this session; not retrying`);
+        return;
+      }
+      console.log(`[AutoTranslateMediator] ✅ Triggering auto-translate for ${chapterId}`);
       const s = state as any;
       if (typeof s.handleTranslate === 'function') {
-        void s.handleTranslate(curr.currentChapterId, 'auto_visit');
+        autoTriggered.add(chapterId);
+        void s.handleTranslate(chapterId, 'auto_visit');
       }
     } else if (curr.viewMode === 'english' && curr.currentChapterId) {
       if (curr.hasTranslation) {
