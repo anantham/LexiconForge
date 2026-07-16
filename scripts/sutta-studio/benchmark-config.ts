@@ -108,18 +108,30 @@ export const BENCHMARK_CONFIG = {
   // ─────────────────────────────────────────────────────────────────────────
   // ALL 51 PHASES - Full coverage benchmark
   // ─────────────────────────────────────────────────────────────────────────
-  // HELD-OUT test set (30 phases) — the honest, uncontaminated ranking set.
-  // The only phases embedded in prompts as worked examples are phase-a/b/aa
-  // (config/suttaStudioExamples); none appear below, so ranking here is clean.
+  // HELD-OUT test set (27 phases) — the honest, uncontaminated ranking set.
+  // The worked examples embedded in prompts are phase-a/b/aa (config/suttaStudioExamples). The
+  // prior claim that "none appear below" was FALSE: phase-ad, phase-ag and phase-aj each grade the
+  // exact `ātāpī sampajāno satimā` sequence that phase-aa teaches as a worked example (the
+  // satipaṭṭhāna refrain recurs verbatim), so those three were the answer key in the prompt. They
+  // are removed from the ranked set — re-goldening can't help, the sequence IS the example. The
+  // refrain is still exercised once, as the phase-aa example. Guarded by
+  // tests/scripts/sutta-studio/phase-contract.test.ts.
   // (Full 51-phase list preserved in git history / the *Fixture.phases arrays.)
   phasesToTest: [
     'phase-d', 'phase-f', 'phase-h',
     'phase-2', 'phase-4', 'phase-6', 'phase-7',
     'phase-x', 'phase-z',
-    'phase-ab', 'phase-ad', 'phase-af', 'phase-ag', 'phase-ai', 'phase-aj', 'phase-al',
+    'phase-ab', 'phase-af', 'phase-ai', 'phase-al',
     'phase-an', 'phase-ao', 'phase-ap', 'phase-aq', 'phase-as', 'phase-at', 'phase-av', 'phase-ax',
     'phase-az', 'phase-ba', 'phase-bc', 'phase-bd', 'phase-bf', 'phase-bg',
   ],
+  // Fail-closed cumulative spend cap for a fleet run, in USD. The runner tracks spend across all
+  // model/phase calls and ABORTS once this is reached, so a mispriced model or a runaway loop
+  // can't spend unbounded. A call whose cost can't be measured (missing usage or no pricing) is
+  // charged UNPRICED_CALL_ESTIMATE_USD so unpriced spend still drives toward the cap instead of
+  // being invisible. Set null to disable (not recommended for paid runs).
+  maxSpendUsd: 50 as number | null,
+
   // Filter to specific model IDs (empty = all)
   // gemini-2-flash dropped: slug google/gemini-2.0-flash-001 is deprecated on
   // OpenRouter ("No endpoints found"). 5 live models below.
