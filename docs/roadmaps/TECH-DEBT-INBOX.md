@@ -24,3 +24,19 @@ Append-only raw debt receipts discovered during implementation.
   - All registry novels use canonical version ids with no remaining legacy aliases needed.
   - Existing user-facing deep links/bookmarks have either been migrated or are no longer supported by policy.
   - Published metadata points directly at final session artifact URLs without importer-side rewriting.
+
+[DEBT][TEST][2026-07-16 10:52 IST] Node 26 disables the test DOM's `localStorage`
+- Files:
+  - `vitest.config.ts`
+  - `tests/setup.ts`
+  - `package.json`
+  - `.github/workflows/test.yml`
+- Symptom:
+  - A full `vitest run` under the locally active Node 26.0.0 reports `localStorage is not available because --localstorage-file was not provided`, then 115 tests fail because `localStorage` is undefined.
+  - A representative failure reproduces unchanged on `main`; export-focused suites that do not exercise local storage remain green.
+  - CI is pinned to Node 20, so the issue does not currently invalidate the pull-request gate.
+- Friction:
+  - Local full-suite validation looks like a broad product regression even when the changed code is unrelated, and the repository does not declare a supported local Node range.
+- Suggested follow-up:
+  - Decide whether to declare and enforce Node 20/22 for local development or make test setup explicitly replace Node 26's experimental storage global with the Happy DOM implementation.
+  - Add a small environment preflight so an unsupported runtime fails once with a descriptive message instead of cascading into hundreds of tests.

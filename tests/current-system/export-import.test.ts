@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useAppStore } from '../../store';
+import { makeRepo } from '../../services/db';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import type { TranslationResult } from '../../types';
 import type { DiffResult } from '../../services/diff/types';
@@ -60,6 +61,17 @@ const sampleChapter = (id: string, url: string): EnhancedChapter => ({
   feedback: [],
 });
 
+const credentialSettings = {
+  apiKeyGemini: 'gemini-secret',
+  apiKeyOpenAI: 'openai-secret',
+  apiKeyDeepSeek: 'deepseek-secret',
+  apiKeyClaude: 'claude-secret',
+  apiKeyOpenRouter: 'openrouter-secret',
+  apiKeyPiAPI: 'piapi-secret',
+  deeplApiKey: 'deepl-secret',
+  googleTranslateApiKey: 'google-translate-secret',
+} as const;
+
 describe('Session export/import', () => {
   beforeEach(async () => {
     resetStore();
@@ -69,6 +81,42 @@ describe('Session export/import', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  describe('settings credential redaction', () => {
+    it('[Security] excludes every API credential while preserving ordinary settings', async () => {
+      await SettingsOps.store({
+        ...useAppStore.getState().settings,
+        ...credentialSettings,
+        fontSize: 23,
+      });
+
+      const exported = await SessionExportOps.exportFullSession({
+        includeImages: false,
+        includeTelemetry: false,
+      });
+
+      expect(exported.settings.fontSize).toBe(23);
+      for (const credentialName of Object.keys(credentialSettings)) {
+        expect(exported.settings).not.toHaveProperty(credentialName);
+      }
+    });
+
+    it('[Security] applies the same redaction in the memory fallback', async () => {
+      const memoryRepo = makeRepo('memory');
+      await memoryRepo.storeSettings({
+        ...useAppStore.getState().settings,
+        ...credentialSettings,
+        fontSize: 24,
+      });
+
+      const exported = await memoryRepo.exportFullSessionToJson();
+
+      expect(exported.settings.fontSize).toBe(24);
+      for (const credentialName of Object.keys(credentialSettings)) {
+        expect(exported.settings).not.toHaveProperty(credentialName);
+      }
+    });
   });
 
   describe('diffResults export/import', () => {

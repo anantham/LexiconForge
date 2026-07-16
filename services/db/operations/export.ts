@@ -9,7 +9,9 @@ import type {
   UrlMappingRecord,
   AmendmentLogRecord,
 } from '../types';
+import type { AppSettings } from '../../../types';
 import { telemetryService } from '../../telemetryService';
+import { redactApiCredentials } from '../exportSettings';
 import { AmendmentOps } from './amendments';
 
 const DEFAULT_EXPORT_OPTIONS: Required<ExportSessionOptions> = {
@@ -38,7 +40,7 @@ type ChapterImageSource = {
 };
 
 export interface ExportOpsDeps {
-  getSettings: () => Promise<any | null>;
+  getSettings: () => Promise<AppSettings | null>;
   getAllUrlMappings: () => Promise<UrlMappingRecord[]>;
   getAllNovels: () => Promise<NovelRecord[]>;
   getAllChapters: () => Promise<ChapterRecord[]>;
@@ -59,7 +61,7 @@ type ExportCollections = {
   navHistory: any;
   lastActive: any;
   diffResults: any[];
-  settings: any;
+  settings: AppSettings | null;
 };
 
 const collectImageAssets = async (
@@ -281,9 +283,7 @@ export const exportFullSessionToJson = async (
       imagesIncluded: exportOptions.includeImages && imageAssets.length > 0,
       navigationHistoryIncluded: Boolean(navHistory),
     },
-    settings: Object.fromEntries(
-      Object.entries(settings || {}).filter(([k]) => !k.startsWith('apiKey'))
-    ),
+    settings: redactApiCredentials(settings),
     urlMappings,
     novels,
     navigationHistory: navHistory,
