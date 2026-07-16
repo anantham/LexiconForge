@@ -1,0 +1,2112 @@
+{
+ "url": "https://read.adityaarpitha.com/sutta/mn10",
+ "generatedAt": "2026-07-16T06:46:20.126Z",
+ "results": [
+  {
+   "phaseId": "phase-a",
+   "wordId": "a3",
+   "surface": "sutaṁ",
+   "expected": [
+    "have",
+    "heard"
+   ],
+   "lit": [
+    "heard"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-b",
+   "wordId": "b2",
+   "surface": "samayaṁ",
+   "expected": [
+    "time"
+   ],
+   "lit": [
+    "occasion"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-b",
+   "wordId": "b3",
+   "surface": "bhagavā",
+   "expected": [
+    "buddha"
+   ],
+   "lit": [
+    "theblessedone"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-c",
+   "wordId": "c2",
+   "surface": "viharati",
+   "expected": [
+    "staying"
+   ],
+   "lit": [
+    "wasdwelling"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-d",
+   "wordId": "d2",
+   "surface": "nāma",
+   "expected": [
+    "named"
+   ],
+   "lit": [
+    "named"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-b",
+   "wordId": "b1",
+   "surface": "ekaṁ",
+   "expected": [
+    "one"
+   ],
+   "lit": [
+    "one"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-c",
+   "wordId": "c1",
+   "surface": "kurūsu",
+   "expected": [
+    "kuru"
+   ],
+   "lit": [
+    "amongthekuru"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-d",
+   "wordId": "d1",
+   "surface": "Kammāsadhammaṁ",
+   "expected": [
+    "kammasadamma"
+   ],
+   "lit": [
+    "kammasadhamma"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-d",
+   "wordId": "d4",
+   "surface": "nigamo",
+   "expected": [
+    "town"
+   ],
+   "lit": [
+    "amarkettown"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-e",
+   "wordId": "e1",
+   "surface": "tatra",
+   "expected": [
+    "there"
+   ],
+   "lit": [
+    "there"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-e",
+   "wordId": "e3",
+   "surface": "bhagavā",
+   "expected": [
+    "buddha"
+   ],
+   "lit": [
+    "theblessedone"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-e",
+   "wordId": "e4",
+   "surface": "bhikkhū",
+   "expected": [
+    "mendicant"
+   ],
+   "lit": [
+    "thebhikkhu"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-e",
+   "wordId": "e5",
+   "surface": "āmantesi",
+   "expected": [
+    "addressed"
+   ],
+   "lit": [
+    "addressed"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-f",
+   "wordId": "f1",
+   "surface": "Bhikkhavo",
+   "expected": [
+    "mendicant"
+   ],
+   "lit": [
+    "bhikkhu"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-g",
+   "wordId": "g1",
+   "surface": "Bhadante",
+   "expected": [
+    "venerable"
+   ],
+   "lit": [
+    "venerablesir"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-g",
+   "wordId": "g3",
+   "surface": "te",
+   "expected": [
+    "they"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-g",
+   "wordId": "g6",
+   "surface": "paccassosuṁ",
+   "expected": [
+    "replied"
+   ],
+   "lit": [
+    "replied"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-h",
+   "wordId": "h1",
+   "surface": "Bhagavā",
+   "expected": [
+    "the",
+    "buddha"
+   ],
+   "lit": [
+    "theblessedone"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-h",
+   "wordId": "h2",
+   "surface": "etad",
+   "expected": [
+    "thi"
+   ],
+   "lit": [
+    "thi"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-h",
+   "wordId": "h3",
+   "surface": "avoca",
+   "expected": [
+    "said"
+   ],
+   "lit": [
+    "said"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-1",
+   "wordId": "p3",
+   "surface": "Bhikkhave",
+   "expected": [
+    "mendicant"
+   ],
+   "lit": [
+    "mendicant"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-1",
+   "wordId": "p4",
+   "surface": "maggo",
+   "expected": [
+    "path"
+   ],
+   "lit": [
+    "path"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-3",
+   "wordId": "p7",
+   "surface": "sokaparidevānaṁ",
+   "expected": [
+    "crying"
+   ],
+   "lit": [
+    "grieflamentation"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-4",
+   "wordId": "p9",
+   "surface": "dukkhadomanassānaṁ",
+   "expected": [
+    "pain"
+   ],
+   "lit": [
+    "paindistres"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-5",
+   "wordId": "p11",
+   "surface": "ñāyassa",
+   "expected": [
+    "system"
+   ],
+   "lit": [
+    "ofthetrueway"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-7",
+   "wordId": "p16",
+   "surface": "cattāro",
+   "expected": [
+    "four"
+   ],
+   "lit": [
+    "thefour"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-7",
+   "wordId": "p17",
+   "surface": "satipaṭṭhānā",
+   "expected": [
+    "mindfulnes"
+   ],
+   "lit": [
+    "foundationsofmindfulnes"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-2",
+   "wordId": "p5",
+   "surface": "sattānaṁ",
+   "expected": [
+    "sentient",
+    "being"
+   ],
+   "lit": [
+    "being"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-2",
+   "wordId": "p6",
+   "surface": "visuddhiyā",
+   "expected": [
+    "purify"
+   ],
+   "lit": [
+    "purification"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-3",
+   "wordId": "p8",
+   "surface": "samatikkamāya",
+   "expected": [
+    "get",
+    "past"
+   ],
+   "lit": [
+    "surmounting"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-4",
+   "wordId": "p10",
+   "surface": "atthaṅgamāya",
+   "expected": [
+    "make",
+    "end"
+   ],
+   "lit": [
+    "disappearance"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-5",
+   "wordId": "p12",
+   "surface": "adhigamāya",
+   "expected": [
+    "discover"
+   ],
+   "lit": [
+    "attainment"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-6",
+   "wordId": "p13",
+   "surface": "nibbānassa",
+   "expected": [
+    "extinguishment"
+   ],
+   "lit": [
+    "ofnibbana"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-6",
+   "wordId": "p14",
+   "surface": "sacchikiriyāya",
+   "expected": [
+    "realize"
+   ],
+   "lit": [
+    "realization"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-7",
+   "wordId": "p15",
+   "surface": "yadidaṁ",
+   "expected": [
+    "are"
+   ],
+   "lit": [
+    "namely"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-x",
+   "wordId": "x1",
+   "surface": "Katame",
+   "expected": [
+    "what"
+   ],
+   "lit": [
+    "what"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-x",
+   "wordId": "x2",
+   "surface": "cattāro",
+   "expected": [
+    "four"
+   ],
+   "lit": [
+    "four"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-y",
+   "wordId": "y3",
+   "surface": "bhikkhu",
+   "expected": [
+    "mendicant"
+   ],
+   "lit": [
+    "abhikkhu"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-z",
+   "wordId": "z2",
+   "surface": "kāyānupassī",
+   "expected": [
+    "observing"
+   ],
+   "lit": [
+    "observingbody"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-aa",
+   "wordId": "aa2",
+   "surface": "sampajāno",
+   "expected": [
+    "aware"
+   ],
+   "lit": [
+    "clearlyknowing"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-aa",
+   "wordId": "aa3",
+   "surface": "satimā",
+   "expected": [
+    "mindful"
+   ],
+   "lit": [
+    "possessingmindfulnes"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ab",
+   "wordId": "ab1",
+   "surface": "vineyya",
+   "expected": [
+    "rid"
+   ],
+   "lit": [
+    "puttingaside"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ab",
+   "wordId": "ab3",
+   "surface": "abhijjhādomanassaṁ",
+   "expected": [
+    "covetousnes"
+   ],
+   "lit": [
+    "covetousnessdispleasure"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-y",
+   "wordId": "y1",
+   "surface": "Idha",
+   "expected": [
+    "it",
+    "when"
+   ],
+   "lit": [
+    "here"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-z",
+   "wordId": "z1",
+   "surface": "kāye",
+   "expected": [
+    "of",
+    "the",
+    "bodykeen"
+   ],
+   "lit": [
+    "inthebody"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-z",
+   "wordId": "z3",
+   "surface": "viharati",
+   "expected": [
+    "meditat"
+   ],
+   "lit": [
+    "dwell"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ab",
+   "wordId": "ab2",
+   "surface": "loke",
+   "expected": [
+    "for",
+    "the",
+    "world"
+   ],
+   "lit": [
+    "regardingtheworld"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-ac",
+   "wordId": "ac2",
+   "surface": "vedanānupassī",
+   "expected": [
+    "observing"
+   ],
+   "lit": [
+    "observingfeeling"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ad",
+   "wordId": "ad2",
+   "surface": "sampajāno",
+   "expected": [
+    "aware"
+   ],
+   "lit": [
+    "clearlyknowing"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ad",
+   "wordId": "ad3",
+   "surface": "satimā",
+   "expected": [
+    "mindful"
+   ],
+   "lit": [
+    "possessingmindfulnes"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ae",
+   "wordId": "ae1",
+   "surface": "vineyya",
+   "expected": [
+    "rid"
+   ],
+   "lit": [
+    "puttingaside"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ae",
+   "wordId": "ae2",
+   "surface": "loke",
+   "expected": [
+    "world"
+   ],
+   "lit": [
+    "regardingtheworld"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ae",
+   "wordId": "ae3",
+   "surface": "abhijjhādomanassaṁ",
+   "expected": [
+    "covetousnes"
+   ],
+   "lit": [
+    "covetousnessdispleasure"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ac",
+   "wordId": "ac1",
+   "surface": "vedanāsu",
+   "expected": [
+    "aspect",
+    "of",
+    "feelingskeen"
+   ],
+   "lit": [
+    "infeeling"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-af",
+   "wordId": "af2",
+   "surface": "cittānupassī",
+   "expected": [
+    "observing"
+   ],
+   "lit": [
+    "observingmind"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ag",
+   "wordId": "ag2",
+   "surface": "sampajāno",
+   "expected": [
+    "aware"
+   ],
+   "lit": [
+    "clearlyknowing"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ag",
+   "wordId": "ag3",
+   "surface": "satimā",
+   "expected": [
+    "mindful"
+   ],
+   "lit": [
+    "possessingmindfulnes"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ah",
+   "wordId": "ah1",
+   "surface": "vineyya",
+   "expected": [
+    "rid"
+   ],
+   "lit": [
+    "puttingaside"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ah",
+   "wordId": "ah2",
+   "surface": "loke",
+   "expected": [
+    "world"
+   ],
+   "lit": [
+    "regardingtheworld"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ah",
+   "wordId": "ah3",
+   "surface": "abhijjhādomanassaṁ",
+   "expected": [
+    "covetousnes"
+   ],
+   "lit": [
+    "covetousnessdispleasure"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-af",
+   "wordId": "af1",
+   "surface": "citte",
+   "expected": [
+    "of",
+    "the",
+    "mindkeen"
+   ],
+   "lit": [
+    "inthemind"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-ai",
+   "wordId": "ai1",
+   "surface": "dhammesu",
+   "expected": [
+    "for"
+   ],
+   "lit": [
+    "inprincipl"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ai",
+   "wordId": "ai2",
+   "surface": "dhammānupassī",
+   "expected": [
+    "observing",
+    "aspect"
+   ],
+   "lit": [
+    "observingphenomena"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-aj",
+   "wordId": "aj2",
+   "surface": "sampajāno",
+   "expected": [
+    "aware"
+   ],
+   "lit": [
+    "clearlyknowing"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-aj",
+   "wordId": "aj3",
+   "surface": "satimā",
+   "expected": [
+    "mindful"
+   ],
+   "lit": [
+    "possessingmindfulnes"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ak",
+   "wordId": "ak1",
+   "surface": "vineyya",
+   "expected": [
+    "rid"
+   ],
+   "lit": [
+    "puttingaside"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ak",
+   "wordId": "ak2",
+   "surface": "loke",
+   "expected": [
+    "world"
+   ],
+   "lit": [
+    "regardingtheworld"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ak",
+   "wordId": "ak3",
+   "surface": "abhijjhādomanassaṁ",
+   "expected": [
+    "covetousnes"
+   ],
+   "lit": [
+    "covetousnessdispleasure"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-am",
+   "wordId": "am1",
+   "surface": "Kathañca",
+   "expected": [
+    "how"
+   ],
+   "lit": [
+    "andhow"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-am",
+   "wordId": "am5",
+   "surface": "kāyānupassī",
+   "expected": [
+    "observing"
+   ],
+   "lit": [
+    "observingbody"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-am",
+   "wordId": "am3",
+   "surface": "bhikkhu",
+   "expected": [
+    "mendicant"
+   ],
+   "lit": [
+    "amonk"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-am",
+   "wordId": "am4",
+   "surface": "kāye",
+   "expected": [
+    "of",
+    "the",
+    "body"
+   ],
+   "lit": [
+    "inthebody"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-an",
+   "wordId": "an4",
+   "surface": "araññagato",
+   "expected": [
+    "wildernes"
+   ],
+   "lit": [
+    "gonetothewildernes"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-an",
+   "wordId": "an6",
+   "surface": "rukkhamūlagato",
+   "expected": [
+    "tree"
+   ],
+   "lit": [
+    "gonetoatreeroot"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-an",
+   "wordId": "an7",
+   "surface": "suññāgāragato",
+   "expected": [
+    "empty"
+   ],
+   "lit": [
+    "gonetoanemptyhouse"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ao",
+   "wordId": "ao2",
+   "surface": "pallaṅkaṁ",
+   "expected": [
+    "cross-legged"
+   ],
+   "lit": [
+    "cross-legged"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ao",
+   "wordId": "ao4",
+   "surface": "ujuṁ",
+   "expected": [
+    "straight"
+   ],
+   "lit": [
+    "straight"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ao",
+   "wordId": "ao5",
+   "surface": "kāyaṁ",
+   "expected": [
+    "body"
+   ],
+   "lit": [
+    "thebody"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ap",
+   "wordId": "ap2",
+   "surface": "satiṁ",
+   "expected": [
+    "mindfulnes"
+   ],
+   "lit": [
+    "mindfulnes"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-an",
+   "wordId": "an3",
+   "surface": "bhikkhu",
+   "expected": [
+    "mendicantgone"
+   ],
+   "lit": [
+    "amonk"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-an",
+   "wordId": "an5",
+   "surface": "vā",
+   "expected": [
+    "or"
+   ],
+   "lit": [
+    "or"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ao",
+   "wordId": "ao1",
+   "surface": "nisīdati",
+   "expected": [
+    "down"
+   ],
+   "lit": [
+    "sitsdown"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ap",
+   "wordId": "ap1",
+   "surface": "parimukhaṁ",
+   "expected": [
+    "presence"
+   ],
+   "lit": [
+    "infront"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-aq",
+   "wordId": "aq5",
+   "surface": "passasati",
+   "expected": [
+    "out"
+   ],
+   "lit": [
+    "breathesout"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-aq",
+   "wordId": "aq1",
+   "surface": "So",
+   "expected": [
+    "they",
+    "they"
+   ],
+   "lit": [
+    "he"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-aq",
+   "wordId": "aq2",
+   "surface": "sato",
+   "expected": [
+    "mindful",
+    "mindful"
+   ],
+   "lit": [
+    "mindfully"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-aq",
+   "wordId": "aq4",
+   "surface": "assasati",
+   "expected": [
+    "in",
+    "breathe"
+   ],
+   "lit": [
+    "breathesin"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ar",
+   "wordId": "ar1",
+   "surface": "Dīghaṁ",
+   "expected": [
+    "heavily"
+   ],
+   "lit": [
+    "long"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ar",
+   "wordId": "ar3",
+   "surface": "assasanto",
+   "expected": [
+    "in"
+   ],
+   "lit": [
+    "breathingin"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ar",
+   "wordId": "ar4",
+   "surface": "assasāmī",
+   "expected": [
+    "breathing",
+    "in"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ar",
+   "wordId": "ar6",
+   "surface": "pajānāti",
+   "expected": [
+    "know"
+   ],
+   "lit": [
+    "know"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ar",
+   "wordId": "ar7",
+   "surface": "dīghaṁ",
+   "expected": [
+    "heavily"
+   ],
+   "lit": [
+    "long"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ar",
+   "wordId": "ar9",
+   "surface": "passasanto",
+   "expected": [
+    "out"
+   ],
+   "lit": [
+    "breathingout"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ar",
+   "wordId": "ar10",
+   "surface": "passasāmī",
+   "expected": [
+    "breathing",
+    "out"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ar",
+   "wordId": "ar12",
+   "surface": "pajānāti",
+   "expected": [
+    "know"
+   ],
+   "lit": [
+    "know"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-as",
+   "wordId": "as1",
+   "surface": "Rassaṁ",
+   "expected": [
+    "lightly"
+   ],
+   "lit": [
+    "short"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-as",
+   "wordId": "as3",
+   "surface": "assasanto",
+   "expected": [
+    "breathing",
+    "in"
+   ],
+   "lit": [
+    "breathingin"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-as",
+   "wordId": "as4",
+   "surface": "assasāmī",
+   "expected": [
+    "breathing",
+    "in"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-as",
+   "wordId": "as6",
+   "surface": "pajānāti",
+   "expected": [
+    "know"
+   ],
+   "lit": [
+    "know"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-as",
+   "wordId": "as7",
+   "surface": "rassaṁ",
+   "expected": [
+    "lightly"
+   ],
+   "lit": [
+    "short"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-as",
+   "wordId": "as9",
+   "surface": "passasanto",
+   "expected": [
+    "breathing",
+    "out"
+   ],
+   "lit": [
+    "breathingout"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-as",
+   "wordId": "as10",
+   "surface": "passasāmī",
+   "expected": [
+    "breathing",
+    "out"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-as",
+   "wordId": "as12",
+   "surface": "pajānāti",
+   "expected": [
+    "know"
+   ],
+   "lit": [
+    "know"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-at",
+   "wordId": "at6",
+   "surface": "passasissāmī",
+   "expected": [
+    "out"
+   ],
+   "lit": [
+    "iwillbreatheout"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-at",
+   "wordId": "at1",
+   "surface": "'Sabbakāyapaṭisaṁvedī",
+   "expected": [
+    "experiencing",
+    "the",
+    "whole",
+    "body"
+   ],
+   "lit": [
+    "experiencingthewholebody"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-at",
+   "wordId": "at2",
+   "surface": "assasissāmī",
+   "expected": [
+    "in"
+   ],
+   "lit": [
+    "iwillbreathein"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-at",
+   "wordId": "at3",
+   "surface": "'ti",
+   "expected": [
+    "ill"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-at",
+   "wordId": "at4",
+   "surface": "sikkhati",
+   "expected": [
+    "practice",
+    "like",
+    "thi"
+   ],
+   "lit": [
+    "train"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-at",
+   "wordId": "at5",
+   "surface": "'sabbakāyapaṭisaṁvedī",
+   "expected": [
+    "experiencing",
+    "the",
+    "whole",
+    "body"
+   ],
+   "lit": [
+    "experiencingthewholebody"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-at",
+   "wordId": "at7",
+   "surface": "'ti",
+   "expected": [
+    "ill"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-at",
+   "wordId": "at8",
+   "surface": "sikkhati",
+   "expected": [
+    "practice",
+    "like",
+    "thi"
+   ],
+   "lit": [
+    "train"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au8",
+   "surface": "passasissāmī",
+   "expected": [
+    "out"
+   ],
+   "lit": [
+    "iwillbreatheout"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au1",
+   "surface": "'Passambhayaṁ",
+   "expected": [
+    "stilling"
+   ],
+   "lit": [
+    "stilling"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au2",
+   "surface": "kāyasaṅkhāraṁ",
+   "expected": [
+    "the",
+    "physical",
+    "proces"
+   ],
+   "lit": [
+    "thebodilyformation"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au3",
+   "surface": "assasissāmī",
+   "expected": [
+    "breathe",
+    "in"
+   ],
+   "lit": [
+    "iwillbreathein"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au4",
+   "surface": "'ti",
+   "expected": [
+    "thi"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au5",
+   "surface": "sikkhati",
+   "expected": [
+    "they",
+    "practice",
+    "like"
+   ],
+   "lit": [
+    "train"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au6",
+   "surface": "'passambhayaṁ",
+   "expected": [
+    "stilling"
+   ],
+   "lit": [
+    "stilling"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au7",
+   "surface": "kāyasaṅkhāraṁ",
+   "expected": [
+    "the",
+    "physical",
+    "proces"
+   ],
+   "lit": [
+    "thebodilyformation"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au9",
+   "surface": "'ti",
+   "expected": [
+    "thi"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-au",
+   "wordId": "au10",
+   "surface": "sikkhati",
+   "expected": [
+    "they",
+    "practice",
+    "like"
+   ],
+   "lit": [
+    "train"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av1",
+   "surface": "Seyyathāpi",
+   "expected": [
+    "like"
+   ],
+   "lit": [
+    "justa"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av3",
+   "surface": "dakkho",
+   "expected": [
+    "deft"
+   ],
+   "lit": [
+    "skilled"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av6",
+   "surface": "bhamakārantevāsī",
+   "expected": [
+    "apprentice"
+   ],
+   "lit": [
+    "aturner'sapprentice"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av4",
+   "surface": "bhamakāro",
+   "expected": [
+    "carpenter"
+   ],
+   "lit": [
+    "aturner"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av5",
+   "surface": "vā",
+   "expected": [
+    "or"
+   ],
+   "lit": [
+    "or"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av8",
+   "surface": "dīghaṁ",
+   "expected": [
+    "deep"
+   ],
+   "lit": [
+    "long"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av10",
+   "surface": "añchanto",
+   "expected": [
+    "when",
+    "making"
+   ],
+   "lit": [
+    "pulling"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av10b",
+   "surface": "'dīghaṁ",
+   "expected": [
+    "deep"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av11",
+   "surface": "añchāmī",
+   "expected": [
+    "im",
+    "making"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av13",
+   "surface": "pajānāti",
+   "expected": [
+    "they",
+    "know"
+   ],
+   "lit": [
+    "know"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av14",
+   "surface": "rassaṁ",
+   "expected": [
+    "shallow"
+   ],
+   "lit": [
+    "short"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av16",
+   "surface": "añchanto",
+   "expected": [
+    "when",
+    "making"
+   ],
+   "lit": [
+    "pulling"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av16b",
+   "surface": "'rassaṁ",
+   "expected": [
+    "shallow"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av17",
+   "surface": "añchāmī",
+   "expected": [
+    "im",
+    "making"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-av",
+   "wordId": "av19",
+   "surface": "pajānāti",
+   "expected": [
+    "they",
+    "know"
+   ],
+   "lit": [
+    "know"
+   ],
+   "interaction": "lit",
+   "content": "partial"
+  },
+  {
+   "phaseId": "phase-ba",
+   "wordId": "ba1",
+   "surface": "ajjhattabahiddhā",
+   "expected": [
+    "both"
+   ],
+   "lit": [
+    "bothinternallyandexternally"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ay",
+   "wordId": "ay1",
+   "surface": "Iti",
+   "expected": [
+    "and",
+    "so"
+   ],
+   "lit": [
+    "thu"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ay",
+   "wordId": "ay2",
+   "surface": "ajjhattaṁ",
+   "expected": [
+    "internally",
+    "internally"
+   ],
+   "lit": [
+    "internally"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ay",
+   "wordId": "ay4",
+   "surface": "kāye",
+   "expected": [
+    "body"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ay",
+   "wordId": "ay5",
+   "surface": "kāyānupassī",
+   "expected": [
+    "aspect"
+   ],
+   "lit": [
+    "contemplatingthebody"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-ay",
+   "wordId": "ay6",
+   "surface": "viharati",
+   "expected": [
+    "meditate"
+   ],
+   "lit": [
+    "dwell"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-az",
+   "wordId": "az1",
+   "surface": "bahiddhā",
+   "expected": [
+    "externally",
+    "externally"
+   ],
+   "lit": [
+    "externally"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-ba",
+   "wordId": "ba2",
+   "surface": "vā",
+   "expected": [
+    "and"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-bc",
+   "wordId": "bc1",
+   "surface": "vayadhammānupassī",
+   "expected": [
+    "vanish"
+   ],
+   "lit": [
+    "observingthepassingnature"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-bb",
+   "wordId": "bb1",
+   "surface": "samudayadhammānupassī",
+   "expected": [
+    "liable",
+    "to",
+    "originate"
+   ],
+   "lit": [
+    "observingthearisingnature"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-bb",
+   "wordId": "bb3",
+   "surface": "kāyasmiṁ",
+   "expected": [
+    "body"
+   ],
+   "lit": [
+    "inregardtobody"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-bb",
+   "wordId": "bb4",
+   "surface": "viharati",
+   "expected": [
+    "meditate"
+   ],
+   "lit": [
+    "dwell"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-bd",
+   "wordId": "bd1",
+   "surface": "samudayavayadhammānupassī",
+   "expected": [
+    "to",
+    "both",
+    "originate"
+   ],
+   "lit": [
+    "observingarising-and-passingnature"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-be",
+   "wordId": "be2",
+   "surface": "kāyo",
+   "expected": [
+    "body"
+   ],
+   "lit": [
+    "body"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-be",
+   "wordId": "be7",
+   "surface": "paccupaṭṭhitā",
+   "expected": [
+    "established"
+   ],
+   "lit": [
+    "isestablished"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-bf",
+   "wordId": "bf1",
+   "surface": "yāvadeva",
+   "expected": [
+    "extent"
+   ],
+   "lit": [
+    "justtotheextent"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-bf",
+   "wordId": "bf2",
+   "surface": "ñāṇamattāya",
+   "expected": [
+    "knowledge"
+   ],
+   "lit": [
+    "forbareknowledge"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-bg",
+   "wordId": "bg1",
+   "surface": "anissito",
+   "expected": [
+    "independent"
+   ],
+   "lit": [
+    "independent"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-bg",
+   "wordId": "bg6",
+   "surface": "kiñci",
+   "expected": [
+    "anything"
+   ],
+   "lit": [
+    "anything"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-bg",
+   "wordId": "bg7",
+   "surface": "loke",
+   "expected": [
+    "world"
+   ],
+   "lit": [
+    "intheworld"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-be",
+   "wordId": "be1",
+   "surface": "'Atthi",
+   "expected": [
+    "exist"
+   ],
+   "lit": [
+    "therei"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-be",
+   "wordId": "be8",
+   "surface": "hoti",
+   "expected": [
+    "i"
+   ],
+   "lit": [],
+   "interaction": "dead",
+   "content": "none"
+  },
+  {
+   "phaseId": "phase-bg",
+   "wordId": "bg4",
+   "surface": "na",
+   "expected": [
+    "not"
+   ],
+   "lit": [
+    "not"
+   ],
+   "interaction": "lit",
+   "content": "full"
+  },
+  {
+   "phaseId": "phase-bg",
+   "wordId": "bg8",
+   "surface": "upādiyati",
+   "expected": [
+    "grasping"
+   ],
+   "lit": [
+    "clingsto"
+   ],
+   "interaction": "lit",
+   "content": "none"
+  }
+ ]
+}
