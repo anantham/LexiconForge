@@ -48,12 +48,14 @@ export function runTransaction<T>(
     const resolveOnce = (result: T) => {
       if (promiseSettled) return;
       promiseSettled = true;
+      if (backstopTimer) clearTimeout(backstopTimer);
       resolve(result);
     };
 
     const rejectOnce = (error: DbError) => {
       if (promiseSettled) return;
       promiseSettled = true;
+      if (backstopTimer) clearTimeout(backstopTimer);
       reject(error);
     };
 
@@ -69,10 +71,37 @@ export function runTransaction<T>(
             transaction.error
           ));
 
-    const settleFromState = () => {
+    // Review fixes (grok second-family pass, 2026-07-16):
+    //  F2 A COMMITTED transaction whose operation callback then fails must
+    //     reject NON-RETRYABLY — RetryPolicy retrying it would re-apply
+    //     writes that already committed.
+    //  F1 The abort()-threw path must not settle directly; the terminal event
+    //     is guaranteed (throwing means the transaction is already finishing)
+    //     and settling early lets a retry overlap a finishing transaction.
+    //  F3 An abort that races a still-pending operation defers settlement so
+    //     the richer operation error (which decides retryability) can win.
+    //  F4 ...bounded by a backstop: if the operation promise never settles
+    //     after the transaction is terminal, force settlement rather than
+    //     hang forever.
+    const committedButFailed = (cause: DbError) =>
+      new DbError(
+        'Constraint',
+        domain,
+        service,
+        `Transaction ${transactionLabel(domain, operationName)} COMMITTED but the operation callback failed afterwards; not retryable (a retry would re-apply committed writes). Original: ${cause.message}`,
+        cause
+      );
+
+    let backstopTimer: ReturnType<typeof setTimeout> | undefined;
+    const BACKSTOP_MS = 5000;
+
+    const settleFromState = (force = false) => {
       if (promiseSettled) return;
 
       if (terminalState === 'abort') {
+        // F3: the operation promise is still in flight — its error carries
+        // the retryability decision, so wait for it (bounded by the backstop).
+        if (operationState === 'pending' && !force) return;
         rejectOnce(operationError || abortError());
         return;
       }
@@ -80,10 +109,25 @@ export function runTransaction<T>(
       if (terminalState !== 'complete') return;
 
       if (operationState === 'rejected') {
-        rejectOnce(operationError!);
+        rejectOnce(committedButFailed(operationError!)); // F2
       } else if (operationState === 'fulfilled') {
         resolveOnce(operationResult as T);
+      } else if (force) {
+        // F4: committed, but the operation promise never settled.
+        rejectOnce(
+          new DbError(
+            'Constraint',
+            domain,
+            service,
+            `Transaction ${transactionLabel(domain, operationName)} committed but the operation callback never settled; not retryable.`
+          )
+        );
       }
+    };
+
+    const armBackstop = () => {
+      if (backstopTimer || promiseSettled || operationState !== 'pending') return;
+      backstopTimer = setTimeout(() => settleFromState(true), BACKSTOP_MS);
     };
 
     const failOperation = (error: unknown) => {
@@ -98,10 +142,12 @@ export function runTransaction<T>(
         try {
           transaction.abort();
         } catch {
-          // The transaction may have become inactive between the operation
-          // rejection and abort(). The operation error is still authoritative.
-          rejectOnce(operationError);
-          return;
+          // F1: abort() throwing means the transaction went inactive between
+          // the operation rejection and the abort call — it is already
+          // committing or aborting, and its terminal event WILL fire. Do not
+          // settle here; the terminal handler settles with the operation
+          // error given precedence (abort path) or wrapped non-retryably
+          // (complete path).
         }
       }
 
@@ -124,11 +170,13 @@ export function runTransaction<T>(
     transaction.addEventListener('abort', () => {
       terminalState = 'abort';
       settleFromState();
+      armBackstop(); // F4: bound the wait for a still-pending operation
     });
 
     transaction.addEventListener('complete', () => {
       terminalState = 'complete';
       settleFromState();
+      armBackstop(); // F4
     });
 
     const stores: Record<string, IDBObjectStore> = {};
