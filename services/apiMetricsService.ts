@@ -207,6 +207,41 @@ class ApiMetricsService {
   }
 
   /**
+   * Sum the cost of FAILED translation calls for the given chapters (keyed by stableId).
+   *
+   * The budget gate sums successfully-PERSISTED translation versions. A failed or truncated call
+   * is billed by the provider but never becomes a version, so it escaped the cap entirely. Every
+   * call — success and failure — is recorded here keyed by chapterId (the stableId), so the FAILED
+   * subset is exactly the spend the version sum misses, and DISJOINT from it: adding the two never
+   * double-counts a successful call. Reads the persisted store (recordMetric awaits its commit, so
+   * this session's calls are included). Degrades to 0 on a read error — the version sum, the
+   * primary signal, still stands.
+   */
+  async getFailedTranslationCostForChapters(chapterIds: Set<string>): Promise<number> {
+    if (chapterIds.size === 0) return 0;
+    try {
+      const db = await this.openDatabase();
+      const tx = db.transaction([this.storeName], 'readonly');
+      const store = tx.objectStore(this.storeName);
+      const request = store.getAll();
+      const all = await new Promise<ApiCallMetric[]>((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+      let total = 0;
+      for (const m of all) {
+        if (m.apiType === 'translation' && !m.success && m.chapterId && chapterIds.has(m.chapterId)) {
+          total += m.costUsd || 0;
+        }
+      }
+      return total;
+    } catch (error) {
+      console.error('[ApiMetrics] Failed to sum failed translation cost:', error);
+      return 0;
+    }
+  }
+
+  /**
    * Get complete summary (session + lifetime)
    */
   async getCompleteSummary(): Promise<ApiMetricsSummary> {

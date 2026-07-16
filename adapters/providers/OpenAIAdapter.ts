@@ -626,11 +626,6 @@ ${schemaString}`;
     const finishReason = choice?.finish_reason || (choice as any)?.native_finish_reason || null;
 
     const responseText = choice?.message?.content;
-    if (!responseText) {
-      throw new Error('Empty response from API');
-    }
-
-    dlogFull('Raw response text:', responseText.substring(0, 500));
 
     // Cost and timing are computed up-front, from response.usage. The provider bills for this
     // call whether or not we can parse it, so every exit below records a metric — a
@@ -670,6 +665,17 @@ ${schemaString}`;
       await recordMetric(false);
       throw new Error(message);
     };
+
+    // An empty response was still billed (usage tokens are present), so record the spend before
+    // failing — a thrown-before-recording empty response was invisible to the budget ledger
+    // (TECH-DEBT P1.4). Explicit record-then-throw (not failWith) so TS narrows responseText to
+    // a string for the code below.
+    if (!responseText) {
+      await recordMetric(false);
+      throw new Error('Empty response from API');
+    }
+
+    dlogFull('Raw response text:', responseText.substring(0, 500));
 
     // Strip fences BEFORE the truncation check: a ```json-wrapped response does not end with
     // `}`, and reading that as truncation would throw length_cap and trigger a chunked re-bill.
