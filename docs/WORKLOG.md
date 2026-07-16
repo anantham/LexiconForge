@@ -1,6 +1,7 @@
 ### [2026-07-16 10:52 IST] [Agent: Codex]
-**Status:** Implementation complete; PR publication pending
+**Status:** Complete; draft PR open
 **Task:** Prevent API credentials from surviving full-session export.
+**PR:** https://github.com/anantham/LexiconForge/pull/115
 **Root cause:** The modern exporter used a case-sensitive `startsWith('apiKey')` predicate, which missed `deeplApiKey` and `googleTranslateApiKey`. Investigation also found that the IndexedDB-unavailable memory fallback exported the entire settings object without any credential redaction.
 **Hypothesis results:** H1 confirmed by a red integration test leaking `deeplApiKey`; H2 confirmed after all eight current credential fields were removed while `fontSize` survived; duplicate-path audit added H3 and confirmed the memory fallback leak with a second red test.
 **Files modified (line numbers + why):**
