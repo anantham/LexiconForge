@@ -37,7 +37,11 @@
       ],
       "wordCount": 4,
       "segmentCount": 9,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        5,
+        9
+      ]
     },
     {
       "phaseId": "phase-e",
@@ -191,7 +195,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 9,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        3,
+        6
+      ]
     },
     {
       "phaseId": "phase-aa",
@@ -209,7 +217,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 9,
-      "relationCount": 0
+      "relationCount": 0,
+      "wordRange": [
+        9,
+        12
+      ]
     },
     {
       "phaseId": "phase-ac",
@@ -227,7 +239,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 8,
-      "relationCount": 0
+      "relationCount": 0,
+      "wordRange": [
+        3,
+        6
+      ]
     },
     {
       "phaseId": "phase-ae",
@@ -245,7 +261,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 9,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        0,
+        3
+      ]
     },
     {
       "phaseId": "phase-ag",
@@ -254,7 +274,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 8,
-      "relationCount": 0
+      "relationCount": 0,
+      "wordRange": [
+        3,
+        6
+      ]
     },
     {
       "phaseId": "phase-ah",
@@ -272,7 +296,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 9,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        0,
+        3
+      ]
     },
     {
       "phaseId": "phase-aj",
@@ -281,7 +309,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 8,
-      "relationCount": 0
+      "relationCount": 0,
+      "wordRange": [
+        3,
+        6
+      ]
     },
     {
       "phaseId": "phase-ak",
@@ -326,7 +358,11 @@
       ],
       "wordCount": 6,
       "segmentCount": 15,
-      "relationCount": 0
+      "relationCount": 0,
+      "wordRange": [
+        9,
+        15
+      ]
     },
     {
       "phaseId": "phase-ap",
@@ -335,7 +371,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 8,
-      "relationCount": 0
+      "relationCount": 0,
+      "wordRange": [
+        15,
+        18
+      ]
     },
     {
       "phaseId": "phase-aq",
@@ -425,7 +465,11 @@
       ],
       "wordCount": 5,
       "segmentCount": 11,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        6,
+        11
+      ]
     },
     {
       "phaseId": "phase-ba",
@@ -434,7 +478,11 @@
       ],
       "wordCount": 5,
       "segmentCount": 12,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        11,
+        16
+      ]
     },
     {
       "phaseId": "phase-bb",
@@ -452,7 +500,11 @@
       ],
       "wordCount": 4,
       "segmentCount": 10,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        4,
+        8
+      ]
     },
     {
       "phaseId": "phase-bd",
@@ -461,7 +513,11 @@
       ],
       "wordCount": 4,
       "segmentCount": 11,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        8,
+        12
+      ]
     },
     {
       "phaseId": "phase-be",
@@ -479,7 +535,11 @@
       ],
       "wordCount": 3,
       "segmentCount": 9,
-      "relationCount": 0
+      "relationCount": 0,
+      "wordRange": [
+        7,
+        10
+      ]
     },
     {
       "phaseId": "phase-bg",
@@ -488,7 +548,11 @@
       ],
       "wordCount": 8,
       "segmentCount": 14,
-      "relationCount": 1
+      "relationCount": 1,
+      "wordRange": [
+        10,
+        18
+      ]
     }
   ],
   "anatomist": {
