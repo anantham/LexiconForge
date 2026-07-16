@@ -57,7 +57,7 @@ type QualityScores = {
 };
 
 /** The rubric version the leaderboard ranks on. Mixing versions is a build failure. */
-const RANKED_RUBRIC_VERSION = '2.1';
+const RANKED_RUBRIC_VERSION = '2.2';
 
 /**
  * A golden-backed phase the model never completed, scored 0 everywhere it is ranked on.
@@ -586,12 +586,15 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       aggregation: 'bestRunPerModel',
       description:
         `Ranked on rubric v${RANKED_RUBRIC_VERSION} only (mixing versions is a build failure). ` +
-        'overallScore = gateFactor × (0.60·fidelity + 0.25·usability + 0.15·transitional-richness), ' +
-        "averaged over the golden-backed phases of each model's SINGLE best run (selected by most completed phases FIRST, then highest mean overall — completeness beats score, so a lucky partial run cannot represent a model) — " +
+        'overallScore = gateFactor × (0.40·segmentationF1 + 0.30·factsCore + 0.30·senseF1) — the ' +
+        'canonical-integrity gate times the three golden-backed dimensions (ADR SUTTA-013/014). ' +
+        "Averaged over the golden-backed phases of each model's SINGLE best run (selected by most completed phases FIRST, then highest mean overall — completeness beats score, so a lucky partial run cannot represent a model) — " +
         'NOT cherry-picked best-per-phase across runs; metrics are that run\'s, not summed. ' +
-        'fidelity = 0.5·segmentation + 0.5·content, strict micro-F1 vs the golden. ' +
-        'v2.1 (SUTTA-012): golden words a model DROPS are charged as misses (no survivorship bias), ' +
-        'and content F1 is decomposed into contentPrecision/contentRecall. ' +
+        'segmentationF1 = morpheme-boundary micro-F1 vs the golden; factsCore = root + word-class ' +
+        'macro (morph EXCLUDED — advisory this cycle); senseF1 = strict sense-english micro-F1. ' +
+        'Usability and richness proxies are RETIRED from rank; morph, alignment, the LLM judge and ' +
+        'the reader probe stay advisory. v2.1 (SUTTA-012): golden words a model DROPS are charged as ' +
+        'misses (no survivorship bias); content F1 stays as a reference column. ' +
         'All ranked runs use the IDENTICAL harness pipeline (same fixed phases, same passes, no retrieval context) — ' +
         'scores are comparable to each other but NOT to the richer production pipeline. ' +
         'Ranking is driven by overallScore only; contentF1 is reference-width-sensitive (partial remediation: ' +

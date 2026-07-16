@@ -17,6 +17,7 @@ import {
   scoreSegmentationFidelity,
   scoreContentFidelity,
   scorePhase,
+  computeOverallScore,
   type PipelineOutput,
 } from './quality-scorer';
 import type { AnatomistPass, LexicographerPass, WeaverPass } from '../../types/suttaStudio';
@@ -188,5 +189,43 @@ describe('v2.1 drop penalty', () => {
     const dropper = scorePhase(mkPipeline(lokeOnlyAnat(), lokeOnlyLex()), 'phase-x', 'dropper');
     expect(dropper.contentPrecision).toBe(1);       // everything it said is golden-attested
     expect(dropper.contentRecall!).toBeLessThan(1); // but it skipped a word's worth of content
+  });
+});
+
+describe('v2.2 ranked formula (ADR SUTTA-013/014)', () => {
+  // All gate inputs = 1 → gate = 1.0, isolating the weighted sum. Retired display buckets = 0.
+  const scores = (o: Record<string, unknown>) => ({
+    textIntegrity: 1, noEmptySegments: 1, noDuplicateMappings: 1, relationsValid: 1, paliWordCoverage: 1,
+    segmentationFidelity: 0, factsCore: 0, senseF1: 0,
+    alignmentCoverage: 0, englishOrderScore: 0, tooltipCoverage: 0, sensePolysemy: 0,
+    morphDataPresent: 0, relationDensity: 0,
+    ...o,
+  }) as any;
+
+  it('overall = gate × (0.40·seg + 0.30·facts + 0.30·sense)', () => {
+    expect(computeOverallScore(scores({ segmentationFidelity: 1, factsCore: 0.5, senseF1: 0 })))
+      .toBeCloseTo(0.40 * 1 + 0.30 * 0.5 + 0.30 * 0); // 0.55
+  });
+
+  it('the three ranked weights are 40 / 30 / 30', () => {
+    expect(computeOverallScore(scores({ segmentationFidelity: 1 }))).toBeCloseTo(0.40);
+    expect(computeOverallScore(scores({ factsCore: 1 }))).toBeCloseTo(0.30);
+    expect(computeOverallScore(scores({ senseF1: 1 }))).toBeCloseTo(0.30);
+  });
+
+  it('usability and richness are RETIRED — they do not move the ranked score', () => {
+    const base = scores({ segmentationFidelity: 0.5, factsCore: 0.5, senseF1: 0.5 });
+    const bumped = scores({
+      segmentationFidelity: 0.5, factsCore: 0.5, senseF1: 0.5,
+      alignmentCoverage: 1, englishOrderScore: 1, tooltipCoverage: 1, sensePolysemy: 1,
+      morphDataPresent: 1, relationDensity: 1,
+    });
+    expect(computeOverallScore(bumped)).toBe(computeOverallScore(base));
+  });
+
+  it('renormalises over present components when a phase has no golden senses', () => {
+    // sense null → (0.40·seg + 0.30·facts) / 0.70
+    expect(computeOverallScore(scores({ segmentationFidelity: 1, factsCore: 0, senseF1: null })))
+      .toBeCloseTo((0.40 * 1 + 0.30 * 0) / 0.70);
   });
 });

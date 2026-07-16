@@ -154,3 +154,29 @@ so no correctness reference exists.
 ## Explicitly out of scope here
 The pedagogical probe (a student model answering teacher questions from the compiled output
 alone) stays the north-star experiment; it needs its own design round.
+
+## Amendment — 2026-07-16: v2.2 formula implemented (final-score weights)
+
+The reviewer flagged (#3) that "40/30/30" was underspecified — the *fidelity*-internal weights
+nested inside the v2.1 `0.60·fidelity + 0.25·usability + 0.15·richness`, or the final score?
+**Operator decision: they are the FINAL-score weights.** So the ranked score is now:
+
+```
+overall = gateFactor × (0.40·segmentationF1 + 0.30·factsCore + 0.30·senseF1)
+```
+
+Implemented in `quality-scorer.ts` (`RUBRIC_VERSION` → `2.2`; leaderboard `RANKED_RUBRIC_VERSION`
+→ `2.2`):
+- `segmentationF1` — morpheme-boundary micro-F1 vs golden (unchanged).
+- `factsCore` — root + word-class macro from `scoreFactsDetail`. Morphology is EXCLUDED (advisory)
+  this cycle, per the recommendation; its gaming + vocabulary were fixed separately (review #4), so
+  it can be promoted later.
+- `senseF1` — strict sense-english micro-F1 (`scoreSenseFidelityDetail`, SUTTA-012 drop-penalised).
+- **Usability and richness are RETIRED from rank** (still computed for display). Alignment, the LLM
+  judge and the reader probe stay advisory.
+- Missing components (e.g. a function-only phase with no golden senses) renormalise over the present
+  weights rather than being charged 0.
+
+This is a rubric bump: v2.1 and v2.2 scores are not comparable (the version gate enforces it), so it
+lands BEFORE the next multi-model pass and needs a full fleet re-run. Board columns for factsCore /
+senseF1 and the fleet re-run are the remaining follow-ups.
