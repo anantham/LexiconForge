@@ -157,7 +157,8 @@ describe('ClaudeAdapter.chatJSON', () => {
             content: [{ type: 'text', text: 'USR' }],
           }),
         ]),
-      })
+      }),
+      { signal: undefined }, // abort signal threaded into the SDK call (review #3)
     );
   });
 
@@ -171,7 +172,8 @@ describe('ClaudeAdapter.chatJSON', () => {
       expect.objectContaining({
         temperature: 1,
         max_tokens: 200000,
-      })
+      }),
+      { signal: undefined },
     );
 
     messagesCreateMock.mockClear();
@@ -181,7 +183,8 @@ describe('ClaudeAdapter.chatJSON', () => {
       expect.objectContaining({
         temperature: 0,
         max_tokens: 1,
-      })
+      }),
+      { signal: undefined },
     );
   });
 
