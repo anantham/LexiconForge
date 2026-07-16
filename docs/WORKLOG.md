@@ -143,6 +143,14 @@
 - H3 (0.80): Progressive disclosure can preserve useful web-novel product details without making them compete with the project thesis.
 **Predicted outcome:** Readers should be able to identify the shared protocol, choose an interface, and distinguish live, partial, branch-only, and pipeline-only work from the first screenful.
 
+### [2026-07-16] [Agent: Fable 5] — probe v1.1 retraction · PR review-and-merge sequence · tap test
+**Status:** merged to main (tip 336a0ae). Operator ratifications for the v2.2 fleet run still pending.
+- **Probe v1.1 + RETRACTION:** with morph rendered into the student material, ordering held (gemini-3-flash 0.738 edges grok 0.728) but v1.0's headline ('bad page worse than no page', baseline 49% retention) was substantially the PROBE RENDERER's omission of grammar fields — 84% with faithful rendering. Retracted in docs/benchmarks/probe-results-v1.1-2026-07-16.json; residual retention signal real (deepseek-v3.2 0.63). Lesson: the probe's material renderer is part of the instrument.
+- **PR sequence (operator-directed):** #107/#108 closed superseded by 4f11a03 (verified line-level; additive slivers ported in 8ef2193 w/ user approval). #109 txn kernel MERGED after grok REVISE found 4 real commit/abort races (worst: committed-then-op-failed was RETRIED = double-commit; now non-retryable Constraint) — fixed on-branch, 4 regression tests, re-review GO. #110 migration MERGED (66/66 db tests; contract-change finding caller-grep-verified). Grok non-blocking notes parked: optional start-to-finish txn timeout; ChapterRepository cursor-fallback still raw request.error.
+- **Repo cleanup:** 7 merged branches deleted, stale worktrees pruned, #113 worktree removed. Remaining: #114/#115 (live peer lane), 2 feature worktrees, ambient dirty pair, the 2026-07-07 tech-debt docs (uncommitted, author absent).
+- **TAP TEST** (scripts/sutta-studio/tap-test.ts): interaction-level audit of the LIVE flagship vs the alignment golden — 144/160 links live, 0 words missing, **16 DEAD links** (quotative ti / sub-split particles never woven into English; weaver-layer fix queued with v2.2). Content column separates the variant confound (page English is pre-Sujato).
+- Also: partition-aware surface matching had shipped earlier in this window (flagship 46 false flags → 0 after 4 more real corruption fixes); interface-integrity-findings doc's 'next session: partition-aware matching' note is now DONE.
+
 ### [2026-07-10 → 2026-07-11] [Agent: Fable 5] — suttabench construct + probe + baseline + dogfood arc
 **Status:** All merged to main and deployed. A PARALLEL session was active simultaneously (its a4f4431 committed the coverage tripwire + MN117 hand-repairs + the 2026-07-07 tech-debt fixes).
 **Construct RATIFIED by operator:** suttabench measures LLMs as INTERFACE COMPILERS ("designing UI and populating UI"); human pedagogy explicitly unmeasured; probe renamed in spirit to SUFFICIENCY+RETENTION (code/ADR rename still pending).
