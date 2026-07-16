@@ -1,5 +1,6 @@
 import prompts from '../config/prompts.json';
 import { HistoricalChapter, FeedbackItem } from '../types';
+import { countIllustrationMarkers } from './ai/illustrationMarkers';
 
 export const buildFanTranslationContext = (fanTranslation: string | null): string => {
   if (!fanTranslation) return '';
@@ -23,7 +24,7 @@ export const formatHistory = (history: HistoricalChapter[]): string => {
   }
   return history.map((h, index) => {
     // Derive structured-output hints from the previous translated text
-    const illuCount = (h.translatedContent.match(/\\[ILLUSTRATION-\\d+\\]/g) || []).length;
+    const illuCount = countIllustrationMarkers(h.translatedContent);
     const footMarkerCount = (h.footnotes || []).length;
     const feedbackCount = h.feedback?.length || 0;
     const feedbackStr = h.feedback.length > 0

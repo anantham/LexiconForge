@@ -13,7 +13,10 @@ describe('getNovelTranslationCost', () => {
     vi.clearAllMocks();
   });
 
-  it('sums estimatedCost from active translations across chapters', async () => {
+  it('sums estimatedCost across ALL versions of every chapter (budget = cumulative spend)', async () => {
+    // P0.4: the active-only sum let retranslations spend past the cap
+    // invisibly — a chapter translated three times cost 3x while the budget
+    // gate saw 1x. Every paid version counts.
     vi.mocked(ChapterOps.getByNovelAndVersion).mockResolvedValue([
       { stableId: 'ch-1', canonicalUrl: 'url-1' } as ChapterRecord,
       { stableId: 'ch-2', canonicalUrl: 'url-2' } as ChapterRecord,
@@ -28,7 +31,7 @@ describe('getNovelTranslationCost', () => {
       ]);
 
     const cost = await getNovelTranslationCost('novel-1', 'v1');
-    expect(cost).toBeCloseTo(0.08); // 0.05 + 0.03 (active versions only)
+    expect(cost).toBeCloseTo(0.18); // 0.05 + 0.10 + 0.03 — the inactive retranslation was still paid for
   });
 
   it('returns 0 when no chapters exist', async () => {

@@ -465,3 +465,68 @@ export const repairAnatomistSurfaces = (
     repairs,
   };
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Partition-aware surface matching
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type SurfaceMatchResult = {
+  /** words considered (empty-letter words are skipped, matching prior semantics) */
+  total: number;
+  mismatched: number;
+  /** indexes INTO THE FILTERED word list of the words no partition could place */
+  mismatchedIdx: number[];
+};
+
+/**
+ * Partition-aware surface check (metric v2 of "surface integrity").
+ *
+ * Exact-token membership wrongly flags legitimate pedagogy: curators split
+ * one canonical whitespace token into several teaching words — quotative ti
+ * ("Bhikkhavo"ti → "Bhikkhavo" + ti), sandhi compounds (etadavoca → etad +
+ * avoca, satova → sato + va). The flagship page carried 46 such false flags.
+ *
+ * Rule: a run of up to maxGroup CONSECUTIVE rendered words whose letters
+ * concatenate to SOME canonical token's letters is matched. Dynamic program
+ * minimizes mismatches (skipping a word costs 1), so one genuinely corrupt
+ * word cannot strand its neighbours. Single-word matches are the trivial
+ * group, so this is strictly more lenient than exact membership — and still
+ * rejects the cross-boundary rides exact membership was tightened to reject
+ * (a lone "vaā" matches no full token's letters).
+ */
+export const partitionSurfaceMismatches = (
+  wordLetters: string[],
+  canonTokenLetters: ReadonlySet<string>,
+  maxGroup = 4
+): SurfaceMatchResult => {
+  const words = wordLetters.filter((w) => w.length > 0);
+  const n = words.length;
+  // cost[i] = min mismatches for suffix starting at i; choice[i] = group end j (or -1 = skip)
+  const cost = new Array<number>(n + 1).fill(0);
+  const choice = new Array<number>(n).fill(-1);
+  for (let i = n - 1; i >= 0; i--) {
+    let best = 1 + cost[i + 1]; // skip word i as a mismatch
+    let pick = -1;
+    let concat = '';
+    for (let j = i; j < Math.min(n, i + maxGroup); j++) {
+      concat += words[j];
+      if (canonTokenLetters.has(concat) && cost[j + 1] < best) {
+        best = cost[j + 1];
+        pick = j;
+      }
+    }
+    cost[i] = best;
+    choice[i] = pick;
+  }
+  const mismatchedIdx: number[] = [];
+  let i = 0;
+  while (i < n) {
+    if (choice[i] === -1) {
+      mismatchedIdx.push(i);
+      i += 1;
+    } else {
+      i = choice[i] + 1;
+    }
+  }
+  return { total: n, mismatched: cost[0], mismatchedIdx };
+};

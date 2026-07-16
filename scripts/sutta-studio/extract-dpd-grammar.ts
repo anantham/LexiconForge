@@ -26,17 +26,31 @@ if (!fs.existsSync(DB)) {
   process.exit(1);
 }
 
-const anat = JSON.parse(fs.readFileSync('test-fixtures/sutta-studio-anatomist-golden.json', 'utf8')).anatomist as Record<
-  string,
-  { words: Array<{ surface: string; wordClass?: string }> }
->;
-
 const clean = (s: string) => s.toLowerCase().normalize('NFC').replace(/[^a-zāīūṁṃṅñṭḍṇḷ'']/g, '');
 const surfaces = new Set<string>();
-for (const ph of Object.values(anat)) {
-  for (const w of ph.words) {
-    if (w.wordClass !== 'content') continue;
-    const c = clean(w.surface);
+if (sutta === 'mn10' && fs.existsSync('test-fixtures/sutta-studio-anatomist-golden.json')) {
+  // mn10: the golden's content words are the exact vocabulary the scorers grade
+  const anat = JSON.parse(fs.readFileSync('test-fixtures/sutta-studio-anatomist-golden.json', 'utf8')).anatomist as Record<
+    string,
+    { words: Array<{ surface: string; wordClass?: string }> }
+  >;
+  for (const ph of Object.values(anat)) {
+    for (const w of ph.words) {
+      if (w.wordClass !== 'content') continue;
+      const c = clean(w.surface);
+      if (c) surfaces.add(c);
+    }
+  }
+} else {
+  // other suttas have no golden: the DPD subset's own surface-form index
+  // (built by build-dpd from the sutta's canonical segments) IS the vocabulary
+  const formsPath = `data/dpd/${sutta}/forms.json`;
+  if (!fs.existsSync(formsPath)) {
+    console.error(`missing ${formsPath} — run npm run build:dpd -- ${sutta} first`);
+    process.exit(1);
+  }
+  for (const k of Object.keys(JSON.parse(fs.readFileSync(formsPath, 'utf8')))) {
+    const c = clean(k);
     if (c) surfaces.add(c);
   }
 }

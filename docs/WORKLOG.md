@@ -90,6 +90,69 @@
 - `services/db/repositories/TranslationRepository.ts`
 - Targeted DB tests under `tests/`
 **Notes:** Root checkout has unrelated dirty files (`package-lock.json`, `public/steering-images.json`) and untracked roadmap docs; this work is isolated in a separate worktree.
+### [2026-07-15 17:09 IST] [Agent: Codex]
+**Status:** Ready to publish
+**Task:** Resume the approved README publication through local Git plus the connected GitHub app.
+**Authentication finding:** The stale `gh` token is not a workflow blocker. `git ls-remote origin HEAD` succeeded through the repository's HTTPS/macOS-Keychain path, and the connected GitHub app exposes PR creation, inspection, and merge operations.
+**Scope:** `README.md`; `docs/WORKLOG.md` only. The dirty root checkout remains untouched.
+**Verification:** 20 relative README links checked with 0 missing; all five public interface/evaluation URLs returned HTTP 200; no em dashes remain in `README.md`; `git diff --check` passed.
+**Upstream state:** `origin/main` is 9 commits ahead of the branch base. `README.md` is unchanged upstream; `docs/WORKLOG.md` has one upstream entry to preserve during rebase.
+
+### [2026-07-13 13:18 IST] [Agent: Codex]
+**Status:** Publishing
+**Task:** Commit, push, review, and merge the approved README interface-hub rewrite.
+**Recovery note:** The OS removed the uncommitted `/private/tmp` worktree between review turns. The exact approved patch was reconstructed in the persistent sibling worktree without touching the dirty root checkout.
+**Worktree:** `/Users/aditya/Documents/Ongoing Local/LexiconForge.worktrees/codex-readme-interface-index`
+**Branch:** `docs/codex-interface-index`
+**Files in scope:** `README.md`; `docs/WORKLOG.md` only.
+**Verification plan:** Re-run local link checks, public URL checks, em-dash check, and `git diff --check`; stage only the two scoped files; use the required PR and automated-review gate before merging.
+
+### [2026-07-13 12:50 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Remove em dashes from the README draft and determine whether a canonical web-novel reader documentation folder already exists.
+**Files modified (line numbers + why):**
+- `README.md:3,50-54,60,97` — replace em-dash constructions with commas, colons, or complete sentences while preserving meaning.
+- `docs/WORKLOG.md:10-17` — record the follow-up and the documentation-location finding.
+**Finding:** No existing web-novel or reader-specific documentation directory was found. The old README has been condensed into the root README's collapsed Web Novel Reader section; it has not been moved wholesale. Creating a dedicated reader document remains a human-gated documentation-structure decision.
+**Verification:** `rg -n "—" README.md` returns no matches. Application tests not run; documentation-only change.
+
+### [2026-07-13 12:44 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Restructure the root README as a maturity-labelled hub for LexiconForge's distinct translation interfaces and shared inspectable-interoperation vision.
+**Progress:** Replaced the web-novel-first product catalogue with a progressive project hub: separate public reader links, honest research-prototype statuses, language-specific interface rationale, an inspectability contract, model-as-interface-compiler evaluation framing, and a bounded catastrophic-risk coordination theory of impact. Preserved the web-novel product material in a collapsed section.
+**Files modified (line numbers + why):**
+- `README.md:1-159` — make the umbrella vision and interface choices visible before product detail; distinguish live, early-foundation, branch-only, and pipeline-only states; include the previously omitted Italian reader and Pinocchio pipeline; correct all moved documentation links.
+- `docs/WORKLOG.md:19-40` — record the approved option, hypotheses, affected files, verification, and handoff state.
+**Verification:**
+- All 16 relative README targets resolve to files or directories in this worktree.
+- All five public interface/evaluation URLs returned HTTP 200 on 2026-07-13.
+- `git diff --check` passed.
+- Branch evidence confirms Malayalam routes exist only on `feat/opus-malayalam-reader`; the local Calvino route and route-less, failing-gate Pinocchio artifact exist only on `feat/local-grounding-pipeline`.
+- Application tests not run; documentation-only change with no runtime files modified.
+**Outcome against prediction:** The first screenful now names the shared protocol and the public interfaces; later sections reveal design, evaluation, impact, limitations, and legacy web-novel detail progressively.
+
+### [2026-07-13 12:38 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Restructure the root README as a maturity-labelled hub for LexiconForge's distinct translation interfaces and shared inspectable-interoperation vision.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-readme-interface-index`
+**Branch:** `docs/codex-interface-index`
+**Files likely affected:** `README.md`; `docs/WORKLOG.md`.
+**Hypotheses:**
+- H1 (0.85): The current web-novel-first README hides the umbrella project's reader-and-evaluation architecture.
+- H2 (0.90): A status-labelled interface index can expose Pāli, liturgy, Chinese, Malayalam, and Italian work without implying every prototype is deployed.
+- H3 (0.80): Progressive disclosure can preserve useful web-novel product details without making them compete with the project thesis.
+**Predicted outcome:** Readers should be able to identify the shared protocol, choose an interface, and distinguish live, partial, branch-only, and pipeline-only work from the first screenful.
+
+### [2026-07-10 → 2026-07-11] [Agent: Fable 5] — suttabench construct + probe + baseline + dogfood arc
+**Status:** All merged to main and deployed. A PARALLEL session was active simultaneously (its a4f4431 committed the coverage tripwire + MN117 hand-repairs + the 2026-07-07 tech-debt fixes).
+**Construct RATIFIED by operator:** suttabench measures LLMs as INTERFACE COMPILERS ("designing UI and populating UI"); human pedagogy explicitly unmeasured; probe renamed in spirit to SUFFICIENCY+RETENTION (code/ADR rename still pending).
+- **SUTTA-013 completed in advisory mode:** facts layer v2 (macro categories; fabricated/silent/dropped roots; morph = consistency vs DPD reading sets from data/dpd/mn10/grammar.json + morphCoverage); alignment golden v1 (160 links, layered provenance, ~70 API calls, holes disclosed) + Align scorer (index-verified matching, tests); weight-grid stability; negative judge-Spearman = survivorship caveat.
+- **Pedagogical→sufficiency probe stages 1+2:** 597-question deterministic bank (authority-tagged) + gemma-4-26b student; closed-book control 46.3%; conditional lift ranks grok 72.8% … dictionary 57.2% … deepseek-v3.2 49.4%; NEW retention dimension (baseline material CONFUSES readers, 49% vs 66-85%).
+- **Dictionary baseline** (non-LLM floor): contentF1 0.071 but facts 0.510 beats three models with zero fabrications.
+- **Flagship dogfood:** published mn10 packet had EMPTY canonicalSegments (unmeasurable) + 2 real a+ā corruptions — fixed, goldens verified clean; 46 remaining flags = pedagogical sub-token splits → partition-aware matching queued.
+- **Design-consequences table** (4 MN117 compiles): same model, 175 vs 121 self-chosen phases = 99% vs 77% coverage — design is load-bearing.
+- **Mistral MN117 audition REJECTED:** fine 147-phase design but 78% coverage / 88 repairs / 12 degraded — benchmark facts lead ≠ production packet quality; production stays gemini-3-flash.
+Full thread state: portfolio auto-memory `_session-handover-2026-07-11.md`.
 
 ### [2026-07-01 → 2026-07-03] [Agents: Opus 4.8 / Fable 5] — sutta-studio benchmark + MN117 production arc
 **Status:** All merged to main and deployed. Written retroactively after a codex review flagged the missing WORKLOG entries for this burst (~34 commits over ~45h; data commits separate from code commits).
@@ -2174,3 +2237,41 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Review:** External Grok execution was denied because it would transmit private repository context to xAI. No external review was performed; local adversarial review found no actionable defect.
 **PR:** https://github.com/anantham/LexiconForge/pull/110 (draft, stacked on PR #109)
 **Next:** After review of PRs #109 and #110, migrate raw summary deletion and backup-storage writes in a separate PR.
+### [2026-07-15 17:12 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Finish PR #112: P2.1 production/benchmark Anatomist grounding parity and P2.3 token-budget/publication consistency.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-benchmark-parity-finish`
+**Branch:** `debt/codex-benchmark-parity-finish` (from `worktree-opus-p2-benchmark` at `fc7c2f9`)
+**Files likely affected:** `services/sutta-studio/dpdGrounding.ts`, `services/compiler/index.ts`, `scripts/sutta-studio/benchmark.ts`, shared pass-budget/config modules, `scripts/sutta-studio/publish-compare.ts`, focused tests, `docs/adr/SUTTA-014-grounded-benchmark-track.md`, `docs/architecture/ARCHITECTURE.md`, `docs/WORKLOG.md`.
+**Coordination:** The locked Claude worktree contains uncommitted P2.1 edits in overlapping files, but its recorded process is no longer alive. That worktree is preserved untouched; this branch starts from PR #112's committed head and will be fast-forwarded into the PR only after verification.
+**Hypotheses:**
+- H1 (0.90): production omits Anatomist DPD lookups while the benchmark builds them privately; one shared tokenization/lookup helper will make prompt inputs structurally identical. Prediction: focused tests will show punctuation-normalized tokens and the same lookup map entering both paths.
+- H2 (0.85): pass token caps drift because production and benchmark own independent literals/defaults. Prediction: extracting one per-pass budget contract will make a literal-search test fail before the change and both call paths consume the same values after it.
+- H3 (0.85): compare publication drifts because it mixes frozen `quality-scores.json` fields with recomputation, and run discovery trusts timestamps without completion status. Prediction: replay/status tests will reproduce inconsistent rows and reject incomplete latest runs before the fix.
+**Decision rule:** Implement only hypotheses confirmed by direct call-path evidence and red-before-green tests. If two investigation cycles are inconclusive, stop and report rather than widen scope.
+**Confidence:** 0.86. Fallback: split P2.1 and P2.3 into separate commits/PR layers if shared-file overlap makes the combined diff hard to review.
+
+### [2026-07-15 17:43 IST] [Agent: Codex]
+**Status:** Implementation complete; PR publication/review pending
+**Task:** Finish PR #112 P2.1/P2.3 production-benchmark parity and publication consistency.
+**Hypothesis results:**
+- H1 confirmed. Production Anatomist had no DPD prompt input; benchmark owned a divergent raw-whitespace lookup path. Both now call `services/sutta-studio/dpdGrounding.ts:12-49`. Corpus replay: 59.3% raw lookup hits -> 89.3% normalized hits; measured local lookup assembly remained sub-millisecond (0.037 ms -> 0.064 ms per full fixture run).
+- H2 confirmed. Canonical benchmark runners defaulted every pass to 16,000 completion tokens, and the pipeline forwarded the Anatomist override to downstream passes. `services/sutta-studio/passBudgets.ts:3-11` now owns production defaults; `scripts/sutta-studio/benchmark.ts:944-1057,1443-1452` preserves independent per-pass overrides.
+- H3 confirmed. Discovery trusted timestamp directories regardless of status, while compare publication mixed recomputed component scores with frozen aggregate fields. `scripts/sutta-studio/benchmark-run-status.ts:8-50` now defines the completion gate; indexing/ranking/publishing consume it, and compare publication replays all rubric fields before asserting the persisted receipt at `scripts/sutta-studio/publish-compare.ts:77-137`.
+**Files modified and rationale:**
+- `services/compiler/index.ts:408-432,558-718`, `services/compiler/skeleton.ts:7,71`: production grounding plus shared completion-token contract.
+- `services/sutta-studio/dpdGrounding.ts`, `services/sutta-studio/passBudgets.ts`, `services/sutta-studio/passes/{skeleton,anatomist,lexicographer,weaver,typesetter,morphology}.ts`: shared contracts consumed by both execution pathways.
+- `scripts/sutta-studio/benchmark.ts:344-431,944-1057,1439-1453,2268-2316`, `scripts/sutta-studio/benchmark-run-status.ts`, `scripts/sutta-studio/generate-leaderboard.ts:304-316`: complete-run discovery and parity-safe benchmark orchestration.
+- `scripts/sutta-studio/publish-compare.ts:67-272`: one scorer replay, full receipt comparison, explicit rubric provenance, descriptive refusal for stale/missing scores, and import-safe main guard.
+- `tests/services/sutta-studio/{dpdGrounding,passBudgets}.test.ts`, `tests/scripts/sutta-studio/{benchmark-run-status,publish-compare-parity}.test.ts`: focused regressions for the new boundaries. Existing `leaderboard-survivorship.test.ts` covers PR #112 P2.2.
+- `docs/adr/SUTTA-014-grounded-benchmark-track.md:110-137`: appended factual correction and partial implementation notes; status remains `Proposed` for the broader track.
+- `docs/architecture/ARCHITECTURE.md:190`: `[DEBT][MONOLITH]` benchmark orchestrator recorded as a split candidate after completion-boundary test friction.
+**Verification:** 228 Vitest files passed, 8,825 tests passed / 355 skipped; focused contract coverage 94.11% statements and 93.54% lines; Vite production build passed; real completed-run replay produced 0 score mismatches across 30 phases; actual index replay retained 49 complete artifacts and excluded known running runs. `tsc --noEmit` remains at the PR's 17 known baseline errors, with no new diagnostics in added modules.
+**Refactor metrics:** `publish-compare.buildPhase` cyclomatic complexity 18 -> 14; benchmark pipeline runner 22 -> 22; index builder 26 -> 27 for the required status branch. Four `any` occurrences removed from publication code and none added in the new contracts. Built asset bytes 5,531,648 -> 5,534,044 (+2,396, +0.04%); no network calls or additional model spend introduced.
+**Review:** Local Claude `-p` review was attempted as previously authorized but blocked by the environment's untrusted-data-export policy before execution. Use the configured Codex PR review after push; do not bypass the review gate.
+**Remaining after this scope:** Run the grounded fleet again before trusting new rankings, then complete SUTTA-014's broader SC dictionary/retrieval/prior-phase parity work. Split `scripts/sutta-studio/benchmark.ts` in a dedicated refactor PR rather than mixing that architectural change into this correctness PR.
+
+### [2026-07-15 18:14 IST] [Agent: Codex]
+**Status:** Reconciled concurrent P2.1 commit; verification complete
+**Coordination:** Before push, `origin/worktree-opus-p2-benchmark` advanced from `fc7c2f9` to Claude's `f6e9d41` P2.1 commit. The Codex commit was rebased onto that remote head without force. Conflict resolution retained Claude's corrected ADR parity table, outer production fallback, and committed-MN10 hit-rate regression, while retaining Codex's provider-agnostic helper, per-token warning path, P2.3 contracts, and publication tests.
+**Verification after reconciliation:** Focused combined suite: 20/20 passed. Full suite: 228 files, 8,825 passed / 355 skipped. Production build passed. TypeScript remains at 17 pre-existing baseline diagnostics. Branch history is linear (`f6e9d41` -> rebased Codex commit), so PR #112 can be updated by ordinary fast-forward push.

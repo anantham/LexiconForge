@@ -92,6 +92,16 @@ const createSlice = (): TestState => {
   return state as TestState;
 };
 
+const createDeferred = <T>() => {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+};
+
 describe('imageSlice — handleRetryImage cleans up isLoading on service throw', () => {
   beforeEach(() => {
     retryImageMock.mockReset();
@@ -111,6 +121,32 @@ describe('imageSlice — handleRetryImage cleans up isLoading on service throw',
     // hasImagesInProgress() must report false post-throw
     expect(slice.hasImagesInProgress()).toBe(false);
   });
+
+  it('skips duplicate retry calls while the same image is already loading', async () => {
+    const slice = createSlice();
+    const key = 'chapter-1:[ILLUSTRATION-1]';
+    const deferred = createDeferred<any>();
+    retryImageMock.mockReturnValueOnce(deferred.promise);
+    slice.imageVersions[key] = 1;
+    slice.activeImageVersion[key] = 1;
+
+    const firstRetry = slice.handleRetryImage('chapter-1', '[ILLUSTRATION-1]');
+    expect(slice.generatedImages[key]?.isLoading).toBe(true);
+
+    await slice.handleRetryImage('chapter-1', '[ILLUSTRATION-1]');
+    expect(retryImageMock).toHaveBeenCalledTimes(1);
+
+    deferred.resolve({
+      imageState: { isLoading: false, data: 'image-v2', error: null },
+      metrics: { count: 1, totalTime: 2, totalCost: 0.03, lastModel: mockSettings.imageModel },
+    });
+    await firstRetry;
+
+    expect(slice.generatedImages[key]).toEqual({ isLoading: false, data: 'image-v2', error: null });
+    expect(slice.imageVersions[key]).toBe(2);
+    expect(slice.activeImageVersion[key]).toBe(2);
+  });
+
 });
 
 describe('imageSlice — handleGenerateImages cleans up isLoading on service throw', () => {

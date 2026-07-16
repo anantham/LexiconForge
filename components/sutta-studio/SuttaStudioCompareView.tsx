@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from 'react';
 import type { DeepLoomPacket } from '../../types/suttaStudio';
-import { splitPaliTokens } from '../../services/sutta-studio/utils';
+import { partitionSurfaceMismatches, splitPaliTokens } from '../../services/sutta-studio/utils';
 import { SuttaStudioView } from './SuttaStudioView';
 
 type Side = {
@@ -47,23 +47,24 @@ const measurePacket = (
   const degradedShare = phaseCount > 0 ? degradedCount / phaseCount : null;
   const segments = packet.canonicalSegments || [];
   const canonWords = segments.flatMap((s) => splitPaliTokens(s.pali || ''));
-  // Exact-token membership (letters-only), mirroring the packet validator's
-  // surface check — substring-of-the-whole-text would let corruptions ride on
-  // other words or across word boundaries.
+  // Partition-aware matching (letters-only), mirroring the packet validator's
+  // surface check: a word may legitimately be one piece of a sub-split
+  // canonical token (quotative ti, sandhi compounds like etad+avoca), so
+  // consecutive words that jointly spell a token all count as sound.
   const canonTokens = new Set(canonWords.map(stripToLetters).filter(Boolean));
   if (canonTokens.size === 0) return { surfaceIntegrity: null, wordCoverage: null, degradedShare, degradedCount, phaseCount };
   let total = 0;
-  let ok = 0;
+  let mismatched = 0;
   for (const phase of packet.phases || []) {
-    for (const word of phase.paliWords || []) {
-      const surface = stripToLetters((word.segments || []).map((seg) => seg.text).join(''));
-      if (!surface) continue;
-      total += 1;
-      if (canonTokens.has(surface)) ok += 1;
-    }
+    const letters = (phase.paliWords || [])
+      .map((word) => stripToLetters((word.segments || []).map((seg) => seg.text).join('')))
+      .filter(Boolean);
+    const r = partitionSurfaceMismatches(letters, canonTokens);
+    total += r.total;
+    mismatched += r.mismatched;
   }
   return {
-    surfaceIntegrity: total === 0 ? null : ok / total,
+    surfaceIntegrity: total === 0 ? null : (total - mismatched) / total,
     wordCoverage: canonWords.length === 0 ? null : Math.min(1, total / canonWords.length),
     degradedShare,
     degradedCount,
@@ -161,7 +162,7 @@ export function SuttaStudioCompareView() {
             className={`mt-2 rounded-full bg-slate-900/95 border px-3 py-1 text-xs shadow-lg ${
               side.surfaceIntegrity >= 0.97 ? 'border-emerald-700 text-emerald-300' : 'border-rose-800 text-rose-300'
             }`}
-            title="Share of rendered Pāli words whose morpheme segments concatenate to an exact word of the canonical text. Measured in your browser against the packet's own canonical segments — no reference answer involved."
+            title="Share of rendered Pāli words that spell out a canonical word — alone or together with neighbouring words (curators legitimately split one canonical word into several teaching words). Measured in your browser against the packet's own canonical segments — no reference answer involved."
           >
             surface integrity {(side.surfaceIntegrity * 100).toFixed(1)}%
           </span>

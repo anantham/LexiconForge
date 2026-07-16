@@ -10,6 +10,7 @@ import { parseJsonResponse } from '../utils';
 import { morphResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, PassCallResult } from './types';
+import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../passBudgets';
 
 export const runMorphologyPass = async (params: {
   phaseId: string;
@@ -31,7 +32,7 @@ export const runMorphologyPass = async (params: {
     retrievalContext,
     signal,
     llmCaller = defaultLLMCaller,
-    maxTokens = 16000,
+    maxTokens = SUTTA_STUDIO_TOKEN_BUDGETS.morphology,
   } = params;
 
   const schemaName = `sutta_studio_morph_${phaseId.replace(/-/g, '_')}`;

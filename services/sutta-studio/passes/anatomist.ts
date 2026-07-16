@@ -12,6 +12,7 @@ import { buildPhaseStateEnvelope, parseJsonResponse } from '../utils';
 import { anatomistResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, PassCallResult } from './types';
+import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../passBudgets';
 
 export const runAnatomistPass = async (params: {
   phaseId: string;
@@ -35,7 +36,7 @@ export const runAnatomistPass = async (params: {
     dpdLookups,
     signal,
     llmCaller = defaultLLMCaller,
-    maxTokens = 16000,
+    maxTokens = SUTTA_STUDIO_TOKEN_BUDGETS.anatomist,
   } = params;
 
   const phaseState = buildPhaseStateEnvelope({

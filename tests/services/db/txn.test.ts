@@ -178,3 +178,104 @@ describe('withTxn durability contract', () => {
     expect(transaction.abort).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('review fixes: commit/abort races (grok second-family findings, 2026-07-16)', () => {
+  beforeEach(() => {
+    getConnectionMock.mockReset();
+  });
+
+  it('F2: an operation that fails AFTER commit rejects non-retryably (no retry of committed writes)', async () => {
+    const { transaction } = makeControlledDb();
+    let rejectOp!: (e: unknown) => void;
+    const promise = withWriteTxn(
+      'translations',
+      () => new Promise((_res, rej) => { rejectOp = rej; }),
+      'translations',
+      'txn-test',
+      'store'
+    );
+
+    await flushAsync();
+    transaction.emit('complete'); // IndexedDB auto-commits; callback still pending
+    await flushAsync();
+    rejectOp(new DOMException('late failure', 'UnknownError')); // would map retryable
+
+    await expect(promise).rejects.toMatchObject({ name: 'DbError', kind: 'Constraint' });
+    await expect(promise).rejects.toMatchObject({ message: expect.stringContaining('COMMITTED') });
+    expect(getConnectionMock).toHaveBeenCalledTimes(1); // RetryPolicy must NOT retry
+  });
+
+  it('F1: abort() throwing (transaction went inactive) defers settlement to the terminal event', async () => {
+    const { transaction } = makeControlledDb();
+    transaction.abort.mockImplementation(() => {
+      throw new DOMException('inactive', 'InvalidStateError');
+    });
+    let settled = false;
+    const promise = withWriteTxn(
+      'translations',
+      async () => {
+        throw new DOMException('op failed', 'UnknownError');
+      },
+      'translations',
+      'txn-test',
+      'store'
+    );
+    promise.catch(() => { settled = true; });
+
+    await flushAsync();
+    expect(settled).toBe(false); // must NOT settle while the txn is still finishing
+
+    transaction.emit('complete'); // the inactive txn was actually committing
+    await expect(promise).rejects.toMatchObject({ kind: 'Constraint' });
+    expect(getConnectionMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('F3: an abort racing a pending operation lets the richer operation error win', async () => {
+    const { transaction } = makeControlledDb();
+    let rejectOp!: (e: unknown) => void;
+    let settled = false;
+    const promise = withWriteTxn(
+      'translations',
+      () => new Promise((_res, rej) => { rejectOp = rej; }),
+      'translations',
+      'txn-test',
+      'store'
+    );
+    promise.catch(() => { settled = true; });
+
+    await flushAsync();
+    transaction.emit('abort'); // terminal abort while the operation is still pending
+    await flushAsync();
+    expect(settled).toBe(false); // deferred, waiting for the operation's own error
+
+    rejectOp(new DbError('Permission', 'translations', 'txn-test', 'access denied'));
+    // old behaviour: generic Transient abort error → 3 retries; now: Permission, once
+    await expect(promise).rejects.toMatchObject({ kind: 'Permission' });
+    expect(getConnectionMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('F4: a never-settling operation after commit is force-settled by the backstop', async () => {
+    vi.useFakeTimers();
+    try {
+      const { transaction } = makeControlledDb();
+      const promise = withWriteTxn(
+        'translations',
+        () => new Promise(() => {}), // never settles
+        'translations',
+        'txn-test',
+        'store'
+      );
+      const outcome = promise.catch((e: DbError) => e);
+
+      await vi.advanceTimersByTimeAsync(0);
+      transaction.emit('complete');
+      await vi.advanceTimersByTimeAsync(5001);
+
+      const err = (await outcome) as DbError;
+      expect(err.kind).toBe('Constraint');
+      expect(err.message).toContain('never settled');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

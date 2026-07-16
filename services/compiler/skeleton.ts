@@ -4,6 +4,7 @@ import { logPipelineEvent } from '../suttaStudioPipelineLog';
 import { callCompilerLLM } from './llm';
 import { buildSkeletonPrompt } from './prompts';
 import { skeletonResponseSchema } from '../sutta-studio/schemas';
+import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../sutta-studio/passBudgets';
 import {
   chunkPhases,
   parseJsonResponse,
@@ -67,7 +68,7 @@ export const runSkeletonPass = async ({
           { role: 'user', content: skeletonPrompt },
         ],
         signal,
-        4000,
+        SUTTA_STUDIO_TOKEN_BUDGETS.skeleton,
         {
           schemaName: `sutta_studio_skeleton_${chunkIndex + 1}`,
           schema: skeletonResponseSchema,

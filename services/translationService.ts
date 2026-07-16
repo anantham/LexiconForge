@@ -22,7 +22,7 @@ import type { EnhancedChapter } from './stableIdService';
 import { normalizeUrlAggressively, generateStableChapterId } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
 import { HtmlRepairService } from './translate/HtmlRepairService';
-import { ChapterOps, FeedbackOps, TranslationOps } from './db/operations';
+import { ChapterOps, FeedbackOps, TranslationOps, feedbackRecordToItem } from './db/operations';
 import { extractBalancedJson, replacePlaceholders } from './ai/textUtils';
 import {
   buildAmendmentReviewSystemPrompt,
@@ -198,27 +198,6 @@ export class TranslationService {
     });
 
     return this.parseProposalResponse(response.text);
-  }
-
-  /**
-   * Convert FeedbackRecord from IndexedDB to FeedbackItem format
-   */
-  private static convertFeedbackRecordToItem(record: any): any {
-    const typeMap: Record<string, '👍' | '👎' | '?'> = {
-      'positive': '👍',
-      'negative': '👎',
-      'suggestion': '?'
-    };
-
-    return {
-      id: record.id,
-      text: record.comment,
-      category: record.type,
-      timestamp: new Date(record.createdAt).getTime(),
-      chapterId: record.chapterUrl,
-      selection: record.selection,
-      type: typeMap[record.type] || '?'
-    };
   }
 
   private static async runSequential<T>(task: () => Promise<T>): Promise<T> {
@@ -725,7 +704,7 @@ export class TranslationService {
 
         // Load feedback from IndexedDB
         const feedbackRecords = await FeedbackOps.get(chapterRecord.url).catch(() => []);
-        const feedback = feedbackRecords.map(record => this.convertFeedbackRecordToItem(record));
+        const feedback = feedbackRecords.map(feedbackRecordToItem);
 
         dbCandidates.push({
           number: num,
@@ -755,12 +734,13 @@ export class TranslationService {
       slog(`[HistoryAsync] Falling back to prevUrl chain (have ${combinedHistory.length}/${contextDepth})`);
       const chainHistory = await this.buildHistoryByPrevUrlChain(options.currentChapter, contextDepth, options.chapters, options.includeHistoricalFanTranslations ?? false);
       if (chainHistory.length > 0) {
-        const merged = [...combinedHistory];
-        for (const entry of chainHistory) {
-          const exists = merged.some(h => h.originalContent === entry.originalContent);
-          if (!exists) merged.push(entry);
-        }
-        combinedHistory = merged.slice(-contextDepth);
+        // Both lists are oldest-first. The chain is a contiguous run ending at the chapter just
+        // before the current one, so anything memory/IDB found that the chain never reached is
+        // older still and belongs in front. Appending the chain onto `combinedHistory` and
+        // de-duplicating (the old approach) could interleave them out of chronological order.
+        const inChain = new Set(chainHistory.map(h => h.originalContent));
+        const olderThanChain = combinedHistory.filter(h => !inChain.has(h.originalContent));
+        combinedHistory = [...olderThanChain, ...chainHistory].slice(-contextDepth);
         slog(`[HistoryAsync] PrevUrl chain produced ${chainHistory.length}; using ${combinedHistory.length} total.`);
         return combinedHistory;
       }
@@ -811,7 +791,7 @@ export class TranslationService {
             if (active && content) {
               // Load feedback from IndexedDB
               const feedbackRecords = await FeedbackOps.get(cursorPrev).catch(() => []);
-              const feedback = feedbackRecords.map(record => this.convertFeedbackRecordToItem(record));
+              const feedback = feedbackRecords.map(feedbackRecordToItem);
 
               results.push({
                 originalTitle: title || 'Untitled',
@@ -880,8 +860,16 @@ export class TranslationService {
         }
       }
 
-      // We built oldest-first (walking backward). Return as-is; history formatter handles order.
-      return results;
+      // The walk goes BACKWARD from the current chapter, so `results` is newest-first — the
+      // opposite of what the previous comment here claimed, and of what everything downstream
+      // expects. The primary history path sorts ascending by chapter number, and the prompt
+      // labels entry 1 "(OLDEST)" (config/prompts.json historyHeaderTemplate); the formatter
+      // does not reorder. Reverse to match, or every fallback translation gets its prior
+      // chapters in reverse chronological order.
+      //
+      // Reverse only the returned copy: `links` above is parallel to the newest-first `results`
+      // and the chapter-number inference block depends on that ordering.
+      return results.slice().reverse();
     } catch (e) {
       swarn('[HistoryAsync] PrevUrl chain failed', e);
       return [];
@@ -891,11 +879,25 @@ export class TranslationService {
   private static findByUrlInMemory(url: string | null, chapters: Map<string, EnhancedChapter>): EnhancedChapter | null {
     if (!url) return null;
     const norm = normalizeUrlAggressively(url);
+
+    // A chapter is identified by its OWN url, so an identity match must always win. This used to
+    // be a single pass that also matched prevUrl/nextUrl, which meant looking up chapter 4 could
+    // return chapter 3 — chapter 3's nextUrl IS chapter 4's url, and it comes first in insertion
+    // order. The prevUrl walk then continued from the wrong chapter, silently skipping one.
     for (const [, ch] of chapters.entries()) {
-      const originals = [ch.originalUrl, ch.canonicalUrl, ch.prevUrl || '', ch.nextUrl || '']
-        .map(u => normalizeUrlAggressively(u));
-      if (originals.includes(norm)) return ch;
+      const identity = [ch.originalUrl, ch.canonicalUrl]
+        .map(u => normalizeUrlAggressively(u || ''));
+      if (identity.includes(norm)) return ch;
     }
+
+    // Adjacency fallback, kept for chapters whose own url was never recorded: a neighbour that
+    // links to `url` at least places us on the right chain.
+    for (const [, ch] of chapters.entries()) {
+      const adjacent = [ch.prevUrl || '', ch.nextUrl || '']
+        .map(u => normalizeUrlAggressively(u));
+      if (adjacent.includes(norm)) return ch;
+    }
+
     return null;
   }
 

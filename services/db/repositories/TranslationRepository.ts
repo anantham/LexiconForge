@@ -30,7 +30,26 @@ export class TranslationRepository implements ITranslationRepository {
     if (ref.url) return ref.url;
     if (!ref.stableId) throw new Error('Chapter reference requires url or stableId');
 
+    // P0.2 (TECH-DEBT-FIX-PRIORITY-2026-07-07): the chapter RECORD's own
+    // storage URL is the canonical translation keyspace. Imported library
+    // chapters are stored under scoped URLs while URL_MAPPINGS can still
+    // point at the original source URL; resolving through the mapping split
+    // translations across two keyspaces (unique-index collisions, orphaned
+    // rows, non-deterministic version lists). Prefer the record; the mapping
+    // is the legacy fallback for chapters that predate stableIds on records.
     const db = await this.deps.getDb();
+    const recordUrl = await new Promise<string | null>((resolve, reject) => {
+      const tx = db.transaction([this.deps.stores.CHAPTERS], 'readonly');
+      const index = tx.objectStore(this.deps.stores.CHAPTERS).index('stableId');
+      const request = index.get(ref.stableId!);
+      request.onsuccess = () => {
+        const record = request.result as ChapterRecord | undefined;
+        resolve(record?.url ?? null);
+      };
+      request.onerror = () => reject(request.error);
+    });
+    if (recordUrl) return recordUrl;
+
     const tx = db.transaction([this.deps.stores.URL_MAPPINGS], 'readonly');
     const store = tx.objectStore(this.deps.stores.URL_MAPPINGS);
     const index = store.index('stableId');

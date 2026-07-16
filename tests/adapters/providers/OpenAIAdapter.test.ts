@@ -128,6 +128,96 @@ describe('OpenAIAdapter processResponse', () => {
 
     await expect(adapter.processResponse(malformed, baseSettings, 0, 0)).rejects.toThrow(/Failed to parse JSON response/);
   });
+
+  it('does not mistake brackets in the prose for truncation', async () => {
+    // The truncation check used to count [ ] { } across the whole response, string contents
+    // included. A footnote marker plus a lone bracket in dialogue made a complete response look
+    // unbalanced, which threw length_cap and sent a perfectly good translation into the chunked
+    // retry path — billing the model a second time for nothing.
+    const adapter = new OpenAIAdapter() as any;
+    const prose = `${realisticTranslation} He hesitated [ then spoke again, recalling the note.[1]`;
+    const response = {
+      choices: [{
+        finish_reason: 'stop',
+        message: { content: JSON.stringify({ translatedTitle: 'T', translation: prose }) },
+      }],
+      usage: { prompt_tokens: 12, completion_tokens: 5 },
+    };
+
+    const result = await adapter.processResponse(response, baseSettings, 0, 1000);
+
+    expect(result.translation).toBe(prose);
+    expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+  });
+
+  it('does not mistake a ```json fence for truncation', async () => {
+    // The truncation check ran on the RAW text, before fences were stripped — so a fenced
+    // response did not end with `}` and was read as truncated.
+    const adapter = new OpenAIAdapter() as any;
+    const payload = JSON.stringify({ translatedTitle: 'T', translation: realisticTranslation });
+    const response = {
+      choices: [{
+        finish_reason: 'stop',
+        message: { content: '```json\n' + payload + '\n```' },
+      }],
+      usage: { prompt_tokens: 12, completion_tokens: 5 },
+    };
+
+    const result = await adapter.processResponse(response, baseSettings, 0, 1000);
+
+    expect(result.translation).toBe(realisticTranslation);
+  });
+
+  it('extracts JSON whose strings end in an escaped backslash', async () => {
+    // The old scanner decided a quote was escaped by looking at the previous character, so the
+    // closing quote of a string ending in `\\` was read as escaped, the scan ran past the end of
+    // the object, and a recoverable response was rejected as "no balanced JSON found".
+    const adapter = new OpenAIAdapter() as any;
+    const prose = `${realisticTranslation} The sign read: C:\\`;
+    const payload = JSON.stringify({ translatedTitle: 'T', translation: prose });
+    const response = {
+      choices: [{
+        finish_reason: 'stop',
+        // Preamble forces the direct parse to fail, so extraction is what has to recover it.
+        message: { content: `Here is the translation:\n${payload}` },
+      }],
+      usage: { prompt_tokens: 12, completion_tokens: 5 },
+    };
+
+    const result = await adapter.processResponse(response, baseSettings, 0, 1000);
+
+    expect(result.translation).toBe(prose);
+  });
+
+  it('records the spend on a billed-but-unparseable response', async () => {
+    // The provider bills whether or not the JSON parses. Recording nothing on the failure path
+    // made that spend invisible to the cost ledger and the budget gate (TECH-DEBT P1.4).
+    const adapter = new OpenAIAdapter() as any;
+    const malformed = {
+      choices: [{ finish_reason: 'stop', message: { content: '{"number": NaN}' } }],
+      usage: { prompt_tokens: 900, completion_tokens: 100 },
+    };
+
+    await expect(adapter.processResponse(malformed, baseSettings, 0, 1000)).rejects.toThrow(/Failed to parse/);
+
+    expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({
+      success: false,
+      costUsd: 0.42,
+      tokens: { prompt: 900, completion: 100, total: 1000 },
+    }));
+  });
+
+  it('records the spend on a truncated response', async () => {
+    const adapter = new OpenAIAdapter() as any;
+    const truncated = {
+      choices: [{ finish_reason: 'length', message: { content: '{"partial": true' } }],
+      usage: { prompt_tokens: 900, completion_tokens: 100 },
+    };
+
+    await expect(adapter.processResponse(truncated, baseSettings, 0, 1000)).rejects.toThrow(/length_cap/);
+
+    expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
+  });
 });
 
 describe('OpenAIAdapter translate() parameter handling', () => {
