@@ -1,0 +1,7876 @@
+{
+ "_source": "DPD lookup.grammar (see data/dpd manifest for release)",
+ "_extractedAt": "2026-07-15T13:56:23.590Z",
+ "readings": {
+  "abhiniropanā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "abhiññā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "abyāpādasaṅkappo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "adinnādānā": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "ahetuvādā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "akiriyavādā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "akusalapakkhā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "akusalā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "aneke": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   }
+  ],
+  "anuparidhāvanti": [
+   {
+    "pos": "verb",
+    "number": "pl"
+   }
+  ],
+  "anuparivattanti": [
+   {
+    "pos": "verb",
+    "number": "pl"
+   }
+  ],
+  "anāsavacittassa": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "anāsavo": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "anāsavā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "anāthapiṇḍikassa": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "appanā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "appaṭivattiyo": [
+   {
+    "pos": "ptp",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "arahā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "ariyacittassa": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "ariyamaggasamaṅgino": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "ariyasāvako": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "ariyo": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "ariyā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "attamanā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "atthi": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   },
+   {
+    "pos": "verb",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "aṭṭhaṅgasamannāgato": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "bhagavato": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "bhagavā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "bhikkhave": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "bhikkhū": [
+   {
+    "pos": "verb",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "bhoto": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "bhāvayato": [
+   {
+    "pos": "prp",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "prp",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "prp",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "prp",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "brahmunā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   }
+  ],
+  "brāhmaṇena": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   }
+  ],
+  "brāhmaṇo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "byappanā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "byāpādasaṅkappo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "ca": [
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "cassa": [
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "catūhi": [
+   {
+    "pos": "card",
+    "gender": "m",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "f",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "nt",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "m",
+    "case": "abl",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "f",
+    "case": "abl",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "nt",
+    "case": "abl",
+    "number": "pl"
+   }
+  ],
+  "cetaso": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "cittassa": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "dasasahadhammikā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "dasaṅgasamannāgato": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "desessāmi": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "devena": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   }
+  ],
+  "dhammapariyāyo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "dhammavicayasambojjhaṅgo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "dhamme": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "dhammā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "ekaggatā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "etadavoca": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "gacchanti": [
+   {
+    "pos": "verb",
+    "number": "pl"
+   }
+  ],
+  "garahati": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "hetu": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "hi": [
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "honti": [
+   {
+    "pos": "verb",
+    "number": "pl"
+   },
+   {
+    "pos": "prp",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "hoti": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "ime": [
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "acc",
+    "number": "pl"
+   }
+  ],
+  "imehi": [
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "abl",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "abl",
+    "number": "pl"
+   }
+  ],
+  "jetavane": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "kappeti": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "karotha": [
+   {
+    "pos": "verb",
+    "number": "pl"
+   }
+  ],
+  "katamo": [
+   {
+    "pos": "interr",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "katamā": [
+   {
+    "pos": "interr",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "interr",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "interr",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   }
+  ],
+  "kenaci": [
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   }
+  ],
+  "kissa": [
+   {
+    "pos": "interr",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "interr",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "interr",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "interr",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "root",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "root",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "koci": [
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "kuhanā": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "kusalapakkhā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "kusalā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "kāmasaṅkappo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "kāmesumicchācāro": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "kāmesumicchācārā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "kāyaduccaritehi": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "pl"
+   }
+  ],
+  "lapanā": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "loke": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "loko": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "lokuttaro": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "lokuttarā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "lābhena": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   }
+  ],
+  "maggaṅgo": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "maggaṅgā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "mahācattārīsakasutta": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "mahācattārīsako": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "majjhima": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "manasi": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "maññeyya": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "me": [
+   {
+    "pos": "pron",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "root",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "root",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "micchādiṭṭhi": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "micchādiṭṭhiyā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "micchādiṭṭhī": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "micchākammantassa": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "micchākammanto": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "micchāsamādhi": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "micchāsati": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "micchāsaṅkappassa": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "micchāsaṅkappo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "micchāsaṅkappā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "micchāvimutti": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "micchāvimuttī": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "micchāvācā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "micchāvācāya": [
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "micchāvāyāmo": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "micchāājīvassa": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "micchāājīvo": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "micchāājīvā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "musāvādo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "musāvādā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "mārena": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   }
+  ],
+  "mātā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "na": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "natthi": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   },
+   {
+    "pos": "verb",
+    "number": "pl"
+   }
+  ],
+  "natthikavādā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "nekkhammasaṅkappo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "nemittikatā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "nijigīsanatā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "nijjiṇṇo": [
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "nijjiṇṇā": [
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "nikāya": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "nippesikatā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "okkalā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "opapātikā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "pahoti": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "pahānāya": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   }
+  ],
+  "pahāya": [
+   {
+    "pos": "ptp",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "ptp",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "pajahati": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "pajānāti": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "parikkhatā": [
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "paro": [
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "pavattito": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   }
+  ],
+  "paññā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "paṭivirati": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "pharusā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "pharusāya": [
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "pisuṇā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "pisuṇāya": [
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "pitā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "pubbaṅgamā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "pujjā": [
+   {
+    "pos": "ptp",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "ptp",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "ptp",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "ptp",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "ptp",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "ptp",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "ptp",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "ptp",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "ptp",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "ptp",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "ptp",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "puññabhāgiyo": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "puññabhāgiyā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   }
+  ],
+  "pāpakā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "pāṇātipāto": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "pāṇātipātā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "samaṇabrāhmaṇā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "samaṇena": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   }
+  ],
+  "samaṇo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "sambhavanti": [
+   {
+    "pos": "verb",
+    "number": "pl"
+   }
+  ],
+  "sammaggatā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "sammādiṭṭhi": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "sammādiṭṭhissa": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammādiṭṭhiyā": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "sammākammantassa": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammākammanto": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "sammāpaṭipannā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "sammāsamādhi": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "sammāsamādhissa": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammāsati": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "sammāsatissa": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammāsaṅkappassa": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammāsaṅkappo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "sammāvimuttassa": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammāvimutti": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "sammāvācassa": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammāvācā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "sammāvācāya": [
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "sammāvāyāmassa": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammāvāyāmo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "sammāñāṇassa": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammāñāṇena": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   }
+  ],
+  "sammāājīvassa": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sammāājīvena": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   }
+  ],
+  "sammāājīvo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "samphappalāpo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "samphappalāpā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "saparikkhāro": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "sato": [
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "abl",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "prp",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "prp",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "prp",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "prp",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "sattā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "saupaniso": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "saṅkappo": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "sekkho": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "so": [
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "suṇātha": [
+   {
+    "pos": "verb",
+    "number": "pl"
+   }
+  ],
+  "sāsavo": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "sāsavā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "takko": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "tassa": [
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "tayo": [
+   {
+    "pos": "card",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "te": [
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "case": "acc",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "case": "gen",
+    "number": "sg"
+   }
+  ],
+  "tīhi": [
+   {
+    "pos": "card",
+    "gender": "m",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "f",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "nt",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "m",
+    "case": "abl",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "f",
+    "case": "abl",
+    "number": "pl"
+   },
+   {
+    "pos": "card",
+    "gender": "nt",
+    "case": "abl",
+    "number": "pl"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "ve",
+    "gender": "m",
+    "case": "abl",
+    "number": "pl"
+   }
+  ],
+  "upadhivepakko": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "upadhivepakkā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "upasampadāya": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "upasampajja": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "vacīduccaritehi": [
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "nt",
+    "case": "abl",
+    "number": "pl"
+   }
+  ],
+  "vacīsaṅkhāro": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "vadāmi": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "vassabhaññā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "veramaṇī": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "vigatā": [
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "pp",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pp",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "viharati": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "vipāko": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "virati": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "vitakko": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "vo": [
+   {
+    "pos": "pron",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "case": "instr",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "case": "dat",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "case": "gen",
+    "number": "pl"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "vuccati": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "vā": [
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "vācā": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "vācāya": [
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "dat",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "gen",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "loc",
+    "number": "sg"
+   }
+  ],
+  "vādānuvādā": [
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "vāyamati": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "vīsati": [
+   {
+    "pos": "card",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "ye": [
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "nt",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "cs",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "cs",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "yo": [
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "cs",
+    "gender": "m",
+    "case": "nom",
+    "number": "sg"
+   }
+  ],
+  "yā": [
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "letter",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "pron",
+    "gender": "f",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "pron",
+    "gender": "f",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "cs",
+    "gender": "m",
+    "case": "nom",
+    "number": "pl"
+   },
+   {
+    "pos": "cs",
+    "gender": "m",
+    "case": "instr",
+    "number": "sg"
+   },
+   {
+    "pos": "cs",
+    "gender": "m",
+    "case": "abl",
+    "number": "sg"
+   },
+   {
+    "pos": "cs",
+    "gender": "m",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "cs",
+    "gender": "m",
+    "case": "voc",
+    "number": "pl"
+   }
+  ],
+  "āgacchanti": [
+   {
+    "pos": "verb",
+    "number": "pl"
+   }
+  ],
+  "āmantesi": [
+   {
+    "pos": "verb",
+    "number": "sg"
+   }
+  ],
+  "ārati": [
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "nom",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   }
+  ],
+  "ārāme": [
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "adj",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "nt",
+    "case": "loc",
+    "number": "sg"
+   },
+   {
+    "pos": "adj",
+    "gender": "f",
+    "case": "voc",
+    "number": "sg"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "acc",
+    "number": "pl"
+   },
+   {
+    "pos": "noun",
+    "gender": "m",
+    "case": "loc",
+    "number": "sg"
+   }
+  ]
+ }
+}

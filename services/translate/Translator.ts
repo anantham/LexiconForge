@@ -8,6 +8,8 @@ import type {
 } from '../../types';
 import { sanitizeHtml } from './HtmlSanitizer';
 import { debugLog, debugWarn } from '../../utils/debug';
+import { validateAndFixIllustrations, validateAndFixFootnotes } from '../ai/responseValidators';
+import { ILLUSTRATION_MARKER_PATTERN } from '../ai/illustrationMarkers';
 
 // Pure translation coordination logic (no I/O operations)
 
@@ -30,6 +32,20 @@ export interface TranslationOptions {
   initialDelay?: number;
   timeoutMs?: number;   // Per-attempt timeout (default: 90s)
 }
+
+/** `3` and `[3]` both occur in the wild; the text always carries the bracketed form. */
+const normalizeFootnoteMarker = (marker: string): string =>
+  marker.startsWith('[') ? marker : `[${marker.replace(/[[\]]/g, '')}]`;
+
+/**
+ * Rewrite every marker in `text` according to `rename`, in a single pass. A sequential
+ * replace would cascade: renaming [1]->[2] and then [2]->[3] would move the same marker twice.
+ */
+const renumberMarkers = (text: string, rename: Map<string, string>): string => {
+  if (rename.size === 0) return text;
+  const anyMarker = new RegExp(`${ILLUSTRATION_MARKER_PATTERN}|\\[\\d+\\]`, 'g');
+  return text.replace(anyMarker, token => rename.get(token) ?? token);
+};
 
 /**
  * Pure translation orchestrator - handles retry logic, chunked fallback,
@@ -94,15 +110,36 @@ export class Translator {
           throw new DOMException('Aborted', 'AbortError');
         }
 
-        const { promise: timeoutPromise, cancel: cancelTimeout } = this.timeout(timeoutMs, workingRequest.abortSignal);
+        // A per-attempt controller, so a timed-out attempt actually CANCELS the provider call.
+        // Racing a timeout against a still-running request only abandoned the promise: the
+        // original call kept going — and kept billing — while the retry fired a second paid
+        // request for the same chapter. The user's own signal is chained into it so a manual
+        // abort still cancels the attempt.
+        const attemptController = new AbortController();
+        const userSignal = workingRequest.abortSignal;
+        const abortAttempt = () => attemptController.abort();
+        userSignal?.addEventListener('abort', abortAttempt, { once: true });
+
+        const attemptRequest: TranslationRequest = {
+          ...workingRequest,
+          abortSignal: attemptController.signal,
+        };
+
+        const { promise: timeoutPromise, cancel: cancelTimeout } = this.timeout(timeoutMs, userSignal);
         try {
-          const result = await Promise.race([
-            provider.translate(workingRequest),
-            timeoutPromise,
-          ]);
-          return this.sanitizeResult(result);
+          const providerPromise = provider.translate(attemptRequest);
+          // The race abandons this promise on timeout; once we abort the attempt it rejects with
+          // an AbortError that nothing is awaiting. Handle it here so it isn't an unhandled
+          // rejection. The race still sees the original rejection.
+          providerPromise.catch(() => {});
+
+          const result = await Promise.race([providerPromise, timeoutPromise]);
+          return this.sanitizeResult(result, workingRequest.settings);
         } finally {
           cancelTimeout();
+          // Cancels the in-flight call on timeout or error. A no-op when the call already settled.
+          attemptController.abort();
+          userSignal?.removeEventListener('abort', abortAttempt);
         }
 
       } catch (error: any) {
@@ -205,7 +242,7 @@ export class Translator {
       previousTranslation = result.translation;
     }
 
-    return this.mergeChunkResults(chunkResults, chunks.length);
+    return this.mergeChunkResults(chunkResults, chunks.length, request.settings);
   }
 
   /**
@@ -246,7 +283,7 @@ export class Translator {
   /**
    * Merge results from chunked translation into a single TranslationResult.
    */
-  private mergeChunkResults(results: TranslationResult[], chunkCount: number): TranslationResult {
+  private mergeChunkResults(results: TranslationResult[], chunkCount: number, settings: AppSettings): TranslationResult {
     const first = results[0];
     const mergedProvider =
       first.usageMetrics?.provider ??
@@ -257,34 +294,37 @@ export class Translator {
       throw new Error('Chunked translation result missing provider metadata.');
     }
 
-    // Stitch translations with a scene break between chunks
-    const mergedTranslation = results.map(r => r.translation).join('<br><br>');
-
-    // Merge footnotes with re-numbered markers
+    // Each chunk is translated independently, so every chunk's markers restart at 1. Renumber
+    // them onto a single global sequence — in the chunk TEXT as well as in the metadata, or the
+    // two disagree and an illustration keyed to a marker absent from the text never renders.
     const mergedFootnotes: Footnote[] = [];
+    const mergedIllustrations: SuggestedIllustration[] = [];
+    const renumberedChunks: string[] = [];
     let footnoteOffset = 0;
+    let illustrationOffset = 0;
+
     for (const result of results) {
+      const rename = new Map<string, string>();
+
       for (const fn of (result.footnotes || [])) {
         footnoteOffset++;
-        mergedFootnotes.push({
-          ...fn,
-          marker: `[${footnoteOffset}]`,
-        });
+        const to = `[${footnoteOffset}]`;
+        rename.set(normalizeFootnoteMarker(String(fn.marker ?? '')), to);
+        mergedFootnotes.push({ ...fn, marker: to });
       }
-    }
 
-    // Merge illustrations
-    const mergedIllustrations: SuggestedIllustration[] = [];
-    let illustrationOffset = 0;
-    for (const result of results) {
       for (const ill of (result.suggestedIllustrations || [])) {
         illustrationOffset++;
-        mergedIllustrations.push({
-          ...ill,
-          placementMarker: `[ILLUSTRATION-${illustrationOffset}]`,
-        });
+        const to = `[ILLUSTRATION-${illustrationOffset}]`;
+        rename.set(ill.placementMarker, to);
+        mergedIllustrations.push({ ...ill, placementMarker: to });
       }
+
+      renumberedChunks.push(renumberMarkers(result.translation || '', rename));
     }
+
+    // Stitch translations with a scene break between chunks
+    const mergedTranslation = renumberedChunks.join('<br><br>');
 
     // Sum usage metrics
     const totalUsage = {
@@ -323,17 +363,51 @@ export class Translator {
       translationSettings: first.translationSettings,
       // Append a note about chunking to the title
       customVersionLabel: note,
-    });
+    }, settings);
   }
 
   /**
-   * Sanitizes and validates translation results
+   * Sanitizes and validates translation results.
+   *
+   * This is the one place illustration/footnote markers are reconciled. Adapters return the
+   * model's raw output; every provider funnels through here, so provider choice cannot change
+   * validation behavior. (It used to: Claude reconciled markers with its own forked copy, while
+   * OpenAI and Gemini did no reconciliation at all and shipped dangling markers.)
+   *
+   * Reconciliation runs before sanitizeHtml, on the model's own text, matching the ordering the
+   * validators were written against. A validation throw is caught by the retry loop in
+   * translateSingle, which is the intended recovery: ask the model again.
    */
-  private sanitizeResult(result: TranslationResult): TranslationResult {
+  private sanitizeResult(result: TranslationResult, settings: AppSettings): TranslationResult {
+    // A provider that returns no text has failed, whatever it reports. Accepting it persists a
+    // BLANK chapter as a completed translation: the reader sees an empty chapter, and because the
+    // app now believes the chapter is translated, nothing ever retries it. Throw instead — the
+    // retry loop in translateSingle will ask the model again.
+    //
+    // This has to run BEFORE reconciliation: if the model also returned illustrations, the
+    // auto-recovery below would append their markers to the empty string and it would no longer
+    // look empty. (GeminiAdapter coerces a missing `translation` field to '' and returns success.)
+    if (!result.translation?.trim()) {
+      throw new Error('Provider returned an empty translation.');
+    }
+
+    const { translation: illustrationsFixed, suggestedIllustrations } = validateAndFixIllustrations(
+      result.translation,
+      result.suggestedIllustrations,
+    );
+
+    const { translation: reconciled, footnotes } = validateAndFixFootnotes(
+      illustrationsFixed,
+      result.footnotes,
+      settings.footnoteStrictMode ?? 'append_missing',
+    );
+
     return {
       ...result,
       translatedTitle: result.translatedTitle?.trim() || '',
-      translation: sanitizeHtml(result.translation || ''),
+      translation: sanitizeHtml(reconciled),
+      footnotes,
+      suggestedIllustrations,
       illustrations: result.illustrations || [],
       amendments: result.amendments || [],
       costUsd: result.costUsd,
@@ -350,14 +424,33 @@ export class Translator {
 
   private timeout(ms: number, abortSignal?: AbortSignal): { promise: Promise<never>; cancel: () => void } {
     let timer: ReturnType<typeof setTimeout>;
+    let onAbort: (() => void) | null = null;
+
     const promise = new Promise<never>((_, reject) => {
       timer = setTimeout(
         () => reject(new Error(`Translation timed out after ${Math.round(ms / 1000)}s. The model may be overloaded — try again or switch models.`)),
         ms
       );
-      abortSignal?.addEventListener('abort', () => clearTimeout(timer), { once: true });
+
+      // On abort this used to only clear the timer. That disarms the one thing that could still
+      // settle the race, so a provider which ignores its abort signal (claudeService never reads
+      // one) left the user's Cancel hanging forever — the request neither finished nor timed out.
+      // Reject instead, and let translateSingle turn it into the user-abort error.
+      onAbort = () => {
+        clearTimeout(timer);
+        reject(new DOMException('Aborted', 'AbortError'));
+      };
+      abortSignal?.addEventListener('abort', onAbort, { once: true });
     });
-    const cancel = () => clearTimeout(timer!);
+
+    // The race abandons this promise whenever the provider wins; a later abort would then reject
+    // it with nothing awaiting. Keep that from surfacing as an unhandled rejection.
+    promise.catch(() => {});
+
+    const cancel = () => {
+      clearTimeout(timer!);
+      if (onAbort) abortSignal?.removeEventListener('abort', onAbort);
+    };
     return { promise, cancel };
   }
 

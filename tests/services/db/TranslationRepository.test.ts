@@ -162,6 +162,34 @@ describe('TranslationRepository', () => {
     expect(versions[0].stableId).toBe(stableId);
   });
 
+  it('keys translations by the CHAPTER RECORD url, not a stale URL mapping (P0.2 keyspace unification)', async () => {
+    // Imported library chapters are stored under a scoped storage URL while
+    // URL_MAPPINGS can still point at the original source URL. Resolving
+    // through the mapping split a chapter's translations across TWO
+    // keyspaces: unique-index collisions, orphaned rows, and version lists
+    // that depend on which path wrote them.
+    const chapterRecord = await chapterRepo.getChapter(baseChapter.originalUrl!);
+    const stableId = chapterRecord!.stableId!;
+    await writeUrlMapping(stableId, 'https://example.com/OTHER-KEYSPACE');
+
+    // A translation written by URL (the live-translation path) …
+    await translationRepo.storeTranslation(baseChapter.originalUrl!, baseTranslation, baseSettings);
+    // … and one written by stableId (the import/library path) must land in
+    // the SAME keyspace and continue the SAME version sequence.
+    const byStable = await translationRepo.storeTranslationByStableId(
+      stableId,
+      { ...baseTranslation, translatedTitle: 'Second' },
+      baseSettings
+    );
+
+    expect(byStable.chapterUrl).toBe(baseChapter.originalUrl); // not the mapping's URL
+    expect(byStable.version).toBe(2); // pre-fix: 1, in a second keyspace
+
+    const versions = await translationRepo.getTranslationVersions(baseChapter.originalUrl!);
+    expect(versions.map(v => v.version).sort()).toEqual([1, 2]);
+    expect(versions.filter(v => v.isActive)).toHaveLength(1);
+  });
+
   it('deletes translation versions and reactivates latest', async () => {
     await translationRepo.storeTranslation(baseChapter.originalUrl!, baseTranslation, baseSettings);
     const second = await translationRepo.storeTranslation(baseChapter.originalUrl!, {
@@ -222,23 +250,44 @@ describe('TranslationRepository', () => {
   });
 
   // T1: resolveChapterUrl failure during STORE — translation must not be lost
-  it('stores translation via stableId fallback when URL mapping is missing', async () => {
+  it('resolves via the chapter record when the URL mapping is missing (no synthetic keyspace)', async () => {
+    // CONTRACT CHANGED BY P0.2. Pre-fix, resolveChapterUrl consulted only
+    // URL_MAPPINGS, so a missing mapping produced a synthetic `stableId://`
+    // chapterUrl — inventing a THIRD keyspace for a chapter that was sitting
+    // right there in the CHAPTERS store, orphaning the translation from the
+    // chapter's real URL. The record itself is now the authority; the
+    // synthetic fallback survives only for genuinely unresolvable stableIds
+    // (next test).
     const chapterRecord = await chapterRepo.getChapter(baseChapter.originalUrl!);
     const stableId = chapterRecord!.stableId!;
-    // Do NOT write URL mapping — simulates the race condition / incomplete import
+    // Do NOT write a URL mapping.
 
     const record = await translationRepo.storeTranslationByStableId(stableId, baseTranslation, baseSettings);
+
     expect(record.stableId).toBe(stableId);
     expect(record.translation).toBe(baseTranslation.translation);
-    // chapterUrl should be the synthetic fallback since URL mapping was missing
-    expect(record.chapterUrl).toContain('stableId://');
+    expect(record.chapterUrl).toBe(baseChapter.originalUrl); // the chapter's real URL
+    expect(record.chapterUrl).not.toContain('stableId://');
   });
 
-  // T2: round-trip — store via stableId fallback, read back via getTranslationVersionsByStableId
-  it('round-trips translation through stableId fallback (store → read back)', async () => {
+  it('still falls back to a synthetic URL when the stableId resolves to nothing at all', async () => {
+    // No chapter record, no URL mapping: the translation must not be lost.
+    const record = await translationRepo.storeTranslationByStableId(
+      'orphan-stable-id',
+      baseTranslation,
+      baseSettings
+    );
+
+    expect(record.chapterUrl).toContain('stableId://');
+    expect(record.stableId).toBe('orphan-stable-id');
+  });
+
+  // T2: round-trip — store and read back by stableId with no URL mapping present
+  it('round-trips translation through stableId (store → read back) with no URL mapping', async () => {
     const chapterRecord = await chapterRepo.getChapter(baseChapter.originalUrl!);
     const stableId = chapterRecord!.stableId!;
-    // No URL mapping — forces fallback on both store and read paths
+    // No URL mapping — post-P0.2 the chapter record resolves the URL; the
+    // read path uses the stableId index either way.
 
     await translationRepo.storeTranslationByStableId(stableId, baseTranslation, baseSettings);
 

@@ -20,6 +20,7 @@ import { buildPhaseStateEnvelope, parseJsonResponse } from '../utils';
 import { lexicographerResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, PassCallResult } from './types';
+import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../passBudgets';
 
 export const runLexicographerPass = async (params: {
   phaseId: string;
@@ -51,7 +52,7 @@ export const runLexicographerPass = async (params: {
     retrievalContext,
     signal,
     llmCaller = defaultLLMCaller,
-    maxTokens = 16000,
+    maxTokens = SUTTA_STUDIO_TOKEN_BUDGETS.lexicographer,
   } = params;
 
   const phaseState = buildPhaseStateEnvelope({

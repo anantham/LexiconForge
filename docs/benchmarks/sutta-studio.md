@@ -101,74 +101,48 @@ The fixture contains canonical segments plus sample pass outputs for MN10. You c
 
 ## Quality Scoring
 
-After each benchmark run, the harness computes quality scores for each model. These scores are aggregated into a leaderboard at `reports/sutta-studio/leaderboard.json`.
+> **Source of truth:** the rubric lives in `scripts/sutta-studio/quality-scorer.ts`
+> (`RUBRIC_VERSION`) and its design record lives in the ADRs — SUTTA-009 (principled
+> scoring), SUTTA-012 (drop penalty + precision/recall), SUTTA-010 (advisory semantic
+> judge), SUTTA-013/014 (v2.2 direction). This page deliberately summarizes rather
+> than duplicates them; an earlier version of this section copied the v1 formulas and
+> silently drifted for weeks.
 
-### Scoring Dimensions
+The original density-based rubric (Coverage/Validity/Richness/Grammar, 25/35/20/20)
+is **retired** — SUTTA-009 documents how wrong behavior could outscore right behavior
+under it. Ranked scoring is golden-referenced:
 
-| Dimension | Weight | Description |
-|-----------|--------|-------------|
-| **Coverage** | 25% | How well does the output cover the input? |
-| **Validity** | 35% | Is the output structurally correct? |
-| **Richness** | 20% | How informative are tooltips, senses, etc.? |
-| **Grammar** | 20% | Are grammatical relations present and valid? |
-
-### Coverage Metrics
-
-- **Pali Word Coverage** (33%): Ratio of output words to input Pali words (split by whitespace)
-- **English Mapping Ratio** (17%): Ratio of non-ghost English tokens to total tokens
-- **Alignment Coverage** (50%): Ratio of English tokens with actual Pali segment links (`linkedSegmentId`) to non-ghost tokens. This is the critical metric for visible alignment edges in the UI.
-
-### Validity Metrics
-
-- **No Empty Segments**: Percentage of segments with non-empty text
-- **No Duplicate Mappings**: Percentage of segment links that are unique (same Pali segment linked by multiple English tokens is a bug)
-- **Text Integrity**: Do concatenated segments match the word's surface form?
-
-### Richness Metrics
-
-- **Tooltip Density**: Average tooltips per segment, normalized (2 tooltips/segment = 100%)
-- **Sense Polysemy**: Content words expected to have 3 senses, function words 1-2
-- **Morph Data Present**: Percentage of segments with morphological data
-
-### Grammar Metrics
-
-- **Relation Count**: Total grammatical relations in output
-- **Relation Density**: Relations per content word (expect ~0.5-1)
-- **Relations Valid**: Percentage of relations with valid from/to references
-
-### Overall Score
-
-The overall score is a weighted average:
-
-```
-overall = coverage * 0.25 + validity * 0.35 + richness * 0.20 + grammar * 0.20
-```
+- `overall = gateFactor × (0.60·fidelity + 0.25·usability + 0.15·richness)` — the
+  gate scales with text integrity (mangled source text caps everything else).
+- **Fidelity** = 0.5·segmentation + 0.5·content, strict pooled micro-F1 against the
+  hand-curated golden. Since v2.1 (SUTTA-012), golden words a model DROPS are charged
+  as misses (no survivorship bias), and content F1 publishes precision and recall
+  separately.
+- The **semantic judge** (SUTTA-010) is a separate advisory column, never part of the
+  ranked total. Its scores are not drop-adjusted — measured rank agreement with
+  drop-adjusted fidelity is negative, so never read judge scores as overall quality.
+- v2.2 (in progress) splits deterministic FACTS (root/POS/morph vs the Digital Pāli
+  Dictionary) from prose, adds alignment scoring against a curated link golden, and
+  moves ranked runs onto production-parity inputs (SUTTA-013, SUTTA-014).
 
 ### Leaderboard
 
-The leaderboard aggregates scores across **ALL unique phases** completed by each model across all benchmark runs. This gives a true representation of model capability across the full test set (15 phases).
+The published artifact is `public/benchmarks/sutta-studio-leaderboard.json`, rendered
+at `/bench/sutta-studio`. Key properties (all enforced by
+`scripts/sutta-studio/generate-leaderboard.ts`, which hard-fails rather than publish
+a violation):
 
-Each entry includes:
-- Quality scores averaged across all completed phases
-- Number of phases successfully scored (out of 15 total)
-- Token usage and cost (aggregated across runs)
-- Link to view the best output in Sutta Studio
+- One rubric version per board — mixing versions is a build failure.
+- Each model is represented by its **single best run**, selected by most completed
+  phases FIRST, then mean overall — completeness beats score, and per-phase
+  cherry-picking across runs is explicitly rejected.
+- A coverage floor excludes models that completed too few phases to rank.
+- Bootstrap 95% CIs with adjacent-tie markers, a hallucination-rate column from judge
+  flags, and a grounding/provenance panel (sources, authorities, known circularity,
+  closed-book badge) ship with every board.
 
-**Aggregation rules**:
-- Scores are averaged across all unique phase IDs per model
-- When a model has multiple runs with the same phase, the best score is used
-- The packet link points to the run with the most completed phases
+Regenerate (runs are pinned by directory to keep boards reproducible):
 
-**Interpreting results**: Models with fewer phases completed may have high scores on easy phases but struggle with complex ones. A model with 15/15 phases has proven reliability across the full test set, while 1/15 is not representative.
-
-Generate/update the leaderboard:
 ```bash
-npx tsx scripts/sutta-studio/generate-leaderboard.ts
+LEADERBOARD_DIRS=<runTs1>,<runTs2> npx tsx --env-file=.env.local scripts/sutta-studio/generate-leaderboard.ts
 ```
-
-Backfill quality scores for existing runs:
-```bash
-npx tsx scripts/sutta-studio/backfill-quality-scores.ts
-```
-
-View the leaderboard at `/bench/sutta-studio` → Leaderboard tab.

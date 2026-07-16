@@ -22,6 +22,13 @@ const IMAGE_DIM_MAX = 4096;       // Maximum accepted by most providers
 const IMAGE_DIM_DEFAULT = 1024;   // Standard HD baseline
 const IMAGE_MAX_PIXELS = 1048576; // 1024×1024 — max total pixel budget for PiAPI
 
+// fetch() has NO default timeout, so a stalled connection never settles: the request hangs, and
+// with it the image's isLoading flag — forever, with no error and no way back except a reload.
+// The PiAPI poll already guarded itself this way; its siblings did not.
+const IMAGE_GENERATION_TIMEOUT_MS = 180_000; // generation is genuinely slow; be generous
+const IMAGE_TASK_CREATE_TIMEOUT_MS = 30_000; // just enqueues a job
+const IMAGE_DOWNLOAD_TIMEOUT_MS = 60_000;    // fetching the finished image bytes
+
 // Typed error extension used by image generation to carry actionable metadata
 interface ImageGenerationError extends Error {
   errorType: string;
@@ -299,6 +306,7 @@ export const generateImage = async (
                 ...extraHeaders,
               },
               body: JSON.stringify(reqBody),
+              signal: AbortSignal.timeout(IMAGE_GENERATION_TIMEOUT_MS),
             });
 
             const raw = await resp.text();
@@ -493,6 +501,7 @@ export const generateImage = async (
                     input: inputData,
                     // service_mode: 'public', // optional
                 }),
+                signal: AbortSignal.timeout(IMAGE_TASK_CREATE_TIMEOUT_MS),
             });
             const rawCreateText = await createResp.text().catch(() => '');
             let created: any = {};
@@ -858,7 +867,7 @@ function extractPiAPIImageUrl(obj: any): string | null {
 }
 
 async function fetchImageAsBase64(url: string): Promise<string> {
-    const resp = await fetch(url);
+    const resp = await fetch(url, { signal: AbortSignal.timeout(IMAGE_DOWNLOAD_TIMEOUT_MS) });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const contentType = resp.headers.get('content-type') || 'image/png';
     const ab = await resp.arrayBuffer();

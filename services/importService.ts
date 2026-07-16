@@ -406,6 +406,7 @@ export class ImportService {
               promptName?: string;
             };
             isActive: boolean;
+            exportedVersion?: number;
           }> = [];
 
           if (Array.isArray(chapter.translations) && chapter.translations.length > 0) {
@@ -438,6 +439,7 @@ export class ImportService {
                   promptName: translation.promptName,
                 },
                 isActive: Boolean(translation.isActive),
+                exportedVersion: typeof translation.version === 'number' ? translation.version : undefined,
               });
             }
           } else if (chapter.translationResult) {
@@ -470,7 +472,21 @@ export class ImportService {
             });
           }
 
-          return inputs;
+          // P0.3: exports list versions NEWEST-first (getVersions sorts
+          // descending) and the store renumbers by arrival order, so an
+          // unsorted import REVERSED every chapter's version history
+          // (newest exported became version 1). Store oldest-first so the
+          // renumbering preserves the exported order. Stable sort keeps
+          // relative order for inputs without version numbers.
+          return inputs
+            .map((input, index) => ({ input, index }))
+            .sort((a, b) => {
+              const av = a.input.exportedVersion;
+              const bv = b.input.exportedVersion;
+              if (av != null && bv != null && av !== bv) return av - bv;
+              return a.index - b.index;
+            })
+            .map(({ input }) => input);
         };
 
         const response = await fetch(fetchUrl, {
@@ -692,7 +708,11 @@ export class ImportService {
           }
 
           if (activeVersion !== null && translationInputs.length > 1) {
-            await TranslationOps.setActiveByUrl(chapterUrl, activeVersion);
+            // P0.3: translations were stored under identity.storageUrl (which
+            // library imports SCOPE), but set-active used the exported
+            // chapterUrl — a different keyspace, so the exported active
+            // selection was silently discarded.
+            await TranslationOps.setActiveByUrl(identity.storageUrl, activeVersion);
           }
 
           chaptersLoaded++;

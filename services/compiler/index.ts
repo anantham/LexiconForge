@@ -41,6 +41,8 @@ import {
   buildDegradedPhaseView,
 } from '../suttaStudioRehydrator';
 import { V12_PRIOR_PHASES_WINDOW, repairAnatomistSurfaces } from '../sutta-studio/utils';
+import { buildAnatomistGrounding } from '../sutta-studio/dpdGrounding';
+import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../sutta-studio/passBudgets';
 import {
   tokenizeEnglish,
   getWordTokens,
@@ -406,12 +408,34 @@ export const compileSuttaStudioPacket = async (options: {
             currentStageLabel: 'Anatomist (1/4)', currentStageKey: 'anatomist', completed: {},
             priorPhases,
           });
-          const anatomistPrompt = buildAnatomistPrompt(phase.id, effectiveSegments, phaseState, retrievalContext || undefined);
+          // DPD-ground the Anatomist, exactly as the benchmark does (ADR SUTTA-014 parity). The
+          // prompt builder already renders the attestation block; production simply never supplied
+          // the lookups, so the leaderboard ranked a grounded pass real users never ran. Local,
+          // best-effort, no network — falls back to ungrounded if the subset or a lookup fails.
+          let anatomistDpd: Record<string, LexiconEntry[]> = {};
+          try {
+            const dpdProvider = new DpdProvider(options.dpdData ?? getBundledDpdData());
+            anatomistDpd = await buildAnatomistGrounding(
+              dpdProvider,
+              effectiveSegments,
+              (message, error) => warn(message, error),
+            );
+            log(`  Anatomist DPD attestations: ${Object.keys(anatomistDpd).length} word(s) matched`);
+          } catch (e) {
+            warn(`  Anatomist DPD grounding failed; continuing ungrounded`, e);
+          }
+          const anatomistPrompt = buildAnatomistPrompt(
+            phase.id,
+            effectiveSegments,
+            phaseState,
+            retrievalContext || undefined,
+            anatomistDpd,
+          );
           await throttle(signal);
           const anatomistRaw = await callCompilerLLM(
             settings,
             [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: anatomistPrompt }],
-            signal, 8000,
+            signal, SUTTA_STUDIO_TOKEN_BUDGETS.anatomist,
             { schemaName: `sutta_studio_anatomist_${phase.id.replace(/-/g, '_')}`, schema: anatomistResponseSchema, structuredOutputs, meta: { stage: 'anatomist', phaseId: phase.id, requestName: 'anatomist' } }
           );
           anatomistOutput = parseJsonResponse<AnatomistPass>(anatomistRaw);
@@ -542,7 +566,7 @@ export const compileSuttaStudioPacket = async (options: {
             const lexRaw = await callCompilerLLM(
               settings,
               [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: lexicographerPrompt }],
-              signal, 8000,
+              signal, SUTTA_STUDIO_TOKEN_BUDGETS.lexicographer,
               { schemaName: `sutta_studio_lexico_${phase.id.replace(/-/g, '_')}`, schema: lexicographerResponseSchema, structuredOutputs, meta: { stage: 'lexicographer', phaseId: phase.id, requestName: 'lexicographer' } }
             );
             lexicographerOutput = parseJsonResponse<LexicographerPass>(lexRaw);
@@ -581,7 +605,7 @@ export const compileSuttaStudioPacket = async (options: {
               const weaverRaw = await callCompilerLLM(
                 settings,
                 [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: weaverPrompt }],
-                signal, 4000,
+                signal, SUTTA_STUDIO_TOKEN_BUDGETS.weaver,
                 { schemaName: `sutta_studio_weaver_${phase.id.replace(/-/g, '_')}`, schema: weaverResponseSchema, structuredOutputs, meta: { stage: 'weaver', phaseId: phase.id, requestName: 'weaver' } }
               );
               weaverOutput = parseJsonResponse<WeaverPass>(weaverRaw);
@@ -623,7 +647,7 @@ export const compileSuttaStudioPacket = async (options: {
             const typesetterRaw = await callCompilerLLM(
               settings,
               [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: typesetterPrompt }],
-              signal, 3000,
+              signal, SUTTA_STUDIO_TOKEN_BUDGETS.typesetter,
               { schemaName: `sutta_studio_typesetter_${phase.id.replace(/-/g, '_')}`, schema: typesetterResponseSchema, structuredOutputs, meta: { stage: 'typesetter', phaseId: phase.id, requestName: 'typesetter' } }
             );
             typesetterOutput = parseJsonResponse<TypesetterPass>(typesetterRaw);
@@ -648,7 +672,7 @@ export const compileSuttaStudioPacket = async (options: {
       const raw = await callCompilerLLM(
         settings,
         [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: phasePrompt }],
-        signal, 4000,
+        signal, SUTTA_STUDIO_TOKEN_BUDGETS.phaseView,
         { schemaName: `sutta_studio_${phase.id.replace(/-/g, '_')}`, schema: phaseResponseSchema, structuredOutputs, meta: { stage: 'phase', phaseId: phase.id, requestName: 'phase_view' } }
       );
 
@@ -698,7 +722,7 @@ export const compileSuttaStudioPacket = async (options: {
           const morphRaw = await callCompilerLLM(
             settings,
             [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: morphPrompt }],
-            signal, 3000,
+            signal, SUTTA_STUDIO_TOKEN_BUDGETS.morphology,
             { schemaName: `sutta_studio_morph_${phase.id.replace(/-/g, '_')}`, schema: morphResponseSchema, structuredOutputs, meta: { stage: 'morph', phaseId: phase.id, requestName: 'morphology' } }
           );
           const morphParsed = parseJsonResponse<{ paliWords?: Array<{ id: string; segments: PhaseView['paliWords'][number]['segments'] }> }>(morphRaw);

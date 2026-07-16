@@ -323,6 +323,60 @@ export class ImportOps {
         const current = Math.min(i + BATCH_SIZE, totalChapters);
         onProgress?.('chapters', current, totalChapters, `Importing chapters ${current}/${totalChapters}…`);
 
+        // P0.3 (TECH-DEBT-FIX-PRIORITY-2026-07-07): translations carry UNIQUE
+        // indexes on [chapterUrl, version] and [stableId, version]. Re-importing
+        // a backup whose translation ids differ from the stored rows (ids are
+        // regenerated whenever the export omits them) raised ConstraintError,
+        // aborted this batch, and stopped the import HALFWAY — earlier batches
+        // already committed, later ones never ran, and nothing rolled back. A
+        // backup you cannot reliably restore is not a backup.
+        //
+        // Fix: resolve each incoming translation's slot occupant FIRST, in a
+        // read-only pass, so the write transaction below stays purely
+        // synchronous. (Awaiting reads inside the write transaction would court
+        // the auto-commit hazard P0.1 hardened withTxn against.)
+        type Slot = { stableOccupantId?: string; urlOccupantId?: string };
+        const mergePlan = await new Promise<Map<string, Slot>>((resolve, reject) => {
+          const plan = new Map<string, Slot>();
+          const readTx = db.transaction([STORE_NAMES.TRANSLATIONS], 'readonly');
+          const store = readTx.objectStore(STORE_NAMES.TRANSLATIONS);
+          const byStable = store.index('stableId_version');
+          const byUrl = store.index('chapterUrl_version');
+          readTx.oncomplete = () => resolve(plan);
+          readTx.onerror = () => reject(readTx.error);
+          readTx.onabort = () => reject(readTx.error ?? new Error('Import merge-plan transaction aborted'));
+
+          for (const chapter of batch) {
+            const identity = resolveStoredChapterIdentity(
+              chapter,
+              sessionNovelId,
+              sessionLibraryVersionId
+            );
+            if (!identity.canonicalUrl) continue;
+            const translations = Array.isArray(chapter.translations) ? chapter.translations : [];
+            for (const translation of translations) {
+              const version = translation.version || 1;
+              const key = `${identity.storageUrl}::${version}`;
+              if (plan.has(key)) continue;
+              const slot: Slot = {};
+              plan.set(key, slot);
+
+              const urlReq = byUrl.get([identity.storageUrl, version]);
+              urlReq.onsuccess = () => {
+                const rec = urlReq.result as TranslationRecord | undefined;
+                if (rec) slot.urlOccupantId = rec.id;
+              };
+              if (identity.stableId) {
+                const stableReq = byStable.get([identity.stableId, version]);
+                stableReq.onsuccess = () => {
+                  const rec = stableReq.result as TranslationRecord | undefined;
+                  if (rec) slot.stableOccupantId = rec.id;
+                };
+              }
+            }
+          }
+        });
+
         await new Promise<void>((resolve, reject) => {
           const tx = db.transaction(
             [STORE_NAMES.CHAPTERS, STORE_NAMES.TRANSLATIONS, STORE_NAMES.FEEDBACK],
@@ -330,6 +384,7 @@ export class ImportOps {
           );
           tx.oncomplete = () => resolve();
           tx.onerror = () => reject(tx.error);
+          tx.onabort = () => reject(tx.error ?? new Error('Import batch transaction aborted'));
 
           const chaptersStore = tx.objectStore(STORE_NAMES.CHAPTERS);
           const translationsStore = tx.objectStore(STORE_NAMES.TRANSLATIONS);
@@ -364,11 +419,28 @@ export class ImportOps {
 
             const translations = Array.isArray(chapter.translations) ? chapter.translations : [];
             for (const translation of translations) {
+              const version = translation.version || 1;
+              const slot = mergePlan.get(`${identity.storageUrl}::${version}`);
+              // An incoming translation REPLACES whatever already occupies its
+              // (stableId|chapterUrl, version) slot, keeping that row's id so
+              // the unique indexes cannot be violated. Deterministic: the
+              // import overwrites, never aborts.
+              const survivorId =
+                slot?.stableOccupantId ?? slot?.urlOccupantId ?? translation.id ?? crypto.randomUUID();
+              // A legacy keyspace split (P0.2) can leave one version occupying
+              // two different rows; drop the loser before writing the survivor.
+              if (
+                slot?.stableOccupantId &&
+                slot?.urlOccupantId &&
+                slot.stableOccupantId !== slot.urlOccupantId
+              ) {
+                translationsStore.delete(slot.urlOccupantId);
+              }
               translationsStore.put({
-                id: translation.id || crypto.randomUUID(),
+                id: survivorId,
                 chapterUrl: identity.storageUrl,
                 stableId: identity.stableId,
-                version: translation.version || 1,
+                version,
                 translatedTitle: translation.translatedTitle,
                 translation: translation.translation,
                 footnotes: translation.footnotes || [],

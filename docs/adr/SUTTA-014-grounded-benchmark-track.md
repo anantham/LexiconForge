@@ -26,7 +26,8 @@ Two things changed this week:
 
 | Input | Production (`compiler/index.ts`) | Benchmark (`benchmark.ts`) |
 |---|---|---|
-| DPD attestations (`dpdLookups`) | fed to anatomist + lexicographer | **already fed** (since #21) — at parity |
+| DPD attestations (`dpdLookups`) — lexicographer | fed per content word, cached | fed — at parity |
+| DPD attestations (`dpdLookups`) — anatomist | fed since 2026-07-15 (P2.1); ungrounded before that | fed. **Correction:** the row above previously claimed the anatomist was "already fed — at parity"; it was NOT — production passed no `dpdLookups` to `buildAnatomistPrompt`, so the benchmark ranked a grounded anatomist pass real users never ran. Both now ground the anatomist through the shared `services/sutta-studio/dpdGrounding` helper, whose punctuation-stripping tokenization also lifts the DPD hit rate on mn10 from ~59% to ~89% (the old raw whitespace split counted `Idha,`/`abhijjhādomanassaṁ.` as misses). |
 | SC dictionary (`dictionaryEntries`) | fetched per content word, cached | **hardcoded `{}`** |
 | `retrievalContext` | built from segments | **never passed** |
 | Prior-phases window (`priorPhases`, v12-b) | last 3 compiled phases | **never passed** |
@@ -107,3 +108,33 @@ production ships clean text regardless.
   costlier (longer prompts, ~zero extra calls). Flash-tier stays well under $1/run.
 - The closed-book recall question survives as a deliberate occasional experiment instead of
   a permanent tax on every board refresh.
+
+## Amendment — 2026-07-15: Anatomist DPD parity correction
+
+The 2026-07-03 parity table incorrectly stated that production already supplied DPD attestations
+to the Anatomist. Code-level verification found that production constructed DPD lookups only for
+the Lexicographer, while the benchmark supplied a separate raw-whitespace Anatomist lookup map.
+The benchmark therefore ranked a grounded pass that production users never ran.
+
+The approved correction is to ground production rather than remove benchmark grounding. The DPD
+subset covers the MN10 corpus well: punctuation-normalized surface lookup measured about 89% hits,
+versus about 59% with the benchmark's previous raw whitespace tokens. Production and benchmark now
+call `services/sutta-studio/dpdGrounding.ts`, which owns boundary-punctuation normalization and DPD
+lookup assembly. This is a partial implementation of SUTTA-014; the remaining production-input and
+publication parity work is tracked in the implementation notes below.
+
+## Implementation Notes — 2026-07-15
+
+- `services/sutta-studio/dpdGrounding.ts` is the shared Anatomist DPD input boundary.
+- `services/compiler/index.ts` supplies its result to the production Anatomist prompt.
+- `scripts/sutta-studio/benchmark.ts` delegates its existing grounding path to the same helper.
+- `services/sutta-studio/passBudgets.ts` is the shared production/benchmark completion-token
+  contract; benchmark overrides remain per-pass and explicit.
+- `scripts/sutta-studio/benchmark-run-status.ts` defines `progress.json` completion as the
+  discovery and publication boundary. Incomplete runs are neither indexed nor ranked.
+- `scripts/sutta-studio/publish-compare.ts` replays rubric v2.1 scoring, verifies every current
+  score field against `quality-scores.json`, and refuses stale or mixed-rubric publication.
+- Focused regression coverage lives in `tests/services/sutta-studio/dpdGrounding.test.ts`,
+  `tests/services/sutta-studio/passBudgets.test.ts`, and `tests/scripts/sutta-studio/`.
+- SUTTA-014 remains `Proposed` until the broader grounded-track inputs and fleet rerun described
+  above are complete; this amendment corrects the factual parity claim without rewriting history.

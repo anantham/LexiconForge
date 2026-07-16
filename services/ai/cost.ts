@@ -59,6 +59,32 @@ export const calculateCost = async (
     }
   }
 
-  console.warn(`[Cost] No pricing information found for model: ${model}. Cost will be reported as 0.`);
+  // FAIL-OPEN, tolerated only for post-hoc accounting: this runs AFTER a paid
+  // response, so throwing here would destroy completed work. The budget GATE
+  // must never rely on this path — it pre-flights hasKnownPricing() and
+  // refuses to translate unpriceable models (TECH-DEBT P0.4).
+  console.error(`[Cost] No pricing information found for model: ${model}. Cost recorded as 0 — budget accounting for this call is WRONG.`);
   return 0;
+};
+
+/**
+ * Can this model's cost actually be computed? The spend-budget gate must
+ * refuse to proceed when this is false: an unpriced model records $0 per
+ * chapter, so the gate would believe a 999-chapter preload is free.
+ */
+export const hasKnownPricing = async (model: string): Promise<boolean> => {
+  if (resolveModelCosts(model)) return true;
+  if (model.includes('/')) {
+    try {
+      const pricing = await fetchDynamicPricing(model);
+      if (!pricing) return false;
+      const prompt = typeof pricing.prompt === 'string' ? parseFloat(pricing.prompt) : pricing.prompt;
+      const completion =
+        typeof pricing.completion === 'string' ? parseFloat(pricing.completion) : pricing.completion;
+      return Number.isFinite(prompt) && Number.isFinite(completion);
+    } catch {
+      return false;
+    }
+  }
+  return false;
 };
