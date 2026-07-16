@@ -604,11 +604,19 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     // reader can judge circularity risk themselves. Facts trace to human scholarship; wording,
     // selection and judging pass through LLMs with the guards named here.
     grounding: {
-      closedBook: true,
+      // NOT closed-book. The benchmark feeds DPD attestations (roots/POS/attested senses) to the
+      // Anatomist and Lexicographer passes — see the DPD source below and
+      // services/sutta-studio/dpdGrounding. The earlier `closedBook: true` / "raw Pāli only" label
+      // contradicted that (and its own DPD source row). It withholds the SuttaCentral dictionary
+      // payload, retrieval context, and prior-phase window that production ALSO supplies
+      // (SUTTA-014 parity gap), so benchmark output is LESS grounded than production — not
+      // un-grounded.
+      closedBook: false,
       closedBookNote:
-        'Models receive ONLY the raw Pāli phrase — no dictionary or retrieval context at inference. ' +
-        'The board measures parametric Pāli knowledge + analysis skill; the production pipeline additionally feeds ' +
-        'dictionary grounding, so production output is richer than benchmark output.',
+        'Models receive the raw Pāli phrase PLUS DPD attestations (roots, part-of-speech, attested ' +
+        'senses) at the Anatomist and Lexicographer passes — the board is NOT closed-book. It still ' +
+        'withholds the SuttaCentral dictionary payload, retrieval context, and prior-phase window ' +
+        'that production feeds, so production output is more grounded again (SUTTA-014).',
       sources: [
         { name: 'SuttaCentral canonical MN 10 (Mahāsaṅgīti; Sujato segmentation)', authority: 'human/scholarly', role: 'source text, phase cuts, and the text-integrity gate (morphemes must reconstruct these exact surfaces)' },
         { name: 'Digital Pāli Dictionary (DPD; compiled from PTS PED, CPD, traditional grammars)', authority: 'human/lexicographic', role: 'factual authority: roots, POS, attested senses. The golden is machine-verified against it; golden-v2 sense additions were restricted to VERBATIM DPD strings' },
