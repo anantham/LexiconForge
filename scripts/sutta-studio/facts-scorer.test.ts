@@ -90,7 +90,11 @@ describe('scoreFactsDetail', () => {
 
     const r = scoreFactsDetail(model, gold, () => [], grammar)!;
 
-    expect(r.morph).toEqual({ correct: 1, total: 2 }); // kāye fits, kurūnaṁ fabricated, satiyā ungraded
+    // Scored per authority-known key (review #4), not per word:
+    //  kāye  → case:loc ✓ + number:sg ✓ = 2/2
+    //  kurūnaṁ → case:nom ✗ (gen) + number:sg ✗ (pl) = 0/2
+    //  satiyā → silent, eligible but not charged
+    expect(r.morph).toEqual({ correct: 2, total: 4 });
     expect(r.morphCoverage).toEqual({ asserted: 2, eligible: 3 });
     expect(r.pos.total).toBe(3); // function word contributes nothing
   });
@@ -117,6 +121,38 @@ describe('scoreFactsDetail', () => {
     const gold = anat([{ id: 'g1', surface: 'ca', wordClass: 'function' }]);
     const model = anat([{ id: 'p1', surface: 'ca', wordClass: 'function' }]);
     expect(scoreFactsDetail(model, gold, () => [])).toBeNull();
+  });
+
+  it('a bogus non-morph assertion cannot inflate the macro (review #4)', () => {
+    // Reviewer's repro: adding {note:"nonsense"} raised a weak macro 0.500 → 0.667, because the
+    // old code let ANY asserted key add a morph check and fitsReading passed vacuously on a key the
+    // reading was silent about. `note` is not a gradeable morph key, so it must now be ignored.
+    const gold = anat([{ id: 'g1', surface: 'kāye', wordClass: 'content', tips: ['√kaya: body'] }]);
+    const grammar = (s: string) =>
+      (s === 'kāye' ? [{ pos: 'noun', gender: 'm', case: 'loc', number: 'sg' }] : undefined);
+
+    // Root wrong, word-class right, no real morph asserted → macro = mean(0/1 root, 1/1 pos) = 0.5.
+    const honest = anat([{ id: 'p1', surface: 'kāye', wordClass: 'content', tips: ['√wrong: x'] }]);
+    const gamed = anat([{ id: 'p1', surface: 'kāye', wordClass: 'content', tips: ['√wrong: x'], morph: { note: 'nonsense' } }]);
+
+    const base = scoreFactsDetail(honest, gold, () => [], grammar)!;
+    const withJunk = scoreFactsDetail(gamed, gold, () => [], grammar)!;
+
+    expect(base.macro).toBeCloseTo(0.5);
+    expect(withJunk.morph).toEqual({ correct: 0, total: 0 }); // junk key ignored, morph ungraded
+    expect(withJunk.macro).toBe(base.macro); // no free 1.0 category → macro cannot rise
+  });
+
+  it('canonicalises morph vocabulary so a correct `ins` matches DPD `instr` (review #4)', () => {
+    // Reviewer's repro: a correct instrumental `case:"ins"` scored WRONG because DPD stores `instr`,
+    // dragging the macro to 0.333.
+    const gold = anat([{ id: 'g1', surface: 'satiyā', wordClass: 'content', tips: ['√sati: mindfulness'] }]);
+    const grammar = (s: string) =>
+      (s === 'satiyā' ? [{ pos: 'noun', gender: 'f', case: 'instr', number: 'sg' }] : undefined);
+    const model = anat([{ id: 'p1', surface: 'satiyā', wordClass: 'content', tips: ['√sati: x'], morph: { case: 'ins' } }]);
+
+    const r = scoreFactsDetail(model, gold, () => [], grammar)!;
+    expect(r.morph).toEqual({ correct: 1, total: 1 }); // ins ≡ instr
   });
 });
 

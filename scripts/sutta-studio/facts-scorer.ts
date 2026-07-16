@@ -112,11 +112,11 @@ export type FactsDetail = {
   total: number;
   root: RootBreakdown;
   pos: FactsBreakdown;
-  /** Morph is a CONSISTENCY check: graded only on words where the model
-   * ASSERTED morph, correct iff the assertion fits some legitimate DPD
-   * reading of that surface (golden hints as fallback authority). The
-   * prompt only exemplifies morph, so omission is not charged here —
-   * morphCoverage makes it visible instead. */
+  /** Morph is a CONSISTENCY check on inflection (gender/case/number): each ADJUDICABLE
+   * assertion — one on a key some DPD reading (or golden hint) actually specifies — is graded,
+   * correct iff the model's value (canonicalised: `ins`≡`instr`, `m`≡`masc`, …) is an accepted
+   * value for that key. Keys no reading covers are ignored, so a bogus assertion can't inflate
+   * the macro. Omission of a known key is not charged; morphCoverage makes coverage visible. */
   morph: FactsBreakdown;
   morphCoverage: { asserted: number; eligible: number };
 };
@@ -139,14 +139,39 @@ const wordMorphMap = (wordId: string, anat: AnatomistPass): Map<string, string> 
 
 const cleanSurface = (s: string) => (s || '').toLowerCase().normalize('NFC').replace(/[^a-zāīūṁṃṅñṭḍṇḷ'']/g, '');
 
-/** Model assertions fit a reading when every asserted key either matches the
- * reading's value or the reading is silent on that key (unknown ≠ wrong). */
-const fitsReading = (asserted: Map<string, string>, reading: MorphReading): boolean => {
-  for (const [k, v] of asserted) {
-    const rv = (reading as Record<string, string | undefined>)[k];
-    if (rv != null && rv !== v) return false;
-  }
-  return true;
+/**
+ * Canonical forms for the inflectional morph values, so equivalent abbreviations compare equal —
+ * a model's `ins` and DPD's `instr` are the SAME case. Unknown values pass through lowercased.
+ * Fixes review #4's `ins` vs `instr` false-negative.
+ */
+const MORPH_CANON: Record<string, Record<string, string>> = {
+  case: {
+    nom: 'nom', nominative: 'nom',
+    acc: 'acc', accusative: 'acc',
+    gen: 'gen', genitive: 'gen',
+    dat: 'dat', dative: 'dat',
+    ins: 'instr', instr: 'instr', instrumental: 'instr',
+    abl: 'abl', ablative: 'abl',
+    loc: 'loc', locative: 'loc',
+    voc: 'voc', vocative: 'voc',
+  },
+  gender: {
+    m: 'masc', masc: 'masc', masculine: 'masc',
+    f: 'fem', fem: 'fem', feminine: 'fem',
+    n: 'neut', nt: 'neut', neut: 'neut', neuter: 'neut',
+  },
+  number: {
+    sg: 'sing', sing: 'sing', singular: 'sing',
+    pl: 'plur', plur: 'plur', plural: 'plur',
+    du: 'dual', dual: 'dual',
+  },
+};
+/** The inflectional keys graded in morph. `pos` is deliberately excluded — part-of-speech is
+ *  covered by the word-class check, and its vocabulary is open-ended. */
+const GRADEABLE_MORPH_KEYS = ['gender', 'case', 'number'] as const;
+const canonMorph = (key: string, value: string): string => {
+  const v = value.trim().toLowerCase();
+  return MORPH_CANON[key]?.[v] ?? v;
 };
 
 /**
@@ -156,10 +181,12 @@ const fitsReading = (asserted: Map<string, string>, reading: MorphReading): bool
  *  - ROOT (1 check when an authority root set exists — DPD for the surface,
  *    else the golden's own √tooltips): correct iff the model asserts ≥1 root
  *    in that set. Asserting none, or only alien roots, is wrong.
- *  - POS (1 check): model wordClass === golden wordClass (golden classes are
- *    DPD-verified upstream by verify-golden.ts).
- *  - MORPH (1 check per golden morph key=value pair): correct iff the model
- *    asserts the same pair anywhere in that word's segments.
+ *  - POS (1 check): really a WORD-CLASS agreement check — model wordClass === golden wordClass
+ *    (content/function; golden classes are DPD-verified upstream by verify-golden.ts). It is NOT
+ *    morphological part-of-speech; the field is named `pos` for continuity.
+ *  - MORPH (1 check per AUTHORITY-KNOWN gender/case/number key the model asserts): correct iff
+ *    the model's canonicalised value is accepted by some reading. Denominator is authority-set,
+ *    not model-chosen, so extra assertions can't game it.
  * A dropped golden content word contributes ALL its available checks as
  * wrong (SUTTA-012 drop penalty).
  */
@@ -200,7 +227,11 @@ export function scoreFactsDetail(
     pos.total += 1;
     if (mw && mw.wordClass === gw.wordClass) pos.correct += 1;
 
-    // MORPH — consistency vs the DPD reading set (golden hints as fallback)
+    // MORPH — grade the model's inflectional claims (gender/case/number) against the DPD reading
+    // set (golden hints as fallback). Scored per AUTHORITY-KNOWN key, over adjudicable assertions
+    // only: a key that no reading specifies (e.g. an invented "note") is ignored, so a bogus
+    // assertion can't add a free 1.0 category and inflate the macro (review #4). Omission of a
+    // known key is NOT charged — silence ≠ wrong — but an unconfirmable assertion is not free.
     const dpdReadings = grammarLookup?.(cleanSurface(gw.surface));
     const goldHint = wordMorphMap(gw.id, goldAnat);
     const readings: MorphReading[] =
@@ -211,12 +242,27 @@ export function scoreFactsDetail(
           : [];
     if (readings.length > 0 && mw) {
       morphCoverage.eligible += 1;
-      const asserted = wordMorphMap(mw.id, outAnat);
-      if (asserted.size > 0) {
-        morphCoverage.asserted += 1;
-        morph.total += 1;
-        if (readings.some((r) => fitsReading(asserted, r))) morph.correct += 1;
+      // Acceptable canonical values per gradeable key, unioned across (possibly ambiguous) readings.
+      const acceptable = new Map<string, Set<string>>();
+      for (const r of readings) {
+        for (const key of GRADEABLE_MORPH_KEYS) {
+          const rv = (r as Record<string, string | undefined>)[key];
+          if (rv == null || rv === '') continue;
+          let set = acceptable.get(key);
+          if (!set) { set = new Set(); acceptable.set(key, set); }
+          set.add(canonMorph(key, String(rv)));
+        }
       }
+      const asserted = wordMorphMap(mw.id, outAnat);
+      let assertedAnyGradeable = false;
+      for (const [key, values] of acceptable) {
+        const av = asserted.get(key);
+        if (av == null) continue; // omission of a known key is not charged
+        assertedAnyGradeable = true;
+        morph.total += 1;
+        if (values.has(canonMorph(key, av))) morph.correct += 1;
+      }
+      if (assertedAnyGradeable) morphCoverage.asserted += 1;
     }
   });
 
