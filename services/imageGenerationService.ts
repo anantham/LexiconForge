@@ -139,9 +139,22 @@ export class ImageGenerationService {
     let generatedCount = 0;
     const generatedImages: Record<string, ImageState> = { ...initialImageStates };
 
-    // Only generate images for illustrations that don't already have generated data
+    // Only generate images for illustrations that don't already have generated data.
+    // Dedupe by placementMarker: the loop below keys every generation by `chapterId:marker`, so
+    // two illustrations sharing a marker would issue two PAID generations for the same key and the
+    // second would overwrite the first — money spent, one image lost. The validator already dedupes
+    // upstream; this is the defense-in-depth guard at the point where money is actually spent.
+    const seenMarkers = new Set<string>();
     const illustrationsNeedingGeneration = translationResult.suggestedIllustrations.filter(
-      (illust: any) => !illust.generatedImage
+      (illust: any) => {
+        if (illust.generatedImage) return false;
+        if (seenMarkers.has(illust.placementMarker)) {
+          swarn(`[ImageGen] Dropping duplicate illustration for marker ${illust.placementMarker} — one image renders per marker.`);
+          return false;
+        }
+        seenMarkers.add(illust.placementMarker);
+        return true;
+      }
     );
 
     debugLog('image', 'summary', '[ImageGen] Illustration breakdown', {

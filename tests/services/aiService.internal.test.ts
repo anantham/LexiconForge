@@ -83,6 +83,23 @@ describe('aiService internal utilities', () => {
       const prompts = [{ placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'one' }];
       expect(() => validateAndFixIllustrations(translation, prompts)).toThrow(/missing illustration prompts/i);
     });
+
+    it('deduplicates two prompts sharing a marker, keeping the first', () => {
+      // A model sometimes emits two prompts for the SAME marker. Only one image can render at a
+      // marker (cache key is chapterId:marker), so a surviving duplicate downstream triggers a
+      // SECOND paid generation whose result overwrites the first. Before the dedupe, this returned
+      // BOTH entries (the "extras" branch left them because the marker was already in the text).
+      const translation = 'A scene. [ILLUSTRATION-1]';
+      const prompts = [
+        { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'first' },
+        { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'second (duplicate)' },
+      ];
+      const result = validateAndFixIllustrations(translation, prompts);
+      expect(result.suggestedIllustrations).toHaveLength(1);
+      expect(result.suggestedIllustrations[0].imagePrompt).toBe('first');
+      // And it must NOT have appended a stray marker to the text (the count now balances).
+      expect(result.translation).toBe(translation);
+    });
   });
 
   describe('validateAndFixFootnotes', () => {

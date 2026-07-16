@@ -13,12 +13,33 @@ type Footnote = {
   text: string;
 };
 
+/**
+ * A model occasionally returns two prompts for the SAME placement marker. Only one image can ever
+ * render at a marker — the image cache key is `chapterId:placementMarker` — so the duplicate is
+ * dead weight, and worse: downstream it triggers a SECOND paid generation whose result overwrites
+ * the first (imageGenerationService iterates every suggestedIllustration and keys by marker). Keep
+ * the first prompt per marker, drop the rest, before any count-based reconciliation below — a
+ * duplicate would otherwise inflate jsonMarkers and defeat the text-vs-json balance checks.
+ */
+const dedupeIllustrationsByMarker = (illustrations: Illustration[]): Illustration[] => {
+  const seen = new Set<string>();
+  const out: Illustration[] = [];
+  for (const item of illustrations) {
+    if (seen.has(item.placementMarker)) continue;
+    seen.add(item.placementMarker);
+    out.push(item);
+  }
+  return out;
+};
+
 export const validateAndFixIllustrations = (
   translation: string,
   suggestedIllustrations: Illustration[] | undefined
 ): { translation: string; suggestedIllustrations: Illustration[] } => {
   const textMarkers = findIllustrationMarkers(translation);
-  const jsonIllustrations = (suggestedIllustrations || []).map((illustration) => ensureIllustrationPlan(illustration));
+  const jsonIllustrations = dedupeIllustrationsByMarker(
+    (suggestedIllustrations || []).map((illustration) => ensureIllustrationPlan(illustration))
+  );
   const jsonMarkers = jsonIllustrations.map(item => item.placementMarker);
 
   if (textMarkers.length === jsonMarkers.length) {
