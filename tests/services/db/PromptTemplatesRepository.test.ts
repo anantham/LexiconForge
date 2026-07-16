@@ -18,14 +18,16 @@ const baseTemplate: PromptTemplate = {
 let db: IDBDatabase;
 let repo: PromptTemplatesRepository;
 
-const openTestDb = async (): Promise<IDBDatabase> => {
+const openTestDb = async (withDefaultIndex = true): Promise<IDBDatabase> => {
   return await new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
     request.onupgradeneeded = () => {
       const upgradeDb = request.result;
       if (!upgradeDb.objectStoreNames.contains(STORE_NAME)) {
         const store = upgradeDb.createObjectStore(STORE_NAME, { keyPath: 'id' });
-        store.createIndex('isDefault', 'isDefault', { unique: false });
+        if (withDefaultIndex) {
+          store.createIndex('isDefault', 'isDefault', { unique: false });
+        }
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -90,5 +92,21 @@ describe('PromptTemplatesRepository', () => {
     await repo.deleteTemplate(baseTemplate.id);
     const afterDelete = await repo.getTemplate(baseTemplate.id);
     expect(afterDelete).toBeNull();
+  });
+
+  it('finds the default template by scan on legacy databases without the index', async () => {
+    db.close();
+    await deleteDb();
+    db = await openTestDb(false);
+    repo = new PromptTemplatesRepository({
+      getDb: () => Promise.resolve(db),
+      stores: { PROMPT_TEMPLATES: STORE_NAME },
+    });
+
+    await repo.storeTemplate({ ...baseTemplate, isDefault: true });
+    await expect(repo.getDefaultTemplate()).resolves.toMatchObject({
+      id: baseTemplate.id,
+      isDefault: true,
+    });
   });
 });

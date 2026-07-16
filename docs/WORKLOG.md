@@ -2188,6 +2188,55 @@ These are exactly what the live concept-registry + DPD substrate already provide
 ### [2026-06-06] [Agent: Opus] — session close
 **Status:** Done (all Sariputta chant work merged). **main `48e2cf4`.**
 PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR #82 (cross-model adversarial-review fixes) both MERGED. Ran Codex (gpt-5.5, photos via `-i`) + an Opus skeptic panel, 3 rounds, on the sacred-text content — caught real errors incl. two I'd authored myself; restored the full Buddha Vandana (Itipiso + homage stanza) from photo 2. Full handover + remaining-work inventory in `docs/HANDOVER.md`. **Next:** Dhamma/Sangha Vandana + Dai Hi Shu / Daisegaki / Teidai Dempo (resume workflow `wf_d0f5930b-04c` ≤3 agents, or Codex's LLM-authoring pipeline) → cross-model review before merge.
+### [2026-07-13 09:50 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Option 2 - migrate the next repository transaction boundaries onto the durable transaction kernel from PR #109.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-db-repository-migration`
+**Branch:** `debt/codex-db-repository-migration` (stacked on `debt/codex-db-transaction-kernel`)
+**Files likely affected:**
+- `services/db/repositories/SettingsRepository.ts` - remove the repository-local request-success wrapper.
+- `services/db/repositories/FeedbackRepository.ts` - remove the duplicate transaction lifecycle while preserving feedback CRUD behavior.
+- `services/db/repositories/PromptTemplatesRepository.ts` - move reads and writes through the shared lifecycle without changing default-template semantics.
+- `services/db/repositories/ChapterRepository.ts` - consolidate all repository transactions and the duplicated stable-ID lookup while making metadata writes commit-durable.
+- `tests/services/db/*Repository*.test.ts` - add terminal commit/abort regression coverage for migrated write paths.
+- `docs/adr/DB-002-atomic-transaction-boundaries.md` - append implementation notes after verification.
+**Hypotheses:** H1 the three private wrappers are behaviorally equivalent except for store/domain labels and can delegate to `runTransaction`; H2 `setChapterNumberByStableId` can preserve index/fallback behavior while moving settlement to the kernel; H3 request helpers plus terminal-event tests will expose any transaction-inactivity or error-precedence regression.
+**Predicted tests:** existing CRUD suites remain green; a successful request does not settle a write before `complete`; a post-request quota abort rejects as `DbError(kind=Quota)`; missing chapter errors remain descriptive and trigger transaction abort.
+**Confidence:** 0.91
+**Fallback:** migrate only the repositories whose public behavior and typed errors remain stable, and split any incompatible path into a separate follow-up PR.
+
+### [2026-07-13 10:02 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Option 2 - migrate Settings, Feedback, Prompt Templates, and Chapter repositories onto the durable transaction kernel.
+**Progress:** Removed three request-success transaction wrappers and all direct transaction lifecycles from `ChapterRepository`. All four repositories now delegate to `runTransaction`; request work uses `promisifyRequest`; Chapter index and legacy cursor stable-ID lookups share one helper; missing chapter metadata updates throw a descriptive typed `DbError`.
+**Files modified (line numbers after change + why):**
+- `services/db/repositories/SettingsRepository.ts:1-68` - kernel-backed store adapter and request helpers.
+- `services/db/repositories/FeedbackRepository.ts:1-117` - kernel-backed CRUD, consistent helper naming, and two legacy `any` casts removed.
+- `services/db/repositories/PromptTemplatesRepository.ts:1-122` - kernel-backed CRUD while preserving numeric default-index records and legacy scan fallback.
+- `services/db/repositories/ChapterRepository.ts:1-169` - one transaction adapter and one shared stable-ID lookup for all chapter repository paths.
+- `tests/services/db/RepositoryDurability.test.ts:1-145` - table-driven post-request quota abort coverage for every migrated repository.
+- `tests/services/db/ChapterRepository.test.ts:9-121` - real legacy cursor fallback and typed missing-record coverage.
+- `tests/services/db/PromptTemplatesRepository.test.ts:21-111` - real missing-index fallback coverage.
+- `docs/adr/DB-002-atomic-transaction-boundaries.md:24-44` - append repository-migration implementation notes and remaining raw-operation scope.
+- `docs/roadmaps/TECH-DEBT-INBOX.md` - `[DEBT][TEST]` receipt for Node 26 experimental Web Storage shadowing jsdom.
+**Refactoring metrics:**
+- Direct transaction lifecycle implementations in these repositories: 4 -> 0; Chapter stable-ID lookup paths: 2 -> 1.
+- Production LOC: 543 -> 480 (-11.6%); Settings 71 -> 69, Feedback 132 -> 118, Prompt Templates 159 -> 123, Chapter 181 -> 170.
+- Cyclomatic branch proxy: 59 -> 49 (-16.9%).
+- Targeted coverage: statements 74.73% -> 92.70%; branches 53.91% -> 66.31%; functions 73.01% -> 96.77%; lines 82.35% -> 93.93%.
+- Main production chunk: 4,146.71 -> 4,144.57 kB minified (-2.14 kB); 993.16 -> 992.97 kB gzip (-0.19 kB).
+- Type safety: 2 `any` casts removed; no `any` added; repository interfaces unchanged.
+- Performance signal: the same 14 pre-existing repository behavior tests ran in 28 ms before and 22 ms after; this is a noisy local test-time signal, while transaction and IndexedDB request counts are structurally unchanged.
+**Verification:**
+- Focused transaction/repository tests: 35 passed.
+- Complete DB suite: 62 passed.
+- Full Vitest suite: 8,797 passed, 356 skipped with `NODE_OPTIONS=--no-experimental-webstorage` on Node 26.
+- Production build passed with pre-existing chunk/dynamic-import warnings.
+- `tsc --noEmit --pretty false` reports only the unchanged baseline diagnostics; no modified file appears.
+- Initial full-suite run without the Node flag failed 71 unrelated localStorage tests; isolated rerun confirmed the Node 26/jsdom environment cause, and the corrected full run passed.
+**Review:** External Grok execution was denied because it would transmit private repository context to xAI. No external review was performed; local adversarial review found no actionable defect.
+**PR:** https://github.com/anantham/LexiconForge/pull/110 (draft, stacked on PR #109)
+**Next:** After review of PRs #109 and #110, migrate raw summary deletion and backup-storage writes in a separate PR.
 ### [2026-07-15 17:12 IST] [Agent: Codex]
 **Status:** Starting
 **Task:** Finish PR #112: P2.1 production/benchmark Anatomist grounding parity and P2.3 token-budget/publication consistency.

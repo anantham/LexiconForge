@@ -24,6 +24,26 @@ PR centralizes the lifecycle in `services/db/core/transactionKernel.ts`, exposed
 `services/db/core/txn.ts`; later repository-migration PRs move
 settings, feedback, prompt templates, chapter metadata, summaries, and backup storage onto it.
 
+## Repository Migration Implementation (2026-07-13)
+
+PR #109 supersedes the closed PR #106 and establishes the shared terminal-event kernel.
+The first stacked repository migration applies that decision to:
+
+- `services/db/repositories/SettingsRepository.ts`;
+- `services/db/repositories/FeedbackRepository.ts`;
+- `services/db/repositories/PromptTemplatesRepository.ts`; and
+- `services/db/repositories/ChapterRepository.ts`.
+
+Each repository keeps its injected `IDBDatabase` contract and public interface, but delegates
+transaction creation, terminal settlement, error mapping, and operation-triggered aborts to
+`runTransaction()`. Chapter stable-ID reads and metadata updates now share one index/cursor
+fallback. `tests/services/db/RepositoryDurability.test.ts` verifies that each migrated write
+rejects a quota abort after its request has succeeded, while the repository CRUD suites cover
+real fake-indexeddb commits and legacy-index fallbacks.
+
+Raw summary deletion and backup-storage writes remain follow-up migrations; they do not block
+the repository migration because they do not share these repository interfaces.
+
 ## Implementation Notes (2026-03-05)
 Atomic transaction boundaries enforced via `withTxn()` in `services/db/core/txn.ts`.
 Multi-store transactions use the `storeNames: string[]` parameter. Retry policy and

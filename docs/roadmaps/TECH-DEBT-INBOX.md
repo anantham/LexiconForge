@@ -24,3 +24,18 @@ Append-only raw debt receipts discovered during implementation.
   - All registry novels use canonical version ids with no remaining legacy aliases needed.
   - Existing user-facing deep links/bookmarks have either been migrated or are no longer supported by policy.
   - Published metadata points directly at final session artifact URLs without importer-side rewriting.
+
+[DEBT][TEST][2026-07-13 10:02 IST] Node 26 experimental Web Storage shadows jsdom localStorage
+- Files:
+  - `vitest.config.ts`
+  - `tests/setup.ts`
+  - `package.json` / the eventual Node-version or test-command policy
+- Symptom:
+  - On Node `v26.0.0`, the experimental global `localStorage` accessor exists but yields `undefined` without `--localstorage-file`.
+  - This shadows jsdom's storage in tests that access the global directly, causing 71 unrelated UI tests to fail before their assertions.
+  - `NODE_OPTIONS=--no-experimental-webstorage` restores jsdom ownership and the full 8,797-test suite passes.
+- Suggested follow-up:
+  - Pin a supported Node version, or make the Vitest command/setup explicitly disable or replace Node's experimental Web Storage global.
+  - Keep this separate from database transaction changes so verification-environment policy receives its own review.
+- Exit criteria:
+  - `npm test -- --run` passes on the documented Node version without an undocumented shell flag.

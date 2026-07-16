@@ -1,5 +1,11 @@
 import { generateStableChapterId } from '../../stableIdService';
 import type { Chapter } from '../../../types';
+import { DbError } from '../core/errors';
+import {
+  promisifyRequest,
+  runTransaction,
+  type TransactionMode,
+} from '../core/txn';
 import type { ChapterRecord } from '../types';
 import type { IChapterRepository } from './interfaces/IChapterRepository';
 
@@ -14,8 +20,57 @@ interface ChapterRepositoryDeps {
 export class ChapterRepository implements IChapterRepository {
   constructor(private readonly deps: ChapterRepositoryDeps) {}
 
-  async storeChapter(chapter: Chapter): Promise<ChapterRecord> {
+  private async withStore<T>(
+    mode: TransactionMode,
+    operationName: string,
+    fn: (store: IDBObjectStore) => Promise<T> | T
+  ): Promise<T> {
     const db = await this.deps.getDb();
+    const storeName = this.deps.stores.CHAPTERS;
+    return runTransaction(
+      db,
+      storeName,
+      mode,
+      (_transaction, stores) => fn(stores[storeName]),
+      'chapters',
+      'ChapterRepository',
+      operationName
+    );
+  }
+
+  private async findByStableId(
+    store: IDBObjectStore,
+    stableId: string
+  ): Promise<ChapterRecord | null> {
+    if (store.indexNames.contains('stableId')) {
+      const record = await promisifyRequest<ChapterRecord | undefined>(
+        store.index('stableId').get(stableId)
+      );
+      return record ?? null;
+    }
+
+    console.warn('[ChapterRepository] stableId index missing, falling back to table scan');
+    return new Promise<ChapterRecord | null>((resolve, reject) => {
+      const request = store.openCursor();
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (!cursor) {
+          resolve(null);
+          return;
+        }
+
+        const record = cursor.value as ChapterRecord;
+        if (record.stableId === stableId) {
+          resolve(record);
+          return;
+        }
+        cursor.continue();
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async storeChapter(chapter: Chapter): Promise<ChapterRecord> {
     const originalUrl = chapter.originalUrl || chapter.url;
 
     if (!originalUrl) {
@@ -24,7 +79,11 @@ export class ChapterRepository implements IChapterRepository {
 
     const nowIso = new Date().toISOString();
     const canonical = this.deps.normalizeUrl(originalUrl) || originalUrl;
-    const stableId = generateStableChapterId(chapter.content || '', chapter.chapterNumber || 0, chapter.title || '');
+    const stableId = generateStableChapterId(
+      chapter.content || '',
+      chapter.chapterNumber || 0,
+      chapter.title || ''
+    );
 
     const record: ChapterRecord = {
       url: originalUrl,
@@ -42,139 +101,69 @@ export class ChapterRepository implements IChapterRepository {
       lastAccessed: nowIso,
     };
 
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.CHAPTERS], 'readwrite');
-      const store = transaction.objectStore(this.deps.stores.CHAPTERS);
-      const getRequest = store.get(originalUrl);
-
-      getRequest.onsuccess = () => {
-        const existing = getRequest.result as ChapterRecord | undefined;
-        if (existing) {
-          record.novelId = existing.novelId ?? record.novelId;
-          record.dateAdded = existing.dateAdded;
-          record.stableId = existing.stableId || record.stableId;
-          record.canonicalUrl = existing.canonicalUrl || record.canonicalUrl;
-          if (existing.fanTranslation && !record.fanTranslation) {
-            record.fanTranslation = existing.fanTranslation;
-          }
-          if (existing.chapterNumber != null && record.chapterNumber == null) {
-            record.chapterNumber = existing.chapterNumber;
-          }
+    await this.withStore('readwrite', 'storeChapter', async store => {
+      const existing = await promisifyRequest<ChapterRecord | undefined>(
+        store.get(originalUrl)
+      );
+      if (existing) {
+        record.novelId = existing.novelId ?? record.novelId;
+        record.dateAdded = existing.dateAdded;
+        record.stableId = existing.stableId || record.stableId;
+        record.canonicalUrl = existing.canonicalUrl || record.canonicalUrl;
+        if (existing.fanTranslation && !record.fanTranslation) {
+          record.fanTranslation = existing.fanTranslation;
         }
+        if (existing.chapterNumber != null && record.chapterNumber == null) {
+          record.chapterNumber = existing.chapterNumber;
+        }
+      }
 
-        const putRequest = store.put(record);
-        putRequest.onerror = () => reject(putRequest.error);
-      };
-
-      getRequest.onerror = () => reject(getRequest.error);
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error);
+      await promisifyRequest(store.put(record));
     });
 
     return record;
   }
 
   async getChapter(chapterUrl: string): Promise<ChapterRecord | null> {
-    const db = await this.deps.getDb();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.CHAPTERS], 'readonly');
-      const store = transaction.objectStore(this.deps.stores.CHAPTERS);
-      const request = store.get(chapterUrl);
-      request.onsuccess = () => resolve((request.result as ChapterRecord) || null);
-      request.onerror = () => reject(request.error);
+    return this.withStore('readonly', 'getChapter', async store => {
+      const record = await promisifyRequest<ChapterRecord | undefined>(
+        store.get(chapterUrl)
+      );
+      return record ?? null;
     });
   }
 
   async getChapterByStableId(stableId: string): Promise<ChapterRecord | null> {
-    const db = await this.deps.getDb();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.CHAPTERS], 'readonly');
-      const store = transaction.objectStore(this.deps.stores.CHAPTERS);
-
-      // Check if index exists, fall back to table scan if not
-      if (store.indexNames.contains('stableId')) {
-        const index = store.index('stableId');
-        const request = index.get(stableId);
-        request.onsuccess = () => resolve((request.result as ChapterRecord) || null);
-        request.onerror = () => reject(request.error);
-      } else {
-        // Fallback: scan all records (slower but works with legacy DBs)
-        console.warn('[ChapterRepository] stableId index missing, falling back to table scan');
-        const request = store.openCursor();
-        request.onsuccess = () => {
-          const cursor = request.result;
-          if (cursor) {
-            const record = cursor.value as ChapterRecord;
-            if (record.stableId === stableId) {
-              resolve(record);
-            } else {
-              cursor.continue();
-            }
-          } else {
-            resolve(null); // Not found
-          }
-        };
-        request.onerror = () => reject(request.error);
-      }
+    return this.withStore('readonly', 'getChapterByStableId', store => {
+      return this.findByStableId(store, stableId);
     });
   }
 
   async setChapterNumberByStableId(stableId: string, chapterNumber: number): Promise<void> {
-    const db = await this.deps.getDb();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.CHAPTERS], 'readwrite');
-      const store = transaction.objectStore(this.deps.stores.CHAPTERS);
-
-      const updateRecord = (record: ChapterRecord | undefined) => {
-        if (!record) {
-          reject(new Error(`No chapter found for stableId=${stableId}`));
-          return;
-        }
-        record.chapterNumber = chapterNumber;
-        record.lastAccessed = new Date().toISOString();
-        const putRequest = store.put(record);
-        putRequest.onsuccess = () => resolve();
-        putRequest.onerror = () => reject(putRequest.error);
-      };
-
-      // Check if index exists, fall back to table scan if not
-      if (store.indexNames.contains('stableId')) {
-        const index = store.index('stableId');
-        const request = index.get(stableId);
-        request.onsuccess = () => updateRecord(request.result as ChapterRecord | undefined);
-        request.onerror = () => reject(request.error);
-      } else {
-        // Fallback: scan all records
-        console.warn('[ChapterRepository] stableId index missing, falling back to table scan');
-        const request = store.openCursor();
-        let found = false;
-        request.onsuccess = () => {
-          const cursor = request.result;
-          if (cursor) {
-            const record = cursor.value as ChapterRecord;
-            if (record.stableId === stableId) {
-              found = true;
-              updateRecord(record);
-            } else {
-              cursor.continue();
-            }
-          } else if (!found) {
-            reject(new Error(`No chapter found for stableId=${stableId}`));
-          }
-        };
-        request.onerror = () => reject(request.error);
+    await this.withStore('readwrite', 'setChapterNumberByStableId', async store => {
+      const record = await this.findByStableId(store, stableId);
+      if (!record) {
+        throw new DbError(
+          'NotFound',
+          'chapters',
+          'ChapterRepository',
+          `Cannot set chapter number: no chapter found for stableId=${stableId}`
+        );
       }
+
+      await promisifyRequest(
+        store.put({
+          ...record,
+          chapterNumber,
+          lastAccessed: new Date().toISOString(),
+        })
+      );
     });
   }
 
   async getAllChapters(): Promise<ChapterRecord[]> {
-    const db = await this.deps.getDb();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.CHAPTERS], 'readonly');
-      const store = transaction.objectStore(this.deps.stores.CHAPTERS);
-      const request = store.getAll();
-      request.onsuccess = () => resolve((request.result as ChapterRecord[]) || []);
-      request.onerror = () => reject(request.error);
+    return this.withStore('readonly', 'getAllChapters', async store => {
+      return promisifyRequest<ChapterRecord[]>(store.getAll());
     });
   }
 }
