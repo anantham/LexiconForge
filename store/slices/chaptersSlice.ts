@@ -1032,6 +1032,22 @@ export const createChaptersSlice: StateCreator<
             debugLog('worker', 'summary', '[Worker] Preload mode changed mid-loop, stopping.');
             break;
           }
+          // Ported from PR #108: stop the WHOLE preload loop once when the
+          // model is unpriceable, instead of letting the per-chapter gate in
+          // translationsSlice block every iteration (999 chapters = 999
+          // warning toasts, $0 spent but a miserable UX).
+          const { hasKnownPricing } = await import('../../services/ai/cost');
+          if (!(await hasKnownPricing(latestSettings.model))) {
+            const showNotification = (get() as any).showNotification;
+            if (showNotification) {
+              showNotification(
+                `Budget mode cannot safely preload with unpriced model "${latestSettings.model}". Choose a priced model or add pricing before continuing.`,
+                'warning'
+              );
+            }
+            debugLog('worker', 'summary', '[Worker] Stopping preload: model pricing unknown.');
+            break;
+          }
           const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
           const spent = await getNovelTranslationCost(activeNovelId!, activeVersionId!);
           if (spent >= latestSettings.preloadBudget) {
