@@ -1,6 +1,7 @@
 import { generateStableChapterId } from '../../stableIdService';
 import type { ChapterRecord, TranslationRecord, UrlMappingRecord } from '../types';
 import type { TranslationResult } from '../../../types';
+import { promisifyRequest, runTransaction } from '../core/txn';
 import type {
   ChapterRef,
   ITranslationRepository,
@@ -140,19 +141,26 @@ export class TranslationRepository implements ITranslationRepository {
     );
   }
 
-  private async writeTranslation(record: TranslationRecord): Promise<void> {
+  private async withTranslationWrite<T>(
+    operationName: string,
+    operation: (store: IDBObjectStore) => Promise<T> | T
+  ): Promise<T> {
     const db = await this.deps.getDb();
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
-      const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
-      const request = store.put(record);
-      // Durability (P0.1): settle from the TRANSACTION, not the request —
-      // request.onsuccess fires before the commit, which can still abort
-      // (QuotaExceededError on a large translation being the canonical case).
-      request.onerror = () => reject(request.error);
-      transaction.oncomplete = () => resolve();
-      transaction.onabort = () =>
-        reject(transaction.error ?? new Error('Translation write rolled back (transaction aborted before commit)'));
+    const storeName = this.deps.stores.TRANSLATIONS;
+    return runTransaction(
+      db,
+      storeName,
+      'readwrite',
+      (_transaction, stores) => operation(stores[storeName]),
+      'translations',
+      'TranslationRepository',
+      operationName
+    );
+  }
+
+  private async writeTranslation(record: TranslationRecord): Promise<void> {
+    await this.withTranslationWrite('writeTranslation', async store => {
+      await promisifyRequest(store.put(record));
     });
   }
 
@@ -163,21 +171,8 @@ export class TranslationRepository implements ITranslationRepository {
 
     if (!updates.length) return;
 
-    const db = await this.deps.getDb();
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
-      const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
-
-      // Durability (P0.1): oncomplete fires only after EVERY request in the
-      // transaction has committed, which also replaces the old per-request
-      // countdown (that resolved on in-memory success, before the commit).
-      updates.forEach(update => {
-        const request = store.put(update);
-        request.onerror = () => reject(request.error);
-      });
-      transaction.oncomplete = () => resolve();
-      transaction.onabort = () =>
-        reject(transaction.error ?? new Error('Translation deactivation rolled back (transaction aborted before commit)'));
+    await this.withTranslationWrite('deactivateTranslations', async store => {
+      await Promise.all(updates.map(update => promisifyRequest(store.put(update))));
     });
   }
 
@@ -386,14 +381,8 @@ export class TranslationRepository implements ITranslationRepository {
   async deleteTranslationVersion(translationId: string): Promise<void> {
     const translation = await this.fetchTranslationById(translationId);
     if (!translation) return;
-    const db = await this.deps.getDb();
-
-    await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction([this.deps.stores.TRANSLATIONS], 'readwrite');
-      const store = transaction.objectStore(this.deps.stores.TRANSLATIONS);
-      const request = store.delete(translationId);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+    await this.withTranslationWrite('deleteTranslationVersion', async store => {
+      await promisifyRequest(store.delete(translationId));
     });
 
     const remaining = await this.fetchTranslationsByUrl(translation.chapterUrl);

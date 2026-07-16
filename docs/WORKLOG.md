@@ -1,3 +1,95 @@
+### [2026-07-13 06:57 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Rebase the durable transaction kernel onto current `main` after overnight P0.1 overlap.
+**Progress:** Current `main` independently landed commit-waiting and operation-abort behavior in `txn.ts` and `TranslationRepository`, superseding focused PR #106. The kernel branch now targets `main` directly. Conflicts were resolved in favor of the shared terminal-event kernel because main's inline implementation still rejected from pre-terminal `transaction.onerror` and duplicated repository lifecycles. Main's new fake-indexeddb durability test was retained and passes against the kernel.
+**Files affected:**
+- `services/db/core/txn.ts` - retain the small connection/retry facade over `runTransaction`.
+- `services/db/repositories/TranslationRepository.ts` - retain shared-kernel delegation instead of main's repeated direct wrappers.
+- `services/db/core/txn.durability.test.ts` - retain main's real fake-indexeddb commit/rollback coverage.
+**Verification:** 24 focused transaction/repository tests, 55 DB tests, and the full 8,790-test Vitest suite passed after conflict resolution; `tsc --noEmit` remains blocked only by the unchanged repository baseline errors.
+**Next:** publish the replacement PR against `main`, then close #106 as superseded.
+
+### [2026-07-12 08:50 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Durable IndexedDB transaction kernel, stacked on PR #106.
+**Progress:** Added an injected-database transaction state machine that waits for terminal commit/abort events, captures but does not settle on pre-terminal `error`, aborts scheduled writes when an operation fails, and preserves the operation error through the resulting abort. `withTxn()` now owns only connection/retry policy, and `TranslationRepository` delegates its write/deactivate/delete paths to the same kernel instead of maintaining a second lifecycle implementation.
+**Files modified (line numbers + why):**
+- `services/db/core/transactionKernel.ts:1-153` - canonical transaction lifecycle and event-ordering state machine.
+- `services/db/core/txn.ts:8-55` - public re-export plus connection/retry facade; existing request and batch helpers retained.
+- `services/db/repositories/TranslationRepository.ts:3,125-165,365-370` - remove local commit helper and use the shared kernel for durable writes.
+- `tests/services/db/txn.test.ts:13-172` - cover operation-first/commit-first ordering, pre-terminal error, abort, and typed error preservation.
+- `tests/services/db/TranslationRepository.durability.test.ts:13-165` - cover commit waits, quota abort, request-triggered abort, and multi-put durability.
+- `docs/adr/DB-002-atomic-transaction-boundaries.md:8-27` - record the corrected implementation contract and migration sequence.
+**Refactoring metrics:**
+- Lifecycle implementations: 2 -> 1; `withTxn()` delegates and `awaitTransactionCommit()` is removed.
+- File size: `txn.ts` 214 -> 163 LOC; `TranslationRepository.ts` 430 -> 400 LOC; new focused kernel 153 LOC. Total production LOC 644 -> 716 (+11.2%) in exchange for explicit state/error handling and one reusable lifecycle.
+- Cyclomatic proxy (TypeScript AST branch count including callbacks): `withTxn` 13 -> 2; new `runTransaction` 22; repository lifecycle helper removed. Complexity is concentrated in one tested state machine rather than duplicated across callers.
+- Targeted coverage: statements 72.54% -> 74.75%, branches 52.10% -> 58.01%, functions 69.89% -> 78.88%, lines 77.82% -> 78.70%; new kernel lines 88.52%.
+- Main production chunk: 4,146.22 -> 4,145.93 kB minified (-0.29 kB); gzip 992.89 -> 992.93 kB (+0.04 kB, effectively neutral).
+- Type safety: no `any` added; repository interfaces unchanged. Runtime transaction count and IndexedDB I/O are unchanged.
+**Tests:**
+- Focused durability/repository tests: 19 passed.
+- `tests/services/db`: 50 passed.
+- Full Vitest suite: 8,785 passed, 356 skipped.
+- Production build passed with the repository's existing chunk warnings.
+- `git diff --check` passed.
+- `npx tsc --noEmit --pretty false` reports only the pre-existing baseline errors; no changed file remains in the error list.
+**Next:** migrate Settings, Feedback, Prompt Templates, and Chapter metadata in the next stacked PR after review of this kernel.
+
+### [2026-07-12 08:40 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Durable IndexedDB transaction kernel, stacked on PR #106.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-db-transaction-kernel`
+**Branch:** `debt/codex-db-transaction-kernel`
+**Files likely affected:**
+- `services/db/core/transactionKernel.ts` and `services/db/core/txn.ts` - extract one injected-database transaction lifecycle that settles only on terminal commit/abort events while keeping the public facade small.
+- `services/db/repositories/TranslationRepository.ts` - replace the repository-local lifecycle implementation with the shared kernel.
+- `tests/services/db/txn.test.ts` and `tests/services/db/TranslationRepository.durability.test.ts` - cover event ordering, operation-triggered aborts, error precedence, and exactly-once settlement.
+- `docs/adr/DB-002-atomic-transaction-boundaries.md` - append an implementation correction to the existing transaction-boundary decision.
+- `docs/WORKLOG.md` - record hypothesis, verification, and final scope.
+**Hypothesis:** A low-level runner that accepts an `IDBDatabase` can serve both `withTxn()` and injected repositories, eliminating divergent commit/error lifecycles without changing repository interfaces.
+**Predicted tests:** success waits for both operation fulfillment and `oncomplete`; `onerror` alone does not settle; operation rejection calls `abort()` and survives the later `onabort`; commit-time quota aborts remain typed; repository writes retain commit durability.
+**Confidence:** 0.92
+**Fallback:** Keep the kernel internal to `txn.ts` and defer repository migration if callers prove dependent on raw DOMException error shapes.
+
+### [2026-07-11 09:38 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** Refresh PR #106 onto current `main` and clarify the reviewed durability scope.
+**Progress:** Merged current `main` without force-pushing and reverified the transaction changes. This PR fixes the shared `withTxn` lifecycle and the named direct `TranslationRepository` write/deactivate/delete paths. It does not close the codebase-wide duplicate transaction-wrapper pattern: settings, feedback, prompt templates, chapter metadata, backup storage, and summary operations remain the explicit scope of the immediate durability-kernel consolidation.
+**Tests:**
+- `tests/services/db`: 46 passed.
+- Full Vitest suite: 8,775 passed, 356 skipped.
+- `git diff --check` passed.
+- `npx tsc --noEmit --pretty false` remains blocked only by the pre-existing repo-wide errors in Sutta/liturgy/script files; no PR file appears in the error list.
+**PR:** https://github.com/anantham/LexiconForge/pull/106
+
+### [2026-07-08 19:15 IST] [Agent: Codex]
+**Status:** Complete
+**Task:** P0.1 IndexedDB transaction durability fix.
+**Progress:** Changed shared DB transactions and translation repository direct write paths to resolve only after `transaction.oncomplete`, so request-level success no longer reports durable persistence. Added focused regression tests for pre-commit resolution and commit-time aborts. Flagged `TranslationRepository.ts` as an architecture hotspot because the durability fix touched a 405-line module with versioning, keyspace, and write concerns mixed together.
+**Files modified (line numbers + why):**
+- `services/db/core/txn.ts:31-48,67-80,83-94` — keep operation result pending until the enclosing transaction completes; map abort errors through DB error taxonomy so quota aborts are not swallowed as success.
+- `services/db/repositories/TranslationRepository.ts:124-183,392-397` — wait for commit in `writeTranslation`, `deactivateTranslations`, and `deleteTranslationVersion` instead of resolving from request `onsuccess`.
+- `tests/services/db/txn.test.ts:1-82` — regression coverage for shared transaction helper resolving after commit and rejecting commit-time quota aborts.
+- `tests/services/db/TranslationRepository.durability.test.ts:1-139` — regression coverage for repository write/deactivate helpers waiting for commit.
+- `docs/architecture/ARCHITECTURE.md:197` — hotspot registration for `TranslationRepository.ts`.
+- `docs/WORKLOG.md` — start/end entries for this work.
+**Tests:**
+- `env NODE_OPTIONS=--localstorage-file=/private/tmp/codex-vitest-localstorage-single npx vitest run tests/services/db/txn.test.ts tests/services/db/TranslationRepository.durability.test.ts tests/services/db/TranslationRepository.test.ts --maxWorkers=1` ✅ 15 passed.
+- `env NODE_OPTIONS=--localstorage-file=/private/tmp/codex-vitest-localstorage-db npx vitest run tests/services/db --maxWorkers=1` ✅ 46 passed.
+- `npx tsc --noEmit` ⚠️ blocked by existing unrelated repo-wide errors in Sutta/liturgy/script files; no errors referenced the changed transaction files or new tests.
+- `git diff --check` ✅
+
+### [2026-07-08 19:07 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Fix IndexedDB transaction durability so write promises resolve after transaction commit, not request `onsuccess`.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-txn-durability`
+**Branch:** `fix/codex-txn-durability`
+**Files likely affected:**
+- `services/db/core/txn.ts`
+- `services/db/repositories/TranslationRepository.ts`
+- Targeted DB tests under `tests/`
+**Notes:** Root checkout has unrelated dirty files (`package-lock.json`, `public/steering-images.json`) and untracked roadmap docs; this work is isolated in a separate worktree.
 ### [2026-07-15 17:09 IST] [Agent: Codex]
 **Status:** Ready to publish
 **Task:** Resume the approved README publication through local Git plus the connected GitHub app.

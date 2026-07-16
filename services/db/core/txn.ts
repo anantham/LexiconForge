@@ -6,10 +6,20 @@
  */
 
 import { getConnection } from './connection';
-import { DbError, mapDomError, RetryPolicy } from './errors';
+import { DbError, RetryPolicy } from './errors';
+import {
+  runTransaction,
+  type StoreNames,
+  type TransactionMode,
+  type TransactionOperation,
+} from './transactionKernel';
 
-export type TransactionMode = 'readonly' | 'readwrite';
-export type StoreNames = string | string[];
+export { runTransaction } from './transactionKernel';
+export type {
+  StoreNames,
+  TransactionMode,
+  TransactionOperation,
+} from './transactionKernel';
 
 /**
  * Execute a function within a database transaction with proper error handling
@@ -17,93 +27,22 @@ export type StoreNames = string | string[];
 export async function withTxn<T>(
   storeNames: StoreNames,
   mode: TransactionMode,
-  operation: (transaction: IDBTransaction, stores: Record<string, IDBObjectStore>) => Promise<T>,
+  operation: TransactionOperation<T>,
   domain: string = 'unknown',
   service: string = 'unknown',
   operationName?: string
 ): Promise<T> {
   return RetryPolicy.execute(async () => {
     const db = await getConnection();
-    const storeArray = Array.isArray(storeNames) ? storeNames : [storeNames];
-    
-    return new Promise<T>((resolve, reject) => {
-      const transaction = db.transaction(storeArray, mode);
-      
-      // Build stores object for easy access
-      const stores: Record<string, IDBObjectStore> = {};
-      for (const storeName of storeArray) {
-        stores[storeName] = transaction.objectStore(storeName);
-      }
-      
-      // Durability contract (P0.1, TECH-DEBT-FIX-PRIORITY-2026-07-07):
-      // resolve ONLY from transaction.oncomplete. request.onsuccess fires when
-      // a request is processed IN MEMORY; the transaction can still abort at
-      // commit time (QuotaExceededError on a large record is the canonical
-      // case). The old code resolved from the operation promise, so a write
-      // that was then rolled back reported success — no error, no retry, the
-      // record silently gone.
-      let opResult: T;
-      let opFinished = false;
-
-      transaction.onerror = () => {
-        const error = mapDomError(
-          transaction.error,
-          domain,
-          service,
-          operationName || 'transaction'
-        );
-        reject(error);
-      };
-
-      transaction.onabort = () => {
-        // Classify from the real abort cause when there is one (Quota etc. —
-        // correctly non-retryable); a bare abort stays Transient.
-        const error = transaction.error
-          ? mapDomError(transaction.error, domain, service, operationName || 'transaction')
-          : new DbError('Transient', domain, service,
-              `Transaction aborted in ${domain}${operationName ? `.${operationName}` : ''}`,
-              transaction.error
-            );
-        reject(error);
-      };
-
-      transaction.oncomplete = () => {
-        if (opFinished) {
-          resolve(opResult);
-        } else {
-          // The transaction auto-committed while the operation was still
-          // running — it awaited non-IndexedDB work mid-transaction (fetch,
-          // setTimeout, …), which closes the transaction. Surfacing this
-          // loudly beats resolving with a half-finished operation's state.
-          reject(new DbError('Constraint', domain, service,
-            `Transaction committed before the operation finished in ${domain}${operationName ? `.${operationName}` : ''} — the operation must not await non-IndexedDB work mid-transaction`
-          ));
-        }
-      };
-
-      // Execute the operation. Its resolution means "all requests issued and
-      // succeeded in memory" — the commit (oncomplete) settles the promise.
-      operation(transaction, stores)
-        .then(result => {
-          opResult = result;
-          opFinished = true;
-        })
-        .catch(error => {
-          // Convert any operation errors to DbError
-          const dbError = error instanceof DbError
-            ? error
-            : mapDomError(error, domain, service, operationName);
-          // A failed operation must not leave its earlier requests to commit
-          // as a partial write (verified live: pre-fix, a put issued before a
-          // throw was durably committed while the caller saw a rejection).
-          try {
-            transaction.abort();
-          } catch {
-            // already committing/aborted — nothing to roll back
-          }
-          reject(dbError);
-        });
-    });
+    return runTransaction(
+      db,
+      storeNames,
+      mode,
+      operation,
+      domain,
+      service,
+      operationName
+    );
   }, domain, service, operationName || 'transaction');
 }
 
@@ -112,7 +51,7 @@ export async function withTxn<T>(
  */
 export async function withReadTxn<T>(
   storeNames: StoreNames,
-  operation: (transaction: IDBTransaction, stores: Record<string, IDBObjectStore>) => Promise<T>,
+  operation: TransactionOperation<T>,
   domain: string = 'unknown',
   service: string = 'unknown',
   operationName?: string
@@ -125,7 +64,7 @@ export async function withReadTxn<T>(
  */
 export async function withWriteTxn<T>(
   storeNames: StoreNames,
-  operation: (transaction: IDBTransaction, stores: Record<string, IDBObjectStore>) => Promise<T>,
+  operation: TransactionOperation<T>,
   domain: string = 'unknown',
   service: string = 'unknown',
   operationName?: string
