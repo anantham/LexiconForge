@@ -349,7 +349,11 @@
       ],
       "wordCount": 7,
       "segmentCount": 14,
-      "relationCount": 0
+      "relationCount": 0,
+      "wordRange": [
+        0,
+        8
+      ]
     },
     {
       "phaseId": "phase-ao",
@@ -1247,21 +1251,14 @@
       "words": [
         {
           "id": "f1",
-          "surface": "Bhikkhavo",
+          "surface": "Bhikkhavoti",
           "wordClass": "content",
           "segmentIds": [
             "f1s1",
-            "f1s2"
+            "f1s2",
+            "f2s1"
           ],
           "refrainId": "bhikkhu"
-        },
-        {
-          "id": "f2",
-          "surface": "ti",
-          "wordClass": "function",
-          "segmentIds": [
-            "f2s1"
-          ]
         }
       ],
       "segments": [
@@ -1287,7 +1284,7 @@
         },
         {
           "id": "f2s1",
-          "wordId": "f2",
+          "wordId": "f1",
           "text": "ti",
           "type": "stem",
           "tooltips": [
@@ -1499,18 +1496,11 @@
           "refrainId": "bhagava"
         },
         {
-          "id": "h2",
-          "surface": "etad",
-          "wordClass": "function",
-          "segmentIds": [
-            "h2s1"
-          ]
-        },
-        {
           "id": "h3",
-          "surface": "avoca",
+          "surface": "etadavoca",
           "wordClass": "content",
           "segmentIds": [
+            "h2s1",
             "h3s1",
             "h3s2",
             "h3s3"
@@ -1540,7 +1530,7 @@
         },
         {
           "id": "h2s1",
-          "wordId": "h2",
+          "wordId": "h3",
           "text": "etad",
           "type": "stem",
           "tooltips": [
@@ -1586,14 +1576,6 @@
           "fromSegmentId": "h1s2",
           "type": "action",
           "label": "Said BY",
-          "targetWordId": "h3",
-          "status": "confirmed"
-        },
-        {
-          "id": "r2",
-          "fromSegmentId": "h2s1",
-          "type": "direction",
-          "label": "Said WHAT",
           "targetWordId": "h3",
           "status": "confirmed"
         }
@@ -4399,6 +4381,14 @@
           ]
         },
         {
+          "id": "an6b",
+          "surface": "vā",
+          "wordClass": "function",
+          "segmentIds": [
+            "an6bs1"
+          ]
+        },
+        {
           "id": "an7",
           "surface": "suññāgāragato",
           "wordClass": "content",
@@ -4546,6 +4536,15 @@
           "type": "suffix",
           "tooltips": [
             "Gone to"
+          ]
+        },
+        {
+          "id": "an6bs1",
+          "wordId": "an6b",
+          "text": "vā",
+          "type": "stem",
+          "tooltips": [
+            "[Indeclinable] “or” — disjunction"
           ]
         }
       ],
@@ -4905,18 +4904,11 @@
         },
         {
           "id": "aq2",
-          "surface": "sato",
+          "surface": "satova",
           "wordClass": "content",
           "segmentIds": [
             "aq2s1",
-            "aq2s2"
-          ]
-        },
-        {
-          "id": "aq3",
-          "surface": "va",
-          "wordClass": "function",
-          "segmentIds": [
+            "aq2s2",
             "aq3s1"
           ]
         },
@@ -4929,6 +4921,16 @@
             "aq4s2"
           ],
           "refrainId": "assasati"
+        },
+        {
+          "id": "aq2b",
+          "surface": "satova",
+          "wordClass": "content",
+          "segmentIds": [
+            "aq2b_s1",
+            "aq2b_s2",
+            "aq2b_s3"
+          ]
         },
         {
           "id": "aq5",
@@ -4978,7 +4980,7 @@
         },
         {
           "id": "aq3s1",
-          "wordId": "aq3",
+          "wordId": "aq2",
           "text": "va",
           "type": "stem",
           "tooltips": [
@@ -5035,6 +5037,41 @@
           "type": "suffix",
           "tooltips": [
             "[Present Tense]"
+          ]
+        },
+        {
+          "id": "aq2b_s1",
+          "wordId": "aq2b",
+          "text": "sat",
+          "type": "root",
+          "tooltips": [
+            "💭 √smṛ: Memory / Mindfulness",
+            "📝 KEY: Sato (not satimā)!",
+            "• Satimā = POSSESSING the faculty",
+            "• Sato = APPLYING it NOW",
+            "Active, moment-to-moment awareness",
+            "Here: mindfully doing the breathing"
+          ]
+        },
+        {
+          "id": "aq2b_s2",
+          "wordId": "aq2b",
+          "text": "o",
+          "type": "suffix",
+          "tooltips": [
+            "[Nominative Singular] describing \"he\"",
+            "Adverbial sense: \"mindfully\""
+          ]
+        },
+        {
+          "id": "aq2b_s3",
+          "wordId": "aq2b",
+          "text": "va",
+          "type": "stem",
+          "tooltips": [
+            "Eva → va: Just / Only / Indeed",
+            "Emphatic particle",
+            "\"Just mindfully\" — nothing else"
           ]
         }
       ],
@@ -5488,21 +5525,14 @@
         },
         {
           "id": "as4",
-          "surface": "assasāmī",
+          "surface": "assasāmī'ti",
           "wordClass": "content",
           "segmentIds": [
             "as4s1",
-            "as4s2"
+            "as4s2",
+            "as5s1"
           ],
           "refrainId": "assasati"
-        },
-        {
-          "id": "as5",
-          "surface": "'ti",
-          "wordClass": "function",
-          "segmentIds": [
-            "as5s1"
-          ]
         },
         {
           "id": "as6",
@@ -5553,21 +5583,14 @@
         },
         {
           "id": "as10",
-          "surface": "passasāmī",
+          "surface": "passasāmī'ti",
           "wordClass": "content",
           "segmentIds": [
             "as10s1",
-            "as10s2"
+            "as10s2",
+            "as11s1"
           ],
           "refrainId": "passasati"
-        },
-        {
-          "id": "as11",
-          "surface": "'ti",
-          "wordClass": "function",
-          "segmentIds": [
-            "as11s1"
-          ]
         },
         {
           "id": "as12",
@@ -5674,7 +5697,7 @@
         },
         {
           "id": "as5s1",
-          "wordId": "as5",
+          "wordId": "as4",
           "text": "'ti",
           "type": "stem",
           "tooltips": [
@@ -5792,7 +5815,7 @@
         },
         {
           "id": "as11s1",
-          "wordId": "as11",
+          "wordId": "as10",
           "text": "'ti",
           "type": "stem",
           "tooltips": [
@@ -5850,21 +5873,14 @@
         },
         {
           "id": "at2",
-          "surface": "assasissāmī",
+          "surface": "assasissāmī'ti",
           "wordClass": "content",
           "segmentIds": [
             "at2s1",
-            "at2s2"
+            "at2s2",
+            "at3s1"
           ],
           "refrainId": "assasati"
-        },
-        {
-          "id": "at3",
-          "surface": "'ti",
-          "wordClass": "function",
-          "segmentIds": [
-            "at3s1"
-          ]
         },
         {
           "id": "at4",
@@ -5891,21 +5907,14 @@
         },
         {
           "id": "at6",
-          "surface": "passasissāmī",
+          "surface": "passasissāmī'ti",
           "wordClass": "content",
           "segmentIds": [
             "at6s1",
-            "at6s2"
+            "at6s2",
+            "at7s1"
           ],
           "refrainId": "passasati"
-        },
-        {
-          "id": "at7",
-          "surface": "'ti",
-          "wordClass": "function",
-          "segmentIds": [
-            "at7s1"
-          ]
         },
         {
           "id": "at8",
@@ -6007,7 +6016,7 @@
         },
         {
           "id": "at3s1",
-          "wordId": "at3",
+          "wordId": "at2",
           "text": "'ti",
           "type": "stem",
           "tooltips": [
@@ -6117,7 +6126,7 @@
         },
         {
           "id": "at7s1",
-          "wordId": "at7",
+          "wordId": "at6",
           "text": "'ti",
           "type": "stem",
           "tooltips": [
@@ -6561,18 +6570,11 @@
         },
         {
           "id": "av11",
-          "surface": "añchāmī",
+          "surface": "añchāmī'ti",
           "wordClass": "content",
           "segmentIds": [
             "av11s1",
-            "av11s2"
-          ]
-        },
-        {
-          "id": "av12",
-          "surface": "'ti",
-          "wordClass": "function",
-          "segmentIds": [
+            "av11s2",
             "av12s1"
           ]
         },
@@ -6624,18 +6626,11 @@
         },
         {
           "id": "av17",
-          "surface": "añchāmī",
+          "surface": "añchāmī'ti",
           "wordClass": "content",
           "segmentIds": [
             "av17s1",
-            "av17s2"
-          ]
-        },
-        {
-          "id": "av18",
-          "surface": "'ti",
-          "wordClass": "function",
-          "segmentIds": [
+            "av17s2",
             "av18s1"
           ]
         },
@@ -6900,7 +6895,7 @@
         },
         {
           "id": "av12s1",
-          "wordId": "av12",
+          "wordId": "av11",
           "text": "'ti",
           "type": "stem",
           "tooltips": [
@@ -7018,7 +7013,7 @@
         },
         {
           "id": "av18s1",
-          "wordId": "av18",
+          "wordId": "av17",
           "text": "'ti",
           "type": "stem",
           "tooltips": [
@@ -7913,18 +7908,11 @@
         },
         {
           "id": "ax2",
-          "surface": "assasissāmī",
+          "surface": "assasissāmī'ti",
           "wordClass": "content",
           "segmentIds": [
             "ax2s1",
-            "ax2s2"
-          ]
-        },
-        {
-          "id": "ax3",
-          "surface": "'ti",
-          "wordClass": "function",
-          "segmentIds": [
+            "ax2s2",
             "ax3s1"
           ]
         },
@@ -7953,18 +7941,11 @@
         },
         {
           "id": "ax6",
-          "surface": "passasissāmī",
+          "surface": "passasissāmī'ti",
           "wordClass": "content",
           "segmentIds": [
             "ax6s1",
-            "ax6s2"
-          ]
-        },
-        {
-          "id": "ax7",
-          "surface": "'ti",
-          "wordClass": "function",
-          "segmentIds": [
+            "ax6s2",
             "ax7s1"
           ]
         },
@@ -8059,7 +8040,7 @@
         },
         {
           "id": "ax3s1",
-          "wordId": "ax3",
+          "wordId": "ax2",
           "text": "'ti",
           "type": "stem",
           "tooltips": [
@@ -8158,7 +8139,7 @@
         },
         {
           "id": "ax7s1",
-          "wordId": "ax7",
+          "wordId": "ax6",
           "text": "'ti",
           "type": "stem",
           "tooltips": [

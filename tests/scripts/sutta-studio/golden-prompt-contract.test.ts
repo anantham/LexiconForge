@@ -23,9 +23,11 @@ const segments: Record<string, { pali: string }> = Object.fromEntries(
 );
 const phaseMeta: Record<string, any> = Object.fromEntries(anat._phases.map((p: any) => [p.phaseId, p]));
 
-// Same normalisation the scorer aligns on (facts-scorer cleanSurface): NFC, lowercase, Pāli letters only.
+// The contract compares the Pāli LETTER sequence: NFC, lowercase, drop everything that isn't a
+// Pāli letter — punctuation AND quotes (the golden writes the quotative as `'ti` with an ASCII
+// apostrophe while the source prints a curly ‘…’, so quotes must not count).
 const norm = (w: string) =>
-  w.normalize('NFC').toLowerCase().replace(/[^a-zāīūṁṃṅñṭḍṇḷ']/g, '');
+  w.normalize('NFC').toLowerCase().replace(/[^a-zāīūṁṃṅñṭḍṇḷ]/g, '');
 
 const promptWords = (phaseId: string): string[] | null => {
   const meta = phaseMeta[phaseId];
@@ -43,16 +45,13 @@ const goldenWords = (phaseId: string): string[] | null =>
   anat.anatomist[phaseId] ? anat.anatomist[phaseId].words.map((w: any) => w.surface) : null;
 
 /**
- * Phases whose golden splits a joined Pāli token the prompt presents as one whitespace token
- * (sandhi: `etadavoca` → `etad`+`avoca`; the `'ti` quotative in the breathing section), or omits a
- * word. `wordRange` can't split a token, so these need a scholarly decision (align the golden's
- * tokenisation to the Anatomist's one-word-per-whitespace-token rule) — tracked, not silently
- * dropped. Remove a phase from here once its golden is reconciled. See
- * docs/roadmaps/GOLDEN-CONTRACT-REPAIR.md.
+ * Phases still failing the contract, tracked so the debt is explicit rather than silently dropped.
+ * NOW EMPTY: the sandhi/omission phases were reconciled under the operator-approved
+ * one-word-per-whitespace-token policy — joined tokens are one word with the split moved to
+ * morpheme segments; omitted words were added (see docs/roadmaps/GOLDEN-CONTRACT-REPAIR.md). Add a
+ * phase here only if a real repair must be deferred.
  */
-const KNOWN_SANDHI_PENDING = new Set([
-  'phase-f', 'phase-h', 'phase-an', 'phase-aq', 'phase-as', 'phase-at', 'phase-av', 'phase-ax',
-]);
+const KNOWN_SANDHI_PENDING = new Set<string>([]);
 
 describe('golden/prompt contract — ranked phases', () => {
   it('every ranked phase either satisfies the contract or is a KNOWN pending sandhi case', () => {

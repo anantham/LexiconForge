@@ -1,8 +1,9 @@
 # Golden/Prompt Contract Repair (review finding #1)
 
-**Status:** Part 1 done (16 mechanical `wordRange` fixes). Part 2 drafted, **needs an operator
-decision** on sandhi tokenization before the golden content is edited.
-**Gate:** `tests/scripts/sutta-studio/golden-prompt-contract.test.ts`.
+**Status:** DONE. Part 1 (16 mechanical `wordRange` fixes) and Part 2 (8 sandhi/omission phases,
+reconciled under the operator-approved one-word-per-whitespace-token policy) are both complete —
+**30/30 ranked phases satisfy the contract.**
+**Gate:** `tests/scripts/sutta-studio/golden-prompt-contract.test.ts` (pending list now empty).
 
 ## The contract
 
@@ -23,7 +24,7 @@ opened and left unfinished beyond 7 phases.
 |---|---|---|
 | Before repair | **6** | 6/30 — confirms the review's mechanical count |
 | After Part 1 (`wordRange`) | **22** | +16 |
-| Remaining (Part 2, pending) | — | 8 |
+| After Part 2 (sandhi/omission) | **30** | +8 → **all pass** |
 
 Categories of the 24 failures:
 - **16 SLICE** — golden is a correct contiguous sub-span of the prompt; the phase just lacked a
@@ -46,11 +47,14 @@ phase's prompt to exactly its existing golden span (the golden words were alread
 Reproduce/verify: the contract test above passes for these 22 and goes RED without the `wordRange`
 additions (all 16 listed as violations).
 
-## Part 2 — the 8 pending phases (NEEDS DECISION)
+## Part 2 — the 8 sandhi/omission phases (DONE, policy: one word per whitespace token)
 
-The golden here splits a joined Pāli token the prompt presents as ONE whitespace token, or omits a
-word. `wordRange` operates on whitespace tokens and cannot split one, so these can't be fixed
-mechanically. Tracked in `KNOWN_SANDHI_PENDING` in the contract test.
+These goldens split a joined Pāli token the prompt presents as ONE whitespace token, or omitted a
+word. Resolved under the operator-approved policy — **the golden now tokenizes exactly as the
+Anatomist is instructed to (one word per space-separated token), with sandhi living in morpheme
+SEGMENTS, not word boundaries.** Concretely: each split pair was merged into one word whose segments
+(unchanged) still reconstruct the surface (verified), relations were retargeted to the merged word
+and intra-word relations dropped, and the two omitted function words were added. All 8 now match.
 
 ### 2a. Quotative / sandhi splits (6 phases)
 
@@ -76,8 +80,8 @@ the WORD boundary moves to match the prompt. Then add a `wordRange` to slice the
 two tokens. Rejected — the canonical SuttaCentral segmentation is the authority and should not be
 re-tokenized to fit the golden.
 
-**Decision needed:** confirm the golden should adopt one-word-per-whitespace-token (with sandhi as
-segments). If yes, the merges are semi-mechanical and can be scripted for your review.
+**Applied.** Each pair merged into one word; the morpheme split (`etad`·`avoca`; `assasāmī`·`ti`) is
+preserved in that word's segments, which still reconstruct the surface.
 
 ### 2b. Omissions (2 phases)
 
@@ -88,8 +92,8 @@ The golden drops a word that is in the prompt:
 | phase-an | `…araññagato vā rukkhamūlagato vā suññāgāragato…` | `…araññagato vā rukkhamūlagato suññāgāragato` | the 2nd `vā` |
 | phase-aq | `So satova assasati satova passasati` | `So sato va assasati passasati` | the 2nd `satova` (and the 1st is sandhi-split `sato`+`va`) |
 
-**Recommended resolution:** add the omitted words to the golden (and, for phase-aq, also apply the
-2a sandhi policy to `satova`). Then add a `wordRange`.
+**Applied.** Added the omitted `vā` (phase-an, with `wordRange [0,8)`); for phase-aq merged
+`sato`+`va`→`satova` and added the second `satova`.
 
 ## Not in scope of this repair
 
