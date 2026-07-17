@@ -1709,8 +1709,14 @@ const runBenchmark = async () => {
             console.log(`[Summary] ${runId} (${settings.model}): ${parts.join(' · ')}`);
           }
 
-          // Skip remaining passes in the old loop - we've handled them all
-          continue;
+          // The pipeline above already ran ALL passes (lexicographer/weaver/typesetter)
+          // for every phase, and quality-scores.json is already written. `continue` only
+          // ended the anatomist iteration, so the outer `for (const pass ...)` loop then
+          // fell through to the LEGACY lexicographer/weaver/typesetter blocks below and
+          // fired three extra full-sutta LLM calls per model (billed, and folded into the
+          // cost column) that reach no leaderboard. `break` out of the pass loop instead —
+          // there is genuinely nothing left to do for this model. See spend-guard note.
+          break;
         }
 
         // ─────────────────────────────────────────────────────────────────────
