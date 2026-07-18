@@ -95,6 +95,10 @@ export type RootBreakdown = FactsBreakdown & {
   fabricated: number;
   silent: number;
   dropped: number;
+  /** Aligned words where a √root matched the authority set but was buried in a spray of roots
+   *  (> authority + slack), so it earns no `correct` credit — closes precision-blind recall
+   *  that rewarded hedging many roots to guarantee a hit (audit A2). */
+  sprayed: number;
 };
 
 /** One legitimate DPD analysis of an inflected surface form. */
@@ -174,16 +178,26 @@ const canonMorph = (key: string, value: string): string => {
   return MORPH_CANON[key]?.[v] ?? v;
 };
 
+/** How many √roots a model may assert beyond the authority set before a match is treated as a
+ *  spray (a hedge) rather than a genuine identification. A real Pāli word carries ~1 root (2 for a
+ *  compound); this authority-relative slack tolerates ordinary scholarly hedging but denies credit
+ *  to a model that sprays many roots to guarantee a hit — precision-blind recall (audit A2). */
+const ROOT_SPRAY_SLACK = 2;
+
 /**
- * Root / POS / morph accuracy over golden CONTENT words.
+ * Root / morph accuracy over golden CONTENT words; word-class (`pos`) over ALL golden words.
  *
- * Per aligned golden content word:
- *  - ROOT (1 check when an authority root set exists — DPD for the surface,
- *    else the golden's own √tooltips): correct iff the model asserts ≥1 root
- *    in that set. Asserting none, or only alien roots, is wrong.
- *  - POS (1 check): really a WORD-CLASS agreement check — model wordClass === golden wordClass
- *    (content/function; golden classes are DPD-verified upstream by verify-golden.ts). It is NOT
- *    morphological part-of-speech; the field is named `pos` for continuity.
+ *  - POS (1 check per golden word, CONTENT AND FUNCTION): a WORD-CLASS agreement check —
+ *    model wordClass === golden wordClass (golden classes are DPD-verified upstream by
+ *    verify-golden.ts). Scored over every word, not just content, so a model that labels
+ *    everything `content` is charged on the golden's function words instead of collecting a
+ *    free 1.0 on the content-only subset (audit A1). It is NOT morphological part-of-speech;
+ *    the field is named `pos` for continuity.
+ * Per aligned golden CONTENT word additionally:
+ *  - ROOT (1 check when an authority root set exists — DPD for the surface, else the golden's
+ *    own √tooltips): correct iff the model asserts ≥1 root in that set AND does not bury it in a
+ *    spray of > authority + ROOT_SPRAY_SLACK roots. Asserting none, only alien roots, or a hit
+ *    lost in a spray is not correct.
  *  - MORPH (1 check per AUTHORITY-KNOWN gender/case/number key the model asserts): correct iff
  *    the model's canonicalised value is accepted by some reading. Denominator is authority-set,
  *    not model-chosen, so extra assertions can't game it.
@@ -198,15 +212,23 @@ export function scoreFactsDetail(
 ): FactsDetail | null {
   if (!goldAnat?.words?.length) return null;
   const pairs = new Map(alignWords(goldAnat.words, outAnat.words || []).map(([gi, mi]) => [gi, mi]));
-  const root: RootBreakdown = { correct: 0, total: 0, fabricated: 0, silent: 0, dropped: 0 };
+  const root: RootBreakdown = { correct: 0, total: 0, fabricated: 0, silent: 0, dropped: 0, sprayed: 0 };
   const pos: FactsBreakdown = { correct: 0, total: 0 };
   const morph: FactsBreakdown = { correct: 0, total: 0 };
   const morphCoverage = { asserted: 0, eligible: 0 };
 
   goldAnat.words.forEach((gw, gi) => {
-    if (gw.wordClass !== 'content') return;
     const mi = pairs.get(gi);
     const mw = mi != null ? (outAnat.words || [])[mi] : undefined;
+
+    // POS / WORD-CLASS agreement — scored over EVERY golden word (content AND function), so a
+    // model that labels everything 'content' is charged on the golden's function words rather
+    // than scoring a free 1.0 on the content-only subset (audit A1).
+    pos.total += 1;
+    if (mw && mw.wordClass === gw.wordClass) pos.correct += 1;
+
+    // ROOT and MORPH are content-word properties — grade them on content words only.
+    if (gw.wordClass !== 'content') return;
 
     // ROOT
     const dpdSet = dpdLookup ? dpdRoots(dpdLookup(gw.surface)) : new Set<string>();
@@ -217,15 +239,18 @@ export function scoreFactsDetail(
         root.dropped += 1;
       } else {
         const modelRoots = extractRoots(wordTooltipBlob(mw.id, outAnat));
-        if ([...modelRoots].some((r) => authority.has(r))) root.correct += 1;
-        else if (modelRoots.size > 0) root.fabricated += 1;
-        else root.silent += 1;
+        const matched = [...modelRoots].some((r) => authority.has(r));
+        if (!matched) {
+          if (modelRoots.size > 0) root.fabricated += 1;
+          else root.silent += 1;
+        } else if (modelRoots.size > authority.size + ROOT_SPRAY_SLACK) {
+          // A hit buried in a spray of roots is a hedge, not an identification (audit A2).
+          root.sprayed += 1;
+        } else {
+          root.correct += 1;
+        }
       }
     }
-
-    // POS
-    pos.total += 1;
-    if (mw && mw.wordClass === gw.wordClass) pos.correct += 1;
 
     // MORPH — grade the model's inflectional claims (gender/case/number) against the DPD reading
     // set (golden hints as fallback). Scored per AUTHORITY-KNOWN key, over adjudicable assertions
@@ -268,7 +293,11 @@ export function scoreFactsDetail(
 
   const total = root.total + pos.total + morph.total;
   const correct = root.correct + pos.correct + morph.correct;
-  if (total === 0) return null;
+  // A phase with no CONTENT word has no facts (roots/senses) to grade — word-class agreement on
+  // function words alone is not a factual signal, so it stays ungraded (null → renormalised out of
+  // rank), exactly as before A1 widened POS to all words.
+  const hasContentWord = goldAnat.words.some((w) => w.wordClass === 'content');
+  if (total === 0 || !hasContentWord) return null;
   const catAccs = [root, pos, morph]
     .filter((c) => c.total > 0)
     .map((c) => c.correct / c.total);

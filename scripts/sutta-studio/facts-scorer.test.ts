@@ -49,7 +49,7 @@ describe('scoreFactsDetail', () => {
 
     const r = scoreFactsDetail(model, gold, dpd)!;
 
-    expect(r.root).toEqual({ correct: 1, total: 3, fabricated: 1, silent: 1, dropped: 0 });
+    expect(r.root).toEqual({ correct: 1, total: 3, fabricated: 1, silent: 1, dropped: 0, sprayed: 0 });
     expect(r.pos).toEqual({ correct: 3, total: 3 });
     expect(r.accuracy).toBeCloseTo(4 / 6);
     // macro: mean of root (1/3) and pos (3/3) — morph ungraded here
@@ -62,7 +62,7 @@ describe('scoreFactsDetail', () => {
 
     const r = scoreFactsDetail(model, gold, () => [])!;
 
-    expect(r.root).toEqual({ correct: 1, total: 1, fabricated: 0, silent: 0, dropped: 0 });
+    expect(r.root).toEqual({ correct: 1, total: 1, fabricated: 0, silent: 0, dropped: 0, sprayed: 0 });
   });
 
   it('grades asserted morph for consistency with SOME legitimate DPD reading', () => {
@@ -96,7 +96,8 @@ describe('scoreFactsDetail', () => {
     //  satiyā → silent, eligible but not charged
     expect(r.morph).toEqual({ correct: 2, total: 4 });
     expect(r.morphCoverage).toEqual({ asserted: 2, eligible: 3 });
-    expect(r.pos.total).toBe(3); // function word contributes nothing
+    // POS now grades EVERY golden word incl. the function word 'ca' (correctly labelled) — audit A1
+    expect(r.pos).toEqual({ correct: 4, total: 4 });
   });
 
   it('charges every available check for a dropped golden content word (SUTTA-012)', () => {
@@ -107,7 +108,7 @@ describe('scoreFactsDetail', () => {
 
     const r = scoreFactsDetail(model, gold, () => [])!;
 
-    expect(r.root).toEqual({ correct: 0, total: 1, fabricated: 0, silent: 0, dropped: 1 });
+    expect(r.root).toEqual({ correct: 0, total: 1, fabricated: 0, silent: 0, dropped: 1, sprayed: 0 });
     expect(r.pos).toEqual({ correct: 0, total: 1 });
     // morph is a consistency check on ASSERTED morph — a dropped word cannot
     // assert anything, so it lands in neither morph.total nor coverage
@@ -115,6 +116,38 @@ describe('scoreFactsDetail', () => {
     expect(r.morphCoverage).toEqual({ asserted: 0, eligible: 0 });
     expect(r.accuracy).toBe(0);
     expect(r.macro).toBe(0);
+  });
+
+  it('charges word-class over ALL golden words — labelling everything content is penalised (audit A1)', () => {
+    const gold = anat([
+      { id: 'g1', surface: 'gacchati', wordClass: 'content' },
+      { id: 'g2', surface: 'ca', wordClass: 'function' },
+      { id: 'g3', surface: 'pi', wordClass: 'function' },
+    ]);
+    // A model that hard-codes wordClass:'content' knows zero grammar; the old content-only POS
+    // gave it a free 1.0. Now the two mislabelled function words cost it.
+    const model = anat([
+      { id: 'p1', surface: 'gacchati', wordClass: 'content' },
+      { id: 'p2', surface: 'ca', wordClass: 'content' },
+      { id: 'p3', surface: 'pi', wordClass: 'content' },
+    ]);
+
+    const r = scoreFactsDetail(model, gold, () => [])!;
+
+    expect(r.pos).toEqual({ correct: 1, total: 3 });
+  });
+
+  it('denies root credit for a correct root buried in a spray of roots (audit A2)', () => {
+    const gold = anat([{ id: 'g1', surface: 'gacchati', wordClass: 'content', tips: ['√gam: to go'] }]);
+    // sprays 6 roots to guarantee a hit — recall-only scoring used to credit this as correct
+    const sprayer = anat([{ id: 'p1', surface: 'gacchati', wordClass: 'content', tips: ['√gam √kar √pac √chid √bhuj √labh'] }]);
+    const sr = scoreFactsDetail(sprayer, gold, () => [])!;
+    expect(sr.root).toEqual({ correct: 0, total: 1, fabricated: 0, silent: 0, dropped: 0, sprayed: 1 });
+
+    // a focused answer (the right root + one alternative, within slack) still counts
+    const focused = anat([{ id: 'p1', surface: 'gacchati', wordClass: 'content', tips: ['√gam √gā'] }]);
+    const fr = scoreFactsDetail(focused, gold, () => [])!;
+    expect(fr.root).toEqual({ correct: 1, total: 1, fabricated: 0, silent: 0, dropped: 0, sprayed: 0 });
   });
 
   it('returns null when nothing is checkable', () => {
