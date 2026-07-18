@@ -15,6 +15,9 @@ import type {
   WeaverPass,
   TypesetterPass,
 } from '../../types/suttaStudio';
+// facts-scorer imports alignWords/tokenize back from here; the cycle is safe because both sides
+// only use the other's exports at CALL time (inside functions), never at module init.
+import { scoreFactsDetail, scoreSenseFidelityDetail } from './facts-scorer';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -48,7 +51,7 @@ export type PipelineOutput = {
  * gateFactor multiplier, sequence-aligned micro-F1 fidelity, paliWordCoverage as a Gate.
  * v1 (density) scores are NOT comparable to v2 and must not share a leaderboard.
  */
-export const RUBRIC_VERSION = '2.1';
+export const RUBRIC_VERSION = '2.2';
 
 export type QualityScore = {
   phase: string;
@@ -72,7 +75,10 @@ export type QualityScore = {
   contentFidelity: number | null;       // etymology + gloss token F1 vs golden, matched by surface
   contentPrecision: number | null;      // of what the model said, how much the golden attests (v2.1)
   contentRecall: number | null;         // of what the golden requires, how much the model said (v2.1)
-  fidelityScore: number | null;         // combined fidelity dimension
+  fidelityScore: number | null;         // combined fidelity dimension (v2.1; still the "has golden" gate)
+  // v2.2 ranked components (ADR SUTTA-013/014) — null when no golden for the phase.
+  factsCore: number | null;             // root + word-class macro; morph stays ADVISORY, not ranked
+  senseF1: number | null;               // strict sense-english micro-F1 (SUTTA-012 drop-penalised)
   // Grammar (arrows)
   relationCount: number;
   relationDensity: number;  // relations per content word
@@ -600,30 +606,38 @@ export function computeGateFactor(scores: {
   return scores.textIntegrity * softFactor;
 }
 
-// v2.0 quality weights — Fidelity dominates; the old density metrics survive only as a
-// small "transitional richness" bucket (kept, not deleted) until relation/morph fidelity
-// replaces them in v2.1. See ADR SUTTA-009.
-const W_FIDELITY = 0.60;
-const W_USABILITY = 0.25;
-const W_RICHNESS = 0.15;
+// v2.2 ranked weights (ADR SUTTA-013/014; operator-confirmed as FINAL-score weights). The ranked
+// core is three golden-backed dimensions under the canonical-integrity gate:
+//   overall = gate × (0.40·segmentationF1 + 0.30·factsCore + 0.30·senseF1)
+// Usability and richness are RETIRED from rank (still computed for display); morph, align, the
+// LLM judge and probe stay advisory this cycle. factsCore is a root/word-class macro (morph is
+// deliberately excluded — advisory until further notice).
+const W_SEGMENTATION = 0.40;
+const W_FACTS = 0.30;
+const W_SENSE = 0.30;
 
 export function computeOverallScore(scores: Omit<QualityScore, 'overallScore'>): number {
   const gateFactor = computeGateFactor(scores);
-  const usability = (scores.alignmentCoverage + scores.englishOrderScore) / 2;
-  // ADR SUTTA-009 folds all three surviving density metrics — sensePolysemy,
-  // morphDataPresent AND relationDensity — into this reduced-weight bucket (was ÷3,
-  // silently dropping relationDensity — Gemini review). Retired wholesale in v2.1.
-  const transitionalRichness = (scores.tooltipCoverage + scores.sensePolysemy + scores.morphDataPresent + scores.relationDensity) / 4;
 
-  if (scores.fidelityScore !== null && scores.fidelityScore !== undefined) {
-    const quality = W_FIDELITY * scores.fidelityScore + W_USABILITY * usability + W_RICHNESS * transitionalRichness;
+  // Weight only the components a golden actually provides for this phase, then renormalise — a
+  // function-only phase with no golden senses is scored on seg+facts, not penalised for senses
+  // it could not have. When all three are present this is exactly the 40/30/30 final formula.
+  const ranked: Array<[number, number]> = [];
+  if (scores.segmentationFidelity != null) ranked.push([W_SEGMENTATION, scores.segmentationFidelity]);
+  if (scores.factsCore != null) ranked.push([W_FACTS, scores.factsCore]);
+  if (scores.senseF1 != null) ranked.push([W_SENSE, scores.senseF1]);
+
+  if (ranked.length > 0) {
+    const wSum = ranked.reduce((a, [w]) => a + w, 0);
+    const quality = ranked.reduce((a, [w, v]) => a + w * v, 0) / wSum;
     return gateFactor * quality;
   }
 
-  // No golden → "ungraded for fidelity": score on gate × (usability + richness) only,
-  // renormalized over their weights. Such phases are EXCLUDED from the ranked leaderboard.
-  const quality = (W_USABILITY * usability + W_RICHNESS * transitionalRichness) / (W_USABILITY + W_RICHNESS);
-  return gateFactor * quality;
+  // No golden at all → ungraded for rank (EXCLUDED from the leaderboard). Keep a display-only
+  // score from the retired usability/richness buckets so the phase still renders somewhere.
+  const usability = (scores.alignmentCoverage + scores.englishOrderScore) / 2;
+  const richness = (scores.tooltipCoverage + scores.sensePolysemy + scores.morphDataPresent + scores.relationDensity) / 4;
+  return gateFactor * (usability + richness) / 2;
 }
 
 export function scorePhase(data: PipelineOutput, phase: string, model: string): QualityScore {
@@ -642,7 +656,22 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
   const contentDetail = scoreContentFidelityDetail(data.output.anatomist, goldAnat, data.output.lexicographer, goldLex);
   const contentFidelity = contentDetail?.f1 ?? null;
   const fidParts = [segmentationFidelity, contentFidelity].filter((x): x is number => x !== null);
+  // fidelityScore stays the v2.1 combined value — the leaderboard still uses `fidelityScore != null`
+  // as the "this phase has a golden, so it is rankable" gate.
   const fidelityScore = fidParts.length > 0 ? fidParts.reduce((a, b) => a + b, 0) / fidParts.length : null;
+
+  // v2.2 ranked components. factsCore = root/word-class macro from the facts scorer, morph
+  // EXCLUDED (advisory). No DPD/grammar lookup passed → roots are scored against the golden's own
+  // DPD-verified √tooltips, and morph is not graded here. senseF1 = strict sense-english micro-F1.
+  const factsDetail = scoreFactsDetail(data.output.anatomist, goldAnat);
+  const factsCore = (() => {
+    if (!factsDetail) return null;
+    const cats = [factsDetail.root, factsDetail.pos]
+      .filter((c) => c.total > 0)
+      .map((c) => c.correct / c.total);
+    return cats.length ? cats.reduce((a, b) => a + b, 0) / cats.length : null;
+  })();
+  const senseF1 = scoreSenseFidelityDetail(data.output.anatomist, goldAnat, data.output.lexicographer, goldLex)?.f1 ?? null;
 
   // Gate coverage: with a golden present, `paliWordCoverage` is the fraction of GOLDEN
   // words the model actually reproduced (by surface alignment) — NOT the blind word-COUNT
@@ -688,6 +717,8 @@ export function scorePhase(data: PipelineOutput, phase: string, model: string): 
     contentPrecision: contentDetail?.precision ?? null,
     contentRecall: contentDetail?.recall ?? null,
     fidelityScore,
+    factsCore,
+    senseF1,
     coverageScore,
     validityScore,
     richnessScore,
