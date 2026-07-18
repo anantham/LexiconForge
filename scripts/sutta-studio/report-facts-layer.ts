@@ -127,6 +127,7 @@ for (const [model, phases] of byModel) {
   const rootFab = sum((f) => f!.root.fabricated);
   const rootSil = sum((f) => f!.root.silent);
   const rootDrop = sum((f) => f!.root.dropped);
+  const rootSpray = sum((f) => f!.root.sprayed);
   const agg = (k: 'pos') => {
     const correct = sum((f) => f![k].correct);
     const total = sum((f) => f![k].total);
@@ -149,7 +150,7 @@ for (const [model, phases] of byModel) {
     senseR: mean(sr),
     facts: mean(fm),
     root: rootTotal
-      ? `${((100 * rootCorrect) / rootTotal).toFixed(0)}% (fab ${rootFab}·sil ${rootSil}·drop ${rootDrop})`
+      ? `${((100 * rootCorrect) / rootTotal).toFixed(0)}% (fab ${rootFab}·sil ${rootSil}·drop ${rootDrop}·spray ${rootSpray})`
       : '—',
     pos: agg('pos'),
     morph: morphCol,
@@ -160,11 +161,11 @@ rows.sort((a, b) => b.contentF1 - a.contentF1);
 const f = (x: number) => (Number.isNaN(x) ? '  —  ' : x.toFixed(3));
 console.log('SUTTA-013 facts-layer dry run (facts = MACRO mean of root/pos/morph accuracies)');
 console.log('');
-console.log('model                | ph | contentF1 | senseF1 | senseP | senseR | facts | root                        | pos           | morph');
-console.log('---------------------|----|-----------|---------|--------|--------|-------|-----------------------------|---------------|--------------');
+console.log('model                | ph | contentF1 | senseF1 | senseP | senseR | facts | root                                   | pos           | morph');
+console.log('---------------------|----|-----------|---------|--------|--------|-------|----------------------------------------|---------------|--------------');
 for (const r of rows) {
   console.log(
-    `${r.model.padEnd(20)} | ${String(r.phases).padStart(2)} | ${f(r.contentF1).padStart(9)} | ${f(r.senseF1).padStart(7)} | ${f(r.senseP).padStart(6)} | ${f(r.senseR).padStart(6)} | ${f(r.facts).padStart(5)} | ${r.root.padEnd(27)} | ${r.pos.padEnd(13)} | ${r.morph}`
+    `${r.model.padEnd(20)} | ${String(r.phases).padStart(2)} | ${f(r.contentF1).padStart(9)} | ${f(r.senseF1).padStart(7)} | ${f(r.senseP).padStart(6)} | ${f(r.senseR).padStart(6)} | ${f(r.facts).padStart(5)} | ${r.root.padEnd(38)} | ${r.pos.padEnd(13)} | ${r.morph}`
   );
 }
 
