@@ -426,25 +426,31 @@ export const SUTTA_STUDIO_LEXICO_COMPOUND_EXAMPLE_JSON = JSON.stringify(SUTTA_ST
 // When selecting different senses, nearby ghost words may need adjustment.
 // Use ripples to override ghost text when sense choice affects grammar.
 //
-// Example: "viharati" with ghost "was" before it
-// - If sense = "dwells" (present) → remove "was" ghost
-// - If sense = "was staying" (past continuous) → keep "was"
-// - If sense = "stayed" (simple past) → remove "was" ghost
+// Example: "gacchati" with ghost "was" before it
+// - If sense = "goes" (present) → remove "was" ghost
+// - If sense = "was going" (past continuous) → keep "was"
+// - If sense = "went" (simple past) → remove "was" ghost
+//
+// NOTE: this worked example is shown in the lexicographer PROMPT, so its words must NOT
+// be any word graded in a ranked benchmark phase — otherwise the taught gloss leaks the
+// answer on the sense axis (senseF1). The previous example used "viharati → dwells", which
+// is graded in 8 ranked phases; it was reglossed to "gacchati → goes" (absent from every
+// ranked phase). The lexico-example-leak test enforces this contract.
 //
 // The ripple key is the English token ID (e.g., "e10" for the ghost "was")
 export const SUTTA_STUDIO_LEXICO_RIPPLE_EXAMPLE: LexicographerPass = {
   id: 'phase-ripple',
   senses: [
     {
-      wordId: 'p5',  // viharati
+      wordId: 'p5',  // gacchati
       wordClass: 'content',
       senses: [
         // Present tense - remove "was" ghost (e10)
-        { english: 'dwells', nuance: 'habitual residence', ripples: { e10: '' } },
+        { english: 'goes', nuance: 'habitual motion', ripples: { e10: '' } },
         // Past continuous - keep "was" as-is (no ripple needed, or explicit)
-        { english: 'staying', nuance: 'temporary residence', ripples: { e10: 'was' } },
+        { english: 'going', nuance: 'motion in progress', ripples: { e10: 'was' } },
         // Simple past - remove "was" ghost
-        { english: 'stayed', nuance: 'completed action', ripples: { e10: '' } },
+        { english: 'went', nuance: 'completed action', ripples: { e10: '' } },
       ],
     },
     {
