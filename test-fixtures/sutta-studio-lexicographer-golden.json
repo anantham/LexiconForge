@@ -30,7 +30,7 @@
     },
     {
       "phaseId": "phase-f",
-      "wordSenseCount": 2,
+      "wordSenseCount": 1,
       "segmentSenseCount": 0
     },
     {
@@ -40,7 +40,7 @@
     },
     {
       "phaseId": "phase-h",
-      "wordSenseCount": 3,
+      "wordSenseCount": 2,
       "segmentSenseCount": 0
     },
     {
@@ -160,7 +160,7 @@
     },
     {
       "phaseId": "phase-an",
-      "wordSenseCount": 7,
+      "wordSenseCount": 8,
       "segmentSenseCount": 0
     },
     {
@@ -185,12 +185,12 @@
     },
     {
       "phaseId": "phase-as",
-      "wordSenseCount": 14,
+      "wordSenseCount": 12,
       "segmentSenseCount": 0
     },
     {
       "phaseId": "phase-at",
-      "wordSenseCount": 8,
+      "wordSenseCount": 6,
       "segmentSenseCount": 0
     },
     {
@@ -200,7 +200,7 @@
     },
     {
       "phaseId": "phase-av",
-      "wordSenseCount": 21,
+      "wordSenseCount": 19,
       "segmentSenseCount": 0
     },
     {
@@ -210,7 +210,7 @@
     },
     {
       "phaseId": "phase-ax",
-      "wordSenseCount": 8,
+      "wordSenseCount": 6,
       "segmentSenseCount": 0
     },
     {
@@ -2872,6 +2872,22 @@
           ],
           "acceptedSenses": [
             "gone to the foot of a tree"
+          ]
+        },
+        {
+          "wordId": "an6b",
+          "wordClass": "function",
+          "senses": [
+            {
+              "english": "or",
+              "nuance": "Alternative"
+            }
+          ],
+          "acceptedSenses": [
+            "or; either or",
+            "exact; very; precise",
+            "and; as well as",
+            "(gram) or; in some cases; not always; alternatively; optionally"
           ]
         },
         {
