@@ -23,6 +23,7 @@ import type {
   WeaverPass,
 } from '../../types/suttaStudio';
 import { BENCHMARK_CONFIG, resolveSettingsForModel, type AnatomistFixtureConfig } from './benchmark-config';
+import { SpendGuard } from './spend-guard';
 import {
   assemblePipelineToPacket,
   type PipelinePhaseOutput,
@@ -550,6 +551,10 @@ type ProviderPreferences = {
 /** Request timeout in ms (10 minutes - some reasoning models take longer) */
 const LLM_REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
 
+// Fail-closed cumulative spend guard (review #6). Every LLM call accrues; the run ABORTS at the
+// next loop boundary (assertUnderBudget) once BENCHMARK_CONFIG.maxSpendUsd is hit. See spend-guard.ts.
+const spendGuard = new SpendGuard(BENCHMARK_CONFIG.maxSpendUsd);
+
 const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LLMCaller => {
   return async ({ settings, messages, signal, maxTokens, options }) => {
     const apiKey = settings.apiKeyOpenRouter || process.env.OPENROUTER_API_KEY;
@@ -710,6 +715,10 @@ const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LL
       costUsd = null;
     }
   }
+
+  // Accrue toward the fail-closed cap. Enforcement happens at loop boundaries (assertUnderBudget),
+  // not here — a throw inside a pass runner is caught and demoted to a phase failure.
+  spendGuard.accrue(costUsd);
 
     return {
       text,
@@ -1174,6 +1183,7 @@ const runBenchmark = async () => {
     // runsToExecute is now calculated above with runsTotal
 
     for (const run of runsToExecute) {
+      spendGuard.assertUnderBudget(`model "${run.id}"`); // fail-closed: don't start a new model over budget
       const runIndex = BENCHMARK_CONFIG.runs.indexOf(run);
       const baseSettings = resolveSettingsForModel(run.model);
       const dependencyMode = BENCHMARK_CONFIG.dependencyMode;
@@ -1427,6 +1437,7 @@ const runBenchmark = async () => {
           let earlyStopReason: string | null = null;
 
           for (const testPhaseId of phasesToTest) {
+            spendGuard.assertUnderBudget(`phase "${testPhaseId}"`); // fail-closed between phases (finest boundary)
             const phaseSegments = getSegmentsForPhase(testPhaseId, goldenFixtures);
             if (phaseSegments.length === 0) {
               console.warn(`[Pipeline] No segments found for phase ${testPhaseId}, skipping`);
