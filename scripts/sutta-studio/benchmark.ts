@@ -1195,6 +1195,10 @@ const runBenchmark = async () => {
       for (let repeatIndex = 0; repeatIndex < repeatRuns; repeatIndex++) {
         const runId =
           repeatRuns > 1 ? `${run.id}-run-${repeatIndex + 1}` : run.id;
+        // Fail-closed BEFORE the skeleton pass (the biggest, chunked pass) and before each repeat —
+        // the model-loop check only guards the first repeat, so a repeat that starts after the prior
+        // one exhausted the budget, or an expensive skeleton, could otherwise overshoot the cap.
+        spendGuard.assertUnderBudget(`run "${runId}"`);
         const runOutputDir = captureSkeletonOutputs
           ? path.join(outputsDir, runId)
           : null;
