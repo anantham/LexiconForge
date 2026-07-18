@@ -99,6 +99,24 @@ describe('scoreFactsDetail', () => {
     expect(r.pos.total).toBe(3); // function word contributes nothing
   });
 
+  it('scores morph against a SINGLE reading — mixing keys from different ambiguous readings is not free (codex review)', () => {
+    const gold = anat([{ id: 'g1', surface: 'kāye', wordClass: 'content' }]);
+    // case:acc exists ONLY in reading 1, number:sg ONLY in reading 2 — no single reading has both,
+    // so the union-per-key scorer wrongly accepted both (2/2); correlation-preserving gives 1/2.
+    const model = anat([{ id: 'p1', surface: 'kāye', wordClass: 'content', morph: { case: 'acc', number: 'sg' } }]);
+    const grammar = (s: string) =>
+      ({
+        kāye: [
+          { pos: 'noun', gender: 'm', case: 'acc', number: 'pl' },
+          { pos: 'noun', gender: 'm', case: 'loc', number: 'sg' },
+        ],
+      })[s];
+
+    const r = scoreFactsDetail(model, gold, () => [], grammar)!;
+
+    expect(r.morph).toEqual({ correct: 1, total: 2 });
+  });
+
   it('charges every available check for a dropped golden content word (SUTTA-012)', () => {
     const gold = anat([
       { id: 'g1', surface: 'satipaṭṭhānā', wordClass: 'content', tips: ['√sthā: to stand'], morph: { case: 'nom' } },
