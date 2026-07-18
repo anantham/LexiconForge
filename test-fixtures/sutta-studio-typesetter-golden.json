@@ -31,7 +31,7 @@
     {
       "phaseId": "phase-f",
       "blockCount": 1,
-      "totalWords": 2
+      "totalWords": 1
     },
     {
       "phaseId": "phase-g",
@@ -41,7 +41,7 @@
     {
       "phaseId": "phase-h",
       "blockCount": 1,
-      "totalWords": 3
+      "totalWords": 2
     },
     {
       "phaseId": "phase-1",
@@ -161,7 +161,7 @@
     {
       "phaseId": "phase-an",
       "blockCount": 1,
-      "totalWords": 7
+      "totalWords": 8
     },
     {
       "phaseId": "phase-ao",
@@ -186,12 +186,12 @@
     {
       "phaseId": "phase-as",
       "blockCount": 1,
-      "totalWords": 14
+      "totalWords": 12
     },
     {
       "phaseId": "phase-at",
       "blockCount": 1,
-      "totalWords": 8
+      "totalWords": 6
     },
     {
       "phaseId": "phase-au",
@@ -201,7 +201,7 @@
     {
       "phaseId": "phase-av",
       "blockCount": 1,
-      "totalWords": 21
+      "totalWords": 19
     },
     {
       "phaseId": "phase-aw",
@@ -211,7 +211,7 @@
     {
       "phaseId": "phase-ax",
       "blockCount": 1,
-      "totalWords": 8
+      "totalWords": 6
     },
     {
       "phaseId": "phase-ay",
@@ -703,6 +703,7 @@
           "an4",
           "an5",
           "an6",
+          "an6b",
           "an7"
         ]
       ],
@@ -749,6 +750,7 @@
           "aq1",
           "aq2",
           "aq4",
+          "aq2b",
           "aq5"
         ]
       ],

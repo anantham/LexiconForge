@@ -57,7 +57,7 @@
       "canonicalSegmentIds": [
         "mn10:1.4"
       ],
-      "wordCount": 2,
+      "wordCount": 1,
       "segmentCount": 3,
       "relationCount": 0
     },
@@ -75,9 +75,9 @@
       "canonicalSegmentIds": [
         "mn10:1.6"
       ],
-      "wordCount": 3,
+      "wordCount": 2,
       "segmentCount": 6,
-      "relationCount": 2
+      "relationCount": 1
     },
     {
       "phaseId": "phase-1",
@@ -217,7 +217,7 @@
       ],
       "wordCount": 3,
       "segmentCount": 9,
-      "relationCount": 0,
+      "relationCount": 1,
       "wordRange": [
         9,
         12
@@ -347,8 +347,8 @@
       "canonicalSegmentIds": [
         "mn10:4.2"
       ],
-      "wordCount": 7,
-      "segmentCount": 14,
+      "wordCount": 8,
+      "segmentCount": 15,
       "relationCount": 0,
       "wordRange": [
         0,
@@ -387,7 +387,7 @@
         "mn10:4.3"
       ],
       "wordCount": 5,
-      "segmentCount": 8,
+      "segmentCount": 11,
       "relationCount": 0
     },
     {
@@ -404,7 +404,7 @@
       "canonicalSegmentIds": [
         "mn10:4.5"
       ],
-      "wordCount": 14,
+      "wordCount": 12,
       "segmentCount": 26,
       "relationCount": 0
     },
@@ -413,7 +413,7 @@
       "canonicalSegmentIds": [
         "mn10:4.6"
       ],
-      "wordCount": 8,
+      "wordCount": 6,
       "segmentCount": 22,
       "relationCount": 0
     },
@@ -431,7 +431,7 @@
       "canonicalSegmentIds": [
         "mn10:4.8"
       ],
-      "wordCount": 21,
+      "wordCount": 19,
       "segmentCount": 42,
       "relationCount": 0
     },
@@ -449,7 +449,7 @@
       "canonicalSegmentIds": [
         "mn10:4.10"
       ],
-      "wordCount": 8,
+      "wordCount": 6,
       "segmentCount": 22,
       "relationCount": 2
     },
