@@ -267,27 +267,42 @@ export function scoreFactsDetail(
           : [];
     if (readings.length > 0 && mw) {
       morphCoverage.eligible += 1;
-      // Acceptable canonical values per gradeable key, unioned across (possibly ambiguous) readings.
-      const acceptable = new Map<string, Set<string>>();
-      for (const r of readings) {
-        for (const key of GRADEABLE_MORPH_KEYS) {
-          const rv = (r as Record<string, string | undefined>)[key];
-          if (rv == null || rv === '') continue;
-          let set = acceptable.get(key);
-          if (!set) { set = new Set(); acceptable.set(key, set); }
-          set.add(canonMorph(key, String(rv)));
-        }
-      }
       const asserted = wordMorphMap(mw.id, outAnat);
-      let assertedAnyGradeable = false;
-      for (const [key, values] of acceptable) {
-        const av = asserted.get(key);
-        if (av == null) continue; // omission of a known key is not charged
-        assertedAnyGradeable = true;
-        morph.total += 1;
-        if (values.has(canonMorph(key, av))) morph.correct += 1;
+      // Gradeable keys: ones the model asserts AND at least one reading specifies. A key no reading
+      // covers is ignored (a bogus assertion can't inflate the macro — review #4); omission of a
+      // known key is not charged (silence ≠ wrong).
+      const gradeableKeys = GRADEABLE_MORPH_KEYS.filter(
+        (key) =>
+          asserted.get(key) != null &&
+          readings.some((r) => {
+            const rv = (r as Record<string, string | undefined>)[key];
+            return rv != null && rv !== '';
+          }),
+      );
+      if (gradeableKeys.length > 0) {
+        morphCoverage.asserted += 1;
+        morph.total += gradeableKeys.length;
+        // Correlation-preserving: score against the SINGLE reading that matches the MOST of the
+        // model's asserted keys — NOT per-key over the union of all readings, which would accept a
+        // model that assembles a valid-looking analysis from keys drawn from different, mutually
+        // exclusive readings (e.g. case from one reading, number from another). (codex review)
+        let best = 0;
+        for (const r of readings) {
+          let matched = 0;
+          for (const key of gradeableKeys) {
+            const rv = (r as Record<string, string | undefined>)[key];
+            if (
+              rv != null &&
+              rv !== '' &&
+              canonMorph(key, String(rv)) === canonMorph(key, String(asserted.get(key)))
+            ) {
+              matched += 1;
+            }
+          }
+          if (matched > best) best = matched;
+        }
+        morph.correct += best;
       }
-      if (assertedAnyGradeable) morphCoverage.asserted += 1;
     }
   });
 
