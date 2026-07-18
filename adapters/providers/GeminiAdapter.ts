@@ -90,7 +90,11 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     try {
       const schema = getTranslationOnlyResponseGeminiSchema();
 
-      // Make API call
+      // Make API call. Pass the signal in SingleRequestOptions so a Translator timeout actually
+      // CANCELS the in-flight request (review #3) — the SDK (@google/generative-ai ≥0.24) supports
+      // it natively; the previous "Gemini doesn't support native abort" note was outdated, so the
+      // signal was only checked AFTER the call returned, by which point the original was still
+      // running and billing while the retry fired.
       result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
         generationConfig: {
@@ -99,9 +103,9 @@ export class GeminiAdapter implements TranslationProvider, Provider {
           responseMimeType: 'application/json',
           responseSchema: schema
         },
-      });
+      }, { signal: abortSignal });
 
-      // Handle abort signal manually (Gemini doesn't support native abort)
+      // Belt-and-braces: if the signal fired without the SDK surfacing an AbortError, bail here.
       if (abortSignal?.aborted) {
         throw new DOMException('Aborted', 'AbortError');
       }
@@ -166,7 +170,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
       result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig,
-      });
+      }, { signal: input.abortSignal });
 
       if (input.abortSignal?.aborted) {
         throw new DOMException('Aborted', 'AbortError');

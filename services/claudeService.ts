@@ -27,11 +27,12 @@ const dlogFull = (...args: any[]) => { if (aiDebugFullEnabled()) console.log(...
  * Uses Anthropic's response prefilling for reliable JSON output
  */
 export const translateWithClaude = async (
-    title: string, 
-    content: string, 
-    settings: AppSettings, 
+    title: string,
+    content: string,
+    settings: AppSettings,
     history: HistoricalChapter[],
-    fanTranslation?: string | null
+    fanTranslation?: string | null,
+    abortSignal?: AbortSignal
 ): Promise<TranslationResult> => {
 
     const apiKey = settings.apiKeyClaude || (getEnvVar('CLAUDE_API_KEY') as any);
@@ -133,8 +134,11 @@ CRITICAL JSON FORMATTING: Properly escape all special characters:
     dlogFull('[Claude Debug] Full request body:', JSON.stringify(requestPayload, null, 2));
 
     try {
-        // Use Claude's message format with response prefilling for consistency
-        const response = await claude.messages.create(requestPayload);
+        // Use Claude's message format with response prefilling for consistency.
+        // Thread the abort signal into the SDK so a Translator timeout actually CANCELS the
+        // in-flight request — otherwise the original call keeps running (and billing) while the
+        // retry fires (review #3). The Anthropic SDK accepts { signal } as the request options.
+        const response = await claude.messages.create(requestPayload, { signal: abortSignal });
         
         dlog('[Claude Debug] Raw API response:', JSON.stringify(response, null, 2));
         

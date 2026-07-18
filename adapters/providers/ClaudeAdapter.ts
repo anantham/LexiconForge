@@ -20,7 +20,8 @@ export class ClaudeAdapter implements TranslationProvider, Provider {
       request.content,
       request.settings,
       request.history,
-      request.fanTranslation
+      request.fanTranslation,
+      request.abortSignal
     );
   }
 
@@ -69,7 +70,9 @@ export class ClaudeAdapter implements TranslationProvider, Provider {
     const startTime = performance.now();
     try {
       const claude = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
-      const response = await claude.messages.create(requestPayload);
+      // Thread the signal into the SDK so an abort cancels the in-flight request, not just the
+      // post-return check below (review #3).
+      const response = await claude.messages.create(requestPayload, { signal: input.abortSignal });
 
       if (input.abortSignal?.aborted) {
         throw new DOMException('Aborted', 'AbortError');

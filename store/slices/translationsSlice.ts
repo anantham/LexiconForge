@@ -308,6 +308,13 @@ export const createTranslationsSlice: StateCreator<
     // Budget enforcement (budget mode only) — landed from feat/opus-budget-preload.
     // Applies to all origins (manual_translate, auto_visit, auto_preload).
     // The user can lift the cap in Settings > Providers per the toast guidance.
+    //
+    // Wrapped so a budget-preflight THROW can't strand the chapter. releasePending() is wired to
+    // the two graceful early-returns below, but the awaits here (a dynamic import, a pricing fetch
+    // that may hit the network, an IndexedDB cost read) can reject — and a throw would leave the
+    // claim set, so the guard at the top of this function would block every future attempt on this
+    // chapter until reload.
+    try {
     if (context.settings.preloadMode === 'budget' && context.settings.preloadBudget && context.settings.preloadBudget > 0) {
       const { activeNovelId, activeVersionId } = state as any;
       if (activeNovelId) {
@@ -340,6 +347,12 @@ export const createTranslationsSlice: StateCreator<
           return;
         }
       }
+    }
+    } catch (budgetError) {
+      // Release the claim (see the note above the budget block), then rethrow so the failure still
+      // surfaces — fail-closed: no paid translation runs on an unverifiable budget.
+      releasePending();
+      throw budgetError;
     }
 
     const uiActions = state;

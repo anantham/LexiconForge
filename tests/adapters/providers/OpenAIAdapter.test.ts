@@ -218,6 +218,20 @@ describe('OpenAIAdapter processResponse', () => {
 
     expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
   });
+
+  it('records the spend on an EMPTY response before throwing (review #2)', async () => {
+    // An empty response is still billed (usage present). It used to throw before the metric block,
+    // so the paid call was invisible to the budget ledger.
+    const adapter = new OpenAIAdapter() as any;
+    const empty = {
+      choices: [{ finish_reason: 'stop', message: { content: '' } }],
+      usage: { prompt_tokens: 900, completion_tokens: 0 },
+    };
+
+    await expect(adapter.processResponse(empty, baseSettings, 0, 1000)).rejects.toThrow(/Empty response/);
+
+    expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: false, costUsd: 0.42 }));
+  });
 });
 
 describe('OpenAIAdapter translate() parameter handling', () => {

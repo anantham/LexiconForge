@@ -9,6 +9,9 @@ export default defineConfig({
       ...configDefaults.exclude,
       'tests/e2e/**', // Playwright specs (run via `npm run test:e2e`)
       'issues/**/traces/**', // Playwright reproduction harnesses (issue-specific scripts)
+      '**/.claude/**', // Agent git worktrees live under .claude/worktrees/ INSIDE the repo;
+                       // without this the main checkout discovers their duplicate test copies,
+                       // inflating counts and coverage. Match at any depth.
     ],
     setupFiles: ['./tests/setup.ts'],
     coverage: {
@@ -18,6 +21,7 @@ export default defineConfig({
         'node_modules/',
         'dist/',
         'tests/',
+        '**/.claude/**', // agent worktrees (see test.exclude above)
         '**/*.d.ts',
         '**/*.config.*',
         '**/coverage/**',

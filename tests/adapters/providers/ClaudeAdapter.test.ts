@@ -59,6 +59,7 @@ describe('ClaudeAdapter', () => {
       request.settings,
       [],
       undefined,
+      undefined, // abortSignal — threaded through so a timeout cancels the request (review #3)
     );
   });
 });
