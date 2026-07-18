@@ -687,21 +687,6 @@
               "nuance": "Those who beg"
             }
           ]
-        },
-        {
-          "wordId": "f2",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "\"",
-              "nuance": "Quote marker"
-            }
-          ],
-          "acceptedSenses": [
-            "three (3)",
-            "(end of direct speech) ' '",
-            "(gram) ti; verbal ending of the present tense 3rd person singular"
-          ]
         }
       ],
       "handoff": {
@@ -858,16 +843,6 @@
           ],
           "acceptedSenses": [
             "Sublime One; Blessed One; Fortunate One; epithet of the Buddha"
-          ]
-        },
-        {
-          "wordId": "h2",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "this",
-              "nuance": "The teaching that follows"
-            }
           ]
         },
         {
@@ -3205,23 +3180,6 @@
           ]
         },
         {
-          "wordId": "aq3",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "just",
-              "nuance": "Emphasis"
-            }
-          ],
-          "acceptedSenses": [
-            "like; as",
-            "even; this very",
-            "as soon as",
-            "or",
-            "(gram) letter v; 37th letter of the alphabet; dento-labial semi-vowel"
-          ]
-        },
-        {
           "wordId": "aq4",
           "wordClass": "content",
           "senses": [
@@ -3261,6 +3219,27 @@
           ],
           "acceptedSenses": [
             "exhales; breathes out; lit. breathes forward"
+          ]
+        },
+        {
+          "wordId": "aq2b",
+          "wordClass": "content",
+          "senses": [
+            {
+              "english": "mindfully",
+              "nuance": "Adverbial"
+            },
+            {
+              "english": "with awareness",
+              "nuance": "Applied sati"
+            },
+            {
+              "english": "recollected",
+              "nuance": "Present"
+            }
+          ],
+          "acceptedSenses": [
+            "when being; when is; when are"
           ]
         }
       ],
@@ -3630,16 +3609,6 @@
           ]
         },
         {
-          "wordId": "as5",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "—",
-              "nuance": "Quote end"
-            }
-          ]
-        },
-        {
           "wordId": "as6",
           "wordClass": "content",
           "senses": [
@@ -3759,16 +3728,6 @@
           ]
         },
         {
-          "wordId": "as11",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "—",
-              "nuance": "Quote end"
-            }
-          ]
-        },
-        {
           "wordId": "as12",
           "wordClass": "content",
           "senses": [
@@ -3835,16 +3794,6 @@
           ]
         },
         {
-          "wordId": "at3",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "—",
-              "nuance": "Quote end"
-            }
-          ]
-        },
-        {
           "wordId": "at4",
           "wordClass": "content",
           "senses": [
@@ -3900,16 +3849,6 @@
             {
               "english": "I will be breathing out",
               "nuance": "Future progressive"
-            }
-          ]
-        },
-        {
-          "wordId": "at7",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "—",
-              "nuance": "Quote end"
             }
           ]
         },
@@ -4353,16 +4292,6 @@
           ]
         },
         {
-          "wordId": "av12",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "—",
-              "nuance": "Quote end"
-            }
-          ]
-        },
-        {
           "wordId": "av13",
           "wordClass": "content",
           "senses": [
@@ -4474,16 +4403,6 @@
             {
               "english": "I turn",
               "nuance": "On the lathe"
-            }
-          ]
-        },
-        {
-          "wordId": "av18",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "—",
-              "nuance": "Quote end"
             }
           ]
         },
@@ -5055,16 +4974,6 @@
           ]
         },
         {
-          "wordId": "ax3",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "—",
-              "nuance": "Quote end"
-            }
-          ]
-        },
-        {
           "wordId": "ax4",
           "wordClass": "content",
           "senses": [
@@ -5116,16 +5025,6 @@
             {
               "english": "breathing out will occur",
               "nuance": "Future action"
-            }
-          ]
-        },
-        {
-          "wordId": "ax7",
-          "wordClass": "function",
-          "senses": [
-            {
-              "english": "—",
-              "nuance": "Quote end"
             }
           ]
         },

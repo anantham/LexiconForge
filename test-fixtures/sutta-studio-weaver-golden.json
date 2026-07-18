@@ -543,7 +543,7 @@
           "tokenIndex": 2,
           "text": "eh2",
           "isGhost": false,
-          "linkedPaliId": "h2"
+          "linkedPaliId": "h3"
         }
       ],
       "handoff": {
@@ -1374,7 +1374,7 @@
           "tokenIndex": 1,
           "text": "eaq3",
           "isGhost": false,
-          "linkedPaliId": "aq3"
+          "linkedPaliId": "aq2"
         },
         {
           "tokenIndex": 2,
