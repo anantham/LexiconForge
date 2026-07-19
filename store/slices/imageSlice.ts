@@ -260,7 +260,7 @@ export const createImageSlice: StateCreator<
     const context: ImageGenerationContext = {
       chapters: state.chapters || new Map(),
       settings: state.settings,
-      activePromptTemplate: state.activePromptTemplate,
+      activePromptTemplate: state.activePromptTemplate ?? undefined,
       steeringImages: state.steeringImages,
       negativePrompts: state.negativePrompts,
       guidanceScales: state.guidanceScales,
@@ -443,7 +443,7 @@ export const createImageSlice: StateCreator<
     const context: ImageGenerationContext = {
       chapters: state.chapters || new Map(),
       settings: state.settings,
-      activePromptTemplate: state.activePromptTemplate,
+      activePromptTemplate: state.activePromptTemplate ?? undefined,
       steeringImages: state.steeringImages,
       negativePrompts: state.negativePrompts,
       guidanceScales: state.guidanceScales,
@@ -617,7 +617,12 @@ export const createImageSlice: StateCreator<
                 generatedAt: new Date().toISOString()
               };
 
-              const existingState = chapter.translationResult.imageVersionState ?? {};
+              // translationResult is guaranteed present by the enclosing
+              // `if (chapter?.translationResult?.suggestedIllustrations)` guard;
+              // re-narrow here because TS drops it across this async closure.
+              const translationResult = chapter.translationResult;
+              if (!translationResult) return;
+              const existingState = translationResult.imageVersionState ?? {};
               const existingEntry = existingState[marker] as ImageVersionStateEntry | undefined;
               const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
               versions[cacheKey.version] = metadata;
@@ -628,7 +633,7 @@ export const createImageSlice: StateCreator<
                 versions
               };
               const currentVersionState = existingState;
-              chapter.translationResult.imageVersionState ={
+              translationResult.imageVersionState ={
                 ...currentVersionState,
                 [marker]: versionState
               };

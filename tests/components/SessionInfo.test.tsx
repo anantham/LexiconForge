@@ -847,7 +847,7 @@ describe('SessionInfo: Critical Flows', () => {
       await waitFor(() => {
         expect(confirmSpy).toHaveBeenCalled();
         const confirmCall = confirmSpy.mock.calls.find(call =>
-          call[0].includes('No cover image')
+          call[0]?.includes('No cover image')
         );
         expect(confirmCall).toBeDefined();
       });
@@ -1336,7 +1336,7 @@ describe('SessionInfo: Critical Flows', () => {
       const { ExportService } = await import('../../services/exportService');
       vi.mocked(ExportService.detectExistingNovel).mockResolvedValue({
         exists: false,
-        metadata: null,
+        metadata: undefined,
       });
 
       render(<SessionInfo />);
@@ -1486,7 +1486,7 @@ describe('SessionInfo: Critical Flows', () => {
       const { ExportService } = await import('../../services/exportService');
       vi.mocked(ExportService.detectExistingNovel).mockResolvedValue({
         exists: false,
-        metadata: null,
+        metadata: undefined,
       });
 
       render(<SessionInfo />);

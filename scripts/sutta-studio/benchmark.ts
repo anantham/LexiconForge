@@ -308,16 +308,16 @@ const summarizeMetricsByRun = async (metricsPath: string) => {
     const hasTotal = typeof row.tokensTotal === 'number';
 
     if (hasPrompt) {
-      current.tokensPromptTotal = (current.tokensPromptTotal ?? 0) + row.tokensPrompt;
+      current.tokensPromptTotal = (current.tokensPromptTotal ?? 0) + (row.tokensPrompt ?? 0);
     }
 
     if (hasCompletion) {
       current.tokensCompletionTotal =
-        (current.tokensCompletionTotal ?? 0) + row.tokensCompletion;
+        (current.tokensCompletionTotal ?? 0) + (row.tokensCompletion ?? 0);
     }
 
     if (hasTotal) {
-      current.tokensTotal = (current.tokensTotal ?? 0) + row.tokensTotal;
+      current.tokensTotal = (current.tokensTotal ?? 0) + (row.tokensTotal ?? 0);
     }
 
     if (!hasPrompt || !hasCompletion) {
@@ -1104,14 +1104,20 @@ const runBenchmark = async () => {
     throw new Error(`Fixture phase "${phaseKey}" is a skeleton fixture without pass data (anatomist, weaver, etc.). Use a full FixturePhase for benchmarking.`);
   }
 
-  const phaseId = phase.expectedPhaseView?.id || 'phase-1';
+  // In single-phase (non-pipeline) mode the guard above guarantees `phase` is a full
+  // FixturePhase. In per-phase pipeline mode these fixture-pass values are unused
+  // (goldens come from loadAllGoldenFixtures) and, for a skeleton, the property reads
+  // yield undefined — which normalizePhaseId/buildEnglishText already tolerate — so
+  // this assertion preserves the prior runtime exactly.
+  const fixturePhase = phase as FixturePhase;
+  const phaseId = fixturePhase.expectedPhaseView?.id || 'phase-1';
 
-  const fixtureAnatomist = normalizePhaseId(phase.anatomist, phaseId);
-  const fixtureLexicographer = normalizePhaseId(phase.lexicographer, phaseId);
-  const fixtureWeaver = normalizePhaseId(phase.weaver, phaseId);
-  const fixtureTypesetter = normalizePhaseId(phase.typesetter, phaseId);
-  const fixturePhaseView = normalizePhaseId(phase.expectedPhaseView, phaseId);
-  const englishText = buildEnglishText(phase, segments);
+  const fixtureAnatomist = normalizePhaseId(fixturePhase.anatomist, phaseId);
+  const fixtureLexicographer = normalizePhaseId(fixturePhase.lexicographer, phaseId);
+  const fixtureWeaver = normalizePhaseId(fixturePhase.weaver, phaseId);
+  const fixtureTypesetter = normalizePhaseId(fixturePhase.typesetter, phaseId);
+  const fixturePhaseView = normalizePhaseId(fixturePhase.expectedPhaseView, phaseId);
+  const englishText = buildEnglishText(fixturePhase, segments);
 
   const rows: MetricRow[] = [];
   const repeatRuns = Math.max(1, BENCHMARK_CONFIG.repeatRuns ?? 1);
@@ -2322,7 +2328,7 @@ const runBenchmark = async () => {
       runId: progressState.current?.runId ?? 'unknown',
       pass: progressState.current?.pass ?? null,
       stage: progressState.current?.stage ?? null,
-      message: progressState.error,
+      message: progressState.error ?? String(error),
       chunkIndex: progressState.current?.chunkIndex ?? null,
       chunkCount: progressState.current?.chunkCount ?? null,
     });

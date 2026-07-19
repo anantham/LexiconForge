@@ -69,7 +69,7 @@ describe('ExportService', () => {
         systemPrompt: 'Test prompt',
         promptId: 'test-prompt',
         promptName: 'Test Prompt',
-        customVersionLabel: null,
+        customVersionLabel: undefined,
         totalTokens: 100,
         promptTokens: 50,
         completionTokens: 50,
@@ -164,13 +164,15 @@ describe('ExportService', () => {
 
     const exportData = await ExportService.generateForkExport(forkInfo);
 
-    expect(exportData.provenance.originalCreator.name).toBe('Alice');
-    expect(exportData.provenance.forkedFrom?.versionId).toBe('alice-v1');
-    expect(exportData.provenance.contributors).toHaveLength(2);
-    expect(exportData.provenance.contributors[0].name).toBe('Alice');
-    expect(exportData.provenance.contributors[1].name).toBe('Bob');
-    expect(exportData.provenance.contributors[1].role).toBe('enhancer');
-    expect(exportData.provenance.contributors[1].changes).toBe('Added illustrations');
+    expect(exportData.provenance).toBeDefined();
+    const provenance = exportData.provenance!;
+    expect(provenance.originalCreator.name).toBe('Alice');
+    expect(provenance.forkedFrom?.versionId).toBe('alice-v1');
+    expect(provenance.contributors).toHaveLength(2);
+    expect(provenance.contributors[0].name).toBe('Alice');
+    expect(provenance.contributors[1].name).toBe('Bob');
+    expect(provenance.contributors[1].role).toBe('enhancer');
+    expect(provenance.contributors[1].changes).toBe('Added illustrations');
 
     // Verify IndexedDB was called
     expect(chapterOpsMock.getAll).toHaveBeenCalled();

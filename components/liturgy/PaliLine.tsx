@@ -39,7 +39,8 @@ export const PaliLine: React.FC<{
   // Index words by normalized form for O(1) lookup. Multiple forms can map
   // to the same word (e.g., "buddhaṁ" and "buddha" both → buddha entry).
   const wordIndex = new Map<string, WordGloss>();
-  for (const w of words) {
+  const glosses: WordGloss[] = words;
+  for (const w of glosses) {
     const key = normalizeForMatch(w.form);
     if (key) wordIndex.set(key, w);
   }

@@ -8,6 +8,7 @@ import { telemetryService } from '../telemetryService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { computeDiffHash } from '../diff/hash';
 import { DIFF_ALGO_VERSION } from '../diff/constants';
+import type { DiffResult } from '../diff/types';
 import { adaptTranslationRecordToResult } from './converters';
 import { slog, swarn } from './logging';
 import type { FetchResult, LibraryFetchScope } from './types';
@@ -108,7 +109,7 @@ export async function loadChapterFromIDB(
 
         enhanced.translationResult = adaptTranslationRecordToResult(chapterId, activeTranslation);
         enhanced.translationSettingsSnapshot = (activeTranslation.settingsSnapshot ??
-          null) as TranslationSettingsSnapshot | null;
+          undefined) as TranslationSettingsSnapshot | undefined;
         debugLog('navigation', 'full', `[TranslationLoad] Translation adapted to result format`);
         debugLog(
           'navigation',
@@ -132,7 +133,7 @@ export async function loadChapterFromIDB(
             const aiHash = computeDiffHash(aiTranslation);
             const rawHash = computeDiffHash(rawText);
             const fanHash = fanText ? computeDiffHash(fanText) : null;
-            let cachedDiff = null;
+            let cachedDiff: DiffResult | null = null;
 
             if (aiTranslationId) {
               cachedDiff = await DiffOps.get({

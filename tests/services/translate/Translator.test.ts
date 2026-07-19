@@ -314,7 +314,8 @@ describe('Translator', () => {
       expect(result.illustrations).toHaveLength(1);
       expect(result.amendments).toHaveLength(1);
       expect(result.costUsd).toBe(0.05);
-      expect(result.tokensUsed.totalTokens).toBe(300);
+      expect(result.tokensUsed).toBeDefined();
+      expect(result.tokensUsed!.totalTokens).toBe(300);
       expect(result.translationSettings?.promptId).toBe('test-id');
     });
 

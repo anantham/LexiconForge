@@ -147,7 +147,7 @@ export class NavigationService {
                 const activeSnapshot = (active.settingsSnapshot ??
                   null) as TranslationSettingsSnapshot | null;
                 chapter.translationSettingsSnapshot =
-                  activeSnapshot ?? chapter.translationSettingsSnapshot ?? null;
+                  activeSnapshot ?? chapter.translationSettingsSnapshot ?? undefined;
                 debugLog('navigation', 'summary', `[Navigation] Hydration successful`);
               } else {
                 debugWarn('navigation', 'summary', `[Navigation] Hydration returned null`);

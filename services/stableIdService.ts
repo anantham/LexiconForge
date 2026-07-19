@@ -458,7 +458,7 @@ export const getSortedChaptersForRendering = (
   // Sort by chapter number, then by title as fallback
   chaptersArray.sort((a, b) => {
     if (a.chapterNumber !== b.chapterNumber) {
-      return a.chapterNumber - b.chapterNumber;
+      return (a.chapterNumber ?? 0) - (b.chapterNumber ?? 0);
     }
     return a.title.localeCompare(b.title);
   });

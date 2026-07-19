@@ -34,7 +34,10 @@ export interface LibraryFetchScope {
 export interface NavigationResult {
   chapterId?: string;
   chapter?: EnhancedChapter;
-  error?: string;
+  // `undefined` = success; a string = user-facing error; `null` is a
+  // load-bearing sentinel meaning "no error message, caller should fetch"
+  // (see chaptersSlice handleNavigate: `result.error === null` → handleFetch).
+  error?: string | null;
   shouldUpdateBrowserHistory?: boolean;
   navigationHistory?: string[];
 }

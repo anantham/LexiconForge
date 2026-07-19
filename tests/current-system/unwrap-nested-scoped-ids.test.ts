@@ -262,7 +262,6 @@ describe('unwrapNestedScopedIds (V4)', () => {
       title: 'Chapter 500',
       content: 'longer content here for legacy row',
       chapterNumber: 500,
-      lastAccessed: '2026-04-09T10:00:00.000Z',
     });
     await ChapterOps.store({
       stableId: canonicalNestedId,
@@ -273,7 +272,6 @@ describe('unwrapNestedScopedIds (V4)', () => {
       title: 'Chapter 500',
       content: 'shorter',
       chapterNumber: 500,
-      lastAccessed: '2026-04-09T15:00:00.000Z',
     });
 
     // Translation under each

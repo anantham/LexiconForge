@@ -123,7 +123,19 @@ async function main() {
   const session = JSON.parse(fs.readFileSync(template, 'utf8'));
   const sid = (i: number) => `calvino_u${i + 1}`;
   const url = (i: number) => `polyglot://${sid(i)}`;
-  const chapters = [];
+  interface AlignedChapter {
+    stableId: string;
+    canonicalUrl: string;
+    title: string;
+    content: string;
+    fanTranslation: string;
+    nextUrl: string | undefined;
+    prevUrl: string | undefined;
+    chapterNumber: number;
+    translations: unknown[];
+    feedback: unknown[];
+  }
+  const chapters: AlignedChapter[] = [];
   for (let i = 0; i < 22; i++) {
     chapters.push({
       stableId: sid(i),

@@ -33,13 +33,16 @@ export type WitnessProviderId = 'bdrc' | 'cbeta' | 'gretil';
 
 export type ParallelProviderId = 'sc-suttaplex' | 'buddhanexus';
 
+export type VariantProviderId = 'sc-bilara';
+
 export type ProviderId =
   | LexiconProviderId
   | MorphologyProviderId
   | CommentaryProviderId
   | EditionProviderId
   | WitnessProviderId
-  | ParallelProviderId;
+  | ParallelProviderId
+  | VariantProviderId;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Response base

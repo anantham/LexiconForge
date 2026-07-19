@@ -15,6 +15,8 @@
  * to this helper; the original href is preserved as the anchor target so
  * middle-click / cmd-click open in a new tab as the user expects.
  */
+import type React from 'react';
+
 export function spaNavigate(url: string): void {
   if (typeof window === 'undefined') return;
   // Allow same-origin URLs only — defence against accidental external links.

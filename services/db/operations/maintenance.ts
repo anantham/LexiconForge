@@ -230,7 +230,10 @@ const summarizeScope = (novelId: string | null | undefined, libraryVersionId: st
 };
 
 const getScopedStableIdDepth = (stableId: string | null | undefined): number => {
-  if (!isScopedStableId(stableId)) {
+  // Narrow to a non-null string up front (isScopedStableId is not a type guard),
+  // matching peelAllScopes/collapseScopedStableId. isScopedStableId(null) is false,
+  // so the added typeof check preserves the return-0 behavior for null/undefined.
+  if (typeof stableId !== 'string' || !isScopedStableId(stableId)) {
     return 0;
   }
 
@@ -1620,7 +1623,10 @@ export class MaintenanceOps {
 
       const reportedMembers: AuditDuplicateMember[] = members.map((ch) => {
         const stableId = ch.stableId ?? '';
-        const refs = (stableId && refCountsByStableId.get(stableId)) ?? {
+        // Use a conditional (not `&&`) so an empty stableId falls through to the
+        // zero-counts default instead of yielding the empty string `''`, which is
+        // not an AuditReferenceCounts. Non-empty-but-unknown ids also default to zero.
+        const refs: AuditReferenceCounts = (stableId ? refCountsByStableId.get(stableId) : undefined) ?? {
           summaries: 0,
           translations: 0,
           feedback: 0,

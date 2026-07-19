@@ -177,7 +177,7 @@ export async function handleFetch(
           urlIndex: stableData.urlIndex,
           rawUrlIndex: stableData.rawUrlIndex,
           novels: stableData.novels,
-          currentChapterId: stableData.currentChapterId,
+          currentChapterId: stableData.currentChapterId ?? undefined,
         };
 
       } catch (e: any) {

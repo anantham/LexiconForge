@@ -136,6 +136,11 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
     ? `${translatedCount} / ${totalChapters}`
     : totalChapters;
 
+  // Narrow the optional anchor list once so the per-medium helpers (called
+  // both in the header and inside the row .map, where the outer truthy guard
+  // no longer flows) receive a concrete array.
+  const mediaCorrespondence = novel.metadata.mediaCorrespondence ?? [];
+
   return (
     <>
       {/* Backdrop */}
@@ -251,7 +256,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
           )}
 
           {/* Cross-Media Correspondence Table */}
-          {novel.metadata.mediaCorrespondence && novel.metadata.mediaCorrespondence.length > 0 && (
+          {mediaCorrespondence && mediaCorrespondence.length > 0 && (
             <div className="mt-6">
               <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
                 Cross-Media Guide
@@ -267,32 +272,32 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
                       <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
                         Milestone
                       </th>
-                      {hasAnyAnime(novel.metadata.mediaCorrespondence) && (
+                      {hasAnyAnime(mediaCorrespondence) && (
                         <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
                           📺 Anime
                         </th>
                       )}
-                      {hasAnyDonghua(novel.metadata.mediaCorrespondence) && (
+                      {hasAnyDonghua(mediaCorrespondence) && (
                         <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
                           📺 Donghua
                         </th>
                       )}
-                      {hasAnyWebNovel(novel.metadata.mediaCorrespondence) && (
+                      {hasAnyWebNovel(mediaCorrespondence) && (
                         <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
                           📖 Web Novel
                         </th>
                       )}
-                      {hasAnyLightNovel(novel.metadata.mediaCorrespondence) && (
+                      {hasAnyLightNovel(mediaCorrespondence) && (
                         <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
                           📚 Light Novel
                         </th>
                       )}
-                      {hasAnyManga(novel.metadata.mediaCorrespondence) && (
+                      {hasAnyManga(mediaCorrespondence) && (
                         <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
                           🎨 Manga
                         </th>
                       )}
-                      {hasAnyManhua(novel.metadata.mediaCorrespondence) && (
+                      {hasAnyManhua(mediaCorrespondence) && (
                         <th className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">
                           🎨 Manhua
                         </th>
@@ -300,7 +305,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
                     </tr>
                   </thead>
                   <tbody>
-                    {novel.metadata.mediaCorrespondence.map((anchor) => (
+                    {mediaCorrespondence.map((anchor) => (
                       <tr key={anchor.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                         <td className="border border-gray-300 dark:border-gray-700 px-3 py-2">
                           <div className="font-medium text-gray-900 dark:text-gray-100">
@@ -313,7 +318,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
                           )}
                         </td>
 
-                        {hasAnyAnime(novel.metadata.mediaCorrespondence) && (
+                        {hasAnyAnime(mediaCorrespondence) && (
                           <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
                             {anchor.anime ? (
                               <MediaCell reference={anchor.anime} type="anime" />
@@ -323,7 +328,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
                           </td>
                         )}
 
-                        {hasAnyDonghua(novel.metadata.mediaCorrespondence) && (
+                        {hasAnyDonghua(mediaCorrespondence) && (
                           <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
                             {anchor.donghua ? (
                               <MediaCell reference={anchor.donghua} type="donghua" />
@@ -333,7 +338,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
                           </td>
                         )}
 
-                        {hasAnyWebNovel(novel.metadata.mediaCorrespondence) && (
+                        {hasAnyWebNovel(mediaCorrespondence) && (
                           <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
                             {anchor.webNovel ? (
                               <MediaCell reference={anchor.webNovel} type="chapters" />
@@ -343,7 +348,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
                           </td>
                         )}
 
-                        {hasAnyLightNovel(novel.metadata.mediaCorrespondence) && (
+                        {hasAnyLightNovel(mediaCorrespondence) && (
                           <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
                             {anchor.lightNovel ? (
                               <MediaCell reference={anchor.lightNovel} type="lightNovel" />
@@ -353,7 +358,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
                           </td>
                         )}
 
-                        {hasAnyManga(novel.metadata.mediaCorrespondence) && (
+                        {hasAnyManga(mediaCorrespondence) && (
                           <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
                             {anchor.manga ? (
                               <MediaCell reference={anchor.manga} type="chapters" />
@@ -363,7 +368,7 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
                           </td>
                         )}
 
-                        {hasAnyManhua(novel.metadata.mediaCorrespondence) && (
+                        {hasAnyManhua(mediaCorrespondence) && (
                           <td className="border border-gray-300 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300">
                             {anchor.manhua ? (
                               <MediaCell reference={anchor.manhua} type="chapters" />

@@ -6,6 +6,7 @@
  */
 
 import { DiffAnalysisService, DiffAnalysisJsonParseError } from './DiffAnalysisService';
+import type { DiffResult } from './types';
 import { debugLog } from '../../utils/debug';
 import { createSimpleLLMAdapter } from './SimpleLLMAdapter';
 import { getEnvVar } from '../env';
@@ -106,7 +107,7 @@ async function handleTranslationComplete(event: Event): Promise<void> {
     const rawHash = computeDiffHash(rawText);
     const normalizedFanId = fanTranslationId ?? '';
 
-    let cachedResult = null;
+    let cachedResult: DiffResult | null = null;
     if (aiTranslationId) {
       cachedResult = await DiffOps.get({
         chapterId,
