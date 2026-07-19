@@ -397,6 +397,14 @@ export interface AppSettings {
     preloadBudget?: number;                     // USD cap for budget mode (default: 0 = disabled)
 }
 
+export type ApiCredentialSettingKey = {
+    [Key in keyof AppSettings]-?: Lowercase<Key & string> extends `${string}apikey${string}`
+        ? Key
+        : never;
+}[keyof AppSettings];
+
+export type ExportedAppSettings = Omit<AppSettings, ApiCredentialSettingKey>;
+
 export interface DiffMarkerVisibilitySettings {
     fan: boolean;            // Blue - fan divergence
     rawLoss: boolean;        // Red - missing vs raw
@@ -437,7 +445,7 @@ export interface SessionChapterData {
 export interface ImportedSession {
     session_metadata: {
         exported_at: string;
-        settings: Omit<AppSettings, 'apiKeyGemini' | 'apiKeyOpenAI' | 'apiKeyDeepSeek'>;
+        settings: ExportedAppSettings;
     };
     urlHistory: string[];
     chapters: ImportedChapter[];

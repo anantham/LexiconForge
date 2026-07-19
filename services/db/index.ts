@@ -33,6 +33,7 @@ import {
   MappingsOps,
   SessionExportOps,
 } from './operations';
+import { redactApiCredentials } from './exportSettings';
 import { generateStableChapterId, normalizeUrlAggressively } from '../stableIdService';
 
 type TranslationSettingsInput = Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'systemPrompt'> & {
@@ -615,7 +616,7 @@ function makeMemoryRepo(): Repo {
     exportFullSessionToJson: async () => ({
       chapters: Array.from(chapters.values()).map(cloneChapterRecord),
       translations: Array.from(translations.values()).map(cloneTranslationRecord),
-      settings: settings ? { ...settings } : null,
+      settings: settings ? redactApiCredentials(settings) : null,
       feedback: Array.from(feedback.values()).map(record => ({
         ...record,
         chapterId: record.chapterUrl,

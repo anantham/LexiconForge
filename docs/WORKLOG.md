@@ -1,3 +1,37 @@
+### [2026-07-16 10:52 IST] [Agent: Codex]
+**Status:** Complete; draft PR open
+**Task:** Prevent API credentials from surviving full-session export.
+**PR:** https://github.com/anantham/LexiconForge/pull/115
+**Root cause:** The modern exporter used a case-sensitive `startsWith('apiKey')` predicate, which missed `deeplApiKey` and `googleTranslateApiKey`. Investigation also found that the IndexedDB-unavailable memory fallback exported the entire settings object without any credential redaction.
+**Hypothesis results:** H1 confirmed by a red integration test leaking `deeplApiKey`; H2 confirmed after all eight current credential fields were removed while `fontSize` survived; duplicate-path audit added H3 and confirmed the memory fallback leak with a second red test.
+**Files modified (line numbers + why):**
+- `services/db/exportSettings.ts:1-9` - add one shared, case-insensitive credential-redaction boundary for every setting name containing `apiKey`.
+- `services/db/operations/export.ts:12-14,42-64,286` - type settings as `AppSettings` and route the modern full-session exporter through the shared boundary.
+- `services/db/index.ts:36,619` - route the production memory fallback through the same boundary.
+- `types.ts:400-406,445-449` - derive exported settings by removing every credential-shaped `AppSettings` key, keeping the type contract aligned with runtime behavior.
+- `tests/current-system/export-import.test.ts:64-119` - regression coverage for all eight current keys in both modern and memory export paths while proving ordinary settings survive.
+- `docs/roadmaps/TECH-DEBT-INBOX.md` - `[DEBT][TEST]` receipt for Node 26 local-storage incompatibility discovered during full-suite validation.
+**Verification:**
+- Red before green: modern path failed on `deeplApiKey`; memory path failed on `apiKeyGemini` before their respective fixes.
+- Export-related suites: 4 files, 22 tests passed.
+- Production build passed.
+- TypeScript reports the existing 17 baseline diagnostics documented by recent work; none name a touched file.
+- Full Vitest under local Node 26: 217 files passed, 1 skipped, 11 failed; 8,709 tests passed / 355 skipped / 115 failed. Every failure family was rooted in unavailable `localStorage`, and a representative failure reproduced on untouched `main`. CI uses Node 20, so the PR gate remains authoritative.
+**ADR:** None. This restores the existing privacy-first contract and does not introduce a new architectural decision.
+
+### [2026-07-16 10:44 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Prevent API credentials from surviving full-session export.
+**Worktree:** `/Users/aditya/Documents/Ongoing Local/LexiconForge.worktrees/codex-session-export-secrets`
+**Branch:** `fix/codex-session-export-secrets`
+**Issue:** `exportFullSessionToJson()` removes only setting names that start with `apiKey`, so `deeplApiKey` and `googleTranslateApiKey` are currently written into exported JSON despite the privacy-first contract that keys stay on-device.
+**Files likely affected:** `services/db/operations/export.ts`; `types.ts`; `tests/current-system/export-import.test.ts`; `docs/WORKLOG.md`.
+**Hypotheses:**
+- H1 (0.99): an integration test storing all current credential fields will show only the suffix-named DeepL and Google Translate keys leaking on current `main`.
+- H2 (0.95): treating any setting name containing `apiKey`, case-insensitively, as sensitive will redact all current credential fields without removing ordinary settings.
+**Predicted test outcome:** the new regression fails before the production change because two secrets remain, then passes after the redaction predicate and exported-settings type are aligned; the existing export/import suite remains green.
+**Fallback:** if credential naming cannot be represented safely by the naming predicate, replace it with an explicit typed sensitive-key registry and fail a coverage test whenever `AppSettings` gains a credential-shaped field outside that registry.
+
 ### [2026-07-13 06:57 IST] [Agent: Codex]
 **Status:** Complete
 **Task:** Rebase the durable transaction kernel onto current `main` after overnight P0.1 overlap.

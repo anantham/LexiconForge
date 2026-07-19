@@ -39,3 +39,18 @@ Append-only raw debt receipts discovered during implementation.
   - Keep this separate from database transaction changes so verification-environment policy receives its own review.
 - Exit criteria:
   - `npm test -- --run` passes on the documented Node version without an undocumented shell flag.
+[DEBT][TEST][2026-07-16 10:52 IST] Node 26 disables the test DOM's `localStorage`
+- Files:
+  - `vitest.config.ts`
+  - `tests/setup.ts`
+  - `package.json`
+  - `.github/workflows/test.yml`
+- Symptom:
+  - A full `vitest run` under the locally active Node 26.0.0 reports `localStorage is not available because --localstorage-file was not provided`, then 115 tests fail because `localStorage` is undefined.
+  - A representative failure reproduces unchanged on `main`; export-focused suites that do not exercise local storage remain green.
+  - CI is pinned to Node 20, so the issue does not currently invalidate the pull-request gate.
+- Friction:
+  - Local full-suite validation looks like a broad product regression even when the changed code is unrelated, and the repository does not declare a supported local Node range.
+- Suggested follow-up:
+  - Decide whether to declare and enforce Node 20/22 for local development or make test setup explicitly replace Node 26's experimental storage global with the Happy DOM implementation.
+  - Add a small environment preflight so an unsupported runtime fails once with a descriptive message instead of cascading into hundreds of tests.
