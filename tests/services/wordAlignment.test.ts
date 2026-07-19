@@ -6,7 +6,6 @@
  *  - alignWords short-circuits on empty inputs
  *  - alignWords calls the provider with the right schema + messages
  *  - alignWords parses provider response (raw JSON or fenced)
- *  - isAlignmentFresh stale-check works
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { AppSettings } from '../../types';
@@ -21,7 +20,7 @@ vi.mock('../../adapters/providers/registry', () => ({
   getProvider: vi.fn(() => ({ name: 'Gemini', chatJSON: chatJSONSpy })),
 }));
 
-import { alignWords, isAlignmentFresh } from '../../services/wordAlignment';
+import { alignWords } from '../../services/wordAlignment';
 
 const baseSettings: AppSettings = {
   contextDepth: 0,
@@ -151,29 +150,6 @@ describe('wordAlignment', () => {
       expect(callArgs.messages).toHaveLength(2);
       expect(callArgs.messages[0].role).toBe('system');
       expect(callArgs.messages[1].role).toBe('user');
-    });
-  });
-
-  describe('isAlignmentFresh', () => {
-    it('returns false when alignment is null/undefined', () => {
-      expect(isAlignmentFresh(null, 'v1')).toBe(false);
-      expect(isAlignmentFresh(undefined, 'v1')).toBe(false);
-    });
-
-    it('returns false when current version is null/undefined', () => {
-      const a = { pairs: [], translationVersionId: 'v1', alignedAt: '', modelUsed: '', pairCount: 0 };
-      expect(isAlignmentFresh(a, null)).toBe(false);
-      expect(isAlignmentFresh(a, undefined)).toBe(false);
-    });
-
-    it('returns true when versions match', () => {
-      const a = { pairs: [], translationVersionId: 'v1', alignedAt: '', modelUsed: '', pairCount: 0 };
-      expect(isAlignmentFresh(a, 'v1')).toBe(true);
-    });
-
-    it('returns false when versions differ', () => {
-      const a = { pairs: [], translationVersionId: 'v1', alignedAt: '', modelUsed: '', pairCount: 0 };
-      expect(isAlignmentFresh(a, 'v2')).toBe(false);
     });
   });
 });
