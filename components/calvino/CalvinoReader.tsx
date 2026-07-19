@@ -174,10 +174,12 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
 
   useEffect(() => {
     let live = true;
-    // @ts-ignore -- data/calvino/ is gitignored (generated grounding payload);
-    // the module only resolves on the machine that ran the pipeline. The .catch
-    // below is the honest-failure path everywhere else.
-    import('../../data/calvino/reader-payload.json')
+    // data/calvino/ is gitignored (generated grounding payload), so the module
+    // only exists on the machine that ran the pipeline. A non-analyzable
+    // specifier keeps vite/tsc from resolving it at build time; everywhere the
+    // file is absent this rejects at runtime into the .catch below.
+    const payloadHref = '../../data/calvino/reader-payload.json';
+    import(/* @vite-ignore */ payloadHref)
       .then((m) => { if (live) setPayload(((m as any).default || m) as Payload); })
       .catch((e) => { console.error('[calvino] payload load failed', e); });
     return () => { live = false; };
