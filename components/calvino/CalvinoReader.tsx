@@ -32,7 +32,7 @@ type Mode = 'it' | 'en';
 
 const CONTENT_POS = new Set(['NOUN', 'VERB', 'ADJ', 'ADV', 'PROPN', 'AUX']);
 
-function Word({ t, dim }: { t: Tok; dim: boolean }) {
+const Word: React.FC<{ t: Tok; dim: boolean }> = ({ t, dim }) => {
   const facets: LensFacet[] = useMemo(
     () => renderItalian({ surface: t.s, lemma: t.l, upos: t.p, morph: t.m, senses: t.g }),
     [t],
@@ -105,7 +105,7 @@ function Word({ t, dim }: { t: Tok; dim: boolean }) {
 
 /** One aligned sentence pair. The lead language sits on top, full size; the other
  *  slides beneath it, smaller and dimmer. Toggling `mode` animates the swap. */
-function SentencePair({ pair, mode }: { pair: Pair; mode: Mode }) {
+const SentencePair: React.FC<{ pair: Pair; mode: Mode }> = ({ pair, mode }) => {
   const itLead = mode === 'it';
   const lines: Mode[] = itLead ? ['it', 'en'] : ['en', 'it'];
   const tr = { layout: { duration: 0.5, ease: EASE } };
@@ -174,6 +174,9 @@ export function CalvinoReader({ pathname }: { pathname: string }) {
 
   useEffect(() => {
     let live = true;
+    // @ts-ignore -- data/calvino/ is gitignored (generated grounding payload);
+    // the module only resolves on the machine that ran the pipeline. The .catch
+    // below is the honest-failure path everywhere else.
     import('../../data/calvino/reader-payload.json')
       .then((m) => { if (live) setPayload(((m as any).default || m) as Payload); })
       .catch((e) => { console.error('[calvino] payload load failed', e); });
