@@ -6,6 +6,25 @@
  * across every LLM call and lets the run ABORT (via assertUnderBudget, called at loop boundaries)
  * once the cap is reached.
  */
+/** Resolve one call's USD cost. Prefers the provider's OWN accounting — OpenRouter returns
+ *  `usage.cost` (credits = USD) when the request asks `usage: { include: true }`, which includes
+ *  reasoning tokens and per-request charges that token math misses (audit finding B5); 0 is a
+ *  real price for free models. Falls back to token math against cached pricing, and returns null
+ *  when neither is available so the SpendGuard charges its conservative unpriced estimate. */
+export const resolveCostUsd = (
+  usage: { cost?: unknown; prompt_tokens?: unknown; completion_tokens?: unknown } | null | undefined,
+  pricing: { input: number; output: number } | null,
+): number | null => {
+  const c = usage?.cost;
+  if (typeof c === 'number' && Number.isFinite(c) && c >= 0) return c;
+  const prompt = usage?.prompt_tokens;
+  const completion = usage?.completion_tokens;
+  if (typeof prompt === 'number' && typeof completion === 'number' && pricing) {
+    return (prompt / 1_000_000) * pricing.input + (completion / 1_000_000) * pricing.output;
+  }
+  return null;
+};
+
 export class BudgetExceededError extends Error {
   constructor(message: string) {
     super(message);

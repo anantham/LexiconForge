@@ -197,6 +197,7 @@ type MetricsJson = {
   }>;
   rows: Array<{
     runId: string;
+    stage?: string | null;
     durationMs: number | null;
     costUsd: number | null;
     tokensTotal: number | null;
@@ -278,6 +279,21 @@ const bootstrapCI = (values: number[], nBoot = 2000): [number, number] | null =>
   return [means[Math.floor(0.025 * nBoot)], means[Math.ceil(0.975 * nBoot) - 1]];
 };
 
+/** Sum one model run's money/token/duration rows. The skeleton pass writes BOTH per-chunk rows
+ *  and a stage:'aggregate' rollup whose cost/tokens/duration are the SUM of its chunks — counting
+ *  both double-charges the skeleton in every displayed total (audit finding B2), so aggregate
+ *  rows are excluded. */
+export function sumRunMetrics(
+  rows: MetricsJson['rows'],
+  runId: string,
+): { tokensTotal: number; durationMs: number; costUsd: number | null } {
+  const modelRows = rows.filter((r) => r.runId === runId && r.stage !== 'aggregate');
+  const tokensTotal = modelRows.reduce((sum, r) => sum + (r.tokensTotal || 0), 0);
+  const durationMs = modelRows.reduce((sum, r) => sum + (r.durationMs || 0), 0);
+  const costUsd = modelRows.reduce((sum, r) => sum + (r.costUsd || 0), 0) || null;
+  return { tokensTotal, durationMs, costUsd };
+}
+
 export async function generateLeaderboard(): Promise<Leaderboard> {
   const reportsRoot = BENCHMARK_CONFIG.outputRoot;
   console.log(`[Leaderboard] Scanning ${reportsRoot} for benchmark runs...`);
@@ -343,11 +359,8 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       const runConfig = metrics.runs.find((r) => r.id === modelId);
       const modelName = runConfig?.model?.model || modelId;
 
-      // Aggregate metrics for this model run
-      const modelRows = metrics.rows.filter((r) => r.runId === modelId);
-      const tokensTotal = modelRows.reduce((sum, r) => sum + (r.tokensTotal || 0), 0);
-      const durationMs = modelRows.reduce((sum, r) => sum + (r.durationMs || 0), 0);
-      const costUsd = modelRows.reduce((sum, r) => sum + (r.costUsd || 0), 0) || null;
+      // Aggregate metrics for this model run (aggregate rollup rows excluded — see sumRunMetrics)
+      const { tokensTotal, durationMs, costUsd } = sumRunMetrics(metrics.rows, modelId);
 
       // Optional semantic-content score (judge-content.ts writes it to the run-dir root).
       const judge = await readJson<JudgeScores>(path.join(runDir, `judge-scores-${modelId}.json`));
@@ -588,7 +601,7 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
         `Ranked on rubric v${RANKED_RUBRIC_VERSION} only (mixing versions is a build failure). ` +
         'overallScore = gateFactor × (0.40·segmentationF1 + 0.30·factsCore + 0.30·senseF1) — the ' +
         'canonical-integrity gate times the three golden-backed dimensions (ADR SUTTA-013/014). ' +
-        "Averaged over the golden-backed phases of each model's SINGLE best run (selected by most completed phases FIRST, then highest mean overall — completeness beats score, so a lucky partial run cannot represent a model) — " +
+        "Averaged over the golden-backed phases of each model's SINGLE best run. Every run is scored over the FULL golden universe with uncompleted phases charged 0, and the best run is the highest such survivorship-corrected mean (ties broken by phases completed) — a lucky partial run cannot win because its missing phases count as zeros — " +
         'NOT cherry-picked best-per-phase across runs; metrics are that run\'s, not summed. ' +
         'segmentationF1 = morpheme-boundary micro-F1 vs the golden; factsCore = root + word-class ' +
         'macro (morph EXCLUDED — advisory this cycle); senseF1 = strict sense-english micro-F1. ' +

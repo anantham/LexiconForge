@@ -1,3 +1,14 @@
+### [2026-07-19 08:40 IST] [Agent: Fable 5] — audit-tail money-honesty fixes (B2/B3/B5) + C2 disclosure + roster preflight
+**Status:** Complete
+**Task:** Close the pre-paid-run audit tail flagged 2026-07-17 ("fastest audit-tail PR = B2 + B3 + C2").
+**B3 (cap integrity):** cost extraction + SpendGuard accrual now happen BEFORE response validation in the OpenRouter caller — an empty completion still billed its prompt (and reasoning) tokens, and that spend previously escaped the fail-closed cap when the empty-response throw fired first.
+**B5 (largely closed):** requests now ask OpenRouter for its own accounting (`usage: { include: true }`); new `resolveCostUsd` (spend-guard.ts) prefers `usage.cost` — includes reasoning tokens and per-request charges token math misses; 0 accepted as a real free-model price — with token-math fallback, null → the guard's conservative unpriced estimate.
+**B2 (display money):** leaderboard money/token/duration sums exclude `stage:'aggregate'` rollup rows, which duplicate their chunk rows — the skeleton pass was double-charged in every displayed total. Extracted `sumRunMetrics`.
+**C2 (resolved in the DISCLOSURE direction):** the code's mean-first best-run selection is SOUND — runs are survivorship-charged over the full golden universe first (#112's chargeMissingGoldenPhases), so a lucky partial run sinks under its zeros. The stale methodology string claimed the old completeness-first rule; the string now describes the actual mechanism. Verified at the code before touching either side.
+**Verification:** 7 new tests (tests/scripts/sutta-studio/money-honesty.test.ts) proven RED against deliberately broken variants, then green (12/12 with the spend-guard suite); tsc 17 = baseline; full suite 8918 passed / 0 failed.
+**Roster preflight (zero spend):** 12 runs enumerate with the exact approved slugs, $50 cap, 27 ranked phases, training phases excluded. PREFLIGHT OK.
+**Residuals (parked, unchanged):** B4 (chunk-parse-failure rows display costUsd null; the CAP is unaffected now that accrual lives in the caller); A3/A5/B6/B7/C3/C4/C5 as catalogued in the 07-18 handover's deferred table.
+
 ### [2026-07-19 07:55 IST] [Agent: Fable 5] — operator-authorized merge campaign + roster v2.2 + WORKLOG gate
 **Status:** Complete
 **Task:** Execute the operator-ratified merge campaign from the 2026-07-18 handover, wire the approved twelve-model roster, install the WORKLOG pre-push gate.

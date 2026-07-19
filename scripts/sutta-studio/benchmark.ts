@@ -23,7 +23,7 @@ import type {
   WeaverPass,
 } from '../../types/suttaStudio';
 import { BENCHMARK_CONFIG, resolveSettingsForModel, type AnatomistFixtureConfig } from './benchmark-config';
-import { SpendGuard } from './spend-guard';
+import { SpendGuard, resolveCostUsd } from './spend-guard';
 import {
   assemblePipelineToPacket,
   type PipelinePhaseOutput,
@@ -572,6 +572,9 @@ const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LL
   let requestBody: Record<string, any> = {
     model: settings.model,
     messages,
+    // Ask OpenRouter for its own cost accounting (usage.cost) — includes reasoning tokens and
+    // per-request charges that local token math misses. See resolveCostUsd (spend-guard.ts).
+    usage: { include: true },
     max_tokens: maxTokens ?? 4000,
     temperature: 0.2,
   };
@@ -679,6 +682,28 @@ const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LL
   }
 
   const durationMs = Math.max(0, Math.round(performance.now() - start));
+
+  // Price + accrue BEFORE any response validation (audit finding B3): an empty completion still
+  // billed its prompt (and any reasoning tokens), so the throw below must not leave that spend
+  // uncounted against the fail-closed cap. Enforcement stays at loop boundaries
+  // (assertUnderBudget) — a throw inside a pass runner is caught and demoted to a phase failure.
+  const promptTokens = response?.usage?.prompt_tokens ?? null;
+  const completionTokens = response?.usage?.completion_tokens ?? null;
+  const totalTokens =
+    typeof promptTokens === 'number' && typeof completionTokens === 'number'
+      ? promptTokens + completionTokens
+      : null;
+  let pricing: { input: number; output: number } | null = null;
+  if (typeof promptTokens === 'number' && typeof completionTokens === 'number') {
+    try {
+      pricing = await getModelPricing(settings.model);
+    } catch {
+      pricing = null;
+    }
+  }
+  const costUsd = resolveCostUsd(response?.usage, pricing);
+  spendGuard.accrue(costUsd);
+
   const text = response?.choices?.[0]?.message?.content ?? '';
   if (!text.trim()) {
     // Debug: log the full response when content is empty
@@ -695,30 +720,6 @@ const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LL
     }, null, 2));
     throw new Error('Empty compiler response.');
   }
-
-  const promptTokens = response?.usage?.prompt_tokens ?? null;
-  const completionTokens = response?.usage?.completion_tokens ?? null;
-  const totalTokens =
-    typeof promptTokens === 'number' && typeof completionTokens === 'number'
-      ? promptTokens + completionTokens
-      : null;
-  let costUsd: number | null = null;
-  if (typeof promptTokens === 'number' && typeof completionTokens === 'number') {
-    try {
-      const pricing = await getModelPricing(settings.model);
-      if (pricing) {
-        costUsd =
-          (promptTokens / 1_000_000) * pricing.input +
-          (completionTokens / 1_000_000) * pricing.output;
-      }
-    } catch {
-      costUsd = null;
-    }
-  }
-
-  // Accrue toward the fail-closed cap. Enforcement happens at loop boundaries (assertUnderBudget),
-  // not here — a throw inside a pass runner is caught and demoted to a phase failure.
-  spendGuard.accrue(costUsd);
 
     return {
       text,
