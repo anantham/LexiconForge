@@ -185,183 +185,63 @@ export const BENCHMARK_CONFIG = {
   passes: ['skeleton', 'anatomist', 'lexicographer', 'weaver', 'typesetter'] as PassName[],
   runs: [
     // ─────────────────────────────────────────────────────────────────────────
-    // WORKING MODELS (0-3 degraded phases, produce usable output)
+    // v2.2 RANKED ROSTER — twelve models, operator-approved 2026-07-19.
+    // Six incumbents + six new; every slug verified live on OpenRouter's
+    // public /models endpoint 2026-07-19. claude-sonnet-5 is the disclosed
+    // same-family circularity probe (judge family — see SUTTA-010).
+    // Prior zoo retired from the ranked run 2026-07-19: gemini-2-flash,
+    // gemini-2.5-flash, trinity-large, molmo-2-8b, kimi-k2.5, glm-4.7-flash,
+    // gpt-oss-120b, gemma-3-27b (failed coverage floor twice), gpt-5.1,
+    // lfm-thinking, minimax-m2.1. Resurrect deliberately, not by default.
     // ─────────────────────────────────────────────────────────────────────────
     {
-      id: 'gemini-2-flash',
-      model: {
-        id: 'gemini-2-flash',
-        provider: 'OpenRouter',
-        model: 'google/gemini-2.0-flash-001',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-      },
+      id: 'grok-4.20',
+      model: { id: 'grok-4.20', provider: 'OpenRouter', model: 'x-ai/grok-4.20', apiKeyEnv: 'OPENROUTER_API_KEY' },
     },
     {
       id: 'gemini-3-flash',
-      model: {
-        id: 'gemini-3-flash',
-        provider: 'OpenRouter',
-        model: 'google/gemini-3-flash-preview',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-      },
+      model: { id: 'gemini-3-flash', provider: 'OpenRouter', model: 'google/gemini-3-flash-preview', apiKeyEnv: 'OPENROUTER_API_KEY' },
     },
     {
-      id: 'gemini-2.5-flash',
-      model: {
-        id: 'gemini-2.5-flash',
-        provider: 'OpenRouter',
-        model: 'google/gemini-2.5-flash',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-      },
-    },
-    {
-      id: 'trinity-large',
-      model: {
-        id: 'trinity-large',
-        provider: 'OpenRouter',
-        model: 'arcee-ai/trinity-large-preview:free',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-      },
-    },
-    {
-      id: 'molmo-2-8b',
-      model: {
-        id: 'molmo-2-8b',
-        provider: 'OpenRouter',
-        model: 'allenai/molmo-2-8b:free',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-      },
-    },
-    {
-      id: 'deepseek-v3.2',
-      model: {
-        id: 'deepseek-v3.2',
-        provider: 'OpenRouter',
-        model: 'deepseek/deepseek-v3.2',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-      },
-    },
-    {
-      id: 'kimi-k2.5',
-      model: {
-        id: 'kimi-k2.5',
-        provider: 'OpenRouter',
-        model: 'moonshotai/kimi-k2.5',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-        // Removed providerPreferences to allow any available endpoint
-      },
-      // Explicit structured outputs to skip capability API check (which may hang)
-      passOverrides: {
-        skeleton: { structuredOutputs: true },
-        anatomist: { structuredOutputs: true },
-        lexicographer: { structuredOutputs: true },
-        weaver: { structuredOutputs: true },
-        typesetter: { structuredOutputs: true },
-      },
-    },
-    {
-      id: 'glm-4.7-flash',
-      model: {
-        id: 'glm-4.7-flash',
-        provider: 'OpenRouter',
-        model: 'z-ai/glm-4.7-flash',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-        providerPreferences: {
-          order: ['Phala'],
-          allow_fallbacks: false,
-        },
-      },
-    },
-    // ── Cheap models added 2026-07-01 (verified live on OpenRouter) ──
-    {
-      id: 'gpt-oss-120b',
-      model: { id: 'gpt-oss-120b', provider: 'OpenRouter', model: 'openai/gpt-oss-120b', apiKeyEnv: 'OPENROUTER_API_KEY' },
-    },
-    {
-      id: 'qwen3-235b',
-      model: { id: 'qwen3-235b', provider: 'OpenRouter', model: 'qwen/qwen3-235b-a22b-2507', apiKeyEnv: 'OPENROUTER_API_KEY' },
-    },
-    {
-      id: 'gemma-3-27b',
-      model: { id: 'gemma-3-27b', provider: 'OpenRouter', model: 'google/gemma-3-27b-it', apiKeyEnv: 'OPENROUTER_API_KEY' },
+      id: 'mistral-small-3.2',
+      model: { id: 'mistral-small-3.2', provider: 'OpenRouter', model: 'mistralai/mistral-small-3.2-24b-instruct', apiKeyEnv: 'OPENROUTER_API_KEY' },
     },
     {
       id: 'deepseek-v4-flash',
       model: { id: 'deepseek-v4-flash', provider: 'OpenRouter', model: 'deepseek/deepseek-v4-flash', apiKeyEnv: 'OPENROUTER_API_KEY' },
     },
     {
-      id: 'mistral-small-3.2',
-      model: { id: 'mistral-small-3.2', provider: 'OpenRouter', model: 'mistralai/mistral-small-3.2-24b-instruct', apiKeyEnv: 'OPENROUTER_API_KEY' },
-    },
-    // ── Frontier / expensive models (2026-07-01) — the "does spending more help?" ceiling ──
-    {
-      id: 'gpt-5.1',
-      model: { id: 'gpt-5.1', provider: 'OpenRouter', model: 'openai/gpt-5.1', apiKeyEnv: 'OPENROUTER_API_KEY' },
+      id: 'deepseek-v3.2',
+      model: { id: 'deepseek-v3.2', provider: 'OpenRouter', model: 'deepseek/deepseek-v3.2', apiKeyEnv: 'OPENROUTER_API_KEY' },
     },
     {
-      id: 'grok-4.20',
-      model: { id: 'grok-4.20', provider: 'OpenRouter', model: 'x-ai/grok-4.20', apiKeyEnv: 'OPENROUTER_API_KEY' },
-    },
-    // ─────────────────────────────────────────────────────────────────────────
-    // MARGINAL MODELS (~40-50% success rate, keep for variety)
-    // ─────────────────────────────────────────────────────────────────────────
-    {
-      id: 'lfm-thinking',
-      model: {
-        id: 'lfm-thinking',
-        provider: 'OpenRouter',
-        model: 'liquid/lfm-2.5-1.2b-thinking:free',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-      },
+      id: 'qwen3-235b',
+      model: { id: 'qwen3-235b', provider: 'OpenRouter', model: 'qwen/qwen3-235b-a22b-2507', apiKeyEnv: 'OPENROUTER_API_KEY' },
     },
     {
-      id: 'minimax-m2.1',
-      model: {
-        id: 'minimax-m2.1',
-        provider: 'OpenRouter',
-        model: 'minimax/minimax-m2.1',
-        apiKeyEnv: 'OPENROUTER_API_KEY',
-        providerPreferences: {
-          order: ['Inceptron/fp8'],
-          allow_fallbacks: false,
-        },
-      },
+      id: 'gemini-3.5-flash',
+      model: { id: 'gemini-3.5-flash', provider: 'OpenRouter', model: 'google/gemini-3.5-flash', apiKeyEnv: 'OPENROUTER_API_KEY' },
     },
-    // ─────────────────────────────────────────────────────────────────────────
-    // PREMIUM MODELS (uncomment for higher quality, adds cost)
-    // ─────────────────────────────────────────────────────────────────────────
-    // {
-    //   id: 'claude-3.5-haiku',
-    //   model: {
-    //     id: 'claude-3.5-haiku',
-    //     provider: 'OpenRouter',
-    //     model: 'anthropic/claude-3.5-haiku',
-    //     apiKeyEnv: 'OPENROUTER_API_KEY',
-    //   },
-    // },
-    // {
-    //   id: 'gpt-4o-mini',
-    //   model: {
-    //     id: 'gpt-4o-mini',
-    //     provider: 'OpenRouter',
-    //     model: 'openai/gpt-4o-mini',
-    //     apiKeyEnv: 'OPENROUTER_API_KEY',
-    //   },
-    // },
-    // {
-    //   id: 'deepseek-chat',
-    //   model: {
-    //     id: 'deepseek-chat',
-    //     provider: 'OpenRouter',
-    //     model: 'deepseek/deepseek-chat',
-    //     apiKeyEnv: 'OPENROUTER_API_KEY',
-    //   },
-    // },
-    // ─────────────────────────────────────────────────────────────────────────
-    // REMOVED (100% degraded or mostly broken)
-    // ─────────────────────────────────────────────────────────────────────────
-    // gemma-2-27b, glm-4.7-flash, llama-3.3-70b, mistral-large,
-    // nemotron-3-nano, qwen-2.5-72b, solar-pro-3, kimi-k2.5
+    {
+      id: 'claude-sonnet-5',
+      model: { id: 'claude-sonnet-5', provider: 'OpenRouter', model: 'anthropic/claude-sonnet-5', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    {
+      id: 'glm-5.2',
+      model: { id: 'glm-5.2', provider: 'OpenRouter', model: 'z-ai/glm-5.2', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    {
+      id: 'qwen3.7-max',
+      model: { id: 'qwen3.7-max', provider: 'OpenRouter', model: 'qwen/qwen3.7-max', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    {
+      id: 'deepseek-v4-pro',
+      model: { id: 'deepseek-v4-pro', provider: 'OpenRouter', model: 'deepseek/deepseek-v4-pro', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
+    {
+      id: 'gpt-5.4-mini',
+      model: { id: 'gpt-5.4-mini', provider: 'OpenRouter', model: 'openai/gpt-5.4-mini', apiKeyEnv: 'OPENROUTER_API_KEY' },
+    },
   ] as BenchmarkRun[],
 };
 
