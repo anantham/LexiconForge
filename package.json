@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
     "prepare": "node scripts/generate-steering-image-list.cjs",
     "preview": "vite preview",
     "test": "vitest",
@@ -48,6 +51,7 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4.1.11",
     "@testing-library/jest-dom": "^6.8.0",
@@ -59,6 +63,8 @@
     "@vitest/ui": "^4.0.16",
     "autoprefixer": "^10.4.21",
     "better-sqlite3": "12.10.0",
+    "eslint": "10.7.0",
+    "eslint-plugin-react-hooks": "7.1.1",
     "fake-indexeddb": "^6.1.0",
     "happy-dom": "^20.0.11",
     "jsdom": "^26.1.0",
@@ -69,6 +75,7 @@
     "ts-prune": "^0.10.3",
     "tsx": "^4.20.5",
     "typescript": "~5.8.2",
+    "typescript-eslint": "8.64.0",
     "vite": "^6.4.1",
     "vitest": "^4.0.16"
   }
