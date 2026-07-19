@@ -1,3 +1,15 @@
+### [2026-07-19 07:55 IST] [Agent: Fable 5] — operator-authorized merge campaign + roster v2.2 + WORKLOG gate
+**Status:** Complete
+**Task:** Execute the operator-ratified merge campaign from the 2026-07-18 handover, wire the approved twelve-model roster, install the WORKLOG pre-push gate.
+**Merges:** main fast-forwarded to PR #123 (`028890b`, all 8 benchmark PRs pre-merged + review-cleared) after verifying the two untracked TECH-DEBT docs were byte-identical to #123's copies; ambient dirty pair discarded after inspection (package-lock peer-flag churn; steering-images would have emptied a 21-entry list). Then four lanes merged on top: fix/codex-session-export-secrets (#115), feat/opus-en-align, feat/local-grounding-pipeline (WIP), feat/opus-malayalam-reader (WIP). Conflicts: WORKLOG x3 and TECH-DEBT-INBOX (append-append, union-merged with line-count checks), tests/setup.ts (theirs, the Node-26 guard superset), App.tsx (NOT forecast: both WIP lanes add routes/imports at the same sites; keep-both).
+**Integration fixes:** (1) tsc baseline restored 20→17: the grounding lane's CalvinoReader carried two JSX key type errors (typed as React.FC) and a literal dynamic import of gitignored data/calvino/reader-payload.json. (2) That same import broke `tests/smoke/critical-components.smoke.test.tsx` at vite transform time in any payload-less environment (the lane's own machine had the file, so it passed there); made the specifier non-analyzable so absence defers to the existing runtime .catch.
+**Roster:** benchmark-config.ts runs replaced with the operator-approved twelve (six incumbents + six new incl. claude-sonnet-5 as the disclosed circularity probe); every slug verified live on OpenRouter's public /models endpoint today. Prior 17-run zoo retired in a dated comment.
+**Verification:** tsc 17 (= baseline); full suite 8911 passed / 355 skipped / 0 failed with NODE_OPTIONS=--no-experimental-webstorage; sutta-studio focused 78/78.
+**Preservation before worktree removal:** generated grounding payloads moved into the main checkout (data/calvino 49M, data/pinocchio 30M, import/ 1.2M, out/ 1.4M; all gitignored there), so /calvino works from main and nothing regenerable-at-cost was destroyed.
+**WORKLOG gate:** installed at .git/hooks/pre-push (main-only, deletions exempt, WORKLOG_GATE_SKIP override, git-lfs preserved); proven RED against this very push state before this entry existed, then green after. Spec + install recipe in project memory `worklog-gate-ready-to-install`.
+**Sweep:** all merged PR/lane/integration branches deleted local+origin, remaining PRs closed with a note, worktrees removed, `git worktree prune`. End state: main + zero branches.
+**Next:** paid twelve-model v2.2 retake is gated ONLY on the operator rotating the OpenRouter key (requested before fleet spend).
+
 ### [2026-07-16 10:52 IST] [Agent: Codex]
 **Status:** Complete; draft PR open
 **Task:** Prevent API credentials from surviving full-session export.
