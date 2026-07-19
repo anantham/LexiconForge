@@ -1,0 +1,415 @@
+/**
+ * ഊരകത്ത് അമ്മതിരുവടി — Aithihyamala ch. 64 (Kottarathil Sankunni, 1909).
+ * Source: ml.wikisource.org/wiki/ഐതിഹ്യമാല/ഊരകത്ത്_അമ്മതിരുവടി — PUBLIC DOMAIN
+ * (published 1909–1934; author d. 1937).
+ *
+ * PILOT: sentence 1 of ~30 paragraphs, curated as AlignSegments — one segment
+ * per CLAUSE (breath-group), so the prose cadence is visible as lines.
+ *
+ * Design decisions embodied here (see WORKLOG / discussion 2026-07-11):
+ *  - SURFACE LAW (the SUTTA-025 rule, adopted 2026-07-11): a token's pieces
+ *    MUST concatenate to the exact written surface. Morpheme splits happen
+ *    only where the boundary is graphically clean (ഊരക|ത്ത്). Where sandhi
+ *    fuses across a boundary (പണ്ടൊരു, കണക്കെഴുത്തുമുണ്ടായിരുന്നു), the
+ *    pieces COLLAPSE into the fused surface and the gloss/note teaches the
+ *    underlying split — collapse-with-tooltip-pedagogy, never a fake surface.
+ *    Enforced by scripts/malayalam/validate-surface.ts.
+ *  - Romanization is PRACTICAL (Mozhi-flavoured: zha/th/kk), aimed at a
+ *    heritage speaker relearning the script — not ISO 15919 (that can come
+ *    back as a facet later).
+ *  - English is a WITNESS rendering (by: 'opus-draft'), our translation, off
+ *    by default in the page; supplied words ("the", "he") bind to no unit and
+ *    say so.
+ *
+ * Curation status: DRAFTED BY OPUS — native review pending (Aditya).
+ */
+
+import type { AlignSegment } from '../../types/liturgyAlign';
+
+export const URAKAM_SENTENCE_1: AlignSegment[] = [
+  // ── TITLE: ഊരകത്ത് അമ്മതിരുവടി ───────────────────────────────────
+  // `title: true` — renders larger, set off with a divider, but flows through
+  // the same rail/threads as every phrase (the Heart Sutra title pattern).
+  {
+    id: 'urk-title',
+    title: true,
+    gloss: 'The Amma Thiruvadi of Urakam',
+    units: [
+      { id: 'ut-urakam', gloss: 'Urakam (the village)', conceptId: 'concept.urakam' },
+      { id: 'ut-at', gloss: 'at / of' },
+      { id: 'ut-amma', gloss: 'mother' },
+      { id: 'ut-thiruvadi', gloss: 'holy feet (honorific)', conceptId: 'concept.thiruvadi' },
+    ],
+    renderings: [
+      {
+        lang: 'ml-Mlym',
+        label: 'Malayalam',
+        tokens: [
+          {
+            text: 'ഊരകത്ത്',
+            units: ['ut-urakam', 'ut-at'],
+            segments: [
+              {
+                text: 'ഊരക',
+                pronunciation: 'ooraka',
+                gloss: 'Urakam — ūru "village" + akam "inside": the village-heart',
+                units: ['ut-urakam'],
+              },
+              { text: 'ത്ത്', pronunciation: 'thu', gloss: 'at / of', units: ['ut-at'], faint: true },
+            ],
+          },
+          {
+            text: 'അമ്മതിരുവടി',
+            units: ['ut-amma', 'ut-thiruvadi'],
+            segments: [
+              { text: 'അമ്മ', pronunciation: 'amma', gloss: 'mother', units: ['ut-amma'] },
+              {
+                text: 'തിരുവടി',
+                pronunciation: 'thiruvadi',
+                gloss: 'holy feet — reverence addresses the goddess through her feet',
+                units: ['ut-thiruvadi'],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        lang: 'en',
+        label: 'English (Opus draft)',
+        by: 'opus-draft',
+        tokens: [
+          { text: 'The', units: [], gloss: 'supplied by English — Malayalam has no "the"' },
+          { text: 'Ammathiruvadi', units: ['ut-amma', 'ut-thiruvadi'], relation: 'transliteration' },
+          // Two tokens, not one chunk: highlighting is per-token, so a fused
+          // "of Urakam" would light BOTH words when hovering either unit.
+          { text: 'of', units: ['ut-at'], relation: 'interpretive' },
+          { text: 'Urakam', units: ['ut-urakam'], relation: 'transliteration' },
+        ],
+      },
+    ],
+  },
+
+  // ── ഊരകത്ത് അമ്മതിരുവടിക്ഷേത്രത്തിൽ ──────────────────────────────
+  {
+    id: 'urk-s1c1',
+    gloss: 'At the Ammathiruvadi temple in Urakam',
+    units: [
+      { id: 'u-urakam', gloss: 'Urakam (the village)', conceptId: 'concept.urakam' },
+      { id: 'u-in-a', gloss: 'in / at', ghost: false },
+      { id: 'u-amma', gloss: 'mother' },
+      { id: 'u-thiruvadi', gloss: 'holy feet (honorific)', conceptId: 'concept.thiruvadi' },
+      { id: 'u-temple', gloss: 'temple', conceptId: 'concept.kshetram' },
+      { id: 'u-in-b', gloss: 'in' },
+    ],
+    renderings: [
+      {
+        lang: 'ml-Mlym',
+        label: 'Malayalam',
+        tokens: [
+          {
+            text: 'ഊരകത്ത്',
+            units: ['u-urakam', 'u-in-a'],
+            note: 'Written ഊരകത്ത് — the place-name ഊരകം with its -ം melting into the "at" ending.',
+            segments: [
+              {
+                text: 'ഊരക',
+                pronunciation: 'ooraka',
+                gloss: 'Urakam — ūru "village" + akam "inside": the village-heart',
+                units: ['u-urakam'],
+              },
+              {
+                text: 'ത്ത്',
+                pronunciation: 'thu',
+                gloss: 'at / in — the ending that places you somewhere',
+                units: ['u-in-a'],
+                faint: true,
+              },
+            ],
+          },
+          {
+            text: 'അമ്മതിരുവടിക്ഷേത്രത്തിൽ',
+            units: ['u-amma', 'u-thiruvadi', 'u-temple', 'u-in-b'],
+            note: 'One written word, four ideas: mother + holy-feet + temple + in. Malayalam stacks; English unstacks.',
+            segments: [
+              { text: 'അമ്മ', pronunciation: 'amma', gloss: 'mother', units: ['u-amma'] },
+              {
+                text: 'തിരുവടി',
+                pronunciation: 'thiruvadi',
+                gloss: 'holy feet — reverence addresses the goddess through her feet',
+                units: ['u-thiruvadi'],
+              },
+              {
+                text: 'ക്ഷേത്ര',
+                pronunciation: 'kshethra',
+                gloss: 'temple — Sanskrit kṣetra "field", borrowed whole (a tatsama: see the conjunct ക്ഷ)',
+                units: ['u-temple'],
+              },
+              {
+                text: 'ത്തിൽ',
+                pronunciation: 'thil',
+                gloss: 'in',
+                units: ['u-in-b'],
+                faint: true,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        lang: 'en',
+        label: 'English (Opus draft)',
+        by: 'opus-draft',
+        tokens: [
+          { text: 'At', units: ['u-in-b'] },
+          { text: 'the', units: [], gloss: 'supplied by English — Malayalam has no "the"' },
+          { text: 'Ammathiruvadi', units: ['u-amma', 'u-thiruvadi'], relation: 'transliteration' },
+          { text: 'temple', units: ['u-temple'] },
+          { text: 'in', units: ['u-in-a'] },
+          { text: 'Urakam', units: ['u-urakam'], relation: 'transliteration' },
+        ],
+      },
+    ],
+  },
+
+  // ── പണ്ടൊരു കാലത്തു ──────────────────────────────────────────────
+  {
+    id: 'urk-s1c2',
+    gloss: 'once, long ago',
+    units: [
+      { id: 'u-longago', gloss: 'long ago' },
+      { id: 'u-a', gloss: 'one / a' },
+      { id: 'u-time', gloss: 'time' },
+    ],
+    renderings: [
+      {
+        lang: 'ml-Mlym',
+        label: 'Malayalam',
+        tokens: [
+          {
+            text: 'പണ്ടൊരു',
+            units: ['u-longago', 'u-a'],
+            pronunciation: 'pandoru',
+            gloss: 'long ago + a/one — paṇḍu + oru, fused where the -u melts before o-',
+            note: 'Sandhi welds the two words into one written form; the seam hides inside ണ്ടൊ, so the split lives here, not in the glyphs.',
+          },
+          {
+            text: 'കാലത്തു',
+            units: ['u-time'],
+            segments: [
+              {
+                text: 'കാല',
+                pronunciation: 'kaala',
+                gloss: 'time — Sanskrit kāla, the same word in kālachakra',
+                units: ['u-time'],
+              },
+              { text: 'ത്തു', pronunciation: 'thu', gloss: 'in', units: ['u-time'], faint: true },
+            ],
+          },
+        ],
+      },
+      {
+        lang: 'en',
+        label: 'English (Opus draft)',
+        by: 'opus-draft',
+        tokens: [
+          {
+            text: 'Once upon a time,',
+            units: ['u-longago', 'u-a', 'u-time'],
+            relation: 'interpretive',
+            note: 'One English idiom absorbs all three Malayalam pieces.',
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── വാഴപ്പിള്ളി മേനോന്മാരിൽ ഒരാൾക്ക് ─────────────────────────────
+  {
+    id: 'urk-s1c3',
+    gloss: 'one of the Vazhappilly Menons',
+    units: [
+      { id: 'u-vazhappilly', gloss: 'Vazhappilly (family name)' },
+      { id: 'u-menons', gloss: 'the Menons', conceptId: 'concept.menon' },
+      { id: 'u-among', gloss: 'among' },
+      { id: 'u-one-man', gloss: 'one person' },
+      {
+        id: 'u-to',
+        gloss: 'to (him) — Malayalam gives possession with "to": "to him there was"',
+        ghost: false,
+      },
+    ],
+    renderings: [
+      {
+        lang: 'ml-Mlym',
+        label: 'Malayalam',
+        tokens: [
+          {
+            text: 'വാഴപ്പിള്ളി',
+            units: ['u-vazhappilly'],
+            note: 'House name of the temple\'s hereditary staff. Read it syllable by syllable — it carries the zha.',
+            segments: [
+              { text: 'വാ', pronunciation: 'vaa', akshara: true, gloss: 'the sound vaa' },
+              {
+                text: 'ഴ',
+                pronunciation: 'zha',
+                akshara: true,
+                gloss: 'the sound zha — Malayalam\'s signature ḻ, tongue curled back; the sound in Kozhikode',
+              },
+              { text: 'പ്പി', pronunciation: 'ppi', akshara: true, gloss: 'the sound ppi — doubled p' },
+              { text: 'ള്ളി', pronunciation: 'lli', akshara: true, gloss: 'the sound lli — doubled retroflex ḷ' },
+            ],
+          },
+          {
+            text: 'മേനോന്മാരിൽ',
+            units: ['u-menons', 'u-among'],
+            pronunciation: 'menonmaaril',
+            gloss: 'among the Menons — mēnōn (the title) + mār (plural, for people) + il (among), fused',
+            note: 'Both seams weld in writing: ൻ+മാ → ന്മാ and ർ+ഇ → രി. No clean glyph boundary survives, so the three-way split is taught here.',
+          },
+          {
+            text: 'ഒരാൾക്ക്',
+            units: ['u-one-man', 'u-to'],
+            note: 'oru + āḷ fuse to orāḷ ("one person" — ends in the chillu ൾ), then -kku: "to one person". With the sentence-final "there was", this is how Malayalam says he HAD.',
+            segments: [
+              {
+                text: 'ഒരാൾ',
+                pronunciation: 'oraal',
+                gloss: 'one person — oru + āḷ fused; āḷ "person" ends in the chillu ൾ',
+                units: ['u-one-man'],
+              },
+              {
+                text: 'ക്ക്',
+                pronunciation: 'kku',
+                gloss: 'to / for — possession in Malayalam: "to X there is" = X has',
+                units: ['u-to'],
+                faint: true,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        lang: 'en',
+        label: 'English (Opus draft)',
+        by: 'opus-draft',
+        tokens: [
+          { text: 'one man', units: ['u-one-man'] },
+          { text: 'among', units: ['u-among'] },
+          { text: 'the', units: [], gloss: 'supplied by English — Malayalam has no "the"' },
+          { text: 'Vazhappilly', units: ['u-vazhappilly'], relation: 'transliteration' },
+          {
+            text: 'Menons',
+            units: ['u-menons'],
+            relation: 'transliteration',
+            note: 'The "to him" (ഒരാൾക്ക്) surfaces in English only inside "had" — see the last line.',
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── ആദ്യം നടകാവലും ───────────────────────────────────────────────
+  {
+    id: 'urk-s1c4',
+    gloss: 'first held the gate-watch',
+    units: [
+      { id: 'u-first', gloss: 'first' },
+      { id: 'u-gate', gloss: 'the shrine door (nada)' },
+      { id: 'u-watch', gloss: 'guard duty' },
+      { id: 'u-and-a', gloss: 'and (first of the pair "both…and")' },
+    ],
+    renderings: [
+      {
+        lang: 'ml-Mlym',
+        label: 'Malayalam',
+        tokens: [
+          {
+            text: 'ആദ്യം',
+            units: ['u-first'],
+            pronunciation: 'aadyam',
+            gloss: 'first — Sanskrit ādya, "the beginning one"',
+          },
+          {
+            text: 'നടകാവലും',
+            units: ['u-gate', 'u-watch', 'u-and-a'],
+            note: 'naṭa + kāval + um. The paired -um…-um ("both…and") sets up the next line.',
+            segments: [
+              {
+                text: 'നട',
+                pronunciation: 'nada',
+                gloss: 'the shrine door / steps — where deity and devotee meet; the word in "nada thurakkal", the opening of the shrine',
+                units: ['u-gate'],
+              },
+              {
+                text: 'കാവലും',
+                pronunciation: 'kaavalum',
+                gloss: 'watch + and — kāval (guarding; Tamil kāval is the same word) + um ("both…and"), fused: ൽ+ഉം → ലും',
+                units: ['u-watch', 'u-and-a'],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        lang: 'en',
+        label: 'English (Opus draft)',
+        by: 'opus-draft',
+        tokens: [
+          { text: 'first', units: ['u-first'] },
+          { text: 'the', units: [], gloss: 'supplied by English' },
+          { text: 'gate-watch', units: ['u-gate', 'u-watch'] },
+          { text: 'and', units: ['u-and-a'] },
+        ],
+      },
+    ],
+  },
+
+  // ── പിന്നീടു കണക്കെഴുത്തുമുണ്ടായിരുന്നു ──────────────────────────
+  {
+    id: 'urk-s1c5',
+    gloss: 'and later the accounts-writing too',
+    units: [
+      { id: 'u-later', gloss: 'later, afterwards' },
+      { id: 'u-accounts', gloss: 'the accounts' },
+      { id: 'u-writing', gloss: 'writing' },
+      { id: 'u-and-b', gloss: 'also (second of the pair)' },
+      { id: 'u-had', gloss: 'there was — with "to him" above: he had' },
+    ],
+    renderings: [
+      {
+        lang: 'ml-Mlym',
+        label: 'Malayalam',
+        tokens: [
+          { text: 'പിന്നീടു', units: ['u-later'], pronunciation: 'pinneedu', gloss: 'later, afterwards' },
+          {
+            text: 'കണക്കെഴുത്തുമുണ്ടായിരുന്നു',
+            units: ['u-accounts', 'u-writing', 'u-and-b', 'u-had'],
+            pronunciation: 'kanakkezhuthumundaayirunnu',
+            gloss:
+              'accounts + writing + also + there-was — kaṇakku (account; Tamil kaṇakku) + ezhuthu (writing; the word in Ezhuthachan) + um (also) + uṇḍāyirunnu (uṇḍu "exists" + āyi "became" + irunnu "stayed" = "had")',
+            note: 'One written word = an English clause. Every seam fuses: kk+e→ക്കെ, u+u→ത്തു, m+u→മു — no glyph boundary survives, so the four-way split is taught here. With ഒരാൾക്ക്: "to him there was" = he had.',
+          },
+        ],
+      },
+      {
+        lang: 'en',
+        label: 'English (Opus draft)',
+        by: 'opus-draft',
+        tokens: [
+          { text: 'and', units: ['u-and-b'] },
+          { text: 'later', units: ['u-later'] },
+          {
+            text: 'he had',
+            units: ['u-had'],
+            relation: 'interpretive',
+            note: 'Malayalam has no verb "to have" — possession is "to X, there is". The dative ഒരാൾക്ക് two lines up completes this verb.',
+          },
+          { text: 'the', units: [], gloss: 'supplied by English' },
+          { text: 'accounts-writing', units: ['u-accounts', 'u-writing'] },
+        ],
+      },
+    ],
+  },
+];
+
+export default URAKAM_SENTENCE_1;

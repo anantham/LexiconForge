@@ -85,7 +85,10 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
 // guarding only on window made this beforeEach throw, killing every
 // jsdom-environment test in setup (the machine-wide "41 failures" of 2026-07).
 beforeEach(() => {
-  if (typeof localStorage !== 'undefined' && localStorage) {
+  // Node 26's jsdom exposes `window` but not a working `localStorage`
+  // (ExperimentalWarning: needs --localstorage-file) — guard both, or every
+  // test file dies here in setup regardless of what it tests.
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && localStorage) {
     localStorage.clear();
   }
 });

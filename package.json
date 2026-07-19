@@ -9,6 +9,7 @@
     "prepare": "node scripts/generate-steering-image-list.cjs",
     "preview": "vite preview",
     "test": "vitest",
+    "validate:malayalam": "tsx scripts/malayalam/validate-surface.ts",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",

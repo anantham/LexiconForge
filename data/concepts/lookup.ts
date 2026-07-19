@@ -20,6 +20,10 @@
 
 import type { ConceptNode, ConceptRegistry, LangCode, ScriptCode } from '../../types/conceptGraph';
 import { HEART_SUTRA_CONCEPTS } from './heart-sutra';
+import { MALAYALAM_CONCEPTS } from './malayalam';
+
+/** All registries merged — the single truth the index and lookups read. */
+const ALL_CONCEPTS: ConceptRegistry = { ...HEART_SUTRA_CONCEPTS, ...MALAYALAM_CONCEPTS };
 
 type Index = Map<string, string[]>;
 
@@ -48,7 +52,7 @@ function buildIndex(registry: ConceptRegistry): Index {
 
 let cached: Index | null = null;
 function getIndex(): Index {
-  if (!cached) cached = buildIndex(HEART_SUTRA_CONCEPTS);
+  if (!cached) cached = buildIndex(ALL_CONCEPTS);
   return cached;
 }
 
@@ -74,10 +78,10 @@ export function conceptsForToken(
 
 /** Find a ConceptNode by ID. */
 export function getConcept(id: string): ConceptNode | undefined {
-  return HEART_SUTRA_CONCEPTS[id];
+  return ALL_CONCEPTS[id];
 }
 
 /** Whole registry — for debugging / inspection. */
 export function allConcepts(): ConceptNode[] {
-  return Object.values(HEART_SUTRA_CONCEPTS);
+  return Object.values(ALL_CONCEPTS);
 }

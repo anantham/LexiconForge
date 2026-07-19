@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" role="img" aria-label="Aithihyamala — The Garland of Legends">
+  <!--
+    Cover: Aithihyamala (Kottarathil Sankunni, 1909 — public domain).
+    Kerala-mural palette (red ochre / turmeric gold / lamp-black); the central
+    motif is the OLAKKUDA — the palm-leaf umbrella the Devi of Urakam rode
+    from Kanchipuram, golden finial and all. Hand-authored SVG, no rasters.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8f2f1c"/>
+      <stop offset="0.55" stop-color="#7c2716"/>
+      <stop offset="1" stop-color="#5e1c0f"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eec36a"/>
+      <stop offset="1" stop-color="#c9922f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.75">
+      <stop offset="0" stop-color="#a63c22"/>
+      <stop offset="1" stop-color="#a63c22" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="800" height="1200" fill="url(#bg)"/>
+  <rect width="800" height="1200" fill="url(#glow)"/>
+
+  <!-- kasavu double border -->
+  <rect x="34" y="34" width="732" height="1132" fill="none" stroke="#d9a441" stroke-width="3"/>
+  <rect x="46" y="46" width="708" height="1108" fill="none" stroke="#d9a441" stroke-width="1" opacity="0.7"/>
+
+  <!-- top lamp-dot frieze -->
+  <g fill="#e8bc5e" opacity="0.85">
+    <circle cx="250" cy="92" r="4"/><circle cx="300" cy="92" r="4"/><circle cx="350" cy="92" r="4"/>
+    <circle cx="400" cy="92" r="6"/>
+    <circle cx="450" cy="92" r="4"/><circle cx="500" cy="92" r="4"/><circle cx="550" cy="92" r="4"/>
+  </g>
+
+  <!-- ══ the olakkuda ══ -->
+  <g>
+    <!-- finial (pon-makudam) -->
+    <rect x="396" y="196" width="8" height="34" fill="url(#gold)"/>
+    <circle cx="400" cy="186" r="14" fill="url(#gold)"/>
+    <path d="M400 156 L408 174 L392 174 Z" fill="url(#gold)"/>
+
+    <!-- canopy: shallow cone with scalloped rim -->
+    <path d="M400 230
+             C 250 258, 150 330, 118 420
+             L 176 420 C 186 402, 200 402, 210 420
+             L 268 420 C 278 402, 292 402, 302 420
+             L 360 420 C 370 402, 384 402, 394 420
+             L 406 420 C 416 402, 430 402, 440 420
+             L 498 420 C 508 402, 522 402, 532 420
+             L 590 420 C 600 402, 614 402, 624 420
+             L 682 420
+             C 650 330, 550 258, 400 230 Z"
+          fill="url(#gold)" stroke="#5e1c0f" stroke-width="3"/>
+    <!-- ribs -->
+    <g stroke="#8a5a14" stroke-width="2.5" opacity="0.75">
+      <path d="M400 232 L150 414" fill="none"/>
+      <path d="M400 232 L242 418" fill="none"/>
+      <path d="M400 232 L330 420" fill="none"/>
+      <path d="M400 232 L400 420" fill="none"/>
+      <path d="M400 232 L470 420" fill="none"/>
+      <path d="M400 232 L558 418" fill="none"/>
+      <path d="M400 232 L650 414" fill="none"/>
+    </g>
+    <!-- palm-leaf weave hint: two arcs -->
+    <path d="M196 366 C 300 318, 500 318, 604 366" fill="none" stroke="#8a5a14" stroke-width="2" opacity="0.55"/>
+    <path d="M156 400 C 290 344, 510 344, 644 400" fill="none" stroke="#8a5a14" stroke-width="2" opacity="0.45"/>
+
+    <!-- handle -->
+    <rect x="395" y="420" width="10" height="250" rx="5" fill="url(#gold)"/>
+    <circle cx="400" cy="560" r="10" fill="none" stroke="#d9a441" stroke-width="3"/>
+  </g>
+
+  <!-- nilavilakku flame at the handle's foot -->
+  <g>
+    <path d="M400 640 C 386 664, 388 684, 400 696 C 412 684, 414 664, 400 640 Z" fill="#f4c04a"/>
+    <path d="M400 654 C 393 668, 394 680, 400 688 C 406 680, 407 668, 400 654 Z" fill="#fbe08a"/>
+    <path d="M340 706 L460 706 L436 730 L364 730 Z" fill="url(#gold)"/>
+  </g>
+
+  <!-- rule -->
+  <line x1="140" y1="790" x2="660" y2="790" stroke="#d9a441" stroke-width="1.5" opacity="0.8"/>
+
+  <!-- title -->
+  <text x="400" y="900" text-anchor="middle" fill="#f5e2b8"
+        font-family="'Noto Serif Malayalam','Manjari',serif" font-size="96" font-weight="600">ഐതിഹ്യമാല</text>
+  <text x="400" y="952" text-anchor="middle" fill="#e8bc5e"
+        font-family="Cardo,Georgia,serif" font-size="26" letter-spacing="6">AITHIHYAMALA</text>
+  <text x="400" y="990" text-anchor="middle" fill="#d9a441" opacity="0.9"
+        font-family="Cardo,Georgia,serif" font-size="19" font-style="italic">The Garland of Legends</text>
+
+  <!-- author -->
+  <text x="400" y="1064" text-anchor="middle" fill="#f5e2b8" opacity="0.95"
+        font-family="'Noto Serif Malayalam','Manjari',serif" font-size="30">കൊട്ടാരത്തിൽ ശങ്കുണ്ണി</text>
+  <text x="400" y="1098" text-anchor="middle" fill="#d9a441" opacity="0.85"
+        font-family="Cardo,Georgia,serif" font-size="17" letter-spacing="2">KOTTARATHIL SANKUNNI · 1909</text>
+
+  <!-- bottom frieze -->
+  <g fill="#e8bc5e" opacity="0.7">
+    <circle cx="330" cy="1136" r="3"/><circle cx="365" cy="1136" r="3"/>
+    <circle cx="400" cy="1136" r="4.5"/>
+    <circle cx="435" cy="1136" r="3"/><circle cx="470" cy="1136" r="3"/>
+  </g>
+</svg>

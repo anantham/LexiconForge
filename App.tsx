@@ -10,6 +10,8 @@ import { DEMO_PACKET_MN10 } from './components/sutta-studio/demoPacket';
 import type { DeepLoomPacket } from './types/suttaStudio';
 import { LiturgyApp } from './components/liturgy/LiturgyApp';
 import { CalvinoReader } from './components/calvino/CalvinoReader';
+import { UrakamProtoPage } from './components/malayalam/UrakamProtoPage';
+import { MalayalamLibraryPage } from './components/malayalam/MalayalamLibraryPage';
 
 // Published local suttas — real IDs, rendered from bundled packets (no API calls).
 // Add an entry here to publish a sutta at a real, linkable URL like /sutta/mn10.
@@ -123,6 +125,12 @@ const App: React.FC = () => {
   // Source-grounded bilingual reader (Calvino, Italian original + Weaver English).
   if (pathname === '/calvino' || pathname.startsWith('/calvino/')) {
     return <CalvinoReader pathname={pathname} />;
+  }
+  if (pathname === '/malayalam' || pathname === '/malayalam/') {
+    return <MalayalamLibraryPage />;
+  }
+  if (pathname.startsWith('/malayalam/')) {
+    return <UrakamProtoPage />;
   }
 
   return <MainApp />;

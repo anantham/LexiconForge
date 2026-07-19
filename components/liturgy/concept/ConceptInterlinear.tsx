@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { AlignSegment, AlignRelation, AlignRendering, AlignToken, AlignSegmentPiece } from '../../../types/liturgyAlign';
 import { getConcept } from '../../../data/concepts/lookup';
 import { conceptFacets } from '../../../data/concepts/tooltipFacets';
+import { clustersOf, clusterTip, endsVocalic, isMalayalamCluster, syllabify } from '../../../services/malayalam/graphemes';
 
 /**
  * Concept-aligned phrase reader (DESIGN.md). Centered classical serif, words in
@@ -27,8 +28,9 @@ const FONT: Record<string, string> = {
   Tibt: "'Noto Serif Tibetan', 'Cardo', serif",
   Hant: "'Noto Serif SC', 'Cardo', serif",
   Jpan: "'Noto Serif JP', 'Cardo', serif",
+  Mlym: "'Noto Serif Malayalam', 'Manjari', 'Cardo', serif",
 };
-const SIZE: Record<string, string> = { Latn: '1.7rem', Deva: '1.85rem', Tibt: '2rem', Hant: '2.05rem', Jpan: '2.05rem' };
+const SIZE: Record<string, string> = { Latn: '1.7rem', Deva: '1.85rem', Tibt: '2rem', Hant: '2.05rem', Jpan: '2.05rem', Mlym: '2.1rem' };
 
 const isEnglish = (lang: string) => lang.split('-')[0] === 'en';
 const scriptOf = (lang: string) => lang.split('-')[1] ?? 'Latn';
@@ -40,11 +42,19 @@ const safeId = (s: string) => s.replace(/[^a-zA-Z0-9]/g, '-');
 const C = { ink: '#e2e8f0', match: '#6ee7b7', faint: '#64748b', english: '#94a3b8', sub: '#94a3b8' };
 const READING_LABEL: Record<string, string> = { zh: '中', ja: '日', ko: '한', vi: 'vi' };
 
-const Tooltip: React.FC<{ primary: string; secondary?: string; facetIndex?: number; facetTotal?: number }> = ({
+const Tooltip: React.FC<{
+  primary: string;
+  secondary?: string;
+  facetIndex?: number;
+  facetTotal?: number;
+  /** Exploded per-symbol stacks (Mlym etym mode) — drawn INSTEAD of `primary`. */
+  parts?: { glyph: string; sound: string }[];
+}> = ({
   primary,
   secondary,
   facetIndex,
   facetTotal,
+  parts,
 }) => (
   <motion.span
     initial={{ opacity: 0, y: 4 }}
@@ -52,9 +62,30 @@ const Tooltip: React.FC<{ primary: string; secondary?: string; facetIndex?: numb
     exit={{ opacity: 0, y: 4 }}
     transition={{ duration: 0.12 }}
     className="absolute bottom-full left-1/2 z-30 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md border border-slate-700/80 bg-slate-900/95 px-2.5 py-1 text-center shadow-lg pointer-events-none"
-    style={{ fontFamily: FONT.Latn, fontStyle: 'normal', maxWidth: '22rem', whiteSpace: 'normal' }}
+    style={{
+      fontFamily: FONT.Latn,
+      fontStyle: 'normal',
+      // width: max-content — an absolutely-positioned box otherwise shrink-wraps
+      // to its POSITIONED PARENT (the hovered word), so any gloss longer than the
+      // word rendered as a tall one-word-per-line column. Size to the text
+      // itself, capped for long definitions.
+      width: 'max-content',
+      maxWidth: '26rem',
+      whiteSpace: 'normal',
+    }}
   >
-    <span className="block text-[13px] text-slate-100">{primary}</span>
+    {parts ? (
+      <span className="mb-1 flex items-end justify-center gap-3" style={{ fontFamily: FONT.Mlym }}>
+        {parts.map((p, i) => (
+          <span key={i} className="inline-flex flex-col items-center">
+            <span className="text-slate-100" style={{ fontSize: '1.5rem', lineHeight: 1.25 }}>{p.glyph}</span>
+            <span className="text-[10px] italic text-slate-500" style={{ fontFamily: FONT.Latn }}>{p.sound}</span>
+          </span>
+        ))}
+      </span>
+    ) : (
+      <span className="block text-[13px] text-slate-100">{primary}</span>
+    )}
     {secondary && <span className="mt-0.5 block text-[11px] text-slate-500">{secondary}</span>}
     {!!facetTotal && facetTotal > 1 && (
       <span className="mt-1.5 flex items-center justify-center gap-1" aria-hidden>
@@ -175,9 +206,12 @@ const PhraseBlock: React.FC<{
   mode: Mode;
   /** Title segment — render the glyphs and English a step larger. */
   large?: boolean;
-}> = ({ segment, shown, mode, large = false }) => {
+  /** Reader preference: suppress hover tooltips (highlights/threads stay). */
+  tooltips?: boolean;
+}> = ({ segment, shown, mode, large = false, tooltips = true }) => {
   const [hot, setHot] = React.useState<string[] | null>(null); // matching unit ids (align mode)
   const [over, setOver] = React.useState<string | null>(null); // hovered piece key
+  const [overCl, setOverCl] = React.useState<string | null>(null); // hovered letter-cluster (Mlym etym mode)
   const [facetIdx, setFacetIdx] = React.useState(0); // click-to-cycle tooltip facet
   const [threads, setThreads] = React.useState<{ x: number; y: number }[] | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -325,6 +359,11 @@ const PhraseBlock: React.FC<{
   // stick. Calling renderLine(r) reconciles the same DOM in place instead.
   const renderLine = (r: AlignRendering) => {
     const english = isEnglish(r.lang);
+    // Malayalam etymology: granularity follows the mode. Align mode grabs
+    // MORPHEMES (meaning-sized pieces); etym mode grabs the SYMBOLS — each
+    // letter-cluster is its own hover target with its own assembly tooltip
+    // (deterministic Unicode decomposition), no click-cycling.
+    const mlymEtym = mode === 'etym' && scriptOf(r.lang) === 'Mlym';
     const showRom = !english; // romanization always shown for non-Latin scripts
     // Whole-line romanization fallback (e.g. Tibetan) when the tokens carry no
     // per-token sound — reliable, vs. mis-paired per-word sounds.
@@ -337,20 +376,33 @@ const PhraseBlock: React.FC<{
     const showTranslit = !english && scriptOf(r.lang) !== 'Latn' && !!r.transliteration && !allRom;
     return (
       <div key={r.lang}>
-        <div className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: '0.5em', rowGap: '0.5rem' }}>
+        {/* Malayalam: pieces of ONE written word nearly touch (the page prints
+            them contiguous — surface fidelity is visual too), while separate
+            WORDS get a gap wide enough to actually read as a boundary. Other
+            scripts keep the chant reader's original rhythm. */}
+        <div className="flex flex-wrap items-start justify-center" lang={r.lang} style={{ fontFamily: fontFor(r.lang), columnGap: scriptOf(r.lang) === 'Mlym' ? '1.1em' : '0.5em', rowGap: '0.5rem' }}>
         {r.tokens.map((token, ti) => (
-          <span key={ti} className="inline-flex items-start" style={{ columnGap: '0.12em' }}>
+          <span key={ti} className="inline-flex items-start" style={{ columnGap: scriptOf(r.lang) === 'Mlym' ? '0.05em' : '0.12em' }}>
             {piecesOf(token).map((piece, si) => {
               const effUnits = piece.units ?? token.units;
               const key = `${r.lang}:${ti}:${si}`;
-              const match = mode === 'etym' ? over === key : !!hot && effUnits.some((u) => hot.includes(u));
-              const muted = over !== null && !match;
+              const match = mode === 'etym' ? (mlymEtym ? false : over === key) : !!hot && effUnits.some((u) => hot.includes(u));
+              const muted = over !== null && !match && !(mlymEtym && over === key);
               const ghost = piece.faint || token.relation === 'ghost';
               const phonetic = !!piece.phonetic;
-              const facets = over === key ? facetsFor(token, piece, effUnits) : null;
+              const facets = over === key && !mlymEtym ? facetsFor(token, piece, effUnits) : null;
               const facet = facets ? facets[facetIdx % facets.length] : null;
               const multiFacet = !!facets && facets.length > 1;
               const romLines = piece.readings ? Object.entries(piece.readings) : piece.pronunciation ? [['', piece.pronunciation] as [string, string]] : [];
+              // Mlym etym mode: cluster list + per-cluster sound slices, so the
+              // glyph and its syllable in the sound line highlight TOGETHER
+              // (hover either — both directions work). null slices → whole line.
+              // Bare-punctuation clusters (a trailing '.') get no ordinal — the
+              // sound pairing maps only the Malayalam clusters.
+              const mlymClusters = mlymEtym ? clustersOf(piece.text) : null;
+              let mlymN = -1;
+              const mlymOrd = mlymClusters ? mlymClusters.map((cl) => (isMalayalamCluster(cl) ? ++mlymN : null)) : null;
+              const romSlices = mlymClusters && piece.pronunciation ? syllabify(piece.pronunciation, mlymN + 1) : null;
               return (
                 <span
                   key={si}
@@ -361,7 +413,7 @@ const PhraseBlock: React.FC<{
                     setFacetIdx(0);
                     if (mode === 'align') { setHot(effUnits); computeThread(effUnits); } else { setHot(null); setThreads(null); }
                   }}
-                  onMouseLeave={() => { window.clearTimeout(pressTimer.current); setOver(null); setHot(null); setThreads(null); }}
+                  onMouseLeave={() => { window.clearTimeout(pressTimer.current); setOver(null); setOverCl(null); setHot(null); setThreads(null); }}
                   onPointerDown={(e) => {
                     if (e.button && e.button !== 0) return; // left / touch only
                     longPressed.current = false;
@@ -382,7 +434,7 @@ const PhraseBlock: React.FC<{
                     e.stopPropagation();
                     setFacetIdx((n) => (n + 1) % facets.length);
                   }}
-                  title={multiFacet ? 'click to cycle · hold for source' : effUnits.length ? 'hold for source' : undefined}
+                  title={mlymEtym ? undefined : multiFacet ? 'click to cycle · hold for source' : effUnits.length ? 'hold for source' : undefined}
                 >
                   <span
                     className="transition-colors duration-200 motion-reduce:transition-none"
@@ -392,13 +444,66 @@ const PhraseBlock: React.FC<{
                       color: match ? C.match : ghost ? C.faint : english ? C.english : C.ink,
                       opacity: muted ? 0.4 : 1,
                       lineHeight: 1.15,
-                      borderBottom: english ? 'none' : `1px ${ghost || phonetic ? 'dotted' : 'solid'} ${match ? '#34d399' : ghost ? 'transparent' : 'rgba(52,211,153,0.16)'}`,
-                      paddingBottom: '2px',
+                      borderBottom: english || mlymEtym ? 'none' : `1px ${ghost || phonetic ? 'dotted' : 'solid'} ${match ? '#34d399' : ghost ? 'transparent' : 'rgba(52,211,153,0.16)'}`,
+                      paddingBottom: mlymEtym ? undefined : '2px',
                     }}
                   >
-                    {piece.text}
+                    {mlymClusters
+                      ? mlymClusters.map((cl, ci) => {
+                          const ord = mlymOrd![ci];
+                          if (ord === null) {
+                            // punctuation cluster — rendered, never a hover target
+                            return (
+                              <span key={ci} style={{ color: C.faint }}>{cl}</span>
+                            );
+                          }
+                          const ck = `${key}:${ord}`;
+                          const tip = overCl === ck
+                            ? clusterTip(cl, ci > 0 && endsVocalic(mlymClusters[ci - 1]))
+                            : null;
+                          return (
+                            <span
+                              key={ci}
+                              className="relative transition-colors duration-150 motion-reduce:transition-none"
+                              onMouseEnter={() => setOverCl(ck)}
+                              onMouseLeave={() => setOverCl(null)}
+                              style={{
+                                color: overCl === ck ? C.match : undefined,
+                                // every cluster shows its seam faintly; the hovered one lights up
+                                borderBottom: `1px solid ${overCl === ck ? '#34d399' : 'rgba(52,211,153,0.16)'}`,
+                                paddingBottom: '2px',
+                                marginRight: '0.04em',
+                              }}
+                            >
+                              {cl}
+                              <AnimatePresence>
+                                {tooltips && tip && (tip.parts || tip.primary) && (
+                                  <Tooltip primary={tip.primary} secondary={tip.secondary} parts={tip.parts} />
+                                )}
+                              </AnimatePresence>
+                            </span>
+                          );
+                        })
+                      : piece.text}
                   </span>
-                  {showRom && romLines.map(([rid, val], k) => (
+                  {showRom && romSlices ? (
+                    <span className="text-[0.74rem] italic leading-tight" style={{ fontFamily: FONT.Latn, marginTop: '0.28rem', opacity: muted ? 0.4 : 1 }}>
+                      {romSlices.map((s, ci) => {
+                        const ck = `${key}:${ci}`;
+                        return (
+                          <span
+                            key={ci}
+                            className="transition-colors duration-150 motion-reduce:transition-none"
+                            onMouseEnter={() => setOverCl(ck)}
+                            onMouseLeave={() => setOverCl(null)}
+                            style={{ color: overCl === ck ? '#5eead4' : C.sub }}
+                          >
+                            {s}
+                          </span>
+                        );
+                      })}
+                    </span>
+                  ) : showRom && romLines.map(([rid, val], k) => (
                     <span key={k} className="text-[0.74rem] italic leading-tight transition-colors duration-200 motion-reduce:transition-none"
                       style={{ fontFamily: FONT.Latn, color: match ? '#5eead4' : C.sub, opacity: muted ? 0.4 : 1, marginTop: k === 0 ? '0.28rem' : '0.05rem' }}>
                       {rid && <span style={{ opacity: 0.5, marginRight: '0.3em' }}>{READING_LABEL[rid] ?? rid}</span>}
@@ -406,7 +511,7 @@ const PhraseBlock: React.FC<{
                     </span>
                   ))}
                   <AnimatePresence>
-                    {over === key && facet?.primary && (
+                    {tooltips && over === key && facet?.primary && (
                       <Tooltip primary={facet.primary} secondary={facet.secondary} facetIndex={facetIdx % facets!.length} facetTotal={facets!.length} />
                     )}
                   </AnimatePresence>
@@ -444,7 +549,10 @@ const PhraseBlock: React.FC<{
   );
 };
 
-export const ConceptInterlinear: React.FC<{ segments: AlignSegment[] }> = ({ segments }) => {
+export const ConceptInterlinear: React.FC<{ segments: AlignSegment[]; tooltips?: boolean }> = ({
+  segments,
+  tooltips = true,
+}) => {
   const langs: { lang: string; label: string }[] = [];
   const seen = new Set<string>();
   for (const seg of segments) for (const r of seg.renderings) if (!seen.has(r.lang)) { seen.add(r.lang); langs.push({ lang: r.lang, label: r.label }); }
@@ -492,10 +600,10 @@ export const ConceptInterlinear: React.FC<{ segments: AlignSegment[] }> = ({ seg
         {segments.map((seg) =>
           seg.title ? (
             <div key={seg.id} className="mb-10 border-b border-slate-800 pb-16">
-              <PhraseBlock segment={seg} shown={shown} mode={mode} large />
+              <PhraseBlock segment={seg} shown={shown} mode={mode} large tooltips={tooltips} />
             </div>
           ) : (
-            <PhraseBlock key={seg.id} segment={seg} shown={shown} mode={mode} />
+            <PhraseBlock key={seg.id} segment={seg} shown={shown} mode={mode} tooltips={tooltips} />
           )
         )}
       </div>
