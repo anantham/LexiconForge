@@ -118,3 +118,18 @@ reports/
 # not routed through LFS). Lives on disk only; transcriptions belong in data/liturgy/.
 /chants/
 .vercel
+
+# Local pipeline outputs (contain full copyrighted prose — never commit)
+out/
+
+# Grounding output (derived from full copyrighted prose — regenerable, never commit)
+data/calvino/
+# Python grounding venv
+scripts/grounding/.venv/
+
+# Pinocchio derived data (31MB, regenerable). PD sources may be committed instead —
+# see docs/HANDOVER.md: CI should commit import/pinocchio/*.epub (460KB) and REGENERATE.
+data/pinocchio/
+
+__pycache__/
+*.pyc

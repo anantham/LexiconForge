@@ -1,142 +1,243 @@
-# Handover: 2026-06-06 (refresh)
+# Handover: 2026-07-12
 
-## Session Summary (narrative — for humans skimming)
+> **Note:** the previous `docs/HANDOVER.md` (2026-06-06) covered the **liturgy-generator /
+> Sariputta-chants** lane, which this session did NOT touch. Its threads are carried forward
+> verbatim-in-substance at the bottom under *Carried forward from prior handover* — they are
+> neither resolved nor obsoleted, just untouched. Retrieve the full prior text with
+> `git show HEAD~1:docs/HANDOVER.md` if needed.
 
-This handover covers the **liturgy-generator kernel + LLM-authoring-spec + PR #81 merge** context (work done 2026-05-30/31), refreshed on 2026-06-06. Three things happened, in order:
+## Session Summary (narrative)
 
-1. **Continued Codex's liturgy *generator* (PR #80, MERGED `7040930`).** First established what the "generator" actually is — an **aligner + linter + serializer, NOT a content generator** (it requires every gloss/morpheme/etymology as hand-authored input; it only computes `alignTo`/`morphemeAlignTo` + emits a draft). Then shipped the user-approved "kernel first" path: **consolidated the duplicated liturgy validation into one shared `services/liturgy/validation.ts`** (the Pāli tokenizer was a 4th hand-synced copy of the renderer's), **made alignment inference loud** (`low_alignment_coverage` + `inferred_alignment_unreviewed` + a CLI REVIEW-REQUIRED banner — it silently produced wrong-but-valid arrays on real chants), and **relocated a redundant Three Refuges draft** out of `data/liturgy/`.
-2. **Brainstormed + specced the grounded LLM-authoring stage (in PR #80; spec on main, NOT implemented).** `docs/superpowers/specs/2026-05-31-liturgy-llm-authoring-design.md`. A **3-iteration dual cross-model review** (reviewer subagent + `codex exec`) was *load-bearing*: the same-family subagent approved the first draft outright; `codex` then caught **four false reuse premises** (DPD is prompt-context not a citation source; the grounding pass *preserves* LLM citations rather than discarding; the headless compiler silently loses DPD via the Vite loader; the bridge had the wrong schema). All corrected.
-3. **Reviewed + combined-state-verified + merged PR #81 (Sariputta chants, `e3fb3b8`)** then cleaned up both merged worktrees.
+Built a **reusable source-grounded bilingual reader pipeline** end-to-end on branch
+`feat/local-grounding-pipeline` (**unmerged, unpushed**, main clean). Two books run
+through it: Calvino (`/calvino`, live at :5210) and Collodi's Pinocchio (ingested; no reader route
+yet). The reader foregrounds the Italian with per-word lens tooltips (meaning / who-acts / cognate /
+false-friend), pairs each phrase with the real English translation, and swaps which language leads
+on a toggle.
 
-**Then the repo advanced past this context** (not my work): **PR #82 (`48e2cf4`)** ran a cross-model adversarial review on the #81 Sariputta content and **fixed real errors I'd missed** — a *missing Buddha Vandana section* and a *false-friend etymology* (`vera`="hatred", not the abstaining prefix; took two rounds). **Honest lesson:** my single-read curator review judged the content "sound"; the dedicated cross-model-vs-source pass was what actually caught the errors. main is now `48e2cf4`, clean, synced.
+**The session's hardest-won lesson:** an adversarial audit proved the deterministic gate was
+reporting **green while the alignment was broken** — twice, for two different reasons. Both books'
+gates now **FAIL honestly**. *Do not "fix" this by loosening thresholds.*
 
-## Current repo state (verified 2026-06-06)
-- `main` = `origin/main` = **`48e2cf4`**. Working tree clean. **Nothing uncommitted** from this context.
-- **LLM-authoring implementation NOT started** — `services/liturgy-generator/authoring/` does not exist. The spec is on main.
-- **Full suite GREEN** (208 files, 8705 tests, 0 failed — 2026-06-06). The two former reds were fixed this session: `better-sqlite3` installed (`build-dpd.test.ts` green again) and the load-flaky smoke/init timeouts raised. One deeper item remains: App does network I/O at module import (the raised smoke timeout is a mitigation, not a cure).
+**Late-session addendum (read Thread 1 in full):** two more root causes were found and FIXED after
+the first handover was written — paragraph bead capacity, and an em-dash of interrupted speech being
+misread as a clause seam (Calvino 5→3, Pinocchio 16→11 drift). More importantly, **I5 itself was
+found to OVERCOUNT** — it flags some correctly-aligned pairs, so the residual bug count is lower than
+the gate reports and is currently unknown. Three of my confident hypotheses were falsified by
+measurement this session. **Characterise before theorising, and re-derive rather than inherit.**
 
-## Commits This Session (all merged to main)
-**PR #80 (merged `7040930`):**
-- `44e4ba9` feat(liturgy): add deterministic liturgy-generator scaffold (Codex WIP, committed to preserve)
-- `f134627` refactor(liturgy): consolidate validation into one shared module
-- `9abc235` feat(liturgy): make alignment inference loud, never a silent default
-- `6d6a6f7` refactor(liturgy): relocate redundant Three Refuges draft out of data/liturgy
-- `930d0f1` docs(worklog) · `9b4414b`/`4864e36`/`dd27c67` docs(spec) ×3 iterations (cross-model review)
+## Commits This Session
 
-**PR #81 (merged `e3fb3b8`):** reviewed the Sariputta Pali content (judged correct standard formulae), **verified the combined state** (merged #81 onto main-with-my-kernel in a throwaway worktree, ran the liturgy suite green — my `validateLiturgyDoc` auto-covered the 2 new chants, 21→23 corpus tests), then merged.
+Branch `feat/local-grounding-pipeline` — **PUSHED: no — awaits user authorization.**
+Authoritative list (never stale): `git log --oneline main..HEAD`. Highlights below.
 
-**Worktrees removed (post-merge cleanup):** `feat/codex-liturgy-generator` + `feat/opus-sariputta-chants` (local + remote branches deleted, pruned; backup ref deleted).
+- `77b73ee` Fix EPUB adapter manifest parse (order-independent id/href) + Calvino scaffold
+- `bfa68ab` Stage 1: deterministic 22-unit Calvino IT↔Weaver session
+- `937a30b` / `6ed29c1` Stage 2: spaCy grounding (88k tokens) + kaikki Wiktionary glosses
+- `147dd64` Stage 3: `/calvino` reader UI
+- `4b32abf` **Italian lens: `render(facts, lens) → copy`** — kills the substrate leak
+- `96c663b` Sentence is the unit; language-lead toggle with animated swap
+- `7f7ae87` Clause refinement + deterministic validator (I1–I4)
+- `e76f9e1` Fix the classes an adversarial audit found; add the LOCAL-correspondence gate (I5–I8)
+- `6765f78` **Completeness gate**: exact I2 + Playwright DOM test
+- `e064349` Cross-lingual embedding anchor (MiniLM, local, free)
+- `8aebab1` **Pinocchio ingest — pipeline is REUSABLE, zero stage-code changes**
+- `7db69ab` **I5 upgraded to embedding signal — retracts the "fully green" claim**
+- `(HEAD)` gitignore Pinocchio derived data (31 MB, regenerable)
 
-**PUSHED: yes** — everything is on `origin/main` (user standing directive 2026-05-31T12:50: *"ensure this repo has everything in commits and pushed to remote"*).
+**Ambient dirty (NOT committed, not mine):** in the *main* checkout — `package-lock.json`,
+`public/steering-images.json` (pre-existing), plus two tech-debt docs I authored earlier
+(`docs/roadmaps/TECH-DEBT-{DEEP-AUDIT,FIX-PRIORITY}-2026-07-07.md`, still untracked in main).
 
-## Subsequent work — NOT mine, for context (PR #82, `48e2cf4`)
-*I don't fully own this; details in commit bodies `8f227d1`/`496b133` + memory `feedback_cross_model_review`.* Two independent reviewers (Codex gpt-5.5 + an Opus skeptic panel) cross-examined the 3 Sariputta chant files against source photos + canonical Pali. Fixes: added the **missing Buddha Vandana (Itipiso) section** (sheet's 4th block, incl. 9 continuation lines from a 2nd photo); re-attributed English/Devanāgarī from "Sariputta Ambedkar Monastery" → **"Literal gloss"** (sheet is Pali-only); fixed **`veramaṇī` segmentation** over two rounds (`vera` is the false-friend "hatred"; the abstain sense is the `ve-/vi-` prefix, not `√ram`); `dutiyampi/tatiyampi` `m` gloss; punctuation-vs-sheet. Codex's round-2 **HOLD** caught a false note + a canonical overcorrection the Opus panel's SHIP missed — *the gate working*.
+## Verbatim user quotes (chronological — grounding for every decision here)
 
-## Verbatim user quotes (this conversation, chronological)
-*JSONL is local-only; these are the durable record of what was directed.*
-- `2026-05-30T20:45` *"can you tell me how you would continue codex's work?"* — the founding ask (after pasting a Codex liturgy-generator session).
-- `~2026-05-30 eve` (AskUserQuestion selections, in order): **"Kernel first (recommended)"** → **(direction) LLM authoring** → **"Pāli canonical"** → **"Build the DPD subset"** → **"A — Compile-then-bridge"** — the design-decision arc for the LLM-authoring spec.
-- `2026-05-30T21:39` *"1"* — chose to proceed to the LLM content-authoring stage (→ brainstorming skill).
-- `2026-05-31T07:18` *"yea looks good"* — approved the design → write spec → dual review.
-- `2026-05-31T12:40` *"is our repo clean? everything committed and pushed?"*
-- `2026-05-31T12:50` *"ok my goal is to do a /handover and before that review any tasks that might be worth doing while all this context is hot, the idea is to ensure this repo has everything in commits and pushed to remote, so pull from remote and do all the merge to main as much as possible or explain why not to me"* — the wrap-up directive (authorizes push + merge).
-- `2026-05-31T13:31` *"yea do cleanup now"* — cleanup of the merged codex worktree.
-- `2026-05-31T13:43` *"then why not do 81 now"* — pushed back on my reluctance to touch PR #81.
-- `2026-05-31T13:47` *"i am not an exprt this is a pet project you are more knowledgable than me, I am not sharing this anywhere just a pet project"* — **the load-bearing deferral**: removed the "your expert curatorial review" gate; I was to exercise judgment myself given low stakes. (Note: a *single* read still proved insufficient — #82's cross-model pass found errors. The deferral was right for stakes; the lesson is to still run the adversarial gate.)
-- `2026-05-31T13:57` *"do clean up"* — cleanup of the now-merged Sariputta worktree.
-- `2026-06-06T20:01` *"refresh it and make sure it exhaustive"* — this handover.
+*Timestamps approximate; session spanned 2026-07-07 → 07-12.*
 
-## Specs / ADRs relevant
-- **`docs/superpowers/specs/2026-05-31-liturgy-llm-authoring-design.md`** — grounded LLM-authoring for Pāli-canonical chants (Approach A — compile-then-bridge). The *designed* version; anti-fabrication is **enforced in an authoring-scoped check, NOT the corpus `validateLiturgyDoc`** (shipped chants carry legit manual citations).
-- **`docs/adr/LITURGY-001-liturgy-generator-pipeline.md`** — generator architecture. CLI: `scripts/liturgy-generator/build-liturgy-draft.ts`.
-- **`docs/sutta-studio/COMMUNITY_CHANT_MODEL.md`** — the community-chant model (PR #79).
+- *"specifically there are vestigial dead code, complexity spirals, many differnt pathways doing the same thing help me simplify"* — opened the tech-debt arc.
+- *"Approve for me … what am I missing use /ultraplan ultracode and find the issues htat codex could not find"* — authorized the 13-lens adversarial audit (55 verified findings).
+- *"lets codex fix it no your tokens are rare, weekly limit is approaching"* — **standing constraint**: offload heavy execution, conserve my tokens.
+- *"can you import that to our library and ensure its aligned with the original italian?"* — started the Calvino arc.
+- *"are you being lazy? … lets fetch them all so our system can surface the various translations"* — pushed back on a minimal plan. (Finding: **Weaver 1981 is the ONLY English translation** of this book.)
+- *"the point of the interface is to let the reader really engage with the source text right"* — **the north star.** Reframed from parallel columns to source-grounding.
+- *"isnt codex expensive why not use local ollama model that is free would this need high intelligence?"* — cost discipline → the free/local/deterministic posture.
+- *"yes please do that but I also want this to be recylable I have more books I want to do this with so the pipeline needs to be reusable"* — **the reusability requirement**, later proven by Pinocchio.
+- *"i mean you can focus on italian and I mean learn from the malyalam no need to recreate stuff that exists right"* — caught me rebuilding what the Malayalam lane already had.
+- *"the tooltips just keep saying part of speech and it keeps saying lemma and things like that, which is not useful. You gotta really rethink the UI because gotta make sure every single thing pays like uh you should fight for why each one exists."* — **the LENSES.md law.** Produced `services/italian/lens/`.
+- *"here I dont see Weaver English anywhere!"* — the English was buried below ~2,500 words. Fixed.
+- *"i want the english words below the italian words … if I am in italian mode then english words move to the bottom … and in english mode the reverse moment happens"* — the language-lead swap toggle.
+- *"well we can make phrases the unit not words how about that?"* — **the key design unlock.** Weaver maps phrase-to-phrase but *not* word-to-word; the sentence/clause became the alignment unit.
+- *"it feels like you did not try to make the shortest possible phrase … can you run a adversarial workflow with sonnet agents? … also ensure there are all the deterministic tests are being passed so we can scale this to all the pages"* — produced clause refinement + the adversarial audit (44 confirmed misalignments) + the invariant suite.
+- *"is there any CI or test that ensures completeness? that every phrase in the english version is there in our UI nothing is swallowed"* — produced exact-I2 + the DOM completeness gate. **Caught the sentence splitter eating closing quotation marks.**
+- *"yea chase them down"* / *"yea push through the ingest"* / *"keep going"* — successive authorizations to continue.
 
 ## Pending Threads
 
 ### Continue Immediately
-1. **LLM-authoring stage — implement (TOP thread).** Spec is on main; next step is the `writing-plans` skill → implementation. **Prereq:** extend `build:dpd` UID routing for KN/Snp/Khp — it currently routes only MN/SN/AN/DN and sends others to `mn` (`scripts/build-dpd.ts` ~L518). (`better-sqlite3` is **already installed** as of 2026-06-06 — done this session.) First chant = Metta (Snp 1.8) as a calibration target. Reuse the headless Sutta Studio passes (`dpd-loader-fs.ts`, lexical grounding providers, NO verseBank), not `compileSuttaStudioPacket()`.
-2. **Author the 4 remaining Sariputta chants** — `threefold-vandana`, `dai-hi-shu`, `daisegaki`, `teidai-dempo` (still undrafted; only heart-sutra/refuges-and-precepts/three-pure-precepts exist). Resume workflow `wf_d0f5930b-04c` (`Workflow({scriptPath:".../workflows/scripts/sariputta-chants-wf_d0f5930b-04c.js", resumeFromRunId:"wf_d0f5930b-04c"})`, **≤2–3 parallel agents**), OR (better) use the grounded LLM-authoring pipeline once built. Use shared-content pooling for overlapping chants, not naive authoring.
-3. **Buddha Vandana per-word depth** (from #82) — the 9 Itipiso continuation lines were transcribed verbatim but per-word glosses/morphemes are flagged *pending* in `sariputta-refuges-and-precepts.ts`.
-4. **Run the cross-model adversarial review on ANY new sacred-text authoring** before merge (see Calibration). #82 proved a single capable-model read misses real errors.
+
+1. **THE BLOCKER — residual alignment drift.** *(Root cause is NOT yet fully known — an earlier
+   version of this doc claimed "dialogue paragraph structure" was the single cause. That was
+   TESTED and is FALSE; see below. Do not inherit the wrong hypothesis.)*
+   - **What was tried and DID help:** widening the *paragraph-level* bead vocabulary (paragraph
+     structure diverges far more than sentence structure — an editor's title line, a translator
+     splitting one paragraph, a dialogue exchange collapsed into one block; beads capped at 1:4
+     could not express these). `_PRIORS_PARA` in `build_reader_payload.py`.
+     **Calvino 5 → 3 drift pairs. Pinocchio 16 → 16 (no effect).**
+   - **What this PROVES:** paragraph-bead capacity explains part of Calvino's drift and NONE of
+     Pinocchio's. Measured split of Pinocchio's 16: **8 dialogue-led, 10 non-dialogue.** So
+     dialogue is at most half the story, and there is a second, unidentified cause.
+   - **SECOND CAUSE FOUND (fixed):** the em-dash marking INTERRUPTED SPEECH. Fiction writes a
+     cut-off utterance as `"But I--"`. The clause refiner treated the dash as a strong clause
+     seam, splitting it into `"But I--"` plus **a bare closing quote as its own "clause"**. That
+     letterless fragment consumed a bead slot and dragged its whole neighbourhood out of
+     alignment. Guard added (`_merge_letterless`, both sides): *a clause with no letters in it
+     is not a clause* — merge it back into its predecessor (conservation untouched; the pieces
+     still concatenate to the exact surface). **Pinocchio 16 -> 11.** It never surfaced in
+     Calvino because Weaver's short segments ("Now.", "No.") are legitimate sentences.
+   - **THE I5 COUNT IS AN OVERCOUNT — read this before chasing the remainder.** Inspecting the
+     residual showed I5 (embedding form: `next > own + 0.15` and `own < 0.50`) **flags correctly-
+     aligned pairs**. Verified example: a sentence describing the poodle-coachman's livery is
+     paired with its *correct* English, yet I5 fires because the NEXT sentence continues the same
+     description and scores higher (own 0.28 / next 0.49, margin 0.21). Contrast a genuine
+     misalignment (own 0.32 / next 0.89, margin **0.57**).
+     **The discriminator is the MARGIN, not the flag.** So the headline number ("11 / 3 drift")
+     mixes real bugs with false positives; the true bug count is lower and currently unknown.
+   - **How to proceed (and how NOT to):** do NOT simply raise the margin until the gate goes
+     green — that is the exact anti-pattern this session was built to avoid. Legitimate route:
+     inspect the full residual population pair-by-pair, label each correct/incorrect, THEN
+     calibrate the margin to that inspected ground truth (this is how the gloss-bag I5 was
+     calibrated earlier, when ~50 of 55 hits proved to be false positives). Calibration against
+     inspected truth is honest; thresholding to hit a number is not.
+   - **Residual real drift looks like dialogue-line offset:** inside a spoken exchange the two
+     editions bundle turns differently, so English lines sit one slot off (Pinocchio u22/u27/u19).
+     Note this is a SENTENCE-level effect inside dialogue — NOT the paragraph-level dialogue
+     hypothesis I originally asserted and which testing falsified.
+   - **Live numbers (never trust a frozen count — regenerate):**
+     `npm run check:calvino` / `check:pinocchio`, or:
+     `./scripts/grounding/.venv/bin/python scripts/grounding/validate_alignment.py --payload data/<book>/reader-payload.json --session out/<book>-session.json --grounded data/<book> --embed-cache data/<book>/emb-cache.npz`
+     At last run: Calvino **3**, Pinocchio **11** → both gates FAIL. **But see the I5-overcount
+     note above: an unknown fraction of those are false positives, so the true bug count is lower.**
+   - Files: `scripts/grounding/build_reader_payload.py` (`align_paragraphs`, `best_alignment`).
+   - Verify: `npm run check:calvino` / `check:pinocchio` (pass `--embed-cache data/<book>/emb-cache.npz`).
+   - **Do NOT loosen thresholds to go green.** The failing gate is correct.
+
+2. **Pinocchio reader route.** Data built; no UI. `CalvinoReader.tsx` is book-specific — generalize
+   to `/book/:slug` reading `books/<slug>/book.json` + `data/<slug>/reader-payload.json`.
+
+3. **CI for Pinocchio (now possible — public domain).** Commit `import/pinocchio/*.epub` (460 KB) and
+   have CI **regenerate** derived data. Do NOT commit `data/pinocchio/` (31 MB, now gitignored).
+   Calvino can structurally *never* run in CI (copyright).
 
 ### Blocked
-- None hard-blocked. Thread 1 is gated on the `better-sqlite3` install decision, but that's actionable, not blocked.
 
-### Deferred (exhaustive — carried forward + new)
+- Nothing hard-blocked. All threads actionable.
 
-#### Sariputta content
-| Item | Sketch |
+### Deferred
+
+| Item | Notes |
 |---|---|
-| Overlapping Sariputta chants (Enmē Jikku / Four Vows / Sho Sai / Song of Zazen / Han-nya Shin Gyo) | Use the shared-content pooling pattern, not naive re-authoring |
-| `alignTo` for the Sariputta Heart Sutra witness | Currently a plain line (from PR #79) |
-| Unidentified dharani `PXL_20260530_141412608.jpg` | Sideways photo, not transcribed |
-| Curator-review Refuges Pali vs the *physical sheet photo* | My #81 review verified content as correct canonical Pali but NOT against the photo; #82 did much of this — confirm nothing's left |
-
-#### Liturgy depth / quality (from prior handovers)
-| Item | Sketch |
-|---|---|
-| Other chants → Metta depth | Most are QC-clean baseline, not at `metta-sutta.ts`'s prosodic-split + `alignTo` + `morphemeAlignTo` depth. Multi-hour each. Ref `docs/sutta-studio/DATA_FAILURE_MODES.md` |
-| `morphemeAlignTo` audit for non-Metta chants | Only Metta has it; others use positional heuristic → crossed arrows where English reorders morphemes |
-| MAPLE/Bodhi source-data retrofit onto `heart-sutra-content.ts` | ~2k duplicated body lines; guard with a resolved-doc deep-equality test |
-
-#### Repo health
-| Item | Sketch |
-|---|---|
-| ~~`better-sqlite3` not installed~~ | **DONE 2026-06-06** — installed; `build-dpd.test.ts` green |
-| App does network I/O at module import | The deeper cause of the smoke flake. Smoke timeout raised to 30s as mitigation (DONE); real fix is to remove network from App's import chain |
-| ~~`init` e2e 10s timeouts~~ | **DONE 2026-06-06** — `initialization.spec.ts` lines 132 + 253 → `20_000` (line 201 left at `15_000`, distinct/not flagged) |
-| Deep-research affordances (`geo` folder, browser-MCP) | Investigated earlier, not wired in; separate concern |
+| **P0 tech-debt merge** | **Codex COMPLETED the brief.** 4 unmerged branches: `fix/codex-txn-durability`, `fix/codex-cost-budget-safety`, `fix/codex-image-retry-guard`, `debt/codex-db-transaction-kernel`. These fix real data/money-loss bugs **still live in `main`**. Review + merge. |
+| P0.2/P0.3 + P1–P3 tech debt | `docs/roadmaps/TECH-DEBT-FIX-PRIORITY-2026-07-07.md` — 55 findings, prioritized |
+| Word-level threading | Hover an Italian word → its English word lights up. Needs a word-aligner (awesome-align/fast_align). |
+| Widen cognate / false-friend tables | ~100 curated entries; the kaikki dump has etymology to auto-widen |
+| Stress-as-grammar (`parlo`/`parlò`) + explicit etym mode | From LENSES.md; not built |
+| Converge on shared `ConceptInterlinear` | Optional; prose shell arguably reads better for a novel |
+| EPUB→session coverage check | The **one unchecked link** in the completeness chain (adapter only extracts `<p>`/`<h*>`) |
+| Open the PR + dual-family review (codex/grok) | Repo custom, before merge |
 
 ### Explicit Decisions NOT to Do
+
 | Item | Why |
 |---|---|
-| Re-curate per-community word glosses when pooling | Settled: only English *witnesses* pool by `phraseId`; word scholarship stays per-community |
-| Make the jargon test an absolute ban | It's a tripwire with an (empty) allowlist; `CURATION_PROTOCOL §3.4` pay-rent rule allows a glossed term that earns its place |
-| Auto-strip `prose-commentary` sections | Taste call; flag for human, don't auto-delete |
-| Commit root scratch PNGs / `chants/` photos / `docs/context/` | Dev screenshots + large binaries; left local (recommend a gitignore rule — none exists) |
-| Re-propose the `sanghas[]` overlay for community chants | Rejected after Codex cross-review in favour of `phraseId` pooling (PR #79) |
-| Add the fatal citation-integrity check to the corpus `validateLiturgyDoc` | It runs over all shipped chants, which carry legit manual/ungrounded citations; the check must be authoring-path-scoped |
+| Fetch "all English translations" of Calvino | **Only one exists** (Weaver 1981). Every other English EPUB is that same text repackaged. |
+| Swap English to repair translator reordering | **Tried; invariant I2 caught it CORRUPTING text.** On rapid dialogue, adjacent short lines have near-identical embeddings → the mutual-preference test misfires and reverses correctly-ordered lines. Reorderings are now **disclosed**, never silently "fixed". |
+| Crank the global lexical weight to fix drift | **Trades one bug for another** (fixes one passage, silently re-seats a bead in another). Weight is now chosen per-bead on evidence, preferring the conservative baseline. |
+| Publish Calvino/Weaver | **In copyright.** Local-only; `import/` + `data/calvino/` gitignored; never published. Public Italian book = Pinocchio. |
+| Prefix rules (`s-`, `ri-`) in the lens | Regex false-fires on `stare`/`sole`/`riva`. Confident-wrong is worse than silent. |
+
+### Carried forward from prior handover (2026-06-06 — liturgy lane, untouched this session)
+
+Status: **all still pending**; I did not work in this lane. Full text: `git show HEAD~1:docs/HANDOVER.md`.
+
+1. **LLM-authoring stage — implement (was TOP thread).** Prereq: extend `build:dpd` UID routing for KN/Snp/Khp (`scripts/build-dpd.ts` ~L518). First chant = Metta (Snp 1.8).
+2. **Author 4 remaining Sariputta chants** — `threefold-vandana`, `dai-hi-shu`, `daisegaki`, `teidai-dempo`.
+3. **Buddha Vandana per-word depth** — glosses/morphemes flagged pending in `sariputta-refuges-and-precepts.ts`.
+4. **Cross-model adversarial review on any new sacred-text authoring** before merge.
+5. Deferred (liturgy): chant-depth parity with `metta-sutta.ts`; `morphemeAlignTo` audit for non-Metta chants; MAPLE/Bodhi retrofit onto `heart-sutra-content.ts`; app does network I/O at module import (real fix for the smoke flake).
 
 ## Key Context
-- **The "generator" is an aligner + linter, not a content generator.** It does not solve the depth/grounding inconsistency the user cares about — that needs the (specced, unbuilt) LLM-authoring stage. See memory `project_liturgy_generator`.
-- **Validation is now ONE module:** `services/liturgy/validation.ts` (`validateLiturgyDoc` + canonical tokenizers/tripwires), run by both the generator (over drafts, via the `validateLiturgyDraft` adapter) and the corpus test `tests/components/liturgy/liturgy-doc-validation.test.ts`. The Pāli word-class regex MUST stay identical to the renderer's `tokenize` in `components/liturgy/shapes/TripleScriptWitness.tsx`.
-- **Anti-fabrication facts (corrected by the dual review, encoded in the spec):** DPD is lexicographer *prompt context*, not a citation source; the grounding pass *preserves* `sense.citationIds` (doesn't discard) so no-fabrication must be *enforced*; the headless compiler uses the Vite DPD loader (empty under Node → use `dpd-loader-fs.ts`); the translator-bank, if passed as a verseBank, blanket-cites every word → keep witness/verse citations at witness/doc level, never per-word.
-- **Community-chant model:** `data/liturgy/resolve.ts` pools witnesses by `phraseId`, strips `alignTo` from foreign pooled witnesses. `heart-sutra-content.ts` = shared body. Standalone = plain `LiturgyDoc`; shared = `CommunityChant` (contentId + defaultWitnessBy).
-- **Sacred-text gotchas (data-quality tests enforce):** no grammar jargon in gloss/etymology; accent amber/sky/rose reserved for Buddha/Dharma/Sangha; `alignTo` length == witness word count; morphemes concat to surface form. **Beware false-friend etymologies** (#82's `vera` trap).
-- **Multi-agent repo:** Codex + multiple Opus sessions work concurrently. `git fetch` + check `origin/main` + `gh pr list` before declaring state. ~9 other `opus-*` worktrees exist — don't touch. `gh pr merge` can hit a transient auto-mode classifier block — retry. `git merge` autostash chokes on the LFS file `media/demo.mp4` → use `--no-autostash` (or `GIT_LFS_SKIP_SMUDGE=1`).
-- **Workflow rate-limit:** ≥5 parallel Opus agents trip server-side throttling → cap at ~2–3 (memory `feedback_workflow_parallelism_rate_limit`).
 
-## Operator Cleanup (manual)
-- Decide on the ~64 untracked root `*.png` scratch screenshots (gitignore or delete) + `chants/` source photos + `docs/context/` (commit as provenance or leave local).
-- Ephemeral scratch dirs (`/tmp/bodhi-booklet/`, `/tmp/sariputta-crops/`) — ignorable.
-- The merged worktrees from this session (`codex-liturgy-generator`, `opus-sariputta-chants`) are **already removed** — no action.
+- **The pipeline is genuinely reusable** — proven: Pinocchio ran through grounding, glosses, payload
+  and validator with **zero stage-code changes** (only a manifest + generic `align-book.ts`).
+- **Grounding intelligence is NOT an LLM.** spaCy (`it_core_news_sm`) + kaikki Wiktionary + a
+  multilingual-MiniLM embedding anchor. All local, free, deterministic. **No API cost anywhere.**
+- **Two generic Gutenberg adapter bugs fixed** (help any PG book): many chapters per xhtml file; and
+  the licence appended to the **same file as the final chapter** (silently deleting chapter XXXVI).
+- Python venv: `scripts/grounding/.venv` (**3.12** — spaCy breaks on 3.14).
+- **Malayalam lane** (`feat/opus-malayalam-reader`) is another agent's; `docs/reader/LENSES.md` lives
+  there. Don't grab it.
+- Reusable affordances registry: `~/Documents/Ongoing Local/AFFORDANCES.md` (checked; nothing from it
+  was needed — this pipeline is all local/deterministic).
 
-## Learnings Captured (auto-memory `…/memory/`)
-- [x] `project_liturgy_generator.md` — aligner-not-generator; kernel merged (PR #80); LLM-authoring specced (next: implement); the corrected anti-fabrication facts; cross-model spec review load-bearing.
-- [x] `project_liturgy_community_model.md` — PR #79 + #81 + #82 merged; updated by later sessions.
-- [x] `feedback_cross_model_review.md` (added by a later session) — for sacred/specialized content run BOTH Codex + Opus; re-review the fixes too.
-- [x] `feedback_workflow_parallelism_rate_limit.md` — cap heavy agents at ~2–3.
-- [ ] No skill update needed this session (brainstorming + handover skills worked as written).
+## Operator Cleanup
 
-## Running Processes / Background
-- Workflow `wf_d0f5930b-04c` (Sariputta drafting, 4 chants) — **STOPPED** (was rate-limited). Resumable (Thread 2). No live processes from this context.
+- Kill the dev server when done: `pkill -f "vite --port 5210"`.
+- **Port :5199 is a DIFFERENT vite** (Malayalam lane, another session) — leave it alone.
+- Decide whether to keep the 761 MB kaikki dump (`$JOB_TMP/it-wikt.jsonl`) — needed to re-gloss a new
+  book without re-downloading; otherwise delete.
+- `import/calvino/` + `import/pinocchio/` hold book EPUBs (gitignored). Calvino's must never be published.
+
+## Parallel-Session Cruft
+
+- **Worktrees (5):** main; `local-grounding` (this session); `opus-malayalam-reader` (another agent —
+  **do not touch**); `/private/tmp/.../codex-db-transaction-kernel`; `/private/tmp/.../codex-txn-durability`.
+- **Unmerged branches (6):** `feat/local-grounding-pipeline` (this session), `feat/opus-malayalam-reader`,
+  and the four codex tech-debt branches.
+- **Merged-but-undeleted:** none. **Stashes:** none. **Stale >14d:** none.
+- **Decisions:** nothing swept — every branch holds live, unmerged work. The two `/private/tmp/` codex
+  worktrees are on a tmp filesystem; **their branches are safe in the repo**, but confirm before any
+  reboot-driven cleanup.
+
+## Learnings Captured
+
+- [x] Project memory `parallel-grounding-pipeline.md` — corrected (it wrongly said "Calvino was never built")
+- [x] Project memory `validator-must-not-be-weaker-than-system.md` — new
+- [x] This handover doc (committed)
+- [x] **`/mu` DONE** — promoted to the cross-project union store (`~/.claude-sync/`):
+      - `LIBRARY.md` **testing** ← *validator-must-not-be-weaker-than-the-system* (filed as the sharper
+        sibling of the existing "never P-hack" note: there you mask a failing test; here the test
+        CANNOT fail, which is worse — a passing gate stops you looking)
+      - `LIBRARY.md` **data-pipeline** ← parallel-text alignment (Gale-Church + cross-lingual embedding
+        anchor; phrase-not-word; monotonic≠reordering) + the two Project-Gutenberg EPUB traps
+      - `SHARED-MEMORY.md` Index updated; Journal entry **`[0064]`**
+      - *Collision note:* another agent claimed `[0063]` mid-write. **Re-check the top journal index
+        immediately before writing — never from memory.** If a duplicate appears post-Syncthing,
+        renumber YOUR entry, never theirs.
+
+## Running Processes
+
+- **Vite dev server, port 5210** (this worktree) — serves `/calvino`. `pkill -f "vite --port 5210"`.
 
 ## Resume Instructions
-1. `git -C <main> fetch && git log origin/main -1` — confirm/sync to current main (was `48e2cf4` at handover).
-2. Read the LLM-authoring spec (`docs/superpowers/specs/2026-05-31-liturgy-llm-authoring-design.md`) end-to-end + memory `project_liturgy_generator`.
-3. For LLM-authoring: extend `build:dpd` for Snp/Khp (`better-sqlite3` already installed), then invoke `writing-plans` from the spec.
-4. For Sariputta content: resume workflow `wf_d0f5930b-04c` (≤3 agents) or use the new pipeline; run a cross-model adversarial review before merging any sacred text.
-5. Liturgy gate for any change: `vitest run tests/components/liturgy tests/services/liturgy-generator` (was 7199 pass at #82) + `tsc --noEmit` (filter to touched files; repo has pre-existing tsc errors).
+
+1. Read the **Calibration moments** table below — the compressed version of what went wrong.
+2. Fix **dialogue-aware paragraph alignment** (Thread 1). Both gates will tell you immediately
+   whether it worked.
+3. Then: Pinocchio reader route → CI (PD data) → PR with dual-family review.
+4. Separately (independent lane): review + merge the **4 codex tech-debt branches** — those bugs are
+   still live in `main`.
 
 ## Calibration moments
+
 | Moment | Lesson |
 |---|---|
-| Same-family review subagent approved a spec draft that `codex` then showed rested on 4 false premises | For specs on reused machinery, the **different-model** second opinion is load-bearing, not ceremony |
-| My #81 curator review judged the Sariputta content "sound"; #82's cross-model-vs-source pass found a missing section + a false-friend etymology (2 rounds) | A single capable-model read is **not enough for sacred text** — run the adversarial cross-model gate, and re-review the fixes |
-| "generator" sounded like it produced content; it only computes alignment + serializes | Read what a tool actually does before trusting its name; the quality lever was elsewhere (LLM authoring) |
-| Verified #81 by *merge-testing in a throwaway worktree* before merging, not merge-and-hope | For a merge into a multi-agent main, verify the combined state offline first (don't risk red main) |
-| `git merge` autostash failed silently on the LFS file → a "verification" tested main-only | Confirm the merge actually applied (check files present) before trusting test counts; use `--no-autostash` |
-| Repo advanced (#82) past this context before handover | In a multi-agent repo a handover may be retrospective — ground it in `git log origin/main`, don't assert stale state |
+| Deterministic gate reported **green** while 44 misalignments existed | **Global conservation cannot see local correspondence.** If pair *i* and *i+1* swap content, the concatenation is unchanged. Conservation ≠ correctness. |
+| Gate reported green **again** after adding I5 | **A detector weaker than your aligner reports green while broken.** I aligned with embeddings but *judged* with gloss-bags. Judge with your strongest signal or you're measuring nothing. |
+| Claimed "fully green"; had to retract | Say the gate FAILS when it fails. A flattering number is worse than no number. |
+| Cranked lexical weight to fix drift → silently broke another passage | A global knob trades bugs. Select on **measured evidence per unit**; prefer the conservative baseline unless clearly beaten. |
+| "Repaired" reordering by swapping English → **corrupted the text**; I2 caught it | Conservation is the stronger guarantee. **Disclose** what you can't fix; never silently "repair" with a heuristic that can misfire. |
+| Shipped a tooltip showing `lemma` / `part of speech` | **Substrate is INPUT, never the answer.** "Noun" answers a question no reader asked. Every element must fight for why it exists. |
+| Word-level alignment was impossible; *phrases* dissolved it | The user's *"make phrases the unit"* was the unlock. Pick the unit the **evidence** supports, not the one you assumed. |
+| My own invariants caught **four** of my bugs (dropped English, eaten quotes, lost tokens, reordered text) | The invariant suite is the real asset — worth more than any single fix. |
 
 ---
-*Handover by Claude (Opus 4.8, 1M) — liturgy-generator kernel + LLM-authoring spec + PR #81 review/merge context (2026-05-30/31), refreshed 2026-06-06. Prior handover (Sariputta authoring session, 2026-05-31) preserved in git history.*
+*Handover by Claude (Opus 4.8, 1M) at ~88% context*

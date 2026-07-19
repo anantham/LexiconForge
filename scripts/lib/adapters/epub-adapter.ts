@@ -67,11 +67,19 @@ export class EpubAdapter implements TranslationSourceAdapter {
     console.log(`   Publisher: ${publisher || 'N/A'}`);
 
     const spineMatches = [...opfContent.matchAll(/<itemref[^>]*idref="([^"]+)"[^>]*\/?>/g)];
-    const manifestMatches = [...opfContent.matchAll(/<item[^>]*id="([^"]+)"[^>]*href="([^"]+)"[^>]*\/?>/g)];
+    // Parse each <item> tag and read id/href independently so attribute ORDER
+    // does not matter (many EPUBs emit `href` before `id`, which an ordered
+    // id-then-href regex silently misses → empty manifest → 0 chapters).
+    const manifestMatches = [...opfContent.matchAll(/<item\b[^>]*>/g)];
 
     const manifest: Record<string, string> = {};
     for (const match of manifestMatches) {
-      manifest[match[1]] = match[2];
+      const tag = match[0];
+      const id = tag.match(/\bid="([^"]+)"/)?.[1];
+      const href = tag.match(/\bhref="([^"]+)"/)?.[1];
+      if (id && href) {
+        manifest[id] = href;
+      }
     }
 
     const chapters: TranslationSourceOutput['chapters'] = [];
@@ -87,32 +95,38 @@ export class EpubAdapter implements TranslationSourceAdapter {
       const contentPath = !opfDir || opfDir === '.'
         ? href
         : `${opfDir}/${href}`;
-      const content = await zip.file(contentPath)?.async('string');
-      if (!content || this.isFrontMatter(content, href)) {
+      const raw = await zip.file(contentPath)?.async('string');
+      if (!raw || this.isFrontMatter(raw, href)) {
         continue;
       }
+      const content = this.stripGutenbergBoilerplate(raw);
 
-      const extractedHeading = this.extractChapterHeading(content);
-      const chapterRange = extractedHeading.chapterToken
-        ? parseChapterNumberToken(extractedHeading.chapterToken)
-        : undefined;
-      const chapterNumber = chapterRange?.from ?? ++fallbackChapterNumber;
-      fallbackChapterNumber = Math.max(fallbackChapterNumber, chapterNumber);
+      // Many EPUBs (notably Project Gutenberg) pack SEVERAL chapters into one spine
+      // file. Split at chapter headings so each becomes its own chapter; otherwise a
+      // 36-chapter book extracts as 6 giant blobs and can never be aligned per chapter.
+      for (const section of this.splitAtChapterHeadings(content)) {
+        const extractedHeading = this.extractChapterHeading(section);
+        const chapterRange = extractedHeading.chapterToken
+          ? parseChapterNumberToken(extractedHeading.chapterToken)
+          : undefined;
+        const chapterNumber = chapterRange?.from ?? ++fallbackChapterNumber;
+        fallbackChapterNumber = Math.max(fallbackChapterNumber, chapterNumber);
 
-      const paragraphs = this.extractParagraphs(content);
-      if (paragraphs.length === 0) {
-        continue;
+        const paragraphs = this.extractParagraphs(section);
+        if (paragraphs.length === 0) {
+          continue;
+        }
+
+        const chapterTitle = extractedHeading.title || `Chapter ${chapterRange?.from ?? chapterNumber}`;
+
+        chapters.push({
+          chapterNumber,
+          title: chapterTitle,
+          ...(chapterRange ? { chapterRange } : {}),
+          paragraphs,
+        });
+        console.log(`   ✅ Chapter ${chapterNumber}: "${chapterTitle}" (${paragraphs.length} paragraphs)`);
       }
-
-      const chapterTitle = extractedHeading.title || `Chapter ${chapterRange?.from ?? chapterNumber}`;
-
-      chapters.push({
-        chapterNumber,
-        title: chapterTitle,
-        ...(chapterRange ? { chapterRange } : {}),
-        paragraphs,
-      });
-      console.log(`   ✅ Chapter ${chapterNumber}: "${chapterTitle}" (${paragraphs.length} paragraphs)`);
     }
 
     const translator: TranslatorMetadata = {
@@ -137,6 +151,60 @@ export class EpubAdapter implements TranslationSourceAdapter {
       ? 'english-84000'
       : `english-${creator.split(' ').pop()?.toLowerCase() || 'unknown'}`;
     return base.replace(/[^a-z0-9-]/g, '');
+  }
+
+  /**
+   * Strip the Project Gutenberg envelope (header preamble and trailing licence).
+   *
+   * PG appends the licence to the LAST content file, i.e. in the same file as the final
+   * chapter. Dropping any file that mentions "Project Gutenberg" therefore silently
+   * deletes the book's last chapter — so the boilerplate must be cut out of the file,
+   * not used to discard it.
+   */
+  private stripGutenbergBoilerplate(content: string): string {
+    let out = content;
+    const start = out.match(/\*\*\*\s*START OF (?:THE|THIS) PROJECT GUTENBERG EBOOK[\s\S]{0,200}?\*\*\*/i);
+    if (start?.index !== undefined) out = out.slice(start.index + start[0].length);
+    const end = out.match(/\*\*\*\s*END OF (?:THE|THIS) PROJECT GUTENBERG EBOOK/i);
+    if (end?.index !== undefined) out = out.slice(0, end.index);
+    // Some editions head the licence with a heading rather than the *** marker.
+    const lic = out.match(/<h[1-6][^>]*>\s*(?:THE FULL\s+)?PROJECT GUTENBERG[^<]*LICEN[SC]E/i);
+    if (lic?.index !== undefined) out = out.slice(0, lic.index);
+    return out;
+  }
+
+  /**
+   * Split one spine file into per-chapter sections at chapter headings.
+   *
+   * Project Gutenberg (and others) often pack many chapters into a single file. Without
+   * this, a 36-chapter book extracts as a handful of giant blobs.
+   *
+   * Guards, because a naive split shreds the table of contents (which also lists every
+   * "CHAPTER N"): a heading only starts a section if the text that follows it, before
+   * the next heading, has real prose (>= MIN_PARAS paragraphs). If fewer than 2 headings
+   * survive that test, the file is left whole.
+   */
+  private splitAtChapterHeadings(content: string): string[] {
+    const HEADING = /<h[1-6]\b[^>]*>[\s\S]*?<\/h[1-6]>/gi;
+    // "CHAPTER XV", "CAPITOLO 3", "CAP. IV" — number may be roman or arabic.
+    const CHAPTERISH = /^\s*(?:chapter|capitolo|cap\.?|chapitre|kapitel)\s*[ivxlcdm\d]/i;
+    const MIN_PARAS = 3;
+
+    const starts: number[] = [];
+    let m: RegExpExecArray | null;
+    while ((m = HEADING.exec(content)) !== null) {
+      const text = m[0].replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').trim();
+      if (CHAPTERISH.test(text)) starts.push(m.index);
+    }
+    if (starts.length < 2) return [content];
+
+    const sections: string[] = [];
+    for (let i = 0; i < starts.length; i++) {
+      const section = content.slice(starts[i], i + 1 < starts.length ? starts[i + 1] : undefined);
+      // TOC guard: a real chapter has prose after its heading, a TOC entry does not.
+      if (this.extractParagraphs(section).length >= MIN_PARAS) sections.push(section);
+    }
+    return sections.length >= 2 ? sections : [content];
   }
 
   private isFrontMatter(content: string, href: string): boolean {
