@@ -126,6 +126,7 @@ const App: React.FC = () => {
   if (pathname === '/calvino' || pathname.startsWith('/calvino/')) {
     return <CalvinoReader pathname={pathname} />;
   }
+
   if (pathname === '/malayalam' || pathname === '/malayalam/') {
     return <MalayalamLibraryPage />;
   }
