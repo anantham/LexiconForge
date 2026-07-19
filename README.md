@@ -146,6 +146,7 @@ npm run merge-fan-translations path/to/session.json path/to/reference-translatio
 
 ## Documentation
 
+- **New contributor?** Start with [CONTRIBUTING.md](./CONTRIBUTING.md) for the repo map ("where things live"), then the [newcomer onboarding guide](./docs/ONBOARDING.md) and the [architecture overview](./docs/architecture/ARCHITECTURE.md).
 - Start with the [documentation index](./docs/START_HERE.md), [vision](./docs/Vision.md), and [theory of impact](./docs/THEORY_OF_IMPACT.md).
 - Read the [Architecture Decision Records](./docs/adr/) for significant design decisions.
 - Configure [settings](./docs/guides/Settings.md), [environment variables](./docs/guides/EnvVars.md), and [providers](./docs/guides/Providers.md).
