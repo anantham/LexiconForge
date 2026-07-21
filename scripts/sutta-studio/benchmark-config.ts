@@ -135,7 +135,11 @@ export const BENCHMARK_CONFIG = {
   // Filter to specific model IDs (empty = all)
   // gemini-2-flash dropped: slug google/gemini-2.0-flash-001 is deprecated on
   // OpenRouter ("No endpoints found"). 5 live models below.
-  onlyRunIds: ['qwen3-235b', 'gemma-3-27b', 'deepseek-v4-flash', 'mistral-small-3.2', 'gpt-5.1', 'grok-4.20'] as string[],
+  // EMPTY = run the full ranked roster. A non-empty list here silently
+  // intersects with runs[] — a stale 6-model filter from the 07-01 preview
+  // board survived the roster-of-twelve commit and cut the first paid v2.2
+  // attempt to 4 models (2026-07-21). Subset runs: set explicitly, then CLEAR.
+  onlyRunIds: [] as string[],
   // Fixture configs - all 51 phases available
   anatomistFixture: {
     path: 'test-fixtures/sutta-studio-anatomist-golden.json',

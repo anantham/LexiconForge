@@ -1,3 +1,9 @@
+### [2026-07-21 14:05 IST] [Agent: Fable 5] — paid v2.2 run: stale onlyRunIds filter caught mid-flight, cleared, relaunched
+**Status:** Fix committed; full twelve-model run relaunched.
+**What happened:** The first paid v2.2 launch (operator-authorized, current key) silently ran a 4-model subset: `benchmark-config.ts:138` still carried the 07-01 preview board's `onlyRunIds` 6-model filter (2 of the 6 no longer in runs[] → intersection = 4). The roster-of-twelve commit (f77c501) replaced `runs` but never cleared the filter; the roster preflight verified slugs against OpenRouter but not the EFFECTIVE run set. Caught at ~$0.71 spend (grok-4.20 complete, model 2 in phase prep) because the operator asked "anything suspicious?" and `progress.json` said `runsTotal: 4`.
+**Fix:** `onlyRunIds: []` (empty = full roster) + a comment making the intersect-and-forget failure mode explicit. Same class as the eval-harness "subset-scoped-check = free pass on the excluded subset" lesson — a filter is a mode-guard and must be cleared as part of any roster change.
+**Also:** P0 PR #124 merged to main this session (strictNullChecks + ESLint baseline + SSRF unification + cycle break + dead code; all gates green post-merge with main's own dead-code commits). Partial 4-model run dir `2026-07-21T08-21-21-820Z` kept (grok rows valid; board selection is best-run-per-model).
+
 ### [2026-07-19 11:46 IST] [Agent: Fable 5 / Opus 4.8] — Jane Street house-style P0 hardening (PR: refactor/fable-p0-hardening)
 **Status:** Complete; PR open for review (NOT merged to main).
 **Task:** Execute P0 of docs/roadmaps/JANE-STREET-STYLE-RECON-2026-07-19.md — the enforcement substrate + verified point-fixes, zero behavior change.
