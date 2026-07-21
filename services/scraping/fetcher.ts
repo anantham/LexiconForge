@@ -101,7 +101,7 @@ export const fetchAndParseUrl = async (
       throw new Error(`Local proxy fetched page but adapter couldn't extract content from ${targetUrl.hostname}`);
     }
 
-    const chapterNumber = deriveChapterNumber(url, title);
+    const chapterNumber = deriveChapterNumber(url, title) ?? undefined;
     console.log(`[Fetch] ✅ Local proxy succeeded (${elapsed}ms)`);
     return {
       title,
@@ -198,7 +198,7 @@ export const fetchAndParseUrl = async (
           );
         }
 
-        const chapterNumber = deriveChapterNumber(url, title);
+        const chapterNumber = deriveChapterNumber(url, title) ?? undefined;
         updateProxyScore(proxy.url, true);
         updateProxyHealth(proxy.url, true, responseTime);
         console.log(`[Fetch] ✅ Success via ${proxyName} (${responseTime}ms)`);
@@ -277,7 +277,7 @@ export const fetchAndParseUrl = async (
     const content = adapter.extractContent();
     if (!title || !content) throw new Error(`Failed to extract content via Playwright`);
 
-    const chapterNumber = deriveChapterNumber(url, title);
+    const chapterNumber = deriveChapterNumber(url, title) ?? undefined;
     console.log(`[Fetch] ✅ Playwright fallback succeeded (${elapsed}ms)`);
     return {
       title,
@@ -334,7 +334,7 @@ export const fetchAndParseUrl = async (
       );
     }
 
-    const chapterNumber = deriveChapterNumber(url, title);
+    const chapterNumber = deriveChapterNumber(url, title) ?? undefined;
     console.log(`[Fetch] Direct fetch succeeded for: ${url}`);
     return {
       title,

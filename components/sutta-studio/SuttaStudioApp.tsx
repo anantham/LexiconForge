@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAppStore } from '../../store';
+import type { DeepLoomPacket } from '../../types/suttaStudio';
 import Loader from '../Loader';
 import MigrationRecovery from '../MigrationRecovery';
 import { prepareConnection } from '../../services/db/core/connection';
@@ -434,6 +435,10 @@ export function SuttaStudioApp() {
           error: errorMessage,
         });
         // Update the packet progress state to show error in UI
+        // When no packet exists yet (a fresh compile that failed early) this is
+        // a progress-only object whose `state: 'error'` still drives the error
+        // UI via progressPacket — the partial is intentionally treated as a
+        // packet, matching the pre-strictNullChecks runtime.
         const errorPacket = {
           ...chapter.suttaStudio,
           progress: {
@@ -441,7 +446,7 @@ export function SuttaStudioApp() {
             state: 'error' as const,
             errorMessage,
           },
-        };
+        } as DeepLoomPacket;
         updateChapter(chapter.id, { suttaStudio: errorPacket });
       })
       .finally(() => {
@@ -489,8 +494,9 @@ export function SuttaStudioApp() {
   const totalPhases = progressPacket?.progress?.totalPhases ?? progressPacket?.phases?.length ?? 0;
   const readyPhases = progressPacket?.progress?.readyPhases ?? progressPacket?.phases?.length ?? 0;
   const progressState = progressPacket?.progress?.state;
-  const allPhasesDegraded = progressPacket?.phases?.length > 0 &&
-    progressPacket.phases.every((p: { degraded?: boolean }) => p.degraded);
+  const degradablePhases = progressPacket?.phases;
+  const allPhasesDegraded = !!degradablePhases && degradablePhases.length > 0 &&
+    degradablePhases.every((p: { degraded?: boolean }) => p.degraded);
   const hasError = progressState === 'error' || allPhasesDegraded;
 
   useEffect(() => {

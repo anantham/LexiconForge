@@ -1,3 +1,16 @@
+### [2026-07-19 11:46 IST] [Agent: Fable 5 / Opus 4.8] — Jane Street house-style P0 hardening (PR: refactor/fable-p0-hardening)
+**Status:** Complete; PR open for review (NOT merged to main).
+**Task:** Execute P0 of docs/roadmaps/JANE-STREET-STYLE-RECON-2026-07-19.md — the enforcement substrate + verified point-fixes, zero behavior change.
+**Shipped (5 commits):**
+- P0.3 — unified the triplicated SSRF allowlist into one canonical `services/scraping/allowedDomains.cjs` consumed by BOTH proxies; deleted the two drifted forks (the old "canonical" .ts had 0 importers and was missing fojin.app + 84000.co that both live copies carried); parity test now enforces structure, not a regex compare.
+- P0.4 — broke the `sessionExport ↔ operations/index` barrel import cycle.
+- P0.5 — deleted the 2.2k-LOC `archive/` fossil (its tests were vitest-discovered = coverage inflation) + 3 confirmed-dead exports.
+- P0.1 — `strictNullChecks: true` (was off; 855 `|null` annotations were decorative). 131 errors fixed across 44 files via 3 disjoint parallel agents + a full-diff audit. Caught + reverted one agent deleting an authored citation to please the checker — fixed the type instead (`citations?` on TripleScriptWitnessSegment). 2 test-only `!` assertions, zero `as any`/@ts-ignore.
+- P0.2 — first-ever ESLint config (flat, typescript-eslint + react-hooks) + lint/typecheck scripts. Gate = 0 errors; 1957 warnings as the growth ratchet.
+**Verification:** tsc 0 errors (was 17 baseline — the 17 got fixed too, properly); `vite build` green; full vitest **8915 passed / 0 failed / 347 skipped** (Node 26 via --no-experimental-webstorage); `npm run lint` exits 0.
+**Discovered latent issue (flagged, not fixed — out of P0 scope):** `services/audio/storage/{cache,opfs,pinning}.ts` were committed with newlines as the literal escape `\n` (one physical line each; tsc tolerates, eslint parser rejects). Ignored in eslint w/ a note; needs a separate safe normalization.
+**Next:** operator reviews/merges the PR. Then P1 (branded IDs, Sensitive<T>, Result<T,DbError>, persist-failure union).
+
 ### [2026-07-19 08:40 IST] [Agent: Fable 5] — audit-tail money-honesty fixes (B2/B3/B5) + C2 disclosure + roster preflight
 **Status:** Complete
 **Task:** Close the pre-paid-run audit tail flagged 2026-07-17 ("fastest audit-tail PR = B2 + B3 + C2").

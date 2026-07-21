@@ -2,7 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import { runSkeletonPass } from './skeleton';
 import type { LLMCaller } from './types';
-import type { AppSettings, CanonicalSegment } from '../../../types/suttaStudio';
+import type { CanonicalSegment } from '../../../types/suttaStudio';
+import type { AppSettings } from '../../../types';
 
 /**
  * Regression guard for the wordRange sub-split vs duplicate-dedup collision

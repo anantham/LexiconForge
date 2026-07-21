@@ -190,7 +190,7 @@ describe('Diff Analysis: Golden Dataset Validation', () => {
   });
 
   it('[Golden] overall: F1 gate ≥ 0.70 with no case < 0.60', { timeout: 60000 }, async () => {
-    const results = [];
+    const results: Parameters<typeof scorer.scoreMultiple>[0] = [];
 
     for (const testCase of cases) {
       const result = await service.analyzeDiff({

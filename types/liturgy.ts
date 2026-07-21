@@ -297,6 +297,13 @@ export type TripleScriptWitnessSegment = {
    * which the renderer italicises in place.
    */
   note?: string;
+  /**
+   * Citations grounding this segment's reading / gloss as a whole (as opposed
+   * to per-word `WordGloss.citations`). Same Citation type + provenance
+   * contract as the word level; `ungroundedCitation(...)` marks a
+   * well-established reading with no single canonical reference.
+   */
+  citations?: import('./suttaStudio').Citation[];
 };
 
 export type TripleScriptWitnessSection = {

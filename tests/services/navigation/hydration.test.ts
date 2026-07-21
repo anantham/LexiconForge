@@ -136,12 +136,13 @@ describe('loadChapterFromIDB — feedback hydration (issue #17)', () => {
 
     expect(feedbackOpsMock.get).toHaveBeenCalledWith(chapterUrl);
     expect(result).not.toBeNull();
-    expect(result!.feedback).toHaveLength(2);
-    expect(result!.feedback[0].id).toBe('fb-1');
-    expect(result!.feedback[0].selection).toBe('fox jumps');
-    expect(result!.feedback[0].comment).toBe('I liked this');
-    expect(result!.feedback[0].type).toBe('👍');
-    expect(result!.feedback[1].type).toBe('?');
+    const feedback = result!.feedback ?? [];
+    expect(feedback).toHaveLength(2);
+    expect(feedback[0].id).toBe('fb-1');
+    expect(feedback[0].selection).toBe('fox jumps');
+    expect(feedback[0].comment).toBe('I liked this');
+    expect(feedback[0].type).toBe('👍');
+    expect(feedback[1].type).toBe('?');
   });
 
   it('returns empty feedback when none exists in IDB', async () => {

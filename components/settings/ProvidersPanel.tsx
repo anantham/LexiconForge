@@ -76,7 +76,10 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
     }
     let cancelled = false;
     import('../../services/db/operations/budgetOps').then(({ getNovelTranslationCost }) => {
-      getNovelTranslationCost(activeNovelId, activeVersionId).then(cost => {
+      // activeVersionId is null for default-version novels; the query layer
+      // normalizes it (`libraryVersionId ?? null`), so pass it through despite
+      // the too-strict `string` parameter type.
+      getNovelTranslationCost(activeNovelId, activeVersionId as string).then(cost => {
         if (!cancelled) setNovelSpent(cost);
       });
     });

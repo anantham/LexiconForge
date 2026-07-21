@@ -10,27 +10,10 @@
 const https = require('https');
 const http = require('http');
 
-/** Allowlist of domains we proxy for (prevents open-relay abuse). */
-const ALLOWED_DOMAINS = [
-  'kakuyomu.jp',
-  'dxmwx.org',
-  'kanunu8.com',
-  'kanunu.net',
-  'novelcool.com',
-  'ncode.syosetu.com',
-  'booktoki468.com',
-  'suttacentral.net',
-  'hetushu.com',
-  'hetubook.com',
-  'fojin.app',
-  '84000.co',
-];
-
-function isDomainAllowed(hostname) {
-  return ALLOWED_DOMAINS.some(
-    (d) => hostname === d || hostname.endsWith('.' + d)
-  );
-}
+// Allowlist of domains we proxy for (prevents open-relay abuse). Shared with the
+// Vite dev proxy via ONE module (INV-3) so dev and prod cannot drift; Vercel's
+// file tracing follows this relative require into the deployment bundle.
+const { isDomainAllowed } = require('../services/scraping/allowedDomains.cjs');
 
 function fetchUrl(targetUrl, timeout) {
   return new Promise((resolve, reject) => {

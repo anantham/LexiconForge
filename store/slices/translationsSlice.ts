@@ -246,7 +246,7 @@ export const createTranslationsSlice: StateCreator<
     const context: TranslationContext = {
       chapters: state.chapters || new Map(),
       settings: state.settings,
-      activePromptTemplate: state.activePromptTemplate
+      activePromptTemplate: state.activePromptTemplate ?? undefined
     };
 
     debugLog('translation', 'summary', '[Retranslate] Button clicked', {
@@ -419,14 +419,20 @@ export const createTranslationsSlice: StateCreator<
           const snapshot = v.settingsSnapshot;
           if (!snapshot) return false;
 
+          // The persisted snapshot carries amendment flags at runtime even
+          // though this record's declared type omits them; read defensively.
+          const snapshotExtras = snapshot as {
+            enableAmendments?: boolean;
+            includeFanTranslationInPrompt?: boolean;
+          };
           const providerMatch = snapshot.provider === currentSettings.provider;
           const modelMatch = snapshot.model === currentSettings.model;
           const promptMatch = snapshot.systemPrompt === currentSettings.systemPrompt;
           const tempMatch = Math.abs((snapshot.temperature || 0.7) - (currentSettings.temperature || 0.7)) < 0.1;
           const amendmentsMatch =
-            (snapshot.enableAmendments ?? true) === (currentSettings.enableAmendments ?? true);
+            (snapshotExtras.enableAmendments ?? true) === (currentSettings.enableAmendments ?? true);
           const fanReferenceMatch =
-            (snapshot.includeFanTranslationInPrompt ?? false) ===
+            (snapshotExtras.includeFanTranslationInPrompt ?? false) ===
             (currentSettings.includeFanTranslationInPrompt ?? false);
 
           return providerMatch && modelMatch && promptMatch && tempMatch && amendmentsMatch && fanReferenceMatch;
@@ -718,7 +724,7 @@ export const createTranslationsSlice: StateCreator<
                 
                 // Log the auto-accepted amendment asynchronously
                 AmendmentOps.logAction({
-                  chapterId: currentState.currentChapterId,
+                  chapterId: currentState.currentChapterId ?? undefined,
                   proposal: translationResult.proposal!,
                   action: 'accepted',
                   finalGlossaryEntry: glossaryUpdate.appliedEntry,
@@ -1007,10 +1013,14 @@ export const createTranslationsSlice: StateCreator<
       if (chapter && chapter.content && chapter.translationResult && newFeedback.selection) {
         void (async () => {
           try {
+            // Re-narrow across the async boundary — TS drops the outer guard.
+            const translationResult = chapter.translationResult;
+            const selection = newFeedback.selection;
+            if (!translationResult || !selection) return;
             const footnoteText = await ExplanationService.generateExplanationFootnote(
               chapter.content,
-              chapter.translationResult.translation,
-              newFeedback.selection,
+              translationResult.translation,
+              selection,
               settings
             );
 
@@ -1226,7 +1236,7 @@ export const createTranslationsSlice: StateCreator<
         // Log the accepted amendment
         try {
           await AmendmentOps.logAction({
-            chapterId: currentChapterId,
+            chapterId: currentChapterId ?? undefined,
             proposal,
             action: 'accepted',
             finalPromptChange,
@@ -1257,7 +1267,7 @@ export const createTranslationsSlice: StateCreator<
       // Log the rejected amendment
       try {
         await AmendmentOps.logAction({
-          chapterId: currentChapterId,
+          chapterId: currentChapterId ?? undefined,
           proposal,
           action: 'rejected'
         });
@@ -1304,7 +1314,7 @@ export const createTranslationsSlice: StateCreator<
         // Log the modified amendment
         try {
           await AmendmentOps.logAction({
-            chapterId: currentChapterId,
+            chapterId: currentChapterId ?? undefined,
             proposal,
             action: 'modified',
             finalPromptChange: cleanChange
@@ -1446,7 +1456,7 @@ export const createTranslationsSlice: StateCreator<
           if (chaptersActions.updateChapter) {
             chaptersActions.updateChapter(chapterId, {
               translationResult: null,
-              translationSettingsSnapshot: null,
+              translationSettingsSnapshot: undefined,
             });
           }
           debugLog('translation', 'summary', `[TranslationsSlice] No translations left for chapter ${chapterId}`);

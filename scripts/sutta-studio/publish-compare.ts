@@ -236,7 +236,7 @@ async function main() {
       const judgeByPhase = loadJudge(reportDir, model);
       const scoresByPhase = loadPhaseScores(modelDir);
       const phaseFiles = fs.readdirSync(modelDir).filter((f) => f.startsWith('pipeline-') && f.endsWith('.json')).sort();
-      const phases = [];
+      const phases: NonNullable<ReturnType<typeof buildPhase>>[] = [];
       for (const pf of phaseFiles) {
         const phaseId = pf.replace('pipeline-', '').replace('.json', '');
         const data = JSON.parse(fs.readFileSync(path.join(modelDir, pf), 'utf8')) as PipelineOutput;

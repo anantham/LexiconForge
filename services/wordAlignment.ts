@@ -232,15 +232,3 @@ export async function alignWords(req: AlignmentRequest): Promise<WordAlignment> 
   };
 }
 
-/**
- * Returns true if the provided alignment is still valid for the given
- * translation version. Used by callers to decide whether to re-fetch.
- */
-export const isAlignmentFresh = (
-  alignment: WordAlignment | null | undefined,
-  currentTranslationVersionId: string | null | undefined,
-): boolean => {
-  if (!alignment) return false;
-  if (!currentTranslationVersionId) return false;
-  return alignment.translationVersionId === currentTranslationVersionId;
-};

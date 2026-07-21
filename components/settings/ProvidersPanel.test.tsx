@@ -20,7 +20,7 @@ const {
   mockSetParameterSupport: vi.fn(),
   mockLoadOpenRouterCatalogue: vi.fn(),
   mockRefreshOpenRouterCredits: vi.fn(),
-  mockGetOpenRouterOptions: vi.fn(() => []),
+  mockGetOpenRouterOptions: vi.fn((): Array<{ id: string; label: string; lastUsed?: string; priceKey?: number | null }> => []),
   mockRefreshProviderCredits: vi.fn(),
   mockLoadProviderCreditsFromCache: vi.fn(),
   mockGetVerifiedOpenRouterImageModels: vi.fn().mockResolvedValue({

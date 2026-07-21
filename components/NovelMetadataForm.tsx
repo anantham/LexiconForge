@@ -76,7 +76,10 @@ export function NovelMetadataForm({ initialData, onChange }: NovelMetadataFormPr
       coverImageUrl: formData.coverImageUrl || undefined,
       publicationStatus: formData.publicationStatus as any,
       originalPublicationDate: formData.originalPublicationDate || undefined,
-      chapterCount: formData.chapterCount ? parseInt(formData.chapterCount, 10) : undefined,
+      // Empty field ⇒ undefined; the sole consumer (normalizeMetadataDefaults)
+      // coerces a missing/non-finite count to a fallback, so we intentionally
+      // emit undefined here despite the field's declared `number` type.
+      chapterCount: (formData.chapterCount ? parseInt(formData.chapterCount, 10) : undefined) as number,
       tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
       sourceLinks: {
         novelUpdates: formData.novelUpdatesUrl || undefined,

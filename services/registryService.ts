@@ -109,7 +109,10 @@ const normalizeNovelMetadataUrls = (metadata: NovelEntry, metadataUrl: string): 
 };
 
 export interface VersionCompatibilityResolution {
-  version: NovelEntry['versions'] extends Array<infer T> ? T | null : never;
+  // `NovelEntry['versions']` is `NovelVersion[] | undefined` (versions is optional),
+  // so the naked conditional fell to the `never` branch (undefined ⊄ Array<...>).
+  // Strip the undefined first so we resolve to the element type (NovelVersion) | null.
+  version: NonNullable<NovelEntry['versions']> extends Array<infer T> ? T | null : never;
   requestedVersionId: string | null;
   resolvedVersionId: string | null;
   warning: string | null;

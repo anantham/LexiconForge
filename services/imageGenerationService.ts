@@ -194,7 +194,7 @@ export class ImageGenerationService {
         const result = await generateImage(
           compiled.compiledPrompt,
           settings,
-          steeringImagePath,
+          steeringImagePath ?? undefined,
           negativePrompt,
           guidanceScale,
           loraModel,
@@ -416,7 +416,7 @@ export class ImageGenerationService {
       const result = await generateImage(
         compiled.compiledPrompt,
         settings,
-        steeringImagePath,
+        steeringImagePath ?? undefined,
         negativePrompt,
         guidanceScale,
         loraModel,

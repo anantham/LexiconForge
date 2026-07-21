@@ -134,24 +134,27 @@ const getScopedChapterIdentity = (
     options.registryVersionId ?? null
   );
 
-  if (isScopedStableId(chapter.stableId)) {
-    const parsed = parseScopedStableId(chapter.stableId);
+  // isScopedStableId returns true only for strings, so this narrowing is
+  // behavior-equivalent — the typeof check merely lets the compiler see it.
+  const scopedStableId = chapter.stableId;
+  if (typeof scopedStableId === 'string' && isScopedStableId(scopedStableId)) {
+    const parsed = parseScopedStableId(scopedStableId);
     if (!parsed) {
       throw new Error(
-        `[Import] Failed to parse scoped chapter stableId "${chapter.stableId}" for "${chapter.title || canonicalUrl}".`
+        `[Import] Failed to parse scoped chapter stableId "${scopedStableId}" for "${chapter.title || canonicalUrl}".`
       );
     }
     if (parsed.scopeKey !== expectedScopeKey) {
       throw new Error(
         `[Import] Scoped stableId scope mismatch for "${chapter.title || canonicalUrl}". ` +
-        `expectedScope="${expectedScopeKey}", actualScope="${parsed.scopeKey}", stableId="${chapter.stableId}".`
+        `expectedScope="${expectedScopeKey}", actualScope="${parsed.scopeKey}", stableId="${scopedStableId}".`
       );
     }
 
     return {
-      stableId: chapter.stableId,
+      stableId: scopedStableId,
       storageUrl: buildScopedStorageUrl(
-        chapter.stableId,
+        scopedStableId,
         options.registryNovelId,
         options.registryVersionId ?? null
       ),

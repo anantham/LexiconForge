@@ -134,7 +134,7 @@ const buildChapterRenderingRecords = async (
             libraryVersionId,
             nextUrl,
             prevUrl,
-            chapterNumber: chapter.chapterNumber,
+            chapterNumber: chapter.chapterNumber ?? 0,
             fanTranslation,
             suttaStudio,
           },
@@ -266,7 +266,8 @@ export const fetchChaptersForNovel = async (
     const chapters = await new Promise<ChapterRecord[]>((resolve, reject) => {
       if (store.indexNames.contains('novelVersion')) {
         const index = store.index('novelVersion');
-        const request = index.getAll([novelId, libraryVersionId]);
+        // libraryVersionId may be null; preserve the runtime composite-key value.
+        const request = index.getAll([novelId, libraryVersionId] as unknown as IDBValidKey);
         request.onsuccess = () => resolve(request.result as ChapterRecord[]);
         request.onerror = () => reject(request.error);
         return;

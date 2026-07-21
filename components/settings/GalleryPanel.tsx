@@ -219,15 +219,18 @@ export const GalleryPanel: React.FC = () => {
         </span>
       </div>
 
-      {Object.entries(imagesByChapter).map(([chapterId, images]) => (
-        <ChapterSection
-          key={chapterId}
-          title={images[0]?.chapterTitle || chapterId}
-          images={images}
-          onImageClick={handleImageClick}
-          isCover={isCover}
-        />
-      ))}
+      {Object.keys(imagesByChapter).map((chapterId) => {
+        const images = imagesByChapter[chapterId];
+        return (
+          <ChapterSection
+            key={chapterId}
+            title={images[0]?.chapterTitle || chapterId}
+            images={images}
+            onImageClick={handleImageClick}
+            isCover={isCover}
+          />
+        );
+      })}
 
       {lightboxImage && (
         <ImageLightbox

@@ -482,7 +482,7 @@ export const createSettingsSlice: StateCreator<
         const output = formatPerMillion(m.pricing?.completion);
         
         let label = m.name;
-        let priceKey = null;
+        let priceKey: number | null = null;
         
         if (input != null && output != null) {
           label = `${m.name} — USD ${input.toFixed(2)}/${output.toFixed(2)} per 1M`;

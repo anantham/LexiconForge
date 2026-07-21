@@ -145,6 +145,10 @@ const chapterDiagnosticFingerprint = (chapter: ChapterRecord) => ({
 const toChapterLookupResult = (record: ChapterRecord): ChapterLookupResult => {
   const stableId = record.stableId || generateStableChapterId(record.content || '', record.chapterNumber || 0, record.title || '');
 
+  // This object is a structural superset of ChapterLookupResult: it also carries the
+  // provenance fields blurb/sourceLanguage (at the top level and inside data.chapter)
+  // which the shared type does not yet model. Assert to preserve those runtime fields
+  // without editing the type; all modelled fields are checked normally.
   return {
     stableId,
     canonicalUrl: record.canonicalUrl || record.url,
@@ -175,7 +179,7 @@ const toChapterLookupResult = (record: ChapterRecord): ChapterLookupResult => {
       },
       translationResult: null,
     },
-  };
+  } as ChapterLookupResult;
 };
 
 const storeChapterModern = async (
@@ -311,8 +315,10 @@ const findChapterModernBySourceUrl = async (
 
       if (store.indexNames.contains('novelVersion')) {
         const index = store.index('novelVersion');
+        // Composite key may include a null libraryVersionId; pass the value through
+        // unchanged (IDBValidKey doesn't model null but the runtime key is preserved).
         candidates = (await promisifyRequest(
-          index.getAll([novelId, libraryVersionId])
+          index.getAll([novelId, libraryVersionId] as unknown as IDBValidKey)
         )) as ChapterRecord[];
       } else if (store.indexNames.contains('novelId')) {
         const index = store.index('novelId');
@@ -348,8 +354,10 @@ const findChapterModernByNumber = async (
       const store = stores[STORE_NAMES.CHAPTERS];
       if (novelId && store.indexNames.contains('novelVersionChapter')) {
         const index = store.index('novelVersionChapter');
+        // libraryVersionId may be null in this composite key; preserve the runtime
+        // value (IDBValidKey doesn't include null but the key value is unchanged).
         const result = (await promisifyRequest(
-          index.get([novelId, libraryVersionId ?? null, chapterNumber])
+          index.get([novelId, libraryVersionId ?? null, chapterNumber] as unknown as IDBValidKey)
         )) as ChapterRecord | undefined;
         return result || null;
       }

@@ -205,23 +205,3 @@ export const getSteeringImages = async (): Promise<string[]> => {
   }
 };
 
-/**
- * Validates if an image file exists and is accessible via HTTP
- * @param imagePath Full path to the image file or filename
- * @returns Boolean indicating if file is valid
- */
-export const validateImageFile = async (imagePath: string): Promise<boolean> => {
-  try {
-    // Convert to HTTP URL if needed
-    let imageUrl = imagePath;
-    if (!imagePath.startsWith('http') && !imagePath.startsWith('/')) {
-      const filename = imagePath.substring(imagePath.lastIndexOf('/') + 1);
-      imageUrl = `/steering/${filename}`;
-    }
-    
-    const response = await fetch(imageUrl, { method: 'HEAD' });
-    return response.ok;
-  } catch {
-    return false;
-  }
-};

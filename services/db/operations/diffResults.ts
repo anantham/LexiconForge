@@ -14,7 +14,10 @@ const mapFromStorage = (record?: DiffResult | null): DiffResult | null => {
   return {
     ...record,
     fanVersionId: record.fanVersionId === '' ? null : record.fanVersionId ?? null,
-    aiHash: record.aiHash ?? null,
+    // DiffResult.aiHash is `string | undefined` (never null); leave the value as-is.
+    // Consumers already normalize with `?? null`, so dropping the null coercion is
+    // observably identical while honoring the declared type.
+    aiHash: record.aiHash,
     fanHash: record.fanHash ?? null,
     rawHash: record.rawHash ?? record.rawVersionId,
   };
@@ -24,7 +27,8 @@ const mapFromStorage = (record?: DiffResult | null): DiffResult | null => {
 export const prepareForStorage = (record: DiffResult): StoredDiffResult => ({
   ...record,
   fanVersionId: normalizeFanVersionId(record.fanVersionId),
-  aiHash: record.aiHash ?? null,
+  // aiHash is typed `string | undefined`; preserve the value without null coercion.
+  aiHash: record.aiHash,
   fanHash: record.fanHash ?? null,
   rawHash: record.rawHash ?? record.rawVersionId,
 });

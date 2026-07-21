@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { DeepLoomPacket } from '../../types/suttaStudio';
 
@@ -367,7 +367,7 @@ function Section({
   tone = 'normal',
 }: {
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
   tone?: 'normal' | 'muted';
 }) {
   return (
@@ -388,7 +388,7 @@ function Section({
  * External link with consistent styling. Opens in new tab; uses noopener/
  * noreferrer for security; underlines on hover; tone matches the panel.
  */
-function ExternalLink({ url, children }: { url: string; children: React.ReactNode }) {
+function ExternalLink({ url, children }: { url: string; children: ReactNode }) {
   return (
     <a
       href={url}

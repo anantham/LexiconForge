@@ -39,7 +39,7 @@ export const validateApiKey = (
     const userKey = settings.apiKeyOpenRouter;
     const envVarKey = getEnvVar(providerMeta.env) as string | undefined;
     const trialKey = getDefaultApiKey();
-    requiredApiKey = userKey || envVarKey || trialKey;
+    requiredApiKey = userKey || envVarKey || trialKey || undefined;
 
     debugLog('api', 'summary', '[OpenRouter] API Key Priority Check:', {
       hasUserKey: !!userKey,

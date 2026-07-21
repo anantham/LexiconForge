@@ -16,12 +16,12 @@ describe('mergeChapter', () => {
     const existing = {
       id: 'a',
       content: 'Chinese sutra',
-      fanTranslation: 'English from 84000',
+      fanTranslation: 'English from 84000' as string | null,
     };
     const incoming = {
       id: 'a',
       content: 'Chinese sutra (refreshed)',
-      fanTranslation: null,
+      fanTranslation: null as string | null,
     };
     expect(mergeChapter(existing, incoming)).toEqual({
       id: 'a',
