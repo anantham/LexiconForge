@@ -2,8 +2,11 @@
 
 👋 **Welcome!** We're thrilled you want to help improve LexiconForge.
 
-**🚀 New to the project?**
-Check out our [**Newcomer Onboarding Guide**](docs/ONBOARDING.md) for a step-by-step walkthrough of the codebase and your first contribution.
+**🚀 New to the project?** Read these three, in order:
+
+1. [**Newcomer Onboarding Guide**](docs/ONBOARDING.md) — a step-by-step walkthrough of the codebase and your first contribution.
+2. [**Architecture overview**](docs/architecture/ARCHITECTURE.md) — how the pieces fit together (and [PROVIDER_ARCHITECTURE.md](docs/architecture/PROVIDER_ARCHITECTURE.md) for the translation-provider layer).
+3. The map below — where each folder lives and what it's for.
 
 ---
 
@@ -13,78 +16,90 @@ Check out our [**Newcomer Onboarding Guide**](docs/ONBOARDING.md) for a step-by-
 - `npm install`
 - `npm run dev` (Vite)
 
+See the [environment variable reference](docs/guides/EnvVars.md) and [provider guide](docs/guides/Providers.md) for API-key names; add only the keys for providers you actually use to `.env.local`.
+
 ## Project Structure
 
-Understanding where things live helps you contribute effectively. Here's the organized structure:
+LexiconForge is a Vite + React + TypeScript single-page app. It is **one protocol behind several
+reader interfaces** (web-novel translation, the Pāli Sutta Studio, the liturgy reader, and an early
+Classical-Chinese reader); most infrastructure is shared, and each reader adds only the lenses its
+language needs. The app entry chain is `index.html` → `index.tsx` → `App.tsx` → `MainApp.tsx`.
 
 ```
 LexiconForge/
-├── config/                    # 📋 Configuration files (edit here to change defaults!)
-│   ├── app.json              # Main app config: default models, AI parameters, image settings
-│   ├── costs.ts              # Model pricing data for cost estimation
-│   ├── constants.ts          # Available models, websites, abbreviations
-│   └── prompts.json          # AI system prompts and translation instructions
+├── index.html / index.tsx / App.tsx / MainApp.tsx   # App entry chain (Vite → React root)
+├── types.ts                                          # Top-level shared TypeScript types
 │
-├── components/               # 🎨 React UI components
-│   ├── icons/               # SVG icon components (used in selection/feedback controls)
-│   │   ├── SettingsIcon.tsx
-│   │   ├── TrashIcon.tsx
-│   │   └── ...              # Add your custom emoji icons here
-│   ├── ChapterView.tsx      # Main reader/translation view
-│   ├── InputBar.tsx         # URL input with website suggestions
-│   ├── SettingsModal.tsx    # Settings UI (model selection, API keys)
-│   ├── FeedbackPopover.tsx  # Selection feedback controls (👍 👎 ? 🎨)
+├── config/            # 📋 Edit here to change defaults
+│   ├── app.json               # Default models, AI parameters, image settings
+│   ├── constants.ts           # Available models, supported websites, abbreviations
+│   ├── costs.ts               # Model pricing for cost estimation
+│   ├── prompts.json           # AI system prompts / translation instructions
+│   └── novelCatalog.ts        # Featured novels served in the reader
+│
+├── components/        # 🎨 React UI (one folder per surface)
+│   ├── sutta-studio/          # Pāli reader UI (morphemes, senses, alignment, grounding)
+│   ├── liturgy/               # Multilingual liturgy reader UI
+│   ├── settings/              # Settings panels (SettingsSidebar is the live nav)
+│   ├── session-info/          # Import / export / publish wizard
+│   └── icons/                 # SVG icon components
+│
+├── services/          # 🔧 Business logic & external integrations (the largest layer)
+│   ├── ai/                    # Translation orchestration
+│   ├── providers/             # Per-provider request/response handling
+│   ├── db/                    # IndexedDB data model, operations, migrations
+│   ├── scraping/              # Website content extractors (siteAdapters.ts) + fetch proxy
+│   ├── epubService/           # EPUB export (the live implementation)
+│   ├── audio/                 # Audio (TTS) generation & storage
+│   ├── sutta-studio/          # Pāli pipeline: passes, retrieval, tokenizer, grounding
+│   ├── liturgy-generator/     # Liturgy draft pipeline
+│   ├── compiler/ · navigation/ · diff/ · translate/ · italian/   # Supporting subsystems
+│   ├── aiService.ts · imageService.ts · translationService.ts    # Top-level service facades
 │   └── ...
 │
-├── services/                # 🔧 Business logic and external integrations
-│   ├── aiService.ts         # Translation API calls (Gemini, OpenAI, DeepSeek, Claude)
-│   ├── imageService.ts      # Image generation (Imagen, Flux)
-│   ├── audio/              # Audio generation services
-│   ├── db/                 # Database operations (IndexedDB)
-│   ├── epub/               # EPUB export functionality
-│   ├── adapters.ts         # Website content extractors
-│   └── ...
+├── adapters/providers/  # 🔌 Translation provider adapters (Claude / Gemini / OpenAI + registry)
+├── store/               # 📦 Zustand state management (index.ts + slices/)
+├── hooks/               # ⚛️ Custom React hooks
+├── utils/               # 🛠️ Helper functions
+├── types/               # 📝 Domain-specific type modules
 │
-├── store/                   # 📦 Zustand state management
-│   ├── index.ts            # Main store setup
-│   └── slices/             # Feature-specific state slices
-│       ├── settingsSlice.ts      # App settings & prompt templates
-│       ├── translationsSlice.ts  # Translation state & history
-│       ├── chaptersSlice.ts      # Chapter data & navigation
-│       └── ...
+├── scripts/           # 🧰 Build / pipeline / grounding CLIs (run via `npm run <name>` or tsx)
+├── api/               # ☁️ Vercel serverless functions (fetch-proxy, client-telemetry)
+├── chrome_extension/  # 🧩 Companion browser extension
+├── data/              # 📊 Datasets (dpd/, malayalam/, benchmark inputs); large user data gitignored
+├── public/            # 🌐 Static assets, benchmark packets, covers
+├── content/ · books/  # Reference sutta JSON and book manifests
 │
-├── adapters/               # 🔌 Translation provider adapters
-│   └── providers/         # Provider adapters + registration
+├── tests/             # 🧪 Vitest suite (mirrors the source tree)  ·  test-fixtures/
+├── docs/              # 📚 Documentation home
+│   ├── ONBOARDING.md · START_HERE.md · CONVENTIONS.md · WORKLOG.md
+│   ├── architecture/  # ARCHITECTURE.md, PROVIDER_ARCHITECTURE.md
+│   ├── adr/           # Architecture Decision Records (CORE-*, DB-*, SUTTA-*, …)
+│   ├── guides/        # META_ADAPTER, Providers, EnvVars, Settings, Debugging, …
+│   └── features/      # Per-feature docs (Audio, EPUB, …)
 │
-├── types.ts               # 📝 TypeScript type definitions
-├── utils/                 # 🛠️ Helper functions
-├── hooks/                 # ⚛️ Custom React hooks
-├── tests/                 # 🧪 Test files
-├── docs/                  # 📚 Documentation
-│   ├── adr/              # Architecture Decision Records
-│   ├── WORKLOG.md        # Development log
-│   └── ...
-└── archive/              # 🗄️ Deprecated code (kept for reference)
+├── issues/            # 🐛 Numbered issue investigations with repro traces
+├── Marketing/         # Feature screenshots (intentionally tracked)
+└── archive/           # 🗄️ Deprecated code, kept for reference (not part of the build)
 ```
 
 ### Quick Navigation Guide
 
 **Want to add custom emojis to the toolbar?**
 1. Add your SVG icon component to `components/icons/`
-2. Import and use it in `components/FeedbackPopover.tsx`
+2. Import and use it in the relevant feedback/selection control
 
 **Want to change default models or AI parameters?**
 - Edit `config/app.json` → `defaultModels` section
 
 **Want to add a new translation provider?**
-1. Create adapter in `adapters/providers/`
-2. Follow the `TranslationProvider` interface
-3. Register it in `adapters/providers/index.ts` (see `docs/META_ADAPTER.md`)
+1. Create an adapter in `adapters/providers/` implementing the `TranslationProvider` interface
+2. Register it in `adapters/providers/index.ts` (see [`docs/guides/META_ADAPTER.md`](docs/guides/META_ADAPTER.md))
 
 **Want to add support for a new website?**
-1. Create adapter class in `services/adapters.ts`
-2. Add website config to `config/constants.ts` → `SUPPORTED_WEBSITES_CONFIG`
-3. Follow `docs/META_ADAPTER.md` for structure
+1. Add an extractor in `services/scraping/siteAdapters.ts`
+2. Add the website config to `config/constants.ts` → `SUPPORTED_WEBSITES_CONFIG`
+3. Follow [`docs/guides/META_ADAPTER.md`](docs/guides/META_ADAPTER.md) for structure
 
 **Want to modify AI prompts?**
 - Edit `config/prompts.json` (all translation instructions live here)
@@ -101,23 +116,29 @@ LexiconForge/
 ## Docs & ADRs
 
 - See `docs/` and `docs/adr/` for architecture.
-- Update `docs/WORKLOG.md` with a timestamped summary for non‑trivial changes.
+- Update `docs/WORKLOG.md` with a timestamped summary for non-trivial changes.
 
 ## Commit Style
 
 - Conventional commits (e.g., `feat:`, `fix:`, `docs:`, `refactor:`)
 - One logical change per commit; keep diffs focused.
 
-## File Size Limits (Agent‑First)
+## File Size Limits (Agent-First)
 
-- Services ≤ 200 LOC; Components ≤ 250 LOC (see [ADR‑005](docs/ADR-005-Agent-First-Code-Organization.md))
+- Services ≤ 200 LOC; Components ≤ 250 LOC (see [ADR CORE-005](docs/adr/CORE-005-agent-first-code-organization.md))
 - Prefer extracting helpers and modules instead of growing files
 
 ## Adding Site Adapters / Providers
 
-- Website adapters: follow `docs/META_ADAPTER.md`
+- Website adapters: follow [`docs/guides/META_ADAPTER.md`](docs/guides/META_ADAPTER.md)
 - Translation providers: implement `TranslationProvider` and register in `adapters/providers/index.ts`
+
+## Working Alongside AI Agents
+
+This repo is developed by both humans and multiple AI coding agents. If you use one, see
+[`AGENTS.md`](AGENTS.md) and [`CLAUDE.md`](CLAUDE.md) for the coordination protocol (main stays on
+`main`, agents use prefixed worktrees/branches, no stashing, WORKLOG on start/end).
 
 ## Debugging
 
-- See `docs/Debugging.md` for flags and safety notes
+- See [`docs/guides/Debugging.md`](docs/guides/Debugging.md) for flags and safety notes
