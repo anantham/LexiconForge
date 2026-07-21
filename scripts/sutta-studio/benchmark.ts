@@ -555,7 +555,12 @@ const LLM_REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
 // next loop boundary (assertUnderBudget) once BENCHMARK_CONFIG.maxSpendUsd is hit. See spend-guard.ts.
 const spendGuard = new SpendGuard(BENCHMARK_CONFIG.maxSpendUsd);
 
-const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LLMCaller => {
+const createOpenRouterLLMCaller = (
+  modelProviderPrefs?: ProviderPreferences,
+  // undefined = default 0.2; null = OMIT the parameter — with require_parameters:true
+  // an unsupported temperature excludes every endpoint (claude-sonnet-5, probed 2026-07-21).
+  temperature: number | null = 0.2,
+): LLMCaller => {
   return async ({ settings, messages, signal, maxTokens, options }) => {
     const apiKey = settings.apiKeyOpenRouter || process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
@@ -576,7 +581,7 @@ const createOpenRouterLLMCaller = (modelProviderPrefs?: ProviderPreferences): LL
     // per-request charges that local token math misses. See resolveCostUsd (spend-guard.ts).
     usage: { include: true },
     max_tokens: maxTokens ?? 4000,
-    temperature: 0.2,
+    ...(temperature === null ? {} : { temperature }),
   };
 
     if (useStructured && options?.schema) {
@@ -1195,8 +1200,9 @@ const runBenchmark = async () => {
       const baseSettings = resolveSettingsForModel(run.model);
       const dependencyMode = BENCHMARK_CONFIG.dependencyMode;
       // Create LLMCaller with model's provider preferences (e.g., routing through Together)
-      const llmCaller = run.model.providerPreferences
-        ? createOpenRouterLLMCaller(run.model.providerPreferences)
+      // and its temperature policy (null = omit the parameter — see BenchmarkModel.temperature).
+      const llmCaller = run.model.providerPreferences || run.model.temperature !== undefined
+        ? createOpenRouterLLMCaller(run.model.providerPreferences, run.model.temperature)
         : openRouterLLMCaller;
 
       for (let repeatIndex = 0; repeatIndex < repeatRuns; repeatIndex++) {

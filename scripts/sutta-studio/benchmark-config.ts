@@ -12,6 +12,15 @@ export type BenchmarkModel = {
     order?: string[];
     allow_fallbacks?: boolean;
   };
+  /**
+   * Sampling temperature. undefined = the runner's default (0.2). null = OMIT
+   * the parameter entirely — required for models whose endpoints do not accept
+   * temperature (e.g. anthropic/claude-sonnet-5): under provider
+   * require_parameters:true, an unsupported parameter excludes every endpoint
+   * ("No endpoints found that can handle the requested parameters").
+   * Root-caused by A/B probe 2026-07-21.
+   */
+  temperature?: number | null;
 };
 
 export type BenchmarkPassConfig = {
@@ -225,14 +234,34 @@ export const BENCHMARK_CONFIG = {
     {
       id: 'gemini-3.5-flash',
       model: { id: 'gemini-3.5-flash', provider: 'OpenRouter', model: 'google/gemini-3.5-flash', apiKeyEnv: 'OPENROUTER_API_KEY' },
+      // Reasoning-mode model: thinking tokens count against max_tokens; the
+      // default budgets truncate (gemini: unbalanced_json) or empty out
+      // (glm: reasoning consumed 100% of the budget). Proven by probe 2026-07-21.
+      passOverrides: {
+        skeleton: { maxTokens: 16384 },
+        anatomist: { maxTokens: 16384 },
+        lexicographer: { maxTokens: 16384 },
+        weaver: { maxTokens: 16384 },
+        typesetter: { maxTokens: 16384 },
+      },
     },
     {
       id: 'claude-sonnet-5',
-      model: { id: 'claude-sonnet-5', provider: 'OpenRouter', model: 'anthropic/claude-sonnet-5', apiKeyEnv: 'OPENROUTER_API_KEY' },
+      model: { id: 'claude-sonnet-5', provider: 'OpenRouter', model: 'anthropic/claude-sonnet-5', apiKeyEnv: 'OPENROUTER_API_KEY', temperature: null },
     },
     {
       id: 'glm-5.2',
       model: { id: 'glm-5.2', provider: 'OpenRouter', model: 'z-ai/glm-5.2', apiKeyEnv: 'OPENROUTER_API_KEY' },
+      // Reasoning-mode model: thinking tokens count against max_tokens; the
+      // default budgets truncate (gemini: unbalanced_json) or empty out
+      // (glm: reasoning consumed 100% of the budget). Proven by probe 2026-07-21.
+      passOverrides: {
+        skeleton: { maxTokens: 16384 },
+        anatomist: { maxTokens: 16384 },
+        lexicographer: { maxTokens: 16384 },
+        weaver: { maxTokens: 16384 },
+        typesetter: { maxTokens: 16384 },
+      },
     },
     {
       id: 'qwen3.7-max',
