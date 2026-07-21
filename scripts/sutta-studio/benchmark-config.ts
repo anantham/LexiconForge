@@ -248,6 +248,15 @@ export const BENCHMARK_CONFIG = {
     {
       id: 'claude-sonnet-5',
       model: { id: 'claude-sonnet-5', provider: 'OpenRouter', model: 'anthropic/claude-sonnet-5', apiKeyEnv: 'OPENROUTER_API_KEY', temperature: null },
+      // Reasoning-mode model (see gemini-3.5-flash note): raise pass budgets so
+      // thinking tokens cannot truncate/empty the output. 2026-07-21.
+      passOverrides: {
+        skeleton: { maxTokens: 16384 },
+        anatomist: { maxTokens: 16384 },
+        lexicographer: { maxTokens: 16384 },
+        weaver: { maxTokens: 16384 },
+        typesetter: { maxTokens: 16384 },
+      },
     },
     {
       id: 'glm-5.2',
@@ -266,14 +275,41 @@ export const BENCHMARK_CONFIG = {
     {
       id: 'qwen3.7-max',
       model: { id: 'qwen3.7-max', provider: 'OpenRouter', model: 'qwen/qwen3.7-max', apiKeyEnv: 'OPENROUTER_API_KEY' },
+      // Reasoning-mode model (see gemini-3.5-flash note): raise pass budgets so
+      // thinking tokens cannot truncate/empty the output. 2026-07-21.
+      passOverrides: {
+        skeleton: { maxTokens: 16384 },
+        anatomist: { maxTokens: 16384 },
+        lexicographer: { maxTokens: 16384 },
+        weaver: { maxTokens: 16384 },
+        typesetter: { maxTokens: 16384 },
+      },
     },
     {
       id: 'deepseek-v4-pro',
       model: { id: 'deepseek-v4-pro', provider: 'OpenRouter', model: 'deepseek/deepseek-v4-pro', apiKeyEnv: 'OPENROUTER_API_KEY' },
+      // Reasoning-mode model (see gemini-3.5-flash note): raise pass budgets so
+      // thinking tokens cannot truncate/empty the output. 2026-07-21.
+      passOverrides: {
+        skeleton: { maxTokens: 16384 },
+        anatomist: { maxTokens: 16384 },
+        lexicographer: { maxTokens: 16384 },
+        weaver: { maxTokens: 16384 },
+        typesetter: { maxTokens: 16384 },
+      },
     },
     {
       id: 'gpt-5.4-mini',
-      model: { id: 'gpt-5.4-mini', provider: 'OpenRouter', model: 'openai/gpt-5.4-mini', apiKeyEnv: 'OPENROUTER_API_KEY' },
+      model: { id: 'gpt-5.4-mini', provider: 'OpenRouter', model: 'openai/gpt-5.4-mini', apiKeyEnv: 'OPENROUTER_API_KEY', temperature: null },
+      // Reasoning-mode model (see gemini-3.5-flash note): raise pass budgets so
+      // thinking tokens cannot truncate/empty the output. 2026-07-21.
+      passOverrides: {
+        skeleton: { maxTokens: 16384 },
+        anatomist: { maxTokens: 16384 },
+        lexicographer: { maxTokens: 16384 },
+        weaver: { maxTokens: 16384 },
+        typesetter: { maxTokens: 16384 },
+      },
     },
   ] as BenchmarkRun[],
 };
