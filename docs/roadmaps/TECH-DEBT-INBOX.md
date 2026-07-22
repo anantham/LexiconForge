@@ -54,3 +54,32 @@ Append-only raw debt receipts discovered during implementation.
 - Suggested follow-up:
   - Decide whether to declare and enforce Node 20/22 for local development or make test setup explicitly replace Node 26's experimental storage global with the Happy DOM implementation.
   - Add a small environment preflight so an unsupported runtime fails once with a descriptive message instead of cascading into hundreds of tests.
+
+[DEBT][BENCH][2026-07-22 10:00 IST] Benchmark call-cache / phase-level resume
+- Files:
+  - `scripts/sutta-studio/benchmark.ts` (createOpenRouterLLMCaller, runPipelineForPhase)
+  - `scripts/sutta-studio/benchmark-config.ts` (repeatRuns)
+- Motivation (priced from the 2026-07-21/22 arc):
+  - A mid-run failure (key exhaustion) loses the in-flight MODEL's whole progress —
+    gemini-3.5-flash's 20/27 good phases (~$2, ~2h) were repeated from scratch.
+    Three infra-fix re-runs this week re-billed phases that had already succeeded.
+- Design (agreed in-session):
+  - Content-addressed cache keyed by hash(model, pass, phaseId, promptVersion,
+    maxTokens, structuredOutputs, temperature); check before call, write raw+parsed
+    after. Per-phase artifacts in outputs/<model>/pipeline-<phase>.json already
+    serialize everything needed.
+  - HONESTY CONSTRAINTS (each needs a red-proofed test, not a comment):
+    1. Forced OFF when repeatRuns > 1 — a cache defeats variance measurement; must
+       be a code branch (cf. the onlyRunIds/continue-vs-break lessons).
+    2. Cached calls carry `cached: true` in metrics rows; cost attributed once, in
+       the run that paid — board cost/duration columns must not count cache hits
+       as fresh spend (interacts with the money-honesty accounting, d55d9ff).
+    3. Methodology note: re-runs may reuse cached passes (one frozen sample at
+       temperature 0.2).
+  - Live-chained dependencyMode must include upstream-output hash in the key, or
+    be excluded from caching (fixture mode is the benchmark default).
+- Effort: resume-shaped (skip valid phases in a --resume run dir) ~1-2h;
+  general cross-run cache ~half a day incl. tests.
+- Exit criteria: killing a run mid-model and relaunching re-bills ONLY failed/missing
+  phases; a repeatRuns>1 run provably bypasses the cache; suite green with a test
+  proving a cache hit writes cached:true and adds $0 to the run's accrued spend.
