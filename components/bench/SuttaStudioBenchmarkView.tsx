@@ -80,6 +80,12 @@ type LeaderboardEntry = {
   fidelityScore: number;
   segmentationFidelity: number;
   contentFidelity: number;
+  // v2.2 ranked trio + score anatomy (optional: older deployed boards predate them)
+  factsCore?: number;
+  senseF1?: number;
+  knowledgeScore?: number;
+  gateKept?: number | null;
+  gateDamagedPhases?: number;
   contentSemantic: number | null;
   judgeModel: string | null;
   paliWordCoverage: number;
@@ -1234,6 +1240,18 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                         Methodology ?
                       </a>
                     </p>
+                    {/* Score anatomy — the one line that makes every rank interpretable.
+                        Two layers: what the model KNOWS (weighted trio) × what its output
+                        structure DELIVERS (the gate). Without this, Gate-damaged models
+                        just look mysteriously bad. */}
+                    <p className="mt-1 font-mono text-[11px] text-gray-600">
+                      Overall = <span title="Structural integrity multiplier: the fraction of the model's analysis that anchors to the actual Pāli text (textIntegrity × validity). A brilliant gloss attached to nothing is a dead tooltip — the gate prices it that way." className="cursor-help underline decoration-dotted">Gate</span>
+                      {' × ('}0.40·<span title="Morpheme-boundary F1 vs the golden's cuts" className="cursor-help underline decoration-dotted">Seg</span>
+                      {' + '}0.30·<span title="Word-class labeling + root recovery, macro-averaged" className="cursor-help underline decoration-dotted">Facts</span>
+                      {' + '}0.30·<span title="F1 over the golden's accepted senses — precision-capped, so spraying senses doesn't score" className="cursor-help underline decoration-dotted">Sense</span>
+                      {')'}
+                      <span className="ml-2 text-gray-400">— everything right of Sense is advisory and never enters rank.</span>
+                    </p>
                   </div>
                   <div className="text-xs text-gray-500">
                     Last updated: {new Date(leaderboard.generatedAt).toLocaleString()}
@@ -1254,12 +1272,24 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                           Model {sortColumn === 'modelId' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('overallScore')}>
-                          <HeaderTip label="Overall" tip="Ranked deterministic total (rubric v2.0): a gate multiplier × weighted fidelity, usability and richness. Higher = closer to the golden reference." />{' '}
+                          <HeaderTip label="Overall" tip="Ranked total (rubric v2.2): Gate × (0.40·Seg + 0.30·Facts + 0.30·Sense). Deterministic against the hand-curated golden — no LLM judge in rank. Higher = closer to the golden reference." />{' '}
                           {sortColumn === 'overallScore' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('segmentationFidelity')}>
-                          <HeaderTip label="Seg" tip="Segmentation fidelity — micro-F1 of the model's morpheme boundaries vs the golden. Did it split each word the same way?" />{' '}
+                          <HeaderTip label="Seg" tip="Segmentation fidelity (40% of knowledge) — micro-F1 of the model's morpheme boundaries vs the golden. Did it split each word the same way?" />{' '}
                           {sortColumn === 'segmentationFidelity' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('factsCore')}>
+                          <HeaderTip label="Facts" tip="factsCore (30%) — word-class labeling + root recovery, macro-averaged. Scored over ALL golden words (labeling everything 'content' earns nothing)." />{' '}
+                          {sortColumn === 'factsCore' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('senseF1')}>
+                          <HeaderTip label="Sense" tip="senseF1 (30%) — harmonic mean of precision & recall over the golden's accepted sense lists. Precision-capped: offering 19 senses to hit 7 costs you." />{' '}
+                          {sortColumn === 'senseF1' && (sortDirection === 'asc' ? '↑' : '↓')}
+                        </th>
+                        <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('gateKept')}>
+                          <HeaderTip label="Gate" tip="Share of the model's knowledge score that survived structural integrity (does its analysis anchor to the actual Pāli text?). 100% = clean delivery. Low Gate = the model knows more than its rank shows — but ships it broken, and a tooltip pointing at nothing is a dead link." />{' '}
+                          {sortColumn === 'gateKept' && (sortDirection === 'asc' ? '↑' : '↓')}
                         </th>
                         <th className="px-3 py-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort('contentFidelity')}>
                           <HeaderTip label="Content" tip="Content fidelity — token-F1 of etymology + glosses vs the golden. Deterministic, so it can't reward valid paraphrase or enrichment (that's what Semantic is for)." />{' '}
@@ -1330,6 +1360,24 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                             </td>
                             <td className={`px-3 py-2 ${scoreColor(entry.segmentationFidelity)}`}>
                               {entry.segmentationFidelity.toFixed(2)}
+                            </td>
+                            <td className={`px-3 py-2 ${(entry as any).factsCore == null ? 'text-gray-300' : scoreColor((entry as any).factsCore)}`}>
+                              {(entry as any).factsCore == null ? '—' : (entry as any).factsCore.toFixed(2)}
+                            </td>
+                            <td className={`px-3 py-2 ${(entry as any).senseF1 == null ? 'text-gray-300' : scoreColor((entry as any).senseF1)}`}>
+                              {(entry as any).senseF1 == null ? '—' : (entry as any).senseF1.toFixed(2)}
+                            </td>
+                            {/* Gate cell: % kept, amber under 95, red under 80. The tooltip is the
+                                per-model diagnosis — knowledge vs delivered, and how many phases bit. */}
+                            <td className={`px-3 py-2 ${(entry as any).gateKept == null ? 'text-gray-300' : (entry as any).gateKept < 0.8 ? 'text-red-600 font-medium' : (entry as any).gateKept < 0.95 ? 'text-amber-600' : 'text-gray-500'}`}>
+                              {(entry as any).gateKept == null ? '—' : (
+                                <span
+                                  className="cursor-help"
+                                  title={`Knowledge ${(entry as any).knowledgeScore?.toFixed(2)} × Gate ${(((entry as any).gateKept) * 100).toFixed(0)}% ≈ Overall ${entry.overallScore.toFixed(2)}. ${(entry as any).gateDamagedPhases ? `${(entry as any).gateDamagedPhases} phase(s) with structural damage (textIntegrity < 0.9) — analysis that didn't anchor to the Pāli text.` : 'No structurally damaged phases.'}`}
+                                >
+                                  {(((entry as any).gateKept) * 100).toFixed(0)}%
+                                </span>
+                              )}
                             </td>
                             <td className={`px-3 py-2 ${scoreColor(entry.contentFidelity)}`}>
                               {entry.contentFidelity.toFixed(2)}

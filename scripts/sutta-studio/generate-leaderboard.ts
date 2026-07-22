@@ -27,6 +27,10 @@ type PhaseScore = {
   segmentationFidelity?: number | null;
   contentFidelity?: number | null;
   paliWordCoverage?: number;
+  // v2.2 ranked components + gate input (older stored scores may predate these)
+  factsCore?: number | null;
+  senseF1?: number | null;
+  textIntegrity?: number | null;
   // legacy v1 aggregates (kept for reference, not ranked on)
   coverageScore: number;
   validityScore: number;
@@ -128,6 +132,14 @@ type LeaderboardEntry = {
   fidelityScore: number;
   segmentationFidelity: number;
   contentFidelity: number;
+  // v2.2 ranked trio + score anatomy (see the modelScores comment): knowledge is the
+  // weighted trio before the gate; gateKept = overall/knowledge = the share that
+  // survived structural integrity; gateDamagedPhases counts phases with textIntegrity<0.9.
+  factsCore: number;
+  senseF1: number;
+  knowledgeScore: number;
+  gateKept: number | null;
+  gateDamagedPhases: number;
   // Content F1 decomposed (v2.1 / ADR SUTTA-012): precision = attested share of what the
   // model said; recall = said share of what the golden requires (dropped words included).
   contentPrecision: number | null;
@@ -453,6 +465,10 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     hallucinationRate: number | null;
     goldenSuspectCount: number | null;
     overallCI: [number, number] | null;
+    avgFactsCore: number;
+    avgSenseF1: number;
+    avgKnowledge: number;
+    gateDamagedPhases: number;
     phasesCount: number;
     phasesExpected: number;
     phasesCharged: number;
@@ -490,6 +506,15 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       avgFidelity: mean(phases.map((p) => p.fidelityScore ?? 0)),
       avgSegFidelity: mean(phases.map((p) => p.segmentationFidelity ?? 0)),
       avgContentFidelity: mean(phases.map((p) => p.contentFidelity ?? 0)),
+      // v2.2 ranked trio + score anatomy: knowledge = the weighted components BEFORE
+      // the gate; gateKept (emitted below) = the fraction that survived the integrity
+      // multiplier. Splitting these is what lets the board explain a rank instead of
+      // just asserting it — "knows 0.54, delivers 0.43" is the diagnosis.
+      avgFactsCore: mean(phases.map((p) => p.factsCore ?? 0)),
+      avgSenseF1: mean(phases.map((p) => p.senseF1 ?? 0)),
+      avgKnowledge: mean(phases.map((p) =>
+        0.4 * (p.segmentationFidelity ?? 0) + 0.3 * (p.factsCore ?? 0) + 0.3 * (p.senseF1 ?? 0))),
+      gateDamagedPhases: phases.filter((p) => (p.textIntegrity ?? 1) < 0.9).length,
       // P/R (v2.1): mean over phases that carry them (older scores may predate the fields).
       avgContentPrecision: (() => { const xs = phases.map((p: any) => p.contentPrecision).filter((x: any): x is number => x != null); return xs.length ? mean(xs) : null; })(),
       avgContentRecall: (() => { const xs = phases.map((p: any) => p.contentRecall).filter((x: any): x is number => x != null); return xs.length ? mean(xs) : null; })(),
@@ -535,6 +560,11 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     fidelityScore: r4(m.avgFidelity),
     segmentationFidelity: r4(m.avgSegFidelity),
     contentFidelity: r4(m.avgContentFidelity),
+    factsCore: r4(m.avgFactsCore),
+    senseF1: r4(m.avgSenseF1),
+    knowledgeScore: r4(m.avgKnowledge),
+    gateKept: m.avgKnowledge > 0 ? r4(Math.min(1, m.avgOverall / m.avgKnowledge)) : null,
+    gateDamagedPhases: m.gateDamagedPhases,
     contentPrecision: m.avgContentPrecision == null ? null : r4(m.avgContentPrecision),
     contentRecall: m.avgContentRecall == null ? null : r4(m.avgContentRecall),
     contentSemantic: m.contentSemantic == null ? null : r4(m.contentSemantic),
@@ -594,7 +624,7 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
       'Rankings will shift as coverage grows.',
     methodology: {
       docsUrl:
-        'https://github.com/anthropics/lexiconforge/blob/main/docs/benchmarks/sutta-studio.md#quality-scoring',
+        'https://github.com/anantham/LexiconForge/blob/main/docs/benchmarks/sutta-studio.md#quality-scoring',
       rankingMetric: 'overallScore',
       aggregation: 'bestRunPerModel',
       description:
