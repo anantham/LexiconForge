@@ -1245,12 +1245,12 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                         structure DELIVERS (the gate). Without this, Gate-damaged models
                         just look mysteriously bad. */}
                     <p className="mt-1 font-mono text-[11px] text-gray-600">
-                      Overall = <span title="Structural integrity multiplier: the fraction of the model's analysis that anchors to the actual Pāli text (textIntegrity × validity). A brilliant gloss attached to nothing is a dead tooltip — the gate prices it that way." className="cursor-help underline decoration-dotted">Gate</span>
+                      Overall = <span title="Structural integrity multiplier: textIntegrity (fraction of the Pāli surface the model's segments reconstruct) × a soft structural factor (empty-segments, duplicate-mappings, relations, word coverage — bounded 0.7–1.0). A brilliant gloss attached to nothing is a dead tooltip — the gate prices it that way." className="cursor-help underline decoration-dotted">Gate</span>
                       {' × ('}0.40·<span title="Morpheme-boundary F1 vs the golden's cuts" className="cursor-help underline decoration-dotted">Seg</span>
                       {' + '}0.30·<span title="Word-class labeling + root recovery, macro-averaged" className="cursor-help underline decoration-dotted">Facts</span>
                       {' + '}0.30·<span title="F1 over the golden's accepted senses — precision-capped, so spraying senses doesn't score" className="cursor-help underline decoration-dotted">Sense</span>
                       {')'}
-                      <span className="ml-2 text-gray-400">— everything right of Sense is advisory and never enters rank.</span>
+                      <span className="ml-2 text-gray-400">— Content/P/R/Halluc/Semantic are advisory (never ranked); Coverage feeds the Gate's soft term.</span>
                     </p>
                   </div>
                   <div className="text-xs text-gray-500">
