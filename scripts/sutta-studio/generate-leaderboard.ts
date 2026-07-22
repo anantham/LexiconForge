@@ -595,6 +595,23 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
     throw new Error(`0 ranked entries — every run was excluded. Reasons: ${Array.from(excludedReasons).join(' | ') || '(none recorded)'}`);
   }
 
+  // ROSTER CROSS-CHECK (audit B6, live instance 2026-07-22): a roster model whose every
+  // call fails writes NO quality-scores.json, so the scan above never sees it — it would
+  // vanish from the published board without a trace (gpt-5.4-mini: 28 calls, all rejected
+  // by OpenAI's strict-schema validator, zero scoreable output, absent from exclusions).
+  // A "twelve-model board" that silently shows eleven is a false disclosure; every roster
+  // id must appear as ranked or excluded-with-reason.
+  {
+    const seen = new Set<string>([...entries.map((e) => e.modelId), ...excludedModels]);
+    const rosterIds = (BENCHMARK_CONFIG.runs || []).map((r) => r.id);
+    for (const id of rosterIds) {
+      if (!seen.has(id)) {
+        excludedModels.add(id);
+        excludedReasons.add(`${id}: no scoreable output in the pinned run(s) — every call failed before scoring (see run logs/metrics for the error class)`);
+      }
+    }
+  }
+
   // Provenance: the exact run dir(s) that actually produced this board (auditable/reproducible).
   const sourceRunTimestamps = Array.from(new Set(entries.map((e) => e.runTimestamp))).sort();
   // MIXED-JUDGE GUARD (ADR SUTTA-010): a board's Semantic column is only comparable if every

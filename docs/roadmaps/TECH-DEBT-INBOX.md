@@ -83,3 +83,28 @@ Append-only raw debt receipts discovered during implementation.
 - Exit criteria: killing a run mid-model and relaunching re-bills ONLY failed/missing
   phases; a repeatRuns>1 run provably bypasses the cache; suite green with a test
   proving a cache hit writes cached:true and adds $0 to the run's accrued spend.
+
+[DEBT][BENCH][2026-07-22 17:00 IST] OpenAI strict-schema dialect adapter (gpt-5.4-mini unrankable)
+- Files: `scripts/sutta-studio/benchmark.ts` (createOpenRouterLLMCaller), `services/sutta-studio/schemas.ts`
+- Root cause (probe-verified, verbatim provider error): OpenAI's strict json_schema
+  validator requires `required` to include EVERY property key ("Missing 'isAnchor'",
+  code invalid_json_schema); optional fields must be nullable-unions instead.
+  Anthropic/Google accept our schemas; every gpt-5.4-mini call 400s before scoring.
+- Fix: mechanical schema transformer applied for openai/* models only (walk objects:
+  required := all keys; formerly-optional props get type unioned with null). Same
+  logical contract, provider-dialect compliance. Needs a red-proof (the probe reproduces
+  the 400) + a green-proof one-model run, and a disclosure line in methodology.
+- Exit criteria: gpt-5.4-mini completes a full 27-phase run and enters the board.
+
+[DEBT][BENCH][2026-07-22 17:00 IST] Anatomist prompt: referential completeness is demonstrated, never stated
+- File: `services/sutta-studio/prompts/anatomist.ts`
+- Evidence (claude-sonnet-5, phase-at, raw artifacts): model declared 24 segmentIds
+  across 6 words, delivered 6 segment objects (word 1 only), finish=end_turn with 5.4k
+  tokens headroom — its own handoff notes DISCUSS the decomposition of the words it
+  never delivered. Prompt has CRITICAL 1 (decompose) and CRITICAL 2 (surface-faithful)
+  but referential completeness (every declared id gets an object) is only implied by
+  the 3 worked examples (all 3-word phases; all complete).
+- Fix: add CRITICAL 3 stating the contract + one longer worked example. PROMPT-VERSION
+  BUMP — comparability break: schedule with the next full fleet re-run, never mid-board.
+- Exit criteria: promptVersion bumped, full roster re-run, gate-damage rates compared
+  before/after (the delta measures how much of today's Gate column was contract-implicitness).
