@@ -54,7 +54,7 @@ Therefore, a second decision was made:
 
 ### File location update (refactor history)
 
-The implementation pointer above is **stale**. `workers/translate.worker.ts` no longer exists — the only file remaining under `workers/` is `epub.worker.ts`. The preload logic was moved into the store layer at some point during a refactor that this ADR was never updated to reflect.
+The implementation pointer above is **stale**. The `workers/` directory has since been removed entirely (as of 2026-07; both `translate.worker.ts` and `epub.worker.ts` are gone). The preload logic was moved into the store layer during an earlier refactor that this ADR was never updated to reflect.
 
 **Current files (verified 2026-05-06):**
 - Pre-loader entry point: `store/slices/chaptersSlice.ts:preloadNextChapters` (~lines 878-1027). Triggered by setting `currentChapterId`; iterates from `1` to `settings.preloadCount` looking up chapters by `chapterNumber: currentChapter.chapterNumber + i`.

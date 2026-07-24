@@ -10,7 +10,7 @@ Generate professional EPUBs with embedded illustrations and stats.
 
 ## Templates & Overrides
 
-- Defaults: `services/epub/Templates.ts` (programmatic template builder).
+- Defaults: `services/epubService/templates/defaults.ts` (programmatic template builder).
 - Overrides (Settings):
   - `epubGratitudeMessage`
   - `epubProjectDescription`
@@ -18,7 +18,7 @@ Generate professional EPUBs with embedded illustrations and stats.
 
 ## XHTML/Sanitization
 
-- Conversion and constraints handled by `services/epub/XhtmlSerializer.ts`.
+- Conversion and constraints handled by `services/epubService/sanitizers/xhtmlSanitizer.ts`.
 - Only a safe subset of tags/attributes are preserved; invalid markup is dropped with a console warning.
 
 ## Statistics
@@ -26,9 +26,9 @@ Generate professional EPUBs with embedded illustrations and stats.
 - Costs, token usage, provider/model breakdowns, generation times, illustration counts.
 - Session insights aggregate navigation/hydration/export timings captured by the telemetry service.
 
-## Workers
+## Execution
 
-- Export runs in a worker with progress events. See `docs/Workers.md`.
+- Export runs on the main thread via a dynamic `import()` of `services/epubService` (triggered from `store/slices/exportSlice.ts`); there is no worker. Progress is surfaced through the export slice.
 
 ## Future Enhancements
 

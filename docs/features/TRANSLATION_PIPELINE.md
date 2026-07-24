@@ -166,24 +166,15 @@ interface AppSettings {
 }
 ```
 
-## Worker Architecture
+## Execution Model
 
-### Translation Worker (`workers/translate.worker.ts`)
+Translation runs on the main thread (no Web Worker), orchestrated by the store:
 
-**Message Protocol:**
-```typescript
-// Main → Worker
-{ type: 'START_TRANSLATION_JOB', payload: TranslationJob }
-{ type: 'CANCEL_TRANSLATION_JOB', payload: { jobId } }
-
-// Worker → Main
-{ type: 'TRANSLATION_PROGRESS', payload: TranslationProgress }
-```
-
-**Worker Behavior:**
-- For each chapter: check abort, post progress, call translateChapter()
-- Rate limit (429): exponential backoff, retry same chapter
-- Other error: record error result, continue to next chapter
+- **Entry:** `store/slices/translationsSlice.ts` (`handleTranslate`), with `store/autoTranslateMediator.ts` deciding when to auto-translate.
+- **Provider routing** and request/response handling: `services/ai/translatorRouter.ts` and `services/translate/`.
+- **Per chapter:** check abort → call the translator → persist the versioned result.
+- **Rate limit (429):** exponential backoff, retry the same chapter. Other errors: record and continue to the next chapter.
+- **Cancellation:** via `AbortController`.
 
 ## Caching Strategies
 

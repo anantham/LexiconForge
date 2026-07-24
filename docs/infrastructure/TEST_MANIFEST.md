@@ -1,8 +1,10 @@
 # Test Manifest
 
 > Auto-generated from disk scan on 2026-03-19, updated 2026-03-29.
-> Verify: `find tests/ -name '*.test.*' -o -name '*.spec.*' | sort`
-> Note: This manifest also includes 1 archived test under `archive/tests/`.
+> **⚠️ Stale (2026-07):** the 2026-07 cleanup deleted several tests listed below (`tests/epub/*`,
+> `tests/services/epub/*`, `archive/tests/*`) along with the `archive/` and `services/epub/` code
+> they covered. Regenerate before relying on the tables below.
+> Verify / regenerate: `find tests/ -name '*.test.*' -o -name '*.spec.*' | sort`
 
 ## Summary
 

@@ -15,7 +15,8 @@
 >
 > Earlier task tracking marked Phase 3 complete after Phase 2 landed; the 2026-05-16 doc audit caught
 > that two divergent callers (compiler/llm.ts and suttaStudioLLM.ts) still existed and reopened the
-> work. The canonical caller now lives at services/sutta-studio/llm.ts; both legacy files are shims.
+> work. The canonical caller now lives at services/sutta-studio/llm.ts. (Update 2026-07: the
+> `services/suttaStudioLLM.ts` shim has since been deleted as an unused orphan; `compiler/llm.ts` remains.)
 >
 > **Companion PR:** #50 (V2 wire) is PAUSED — its commits will be reworked once consolidation lands.
 

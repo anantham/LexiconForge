@@ -79,8 +79,7 @@ LexiconForge/
 │   └── features/      # Per-feature docs (Audio, EPUB, …)
 │
 ├── issues/            # 🐛 Numbered issue investigations with repro traces
-├── Marketing/         # Feature screenshots (intentionally tracked)
-└── archive/           # 🗄️ Deprecated code, kept for reference (not part of the build)
+└── Marketing/         # Feature screenshots (intentionally tracked)
 ```
 
 ### Quick Navigation Guide

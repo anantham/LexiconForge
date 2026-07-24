@@ -121,7 +121,7 @@ Memory monitoring is always active but only logs warnings at >90% usage. There's
 - Translation: `services/aiService.ts`, `services/claudeService.ts`, `services/translate/Translator.ts`
 - Image Gen: `services/imageService.ts`, `components/AdvancedImageControls.tsx`
 - Audio: `services/audio/*`
-- EPUB: `services/epub/*`
+- EPUB: `services/epubService/*`
 - Store: `store/*`
 - Telemetry: `services/telemetryService.ts`
 

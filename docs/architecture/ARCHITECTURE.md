@@ -6,19 +6,19 @@
 ┌──────────────┐   ┌───────────────┐   ┌───────────────┐
 │ UI (React)   │ → │ Zustand Store │ → │ Services Layer │
 └──────────────┘   └───────────────┘   └───────────────┘
-        ↑                    ↓                    ↓
-        │            workers/epub|translate       │
-        └────────────► background tasks ◄─────────┘
-                                      │
-                           providers / adapters
-                                      │
-                              IndexedDB (modular ops)
+        ↑                                        │
+        └──────────── state updates ─────────────┤
+                                                 ↓
+                                      providers / adapters
+                                                 │
+                                                 ↓
+                                     IndexedDB (modular ops)
 ```
 
 - **UI layer** lives under `components/` with feature-specific subdirectories (`components/settings/`, `components/chapter/`, `components/icons/`).
 - **Store layer** is a composed Zustand store (`store/index.ts`) with feature slices (`store/slices/*`) that import services directly.
 - **Services layer** under `services/` contains audio, translation, EPUB, and database modules.
-- **Workers** (`workers/translate.worker.ts`, `workers/epub.worker.ts`) offload heavy tasks.
+- **No worker tier**: heavy tasks run on the main thread — translation is orchestrated in the store slices via `services/ai/translatorRouter.ts` (abortable via `AbortController`), and EPUB export runs via a dynamic `import()` of `services/epubService` from `store/slices/exportSlice.ts`.
 - **Persistence** uses the modular operations stack (`services/db/operations/*`). The legacy monolithic `services/indexeddb.ts` was fully removed.
 
 
@@ -29,11 +29,11 @@
    - `translationsSlice` imports `TranslationService`, `ExplanationService`, `TranslationPersistenceService`.
    - `chaptersSlice` composes `NavigationService`, `stableIdService`, chapter operations.
    - `imageSlice` coordinates `ImageGenerationService`, `ImageCacheService`, and persistence.
-3. **Services** fan out to provider adapters, workers, telemetry, and persistence.
+3. **Services** fan out to provider adapters, telemetry, and persistence.
 4. **Persistence**:
    - All persistence now uses the modular ops layer: `ChapterOps`, `TranslationOps`, `FeedbackOps`, `ImageOps`, `SettingsOps`, `TemplatesOps`, `AmendmentOps`, `DiffOps`, `ImportOps`, `MaintenanceOps`, `MappingsOps`, `NavigationOps`, `SchemaOps`, `SessionExportOps`.
    - Connection managed via `services/db/core/connection.ts`.
-5. **Workers** call back into services (e.g., `workers/epub.worker.ts` delegates to `services/epub/exportService.ts`).
+5. **EPUB export** is triggered from `exportSlice` via a dynamic `import()` of `services/epubService` and runs on the main thread (no worker).
 
 
 ## 3. Persistence Stack
@@ -65,7 +65,7 @@
 ### Services & Adapters
 
 - **AI/Translation**: `services/translationService.ts` orchestrates requests; provider adapters in `adapters/providers/*.ts` talk to OpenAI/Gemini/Claude/DeepSeek.
-- **EPUB**: `services/epub/exportService.ts` and worker handle DOM cloning, sanitization, packaging.
+- **EPUB**: `services/epubService.ts` (facade over `services/epubService/{data,generators,sanitizers,packagers,templates}`) handles DOM cloning, sanitization, and packaging; invoked via dynamic import from `store/slices/exportSlice.ts`.
 - **Audio**: `services/audio/*.ts` manage generation providers and OPFS storage.
 - **Images**: `services/imageService.ts` with `ImageCacheService` for blob storage.
 - **Sutta Studio Pipeline**: See Section 4.5 below.
@@ -227,5 +227,5 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 
 ---
 
-*Last updated: March 2026*
+*Last updated: July 2026 (worker tier removed; EPUB export moved to `services/epubService/`).*
 *Previous major update: January 2026*

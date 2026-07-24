@@ -1,27 +1,29 @@
-# Workers & Batch Jobs
+# Workers & Background Tasks
 
-LexiconForge offloads long‑running tasks to Web Workers.
+> **Update (2026-07):** LexiconForge no longer uses Web Workers. The `workers/` directory and its
+> `translate.worker.ts` / `epub.worker.ts` were removed. Heavy tasks now run on the main thread,
+> orchestrated from the Zustand store. This page documents where that work lives now.
 
-## Translation Worker (`workers/translate.worker.ts`)
+## Translation
 
-Messages from main thread:
-- `START_TRANSLATION_JOB` with payload `{ id, chapters[], settings, history, fanTranslation }`
-- `CANCEL_TRANSLATION_JOB` with `{ jobId }`
+Translation runs inline (no worker), orchestrated by the store:
 
-Progress messages to main thread:
-- `TRANSLATION_PROGRESS` with `{ jobId, completed, total, currentChapter?, error?, results? }`
+- `store/slices/translationsSlice.ts` queues and persists translation jobs; `store/autoTranslateMediator.ts` decides when to auto-translate.
+- Provider routing and request/response handling live in `services/ai/` (`translatorRouter.ts`, `responseValidators.ts`) and `services/translate/`.
+- Jobs are processed sequentially (to respect rate limits) and are abortable via `AbortController`; retries use exponential backoff on 429s, and JSON parse errors fail fast.
 
-Behavior:
-- Sequential processing (respects rate limits), abortable via `AbortController`.
-- Retries with exponential backoff on 429s; JSON parse errors fail fast.
-- History window limited (keeps last ~3) to bound context.
+## EPUB export
 
-## EPUB Worker (`workers/epub.worker.ts`)
+EPUB export runs on the main thread via a dynamic `import()` of `services/epubService`:
 
-- Similar request/progress contract for EPUB generation; posts incremental updates.
+- Triggered from `store/slices/exportSlice.ts` (`generateEpub`).
+- Implementation lives under `services/epubService/` (`data/`, `generators/`, `sanitizers/`, `packagers/`, `templates/`). See [EPUB export](../features/EPUB.md).
+
+## Chapter preloading
+
+Preloading was moved into the store layer (see ADR [`FEAT-001`](../adr/FEAT-001-preloader-strategy.md)); it is not a worker.
 
 ## Notes
 
-- Errors are surfaced via progress `error` and console with detailed messages.
-- Consumers should handle cancellation/UI state transitions idempotently.
-
+- Errors surface through store state (`uiSlice` error handling) and the console with detailed messages.
+- Consumers should handle cancellation and UI state transitions idempotently.

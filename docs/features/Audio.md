@@ -38,5 +38,5 @@ This guide explains how to generate background music and audio cues directly in 
 
 - Service layer: `services/audio/*`
 - Types: `types.ts` (Audio*)
-- UI: `components/AudioControls.tsx`, `components/AudioPlayer.tsx`
+- UI: `components/AudioPlayer.tsx`
 

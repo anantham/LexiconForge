@@ -32,7 +32,7 @@
 | Tests | `*.test.ts` / `*.test.tsx` | `suttaStudioRehydrator.test.ts` |
 | ADRs | `DOMAIN-NNN-kebab-title.md` | `SUTTA-006-pipeline-caching-architecture.md` |
 
-**Directories:** `kebab-case` for feature directories (`sutta-studio/`, `session-info/`), `camelCase` for service subdirectories (`services/db/`, `services/epub/`).
+**Directories:** `kebab-case` for feature directories (`sutta-studio/`, `session-info/`), `camelCase` for service subdirectories (`services/db/`, `services/epubService/`).
 
 ---
 
@@ -171,4 +171,4 @@ These are places where you might expect a convention and find something differen
 | ADRs dated 2025-01-13 status | `Proposed` | Now `Implemented` | Updated 2026-03-05 in doc audit |
 | Repository file names | `camelCase.ts` | `PascalCase.ts` | Class-like semantics; `services/db/repositories/*.ts` (5 files) |
 | Provider/Adapter file names | `camelCase.ts` | `PascalCase.ts` | Pattern-based naming; `services/audio/*Provider.ts`, `services/diff/SimpleLLMAdapter.ts`, `services/translate/Translator.ts` |
-| `*Service.ts` file names | `camelCase.ts` | `PascalCase.ts` | **Violation** — 9 files (`AudioService.ts`, `OSTLibraryService.ts`, `DiffAnalysisService.ts`, `DiffTriggerService.ts`, `HtmlRepairService.ts`, `HtmlSanitizer.ts`, `PromptRegistry.ts`, `epub/Templates.ts`, `epub/XhtmlSerializer.ts`) should be renamed to camelCase in a future cleanup PR |
+| `*Service.ts` file names | `camelCase.ts` | `PascalCase.ts` | **Violation** — 6 files (`AudioService.ts`, `OSTLibraryService.ts`, `DiffAnalysisService.ts`, `DiffTriggerService.ts`, `HtmlRepairService.ts`, `HtmlSanitizer.ts`) should be renamed to camelCase in a future cleanup PR |

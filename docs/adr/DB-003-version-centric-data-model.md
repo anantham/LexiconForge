@@ -9,7 +9,7 @@
 Version-centric model implemented with `translation_id` as the stable anchor for all
 version-dependent data (feedback, images, footnotes). Cascade delete semantics enforced
 in `services/db/operations/translations.ts`. Data invariants I1-I7 documented in this ADR
-are checked by `services/db/maintenanceService.ts`.
+are checked by `services/db/operations/maintenance.ts` (`MaintenanceOps`).
 
 ## Context
 
