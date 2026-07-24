@@ -97,6 +97,19 @@ export const validatePhase = (
       const { linkedPaliId, ...rest } = token;
       return rest;
     }
+    // Segment-level links were the blind spot: MN117 shipped 59 dangling
+    // linkedSegmentId refs while only linkedPaliId was checked (2026-07-24).
+    if (token.linkedSegmentId && !segmentIds.has(token.linkedSegmentId)) {
+      issues.push({
+        level: 'warn',
+        code: 'linked_pali_missing',
+        message: `English token linked to missing segment "${token.linkedSegmentId}"; link removed.`,
+        phaseId: phase.id,
+        tokenId: token.id,
+      });
+      const { linkedSegmentId, ...rest } = token;
+      return rest;
+    }
     return token;
   });
 

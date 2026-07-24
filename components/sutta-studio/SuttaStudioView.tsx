@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { repairEnglishStructure } from '../../services/sutta-studio/utils';
 import Xarrow, { Xwrapper } from 'react-xarrows';
 import type { DeepLoomPacket } from '../../types/suttaStudio';
 import { EnglishWordEngine } from './EnglishWord';
@@ -376,7 +377,11 @@ export function SuttaStudioView({
       return null;
     };
 
-    const tokens = phase.englishStructure;
+    // Render backstop for reader-report-II classes (dangling links after repair,
+    // morpheme-token gloss stutter) — packets at rest are migrated by
+    // scripts/sutta-studio/repair-english-structure.ts; this defends against
+    // any packet that predates the migration or slips past the validator.
+    const tokens = repairEnglishStructure(phase).tokens as typeof phase.englishStructure;
     const nextLinked: Array<string | null> = new Array(tokens.length).fill(null);
     let upcoming: string | null = null;
     for (let i = tokens.length - 1; i >= 0; i--) {

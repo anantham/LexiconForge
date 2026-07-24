@@ -129,11 +129,13 @@ Append-only raw debt receipts discovered during implementation.
 - Symptom: production weaver links one english token per SEGMENT (morpheme-level alignment — the ambition is right), but segments carry no senses, so the view's parent-word fallback renders the full gloss once per morpheme: "right view right view comes first comes first".
 - Fixes, cheapest first: (a) view dedupe — only the first segment-token of a word renders the parent gloss; (b) validator `segment_link_without_segment_senses`; (c) lexicographer emits per-segment senses for compounds (unlocks true morpheme-level hover).
 - Invisible to: senses F1, alignment scorer, tap test (all stuttered tokens light correctly). Only a reader sees it.
+- STATUS 2026-07-24: (a) view backstop + (b) validator SHIPPED same day (repairEnglishStructure + english_gloss_stutter; mn117 migrated, 445 collapsed); (c) lexicographer per-segment senses REMAINS OPEN — weaver-lane.
 
 [DEBT][VALIDATOR][2026-07-24 · reader-report-II] Repair renumbers words; english links dangle (59/1,374 in MN117)
 - Files: `services/sutta-studio/utils.ts` (repairAnatomistSurfaces), `services/suttaStudioPacketValidator.ts` (relationsValid), `content/references/sutta/mn117.json` (phases 5/6 link nonexistent p2)
 - Symptom: v1 surface repair dropped/renumbered anatomist words without remapping englishStructure; 59 linked tokens point at missing words/segments and render as empty pills. relationsValid either doesn't cover english→pali refs or absorbed the hit silently.
 - Fix: repair remaps or drops affected english tokens; validator fails loudly on dangling english links (prove red on committed mn117).
+- STATUS 2026-07-24: SHIPPED — english_link_dangling (error) in packet validator; compile validator's linkedSegmentId blind spot closed; mn117 migrated (57 dropped, red→green proven).
 
 [DEBT][VALIDATOR][2026-07-24 · reader-report-II] Punctuation inside segment texts + garbage senses
 - Symptom: production segments keep clause punctuation (`bhikkhav·e,`, `ho·ti.`), bare comma as its own morpheme (`ca·,` ×10), quote chars inside segments (`“bhikkhav·o”·ti.`), and a literal `"` emitted as a sense.

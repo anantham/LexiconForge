@@ -26,9 +26,8 @@ attha·ṅ·gam·āya in MN10) — a house style, not noise.
 ## The weave stutters — and the mechanism is nobler than the symptom
 
 Rendered lines read like this (phase-16): *"In this In this context right
-view right view comes first comes first."* Measured: **399 words are
-rendered by more than one English token, across 158 of 175 phases** — 90% of
-the page stutters somewhere.
+view right view comes first comes first."* Measured (by the repair tool that later fixed it): **445 repeat gloss tokens
+across 399 words and 158 of 175 phases** — 90% of the page stutters somewhere.
 
 The mechanism, verified at the raw JSON and the view code, is not sloppy
 linking. The production weaver emits **one English token per Pāli
@@ -48,8 +47,8 @@ the morpheme-level interface the weaver is already trying to build.
 ## Dangling links: the repair renumbered words and nobody told the English
 
 Phases 5 and 6 both link `p2s1`; neither phase has a word `p2`. Measured
-across the packet: **59 of 1,374 linked tokens point at words or segments
-that do not exist** — they render as empty pills. The likely cause is the
+across the packet: **57 linked tokens point at words or segments that do
+not exist** — they render as empty pills. The likely cause is the
 v1 surface repair dropping/renumbering anatomist words without remapping
 `englishStructure`, and the gate's `relationsValid` term either not covering
 english→pali refs or absorbing the hit silently. Repair must remap or drop
@@ -76,8 +75,8 @@ Swept mechanically across both packets (same-surface, different cuts):
 | cut inconsistently | 4 | **61** |
 | worst offender | viharati ×13, 3 cuts | **bhikkhave ×88, 2 cuts** |
 | ghost/sense collisions | 6 | 37 |
-| stuttered words | 0 | 399 |
-| dangling english links | 0 | 59 |
+| stuttered words | 1† | 399 |
+| dangling english links | 0 | 57 |
 
 The sharp edge: the *most repeated* word is the least consistent, because
 phases compile statelessly — the same word is re-analyzed from scratch 88
@@ -115,3 +114,40 @@ tradition (my own composition, not canonical):
 >
 > Made by machine, read by machine.
 > Forgive the stumbles; may what is sound be for the good of all.
+
+## Postscript, same day: the fix landed, and the table above needed one correction
+
+The three-layer stack from the discussion of this report shipped within hours:
+
+- **Backstop (view):** `SuttaStudioView` now renders every phase through
+  `repairEnglishStructure` (services/sutta-studio/utils.ts) — dangling tokens
+  dropped, senseless morpheme-token repeats collapsed to one word-level token.
+- **Validator (seam):** `suttaStudioPacketValidator` emits
+  `english_link_dangling` (error) and `english_gloss_stutter` (warn) using the
+  SAME pure function, so the validator can never be weaker than the renderer;
+  and the compile-time validator's blind spot is closed (it checked
+  `linkedPaliId` but never `linkedSegmentId` — which is exactly where all 57
+  danglings lived).
+- **Data (at rest):** `scripts/sutta-studio/repair-english-structure.ts`
+  migrated mn117.json (57 dropped, 445 collapsed, provenance note appended);
+  dry-run red proof before, 0/0 green proof after. Guards for every branch in
+  `tests/services/sutta-studio/english-structure-repair.test.ts`.
+- **Not done here, still open:** the generator contract (lexicographer emits
+  per-segment senses, unlocking true morpheme-level hover) — weaver-lane work,
+  filed in TECH-DEBT-INBOX.
+
+**† The correction.** The table originally claimed the flagship had 0
+stuttered words. That number was an unverified impression — the stutter sweep
+had only been run on MN117 — and the refined tool found exactly one flagship
+instance: phase-aq, *sato* ("So satova assasati, satova passasati"), where
+the curator wanted "mindfully" rendered twice (once per breath verb) and
+expressed intentional repetition through segment links, the only idiom then
+available. That case VALIDATED the rule design — segment-link repeats are
+degenerate, word-link repeats are intent — and the flagship was fixed by
+converting those two tokens to explicit word-level links, preserving the
+double "mindfully" the reading wants. Ledgered as an instrument-claim-gap:
+even a report about unverified claims contained one.
+
+Verification after the stack: tsc 0 errors (the old 17-error baseline was
+retired by the 2026-07 dead-code cleanup), full suite 8,860 passed / 0
+failed, vite build green, both packets 0 dangling / 0 stutter.

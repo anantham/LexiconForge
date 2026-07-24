@@ -11,7 +11,7 @@ import type {
   PhaseView,
   ValidationIssue,
 } from '../types/suttaStudio';
-import { partitionSurfaceMismatches, splitPaliTokens } from './sutta-studio/utils';
+import { partitionSurfaceMismatches, splitPaliTokens, repairEnglishStructure } from './sutta-studio/utils';
 
 const VALIDATOR_VERSION = '1.0.0';
 
@@ -173,6 +173,30 @@ export function validatePacket(
         message: `Segment ${dup.segmentId} is linked by ${dup.count} English tokens in phase ${phase.id}`,
         phaseId: phase.id,
         canonicalSegmentId: dup.segmentId,
+      });
+    }
+  }
+
+  // 4b. English link integrity + gloss stutter (reader-report II, 2026-07-24).
+  // Uses the same pure repair the view applies at render time, so the validator
+  // can never be weaker than the renderer's own backstop.
+  for (const phase of packet.phases) {
+    if (phase.degraded) continue;
+    const { stats: engStats } = repairEnglishStructure(phase);
+    if (engStats.droppedDangling > 0) {
+      issues.push({
+        level: 'error',
+        code: 'english_link_dangling',
+        message: `${engStats.droppedDangling} English token(s) link words/segments that do not exist in phase ${phase.id} (repair renumbered words without remapping englishStructure?)`,
+        phaseId: phase.id,
+      });
+    }
+    if (engStats.collapsedStutter > 0) {
+      issues.push({
+        level: 'warn',
+        code: 'english_gloss_stutter',
+        message: `${engStats.collapsedStutter} repeat gloss token(s) in phase ${phase.id}: segment-level links without segment senses render the word gloss once per morpheme`,
+        phaseId: phase.id,
       });
     }
   }

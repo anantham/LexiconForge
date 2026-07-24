@@ -530,3 +530,95 @@ export const partitionSurfaceMismatches = (
   }
   return { total: n, mismatched: cost[0], mismatchedIdx };
 };
+
+export type EnglishStructureRepairStats = {
+  /** Tokens dropped because their linked word/segment does not exist (repair
+   *  renumbered anatomist words without remapping englishStructure). */
+  droppedDangling: number;
+  /** Repeat gloss tokens collapsed: segment-level links with NO segment senses
+   *  render the parent word's gloss once per morpheme ("right view right view"). */
+  collapsedStutter: number;
+};
+
+/**
+ * Repair an englishStructure for faithful rendering (reader-report II classes).
+ *
+ * 1. DANGLING: a token linking a word/segment that does not exist renders as an
+ *    empty pill — dropped.
+ * 2. STUTTER: the weaver emits one token per SEGMENT (morpheme-level alignment),
+ *    but when those segments carry no senses the view can only render the parent
+ *    word's gloss per token, printing it once per morpheme. Repeats collapse to
+ *    the first token, promoted to a word-level link so hovering ANY morpheme
+ *    lights it (whole-word bidirectional behaviour).
+ *
+ * Deliberately untouched: ghosts; explicit word-level links (the flagship links
+ * the same word twice on purpose — "or … or" for a repeated vā); segment links
+ * whose segment HAS its own senses (true morpheme-level alignment, the future
+ * path). Pure — used by the view at render time as a backstop and by
+ * scripts/sutta-studio/repair-english-structure.ts to fix packets at rest.
+ */
+export const repairEnglishStructure = (phase: {
+  paliWords: Array<{ id: string; segments: Array<{ id?: string; senses?: unknown[] }> }>;
+  englishStructure?: Array<Record<string, any>>;
+}): { tokens: Array<Record<string, any>>; stats: EnglishStructureRepairStats } => {
+  const wordIds = new Set(phase.paliWords.map((w) => w.id));
+  const segToWord = new Map<string, string>();
+  const segHasSenses = new Map<string, boolean>();
+  for (const w of phase.paliWords) {
+    for (const seg of w.segments ?? []) {
+      if (!seg.id) continue;
+      segToWord.set(seg.id, w.id);
+      segHasSenses.set(seg.id, Boolean(seg.senses && seg.senses.length > 0));
+    }
+  }
+
+  const stats: EnglishStructureRepairStats = { droppedDangling: 0, collapsedStutter: 0 };
+  const tokens: Array<Record<string, any>> = [];
+  /** wordId → index in `tokens` of the token already rendering its gloss. */
+  const glossRenderedAt = new Map<string, number>();
+
+  for (const t of phase.englishStructure ?? []) {
+    if (t.isGhost) {
+      tokens.push(t);
+      continue;
+    }
+    if (t.linkedPaliId) {
+      if (!wordIds.has(t.linkedPaliId)) {
+        stats.droppedDangling += 1;
+        continue;
+      }
+      if (!glossRenderedAt.has(t.linkedPaliId)) glossRenderedAt.set(t.linkedPaliId, tokens.length);
+      tokens.push(t); // word-level links always render (intentional repetition allowed)
+      continue;
+    }
+    if (t.linkedSegmentId) {
+      const wid = segToWord.get(t.linkedSegmentId);
+      if (!wid) {
+        stats.droppedDangling += 1;
+        continue;
+      }
+      if (segHasSenses.get(t.linkedSegmentId)) {
+        tokens.push(t); // true morpheme-level sense — render as-is
+        continue;
+      }
+      const at = glossRenderedAt.get(wid);
+      if (at === undefined) {
+        glossRenderedAt.set(wid, tokens.length);
+        tokens.push(t);
+        continue;
+      }
+      // Repeat gloss with no distinct segment sense → stutter. Drop, and promote
+      // the kept token (if segment-linked) to word level for whole-word hover.
+      stats.collapsedStutter += 1;
+      const kept = tokens[at];
+      if (kept && !kept.isGhost && kept.linkedSegmentId && !kept.linkedPaliId) {
+        const { linkedSegmentId: _dropped, ...rest } = kept;
+        tokens[at] = { ...rest, linkedPaliId: wid };
+      }
+      continue;
+    }
+    tokens.push(t); // unlinked non-ghost token — leave as authored
+  }
+
+  return { tokens, stats };
+};

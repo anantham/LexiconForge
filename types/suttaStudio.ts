@@ -81,7 +81,9 @@ export type ValidationIssue = {
     | 'english_content_missing' // Source English words missing from artifact (artifact should be superset)
     | 'phase_degraded' // Phase failed compilation
     | 'surface_repaired' // Anatomist surfaces auto-corrected to the canonical text (model mangled them)
-    | 'surface_mismatch'; // Rendered word surface not found in canonical text (repair skipped or missed)
+    | 'surface_mismatch' // Rendered word surface not found in canonical text (repair skipped or missed)
+    | 'english_link_dangling' // English token links a word/segment that does not exist (renders as an empty pill)
+    | 'english_gloss_stutter'; // Multiple senseless segment-tokens render one word's gloss repeatedly ("right view right view")
   message: string;
   phaseId?: string;
   wordId?: string;
