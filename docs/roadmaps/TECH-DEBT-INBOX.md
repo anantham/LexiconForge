@@ -108,3 +108,18 @@ Append-only raw debt receipts discovered during implementation.
   BUMP — comparability break: schedule with the next full fleet re-run, never mid-board.
 - Exit criteria: promptVersion bumped, full roster re-run, gate-damage rates compared
   before/after (the delta measures how much of today's Gate column was contract-implicitness).
+
+[DEBT][UI][2026-07-24 · reader-report] Ghost/sense particle collision renders doubled function words
+- Files:
+  - `components/sutta-studio/EnglishWord.tsx` (renders linked tokens as the word's sense)
+  - `services/suttaStudioPacketValidator.ts` (natural home for the tripwire)
+  - `content/references/sutta/mn10.json` (live instance: phase-5)
+- Symptom:
+  - phase-5 renders "for the attainment of the of the true way": the ghost token supplies "(of the)" while the linked word's first sense already begins with "of the" (ñāyassa → "of the true way").
+  - Class: any ghost label whose trailing word equals the leading word of the adjacent linked token's displayed sense.
+- Suggested follow-up:
+  - Mechanical validator check over englishStructure: for each ghost, compare its label's last word against the next linked token's sense[0] first word (case-folded); flag as `ghost_sense_collision`.
+  - Fix instances by trimming either the ghost or the sense's leading particle; senses that embed case particles ("of the X") are the deeper cause.
+- Exit criteria:
+  - Validator flags the phase-5 instance on the committed packet (proven red), then the packet is repaired and the check stays green.
+- Source: docs/benchmarks/reader-report-mn10-2026-07-24.md (first strong-reader qualitative pass; also documents the quotation-ghosting root cause of the 16 dead 'ti links and a cross-phase cut inconsistency for bhikkhave).
