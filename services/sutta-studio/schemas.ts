@@ -176,6 +176,29 @@ export const lexicographerResponseSchema = {
         additionalProperties: false,
       },
     },
+    segmentSenses: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          segmentId: { type: 'string' },
+          senses: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                english: { type: 'string' },
+                nuance: { type: 'string' },
+              },
+              required: ['english', 'nuance'],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ['segmentId', 'senses'],
+        additionalProperties: false,
+      },
+    },
     handoff: {
       type: 'object',
       properties: {

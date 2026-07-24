@@ -15,4 +15,4 @@
 //                      phase prompt window. See services/sutta-studio/utils.ts:formatPriorPhasesContext.
 //                      Bump invalidates v11 cache entries — they were correct under their window
 //                      but lacked the cross-phase observations v12 enables.
-export const SUTTA_STUDIO_PROMPT_VERSION = 'sutta-studio-v12-prior-phase-context';
+export const SUTTA_STUDIO_PROMPT_VERSION = 'sutta-studio-v13-segment-senses';

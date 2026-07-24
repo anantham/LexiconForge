@@ -132,9 +132,13 @@ The three-layer stack from the discussion of this report shipped within hours:
   migrated mn117.json (57 dropped, 445 collapsed, provenance note appended);
   dry-run red proof before, 0/0 green proof after. Guards for every branch in
   `tests/services/sutta-studio/english-structure-repair.test.ts`.
-- **Not done here, still open:** the generator contract (lexicographer emits
-  per-segment senses, unlocking true morpheme-level hover) — weaver-lane work,
-  filed in TECH-DEBT-INBOX.
+- **Layer 1 (generator), shipped later the same day:** the schema now admits
+  `segmentSenses`, the prompt (v13) asks for them — meaningful parts only,
+  never inflectional endings, worked example rājaputta (leak-guard verified) —
+  and the downstream needed NOTHING: the rehydrator and view had carried the
+  path all along. Live one-phase smoke on gemini-3-flash: sammā·diṭṭhi came
+  back "right"·"view", pubba·ṅgam "before"·"going", and the ·ā ending was
+  correctly skipped. True morpheme-level hover is now a compile away.
 
 **† The correction.** The table originally claimed the flagship had 0
 stuttered words. That number was an unverified impression — the stutter sweep

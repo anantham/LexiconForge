@@ -129,7 +129,7 @@ Append-only raw debt receipts discovered during implementation.
 - Symptom: production weaver links one english token per SEGMENT (morpheme-level alignment — the ambition is right), but segments carry no senses, so the view's parent-word fallback renders the full gloss once per morpheme: "right view right view comes first comes first".
 - Fixes, cheapest first: (a) view dedupe — only the first segment-token of a word renders the parent gloss; (b) validator `segment_link_without_segment_senses`; (c) lexicographer emits per-segment senses for compounds (unlocks true morpheme-level hover).
 - Invisible to: senses F1, alignment scorer, tap test (all stuttered tokens light correctly). Only a reader sees it.
-- STATUS 2026-07-24: (a) view backstop + (b) validator SHIPPED same day (repairEnglishStructure + english_gloss_stutter; mn117 migrated, 445 collapsed); (c) lexicographer per-segment senses REMAINS OPEN — weaver-lane.
+- STATUS 2026-07-24: (a) view backstop + (b) validator SHIPPED same day (repairEnglishStructure + english_gloss_stutter; mn117 migrated, 445 collapsed); (c) lexicographer per-segment senses ALSO SHIPPED same day — schema + prompt v13 (rājaputta example, leak-guard green) + thread guards + live smoke (gemini-3-flash produced right·view / before·going, skipped the ·ā ending). Future compiles get morpheme-level hover; already-shipped packets still render via the backstop.
 
 [DEBT][VALIDATOR][2026-07-24 · reader-report-II] Repair renumbers words; english links dangle (59/1,374 in MN117)
 - Files: `services/sutta-studio/utils.ts` (repairAnatomistSurfaces), `services/suttaStudioPacketValidator.ts` (relationsValid), `content/references/sutta/mn117.json` (phases 5/6 link nonexistent p2)
