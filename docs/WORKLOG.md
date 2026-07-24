@@ -1,3 +1,7 @@
+### [2026-07-24 11:20 IST] [Agent: Fable 5] — handover hardening: key-preflight shipped, skill guard built
+**Status:** Complete (session close).
+**Shipped:** (1) `preflightOpenRouterKey()` in benchmark.ts — free GET /api/v1/key before any run: fail-closed on an exhausted key (<$0.50), loud warning with full numbers when remaining < the spend cap (the 07-21 mid-run key death was fully predictable; resume is model-granular so it cost the in-flight model's whole progress). Live-proofed against the real key (remaining $28.34 < cap $50 → warns, no abort). (2) Handover skill → 1.16.0: carried-forward reconciliation is now a BINDING TABLE (pointer-compression caught for the 3rd time by the operator's "is this exhaustive though?" — the newly-timely class, e.g. "queued with v2.2" after v2.2 shipped, is what pointers structurally cannot surface). Session handover + addendum live in project memory (`_session-handover-2026-07-24-board-campaign`).
+
 ### [2026-07-24 08:37 IST] [Agent: Opus 4.8] — doc-staleness sweep: repoint living docs to post-cleanup code
 **Status:** Complete; committed + pushed to main (docs only, no code change).
 **Task:** After a doc audit (self + Codex second-eye, every finding verified against the code), fix the living docs that still referenced code removed in the 2026-07 cleanup — the `workers/` dir (fully gone), `services/epub/` (→ `services/epubService/`), and the deleted orphan modules.

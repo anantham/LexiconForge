@@ -1093,7 +1093,49 @@ const buildEnglishText = (phase: FixturePhase, segments: CanonicalSegment[]): st
 const isFixturePhase = (p: FixturePhase | SkeletonFixture): p is FixturePhase =>
   'anatomist' in p && 'expectedPhaseView' in p;
 
+/**
+ * KEY PREFLIGHT (promised 2026-07-22, the day a key died mid-run at $40.11/$40.00).
+ * OpenRouter's GET /api/v1/key is free and returns limit_remaining; a run that will
+ * die on key exhaustion is fully predictable BEFORE the first billed call. Resume is
+ * model-granular, so a mid-run death forfeits the in-flight model's whole progress.
+ * Fail-closed on an exhausted key; warn (loudly, with the numbers — a number never
+ * travels without its denominator) when remaining < the run's own spend cap; a
+ * preflight NETWORK failure only warns, so a probe outage can't block a valid run.
+ */
+const preflightOpenRouterKey = async (): Promise<void> => {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  const usesOpenRouter = BENCHMARK_CONFIG.runs.some((r) => r.model.provider === 'OpenRouter');
+  if (!usesOpenRouter || !apiKey) return;
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/key', {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    const data = (await res.json())?.data;
+    const remaining: number | null = data?.limit_remaining ?? null;
+    const limit = data?.limit ?? 'none';
+    const usage = data?.usage ?? '?';
+    console.log(`[Preflight] OpenRouter key: usage $${usage} / limit ${limit} / remaining ${remaining ?? 'unlimited'}`);
+    if (remaining !== null && remaining < 0.5) {
+      throw new Error(
+        `KEY EXHAUSTED before launch: limit_remaining $${remaining.toFixed(2)}. ` +
+        'Raise the key limit or rotate the key — launching would fail every call at $0.',
+      );
+    }
+    const cap = BENCHMARK_CONFIG.maxSpendUsd;
+    if (remaining !== null && cap != null && remaining < cap) {
+      console.warn(
+        `[Preflight] WARNING: key remaining ($${remaining.toFixed(2)}) < run spend cap ($${cap}). ` +
+        'The run may die mid-model on key exhaustion (resume is model-granular; the in-flight model repeats from scratch).',
+      );
+    }
+  } catch (e) {
+    if (e instanceof Error && e.message.startsWith('KEY EXHAUSTED')) throw e;
+    console.warn(`[Preflight] key check unreachable (${e instanceof Error ? e.message : e}) — proceeding; the SpendGuard still fail-closes in-run.`);
+  }
+};
+
 const runBenchmark = async () => {
+  await preflightOpenRouterKey();
   const { phase, phaseKey, skeletonSegments, skeletonPhases, skeletonSource } =
     await loadFixture();
   const workId = BENCHMARK_CONFIG.fixture.workId;
