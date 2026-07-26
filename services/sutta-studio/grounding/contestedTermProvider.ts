@@ -138,7 +138,10 @@ function collectCitationsForTerm(term: string, entry: RegistryEntry): Citation[]
         excerpt,
         provenance: 'manual',
         query: term,
-        fetchedAt: verified ?? '2026-05-14',
+        // Only rows the curator actually verified carry a stamp. Rows without
+        // one get NO fetchedAt — the previous fallback ('2026-05-14') fabricated
+        // a fetch timestamp for unverified rows.
+        ...(verified ? { fetchedAt: verified } : {}),
         license,
       });
     }
@@ -147,6 +150,29 @@ function collectCitationsForTerm(term: string, entry: RegistryEntry): Citation[]
 
   walk(entry);
   return citations;
+}
+
+/**
+ * Collects the entry's own `needsVerification` markers (parse-level and
+ * doctrinalContext-level in the registry schema). Returned joined so the
+ * emitted claim can carry the registry's honesty about unverified rows.
+ */
+function collectNeedsVerification(entry: RegistryEntry): string | undefined {
+  const markers = new Set<string>();
+  const walk = (obj: unknown): void => {
+    if (!obj || typeof obj !== 'object') return;
+    if (Array.isArray(obj)) {
+      for (const item of obj) walk(item);
+      return;
+    }
+    const record = obj as Record<string, unknown>;
+    if (typeof record.needsVerification === 'string' && record.needsVerification) {
+      markers.add(record.needsVerification);
+    }
+    for (const value of Object.values(record)) walk(value);
+  };
+  walk(entry);
+  return markers.size > 0 ? Array.from(markers).join('; ') : undefined;
 }
 
 export class ContestedTermProvider implements GroundingProvider {
@@ -186,10 +212,12 @@ export class ContestedTermProvider implements GroundingProvider {
       if (citations.length === 0) continue;
 
       const curatorNote = (entry as RegistryEntry).curatorNote;
+      const needsVerification = collectNeedsVerification(entry as RegistryEntry);
       claims.push({
         term: registryTerm,
         citations,
         narrative: curatorNote,
+        ...(needsVerification ? { needsVerification } : {}),
       });
     }
 

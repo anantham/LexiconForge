@@ -1,7 +1,39 @@
 // Centralized HTML sanitization utilities used by reader and EPUB paths.
+//
+// Scope honesty: this is a REGEX-based tag/attribute hardening layer, not a
+// parser-backed sanitizer. It escapes non-allowlisted tags, strips attributes
+// from inline formatting tags, and (for ALL allowlisted tags) removes on*
+// event-handler attributes and javascript:/data:text URLs in href/src. It is
+// defense-in-depth for the reader tokenizer and EPUB paths — do NOT treat its
+// output as safe for dangerouslySetInnerHTML; the EPUB path's real defense is
+// xhtmlSanitizer.
 
 export interface SanitizeHtmlOptions {
   allowHr?: boolean;
+}
+
+/**
+ * Strip dangerous attributes from every tag that survives the allowlist:
+ *  - any on* event-handler attribute (onerror, onclick, onload, …), quoted,
+ *    unquoted, or valueless
+ *  - href/src attributes whose value starts with javascript: or data:text
+ *    (data:image/* is deliberately preserved — exports embed images that way)
+ */
+function stripDangerousAttributes(html: string): string {
+  return html.replace(/<([a-zA-Z][a-zA-Z0-9]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g, (match, tag: string, attrs: string) => {
+    if (!attrs) return match;
+    let cleaned = attrs;
+    // Event handlers with a value (quoted or bare)
+    cleaned = cleaned.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+    // Valueless event handlers (<img onerror>)
+    cleaned = cleaned.replace(/\s+on\w+(?=[\s/>]|$)/gi, '');
+    // javascript: / data:text URLs in href/src (tolerate leading whitespace in the value)
+    cleaned = cleaned.replace(
+      /\s+(?:href|src)\s*=\s*(?:"\s*(?:javascript:|data:\s*text)[^"]*"|'\s*(?:javascript:|data:\s*text)[^']*'|(?:javascript:|data:text)[^\s>]*)/gi,
+      ''
+    );
+    return `<${tag}${cleaned}>`;
+  });
 }
 
 // Tolerant sanitizer for reader display and AI outputs
@@ -32,6 +64,10 @@ export function sanitizeHtml(input: string, options?: SanitizeHtmlOptions): stri
   const escapeUnknownTags = new RegExp('<(?!\\/?(?:' + allowedPattern + ')\\b)', 'gi');
   s = s.replace(escapeUnknownTags, '&lt;');
 
+  // Harden surviving allowlisted tags (a/img/div/span/… keep their attributes,
+  // so strip event handlers and script-scheme URLs from all of them)
+  s = stripDangerousAttributes(s);
+
   return s;
 }
 
@@ -58,6 +94,10 @@ export function toStrictXhtml(input: string): string {
   const allowedPattern = `br|hr|i|em|b|strong|u|s|${epubTags}`;
   const escapeUnknownTags = new RegExp('<(?!\\/?(?:' + allowedPattern + ')\\b)', 'gi');
   s = s.replace(escapeUnknownTags, '&lt;');
+
+  // Same hardening as sanitizeHtml: allowlisted tags keep their attributes,
+  // so strip event handlers and script-scheme URLs from all of them
+  s = stripDangerousAttributes(s);
 
   return s;
 }

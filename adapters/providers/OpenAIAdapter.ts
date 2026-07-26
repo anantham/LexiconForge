@@ -708,9 +708,11 @@ ${schemaString}`;
       usageMetrics: usageMetrics,
     };
 
-    // ALWAYS log if translation is suspiciously short (< 100 chars) but we were charged
-    if (result.translation.length < 100 && costUsd > 0.01) {
-      console.error('[OpenAI] ⚠️ SUSPICIOUS: Short translation but high cost!', {
+    // Log if translation is suspiciously short (< 100 chars) but we were charged
+    // anything at all (costUsd > 0 — cheap models are where truncation is most
+    // common, so a "high cost" threshold would hide exactly the cases we want).
+    if (result.translation.length < 100 && costUsd > 0) {
+      console.error('[OpenAI] ⚠️ SUSPICIOUS: Short translation but we were charged!', {
         translationLength: result.translation.length,
         translationPreview: result.translation.substring(0, 50),
         cost: costUsd,
@@ -722,15 +724,16 @@ ${schemaString}`;
         parsedTranslationType: typeof parsedResponse.translation,
         fullParsedResponse: JSON.stringify(parsedResponse).substring(0, 1000),
       });
+    }
 
-      // If translation is critically short (< 20 chars), throw error to prevent storing garbage
-      if (result.translation.length < 20) {
-        throw new Error(
-          `Translation response appears corrupted or truncated. ` +
-          `Got only ${result.translation.length} chars: "${result.translation}". ` +
-          `Raw response preview: ${responseText.substring(0, 200)}...`
-        );
-      }
+    // If translation is critically short (< 20 chars), throw to prevent storing
+    // garbage — REGARDLESS of cost (a $0-metered response can still be corrupt).
+    if (result.translation.length < 20) {
+      throw new Error(
+        `Translation response appears corrupted or truncated. ` +
+        `Got only ${result.translation.length} chars: "${result.translation}". ` +
+        `Raw response preview: ${responseText.substring(0, 200)}...`
+      );
     }
 
     return result;

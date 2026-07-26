@@ -1,1 +1,189 @@
-/**\n * OPFS (Origin Private File System) storage for pinned audio\n * \n * High-performance local file storage for audio that users want to keep offline.\n * Falls back gracefully when OPFS is not available (Safari, older browsers).\n */\n\nimport { sha256Hex } from './utils';\n\nexport const OPFS = {\n  kind: 'opfs' as const,\n\n  /**\n   * Check if OPFS is available in this browser\n   */\n  isSupported(): boolean {\n    return typeof navigator !== 'undefined' && \n           'storage' in navigator && \n           typeof (navigator.storage as any).getDirectory === 'function';\n  },\n\n  /**\n   * Get or create the OST directory in OPFS\n   */\n  async dir(name = 'ost'): Promise<FileSystemDirectoryHandle> {\n    if (!this.isSupported()) {\n      throw new Error('OPFS not available in this browser');\n    }\n    \n    try {\n      // @ts-ignore - OPFS is experimental but widely supported\n      const root = await (navigator.storage as any).getDirectory();\n      return await root.getDirectoryHandle(name, { create: true });\n    } catch (error) {\n      throw new Error(`OPFS directory access failed: ${error.message}`);\n    }\n  },\n\n  /**\n   * Save audio data to OPFS with streaming and content hashing\n   */\n  async save(\n    data: ReadableStream<Uint8Array> | ArrayBuffer | Blob, \n    mime = 'audio/mpeg', \n    nameHint = 'track'\n  ): Promise<{ uri: string; hash: string; size: number }> {\n    const dir = await this.dir();\n    \n    let stream: ReadableStream<Uint8Array>;\n    let size = 0;\n    \n    if (data instanceof ReadableStream) {\n      stream = data;\n    } else if (data instanceof ArrayBuffer) {\n      stream = new ReadableStream({\n        start(controller) {\n          controller.enqueue(new Uint8Array(data));\n          controller.close();\n        }\n      });\n      size = data.byteLength;\n    } else if (data instanceof Blob) {\n      stream = data.stream();\n      size = data.size;\n    } else {\n      throw new Error('Unsupported data type for OPFS save');\n    }\n\n    // Generate content hash for deduplication\n    const hash = await sha256Hex(stream);\n    \n    const ext = mime.includes('mpeg') ? 'mp3' : \n               mime.includes('ogg') ? 'ogg' : \n               mime.includes('wav') ? 'wav' : 'bin';\n    const fileName = `${hash}.${ext}`;\n    \n    try {\n      // Check if file already exists (deduplication)\n      const existingFile = await dir.getFileHandle(fileName);\n      const existingFileObj = await existingFile.getFile();\n      \n      return {\n        uri: `opfs://ost/${fileName}`,\n        hash,\n        size: existingFileObj.size\n      };\n    } catch {\n      // File doesn't exist, create it\n    }\n    \n    const fileHandle = await dir.getFileHandle(fileName, { create: true });\n    const writable = await fileHandle.createWritable();\n    \n    try {\n      // Re-create stream if we consumed it for hashing\n      let writeStream: ReadableStream<Uint8Array>;\n      if (data instanceof ReadableStream) {\n        // We need to tee the original stream or recreate from source\n        throw new Error('ReadableStream can only be consumed once. Use ArrayBuffer or Blob for OPFS save.');\n      } else if (data instanceof ArrayBuffer) {\n        writeStream = new ReadableStream({\n          start(controller) {\n            controller.enqueue(new Uint8Array(data));\n            controller.close();\n          }\n        });\n      } else {\n        writeStream = data.stream();\n      }\n      \n      const reader = writeStream.getReader();\n      let totalSize = 0;\n      \n      while (true) {\n        const { value, done } = await reader.read();\n        if (done) break;\n        await writable.write(value);\n        totalSize += value.length;\n      }\n      \n      await writable.close();\n      \n      return {\n        uri: `opfs://ost/${fileName}`,\n        hash,\n        size: size || totalSize\n      };\n    } catch (error) {\n      await writable.abort();\n      throw error;\n    }\n  },\n\n  /**\n   * Open a file from OPFS and return as a Blob for URL.createObjectURL\n   */\n  async open(uri: string): Promise<File> {\n    const fileName = uri.split('/').pop()!;\n    const dir = await this.dir();\n    \n    try {\n      const fileHandle = await dir.getFileHandle(fileName);\n      // @ts-ignore - OPFS File interface\n      return await fileHandle.getFile() as File;\n    } catch (error) {\n      throw new Error(`Failed to open OPFS file ${fileName}: ${error.message}`);\n    }\n  },\n\n  /**\n   * Remove a file from OPFS\n   */\n  async remove(uri: string): Promise<void> {\n    const fileName = uri.split('/').pop()!;\n    const dir = await this.dir();\n    \n    try {\n      await dir.removeEntry(fileName);\n    } catch (error) {\n      // File might not exist, which is fine\n      console.warn(`Failed to remove OPFS file ${fileName}:`, error.message);\n    }\n  },\n\n  /**\n   * Check if a file exists in OPFS\n   */\n  async exists(uri: string): Promise<boolean> {\n    const fileName = uri.split('/').pop()!;\n    const dir = await this.dir();\n    \n    try {\n      await dir.getFileHandle(fileName);\n      return true;\n    } catch {\n      return false;\n    }\n  },\n\n  /**\n   * List all files in the OST directory\n   */\n  async listFiles(): Promise<string[]> {\n    const dir = await this.dir();\n    const files: string[] = [];\n    \n    // @ts-ignore - AsyncIterable interface\n    for await (const [name, handle] of dir.entries()) {\n      if (handle.kind === 'file') {\n        files.push(`opfs://ost/${name}`);\n      }\n    }\n    \n    return files;\n  },\n\n  /**\n   * Get storage usage for the OST directory\n   */\n  async getUsage(): Promise<{ files: number; totalSize: number }> {\n    const dir = await this.dir();\n    let files = 0;\n    let totalSize = 0;\n    \n    try {\n      // @ts-ignore - AsyncIterable interface\n      for await (const [name, handle] of dir.entries()) {\n        if (handle.kind === 'file') {\n          const file = await handle.getFile();\n          files++;\n          totalSize += file.size;\n        }\n      }\n    } catch (error) {\n      console.warn('Failed to calculate OPFS usage:', error);\n    }\n    \n    return { files, totalSize };\n  }\n};
+/**
+ * OPFS (Origin Private File System) storage for pinned audio
+ *
+ * High-performance local file storage for audio that users want to keep offline.
+ * Falls back gracefully when OPFS is not available (Safari, older browsers).
+ */
+
+import { sha256Hex } from './utils';
+
+export const OPFS = {
+  kind: 'opfs' as const,
+
+  /**
+   * Check if OPFS is available in this browser
+   */
+  isSupported(): boolean {
+    return typeof navigator !== 'undefined' &&
+           'storage' in navigator &&
+           typeof (navigator.storage as any).getDirectory === 'function';
+  },
+
+  /**
+   * Get or create the OST directory in OPFS
+   */
+  async dir(name = 'ost'): Promise<FileSystemDirectoryHandle> {
+    if (!this.isSupported()) {
+      throw new Error('OPFS not available in this browser');
+    }
+
+    try {
+      // @ts-ignore - OPFS is experimental but widely supported
+      const root = await (navigator.storage as any).getDirectory();
+      return await root.getDirectoryHandle(name, { create: true });
+    } catch (error) {
+      throw new Error(`OPFS directory access failed: ${error.message}`);
+    }
+  },
+
+  /**
+   * Save audio data to OPFS with content hashing for deduplication.
+   *
+   * Accepts ArrayBuffer or Blob only. (An earlier version also advertised
+   * ReadableStream input, but the stream was consumed for hashing and the
+   * write path then unconditionally threw "ReadableStream can only be
+   * consumed once" — the type now reflects what actually works.)
+   */
+  async save(
+    data: ArrayBuffer | Blob,
+    mime = 'audio/mpeg',
+    nameHint = 'track'
+  ): Promise<{ uri: string; hash: string; size: number }> {
+    const dir = await this.dir();
+
+    let size = 0;
+    if (data instanceof ArrayBuffer) {
+      size = data.byteLength;
+    } else if (data instanceof Blob) {
+      size = data.size;
+    } else {
+      throw new Error('Unsupported data type for OPFS save');
+    }
+
+    // Generate content hash for deduplication
+    const hash = await sha256Hex(data);
+
+    const ext = mime.includes('mpeg') ? 'mp3' :
+               mime.includes('ogg') ? 'ogg' :
+               mime.includes('wav') ? 'wav' : 'bin';
+    const fileName = `${hash}.${ext}`;
+
+    try {
+      // Check if file already exists (deduplication)
+      const existingFile = await dir.getFileHandle(fileName);
+      const existingFileObj = await existingFile.getFile();
+
+      return {
+        uri: `opfs://ost/${fileName}`,
+        hash,
+        size: existingFileObj.size
+      };
+    } catch {
+      // File doesn't exist, create it
+    }
+
+    const fileHandle = await dir.getFileHandle(fileName, { create: true });
+    const writable = await fileHandle.createWritable();
+
+    try {
+      await writable.write(data);
+      await writable.close();
+
+      return {
+        uri: `opfs://ost/${fileName}`,
+        hash,
+        size
+      };
+    } catch (error) {
+      await writable.abort();
+      throw error;
+    }
+  },
+
+  /**
+   * Open a file from OPFS and return as a Blob for URL.createObjectURL
+   */
+  async open(uri: string): Promise<File> {
+    const fileName = uri.split('/').pop()!;
+    const dir = await this.dir();
+
+    try {
+      const fileHandle = await dir.getFileHandle(fileName);
+      // @ts-ignore - OPFS File interface
+      return await fileHandle.getFile() as File;
+    } catch (error) {
+      throw new Error(`Failed to open OPFS file ${fileName}: ${error.message}`);
+    }
+  },
+
+  /**
+   * Remove a file from OPFS
+   */
+  async remove(uri: string): Promise<void> {
+    const fileName = uri.split('/').pop()!;
+    const dir = await this.dir();
+
+    try {
+      await dir.removeEntry(fileName);
+    } catch (error) {
+      // File might not exist, which is fine
+      console.warn(`Failed to remove OPFS file ${fileName}:`, error.message);
+    }
+  },
+
+  /**
+   * Check if a file exists in OPFS
+   */
+  async exists(uri: string): Promise<boolean> {
+    const fileName = uri.split('/').pop()!;
+    const dir = await this.dir();
+
+    try {
+      await dir.getFileHandle(fileName);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * List all files in the OST directory
+   */
+  async listFiles(): Promise<string[]> {
+    const dir = await this.dir();
+    const files: string[] = [];
+
+    // @ts-ignore - AsyncIterable interface
+    for await (const [name, handle] of dir.entries()) {
+      if (handle.kind === 'file') {
+        files.push(`opfs://ost/${name}`);
+      }
+    }
+
+    return files;
+  },
+
+  /**
+   * Get storage usage for the OST directory
+   */
+  async getUsage(): Promise<{ files: number; totalSize: number }> {
+    const dir = await this.dir();
+    let files = 0;
+    let totalSize = 0;
+
+    try {
+      // @ts-ignore - AsyncIterable interface
+      for await (const [name, handle] of dir.entries()) {
+        if (handle.kind === 'file') {
+          const file = await handle.getFile();
+          files++;
+          totalSize += file.size;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to calculate OPFS usage:', error);
+    }
+
+    return { files, totalSize };
+  }
+};

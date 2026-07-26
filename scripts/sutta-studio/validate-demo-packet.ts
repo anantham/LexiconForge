@@ -3,11 +3,16 @@
  * DemoPacket Validator
  *
  * Validates demoPacket.ts against ADR SUTTA-003 requirements:
- * 1. Text integrity: concatenated segments match canonical text
+ * 1. Over-segmentation heuristic: flags suspicious single-character non-affix
+ *    segments (WARNING severity only — warnings do not fail the run)
  * 2. Bracket consistency: grammar terms in [brackets]
  * 3. Refrain consistency: same refrainId words have consistent segmentation
  * 4. Relation validity: relations point to existing words/segments
  * 5. ID uniqueness: no duplicate IDs
+ *
+ * HONESTY NOTE: true canonical-text comparison (concatenated segments ===
+ * canonical Pāli text) is NOT performed anywhere in this script — no canonical
+ * text is loaded. Rule 1 is only a heuristic for likely over-segmentation.
  *
  * Usage: npx tsx scripts/sutta-studio/validate-demo-packet.ts
  */
@@ -51,13 +56,14 @@ function addResult(result: ValidationResult) {
 }
 
 /**
- * Rule 1: Text Integrity
- * Concatenated segments must match surface text (when we have canonical data)
+ * Rule 1: Over-Segmentation Heuristic
+ * NOT a canonical-text comparison — no canonical text is available here.
+ * Only flags suspicious single-character non-affix segments (a common
+ * over-segmentation symptom), at WARNING severity (never fails the run).
  */
-function validateTextIntegrity(phase: PhaseView) {
+function validateOverSegmentationHeuristic(phase: PhaseView) {
   for (const word of phase.paliWords) {
     const concatenated = word.segments.map((s) => s.text).join('');
-    // We don't have canonical text per word, but we can check for common issues
 
     // Check for suspicious single-character segments that should be merged
     const singleCharSegments = word.segments.filter(
@@ -65,7 +71,7 @@ function validateTextIntegrity(phase: PhaseView) {
     );
     if (singleCharSegments.length > 0) {
       addResult({
-        rule: 'text-integrity',
+        rule: 'over-segmentation-heuristic',
         severity: 'warning',
         phaseId: phase.id,
         wordId: word.id,
@@ -372,7 +378,7 @@ function validate() {
 
   // Run per-phase validations
   for (const phase of phases) {
-    validateTextIntegrity(phase);
+    validateOverSegmentationHeuristic(phase);
     validateBracketConsistency(phase);
     validateRelations(phase);
     validateIdUniqueness(phase);

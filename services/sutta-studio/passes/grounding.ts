@@ -10,8 +10,11 @@
  * §"Anti-patterns to guard against"):
  *   - LLM-as-DB-fallback: missing entries yield no citation. No
  *     fabrication, no "trust me bro" labels.
- *   - Citation theater: every attached citation has a verified URL via
- *     the provider's source registry.
+ *   - Citation theater: every attached citation carries a URL from the
+ *     hand-curated registry. NOTE: this pass does NOT verify URLs — the
+ *     registry's own per-row verification stamps (or needsVerification
+ *     markers) are passed through as-is; verification is a curation-time
+ *     responsibility, not a compile-time check.
  */
 
 import type { PaliWord, PhaseView, Citation } from '../../../types/suttaStudio';

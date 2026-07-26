@@ -1,9 +1,13 @@
 /**
  * Generate Leaderboard for Sutta Studio Benchmarks
  *
- * Scans all benchmark runs and aggregates ALL phase scores across ALL runs
- * per model. This gives a true representation of model capability across
- * the full test set (15 phases).
+ * Scans all benchmark runs and ranks each model on its SINGLE best run
+ * ('bestRunPerModel' — never a Frankenstein of best-per-phase across runs).
+ * Every run is scored over the full golden universe defined by
+ * BENCHMARK_CONFIG.phasesToTest: golden-backed phases the run did not
+ * complete are charged as 0 (not dropped), so a lucky partial run cannot
+ * outrank a complete one, and the best run is the highest such
+ * survivorship-corrected mean.
  *
  * Run standalone: npx tsx scripts/sutta-studio/generate-leaderboard.ts
  * Or called from benchmark.ts after each run completes.
