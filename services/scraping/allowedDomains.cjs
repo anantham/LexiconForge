@@ -12,7 +12,9 @@
  * the whole point — dev and prod cannot drift when they read the same array.
  *
  * proxy-parity.test.ts enforces the structure: both consumers must reference this
- * module and must NOT define their own ALLOWED_DOMAINS literal.
+ * module and must NOT define their own ALLOWED_DOMAINS literal. Browser code
+ * imports the guarded ESM twin allowedDomainsBrowser.ts instead (source .cjs is
+ * unimportable in Vite dev); the same test pins the twin to this list.
  */
 const ALLOWED_DOMAINS = [
   'kakuyomu.jp',
