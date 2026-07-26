@@ -23,9 +23,16 @@ export interface RetryOptions {
   onRetry?: (attempt: number, delay: number, error: unknown) => void;
 }
 
-/** Default network-error predicate reusable across consumers */
+/**
+ * Default network-error predicate reusable across consumers.
+ *
+ * An AbortError is deliberately NOT a network error: aborts are usually the
+ * user cancelling, and retrying a cancelled operation resurrects billed calls
+ * after the user pressed Cancel. A consumer whose aborts are self-inflicted
+ * (e.g. an internal fetch timeout) must opt in with its own predicate.
+ */
 export function isNetworkError(error: unknown): boolean {
-  if (error instanceof DOMException && error.name === 'AbortError') return true;
+  if (error instanceof DOMException && error.name === 'AbortError') return false;
   const message = (error as any)?.message?.toLowerCase?.() ?? '';
   return (
     message.includes('network') ||

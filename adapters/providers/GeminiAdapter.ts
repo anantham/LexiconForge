@@ -67,7 +67,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     }
 
     // Check rate limits
-    await rateLimitService.canMakeRequest(settings.model);
+    await rateLimitService.acquireRequestSlot(settings.model);
 
     // Initialize client
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -144,7 +144,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
       throw new Error('Gemini API key is missing. Please add it in settings.');
     }
 
-    await rateLimitService.canMakeRequest(modelId);
+    await rateLimitService.acquireRequestSlot(modelId);
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelId });

@@ -37,7 +37,7 @@ const rateLimitMock = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('../../../services/rateLimitService', () => ({
   rateLimitService: {
-    canMakeRequest: (...args: any[]) => rateLimitMock(...args),
+    acquireRequestSlot: (...args: any[]) => rateLimitMock(...args),
   },
 }));
 

@@ -325,7 +325,12 @@ export class ImportService {
       {
         maxAttempts: MAX_RETRIES + 1,
         initialDelay: 2000,
-        isRetryable: isNetworkError,
+        // This fetch aborts ITSELF on an internal timeout, and retrying that
+        // self-abort is intended. The abort-retry opt-in lives here rather
+        // than in isNetworkError, whose contract must never retry a
+        // user-cancel AbortError.
+        isRetryable: (e) =>
+          isNetworkError(e) || (e instanceof DOMException && e.name === 'AbortError'),
         onRetry: (attempt, delay) => {
           debugWarn('import', 'summary', `[Import] Network error on attempt ${attempt}. Retrying in ${delay}ms...`);
           onProgress?.({

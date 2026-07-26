@@ -13,7 +13,7 @@ interface RateLimitState {
 
 interface QueuedRequest {
   modelId: string;
-  resolve: (value: boolean) => void;
+  resolve: () => void;
   reject: (error: Error) => void;
   timestamp: number;
 }
@@ -24,16 +24,23 @@ class RateLimitService {
   private processing = new Set<string>();
 
   /**
-   * Check if a request can proceed or needs to wait
+   * Acquire a slot under the model's rate limit. CONSUMES a slot on success,
+   * or parks the caller in a queue until one frees (possibly minutes).
+   *
+   * This was previously named canMakeRequest and returned Promise<boolean> —
+   * a "check" that spent a slot as a side effect of asking and had no
+   * resolve(false) on any path, so `if (!await canMakeRequest())` branches
+   * were dead code. The name and signature now say what it does: backpressure
+   * is the wait, not a boolean.
    */
-  async canMakeRequest(modelId: string): Promise<boolean> {
+  async acquireRequestSlot(modelId: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
         const modelLimits = await getModelLimits(modelId);
         
         // If no limits are defined, allow the request
         if (!modelLimits) {
-          resolve(true);
+          resolve();
           return;
         }
 
@@ -47,7 +54,7 @@ class RateLimitService {
         // Determine rate limit from model limits
         const requestsPerMinute = this.extractRateLimit(modelLimits);
         if (!requestsPerMinute) {
-          resolve(true);
+          resolve();
           return;
         }
 
@@ -62,7 +69,7 @@ class RateLimitService {
           state.requests++;
           state.lastRequest = now;
           this.limits.set(modelId, state);
-          resolve(true);
+          resolve();
           return;
         }
 
@@ -115,7 +122,7 @@ class RateLimitService {
             state.requests++;
             state.lastRequest = now;
             this.limits.set(modelId, state);
-            request.resolve(true);
+            request.resolve();
           }
         } else {
           // Need to wait

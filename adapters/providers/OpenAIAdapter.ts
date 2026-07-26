@@ -14,24 +14,7 @@ import { getTranslationSystemPrompt } from '../../utils/promptUtils';
 import { getDefaultApiKey } from '../../services/defaultApiKeyService';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import { extractBalancedJson, replacePlaceholders } from '../../services/ai/textUtils';
-
-// Parameter validation utility
-const validateAndClampParameter = (value: any, paramName: string): any => {
-  if (value === undefined || value === null) return value;
-  
-  const limits = appConfig.aiParameters.limits[paramName as keyof typeof appConfig.aiParameters.limits];
-  if (!limits) return value;
-  
-  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
-  if (isNaN(numValue)) return value;
-  
-  const clamped = Math.max(limits.min, Math.min(limits.max, numValue));
-  if (clamped !== numValue) {
-    console.warn(`[OpenAI] Clamped ${paramName} from ${numValue} to ${clamped}`);
-  }
-  
-  return clamped;
-};
+import { validateAndClampParameter } from '../../services/ai/parameters';
 
 // Debug logging
 const dlog = (message: string, ...args: any[]) => {
@@ -70,7 +53,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     });
 
     // Check rate limits
-    await rateLimitService.canMakeRequest(settings.model);
+    await rateLimitService.acquireRequestSlot(settings.model);
 
     // Build request
     const requestOptions = await this.buildRequest(settings, title, content, history, fanTranslation);
@@ -166,7 +149,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     });
 
     // Check rate limits
-    await rateLimitService.canMakeRequest(model);
+    await rateLimitService.acquireRequestSlot(model);
 
     const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? 16384;
 
@@ -480,18 +463,19 @@ ${schemaString}`;
     }
   }
 
+  /**
+   * True only for errors that retrying WITHOUT the advanced parameters can
+   * actually fix — i.e. the error names one of the parameters that
+   * removeAdvancedParameters() removes. The previous predicate also matched
+   * 'invalid_request_error' (OpenAI's type for essentially every 4xx),
+   * 'max_tokens', and bare 'not supported' — none of which the retry
+   * removes, so every context-length or schema failure burned a second,
+   * materially identical API call under a "Parameter error detected" log.
+   */
   private isParameterError(error: any): boolean {
     const message = (error.message || '').toLowerCase();
-    return message.includes('temperature') || 
-           message.includes('top_p') ||
-           message.includes('frequency_penalty') ||
-           message.includes('presence_penalty') ||
-           message.includes('seed') ||
-           message.includes('max_tokens') ||
-           message.includes('max_completion_tokens') ||
-           message.includes('not supported') ||
-           message.includes('unexpected parameter') ||
-           message.includes('invalid_request_error');
+    const removable = ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'];
+    return removable.some((p) => message.includes(p));
   }
   private removeAdvancedParameters(requestOptions: any): any {
     const cleaned = { ...requestOptions };
