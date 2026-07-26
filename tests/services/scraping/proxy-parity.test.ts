@@ -11,6 +11,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import {
+  ALLOWED_DOMAINS as BROWSER_DOMAINS,
+  isDomainAllowed as browserIsDomainAllowed,
+} from '../../../services/scraping/allowedDomainsBrowser';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createRequire } from 'module';
@@ -41,6 +45,22 @@ describe('INV-3: shared proxy domain allowlist', () => {
     expect(isDomainAllowed('www.suttacentral.net')).toBe(true);
     expect(isDomainAllowed('evilsuttacentral.net')).toBe(false);
     expect(isDomainAllowed('suttacentral.net.evil.com')).toBe(false);
+  });
+
+  it('browser twin (allowedDomainsBrowser.ts) is byte-identical in list and behavior to the canonical CJS', () => {
+    expect([...BROWSER_DOMAINS]).toEqual(ALLOWED_DOMAINS);
+    for (const h of [
+      'suttacentral.net', 'www.suttacentral.net', 'evilsuttacentral.net',
+      'suttacentral.net.evil.com', '84000.co', 'sub.84000.co', 'nope.example',
+    ]) {
+      expect(browserIsDomainAllowed(h)).toBe(isDomainAllowed(h));
+    }
+  });
+
+  it('services/librarySearch/searchService.ts uses the browser twin (source .cjs is unimportable in the browser)', () => {
+    const source = fs.readFileSync(path.join(root, 'services/librarySearch/searchService.ts'), 'utf-8');
+    expect(source).toContain('scraping/allowedDomainsBrowser');
+    expect(source).not.toMatch(/ALLOWED_DOMAINS\s*=\s*\[/);
   });
 
   for (const consumer of ['vite.config.ts', 'api/fetch-proxy.js']) {

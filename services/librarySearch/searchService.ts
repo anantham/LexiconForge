@@ -10,7 +10,7 @@ import { initializeProviders } from '../../adapters/providers';
 import type { AppSettings } from '../../types';
 import type { SearchResult, SourceCandidate } from './types';
 import { lookupKnown84000, build84000Url, type Known84000Entry } from './known84000';
-import { isDomainAllowed } from '../scraping/allowedDomains.cjs';
+import { isDomainAllowed } from '../scraping/allowedDomainsBrowser';
 import { SUPPORTED_WEBSITES } from '../../config/constants';
 
 // Derived from the site-adapter registry — this was a hand-rolled copy that
