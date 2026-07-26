@@ -5,7 +5,7 @@ import { createMockAppSettings } from '../../utils/test-data';
 
 const calculateCostMock = vi.fn().mockResolvedValue(0.25);
 
-vi.mock('../../../services/aiService', () => ({
+vi.mock('../../../services/ai/cost', () => ({
   calculateCost: (...args: any[]) => calculateCostMock(...args),
 }));
 

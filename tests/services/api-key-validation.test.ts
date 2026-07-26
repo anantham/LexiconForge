@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { validateApiKey } from '../../services/aiService';
+import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import type { AppSettings } from '../../types';
 
 const mockEnv: Record<string, string | undefined> = {};

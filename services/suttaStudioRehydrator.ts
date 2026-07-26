@@ -323,6 +323,18 @@ export const rehydratePhase = (params: RehydrateParams): PhaseView => {
     layoutBlocks = fallbackPhaseView.layoutBlocks;
   }
 
+  // Integrity diagnostics. These validators existed for months with zero
+  // callers outside their own tests — a validator that never runs guards
+  // nothing (dead weaver links shipped invisibly in 90% of MN117 phases).
+  const duplicateSegmentIds = validateSegmentIdUniqueness(paliWords);
+  if (duplicateSegmentIds.length) {
+    warn(`rehydratePhase(${phaseId}): duplicate segment ids: ${duplicateSegmentIds.join(', ')}`);
+  }
+  const invalidLinks = validateEnglishLinks(englishStructure, paliWords);
+  if (invalidLinks.length) {
+    warn(`rehydratePhase(${phaseId}): ${invalidLinks.length} english token link(s) resolve to nothing: ${invalidLinks.slice(0, 8).join(', ')}${invalidLinks.length > 8 ? ' …' : ''}`);
+  }
+
   return {
     id: phaseId,
     title,

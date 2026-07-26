@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages/messages';
 import { AppSettings, HistoricalChapter, TranslationResult, UsageMetrics } from '../types';
 import prompts from '../config/prompts.json';
-import { calculateCost } from './aiService';
+import { calculateCost } from './ai/cost';
 import { buildFanTranslationContext, formatHistory } from './prompts';
 import { buildPreambleFromSettings } from './prompts/metadataPreamble';
 import { getEnvVar } from './env';

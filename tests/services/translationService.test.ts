@@ -17,8 +17,11 @@ const dbMocks = vi.hoisted(() => ({
   storeByStableId: vi.fn(async () => ({ id: 'tx-1', version: 1 })),
 }));
 
-vi.mock('../../services/aiService', () => ({
+vi.mock('../../services/ai/translatorRouter', () => ({
   translateChapter: aiMocks.translateChapter,
+}));
+
+vi.mock('../../services/ai/apiKeyValidation', () => ({
   validateApiKey: aiMocks.validateApiKey,
 }));
 

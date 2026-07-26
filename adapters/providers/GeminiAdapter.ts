@@ -3,7 +3,7 @@ import type { TranslationProvider, TranslationRequest } from '../../services/tra
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter } from '../../types';
 import { rateLimitService } from '../../services/rateLimitService';
-import { calculateCost } from '../../services/aiService';
+import { calculateCost } from '../../services/ai/cost';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import prompts from '../../config/prompts.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';

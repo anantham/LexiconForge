@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('../../services/aiService', () => ({
+vi.mock('../../services/ai/translatorRouter', () => ({
   translateChapter: vi.fn(),
+}));
+
+vi.mock('../../services/ai/apiKeyValidation', () => ({
   validateApiKey: vi.fn(),
 }));
 

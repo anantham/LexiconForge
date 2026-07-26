@@ -90,7 +90,7 @@ vi.mock('../../services/rateLimitService', () => ({
 
 const calculateCostMock = vi.fn();
 
-vi.mock('../../services/aiService', () => ({
+vi.mock('../../services/ai/cost', () => ({
   calculateCost: (...args: any[]) => calculateCostMock(...args),
 }));
 

@@ -9,7 +9,8 @@
  * - Translation persistence to IndexedDB
  */
 
-import { translateChapter, validateApiKey } from './aiService';
+import { translateChapter } from './ai/translatorRouter';
+import { validateApiKey } from './ai/apiKeyValidation';
 import type {
   AmendmentProposal,
   AppSettings,

@@ -4,7 +4,7 @@ import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provid
 import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } from '../../types';
 import { supportsStructuredOutputs, supportsParameters, recordParameterFailure } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
-import { calculateCost } from '../../services/aiService';
+import { calculateCost } from '../../services/ai/cost';
 import prompts from '../../config/prompts.json';
 import appConfig from '../../config/app.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';

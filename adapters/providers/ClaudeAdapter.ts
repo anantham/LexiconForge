@@ -3,7 +3,7 @@ import type { MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resource
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult } from '../../types';
-import { calculateCost } from '../../services/aiService';
+import { calculateCost } from '../../services/ai/cost';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import { translateWithClaude } from '../../services/claudeService';
 import { getEnvVar } from '../../services/env';

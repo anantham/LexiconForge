@@ -17,7 +17,7 @@ import { NavigationService, type NavigationContext } from '../../services/naviga
 import { ChapterOps, ImportOps } from '../../services/db/operations';
 import type { ImportedChapter } from '../../types';
 import { BookshelfStateService } from '../../services/bookshelfStateService';
-import { validateApiKey } from '../../services/aiService';
+import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { memoryCacheSnapshot } from '../../utils/memoryDiagnostics';
 import { mergeChapter } from '../../utils/mergeChapter';

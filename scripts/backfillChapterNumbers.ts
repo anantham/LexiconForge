@@ -46,28 +46,12 @@ function extractChapterNumber(title: string): number | null {
     if (chineseNumbers[cn]) return chineseNumbers[cn];
   }
 
-  // Pattern 5: Extract from URL if title has no number
-  // (This will be handled by caller using URL patterns)
-
-  return null;
-}
-
-/**
- * Extract chapter number from URL pattern
- */
-function extractChapterNumberFromUrl(url: string): number | null {
-  if (!url) return null;
-
-  // Pattern: .../72829.html, .../72830.html, etc.
-  // Assumes sequential URLs with increasing numbers
-  const match = url.match(/\/(\d+)\.html?$/);
-  if (match) {
-    const urlNum = parseInt(match[1], 10);
-    // If URL is like 72829, 72830, etc., try to extract relative position
-    // This is fragile but better than nothing
-    // For kanunu8.com, chapter 1 might be 72829, so we can't use absolute numbers
-    return null; // Don't use URL numbers - too unreliable
-  }
+  // There is deliberately NO URL fallback: site URL numbers (e.g. kanunu8's
+  // /72829.html) are absolute ids, not chapter positions, so they were judged
+  // too unreliable. Chapters whose titles carry no number stay unmigrated and
+  // are counted in failedCount below. (A dead extractChapterNumberFromUrl that
+  // always returned null — and a comment promising the caller would use it —
+  // lived here for 9 months; integrity scan 2026-07-26.)
 
   return null;
 }

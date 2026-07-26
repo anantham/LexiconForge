@@ -1,12 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { __testUtils } from '../../services/aiService';
-
-const {
-  extractBalancedJson,
-  validateAndFixIllustrations,
-  validateAndFixFootnotes,
-  validateAndClampParameter,
-} = __testUtils;
+// These were reached through services/aiService's __testUtils bundle until the
+// shim was deleted (integrity scan: the bundle pattern once hid dead
+// validators). Import the canonical modules — which are the live prod code —
+// directly.
+import { extractBalancedJson } from '../../services/ai/textUtils';
+import { validateAndFixIllustrations, validateAndFixFootnotes } from '../../services/ai/responseValidators';
+import { validateAndClampParameter } from '../../services/ai/parameters';
 
 describe('aiService internal utilities', () => {
   describe('extractBalancedJson', () => {

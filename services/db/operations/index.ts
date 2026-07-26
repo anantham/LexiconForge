@@ -27,4 +27,3 @@ export { NavigationOps } from './navigation';
 export { ImportOps } from './imports';
 export { SessionExportOps } from './sessionExport';
 export { DiffOps } from './diffResults';
-export { SchemaOps } from './schema';

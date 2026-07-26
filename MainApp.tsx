@@ -15,7 +15,7 @@ import NotificationToast from './components/NotificationToast';
 import BackgroundWorkBanner from './components/BackgroundWorkBanner';
 import { clientTelemetry } from './services/clientTelemetry';
 
-import { validateApiKey } from './services/aiService';
+import { validateApiKey } from './services/ai/apiKeyValidation';
 import { prepareConnection } from './services/db/core/connection';
 import { debugLog, debugWarn } from './utils/debug';
 import { shouldBlockApp, type VersionCheckResult } from './services/db/core/versionGate';
