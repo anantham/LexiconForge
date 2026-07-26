@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { getModelPricing, supportsStructuredOutputs } from '../../services/capabilityService';
+import { toOpenAIStrictSchema, needsOpenAIStrictSchema } from './openai-strict-schema';
 import {
   runAnatomistPass,
   runLexicographerPass,
@@ -585,11 +586,20 @@ const createOpenRouterLLMCaller = (
   };
 
     if (useStructured && options?.schema) {
+      // OpenAI's strict validator speaks a stricter dialect (every property in
+      // `required`, additionalProperties:false, optionality via null-union).
+      // Probe history: 2026-07-22 every openai/* structured call 400d
+      // ("Missing 'isAnchor'", invalid_json_schema); 2026-07-26 re-probe of
+      // the identical schema returned 200 (provider-side change). Transform
+      // kept as dialect-compliance defense — see openai-strict-schema.ts.
+      const dialectSchema = needsOpenAIStrictSchema(settings.model)
+        ? toOpenAIStrictSchema(options.schema)
+        : options.schema;
       requestBody.response_format = {
         type: 'json_schema',
         json_schema: {
           name: options.schemaName || 'sutta_studio_response',
-          schema: options.schema,
+          schema: dialectSchema,
           strict: true,
         },
       };
