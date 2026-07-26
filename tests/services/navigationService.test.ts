@@ -176,6 +176,14 @@ vi.mock('../../services/db/operations', () => ({
     set: vi.fn().mockResolvedValue(undefined),
     getKey: vi.fn().mockResolvedValue(null),
   },
+  NavigationOps: {
+    persistHistory: vi.fn(),
+    persistLastActiveChapter: vi.fn(),
+    getHistory: vi.fn().mockResolvedValue(null),
+    setHistory: vi.fn().mockResolvedValue(undefined),
+    getLastActiveChapter: vi.fn().mockResolvedValue(null),
+    setLastActiveChapter: vi.fn().mockResolvedValue(undefined),
+  },
   ImportOps: {
     importStableSessionData: vi.fn().mockResolvedValue(undefined),
   },

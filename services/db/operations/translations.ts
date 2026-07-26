@@ -1,6 +1,5 @@
 import type { AppSettings, TranslationResult } from '../../../types';
 import type { TranslationRecord } from '../types';
-import { StableIdManager } from '../core/stable-ids';
 import type { TranslationSettingsSnapshot } from '../repositories/interfaces/ITranslationRepository';
 import { translationFacade } from '../repositories/translationFacade';
 
@@ -8,8 +7,6 @@ export interface ChapterRef {
   stableId?: string;
   url?: string;
 }
-
-type TranslationStoreRecord = TranslationRecord;
 
 const toSnapshot = (
   settings: Pick<
@@ -35,57 +32,12 @@ const toSnapshot = (
   promptName: settings.promptName,
 });
 
-const resolveUrl = async (ref: ChapterRef): Promise<string> => {
-  if (ref.url) return ref.url;
-  if (!ref.stableId) throw new Error('ChapterRef requires stableId or url');
-  return StableIdManager.getUrlForStableId(ref.stableId);
-};
-
-const getVersionsByUrlModern = (chapterUrl: string): Promise<TranslationRecord[]> => {
-  return translationFacade.getVersionsByUrl(chapterUrl);
-};
-
-const getVersionsByStableIdModern = (stableId: string): Promise<TranslationRecord[]> => {
-  return translationFacade.getVersionsByStableId(stableId);
-};
-
-const storeTranslationModern = (
-  chapterUrl: string,
-  result: TranslationResult,
-  settings: TranslationSettingsSnapshot
-): Promise<TranslationRecord> => {
-  return translationFacade.storeByUrl(chapterUrl, result, settings);
-};
-
-const setActiveByUrlModern = (chapterUrl: string, version: number): Promise<void> => {
-  return translationFacade.setActiveByUrl(chapterUrl, version);
-};
-
-const setActiveByStableIdModern = (stableId: string, version: number): Promise<void> => {
-  return translationFacade.setActiveByStableId(stableId, version);
-};
-
-const getActiveByUrlModern = (chapterUrl: string): Promise<TranslationRecord | null> => {
-  return translationFacade.getActiveByUrl(chapterUrl);
-};
-
-const getActiveByStableIdModern = (stableId: string): Promise<TranslationRecord | null> => {
-  return translationFacade.getActiveByStableId(stableId);
-};
-
-const deleteVersionModern = (translationId: string): Promise<void> => {
-  return translationFacade.deleteVersion(translationId);
-};
-const ensureActiveByStableIdModern = (stableId: string): Promise<TranslationRecord | null> => {
-  return translationFacade.ensureActiveByStableId(stableId);
-};
-const updateTranslationModern = (record: TranslationRecord): Promise<void> => {
-  return translationFacade.update(record);
-};
-const getAllTranslationsModern = (): Promise<TranslationRecord[]> => {
-  return translationFacade.getAll();
-};
-
+/**
+ * Thin static API over translationFacade. Each method is a single delegation —
+ * the `*Modern` module-locals that used to sit between these methods and the
+ * facade were vestiges of the removed legacy/modern backend fork (nothing left
+ * to arbitrate) and were inlined by the 2026-07-26 integrity pass.
+ */
 export class TranslationOps {
   static async store({
     ref,
@@ -107,32 +59,40 @@ export class TranslationOps {
       promptName?: string;
     };
   }): Promise<TranslationRecord> {
-    const url = await resolveUrl(ref);
-    return storeTranslationModern(url, result, toSnapshot(settings));
+    if (ref.url) {
+      return translationFacade.storeByUrl(ref.url, result, toSnapshot(settings));
+    }
+    if (!ref.stableId) throw new Error('ChapterRef requires stableId or url');
+    // stableId-only refs go through the repository's own resolution (P0.2
+    // chapters-record-first precedence + stableId:// fallback). A duplicate
+    // MAPPINGS-first resolver used to live here; its precedence was exactly
+    // the one the P0.2 fix retired, waiting to resurrect the keyspace split
+    // for the first stableId-only caller.
+    return translationFacade.storeByStableId(ref.stableId, result, toSnapshot(settings));
   }
 
   static async setActiveByStableId(stableId: string, version: number): Promise<void> {
-    await setActiveByStableIdModern(stableId, version);
+    await translationFacade.setActiveByStableId(stableId, version);
   }
 
   static async setActiveByUrl(chapterUrl: string, version: number): Promise<void> {
-    await setActiveByUrlModern(chapterUrl, version);
+    await translationFacade.setActiveByUrl(chapterUrl, version);
   }
 
   static async getVersionsByUrl(chapterUrl: string): Promise<TranslationRecord[]> {
-    return getVersionsByUrlModern(chapterUrl);
+    return translationFacade.getVersionsByUrl(chapterUrl);
   }
 
   static async getVersionsByStableId(stableId: string): Promise<TranslationRecord[]> {
-    return getVersionsByStableIdModern(stableId);
+    return translationFacade.getVersionsByStableId(stableId);
   }
 
   static async getActiveByUrl(chapterUrl: string): Promise<TranslationRecord | null> {
-    return getActiveByUrlModern(chapterUrl);
+    return translationFacade.getActiveByUrl(chapterUrl);
   }
 
   static async getActiveByStableId(stableId: string): Promise<TranslationRecord | null> {
-    return getActiveByStableIdModern(stableId);
+    return translationFacade.getActiveByStableId(stableId);
   }
 
   static async storeByStableId(
@@ -160,18 +120,18 @@ export class TranslationOps {
   }
 
   static async deleteVersion(translationId: string): Promise<void> {
-    await deleteVersionModern(translationId);
+    await translationFacade.deleteVersion(translationId);
   }
 
   static async ensureActiveByStableId(stableId: string): Promise<TranslationRecord | null> {
-    return ensureActiveByStableIdModern(stableId);
+    return translationFacade.ensureActiveByStableId(stableId);
   }
 
   static async update(record: TranslationRecord): Promise<void> {
-    await updateTranslationModern(record);
+    await translationFacade.update(record);
   }
 
   static async getAll(): Promise<TranslationRecord[]> {
-    return getAllTranslationsModern();
+    return translationFacade.getAll();
   }
 }

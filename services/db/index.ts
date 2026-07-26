@@ -97,20 +97,6 @@ interface Repo {
 export type Backend = 'modern' | 'memory';
 type BackendInput = Backend | 'idb';
 
-const SERVICE_NAMES = [
-  'translationService',
-  'navigationService',
-  'translationsSlice',
-  'chaptersSlice',
-  'exportSlice',
-  'imageGenerationService',
-  'sessionManagementService',
-  'importTransformationService',
-  'openrouterService',
-] as const;
-
-export type ServiceName = typeof SERVICE_NAMES[number];
-
 const BACKEND_STORAGE_KEY = 'lf:db-backend';
 const LEGACY_BACKEND_VALUE = 'legacy';
 let legacyBackendWarningLogged = false;
@@ -783,11 +769,11 @@ export function makeRepo(backend?: BackendInput): Repo {
 }
 
 /**
- * Utility to get repo for specific service (compatibility shim).
- * Services all share the same backend preference now, but the signature
- * remains for future per-service overrides.
+ * Get the shared repo. The old signature took a ServiceName that was IGNORED
+ * (nine registered names, zero routing) — decoration implying per-service
+ * backends that never existed. All services share one backend preference.
  */
-export function getRepoForService(_service: ServiceName): Repo {
+export function getRepoForService(): Repo {
   return makeRepo();
 }
 
@@ -816,7 +802,10 @@ export const dbUtils = {
     };
   },
 
-  emergencyRollback: () => {
+  // Named emergencyRollback until 2026-07-26 — but a "rollback" that switches
+  // TO 'modern' is a reset, not a rollback (the legacy backend it implied a
+  // return to was removed long ago).
+  resetToModernBackend: () => {
     warnLegacyPreference('runtime');
     updatePreferredBackend('modern');
     return makeRepo();

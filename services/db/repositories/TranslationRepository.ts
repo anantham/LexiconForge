@@ -179,7 +179,8 @@ export class TranslationRepository implements ITranslationRepository {
   async storeTranslation(
     chapterUrl: string,
     translation: TranslationResult,
-    settings: TranslationSettingsSnapshot
+    settings: TranslationSettingsSnapshot,
+    stableIdOverride?: string
   ): Promise<TranslationRecord> {
     // Validate required fields - fail fast if model/provider missing
     if (!settings.model || settings.model === 'unknown') {
@@ -200,6 +201,7 @@ export class TranslationRepository implements ITranslationRepository {
     const existing = await this.fetchTranslationsByUrl(chapterUrl);
     const chapter = await this.loadChapter(chapterUrl);
     const stableId =
+      stableIdOverride ||
       chapter?.stableId ||
       (chapter
         ? generateStableChapterId(
@@ -259,9 +261,9 @@ export class TranslationRepository implements ITranslationRepository {
       chapterUrl = `stableId://${stableId}`;
     }
     console.log(`[TranslationRepo] Storing translation: stableId=${stableId}, chapterUrl=${chapterUrl}, provider=${settings.provider}, model=${settings.model}`);
-    const record = await this.storeTranslation(chapterUrl, translation, settings);
-    record.stableId = stableId;
-    await this.writeTranslation(record);
+    // stableId is threaded into the single write — the previous shape wrote the
+    // full record, patched record.stableId, then wrote the whole record AGAIN.
+    const record = await this.storeTranslation(chapterUrl, translation, settings, stableId);
     console.log(`[TranslationRepo] ✅ Stored translation: id=${record.id}, version=${record.version}, stableId=${stableId}, chapterUrl=${chapterUrl}`);
     return record;
   }

@@ -680,16 +680,11 @@ export const createChaptersSlice: StateCreator<
       // Cap at 500 entries, keeping most recent
       const cappedHistory = newHistory.length > 500 ? newHistory.slice(-500) : newHistory;
 
-      // Persist to IndexedDB (fire-and-forget without await)
-      try {
-        Promise.resolve()
-          .then(() => import('../../services/db/index'))
-          .then(({ getRepoForService }) => {
-            const repo = getRepoForService('chaptersSlice');
-            return repo.setSetting('navigation-history', { stableIds: cappedHistory }).catch(() => {});
-          })
-          .catch(() => {});
-      } catch {}
+      // Persist to IndexedDB (fire-and-forget; NavigationOps owns the key and
+      // logs failures — replaces a triple-stacked silent-swallow shell)
+      void import('../../services/db/operations/navigation')
+        .then(({ NavigationOps }) => NavigationOps.persistHistory({ stableIds: cappedHistory }))
+        .catch((e) => console.warn('[chaptersSlice] navigation persist import failed', e));
 
       return { navigationHistory: cappedHistory };
     });
@@ -698,16 +693,10 @@ export const createChaptersSlice: StateCreator<
   clearHistory: () => {
     set({ navigationHistory: [] });
     
-    // Persist to IndexedDB (fire-and-forget without await)
-    try {
-      Promise.resolve()
-        .then(() => import('../../services/db/index'))
-        .then(({ getRepoForService }) => {
-          const repo = getRepoForService('chaptersSlice');
-          return repo.setSetting('navigation-history', { stableIds: [] }).catch(() => {});
-        })
-        .catch(() => {});
-    } catch {}
+    // Persist to IndexedDB (fire-and-forget; NavigationOps owns the key)
+    void import('../../services/db/operations/navigation')
+      .then(({ NavigationOps }) => NavigationOps.persistHistory({ stableIds: [] }))
+      .catch((e) => console.warn('[chaptersSlice] navigation persist import failed', e));
   },
   
   getRecentChapters: (limit = 10) => {

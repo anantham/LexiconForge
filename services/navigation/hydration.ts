@@ -226,7 +226,7 @@ export async function tryServeChapterFromCache(
     const mapping = scope.novelId
       ? (scopedMatch?.stableId ? { stableId: scopedMatch.stableId } : null)
       : await (async () => {
-          const repo = getRepoForService('navigationService');
+          const repo = getRepoForService();
           return (
             (normalized ? await repo.getUrlMappingForUrl(normalized) : null) ||
             (await repo.getUrlMappingForUrl(url))

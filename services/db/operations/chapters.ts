@@ -23,39 +23,15 @@ export const ensureChapterUrlMappings = async (
   libraryVersionId: string | null = null,
   chapterNumber?: number
 ): Promise<void> => {
-  const canonical = normalizeUrlAggressively(originalUrl) || originalUrl;
-  const nowIso = new Date().toISOString();
-
-  await withWriteTxn(
-    STORE_NAMES.URL_MAPPINGS,
-    async (_txn, stores) => {
-      const store = stores[STORE_NAMES.URL_MAPPINGS];
-
-      const upsert = async (url: string, isCanonical: boolean) => {
-        const existing = (await promisifyRequest(store.get(url))) as UrlMappingRecord | undefined;
-
-        const record = {
-          url,
-          stableId,
-          novelId: existing?.novelId ?? novelId,
-          libraryVersionId: existing?.libraryVersionId ?? libraryVersionId,
-          chapterNumber: existing?.chapterNumber ?? chapterNumber,
-          isCanonical,
-          dateAdded: existing?.dateAdded ?? nowIso,
-        };
-
-        await promisifyRequest(store.put(record));
-      };
-
-      await upsert(canonical, true);
-      if (canonical !== originalUrl) {
-        await upsert(originalUrl, false);
-      }
-    },
-    CHAPTER_DOMAIN,
-    'operations',
-    'ensureUrlMappings'
-  );
+  // Delegates to the ONE canonical implementation (core/stable-ids). A second
+  // near-identical upsert used to live here with different error behavior and
+  // a superset of fields — one translate-and-store flow could upsert the same
+  // mapping 2-3 times through two codebases.
+  await StableIdManager.ensureUrlMappings(originalUrl, stableId, {
+    novelId,
+    libraryVersionId,
+    chapterNumber,
+  });
 };
 
 const getActiveTranslation = async (chapterUrl: string): Promise<TranslationRecord | null> => {
@@ -864,14 +840,4 @@ export class ChapterOps {
     };
   }
 
-  static async ensureUrlMappings(
-    originalUrl: string,
-    stableId?: string,
-    novelId: string | null = null,
-    libraryVersionId: string | null = null,
-    chapterNumber?: number
-  ): Promise<void> {
-    if (!originalUrl || !stableId) return;
-    await ensureChapterUrlMappings(originalUrl, stableId, novelId, libraryVersionId, chapterNumber);
-  }
 }

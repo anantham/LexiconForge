@@ -22,8 +22,21 @@ export class StableIdManager {
   /**
    * Ensure URL mappings exist for both canonical and raw URLs.
    * If chapterUrl differs from canonical, writes both mappings.
+   *
+   * THE canonical implementation — operations/chapters.ts's
+   * ensureChapterUrlMappings delegates here (there used to be two divergent
+   * copies: this one swallowed errors and dropped libraryVersionId; the other
+   * propagated and carried it — schema drift waiting to be preserved).
+   *
+   * Errors PROPAGATE: an "ensure" that resolves after failing to ensure
+   * leaves every caller proceeding on a false postcondition. Best-effort
+   * callers (the auto-repair paths below) catch at their own call sites.
    */
-  static async ensureUrlMappings(chapterUrl: string, stableId: string): Promise<void> {
+  static async ensureUrlMappings(
+    chapterUrl: string,
+    stableId: string,
+    opts: { novelId?: string | null; libraryVersionId?: string | null; chapterNumber?: number } = {}
+  ): Promise<void> {
     const canonical = normalizeUrlAggressively(chapterUrl) || chapterUrl;
     const nowIso = new Date().toISOString();
 
@@ -32,8 +45,9 @@ export class StableIdManager {
       const record: UrlMappingRecord = {
         url,
         stableId,
-        novelId: existing?.novelId ?? null,
-        chapterNumber: existing?.chapterNumber,
+        novelId: existing?.novelId ?? opts.novelId ?? null,
+        libraryVersionId: existing?.libraryVersionId ?? opts.libraryVersionId ?? null,
+        chapterNumber: existing?.chapterNumber ?? opts.chapterNumber,
         isCanonical,
         dateAdded: existing?.dateAdded ?? nowIso,
       };
@@ -52,8 +66,13 @@ export class StableIdManager {
       this.DOMAIN,
       'core',
       'ensureUrlMappings'
-    ).catch(error => {
-      console.warn('[StableIdManager] ensureUrlMappings failed', {
+    );
+  }
+
+  /** Best-effort mapping write for auto-repair paths: logged, never throws. */
+  private static repairUrlMappings(chapterUrl: string, stableId: string): Promise<void> {
+    return this.ensureUrlMappings(chapterUrl, stableId).catch(error => {
+      console.warn('[StableIdManager] auto-repair mapping write failed', {
         chapterUrl,
         stableId,
         error: (error as Error)?.message ?? String(error),
@@ -75,14 +94,14 @@ export class StableIdManager {
 
     const alt1 = await this.lookupUrlByStableId(hyphen);
     if (alt1) {
-      // Auto-repair: write correct mapping with canonical format
-      await this.ensureUrlMappings(alt1, undersc);
+      // Auto-repair: write correct mapping with canonical format (best-effort)
+      await this.repairUrlMappings(alt1, undersc);
       return alt1;
     }
 
     const alt2 = await this.lookupUrlByStableId(undersc);
     if (alt2) {
-      await this.ensureUrlMappings(alt2, undersc);
+      await this.repairUrlMappings(alt2, undersc);
       return alt2;
     }
 
@@ -90,7 +109,7 @@ export class StableIdManager {
     const chapter = await this.getChapterByStableId(stableId);
     if (chapter?.url) {
       const url = chapter.url;
-      await this.ensureUrlMappings(url, stableId);
+      await this.repairUrlMappings(url, stableId);
       return url;
     }
 
@@ -98,7 +117,7 @@ export class StableIdManager {
     const ch2 = await this.getChapterByStableId(undersc);
     if (ch2?.url) {
       const url = ch2.url;
-      await this.ensureUrlMappings(url, undersc);
+      await this.repairUrlMappings(url, undersc);
       return url;
     }
 
