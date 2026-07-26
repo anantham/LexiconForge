@@ -182,7 +182,7 @@ export async function loadChapterFromIDB(
         stack: (error as Error)?.stack
       });
       // Mark the error so callers can distinguish "never translated" from "load failed"
-      (enhanced as any)._translationLoadError = (error as Error)?.message || String(error);
+      enhanced._translationLoadError = (error as Error)?.message || String(error);
       memoryDetail('Chapter hydration translation load failed', {
         chapterId,
         error: (error as Error)?.message || error,

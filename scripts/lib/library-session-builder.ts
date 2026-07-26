@@ -15,6 +15,9 @@ import type {
   TranslatorMetadata,
 } from './translation-source-types';
 import { findAdapter } from './translation-sources';
+// The app's identity function — imported, NOT copied (script-built sessions
+// must produce IDs the app reproduces; a comment is not a guard).
+import { generateStableChapterId } from '../../services/stableIdService';
 
 export interface BuildRange {
   from: number;
@@ -133,21 +136,6 @@ export interface LoadedSource {
 
 const today = (): string => new Date().toISOString().split('T')[0];
 
-const simpleHash = (value: string): string => {
-  let hash = 0;
-  for (let index = 0; index < value.length; index++) {
-    const char = value.charCodeAt(index);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0;
-  }
-  return Math.abs(hash).toString(36);
-};
-
-const generateStableChapterId = (content: string, chapterNumber: number, title: string): string => {
-  const contentHash = simpleHash(content.substring(0, 1000));
-  const titleHash = simpleHash(title);
-  return `ch${chapterNumber}_${contentHash.substring(0, 8)}_${titleHash.substring(0, 4)}`;
-};
 
 const rangeIncludes = (range: BuildRange | SourceChapterRange, chapterNumber: number): boolean => (
   chapterNumber >= range.from && chapterNumber <= range.to

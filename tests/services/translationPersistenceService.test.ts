@@ -114,9 +114,16 @@ describe('TranslationPersistenceService', () => {
   });
 
   describe('createNewVersion', () => {
-    it('stores new version and sets it as active', async () => {
-      const newRecord = { ...storedRecord, id: 'tr-uuid-2', version: 2 };
-      mockStoreByStableId.mockResolvedValue(newRecord);
+    it('stores the new version already-active, label included, in ONE write', async () => {
+      // Echo the repo's real contract: storeByStableId persists the payload
+      // (label included) with isActive:true and deactivates siblings.
+      mockStoreByStableId.mockImplementation(async (_id: string, payload: any) => ({
+        ...storedRecord,
+        id: 'tr-uuid-2',
+        version: 2,
+        isActive: true,
+        customVersionLabel: payload.customVersionLabel,
+      }));
 
       const result = await TranslationPersistenceService.createNewVersion(
         'ch1_abc_def',
@@ -125,9 +132,16 @@ describe('TranslationPersistenceService', () => {
         { versionLabel: 'Manual retranslation' }
       );
 
-      expect(mockStoreByStableId).toHaveBeenCalled();
-      expect(mockSetActive).toHaveBeenCalledWith('ch1_abc_def', 2);
+      expect(mockStoreByStableId).toHaveBeenCalledWith(
+        'ch1_abc_def',
+        expect.objectContaining({ customVersionLabel: 'Manual retranslation' }),
+        baseSettings
+      );
+      // The old second pass (setActiveByStableId: full URL-resolve + cursor
+      // walk to set flags the store had already set) is deliberately gone.
+      expect(mockSetActive).not.toHaveBeenCalled();
       expect(result?.customVersionLabel).toBe('Manual retranslation');
+      expect(result?.isActive).toBe(true);
     });
 
     it('throws on storage failure', async () => {

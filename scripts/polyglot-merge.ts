@@ -37,26 +37,10 @@ import {
   type AlignedUnit,
 } from './lib/translation-sources';
 
-// Simple hash function (matching the browser version in stableIdService.ts)
-const simpleHash = (str: string): string => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(36);
-};
-
-const generateStableChapterId = (
-  content: string,
-  chapterNumber: number,
-  title: string
-): string => {
-  const contentHash = simpleHash(content.substring(0, 1000));
-  const titleHash = simpleHash(title);
-  return `ch${chapterNumber}_${contentHash.substring(0, 8)}_${titleHash.substring(0, 4)}`;
-};
+// The app's identity function — imported, NOT copied: a script-side copy
+// guarded only by a "matching the browser version" comment is a drift bug
+// waiting to orphan every session it built.
+import { generateStableChapterId, simpleHash } from '../services/stableIdService';
 
 // ========== ALIGNMENT STRATEGIES ==========
 
