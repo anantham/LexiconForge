@@ -185,3 +185,57 @@ describe('ImportOps.importFullSessionData — version-slot merge (P0.3)', () => 
     expect(rows.map((r) => r.version).sort()).toEqual([1, 2]);
   });
 });
+
+describe('ImportOps.importFullSessionData — intra-batch (stableId, version) duplicates', () => {
+  let db: IDBDatabase;
+
+  beforeEach(async () => {
+    db?.close();
+    await deleteDb();
+    db = await openTestDb();
+    getConnectionMock.mockResolvedValue(db);
+  });
+
+  afterEach(() => {
+    db?.close();
+  });
+
+  it('a keyspace-split backup (same stableId+version under two URLs) restores without aborting', async () => {
+    // Exactly what a P0.2-era store exports: the same logical translation
+    // stored under two different chapter URLs, sharing (stableId, version).
+    // Pre-fix these hashed to different merge-plan keys, found no occupant in
+    // a fresh DB, wrote different ids, and the second put violated the unique
+    // [stableId, version] index → ConstraintError → batch abort → the
+    // halfway-restore the import comment claims cannot happen.
+    const payload = {
+      chapters: [
+        {
+          url: 'https://example.com/ch1',
+          canonicalUrl: 'https://example.com/ch1',
+          stableId: STABLE_ID,
+          title: 'Chapter One',
+          content: '<p>source</p>',
+          chapterNumber: 1,
+          translations: [exportedTranslation(1, 'row-under-url-A', 'From URL A')],
+        },
+        {
+          url: 'https://mirror.example.org/ch1',
+          canonicalUrl: 'https://mirror.example.org/ch1',
+          stableId: STABLE_ID,
+          title: 'Chapter One (mirror)',
+          content: '<p>source</p>',
+          chapterNumber: 1,
+          translations: [exportedTranslation(1, 'row-under-url-B', 'From URL B')],
+        },
+      ],
+    };
+
+    await ImportOps.importFullSessionData(payload);
+
+    const rows = await readAllTranslations(db);
+    const slotRows = rows.filter((r) => r.stableId === STABLE_ID && r.version === 1);
+    // One survivor for the (stableId, version) slot; last write wins.
+    expect(slotRows).toHaveLength(1);
+    expect(slotRows[0].translatedTitle).toBe('From URL B');
+  });
+});

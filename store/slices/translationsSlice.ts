@@ -403,7 +403,11 @@ export const createTranslationsSlice: StateCreator<
     }
 
     try {
-      const existingVersions = await TranslationOps.getVersionsByStableId(chapterId).catch(() => []);
+      // No .catch(() => []) here: the repository already maps "no rows" to []
+      // and only rejects on real infrastructure failure — which must abort the
+      // retranslate rather than masquerade as "no existing versions" (that
+      // masquerade re-bills a chapter that already has a translation).
+      const existingVersions = await TranslationOps.getVersionsByStableId(chapterId);
       debugLog('translation', 'summary', '[Retranslate] Found existing versions', {
         chapterId,
         count: existingVersions.length

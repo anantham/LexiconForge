@@ -154,3 +154,37 @@ describe('TranslationRepository — race URL+stableId lookups (issue #9)', () =>
     expect(result[0].version).toBe(5);
   });
 });
+
+describe('TranslationRepository — infra errors must not read as "untranslated"', () => {
+  let repo: any;
+
+  beforeEach(() => {
+    repo = makeRepo();
+    repo.resolveChapterUrl = vi.fn(async () => 'https://example.com/ch1');
+  });
+
+  it('propagates an IndexedDB failure instead of returning [] (which triggers paid auto-retranslation)', async () => {
+    const idbError = new Error('InvalidStateError: database is closing');
+    repo.fetchTranslationsByUrl = vi.fn(async () => {
+      throw idbError;
+    });
+    repo.fetchTranslationsByStableId = vi.fn(async () => {
+      throw idbError;
+    });
+
+    await expect(repo.getTranslationVersionsByStableId('stable-A')).rejects.toThrow(
+      /database is closing/
+    );
+  });
+
+  it('propagates a stableId-index failure even when the URL path is merely empty', async () => {
+    repo.fetchTranslationsByUrl = vi.fn(async () => []);
+    repo.fetchTranslationsByStableId = vi.fn(async () => {
+      throw new Error('QuotaExceededError');
+    });
+
+    await expect(repo.getTranslationVersionsByStableId('stable-A')).rejects.toThrow(
+      /QuotaExceededError/
+    );
+  });
+});

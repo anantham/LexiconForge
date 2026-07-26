@@ -63,7 +63,9 @@ export async function loadChapterFromIDB(
     // a comment in the current session — and even then was lost on reload
     // because of issue #18).
     try {
-      const feedbackRecords = await FeedbackOps.get(rec.url).catch(() => []);
+      // No inner .catch here — it guaranteed this promise resolved, which made
+      // the catch below (the layer added to make failures VISIBLE) unreachable.
+      const feedbackRecords = await FeedbackOps.get(rec.url);
       if (Array.isArray(feedbackRecords) && feedbackRecords.length > 0) {
         enhanced.feedback = feedbackRecords.map(feedbackRecordToItem);
         debugLog('navigation', 'summary', '[Navigation] Loaded persisted feedback', {

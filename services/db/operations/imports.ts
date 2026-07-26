@@ -390,6 +390,15 @@ export class ImportOps {
           const translationsStore = tx.objectStore(STORE_NAMES.TRANSLATIONS);
           const feedbackStore = tx.objectStore(STORE_NAMES.FEEDBACK);
 
+          // Intra-batch guard: two incoming rows can share (stableId, version)
+          // under DIFFERENT storage URLs (a legacy keyspace-split export).
+          // They hash to different mergePlan keys, so occupant resolution
+          // alone cannot see the collision — without this map the second put
+          // would violate the unique [stableId, version] index and abort the
+          // batch, which is the exact halfway-restore this pass exists to
+          // prevent. Last write wins, keeping the first write's row id.
+          const stableSlotIds = new Map<string, string>();
+
           for (const chapter of batch) {
             const identity = resolveStoredChapterIdentity(
               chapter,
@@ -425,7 +434,7 @@ export class ImportOps {
               // (stableId|chapterUrl, version) slot, keeping that row's id so
               // the unique indexes cannot be violated. Deterministic: the
               // import overwrites, never aborts.
-              const survivorId =
+              let survivorId =
                 slot?.stableOccupantId ?? slot?.urlOccupantId ?? translation.id ?? crypto.randomUUID();
               // A legacy keyspace split (P0.2) can leave one version occupying
               // two different rows; drop the loser before writing the survivor.
@@ -435,6 +444,25 @@ export class ImportOps {
                 slot.stableOccupantId !== slot.urlOccupantId
               ) {
                 translationsStore.delete(slot.urlOccupantId);
+              }
+              if (identity.stableId) {
+                const stableKey = `${identity.stableId}::${version}`;
+                const priorId = stableSlotIds.get(stableKey);
+                if (priorId) {
+                  // A row earlier in THIS batch already claimed this
+                  // (stableId, version) slot — overwrite it, and drop any
+                  // stored occupant of this row's own url slot so the
+                  // [chapterUrl, version] unique index cannot collide either.
+                  survivorId = priorId;
+                  if (slot?.urlOccupantId && slot.urlOccupantId !== priorId) {
+                    translationsStore.delete(slot.urlOccupantId);
+                  }
+                  if (slot?.stableOccupantId && slot.stableOccupantId !== priorId) {
+                    translationsStore.delete(slot.stableOccupantId);
+                  }
+                } else {
+                  stableSlotIds.set(stableKey, survivorId);
+                }
               }
               translationsStore.put({
                 id: survivorId,

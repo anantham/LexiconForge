@@ -151,7 +151,11 @@ export class TranslationOps {
       promptName?: string;
     }
   ): Promise<TranslationRecord> {
-    const url = await StableIdManager.getUrlForStableId(stableId);
+    // No pre-resolution here: the repository resolves the URL itself and has a
+    // stableId:// fallback "so the translation is not lost". A getUrlForStableId
+    // call at this layer used to throw one level ABOVE that safety net —
+    // losing the paid translation the net was built to save — and its result
+    // was never even used.
     return translationFacade.storeByStableId(stableId, result, toSnapshot(settings));
   }
 
