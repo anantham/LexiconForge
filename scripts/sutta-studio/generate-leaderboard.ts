@@ -664,7 +664,10 @@ export async function generateLeaderboard(): Promise<Leaderboard> {
         'Ranking is driven by overallScore only; contentF1 is reference-width-sensitive (partial remediation: ' +
         'golden v2 widened senses; dictionary-attested ALTERNATE SEGMENTATIONS are still penalized — known limitation). ' +
         'CAVEAT: fidelity only scores words the golden covers; where the golden is partial, ' +
-        'unscored model words are excluded — see paliWordCoverage and the per-run golden-diff.',
+        'unscored model words are excluded — see paliWordCoverage and the per-run golden-diff. ' +
+        "Provider-dialect note: openai/* structured calls send the SAME logical schema transformed " +
+        "to OpenAI's strict dialect (every property required + null-unions for optionality; " +
+        'scripts/sutta-studio/openai-strict-schema.ts) — content parity, dialect compliance.',
     },
     excluded: { models: Array.from(excludedModels), reasons: Array.from(excludedReasons) },
     // GROUNDING & PROVENANCE (operator request): every layer's authority, disclosed, so the
