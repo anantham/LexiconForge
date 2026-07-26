@@ -25,6 +25,13 @@ export type GroundedClaim = {
   term: string;
   citations: Citation[];
   narrative?: string;
+  /**
+   * The source registry's own "needs verification" marker(s), passed
+   * through verbatim when the entry carries any. Nothing in the grounding
+   * layer verifies URLs — this flag surfaces the registry's honesty; it is
+   * not a compile-time check.
+   */
+  needsVerification?: string;
 };
 
 /**

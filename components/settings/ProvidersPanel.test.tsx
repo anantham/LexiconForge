@@ -13,7 +13,7 @@ const {
   mockGetOpenRouterOptions,
   mockRefreshProviderCredits,
   mockLoadProviderCreditsFromCache,
-  mockGetVerifiedOpenRouterImageModels,
+  mockGetImageCapableModels,
   mockGetLastUsedMap,
 } = vi.hoisted(() => ({
   mockHandleSettingChange: vi.fn(),
@@ -23,7 +23,7 @@ const {
   mockGetOpenRouterOptions: vi.fn((): Array<{ id: string; label: string; lastUsed?: string; priceKey?: number | null }> => []),
   mockRefreshProviderCredits: vi.fn(),
   mockLoadProviderCreditsFromCache: vi.fn(),
-  mockGetVerifiedOpenRouterImageModels: vi.fn().mockResolvedValue({
+  mockGetImageCapableModels: vi.fn().mockResolvedValue({
     data: [],
     fetchedAt: '2026-04-02T00:00:00.000Z',
   }),
@@ -70,7 +70,7 @@ vi.mock('../../services/openrouterService', () => ({
 }));
 
 vi.mock('../../services/openrouterImageModelAdapter', () => ({
-  getVerifiedOpenRouterImageModels: mockGetVerifiedOpenRouterImageModels,
+  getImageCapableModels: mockGetImageCapableModels,
 }));
 
 // Mock constants
@@ -159,7 +159,7 @@ describe('ProvidersPanel', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetVerifiedOpenRouterImageModels.mockResolvedValue({ data: [], fetchedAt: new Date().toISOString() });
+    mockGetImageCapableModels.mockResolvedValue({ data: [], fetchedAt: new Date().toISOString() });
     mockGetLastUsedMap.mockResolvedValue({});
     setupDefaultMocks();
   });

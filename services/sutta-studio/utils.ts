@@ -358,10 +358,14 @@ export const splitPaliTokens = (text: string): string[] =>
  *   surface-true segment; the split's pedagogy survives in merged tooltips
  *   plus an "Underlying analysis" note
  *
- * The prompt's word-boundary rule guarantees one word per whitespace token in
- * order, so alignment is positional. If the model dropped or merged words the
- * counts disagree and we skip (never guess) — the packet validator reports
- * whatever remains.
+ * Alignment is positional against the tokenizer's output — which splits on
+ * whitespace AND after em-dashes (see splitPaliTokens), so "one word per
+ * whitespace token" is not exactly the unit. The ONLY safety check is count
+ * equality, which catches NET drops/merges: if the model dropped or merged
+ * words so the totals disagree, we skip rather than guess. But compensating
+ * errors (e.g. one word dropped AND another split) keep the counts equal and
+ * slip through UNDETECTED — the repair then force-writes every downstream
+ * surface onto the wrong word. The packet validator reports whatever remains.
  */
 export const repairAnatomistSurfaces = (
   pass: AnatomistPass,

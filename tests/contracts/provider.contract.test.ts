@@ -84,13 +84,13 @@ const rateLimitMock = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('../../services/rateLimitService', () => ({
   rateLimitService: {
-    canMakeRequest: (...args: any[]) => rateLimitMock(...args),
+    acquireRequestSlot: (...args: any[]) => rateLimitMock(...args),
   },
 }));
 
 const calculateCostMock = vi.fn();
 
-vi.mock('../../services/aiService', () => ({
+vi.mock('../../services/ai/cost', () => ({
   calculateCost: (...args: any[]) => calculateCostMock(...args),
 }));
 

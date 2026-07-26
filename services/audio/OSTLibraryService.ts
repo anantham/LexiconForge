@@ -1,8 +1,8 @@
 /**
  * OST Library Service - Manages reference audio samples for audio2audio generation
  * 
- * Provides access to the OST library in /public/OSTs for style reference.
- * Supports scanning, categorizing, and serving audio samples.
+ * Serves a static, hand-curated list of samples from /public/OSTs for style
+ * reference (no filesystem scanning happens — the browser can't).
  */
 
 export interface OSTSample {
@@ -167,17 +167,6 @@ export class OSTLibraryService {
     })).sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  /**
-   * Validate that an OST sample is accessible
-   */
-  async validateSample(sample: OSTSample): Promise<boolean> {
-    try {
-      const response = await fetch(sample.url, { method: 'HEAD' });
-      return response.ok;
-    } catch {
-      return false;
-    }
-  }
 }
 
 // Singleton instance

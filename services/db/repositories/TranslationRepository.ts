@@ -179,7 +179,8 @@ export class TranslationRepository implements ITranslationRepository {
   async storeTranslation(
     chapterUrl: string,
     translation: TranslationResult,
-    settings: TranslationSettingsSnapshot
+    settings: TranslationSettingsSnapshot,
+    stableIdOverride?: string
   ): Promise<TranslationRecord> {
     // Validate required fields - fail fast if model/provider missing
     if (!settings.model || settings.model === 'unknown') {
@@ -200,6 +201,7 @@ export class TranslationRepository implements ITranslationRepository {
     const existing = await this.fetchTranslationsByUrl(chapterUrl);
     const chapter = await this.loadChapter(chapterUrl);
     const stableId =
+      stableIdOverride ||
       chapter?.stableId ||
       (chapter
         ? generateStableChapterId(
@@ -259,9 +261,9 @@ export class TranslationRepository implements ITranslationRepository {
       chapterUrl = `stableId://${stableId}`;
     }
     console.log(`[TranslationRepo] Storing translation: stableId=${stableId}, chapterUrl=${chapterUrl}, provider=${settings.provider}, model=${settings.model}`);
-    const record = await this.storeTranslation(chapterUrl, translation, settings);
-    record.stableId = stableId;
-    await this.writeTranslation(record);
+    // stableId is threaded into the single write — the previous shape wrote the
+    // full record, patched record.stableId, then wrote the whole record AGAIN.
+    const record = await this.storeTranslation(chapterUrl, translation, settings, stableId);
     console.log(`[TranslationRepo] ✅ Stored translation: id=${record.id}, version=${record.version}, stableId=${stableId}, chapterUrl=${chapterUrl}`);
     return record;
   }
@@ -296,7 +298,14 @@ export class TranslationRepository implements ITranslationRepository {
     // AggregateError is caught and [] is returned.
 
     const urlPath = (async (): Promise<TranslationRecord[]> => {
-      const chapterUrl = await this.resolveChapterUrl({ stableId });
+      let chapterUrl: string;
+      try {
+        chapterUrl = await this.resolveChapterUrl({ stableId });
+      } catch {
+        // No chapter record and no URL mapping — the url path simply does not
+        // apply to this stableId. An expected miss, not an infra failure.
+        throw new Error('url-path-unresolvable');
+      }
       const result = await this.fetchTranslationsByUrl(chapterUrl);
       if (result.length === 0) throw new Error('url-path-empty');
       return result;
@@ -311,8 +320,25 @@ export class TranslationRepository implements ITranslationRepository {
     try {
       const versions = await Promise.any([urlPath, stableIdPath]);
       return versions.map(v => ({ ...v, stableId }));
-    } catch {
-      // Both paths returned empty or threw — no translations exist.
+    } catch (err) {
+      // Promise.any rejects with an AggregateError once BOTH paths rejected.
+      // Expected misses ("no rows", "no mapping to resolve") mean no
+      // translations exist — the honest [] case. Anything else is an
+      // infrastructure failure (broken IndexedDB, aborted transaction) and
+      // MUST propagate: converting it into [] reads as "chapter untranslated"
+      // downstream and can trigger a paid auto-retranslation of an
+      // already-translated chapter.
+      const errors = err instanceof AggregateError ? err.errors : [err];
+      const isExpectedMiss = (e: unknown): boolean => {
+        const msg = e instanceof Error ? e.message : String(e);
+        return (
+          msg === 'url-path-empty' ||
+          msg === 'stableid-path-empty' ||
+          msg === 'url-path-unresolvable'
+        );
+      };
+      const infra = errors.filter(e => !isExpectedMiss(e));
+      if (infra.length > 0) throw infra[0];
       return [];
     }
   }
@@ -339,13 +365,23 @@ export class TranslationRepository implements ITranslationRepository {
     console.log(`[TranslationRepo] ensureActive: picked version=${active.version}, isActive=${active.isActive}, provider=${active.provider}, model=${active.model} for ${stableId}`);
     if (active.isActive) return active;
 
-    // Need to promote — try URL path first, fall back to returning as-is
+    // Need to promote — try URL path first, fall back to promoting via the
+    // records we already hold from the stableId index.
     try {
       await this.setActiveTranslationByStableId(stableId, active.version);
       return this.getActiveTranslationByStableId(stableId);
     } catch (promoteError) {
-      // URL_MAPPINGS missing — can't promote via URL path, just return the version directly
-      console.warn(`[TranslationRepo] ensureActive: promotion via URL failed for ${stableId}, returning version directly`, promoteError);
+      // No URL mapping — promote by writing the records directly instead of
+      // fabricating isActive on the return value (the previous behavior
+      // returned isActive:true while the store still held the record
+      // inactive, so the next read disagreed with what the caller cached).
+      console.warn(`[TranslationRepo] ensureActive: URL-path promotion failed for ${stableId}, promoting via stableId records`, promoteError);
+      for (const v of versions) {
+        const wantActive = v.id === active.id;
+        if ((v.isActive ?? false) !== wantActive) {
+          await this.writeTranslation({ ...v, isActive: wantActive });
+        }
+      }
       return { ...active, isActive: true, stableId };
     }
   }

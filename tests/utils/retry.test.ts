@@ -2,8 +2,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { withRetry, isNetworkError } from '../../utils/retry';
 
 describe('isNetworkError', () => {
-  it('returns true for AbortError', () => {
-    expect(isNetworkError(new DOMException('Aborted', 'AbortError'))).toBe(true);
+  it('returns FALSE for AbortError — a cancel is not a network failure', () => {
+    // Retrying an abort resurrects billed calls after the user pressed
+    // Cancel. Consumers whose aborts are self-inflicted (importService's
+    // internal fetch timeout) opt in with their own predicate.
+    expect(isNetworkError(new DOMException('Aborted', 'AbortError'))).toBe(false);
   });
 
   it('returns true for network-related messages', () => {

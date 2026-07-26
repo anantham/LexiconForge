@@ -63,7 +63,9 @@ export async function loadChapterFromIDB(
     // a comment in the current session — and even then was lost on reload
     // because of issue #18).
     try {
-      const feedbackRecords = await FeedbackOps.get(rec.url).catch(() => []);
+      // No inner .catch here — it guaranteed this promise resolved, which made
+      // the catch below (the layer added to make failures VISIBLE) unreachable.
+      const feedbackRecords = await FeedbackOps.get(rec.url);
       if (Array.isArray(feedbackRecords) && feedbackRecords.length > 0) {
         enhanced.feedback = feedbackRecords.map(feedbackRecordToItem);
         debugLog('navigation', 'summary', '[Navigation] Loaded persisted feedback', {
@@ -180,7 +182,7 @@ export async function loadChapterFromIDB(
         stack: (error as Error)?.stack
       });
       // Mark the error so callers can distinguish "never translated" from "load failed"
-      (enhanced as any)._translationLoadError = (error as Error)?.message || String(error);
+      enhanced._translationLoadError = (error as Error)?.message || String(error);
       memoryDetail('Chapter hydration translation load failed', {
         chapterId,
         error: (error as Error)?.message || error,
@@ -224,7 +226,7 @@ export async function tryServeChapterFromCache(
     const mapping = scope.novelId
       ? (scopedMatch?.stableId ? { stableId: scopedMatch.stableId } : null)
       : await (async () => {
-          const repo = getRepoForService('navigationService');
+          const repo = getRepoForService();
           return (
             (normalized ? await repo.getUrlMappingForUrl(normalized) : null) ||
             (await repo.getUrlMappingForUrl(url))

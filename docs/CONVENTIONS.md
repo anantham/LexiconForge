@@ -115,6 +115,66 @@ throw new Error('Failed');
 
 **Intentional divergence:** IndexedDB uses `snake_case` for store/field names (DB convention); TypeScript types for those records use `camelCase` properties. This is documented and expected — not a naming conflict.
 
+### 6a. Verb-prefix semantics (added 2026-07-26, integrity scan)
+
+These rules were already true de facto; the defect was that they were
+unwritten, so each reader reverse-engineered them and fresh sessions invented
+synonyms. Where a distinction is real, the fix is writing it down, not merging.
+
+| Prefix | Contract |
+|--------|----------|
+| `fetch*` | Crosses the network. |
+| `get*` | Memory/cache/DB read — no network, no durable writes. |
+| `load*` | Read + hydrate into runtime state. |
+| `find*` | Search that may miss — returns null/undefined. |
+| `lookup*` | Dictionary-domain resolution (DPD, glossaries). |
+| `ensure*` | Idempotent postcondition-establisher; **errors propagate** (an ensure that resolves after failing leaves callers on a false postcondition). Best-effort variants are named `repair*`/`persist*` and log what they swallow. |
+| `validate*`/`verify*` | Must be able to REJECT (throw, or return a value callers gate on). A validator that only logs is a no-op wearing a safety name. |
+| `is*`/`has*`/`can*` | Pure predicates — mutating on read disqualifies the name. |
+| `acquire*` | Consumes/holds a resource; backpressure is the wait, not a boolean. |
+
+Known collapse candidate: `getChaptersForReactRendering` vs
+`fetchChaptersForReactRendering` (`services/db/operations/rendering.ts`) are
+the same IndexedDB read.
+
+### 6b. Noun clusters — real distinctions, do not merge
+
+- **chapter** = the text unit; `*Section` identifiers are UI panels only.
+- **translation / version / rendering** — model output (`TranslationResult`) /
+  stored variant per chapter (`version`, `activeVersion`) / read-model
+  projection for React (`ChapterRenderingRecord`).
+- **URL family** — `originalUrl` (as-scraped) · `canonicalUrl` (normalized
+  identity via `normalizeUrlAggressively`, the single normalizer) ·
+  `sourceUrls` (all variants) · `prevUrl`/`nextUrl` (adjacency, never
+  identity). Identity-first lookup with adjacency as explicit fallback is
+  load-bearing (`findByUrlInMemory`).
+- **novel / work** — `novel`/`novelId` is the web-novel entity; `work`/`workId`
+  is the Buddhist-corpus text (84000/SuttaCentral term). `Bookshelf*` is a UI
+  feature; `BookToki` is a site.
+- **settings / config / options** — `AppSettings` (user runtime) · `appConfig`
+  (static `config/app.json`) · `NovelConfig` (per-novel) ·
+  `translationSettingsSnapshot` (per-version provenance) · `*Options`
+  (per-call args). No `prefs`.
+- **provider** has three referents — vendor string (`ProviderName`), chat
+  capability (`adapters/providers/Provider.ts`), data-source loaders
+  (`services/providers/`). Qualify in prose.
+- **session** = the import/export artifact, not the zustand store, not an app run.
+- **image / illustration / steering** — generated asset with versions /
+  in-text placement concept (markers) / img2img reference inputs.
+
+### 6c. Single-source grammars (import, never copy)
+
+- Illustration markers: `services/ai/illustrationMarkers.ts`
+  (`ILLUSTRATION_MARKER_PATTERN` / `ILLUSTRATION_MARKER_INNER`) — the reader
+  tokenizer, HTML repair, and EPUB generator compose from it.
+- Prompt placeholders: double-brace `{{name}}`, expanded only by
+  `services/ai/textUtils.replacePlaceholders`.
+- Chapter identity: `generateStableChapterId`/`simpleHash` from
+  `services/stableIdService` — scripts import it; a copied hash guarded by a
+  comment silently orphans every session it builds.
+- Fetch-proxy allowlist: `services/scraping/allowedDomains.cjs` (the two
+  in-repo proxies).
+
 ---
 
 ## 7. Imports

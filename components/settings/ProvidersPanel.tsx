@@ -17,7 +17,7 @@ import { debugLog } from '../../utils/debug';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { useProvidersPanelStore } from '../../hooks/useProvidersPanelStore';
 import {
-  getVerifiedOpenRouterImageModels,
+  getImageCapableModels,
   type OpenRouterImageModelProfile,
 } from '../../services/openrouterImageModelAdapter';
 import { useAppStore } from '../../store';
@@ -145,7 +145,7 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
     if (!isOpen) return;
     (async () => {
       try {
-        const models = await getVerifiedOpenRouterImageModels();
+        const models = await getImageCapableModels();
         setDynamicImageModels(models.data);
       } catch (error) {
         console.error('[ProvidersPanel] Failed to load OpenRouter image models:', error);
@@ -386,7 +386,7 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         return {
           id: fullId,
           name: `${m.name} (OpenRouter)`,
-          description: `Verified by OpenRouter image catalogue: ${m.pricingLabel}`,
+          description: `Listed as image-capable in OpenRouter's catalogue: ${m.pricingLabel}`,
           label: `${m.name} — ${m.pricingLabel}`,
           sortKey: m.sortKey ?? Number.POSITIVE_INFINITY,
           provider: getProvider(fullId),

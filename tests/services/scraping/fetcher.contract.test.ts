@@ -88,33 +88,32 @@ describe('fetcher.ts — INV-2: SuttaCentral bypasses HTML proxy', () => {
   });
 });
 
-describe('fetcher.ts — INV-4: TOC redirect in Playwright fallback', () => {
+describe('fetcher.ts — dead VPS Playwright tier stays removed', () => {
   /**
-   * This test verifies that when the Playwright fallback path fetches a TOC/index
-   * page, it calls getRedirectUrl() and follows the redirect to chapter 1.
+   * The "Playwright proxy on VPS" fallback tier (PLAYWRIGHT_PROXY_URL →
+   * 3-99-221-14.sslip.io) was removed 2026-07-26 after the VPS had been dead
+   * ~4 months: the tier could never succeed and burned up to 30s of
+   * user-facing latency per scrape that reached it.
    *
-   * On current main, the Playwright fallback goes straight to extractTitle()/
-   * extractContent() without checking getRedirectUrl(). This test should FAIL
-   * on current main.
-   *
-   * We test this structurally: the Playwright path in fetcher.ts should contain
-   * a getRedirectUrl() call. This is a code inspection test.
+   * This structural test replaces the former "INV-4: TOC redirect in
+   * Playwright fallback" check (vacuous once the tier is gone) and guards
+   * against the dead tier being reintroduced without a health check.
    */
-  it('Playwright fallback path should call getRedirectUrl()', async () => {
+  it('fetcher.ts should not import (nor proxy.ts export) the dead Playwright VPS proxy', async () => {
     const fs = await import('fs');
     const path = await import('path');
     const fetcherSource = fs.readFileSync(
       path.resolve(__dirname, '../../../services/scraping/fetcher.ts'),
       'utf-8'
     );
-
-    // Find the Playwright fallback section
-    const playwrightSection = fetcherSource.slice(
-      fetcherSource.indexOf('Playwright fallback'),
-      fetcherSource.indexOf('Final fallback: attempt direct fetch')
+    const proxySource = fs.readFileSync(
+      path.resolve(__dirname, '../../../services/scraping/proxy.ts'),
+      'utf-8'
     );
 
-    // It should contain a getRedirectUrl() call
-    expect(playwrightSection).toContain('getRedirectUrl');
+    // Live-code references only — the removal NOTES in both files may still
+    // name the constant/host for historical context.
+    expect(fetcherSource).not.toMatch(/import[^;]*PLAYWRIGHT_PROXY_URL/s);
+    expect(proxySource).not.toMatch(/export\s+const\s+PLAYWRIGHT_PROXY_URL/);
   });
 });

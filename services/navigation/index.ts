@@ -15,7 +15,7 @@ import { getRepoForService } from '../db/index';
 import { normalizeUrlAggressively } from '../stableIdService';
 import type { EnhancedChapter } from '../stableIdService';
 import type { TranslationSettingsSnapshot } from '../../types';
-import { ChapterOps, TranslationOps, SettingsOps } from '../db/operations';
+import { ChapterOps, TranslationOps, SettingsOps, NavigationOps } from '../db/operations';
 import { telemetryService } from '../telemetryService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { adaptTranslationRecordToResult } from './converters';
@@ -113,16 +113,12 @@ export class NavigationService {
           });
         }
 
-        // Persist navigation state
-        try {
-          SettingsOps.set('navigation-history', { stableIds: newHistory }).catch(() => {});
-        } catch {}
-        try {
-          SettingsOps.set('lastActiveChapter', {
-            id: chapterId,
-            url: chapters.get(chapterId)?.canonicalUrl || url,
-          }).catch(() => {});
-        } catch {}
+        // Persist navigation state (NavigationOps owns these keys and logs failures)
+        NavigationOps.persistHistory({ stableIds: newHistory });
+        NavigationOps.persistLastActiveChapter({
+          id: chapterId,
+          url: chapters.get(chapterId)?.canonicalUrl || url,
+        });
 
         slog(`[Navigate] Found existing chapter ${chapterId} for URL ${url}.`);
 
@@ -207,15 +203,9 @@ export class NavigationService {
               });
             }
 
-            // Persist navigation state
-            try {
-              const repo = getRepoForService('navigationService');
-              repo.setSetting('navigation-history', { stableIds: newHistory }).catch(() => {});
-            } catch {}
-            try {
-              const repo = getRepoForService('navigationService');
-              repo.setSetting('lastActiveChapter', { id: chapterId, url: loaded.canonicalUrl }).catch(() => {});
-            } catch {}
+            // Persist navigation state (NavigationOps owns these keys and logs failures)
+            NavigationOps.persistHistory({ stableIds: newHistory });
+            NavigationOps.persistLastActiveChapter({ id: chapterId, url: loaded.canonicalUrl });
 
             slog(`[Navigate] Hydrated chapter ${chapterId} from IndexedDB.`);
             telemetryMeta.outcome = 'idb_hydrated';
@@ -250,7 +240,7 @@ export class NavigationService {
 
           if (!scope?.novelId) {
             const norm = normalizedUrl;
-            const repo = getRepoForService('navigationService');
+            const repo = getRepoForService();
             const mapping = (norm ? await repo.getUrlMappingForUrl(norm) : null) ||
                             await repo.getUrlMappingForUrl(url);
             if (mapping?.stableId) {
@@ -342,7 +332,7 @@ export class NavigationService {
             return { error: errorMessage };
           }
 
-          const repo = getRepoForService('navigationService');
+          const repo = getRepoForService();
           const found = await repo.findChapterByUrl(url);
           if (found?.stableId) {
             const chapterIdFound = found.stableId;
@@ -382,12 +372,9 @@ export class NavigationService {
 
             const newHistory = [...new Set(navigationHistory.concat(chapterIdFound))];
 
-            // Persist navigation state
-            try {
-              const repo2 = getRepoForService('navigationService');
-              await repo2.setSetting('lastActiveChapter', { id: chapterIdFound, url: canonicalUrl });
-              await repo2.setSetting('navigation-history', { stableIds: newHistory });
-            } catch {}
+            // Persist navigation state (NavigationOps owns these keys and logs failures)
+            NavigationOps.persistLastActiveChapter({ id: chapterIdFound, url: canonicalUrl });
+            NavigationOps.persistHistory({ stableIds: newHistory });
 
             slog(`[Navigate] Found chapter directly in IndexedDB for URL ${url}.`);
             telemetryMeta.outcome = 'idb_direct_lookup';

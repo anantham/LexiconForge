@@ -63,7 +63,7 @@ describe('translateChapter', () => {
 
   it('increments default key usage on successful translation', async () => {
     translateMock.mockResolvedValue(baseResult);
-    const { translateChapter } = await import('../../services/aiService');
+    const { translateChapter } = await import('../../services/ai/translatorRouter');
 
     const result = await translateChapter(
       'Chapter',
@@ -81,7 +81,7 @@ describe('translateChapter', () => {
   it('does not increment default key usage when translation fails', async () => {
     const error = new Error('network failure');
     translateMock.mockRejectedValue(error);
-    const { translateChapter } = await import('../../services/aiService');
+    const { translateChapter } = await import('../../services/ai/translatorRouter');
 
     await expect(translateChapter(
       'Chapter',
@@ -95,7 +95,7 @@ describe('translateChapter', () => {
 
   it('skips trial counter when user supplies OpenRouter key', async () => {
     translateMock.mockResolvedValue(baseResult);
-    const { translateChapter } = await import('../../services/aiService');
+    const { translateChapter } = await import('../../services/ai/translatorRouter');
 
     await translateChapter(
       'Chapter',

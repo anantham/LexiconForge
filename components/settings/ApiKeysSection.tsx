@@ -80,8 +80,8 @@ export const ApiKeysSection: React.FC<ApiKeysSectionProps> = ({
           <div className="ml-3">
             <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Security notice</h3>
             <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-              Your API keys are stored locally on your device. This is a static app with no backend; all data (including keys)
-              lives in your browser's storage.
+              Your API keys are stored locally in your browser's storage and are sent only to the AI provider you
+              select. Chapter fetches route through a CORS proxy (a small serverless function), which never sees your keys.
             </p>
             <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
               Requests to providers (Gemini, Claude, DeepSeek, OpenRouter, etc.) are sent directly from your current browser

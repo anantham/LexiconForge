@@ -5,6 +5,8 @@
  * Data-driven approach for easy auditing and toggling of rules.
  */
 
+import { ILLUSTRATION_MARKER_INNER } from '../ai/illustrationMarkers';
+
 export interface RepairStats {
   applied: string[];      // List of repairs that were applied
   warnings: string[];     // Non-critical issues found
@@ -61,11 +63,13 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '<hr>'
   },
 
-  // Issue #3: Bare illustration markers (missing brackets)
+  // Issue #3: Bare illustration markers (missing brackets). Uses the canonical
+  // marker grammar — the previous private copy had no letter-suffix support, so
+  // a bare ILLUSTRATION-2b was mangled into [ILLUSTRATION-2]b.
   {
     name: 'bracket-illustrations',
     description: 'Wrap ILLUSTRATION-N in brackets',
-    pattern: /(?<!\[)(ILLUSTRATION-\d+)(?!\])/gi,
+    pattern: new RegExp(String.raw`(?<!\[)(${ILLUSTRATION_MARKER_INNER})(?!\])`, 'g'),
     replacement: '[$1]'
   },
 

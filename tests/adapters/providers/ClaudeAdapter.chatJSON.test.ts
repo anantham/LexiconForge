@@ -30,10 +30,8 @@ vi.mock('@anthropic-ai/sdk', () => {
   return { default: AnthropicMock };
 });
 
-vi.mock('../../../services/aiService', () => ({
+vi.mock('../../../services/ai/cost', () => ({
   calculateCost: calculateCostMock,
-  validateApiKey: vi.fn(),
-  translateChapter: vi.fn(),
 }));
 
 vi.mock('../../../services/apiMetricsService', () => ({

@@ -241,7 +241,13 @@ export async function getCachedOpenRouterImageModels(): Promise<OpenRouterImageM
   return SettingsOps.getKey<OpenRouterImageModelsCache>(IMAGE_MODELS_KEY);
 }
 
-export async function getVerifiedOpenRouterImageModels(force = false): Promise<OpenRouterImageModelsCache> {
+/**
+ * Models metadata-filtered from OpenRouter's /models catalog (image output
+ * modality). Nothing is functionally verified — "image-capable" means listed
+ * as such in the catalog. On cache miss this does network I/O and a durable
+ * settings write (SettingsOps.set).
+ */
+export async function getImageCapableModels(force = false): Promise<OpenRouterImageModelsCache> {
   const cached = await getCachedOpenRouterImageModels();
   if (!force && cached?.fetchedAt) {
     const ageMs = Date.now() - new Date(cached.fetchedAt).getTime();
@@ -257,11 +263,11 @@ export async function getVerifiedOpenRouterImageModel(
   modelId: string
 ): Promise<OpenRouterImageModelProfile | null> {
   const normalizedId = normalizeModelId(modelId);
-  const cached = await getVerifiedOpenRouterImageModels(false);
+  const cached = await getImageCapableModels(false);
   let model = cached.data.find((entry) => entry.id === normalizedId) || null;
 
   if (!model) {
-    const refreshed = await getVerifiedOpenRouterImageModels(true);
+    const refreshed = await getImageCapableModels(true);
     model = refreshed.data.find((entry) => entry.id === normalizedId) || null;
   }
 

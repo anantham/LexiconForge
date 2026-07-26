@@ -408,39 +408,6 @@ export class SessionManagementService {
   }
 
   /**
-   * Check if session needs migration or repair
-   */
-  static async validateSession(): Promise<{ isValid: boolean; issues: string[] }> {
-    const issues: string[] = [];
-
-    try {
-      // Check localStorage settings
-      const settings = this.loadSettings();
-      if (!settings.provider) {
-        issues.push('Missing provider in settings');
-      }
-
-      // Check prompt templates
-      const { templates, activeTemplate } = await this.loadPromptTemplates();
-      if (templates.length === 0) {
-        issues.push('No prompt templates found');
-      }
-      
-      if (!activeTemplate) {
-        issues.push('No active prompt template');
-      }
-
-    } catch (error) {
-      issues.push(`Session validation error: ${error}`);
-    }
-
-    return {
-      isValid: issues.length === 0,
-      issues
-    };
-  }
-
-  /**
    * Export session configuration
    */
   static exportSessionConfig(): any {

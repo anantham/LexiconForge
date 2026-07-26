@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { calculateCost } from '../../services/aiService';
+import { calculateCost } from '../../services/ai/cost';
 import { openrouterService } from '../../services/openrouterService';
 import { calculateImageCost } from '../../services/imageService';
 import { COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../../config/costs';

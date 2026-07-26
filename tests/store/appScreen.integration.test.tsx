@@ -130,7 +130,7 @@ vi.mock('../../components/DefaultKeyBanner', () => ({
   DefaultKeyBanner: () => <div>DefaultKeyBannerMock</div>,
 }));
 
-vi.mock('../../services/aiService', () => ({
+vi.mock('../../services/ai/apiKeyValidation', () => ({
   validateApiKey: vi.fn(() => ({ isValid: true })),
 }));
 

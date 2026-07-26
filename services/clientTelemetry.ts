@@ -186,7 +186,8 @@ const pruneDedupes = (dedupeMap: Map<string, number>, now: number) => {
   }
 };
 
-const isRecentlySeen = (dedupeMap: Map<string, number>, fingerprint: string, now: number): boolean => {
+// Check-and-set, not a pure predicate: on miss it RECORDS the fingerprint as seen.
+const checkAndMarkSeen = (dedupeMap: Map<string, number>, fingerprint: string, now: number): boolean => {
   pruneDedupes(dedupeMap, now);
   const previous = dedupeMap.get(fingerprint);
   if (previous && now - previous < DEDUPE_WINDOW_MS) {
@@ -301,14 +302,14 @@ export const emitClientTelemetryEvent = (input: EmitClientTelemetryInput): Clien
   const payload = buildPayload(input);
   const now = Date.now();
 
-  if (input.dedupeAll && isRecentlySeen(allEventDedupes, payload.fingerprint, now)) {
+  if (input.dedupeAll && checkAndMarkSeen(allEventDedupes, payload.fingerprint, now)) {
     return null;
   }
 
   emitAnalytics(payload);
 
   if (shouldSendCallback(payload)) {
-    const skipCallback = input.dedupeCallback && isRecentlySeen(callbackDedupes, payload.fingerprint, now);
+    const skipCallback = input.dedupeCallback && checkAndMarkSeen(callbackDedupes, payload.fingerprint, now);
     if (!skipCallback) {
       sendCallback(payload);
     }

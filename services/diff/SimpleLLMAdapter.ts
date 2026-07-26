@@ -7,7 +7,7 @@
 
 import OpenAI from 'openai';
 import { getEnvVar } from '../env';
-import { calculateCost } from '../aiService';
+import { calculateCost } from '../ai/cost';
 import { apiMetricsService } from '../apiMetricsService';
 
 interface SimpleLLMResponse {

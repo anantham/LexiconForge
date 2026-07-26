@@ -2,7 +2,7 @@ import { useAppStore } from '../store';
 import type { SessionData, SessionProvenance } from '../types/session';
 import type { NovelEntry, NovelMetadata, NovelVersion } from '../types/novel';
 import type { ImageCacheKey, GeneratedImageResult } from '../types';
-import { ChapterOps, TranslationOps } from './db/operations';
+import { ChapterOps, TranslationOps, FeedbackOps } from './db/operations';
 import { ImageCacheStore } from './imageCacheService';
 import { blobToBase64DataUrl } from './imageUtils';
 
@@ -460,7 +460,10 @@ export class ExportService {
     let totalCost = 0;
     let totalTokens = 0;
     let modelUsage: Record<string, number> = {};
-    let feedbackCount = 0;
+    // Count of locally recorded feedback items (reader reactions/comments)
+    // across the session DB. Was hardcoded 0 for ~9 months, exporting
+    // "no feedback" as an asserted fact.
+    const feedbackCount = (await FeedbackOps.getAll()).length;
     let amendmentCount = 0;
     let earliestDate: string | null = null;
     let latestDate: string | null = null;
@@ -542,7 +545,7 @@ export class ExportService {
             },
             translation: {
               translationType: 'human',
-              feedbackCount: 0, // TODO: Track feedback submissions
+              feedbackCount,
               qualityRating: (novelMetadata as any).translatorRating || undefined,
               amendmentCount,
               totalCost,
@@ -763,8 +766,12 @@ export class ExportService {
     totalCost: number;
     totalTokens: number;
     mostUsedModel: string;
+    feedbackCount: number;
   }> {
     const chapters = await ChapterOps.getAll();
+    // Locally recorded feedback items (reader reactions/comments) across the
+    // session DB — wired 2026-07-26, previously exported as a hardcoded 0.
+    const feedbackCount = (await FeedbackOps.getAll()).length;
 
     let totalTranslated = 0;
     let totalImages = 0;
@@ -820,7 +827,8 @@ export class ExportService {
       },
       totalCost,
       totalTokens,
-      mostUsedModel
+      mostUsedModel,
+      feedbackCount
     };
   }
 
@@ -944,7 +952,7 @@ export class ExportService {
             },
             translation: {
               translationType: 'hybrid',
-              feedbackCount: 0,
+              feedbackCount: stats.feedbackCount,
               totalCost: stats.totalCost,
               totalTokens: stats.totalTokens,
               mostUsedModel: stats.mostUsedModel
@@ -993,7 +1001,7 @@ export class ExportService {
             },
             translation: {
               translationType: 'hybrid',
-              feedbackCount: 0,
+              feedbackCount: stats.feedbackCount,
               totalCost: stats.totalCost,
               totalTokens: stats.totalTokens,
               mostUsedModel: stats.mostUsedModel

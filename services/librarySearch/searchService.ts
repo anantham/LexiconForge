@@ -10,24 +10,16 @@ import { initializeProviders } from '../../adapters/providers';
 import type { AppSettings } from '../../types';
 import type { SearchResult, SourceCandidate } from './types';
 import { lookupKnown84000, build84000Url, type Known84000Entry } from './known84000';
+import { isDomainAllowed } from '../scraping/allowedDomains.cjs';
+import { SUPPORTED_WEBSITES } from '../../config/constants';
 
-const SUPPORTED_DOMAINS = [
-  'kakuyomu.jp',
-  'dxmwx.org',
-  'kanunu8.com',
-  'kanunu.net',
-  'novelcool.com',
-  'ncode.syosetu.com',
-  'booktoki468.com',
-  'suttacentral.net',
-  'fojin.app',
-  '84000.co',
-];
-
+// Derived from the site-adapter registry — this was a hand-rolled copy that
+// had drifted (hetushu.com was missing) and used substring matching (any
+// hostname merely CONTAINING a supported domain passed).
 const isAdapterSupported = (url: string): boolean => {
   try {
     const hostname = new URL(url).hostname;
-    return SUPPORTED_DOMAINS.some(d => hostname.includes(d));
+    return SUPPORTED_WEBSITES.some(d => hostname === d || hostname.endsWith('.' + d));
   } catch {
     return false;
   }
@@ -160,22 +152,32 @@ const annotateCandidate = (raw: LLMSearchResponse['rawSources'][0]): SourceCandi
 });
 
 /**
- * Probe a candidate URL via the local fetch-proxy to confirm it returns
- * something other than 404/403/5xx. The LLM hallucinates fan-translation
- * URLs (most notoriously SuttaCentral entries for Mahayana texts that
- * don't exist there) and the prompt's "only return URLs you're confident
- * exist" instruction doesn't reliably constrain it. This probe runs
- * server-side (no CORS issues) and is short-circuited to ~3s timeout to
- * keep search latency bounded.
+ * Probe a candidate URL via the local fetch-proxy to weed out hallucinated
+ * URLs. The LLM hallucinates fan-translation URLs (most notoriously
+ * SuttaCentral entries for Mahayana texts that don't exist there) and the
+ * prompt's "only return URLs you're confident exist" instruction doesn't
+ * reliably constrain it. This probe runs server-side (no CORS issues) and
+ * is short-circuited to ~3s timeout to keep search latency bounded.
  *
- * Returns true if the URL probably works, false otherwise. Inconclusive
- * cases (network failure, proxy down) return TRUE — we don't want a flaky
- * proxy to drop genuine candidates.
+ * SCOPE: the probe can only see what our own proxy is allowed to fetch.
+ * For any domain outside the allowlist the proxy answers 403 regardless of
+ * whether the URL exists — that is blindness, not evidence — so those
+ * candidates are kept unprobed. Inconclusive cases (network failure, proxy
+ * down) also return TRUE: absence of evidence never drops a candidate.
  */
-async function probeCandidateUrl(
+export async function probeCandidateUrl(
   url: string,
   abortSignal?: AbortSignal,
 ): Promise<boolean> {
+  try {
+    if (!isDomainAllowed(new URL(url).hostname)) {
+      console.log(`[LibrarySearch] Probe skipped for ${url} — outside proxy allowlist, keeping unprobed`);
+      return true;
+    }
+  } catch {
+    // Unparseable URL — nothing can fetch it; drop.
+    return false;
+  }
   try {
     const proxyUrl = `/api/fetch-proxy?url=${encodeURIComponent(url)}`;
     const controller = new AbortController();
@@ -480,13 +482,13 @@ export async function searchNovelSources(
   //   (2) Probe everything else for HTTP 200 to drop URL 404s.
   const llmFanCandidates = parsed.fanTranslations.map(annotateCandidate);
   const fanCandidatesAfterCuration = applyKnown84000Override(llmFanCandidates, parsed.identity);
-  const fanCandidatesVerified = await probeFanCandidates(fanCandidatesAfterCuration, abortSignal);
+  const fanCandidatesProbed = await probeFanCandidates(fanCandidatesAfterCuration, abortSignal);
 
   return {
     query,
     identity: parsed.identity,
     rawSources: mergedRaw,
-    fanTranslations: fanCandidatesVerified.sort((a, b) => b.confidence - a.confidence),
+    fanTranslations: fanCandidatesProbed.sort((a, b) => b.confidence - a.confidence),
   };
 }
 

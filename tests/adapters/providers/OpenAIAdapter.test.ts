@@ -37,12 +37,12 @@ const rateLimitMock = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('../../../services/rateLimitService', () => ({
   rateLimitService: {
-    canMakeRequest: (...args: any[]) => rateLimitMock(...args),
+    acquireRequestSlot: (...args: any[]) => rateLimitMock(...args),
   },
 }));
 
 const calculateCostMock = vi.fn().mockResolvedValue(0.42);
-vi.mock('../../../services/aiService', () => ({
+vi.mock('../../../services/ai/cost', () => ({
   calculateCost: (...args: any[]) => calculateCostMock(...args),
 }));
 
@@ -359,5 +359,53 @@ describe('OpenAIAdapter adversarial scenarios', () => {
 
     // Should not crash - missing fields should be handled gracefully
     expect(result.translation).toBe(contentOnly);
+  });
+});
+
+describe('OpenAIAdapter buildRequest placeholder expansion', () => {
+  it('expands {{glossary}} via the canonical helper — the literal placeholder must not ship', async () => {
+    const adapter = new OpenAIAdapter() as any;
+    const settings = createMockAppSettings({
+      ...baseSettings,
+      systemPrompt: 'Translate text.\n\nPart C: Glossary\n{{glossary}}\n',
+      glossary: [{ source: '道', target: 'Dao', note: 'keep untranslated' }],
+    });
+    const payload = await adapter.buildRequest(settings, 'Title', 'Content', []);
+    const sys = payload.messages.find(
+      (m: any) => m.role === 'system' && typeof m.content === 'string' && m.content.includes('Part C')
+    );
+    expect(sys).toBeDefined();
+    expect(sys.content).toContain('- 道: Dao (keep untranslated)');
+    expect(sys.content).not.toContain('{{glossary}}');
+  });
+});
+
+describe('OpenAIAdapter short-translation corruption gate', () => {
+  const shortResponse = {
+    choices: [{
+      finish_reason: 'stop',
+      message: { content: JSON.stringify({ translatedTitle: 'T', translation: 'Yes.' }) },
+    }],
+    usage: { prompt_tokens: 5, completion_tokens: 2 },
+  };
+
+  it('accepts a valid short translation when the SOURCE was short too', async () => {
+    const adapter = new OpenAIAdapter() as any;
+    const result = await adapter.processResponse(shortResponse, baseSettings, 0, 1000, 'ch1', 10);
+    expect(result.translation).toBe('Yes.');
+  });
+
+  it('still throws on a short translation of a LONG source (corruption)', async () => {
+    const adapter = new OpenAIAdapter() as any;
+    await expect(
+      adapter.processResponse(shortResponse, baseSettings, 0, 1000, 'ch1', 5000)
+    ).rejects.toThrow(/corrupted or truncated/);
+  });
+
+  it('still throws when source length is unknown (direct calls keep the guard)', async () => {
+    const adapter = new OpenAIAdapter() as any;
+    await expect(
+      adapter.processResponse(shortResponse, baseSettings, 0, 1000, 'ch1')
+    ).rejects.toThrow(/corrupted or truncated/);
   });
 });

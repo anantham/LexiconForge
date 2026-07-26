@@ -20,22 +20,26 @@ import { isLibraryStorageUrl } from './libraryScope';
  * - Title hash (first 4 chars)
  * This ensures uniqueness while being deterministic
  */
+/**
+ * Simple deterministic hash. Exported because build scripts (polyglot-merge,
+ * library-session-builder) must produce IDs the app reproduces — they used to
+ * carry byte-identical private copies guarded only by a comment.
+ */
+export const simpleHash = (str: string): string => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
+};
+
 export const generateStableChapterId = (
   content: string,
   chapterNumber: number,
   title: string
 ): string => {
-  // Simple hash function for browser compatibility
-  const simpleHash = (str: string): string => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash).toString(36);
-  };
-
   const contentHash = simpleHash(content.substring(0, 1000)); // First 1000 chars for performance
   const titleHash = simpleHash(title);
   

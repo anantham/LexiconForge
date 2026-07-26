@@ -4,7 +4,7 @@ import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provid
 import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } from '../../types';
 import { supportsStructuredOutputs, supportsParameters, recordParameterFailure } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
-import { calculateCost } from '../../services/aiService';
+import { calculateCost } from '../../services/ai/cost';
 import prompts from '../../config/prompts.json';
 import appConfig from '../../config/app.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
@@ -13,32 +13,8 @@ import { getTranslationOnlyResponseJsonSchema } from '../../services/translate/t
 import { getTranslationSystemPrompt } from '../../utils/promptUtils';
 import { getDefaultApiKey } from '../../services/defaultApiKeyService';
 import { apiMetricsService } from '../../services/apiMetricsService';
-import { extractBalancedJson } from '../../services/ai/textUtils';
-
-// Parameter validation utility
-const validateAndClampParameter = (value: any, paramName: string): any => {
-  if (value === undefined || value === null) return value;
-  
-  const limits = appConfig.aiParameters.limits[paramName as keyof typeof appConfig.aiParameters.limits];
-  if (!limits) return value;
-  
-  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
-  if (isNaN(numValue)) return value;
-  
-  const clamped = Math.max(limits.min, Math.min(limits.max, numValue));
-  if (clamped !== numValue) {
-    console.warn(`[OpenAI] Clamped ${paramName} from ${numValue} to ${clamped}`);
-  }
-  
-  return clamped;
-};
-
-// Placeholder replacement utility
-const replacePlaceholders = (template: string, settings: AppSettings): string => {
-  return template.replace(/\{([^}]+)\}/g, (match, key) => {
-    return (settings as any)[key] || match;
-  });
-};
+import { extractBalancedJson, replacePlaceholders } from '../../services/ai/textUtils';
+import { validateAndClampParameter } from '../../services/ai/parameters';
 
 // Debug logging
 const dlog = (message: string, ...args: any[]) => {
@@ -77,7 +53,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     });
 
     // Check rate limits
-    await rateLimitService.canMakeRequest(settings.model);
+    await rateLimitService.acquireRequestSlot(settings.model);
 
     // Build request
     const requestOptions = await this.buildRequest(settings, title, content, history, fanTranslation);
@@ -143,7 +119,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
 
     // Process response
     dlogFull('Full response body:', JSON.stringify(response, null, 2));
-    return this.processResponse(response, settings, startTime, endTime, chapterId);
+    return this.processResponse(response, settings, startTime, endTime, chapterId, content.length);
   }
 
   async chatJSON(input: ChatRequest): Promise<ChatResponse> {
@@ -173,7 +149,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     });
 
     // Check rate limits
-    await rateLimitService.canMakeRequest(model);
+    await rateLimitService.acquireRequestSlot(model);
 
     const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? 16384;
 
@@ -487,18 +463,19 @@ ${schemaString}`;
     }
   }
 
+  /**
+   * True only for errors that retrying WITHOUT the advanced parameters can
+   * actually fix — i.e. the error names one of the parameters that
+   * removeAdvancedParameters() removes. The previous predicate also matched
+   * 'invalid_request_error' (OpenAI's type for essentially every 4xx),
+   * 'max_tokens', and bare 'not supported' — none of which the retry
+   * removes, so every context-length or schema failure burned a second,
+   * materially identical API call under a "Parameter error detected" log.
+   */
   private isParameterError(error: any): boolean {
     const message = (error.message || '').toLowerCase();
-    return message.includes('temperature') || 
-           message.includes('top_p') ||
-           message.includes('frequency_penalty') ||
-           message.includes('presence_penalty') ||
-           message.includes('seed') ||
-           message.includes('max_tokens') ||
-           message.includes('max_completion_tokens') ||
-           message.includes('not supported') ||
-           message.includes('unexpected parameter') ||
-           message.includes('invalid_request_error');
+    const removable = ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'];
+    return removable.some((p) => message.includes(p));
   }
   private removeAdvancedParameters(requestOptions: any): any {
     const cleaned = { ...requestOptions };
@@ -620,7 +597,8 @@ ${schemaString}`;
     settings: AppSettings,
     startTime: number,
     endTime: number,
-    chapterId?: string
+    chapterId?: string,
+    sourceLength?: number
   ): Promise<TranslationResult> {
     const choice = response.choices?.[0];
     const finishReason = choice?.finish_reason || (choice as any)?.native_finish_reason || null;
@@ -731,9 +709,11 @@ ${schemaString}`;
       usageMetrics: usageMetrics,
     };
 
-    // ALWAYS log if translation is suspiciously short (< 100 chars) but we were charged
-    if (result.translation.length < 100 && costUsd > 0.01) {
-      console.error('[OpenAI] ⚠️ SUSPICIOUS: Short translation but high cost!', {
+    // Log if translation is suspiciously short (< 100 chars) but we were charged
+    // anything at all (costUsd > 0 — cheap models are where truncation is most
+    // common, so a "high cost" threshold would hide exactly the cases we want).
+    if (result.translation.length < 100 && costUsd > 0) {
+      console.error('[OpenAI] ⚠️ SUSPICIOUS: Short translation but we were charged!', {
         translationLength: result.translation.length,
         translationPreview: result.translation.substring(0, 50),
         cost: costUsd,
@@ -745,15 +725,20 @@ ${schemaString}`;
         parsedTranslationType: typeof parsedResponse.translation,
         fullParsedResponse: JSON.stringify(parsedResponse).substring(0, 1000),
       });
+    }
 
-      // If translation is critically short (< 20 chars), throw error to prevent storing garbage
-      if (result.translation.length < 20) {
-        throw new Error(
-          `Translation response appears corrupted or truncated. ` +
-          `Got only ${result.translation.length} chars: "${result.translation}". ` +
-          `Raw response preview: ${responseText.substring(0, 200)}...`
-        );
-      }
+    // If translation is critically short (< 20 chars), throw to prevent storing
+    // garbage — REGARDLESS of cost (a $0-metered response can still be corrupt).
+    // Gated on SOURCE length: a title-only or one-line chapter can validly
+    // translate to under 20 chars, and throwing there discards a billed
+    // result (codex review of the integrity branch caught this). When the
+    // source length is unknown (direct/test calls), the throw stands.
+    if (result.translation.length < 20 && (sourceLength === undefined || sourceLength >= 100)) {
+      throw new Error(
+        `Translation response appears corrupted or truncated. ` +
+        `Got only ${result.translation.length} chars: "${result.translation}". ` +
+        `Raw response preview: ${responseText.substring(0, 200)}...`
+      );
     }
 
     return result;

@@ -549,7 +549,9 @@ export const SUTTA_STUDIO_TYPESETTER_EXAMPLE: TypesetterPass = {
 export const SUTTA_STUDIO_TYPESETTER_EXAMPLE_JSON = JSON.stringify(SUTTA_STUDIO_TYPESETTER_EXAMPLE, null, 2);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Morph Example (deprecated, use Anatomist segment tooltips instead)
+// Morph Example — interpolated into the live morphology prompt
+// (services/sutta-studio/prompts/morphology.ts), so this is a load-bearing
+// input to paid LLM calls.
 // ─────────────────────────────────────────────────────────────────────────────
 export const SUTTA_STUDIO_MORPH_EXAMPLE = {
   paliWords: [

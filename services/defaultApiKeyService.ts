@@ -34,7 +34,8 @@ export interface DefaultKeyStatus {
 }
 
 /**
- * Get current usage count for default API key (resets daily)
+ * Get current usage count for default API key (resets daily).
+ * Note: calls resetIfNewDay(), which WRITES localStorage on day rollover.
  */
 export function getDefaultKeyUsage(): number {
   resetIfNewDay();
@@ -62,7 +63,8 @@ export function incrementDefaultKeyUsage(): number {
 }
 
 /**
- * Check if default key can still be used
+ * Check if default key can still be used.
+ * Note: via getDefaultKeyUsage → resetIfNewDay, this WRITES localStorage on day rollover.
  */
 export function canUseDefaultKey(): boolean {
   return getDefaultKeyUsage() < MAX_DEFAULT_KEY_USES;

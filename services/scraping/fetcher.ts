@@ -7,7 +7,6 @@ import { Chapter } from '../../types';
 import { SuttaCentralAdapter, FojinAdapter, getAdapter } from './siteAdapters';
 import {
   PROXIES,
-  PLAYWRIGHT_PROXY_URL,
   initializeProxyHealth,
   updateProxyHealth,
   getProxyHealthMap,
@@ -226,71 +225,11 @@ export const fetchAndParseUrl = async (
     }
   }
 
-  // Heavyweight fallback: Playwright proxy on VPS (real headless browser)
-  console.log(`[Fetch] Playwright fallback: fetching via headless browser for: ${url}`);
-  try {
-    const playwrightUrl = `${PLAYWRIGHT_PROXY_URL}?url=${encodeURIComponent(url)}`;
-    const startTime = Date.now();
-    const response = await fetch(playwrightUrl, { signal: AbortSignal.timeout(30000) });
-    const elapsed = Date.now() - startTime;
-
-    if (!response.ok) {
-      throw new Error(`Playwright proxy returned ${response.status}`);
-    }
-
-    const htmlString = await response.text();
-    if (!htmlString) throw new Error('Playwright proxy returned empty response');
-
-    if (suttaAdapter) {
-      // For SuttaCentral, re-parse through the adapter
-      const doc = new DOMParser().parseFromString(htmlString, 'text/html');
-      const adapter = new SuttaCentralAdapter(url, doc);
-      const result = await adapter.fetchSutta(async () => htmlString);
-      console.log(`[Fetch] ✅ Playwright fallback succeeded (${elapsed}ms)`);
-      return result;
-    }
-
-    if (fojinAdapter) {
-      // FoJin's fetch is JSON-API based — Playwright HTML body isn't useful here.
-      // Re-issue the API call through a direct fetch (best-effort).
-      const result = await fojinAdapter.fetchFojin(async (apiUrl: string) => {
-        const resp = await fetch(apiUrl, { signal: AbortSignal.timeout(15000) });
-        if (!resp.ok) throw new Error(`Direct API fetch failed: ${resp.status}`);
-        return await resp.text();
-      });
-      console.log(`[Fetch] ✅ FoJin direct API fallback succeeded`);
-      return result;
-    }
-
-    const doc = new DOMParser().parseFromString(htmlString, 'text/html');
-    const adapter = getAdapter(url, doc);
-    if (!adapter) throw new Error(`No adapter for ${targetUrl.hostname}`);
-
-    // INV-4: Check for TOC/index redirect, same as other transport paths
-    const redirectUrl = adapter.getRedirectUrl();
-    if (redirectUrl) {
-      console.log(`[Fetch] Playwright: index page detected, redirecting to: ${redirectUrl}`);
-      return fetchAndParseUrl(redirectUrl, proxyScores, updateProxyScore);
-    }
-
-    const title = adapter.extractTitle();
-    const content = adapter.extractContent();
-    if (!title || !content) throw new Error(`Failed to extract content via Playwright`);
-
-    const chapterNumber = deriveChapterNumber(url, title) ?? undefined;
-    console.log(`[Fetch] ✅ Playwright fallback succeeded (${elapsed}ms)`);
-    return {
-      title,
-      content,
-      originalUrl: url,
-      nextUrl: adapter.getNextLink(),
-      prevUrl: adapter.getPrevLink(),
-      chapterNumber,
-    };
-  } catch (playwrightError: any) {
-    console.warn(`[Fetch] Playwright fallback failed: ${playwrightError.message}`);
-    lastError = playwrightError;
-  }
+  // NOTE: A "Playwright proxy on VPS" heavyweight fallback tier used to live here
+  // (PLAYWRIGHT_PROXY_URL → https://3-99-221-14.sslip.io/fetch-proxy/fetch). Removed
+  // 2026-07-26: the VPS had been dead ~4 months (TCP timeout on 443/80), so the tier
+  // could never succeed and burned up to 30s of user-facing latency per scrape that
+  // reached it. Restore only WITH a health check gating the call.
 
   // Final fallback: attempt direct fetch (may fail due to CORS)
   console.log(`[Fetch] Final fallback: attempting direct fetch for: ${url}`);

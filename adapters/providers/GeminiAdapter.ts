@@ -3,20 +3,14 @@ import type { TranslationProvider, TranslationRequest } from '../../services/tra
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter } from '../../types';
 import { rateLimitService } from '../../services/rateLimitService';
-import { calculateCost } from '../../services/aiService';
+import { calculateCost } from '../../services/ai/cost';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import prompts from '../../config/prompts.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { getEnvVar } from '../../services/env';
 import { getTranslationOnlyResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
 import { getTranslationSystemPrompt } from '../../utils/promptUtils';
-
-// Placeholder replacement utility
-const replacePlaceholders = (template: string, settings: AppSettings): string => {
-  return template.replace(/\{([^}]+)\}/g, (match, key) => {
-    return (settings as any)[key] || match;
-  });
-};
+import { replacePlaceholders } from '../../services/ai/textUtils';
 
 // Debug logging
 const getDebugLevel = (): string | null => {
@@ -73,7 +67,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     }
 
     // Check rate limits
-    await rateLimitService.canMakeRequest(settings.model);
+    await rateLimitService.acquireRequestSlot(settings.model);
 
     // Initialize client
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -150,7 +144,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
       throw new Error('Gemini API key is missing. Please add it in settings.');
     }
 
-    await rateLimitService.canMakeRequest(modelId);
+    await rateLimitService.acquireRequestSlot(modelId);
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelId });

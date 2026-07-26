@@ -106,8 +106,11 @@ export class TranslationPersistenceService {
       };
       const stored = await TranslationOps.storeByStableId(chapterId, payload, settings);
       if (stored) {
-        stored.customVersionLabel = options?.versionLabel;
-        await TranslationOps.setActiveByStableId(chapterId, stored.version);
+        // No re-activation pass here: storeByStableId already persisted the
+        // record with isActive:true and deactivated its siblings, and the
+        // label was persisted via the payload. The previous code re-assigned
+        // the already-stored label (a no-op on persistence) and ran a full
+        // second URL-resolve + cursor walk to set flags already set.
         log('Created new translation version', {
           chapterId,
           translationId: stored.id,

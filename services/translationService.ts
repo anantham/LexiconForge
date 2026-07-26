@@ -9,7 +9,8 @@
  * - Translation persistence to IndexedDB
  */
 
-import { translateChapter, validateApiKey } from './aiService';
+import { translateChapter } from './ai/translatorRouter';
+import { validateApiKey } from './ai/apiKeyValidation';
 import type {
   AmendmentProposal,
   AppSettings,
@@ -702,8 +703,13 @@ export class TranslationService {
         }
         if (!activeTranslation) continue;
 
-        // Load feedback from IndexedDB
-        const feedbackRecords = await FeedbackOps.get(chapterRecord.url).catch(() => []);
+        // Load feedback from IndexedDB. Feedback is auxiliary prompt context, so
+        // a load failure degrades to "no feedback" — but it logs; a silent
+        // .catch(() => []) had made these failures structurally invisible.
+        const feedbackRecords = await FeedbackOps.get(chapterRecord.url).catch((e) => {
+          swarn('[History] Failed to load feedback', { url: chapterRecord.url, error: e instanceof Error ? e.message : String(e) });
+          return [];
+        });
         const feedback = feedbackRecords.map(feedbackRecordToItem);
 
         dbCandidates.push({
@@ -789,8 +795,11 @@ export class TranslationService {
             const content = dbRec.data?.chapter?.content || dbRec.content;
             const title = dbRec.data?.chapter?.title || dbRec.title;
             if (active && content) {
-              // Load feedback from IndexedDB
-              const feedbackRecords = await FeedbackOps.get(cursorPrev).catch(() => []);
+              // Load feedback from IndexedDB (degrade-with-log; see note above)
+              const feedbackRecords = await FeedbackOps.get(cursorPrev).catch((e) => {
+                swarn('[History] Failed to load feedback', { url: cursorPrev, error: e instanceof Error ? e.message : String(e) });
+                return [];
+              });
               const feedback = feedbackRecords.map(feedbackRecordToItem);
 
               results.push({

@@ -119,7 +119,6 @@ export const validateAndFixFootnotes = (
   const textMarkers: string[] = [];
 
   for (const m of allMatches) {
-    if (/\[ILLUSTRATION-/i.test(m)) continue;
     if (!seenText.has(m)) {
       seenText.add(m);
       textMarkers.push(m);

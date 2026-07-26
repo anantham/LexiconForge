@@ -19,7 +19,12 @@ export interface ProxyHealthStatus {
   lastError?: string;
   lastErrorTime?: Date;
   lastSuccessTime?: Date;
-  avgResponseTime?: number;
+  /**
+   * Recency-weighted response time, NOT a true average: each new sample is
+   * blended 50/50 with the previous value (exponential half-decay), so recent
+   * fetches dominate and old ones fade.
+   */
+  recentResponseTime?: number;
   isHealthy: boolean;
 }
 
@@ -75,8 +80,10 @@ export function updateProxyHealth(
     health.success++;
     health.lastSuccessTime = new Date();
     if (responseTime) {
-      health.avgResponseTime = health.avgResponseTime
-        ? (health.avgResponseTime + responseTime) / 2
+      // 50/50 blend with the previous value = recency-weighted half-decay,
+      // not a true mean over all samples.
+      health.recentResponseTime = health.recentResponseTime
+        ? (health.recentResponseTime + responseTime) / 2
         : responseTime;
     }
     health.isHealthy = true;
@@ -86,6 +93,10 @@ export function updateProxyHealth(
     health.lastErrorTime = new Date();
     const totalAttempts = health.success + health.failures;
     const failureRate = health.failures / totalAttempts;
+    // Deliberately lenient: a proxy stays "healthy" until it has ≥3 attempts
+    // AND a failure rate of 80% or more — e.g. a 79%-failing proxy is still
+    // marked healthy. "isHealthy" here means "not yet demonstrably hopeless",
+    // used only to deprioritize proxies in the sort order, not to skip them.
     health.isHealthy = totalAttempts < 3 || failureRate < 0.8;
   }
 
@@ -124,9 +135,6 @@ export function getProxyDiagnostics(): string {
 /** Exported alias used by external callers */
 export const getProxyHealthDiagnostics = getProxyDiagnostics;
 
-/**
- * Playwright-backed fetch proxy running on our VPS.
- * Used as a heavyweight fallback when all CORS proxies fail.
- * Returns raw HTML from a real headless browser — bypasses anti-bot, JS rendering, CORS.
- */
-export const PLAYWRIGHT_PROXY_URL = 'https://3-99-221-14.sslip.io/fetch-proxy/fetch';
+// PLAYWRIGHT_PROXY_URL (VPS-hosted headless-browser fetch proxy at
+// 3-99-221-14.sslip.io) was removed 2026-07-26 — the VPS had been dead ~4 months.
+// See fetcher.ts for the removal note; restore only WITH a health check.
