@@ -2,8 +2,8 @@
  * Provider abstraction barrel. Consumers import from `services/providers`.
  *
  * The default registry registers the SuttaCentral dictionary_full provider.
- * Subsequent commits (per ADR SUTTA-008 §Build order) register DpdProvider,
- * VriEditionProvider, AṭṭhakathāCommentaryProvider, etc.
+ * DpdProvider is deliberately excluded from the registry — see the note on
+ * `defaultLexiconRegistry` below.
  */
 
 export * from './types';
@@ -30,12 +30,12 @@ import { suttaCentralDictionaryProvider } from './suttaCentralDictionary';
  * compiler share this single registry instance. Tests should construct
  * their own registry; do not mutate the default.
  *
- * `DpdProvider` is intentionally NOT registered here — registration requires
- * loading per-sutta JSON subsets at startup, which is environment-specific
- * (Vite glob in browser, fs.readFileSync in Node/scripts). Commit B.3 wires
- * the appropriate loader into the live compiler boot path; for now,
- * hand-curation scripts construct DpdProvider directly via the FS loader
- * in `dpd-loader-fs.ts`.
+ * `DpdProvider` is intentionally NOT registered here — its data loading is
+ * environment-specific (Vite glob in browser, fs.readFileSync in Node/scripts).
+ * The live compiler (`services/compiler/index.ts`) constructs DpdProvider
+ * directly, feeding it `getBundledDpdData()` from `dpd-loader-vite`, at both
+ * of its construction sites; Node-side hand-curation scripts construct it via
+ * the FS loader in `dpd-loader-fs.ts`.
  */
 export const defaultLexiconRegistry: LexiconProviderRegistry = new LexiconProviderRegistry()
   .register(suttaCentralDictionaryProvider);

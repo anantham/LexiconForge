@@ -5,7 +5,9 @@ import { ImportService, ImportProgress } from '../services/importService';
 import { loadAllIntoStore } from '../services/readerHydrationService';
 
 /**
- * Detect if URL points to a session JSON file
+ * Heuristic guess that a URL is a session JSON export rather than a chapter page.
+ * Matches any URL that ends with `.json`, or contains `/session`, `lexiconforge`,
+ * or `session-files/` anywhere in it. It does not fetch or validate anything.
  */
 const isSessionJsonUrl = (url: string): boolean => {
   const lowerUrl = url.toLowerCase();

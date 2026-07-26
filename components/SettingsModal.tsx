@@ -141,11 +141,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     console.log('💾 [SettingsModal] Saving changed fields:', Object.keys(changedFields));
     updateSettings(changedFields);
 
-    // Verify save worked
+    // Verify save worked: read back and compare the changed fields against what
+    // was just saved. (saveSettings normalizes diffMarkerVisibility/diffAnalysisPrompt,
+    // so a mismatch on those fields means the stored value was normalized away.)
     const savedRaw = localStorage.getItem('app-settings');
     if (savedRaw) {
       const saved = JSON.parse(savedRaw);
-      console.log('✅ [SettingsModal] Verified in localStorage:', { provider: saved.provider, model: saved.model });
+      const mismatched = (Object.keys(changedFields) as (keyof AppSettings)[]).filter(
+        (key) => JSON.stringify(saved[key]) !== JSON.stringify(changedFields[key])
+      );
+      if (mismatched.length > 0) {
+        console.warn('⚠️ [SettingsModal] localStorage read-back differs from saved fields:', mismatched);
+      } else {
+        console.log('✅ [SettingsModal] Verified in localStorage:', { provider: saved.provider, model: saved.model });
+      }
     }
 
     // Save novel metadata to localStorage

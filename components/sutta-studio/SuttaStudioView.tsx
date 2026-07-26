@@ -314,8 +314,8 @@ export function SuttaStudioView({
 
   // Advance tooltip facet for a segment. When a segment has multiple
   // strings in `tooltips[]`, each click on the segment shows the next one.
-  // Wraps endlessly; unpinning happens via the × glyph on the tooltip
-  // (handled in Tooltip.tsx + this component's setPinned).
+  // Wraps endlessly; unpinning happens via LensPanel's ✕ button — its onClose
+  // calls setPinnedForAudit(null) (wired where <LensPanel> renders below).
   const cycleSegmentTooltipFacet = (phaseId: string, segmentId: string) => {
     const phase = visiblePhases.find((p) => p.id === phaseId);
     if (!phase) return;

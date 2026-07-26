@@ -213,7 +213,7 @@ export const createAudioSlice: StateCreator<StoreState, [], [], AudioSlice> = (s
     let styleAudioUrl: string | undefined;
     if (selectedTaskType === 'audio2audio') {
       if (uploadedStyleAudio) {
-        // Convert uploaded file to base64 or URL (for now, we'll use a placeholder)
+        // Convert uploaded file to a base64 data URL
         styleAudioUrl = await convertFileToDataURL(uploadedStyleAudio);
       } else if (selectedStyleAudio) {
         // Use OST library sample

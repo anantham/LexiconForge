@@ -375,8 +375,10 @@ export class Translator {
    * OpenAI and Gemini did no reconciliation at all and shipped dangling markers.)
    *
    * Reconciliation runs before sanitizeHtml, on the model's own text, matching the ordering the
-   * validators were written against. A validation throw is caught by the retry loop in
-   * translateSingle, which is the intended recovery: ask the model again.
+   * validators were written against. On the single-call path a validation throw is caught by the
+   * retry loop in translateSingle, which recovers by asking the model again. On the chunk-merge
+   * path (mergeChunkResults also calls this, after the per-chunk retries) a validation throw
+   * fails the whole chunked translation — all chunks already billed, nothing re-asks.
    */
   private sanitizeResult(result: TranslationResult, settings: AppSettings): TranslationResult {
     // A provider that returns no text has failed, whatever it reports. Accepting it persists a
@@ -433,8 +435,8 @@ export class Translator {
       );
 
       // On abort this used to only clear the timer. That disarms the one thing that could still
-      // settle the race, so a provider which ignores its abort signal (claudeService never reads
-      // one) left the user's Cancel hanging forever — the request neither finished nor timed out.
+      // settle the race, so a provider which ignores its abort signal (claudeService didn't read
+      // one until 2026-07-16) left the user's Cancel hanging forever — the request neither finished nor timed out.
       // Reject instead, and let translateSingle turn it into the user-abort error.
       onAbort = () => {
         clearTimeout(timer);

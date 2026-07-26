@@ -138,7 +138,7 @@ const ChapterView: React.FC = () => {
   );
   const showEnglishLoader = viewMode === 'english' && !translationResult && (translationInProgress || isHydratingCurrent);
 
-    // Auto-translate is handled by chaptersSlice post-hydration guard (loadChapterFromIDB).
+  // Auto-translate is decided by the Zustand subscriber in store/autoTranslateMediator.ts.
   // A duplicate useEffect here races with the store update and can clear the
   // translation that was just loaded from cache. See ac6c9fa for details.
 
