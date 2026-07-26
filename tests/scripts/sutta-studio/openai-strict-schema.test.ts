@@ -86,3 +86,51 @@ describe('toOpenAIStrictSchema', () => {
     expect(needsOpenAIStrictSchema('google/gemini-3.5-flash')).toBe(false);
   });
 });
+
+describe('toOpenAIStrictSchema — enum/const optionality (codex review P1)', () => {
+  it('optional enum fields admit null IN THE ENUM, not just the type', () => {
+    const out = toOpenAIStrictSchema({
+      type: 'object',
+      properties: {
+        req: { type: 'string' },
+        ghostKind: { type: 'string', enum: ['implied', 'grammatical'] },
+      },
+      required: ['req'],
+    });
+    // A value must satisfy BOTH type and enum — null in type alone would
+    // force the model to fabricate an enum value for a field it wants to omit.
+    expect(out.properties.ghostKind.enum).toEqual(['implied', 'grammatical', null]);
+    expect(out.properties.ghostKind.type).toEqual(['string', 'null']);
+  });
+
+  it('required enum fields stay untouched', () => {
+    const out = toOpenAIStrictSchema({
+      type: 'object',
+      properties: { status: { type: 'string', enum: ['a', 'b'] } },
+      required: ['status'],
+    });
+    expect(out.properties.status.enum).toEqual(['a', 'b']);
+    expect(out.properties.status.type).toBe('string');
+  });
+
+  it('optional const fields become nullable enums', () => {
+    const out = toOpenAIStrictSchema({
+      type: 'object',
+      properties: { req: { type: 'string' }, version: { type: 'string', const: 'v2' } },
+      required: ['req'],
+    });
+    expect(out.properties.version.enum).toEqual(['v2', null]);
+    expect(out.properties.version.const).toBeUndefined();
+    expect(out.properties.version.type).toEqual(['string', 'null']);
+  });
+
+  it('remains idempotent with nullable enums', () => {
+    const input = {
+      type: 'object',
+      properties: { e: { type: 'string', enum: ['x'] } },
+      required: [],
+    };
+    const once = toOpenAIStrictSchema(input);
+    expect(toOpenAIStrictSchema(once)).toEqual(once);
+  });
+});

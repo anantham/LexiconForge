@@ -19,6 +19,25 @@
 
 const withNull = (prop: any): any => {
   if (!prop || typeof prop !== 'object' || Array.isArray(prop)) return prop;
+  // enum/const constrain the VALUE independently of `type` — a value must
+  // satisfy both, so widening `type` alone still forbids null and would force
+  // the model to fabricate an enum value for an optional field it wants to
+  // omit (codex review P1: optional morph.case/number, ghostKind, status).
+  if (Array.isArray(prop.enum)) {
+    const withNullEnum = prop.enum.includes(null) ? prop.enum : [...prop.enum, null];
+    const base = { ...prop, enum: withNullEnum };
+    if (typeof base.type === 'string') return base.type === 'null' ? base : { ...base, type: [base.type, 'null'] };
+    if (Array.isArray(base.type)) return base.type.includes('null') ? base : { ...base, type: [...base.type, 'null'] };
+    return base;
+  }
+  if (prop.const !== undefined) {
+    // const X + null-optionality is expressible only as an enum.
+    const { const: constValue, ...rest } = prop;
+    const base = { ...rest, enum: [constValue, null] };
+    if (typeof base.type === 'string') return base.type === 'null' ? base : { ...base, type: [base.type, 'null'] };
+    if (Array.isArray(base.type)) return base.type.includes('null') ? base : { ...base, type: [...base.type, 'null'] };
+    return base;
+  }
   if (typeof prop.type === 'string') {
     return prop.type === 'null' ? prop : { ...prop, type: [prop.type, 'null'] };
   }
