@@ -1,11 +1,12 @@
 import { ChapterForEpub } from '../types';
-import { 
-  sanitizeHtmlAllowlist, 
-  toStrictXhtml, 
-  convertNewlinesToBrInElement, 
-  htmlFragmentToXhtml, 
-  escapeXml 
+import {
+  sanitizeHtmlAllowlist,
+  toStrictXhtml,
+  convertNewlinesToBrInElement,
+  htmlFragmentToXhtml,
+  escapeXml
 } from '../sanitizers/xhtmlSanitizer';
+import { ILLUSTRATION_MARKER_INNER } from '../../ai/illustrationMarkers';
 
 /**
  * Converts chapter content with illustrations and footnotes to XHTML suitable for EPUB
@@ -113,10 +114,12 @@ export const buildChapterXhtml = (chapter: ChapterForEpub): string => {
   // Use translated content if available, fallback to original content
   const contentToProcess = chapter.translatedContent || chapter.content;
 
-  // 1) Inject placeholders for markers (including surrounding brackets)
-  const withIllu = contentToProcess.replace(/\[(ILLUSTRATION-\d+[A-Za-z]*)\]/g, (_m, marker) => {
-    return `<span data-illu="${marker}"></span>`;
-  });
+  // 1) Inject placeholders for markers (including surrounding brackets) —
+  // marker grammar comes from the canonical module, not a private copy.
+  const withIllu = contentToProcess.replace(
+    new RegExp(String.raw`\[(${ILLUSTRATION_MARKER_INNER})\]`, 'g'),
+    (_m, marker) => `<span data-illu="${marker}"></span>`
+  );
   // Match footnote markers in [1], [2], [3] format as specified in prompts
   const withPlaceholders = withIllu.replace(/\[(\d+)\]/g, (_m, n) => `<span data-fn="${n}"></span>`);
 

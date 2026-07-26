@@ -7,7 +7,10 @@
  * in a regex literal matches a literal backslash rather than a bracket — so they silently
  * never matched a marker. Keep exactly one definition.
  */
-const MARKER_SOURCE = String.raw`\[ILLUSTRATION-\d+[A-Za-z]*\]`;
+/** The marker body without brackets, for callers that need their own capture group. */
+export const ILLUSTRATION_MARKER_INNER = String.raw`ILLUSTRATION-\d+[A-Za-z]*`;
+
+const MARKER_SOURCE = String.raw`\[` + ILLUSTRATION_MARKER_INNER + String.raw`\]`;
 
 /** Raw pattern source, for callers composing a larger regex (e.g. marker renumbering). */
 export const ILLUSTRATION_MARKER_PATTERN = MARKER_SOURCE;

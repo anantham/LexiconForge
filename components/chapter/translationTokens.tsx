@@ -1,6 +1,10 @@
 import React from 'react';
 import Illustration from '../Illustration';
 import { computeDiffHash } from '../../services/diff/hash';
+import {
+  ILLUSTRATION_MARKER_PATTERN,
+  ILLUSTRATION_MARKER_INNER,
+} from '../../services/ai/illustrationMarkers';
 
 export type TranslationToken =
   | { type: 'text'; chunkId: string; text: string }
@@ -23,8 +27,14 @@ export interface TokenizationResult {
   paragraphs: TranslationParagraph[];
 }
 
-const TOKEN_SPLIT_REGEX = /(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|\[ILLUSTRATION-\d+\]|<br\s*\/?>|<hr\s*\/?>)/g;
-const ILLUSTRATION_RE = /^\[(ILLUSTRATION-\d+)\]$/;
+// The illustration alternative comes from the canonical marker module — the
+// previous private copy here was narrower (no letter suffix), so a marker
+// that passed validation could not be tokenized and rendered as literal text.
+const TOKEN_SPLIT_REGEX = new RegExp(
+  String.raw`(\[\d+\]|<i>[\s\S]*?<\/i>|<b>[\s\S]*?<\/b>|\*[\s\S]*?\*|${ILLUSTRATION_MARKER_PATTERN}|<br\s*\/?>|<hr\s*\/?>)`,
+  'g'
+);
+const ILLUSTRATION_RE = new RegExp(String.raw`^\[(${ILLUSTRATION_MARKER_INNER})\]$`);
 const FOOTNOTE_RE = /^\[(\d+)\]$/;
 const ITALIC_HTML_RE = /^<i>[\s\S]*<\/i>$/;
 const BOLD_HTML_RE = /^<b>[\s\S]*<\/b>$/;
