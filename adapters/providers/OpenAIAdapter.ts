@@ -119,7 +119,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
 
     // Process response
     dlogFull('Full response body:', JSON.stringify(response, null, 2));
-    return this.processResponse(response, settings, startTime, endTime, chapterId);
+    return this.processResponse(response, settings, startTime, endTime, chapterId, content.length);
   }
 
   async chatJSON(input: ChatRequest): Promise<ChatResponse> {
@@ -597,7 +597,8 @@ ${schemaString}`;
     settings: AppSettings,
     startTime: number,
     endTime: number,
-    chapterId?: string
+    chapterId?: string,
+    sourceLength?: number
   ): Promise<TranslationResult> {
     const choice = response.choices?.[0];
     const finishReason = choice?.finish_reason || (choice as any)?.native_finish_reason || null;
@@ -728,7 +729,11 @@ ${schemaString}`;
 
     // If translation is critically short (< 20 chars), throw to prevent storing
     // garbage — REGARDLESS of cost (a $0-metered response can still be corrupt).
-    if (result.translation.length < 20) {
+    // Gated on SOURCE length: a title-only or one-line chapter can validly
+    // translate to under 20 chars, and throwing there discards a billed
+    // result (codex review of the integrity branch caught this). When the
+    // source length is unknown (direct/test calls), the throw stands.
+    if (result.translation.length < 20 && (sourceLength === undefined || sourceLength >= 100)) {
       throw new Error(
         `Translation response appears corrupted or truncated. ` +
         `Got only ${result.translation.length} chars: "${result.translation}". ` +

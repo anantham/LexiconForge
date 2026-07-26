@@ -379,3 +379,33 @@ describe('OpenAIAdapter buildRequest placeholder expansion', () => {
     expect(sys.content).not.toContain('{{glossary}}');
   });
 });
+
+describe('OpenAIAdapter short-translation corruption gate', () => {
+  const shortResponse = {
+    choices: [{
+      finish_reason: 'stop',
+      message: { content: JSON.stringify({ translatedTitle: 'T', translation: 'Yes.' }) },
+    }],
+    usage: { prompt_tokens: 5, completion_tokens: 2 },
+  };
+
+  it('accepts a valid short translation when the SOURCE was short too', async () => {
+    const adapter = new OpenAIAdapter() as any;
+    const result = await adapter.processResponse(shortResponse, baseSettings, 0, 1000, 'ch1', 10);
+    expect(result.translation).toBe('Yes.');
+  });
+
+  it('still throws on a short translation of a LONG source (corruption)', async () => {
+    const adapter = new OpenAIAdapter() as any;
+    await expect(
+      adapter.processResponse(shortResponse, baseSettings, 0, 1000, 'ch1', 5000)
+    ).rejects.toThrow(/corrupted or truncated/);
+  });
+
+  it('still throws when source length is unknown (direct calls keep the guard)', async () => {
+    const adapter = new OpenAIAdapter() as any;
+    await expect(
+      adapter.processResponse(shortResponse, baseSettings, 0, 1000, 'ch1')
+    ).rejects.toThrow(/corrupted or truncated/);
+  });
+});
