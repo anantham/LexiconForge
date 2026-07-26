@@ -7,6 +7,7 @@ import { buildFanTranslationContext, formatHistory } from './prompts';
 import { buildPreambleFromSettings } from './prompts/metadataPreamble';
 import { getEnvVar } from './env';
 import { getTranslationSystemPrompt } from '../utils/promptUtils';
+import { replacePlaceholders } from './ai/textUtils';
 
 // --- DEBUG UTILITIES ---
 const aiDebugEnabled = (): boolean => {
@@ -56,9 +57,10 @@ export const translateWithClaude = async (
     const preface = prompts.translatePrefix + (effectiveFanTranslation ? prompts.translateFanSuffix : '') + prompts.translateInstruction + prompts.translateTitleGuidance;
     const preamble = buildPreambleFromSettings(settings);
     const translationPrompt = getTranslationSystemPrompt(settings.systemPrompt || '');
-    const sys = ((translationPrompt || '') + '\n\n' + preamble)
-      .replaceAll('{{targetLanguage}}', settings.targetLanguage || 'English')
-      .replaceAll('{{targetLanguageVariant}}', settings.targetLanguage || 'English');
+    // Canonical placeholder expansion (targetLanguage/glossary). The preamble also
+    // carries the glossary as a table — kept deliberately, so custom prompts without
+    // a {{glossary}} placeholder still deliver it on the Claude path.
+    const sys = replacePlaceholders((translationPrompt || '') + '\n\n' + preamble, settings);
     const fullPrompt = `${sys}\n\n${historyPrompt}\n\n${fanTranslationContext}\n\n-----\n\n${preface}\n\n${prompts.translateTitleLabel}\n${title}\n\n${prompts.translateContentLabel}\n${content}
 
 IMPORTANT: You must respond with valid JSON in exactly this format. Ensure all special characters (apostrophes, quotes, backslashes, newlines) are properly escaped in JSON strings:

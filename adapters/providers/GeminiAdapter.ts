@@ -10,13 +10,7 @@ import { buildFanTranslationContext, formatHistory } from '../../services/prompt
 import { getEnvVar } from '../../services/env';
 import { getTranslationOnlyResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
 import { getTranslationSystemPrompt } from '../../utils/promptUtils';
-
-// Placeholder replacement utility
-const replacePlaceholders = (template: string, settings: AppSettings): string => {
-  return template.replace(/\{([^}]+)\}/g, (match, key) => {
-    return (settings as any)[key] || match;
-  });
-};
+import { replacePlaceholders } from '../../services/ai/textUtils';
 
 // Debug logging
 const getDebugLevel = (): string | null => {

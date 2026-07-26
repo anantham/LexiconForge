@@ -13,7 +13,7 @@ import { getTranslationOnlyResponseJsonSchema } from '../../services/translate/t
 import { getTranslationSystemPrompt } from '../../utils/promptUtils';
 import { getDefaultApiKey } from '../../services/defaultApiKeyService';
 import { apiMetricsService } from '../../services/apiMetricsService';
-import { extractBalancedJson } from '../../services/ai/textUtils';
+import { extractBalancedJson, replacePlaceholders } from '../../services/ai/textUtils';
 
 // Parameter validation utility
 const validateAndClampParameter = (value: any, paramName: string): any => {
@@ -31,13 +31,6 @@ const validateAndClampParameter = (value: any, paramName: string): any => {
   }
   
   return clamped;
-};
-
-// Placeholder replacement utility
-const replacePlaceholders = (template: string, settings: AppSettings): string => {
-  return template.replace(/\{([^}]+)\}/g, (match, key) => {
-    return (settings as any)[key] || match;
-  });
 };
 
 // Debug logging
