@@ -1,3 +1,11 @@
+### [2026-07-26 · benchmark tails] [Agent: Fable 5] — judge pass shipped + twelfth model measured; board columns complete
+**Status:** Complete on branch; PR + codex review + merge
+**Task:** Operator "go" on the filed tails: judge pass (Halluc/Semantic showed "—"; grant text promises a hallucination metric) + gpt-5.4-mini strict-schema adapter.
+**Judge:** gemini-2.5-flash v1.0 temp-0 over all 10 ranked packets, 0 failed phases, ~$1. Convergent validity: rank-1 gemini-3.5-flash also tops semantic (0.922, 0.9% halluc); sonnet-5 = ZERO hallucinations (gate story is completeness, never correctness); mistral 12% halluc matches its audition verdict. Ranks/scores byte-identical pre/post — the judge is advisory and the regen proves it.
+**Adapter + falsification:** openai-strict-schema.ts (all-required + null-unions + additionalProperties:false, 6 unit tests). RED-PROOF FAILED HONESTLY: the 07-22 probe's 400 no longer reproduces — identical untransformed schema returns 200 (provider-side fix within 4 days). Transform kept as dialect defense, honesty note in module + benchmark.ts. gpt-5.4-mini then RAN clean (4 phases, no errors/truncation) at 0.28 avg → circuit breaker → excluded "4/27 (< 13 floor)" — same class as qwen3.7-max. Twelve = 10 ranked + 2 excluded on MEASURED quality.
+**Verification:** tsc 0; benchmark-lane tests 53/53; vite build green; onlyRunIds restored to [] (the 07-21 trap, guarded). Board pinned to 4 run dirs incl. 2026-07-26T14-48-22-803Z.
+**Spend:** ~$1.30 total (key remaining ~$26.9). Key rotation STILL pending on operator.
+
 ### [2026-07-26 · integrity scan] [Agent: Fable 5] — whole-repo integrity scan: 1 P0, 2 P1, ~14 P2 fixed; 11 commits on fix/fable-integrity-scan
 **Status:** Complete on branch; PR opening
 **Task:** Operator: "lets not worry about backward compatibility and fix this repo" via the expansion `integrity-scan` skill (7 signatures, 5 parallel auditors, every finding re-verified at the code before fixing).
