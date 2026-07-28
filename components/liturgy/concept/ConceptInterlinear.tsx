@@ -24,7 +24,7 @@ type Mode = 'align' | 'etym';
 
 const FONT: Record<string, string> = {
   Latn: "'Cardo', 'Gentium Plus', 'Noto Serif', serif",
-  Deva: "'Noto Serif Devanagari', 'Cardo', serif",
+  Deva: "'Noto Serif Devanagari', 'Devanagari MT', 'Kohinoor Devanagari', 'Cardo', serif",
   Tibt: "'Noto Serif Tibetan', 'Cardo', serif",
   Hant: "'Noto Serif SC', 'Cardo', serif",
   Jpan: "'Noto Serif JP', 'Cardo', serif",

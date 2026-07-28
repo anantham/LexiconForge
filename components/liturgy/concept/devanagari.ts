@@ -100,7 +100,12 @@ export function aksharasOf(deva: string): { text: string; rom: string }[] {
 // Devanāgarī source for the SAME word (so they aren't false romanizer failures):
 //   • the two anusvāra glyphs (ṁ ↔ ṃ);
 //   • word-final m ≡ anusvāra (रूपम् "rūpam" ↔ IAST "rūpaṃ");
-//   • word-final visarga / r / s are sandhi variants (धातुः "dhātuḥ" ↔ "dhātur").
+//   • word-final visarga / r / s are sandhi variants (धातुः "dhātuḥ" ↔ "dhātur");
+//   • avagraha (ऽ, the elided-'a' mark): the segmenter keeps the glyph but the
+//     romanizer emits nothing for it, while IAST writes an apostrophe
+//     (रसोऽपि "rasopi" ↔ "raso'pi") — fold the apostrophe out. Correct IAST
+//     contains no apostrophe otherwise and the romanizer never emits one, so
+//     this too can only fold a known equivalence.
 // Applied to both sides, so it can only fold a known equivalence, never mask a
 // real mid-word romanization error.
 const norm = (s: string) =>
@@ -108,6 +113,7 @@ const norm = (s: string) =>
     .normalize('NFC')
     .toLowerCase()
     .replace(/-/g, '') // IAST compounds use hyphens; Devanāgarī writes them solid
+    .replace(/['’]/g, '') // IAST avagraha marks — no sound of their own
     .replace(/ṁ/g, 'ṃ')
     .replace(/m$/, 'ṃ')
     .replace(/[ḥrs]$/, 'ḥ');
