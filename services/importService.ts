@@ -851,6 +851,31 @@ export class ImportService {
 
         debugLog('import', 'summary', '[StreamImport] Stream complete:', { chaptersLoaded, totalChapters });
 
+        // A session smaller than the first-batch threshold never fired the
+        // ready callback — and on the library path that callback is the ONLY
+        // thing that moves the screen from 'reader-loading' to 'reader'. The
+        // threshold compares against the NOVEL's metadata chapterCount (e.g.
+        // Aithihyamala advertises 126) while the packaged session may carry a
+        // single built chapter, so `1 >= min(126, 10)` never fired and the
+        // user sat on "Opening Reader…" forever over a fully hydrated store.
+        // Fire it at stream end whenever any chapter arrived.
+        if (!firstChaptersReadyCalled && chaptersLoaded > 0) {
+          firstChaptersReadyCalled = true;
+          debugLog('import', 'summary', '[StreamImport] Stream ended below first-batch threshold — firing onFirstChaptersReady now', {
+            chaptersLoaded,
+            totalChapters,
+          });
+          if (!firstBatchTelemetrySent) {
+            telemetryService.capturePerformance('import:stream:firstBatchReady', now() - streamStart, {
+              chaptersLoaded,
+              totalChapters: totalChapters || null,
+              threshold: chaptersLoaded,
+            });
+            firstBatchTelemetrySent = true;
+          }
+          onFirstChaptersReady?.();
+        }
+
         onProgress?.({
           stage: 'complete',
           progress: 100,

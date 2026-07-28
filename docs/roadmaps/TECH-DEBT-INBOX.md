@@ -1,3 +1,27 @@
+[DEBT][LIBRARY][2026-07-28] VITE_DEFAULT_OPENROUTER_KEY is dead — keyless visitors' translate/search 401s
+- Evidence: live repro 2026-07-28 — auto-translate fell back to the baked trial key and
+  OpenRouter answered 401 "User not found" (key deleted). Every deployed build's trial lane
+  (auto-translate, library search) is broken for visitors without their own key.
+- Fix: OPERATOR ACTION — mint a fresh, separately-capped trial key on openrouter.ai, set it
+  as VITE_DEFAULT_OPENROUTER_KEY in Vercel env, redeploy. Never reuse the working key.
+
+[DEBT][DB][2026-07-28] normalizeUrlAggressively mangles custom schemes into "null/chapter/N"
+- Evidence: live IDB dump — url_mappings row { url: "null/chapter/64", isCanonical: true }
+  for lexiconforge://aithihyamala/chapter/64 (origin computes as null for custom schemes,
+  then string-concatenates). Lookups still succeed via stableId, so severity is low, but the
+  mappings table is accumulating corrupt canonical keys.
+- Fix: normalizeUrlAggressively should pass through (or explicitly namespace) non-http(s)
+  schemes instead of URL-parsing them.
+
+[DEBT][LIBRARY][2026-07-28] Intermittent: cold first-visit stream import stored chapter but NOT its translation
+- Evidence: one live repro (fresh profile, ~20s cold LFS fetch): chapters=1, translations=0
+  in IDB, no console error; an immediate replay with a warm fetch (~10s) stored both. The
+  auto-translate that then fired (and 401'd on the dead default key) shows the billing
+  exposure: a race that loses the packaged translation re-bills the user for it.
+- Next: instrument TranslationOps.store failures on the stream path loudly (they currently
+  reject the whole stream promise only if they THROW synchronously into the loop) and replay
+  cold-cache imports with devtools throttling to pin the race. Not reproduced under debug.
+
 # TECH-DEBT-INBOX
 
 Append-only raw debt receipts discovered during implementation.
