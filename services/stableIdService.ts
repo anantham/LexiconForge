@@ -155,9 +155,17 @@ export const buildEnhancedChapter = (
  */
 export const normalizeUrlAggressively = (url: string | null | undefined): string | null => {
   if (!url) return null;
-  
+
   try {
     const urlObj = new URL(url);
+    // Non-special schemes (lexiconforge://, lf-library://) have NO origin —
+    // urlObj.origin is the literal string "null", which used to concatenate
+    // into corrupt canonical keys like "null/chapter/64" in url_mappings.
+    // Custom-scheme URLs are already canonical identifiers: strip query/hash,
+    // trim the trailing slash, and otherwise leave them alone.
+    if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+      return url.split(/[?#]/)[0].replace(/\/$/, '');
+    }
     // Remove ALL query parameters for maximum normalization
     urlObj.search = '';
     urlObj.hash = '';
