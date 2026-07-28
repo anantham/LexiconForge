@@ -18,7 +18,7 @@ vi.mock('../../../services/db/operations/settings', () => ({
   },
 }));
 
-const ensureUrlMappingsMock = vi.fn(async () => undefined);
+const ensureUrlMappingsMock = vi.fn(async (..._args: unknown[]) => undefined);
 vi.mock('../../../services/db/core/stable-ids', () => ({
   StableIdManager: { ensureUrlMappings: (...a: unknown[]) => ensureUrlMappingsMock(...a) },
 }));
@@ -94,6 +94,24 @@ describe('MaintenanceOps.repairMangledCanonicalKeys (V6)', () => {
     const second = await MaintenanceOps.repairMangledCanonicalKeys();
     expect(second.skipped).toBe(true);
     expect(ensureUrlMappingsMock).not.toHaveBeenCalled();
+  });
+
+  it('repairs a mangled summary from a HEALTHY chapter, and deletes true orphans (codex P2)', async () => {
+    // Chapter healthy, summary mangled — repaired from the chapter.
+    await put(STORE_NAMES.CHAPTERS, { url: 'lf-library://n%3A%3Av1/ch2', stableId: 'sid-healthy', canonicalUrl: 'lexiconforge://n/chapter/2', title: 'T', content: 'C', dateAdded: '2026-07-01' });
+    await put(STORE_NAMES.CHAPTER_SUMMARIES, { stableId: 'sid-healthy', canonicalUrl: 'null/chapter/2', title: 'T' });
+    // Orphan: no chapter row at all — must be DELETED, not left as a
+    // relative "chapter/9" path under a permanent flag.
+    await put(STORE_NAMES.CHAPTER_SUMMARIES, { stableId: 'sid-orphan', canonicalUrl: 'null/chapter/9', title: 'O' });
+
+    const report = await MaintenanceOps.repairMangledCanonicalKeys();
+    expect(report.summariesRepaired).toBe(2);
+
+    const summaries = await getAll(STORE_NAMES.CHAPTER_SUMMARIES);
+    const healthy = summaries.find((s) => s.stableId === 'sid-healthy');
+    expect(healthy.canonicalUrl).toBe('lexiconforge://n/chapter/2');
+    expect(summaries.some((s) => s.stableId === 'sid-orphan')).toBe(false);
+    expect(summaries.some((s) => String(s.canonicalUrl || '').startsWith('chapter/'))).toBe(false);
   });
 
   it('leaves healthy stores untouched', async () => {

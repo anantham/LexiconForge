@@ -2897,12 +2897,29 @@ export class MaintenanceOps {
 
         const summariesStore = stores[STORE_NAMES.CHAPTER_SUMMARIES];
         const summaries = (await promisifyRequest(summariesStore.getAll())) as ChapterSummaryRecord[];
+        // Consult ALL chapters, not just the ones repaired above — a summary
+        // can be mangled while its chapter's canonicalUrl is healthy.
+        const chapterByStableId = new Map(
+          chapters.filter(c => c.stableId).map(c => [c.stableId as string, c])
+        );
         for (const summary of summaries) {
           if (summary.canonicalUrl && summary.canonicalUrl.startsWith('null/')) {
-            const chapter = repairedChapters.find(c => c.stableId === summary.stableId);
-            summary.canonicalUrl = chapter?.canonicalUrl ?? summary.canonicalUrl.slice('null'.length + 1);
-            await promisifyRequest(summariesStore.put(summary));
-            summariesRepaired++;
+            const chapter = chapterByStableId.get(summary.stableId);
+            if (chapter) {
+              summary.canonicalUrl =
+                chapter.canonicalUrl ||
+                normalizeUrlAggressively(chapter.originalUrl || chapter.url) ||
+                chapter.url;
+              await promisifyRequest(summariesStore.put(summary));
+              summariesRepaired++;
+            } else {
+              // True orphan: no chapter row exists for this summary. Trimming
+              // the "null/" prefix would persist a RELATIVE path under a
+              // permanent one-time flag (codex review P2) — delete instead;
+              // syncSummaries rebuilds summaries from chapters.
+              await promisifyRequest(summariesStore.delete(summary.stableId));
+              summariesRepaired++;
+            }
           }
         }
       },
