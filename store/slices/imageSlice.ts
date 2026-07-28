@@ -100,6 +100,27 @@ export const createImageSlice: StateCreator<
   [],
   ImageSlice
 > = (set, get) => {
+  /**
+   * Sorted surviving version numbers from the chapter's persisted
+   * imageVersionState, or null when no version map exists (legacy images).
+   * Deletion does not renumber, so this set can be sparse — navigation must
+   * walk it rather than assume 1..latest is contiguous.
+   */
+  const survivingVersionNumbers = (
+    state: StoreState,
+    chapterId: string,
+    placementMarker: string
+  ): number[] | null => {
+    const chapter = state.chapters.get(chapterId) as any;
+    const entry = chapter?.translationResult?.imageVersionState?.[placementMarker];
+    if (!entry?.versions) return null;
+    const versions = Object.keys(entry.versions)
+      .map(Number)
+      .filter(Number.isFinite)
+      .sort((a, b) => a - b);
+    return versions.length ? versions : null;
+  };
+
   const buildPersistenceSnapshot = (chapter: any): TranslationSettingsSnapshot | null => {
     const storeState = get();
     const settings = storeState.settings;
@@ -1039,11 +1060,23 @@ export const createImageSlice: StateCreator<
     let updatedVersion: number | null = null;
     set(state => {
       const currentVersion = state.activeImageVersion[key] || 1;
-      const maxVersion = state.imageVersions[key] || 1;
+      // Deletion does NOT renumber, so version sets can be sparse ({1,3}).
+      // Walk the persisted surviving set when we have one; numeric ±1 is
+      // only the legacy fallback (codex review of the non-renumbering fix).
+      const surviving = survivingVersionNumbers(state, chapterId, placementMarker);
+      let next: number | null = null;
+      if (surviving) {
+        const idx = surviving.findIndex(v => v >= currentVersion);
+        const curIdx = idx === -1 ? surviving.length - 1 : (surviving[idx] === currentVersion ? idx : idx - 1);
+        next = curIdx + 1 < surviving.length ? surviving[curIdx + 1] : null;
+      } else {
+        const maxVersion = state.imageVersions[key] || 1;
+        next = currentVersion < maxVersion ? currentVersion + 1 : null;
+      }
 
-      if (currentVersion < maxVersion) {
-        debugLog('image', 'summary', `[ImageSlice] Navigate to next version: ${currentVersion} -> ${currentVersion + 1}`);
-        updatedVersion = currentVersion + 1;
+      if (next !== null) {
+        debugLog('image', 'summary', `[ImageSlice] Navigate to next version: ${currentVersion} -> ${next}`);
+        updatedVersion = next;
         return {
           activeImageVersion: {
             ...state.activeImageVersion,
@@ -1064,10 +1097,18 @@ export const createImageSlice: StateCreator<
     let updatedVersion: number | null = null;
     set(state => {
       const currentVersion = state.activeImageVersion[key] || 1;
+      const surviving = survivingVersionNumbers(state, chapterId, placementMarker);
+      let prev: number | null = null;
+      if (surviving) {
+        const lower = surviving.filter(v => v < currentVersion);
+        prev = lower.length ? lower[lower.length - 1] : null;
+      } else {
+        prev = currentVersion > 1 ? currentVersion - 1 : null;
+      }
 
-      if (currentVersion > 1) {
-        debugLog('image', 'summary', `[ImageSlice] Navigate to previous version: ${currentVersion} -> ${currentVersion - 1}`);
-        updatedVersion = currentVersion - 1;
+      if (prev !== null) {
+        debugLog('image', 'summary', `[ImageSlice] Navigate to previous version: ${currentVersion} -> ${prev}`);
+        updatedVersion = prev;
         return {
           activeImageVersion: {
             ...state.activeImageVersion,

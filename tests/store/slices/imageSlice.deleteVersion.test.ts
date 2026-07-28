@@ -274,3 +274,23 @@ describe('imageSlice.resetAdvancedControls — copy-on-write (no in-place mutati
     expect(slice.loraStrengths[KEY]).toBeUndefined();
   });
 });
+
+describe('version navigation over SPARSE surviving sets (codex P1)', () => {
+  it('next from v1 in {1,3} goes to 3, not the deleted 2; prev from 3 returns to 1', () => {
+    const state = createSlice();
+    // Simulate a completed non-renumbering delete of v2: persisted map {1,3}.
+    const chapter: any = state.chapters.get(CHAPTER_ID);
+    delete chapter.translationResult.imageVersionState[MARKER].versions[2];
+    chapter.translationResult.imageVersionState[MARKER].activeVersion = 1;
+    Object.assign(state, {
+      imageVersions: { [KEY]: 3 },
+      activeImageVersion: { [KEY]: 1 },
+    });
+
+    state.navigateToNextVersion(CHAPTER_ID, MARKER);
+    expect(state.activeImageVersion[KEY]).toBe(3);
+
+    state.navigateToPreviousVersion(CHAPTER_ID, MARKER);
+    expect(state.activeImageVersion[KEY]).toBe(1);
+  });
+});
