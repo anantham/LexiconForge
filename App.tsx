@@ -15,6 +15,10 @@ import { MalayalamLibraryPage } from './components/malayalam/MalayalamLibraryPag
 import { GitaIndexPage } from './components/gita/GitaIndexPage';
 import { GitaSthitaprajnaPage } from './components/gita/GitaSthitaprajnaPage';
 
+// Free Tier-1 chapter reader — lazy-loaded so its ~468 KB generated chapter data
+// (dynamically imported inside the page) stays out of the initial bundle.
+const GitaChapter2Page = React.lazy(() => import('./components/gita/GitaChapter2Page'));
+
 // Published local suttas — real IDs, rendered from bundled packets (no API calls).
 // Add an entry here to publish a sutta at a real, linkable URL like /sutta/mn10.
 const LOCAL_SUTTA_PACKETS: Record<string, DeepLoomPacket> = {
@@ -139,6 +143,14 @@ const App: React.FC = () => {
   // Gītā deep reader (Sanskrit, sa.wikisource mūla) — the Malayalam pattern.
   if (pathname === '/gita' || pathname === '/gita/') {
     return <GitaIndexPage />;
+  }
+  // Free Tier-1 chapters (mechanical: Devanāgarī + akshara sounds + MW glosses).
+  if (pathname === '/gita/chapter/2' || pathname === '/gita/chapter/2/') {
+    return (
+      <React.Suspense fallback={<Loader />}>
+        <GitaChapter2Page />
+      </React.Suspense>
+    );
   }
   if (pathname.startsWith('/gita/')) {
     return <GitaSthitaprajnaPage />;
