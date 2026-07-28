@@ -14,6 +14,7 @@ import { UrakamProtoPage } from './components/malayalam/UrakamProtoPage';
 import { MalayalamLibraryPage } from './components/malayalam/MalayalamLibraryPage';
 import { GitaIndexPage } from './components/gita/GitaIndexPage';
 import { GitaSthitaprajnaPage } from './components/gita/GitaSthitaprajnaPage';
+import { GitaChapter2Page } from './components/gita/GitaChapter2Page';
 
 // Published local suttas — real IDs, rendered from bundled packets (no API calls).
 // Add an entry here to publish a sutta at a real, linkable URL like /sutta/mn10.
@@ -139,6 +140,10 @@ const App: React.FC = () => {
   // Gītā deep reader (Sanskrit, sa.wikisource mūla) — the Malayalam pattern.
   if (pathname === '/gita' || pathname === '/gita/') {
     return <GitaIndexPage />;
+  }
+  // Free Tier-1 chapters (mechanical: Devanāgarī + akshara sounds + MW glosses).
+  if (pathname === '/gita/chapter/2' || pathname === '/gita/chapter/2/') {
+    return <GitaChapter2Page />;
   }
   if (pathname.startsWith('/gita/')) {
     return <GitaSthitaprajnaPage />;

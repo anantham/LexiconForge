@@ -95,9 +95,35 @@ export const GitaIndexPage: React.FC = () => (
             </div>
           </a>
 
+          <a
+            href="/gita/chapter/2"
+            className="mt-4 block rounded-lg border border-slate-800 bg-slate-900/60 p-5 transition-colors hover:border-emerald-700/60 hover:bg-slate-900"
+          >
+            <div className="flex items-baseline justify-between gap-4">
+              <span className="text-xl text-slate-100" style={{ fontFamily: DEVA }}>
+                साङ्ख्ययोगः
+              </span>
+              <span className="shrink-0 text-xs text-slate-500" style={{ fontFamily: SERIF }}>
+                2.1–2.72
+              </span>
+            </div>
+            <p className="mt-1 text-sm text-slate-400 italic" style={{ fontFamily: SERIF }}>
+              The whole of chapter 2, read free — every syllable sounded, every word given a
+              dictionary meaning. The mechanical layer, over all 72 verses.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2 text-[11px]" style={{ fontFamily: SERIF }}>
+              <span className="rounded-full border border-slate-700 px-2 py-0.5 text-slate-400">◇ all 72 verses · free layer</span>
+              <span className="rounded-full border border-slate-700 px-2 py-0.5 text-slate-400">every syllable sounded</span>
+              <span className="rounded-full border border-slate-700 px-2 py-0.5 text-slate-400">Monier-Williams glosses</span>
+              <span className="rounded-full border border-slate-700 px-2 py-0.5 text-slate-500">threads: curated upgrade</span>
+            </div>
+          </a>
+
           <p className="mt-4 text-xs text-slate-600" style={{ fontFamily: SERIF }}>
-            Other passages join as they are curated — the mūla source and the pipeline are
-            in place; each is one careful pass away.
+            Two layers: a <span className="text-slate-400">free mechanical</span> reading of every
+            chapter (Devanāgarī + sounds + dictionary glosses), and a hand-<span className="text-slate-400">curated</span> upgrade
+            (alignment threads + a reviewed English witness) for key passages. The mūla source and the
+            pipeline are in place.
           </p>
         </div>
       </div>
