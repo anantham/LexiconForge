@@ -25,7 +25,11 @@ import type {
 } from '../../types/suttaStudio';
 import { getAveragePhaseDuration, recordPhaseDuration } from '../suttaStudioTelemetry';
 import { buildRetrievalContext } from '../suttaStudioRetrieval';
-import { validatePacket, validatePhase } from '../suttaStudioValidator';
+import { validatePacketIds, validatePhase } from '../suttaStudioValidator';
+import {
+  validatePacket as validatePacketRich,
+  VALIDATOR_VERSION,
+} from '../suttaStudioPacketValidator';
 import { logPipelineEvent } from '../suttaStudioPipelineLog';
 import { DictionaryCache } from '../localDictionaryCache';
 import {
@@ -118,9 +122,14 @@ function countSensesWithCitations(packet: DeepLoomPacket): number {
 
 /**
  * Sutta Studio compiler defaults — kept SEPARATE from the global translation
- * model setting to prevent runaway cost. A long sutta requires ~4 LLM calls
- * per phase (Anatomist + Lexicographer + Weaver + Typesetter); for a 3000+
- * phase chapter that's tens of thousands of calls. Defaulting to Claude
+ * model setting to prevent runaway cost. Honest call count per phase:
+ * 4 billed calls on the happy path (Anatomist + Lexicographer + Weaver +
+ * Typesetter, each cacheable in the segment cache), plus a 5th fallback
+ * PhaseView call ONLY when one of those pass outputs is missing (it is
+ * skipped when all four are present, cache or fresh), plus a Morphology call
+ * only when the Anatomist output is missing. The chunked Skeleton pass adds
+ * ~1 call per 50 segments per compile. For a 3000+ phase chapter that's
+ * still tens of thousands of calls. Defaulting to Claude
  * Sonnet 4.6 makes this $100-$400 per chapter; defaulting to Gemini Flash
  * makes it $1-$7. Quality is more than sufficient for Sutta Studio passes
  * which are structured JSON extraction tasks, not creative translation.
@@ -196,6 +205,19 @@ export const compileSuttaStudioPacket = async (options: {
   });
   const throttle = createCompilerThrottle(COMPILER_MIN_CALL_GAP_MS);
 
+  // Honest packet-provenance provider label. Mirrors the deterministic part
+  // of resolveCompilerProvider: OpenAI-keyed compiles route through
+  // OpenRouter, everything else records the provider actually configured,
+  // lowercased. (The old expression hardcoded 'openrouter' for everything
+  // non-OpenAI — a Gemini/Claude/DeepSeek compile lied about its provider —
+  // and recorded 'openai' for OpenAI even though the transport is
+  // OpenRouter.) A call-time fallback to OpenRouter for an UNREGISTERED
+  // provider is not knowable here; resolveCompilerProvider warns when it
+  // happens.
+  const compilerProviderLabel = (
+    settings.provider === 'OpenAI' ? 'OpenRouter' : settings.provider
+  ).toLowerCase();
+
   // Emit early progress so UI shows "building" state immediately
   const earlyPacket: DeepLoomPacket = {
     packetId: `sutta-${uidKey}-pending`,
@@ -206,12 +228,12 @@ export const compileSuttaStudioPacket = async (options: {
     progress: { totalPhases: 0, readyPhases: 0, state: 'building', currentStage: 'fetching' },
     renderDefaults: { ghostOpacity: 0.3, englishVisible: true, studyToggleDefault: true },
     compiler: {
-      provider: settings.provider === 'OpenAI' ? 'openai' : settings.provider === 'OpenRouter' ? 'openrouter' : 'openrouter',
+      provider: compilerProviderLabel,
       model: settings.model,
       promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
       createdAtISO: new Date().toISOString(),
       sourceDigest: '',
-      validatorVersion: 'v1',
+      validatorVersion: VALIDATOR_VERSION,
       validationIssues: [],
     },
   };
@@ -255,12 +277,12 @@ export const compileSuttaStudioPacket = async (options: {
     progress: { totalPhases: 0, readyPhases: 0, state: 'building' },
     renderDefaults,
     compiler: {
-      provider: settings.provider === 'OpenAI' ? 'openai' : settings.provider === 'OpenRouter' ? 'openrouter' : 'openrouter',
+      provider: compilerProviderLabel,
       model: settings.model,
       promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
       createdAtISO: new Date().toISOString(),
       sourceDigest,
-      validatorVersion: 'v1',
+      validatorVersion: VALIDATOR_VERSION,
       validationIssues: [],
     },
   };
@@ -312,6 +334,7 @@ export const compileSuttaStudioPacket = async (options: {
   }
 
   let readySegments = 0;
+  let degradedSegments = 0;
   const totalSegments = canonicalWithOrder.length;
   const phaseLimit = phaseSkeleton.length;
 
@@ -660,23 +683,59 @@ export const compileSuttaStudioPacket = async (options: {
         }
       }
 
-      // PhaseView assembly
-      const phaseState = buildPhaseStateEnvelope({
-        workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
-        currentStageLabel: 'PhaseView (fallback)',
-        completed: { anatomist: Boolean(anatomistOutput), lexicographer: Boolean(lexicographerOutput), weaver: Boolean(weaverOutput), typesetter: Boolean(typesetterOutput) },
-        priorPhases,
-      });
-      const phasePrompt = buildPhasePrompt(phase.id, effectiveSegments, renderDefaults, retrievalContext || undefined, { anatomist: anatomistOutput || undefined, lexicographer: lexicographerOutput || undefined, phaseState });
-      await throttle(signal);
-      const raw = await callCompilerLLM(
-        settings,
-        [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: phasePrompt }],
-        signal, SUTTA_STUDIO_TOKEN_BUDGETS.phaseView,
-        { schemaName: `sutta_studio_${phase.id.replace(/-/g, '_')}`, schema: phaseResponseSchema, structuredOutputs, meta: { stage: 'phase', phaseId: phase.id, requestName: 'phase_view' } }
+      // PhaseView assembly (fallback pass).
+      //
+      // COST NOTE: this used to be an unconditional FIFTH billed LLM call per
+      // phase with no cache slot (SegmentCacheEntry carries only the 4 pass
+      // outputs), so even a fully-cached phase paid for it — and when all four
+      // pass outputs exist the rehydrator uses the result ONLY for its title.
+      // Now: when anatomist+lexicographer+weaver+typesetter are ALL present
+      // (cache or fresh) the call is SKIPPED entirely and the title falls back
+      // to the skeleton's phase.title. The fifth call fires only when the
+      // rehydrator would actually need fallbackPhaseView (a pass output is
+      // missing). And when it runs but fails while anatomist+lexicographer
+      // exist, only the title degrades — a phaseView failure used to discard
+      // 4 successful billed passes into a degraded view.
+      let parsed: PhaseView | null = null;
+      const allPassOutputsPresent = Boolean(
+        anatomistOutput && lexicographerOutput && weaverOutput && typesetterOutput
       );
-
-      const parsed = parseJsonResponse<PhaseView>(raw);
+      if (allPassOutputsPresent) {
+        log(`Skipping PhaseView pass for ${phase.id} (all 4 pass outputs present).`);
+        logPipelineEvent({ level: 'info', stage: 'phase', phaseId: phase.id, message: 'phase_view.skipped', data: { reason: 'all_pass_outputs_present' } });
+      } else {
+        const phaseState = buildPhaseStateEnvelope({
+          workId: uidKey, phaseId: phase.id, segments: effectiveSegments,
+          currentStageLabel: 'PhaseView (fallback)',
+          completed: { anatomist: Boolean(anatomistOutput), lexicographer: Boolean(lexicographerOutput), weaver: Boolean(weaverOutput), typesetter: Boolean(typesetterOutput) },
+          priorPhases,
+        });
+        const phasePrompt = buildPhasePrompt(phase.id, effectiveSegments, renderDefaults, retrievalContext || undefined, { anatomist: anatomistOutput || undefined, lexicographer: lexicographerOutput || undefined, phaseState });
+        try {
+          await throttle(signal);
+          const raw = await callCompilerLLM(
+            settings,
+            [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: phasePrompt }],
+            signal, SUTTA_STUDIO_TOKEN_BUDGETS.phaseView,
+            { schemaName: `sutta_studio_${phase.id.replace(/-/g, '_')}`, schema: phaseResponseSchema, structuredOutputs, meta: { stage: 'phase', phaseId: phase.id, requestName: 'phase_view' } }
+          );
+          parsed = parseJsonResponse<PhaseView>(raw);
+        } catch (e) {
+          // A deliberate cancel keeps its existing phase-level semantics.
+          if (signal?.aborted) throw e;
+          if (anatomistOutput && lexicographerOutput) {
+            // Rehydration can proceed without a fallbackPhaseView — degrade
+            // ONLY the title (falls back to phase.title below), keep the
+            // successful billed passes.
+            warn(`PhaseView pass failed for ${phase.id}; continuing with pass outputs (title falls back to skeleton).`, e);
+            logPipelineEvent({ level: 'warn', stage: 'phase', phaseId: phase.id, message: 'phase_view.failed.nonfatal', data: { error: e instanceof Error ? e.message : String(e) } });
+          } else {
+            // Without anatomist+lexicographer the phaseView IS the only
+            // content source — this failure is genuinely phase-fatal.
+            throw e;
+          }
+        }
+      }
       const phaseMs = Math.max(0, Math.round(performance.now() - phaseStart));
       recordPhaseDuration(uidKey, phaseMs);
       const avgPhaseMs = getAveragePhaseDuration(uidKey) ?? phaseMs;
@@ -689,17 +748,22 @@ export const compileSuttaStudioPacket = async (options: {
       if (anatomistOutput && lexicographerOutput) {
         normalized = rehydratePhase({
           phaseId: phase.id,
-          title: parsed.title || phase.title,
+          title: parsed?.title || phase.title,
           sourceSpan,
           anatomist: anatomistOutput,
           lexicographer: lexicographerOutput,
           weaver: weaverOutput || undefined,
           englishTokens: englishTokens.length > 0 ? englishTokens : undefined,
           typesetter: typesetterOutput || undefined,
-          fallbackPhaseView: parsed,
+          fallbackPhaseView: parsed || undefined,
         });
         logPipelineEvent({ level: 'info', stage: 'phase', phaseId: phase.id, message: 'rehydrator.complete', data: { wordCount: normalized.paliWords.length } });
       } else {
+        // Unreachable-null guard: when anatomist or lexicographer is missing,
+        // the phaseView call above either succeeded (parsed set) or rethrew.
+        if (!parsed) {
+          throw new Error(`PhaseView missing for ${phase.id} with no pass outputs to rehydrate from.`);
+        }
         normalized = {
           ...parsed,
           id: phase.id,
@@ -712,7 +776,7 @@ export const compileSuttaStudioPacket = async (options: {
 
       const fallbackSegments = anatomistOutput
         ? buildSegmentsMapFromAnatomist(anatomistOutput)
-        : new Map((parsed.paliWords || []).map((word) => [word.id, word.segments]));
+        : new Map((parsed?.paliWords || []).map((word) => [word.id, word.segments]));
 
       if (!anatomistOutput) {
         try {
@@ -760,6 +824,7 @@ export const compileSuttaStudioPacket = async (options: {
       const degradedPhase = buildDegradedPhaseView({ phaseId: phase.id, title: phase.title, sourceSpan: degradedSourceSpan, paliTexts, englishTexts, reason: e?.message || 'Phase compilation failed' });
 
       readySegments += phase.segmentIds.length;
+      degradedSegments += phase.segmentIds.length;
       packet = {
         ...packet,
         phases: [...packet.phases, degradedPhase],
@@ -814,19 +879,45 @@ export const compileSuttaStudioPacket = async (options: {
     });
   }
 
-  const packetValidation = validatePacket(packet);
-  if (packetValidation.issues.length) warn(`Packet validation reported ${packetValidation.issues.length} issue(s).`);
-  const finalValidationIssues = [...(packet.compiler?.validationIssues || []), ...packetValidation.issues];
-  const finalCompiler = packet.compiler ? { ...packet.compiler, validationIssues: finalValidationIssues } : undefined;
+  const packetValidation = validatePacketIds(packet);
+  if (packetValidation.issues.length) warn(`Packet ID validation reported ${packetValidation.issues.length} issue(s).`);
 
+  // Rich packet validation (segment coverage, surface integrity, english
+  // links) — LOG-ONLY, never throws: issues are attached to the packet the
+  // same way the assembler attaches them, and the packet still ships. Now
+  // meaningful for compiled packets because the rehydrator populates
+  // canonicalSegmentIds. Validated against the packet's own canonical
+  // segments (the compile's source of truth).
+  let richIssues: ValidationIssue[] = [];
+  try {
+    const richValidation = validatePacketRich(packet, canonicalWithOrder);
+    richIssues = richValidation.issues;
+    if (richIssues.length) warn(`Rich packet validation reported ${richIssues.length} issue(s) (log-only).`);
+  } catch (e) {
+    warn('Rich packet validation itself failed (non-fatal):', e);
+  }
+
+  const finalValidationIssues = [
+    ...(packet.compiler?.validationIssues || []),
+    ...packetValidation.issues,
+    ...richIssues,
+  ];
+  const finalCompiler = packet.compiler
+    ? { ...packet.compiler, validatorVersion: VALIDATOR_VERSION, validationIssues: finalValidationIssues }
+    : undefined;
+
+  // Honest final counts: a skipped-empty phase never lands in packet.phases,
+  // and a degraded phase is present but NOT ready — the old stamp claimed
+  // every skeleton phase ready and every segment done regardless.
+  const readyPhasesFinal = packet.phases.filter((p) => !p.degraded).length;
   packet = {
     ...packetValidation.packet,
     compiler: finalCompiler,
     progress: {
       totalPhases: phaseLimit,
-      readyPhases: phaseSkeleton.length,
+      readyPhases: readyPhasesFinal,
       totalSegments,
-      readySegments: totalSegments,
+      readySegments: Math.max(0, readySegments - degradedSegments),
       state: 'complete',
       currentPhaseId: phaseSkeleton[phaseSkeleton.length - 1]?.id,
       lastProgressAt: Date.now(),
@@ -838,9 +929,8 @@ export const compileSuttaStudioPacket = async (options: {
   onProgress?.({ packet, stage: 'complete', message: 'Compilation complete' });
 
   const cacheStats = getPipelineCacheStats();
-  logPipelineEvent({ level: 'info', stage: 'cache', message: 'cache.stats', data: { morphology: cacheStats.morphology, segment: cacheStats.segment, estimatedSavingsPercent: cacheStats.estimatedSavingsPercent } });
+  logPipelineEvent({ level: 'info', stage: 'cache', message: 'cache.stats', data: { segment: cacheStats.segment, estimatedSavingsPercent: cacheStats.estimatedSavingsPercent } });
   log(`Cache stats: Segment cache ${cacheStats.segment.hitRate} hit rate (${cacheStats.segment.hits} hits, ${cacheStats.segment.misses} misses)`);
-  log(`Cache stats: Morphology cache ${cacheStats.morphology.hitRate} hit rate (${cacheStats.morphology.hits} hits, ${cacheStats.morphology.misses} misses)`);
   log(`Estimated savings: ~${cacheStats.estimatedSavingsPercent}%`);
 
   logPipelineEvent({ level: 'info', stage: 'compile', message: 'compile.complete', data: { totalPhases: phaseSkeleton.length, cacheStats } });

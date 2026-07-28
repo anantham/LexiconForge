@@ -154,17 +154,18 @@ export const lexicographerResponseSchema = {
                 nuance: { type: 'string' },
                 notes: { type: 'string' },
                 citationIds: { type: 'array', items: { type: 'string' } },
+                // Map of english-token-id -> replacement text (empty string
+                // removes the ghost). This is the shape the prompt teaches,
+                // the type declares (Sense.ripples: Record<string, string>),
+                // and the renderer reads (EnglishWord.tsx t.ripples[id]).
+                // A previous schema said array-of-{tradition,rendering},
+                // which under strict structured outputs made the documented
+                // feature impossible to emit. NOTE: OpenAI's strict dialect
+                // cannot express open maps — toOpenAIStrictSchema DROPS this
+                // property for openai/* targets (disclosed degradation).
                 ripples: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      tradition: { type: 'string' },
-                      rendering: { type: 'string' },
-                    },
-                    required: ['tradition', 'rendering'],
-                    additionalProperties: false,
-                  },
+                  type: 'object',
+                  additionalProperties: { type: 'string' },
                 },
               },
               required: ['english', 'nuance'],
@@ -347,17 +348,11 @@ export const phaseResponseSchema = {
                 nuance: { type: 'string' },
                 notes: { type: 'string' },
                 citationIds: { type: 'array', items: { type: 'string' } },
+                // Same map shape as lexicographerResponseSchema — see the
+                // comment there. english-token-id -> replacement text.
                 ripples: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      tradition: { type: 'string' },
-                      rendering: { type: 'string' },
-                    },
-                    required: ['tradition', 'rendering'],
-                    additionalProperties: false,
-                  },
+                  type: 'object',
+                  additionalProperties: { type: 'string' },
                 },
               },
               required: ['english', 'nuance'],

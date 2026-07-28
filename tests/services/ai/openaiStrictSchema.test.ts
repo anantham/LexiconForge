@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { toOpenAIStrictSchema, needsOpenAIStrictSchema } from '../../../scripts/sutta-studio/openai-strict-schema';
-import { anatomistResponseSchema } from '../../../services/sutta-studio/schemas';
+import { toOpenAIStrictSchema, needsOpenAIStrictSchema } from '../../../services/ai/openaiStrictSchema';
+// Old benchmark path must keep re-exporting the same functions (shim contract).
+import {
+  toOpenAIStrictSchema as toOpenAIStrictSchemaViaShim,
+  needsOpenAIStrictSchema as needsOpenAIStrictSchemaViaShim,
+} from '../../../scripts/sutta-studio/openai-strict-schema';
+import { anatomistResponseSchema, lexicographerResponseSchema } from '../../../services/sutta-studio/schemas';
 
 /**
  * OpenAI's strict json_schema dialect (probe-verified 2026-07-22: verbatim
@@ -132,5 +137,54 @@ describe('toOpenAIStrictSchema — enum/const optionality (codex review P1)', ()
     };
     const once = toOpenAIStrictSchema(input);
     expect(toOpenAIStrictSchema(once)).toEqual(once);
+  });
+});
+
+describe('toOpenAIStrictSchema — open maps (ripples) are inexpressible and DROPPED', () => {
+  it('drops an open-map property from properties AND required', () => {
+    const out = toOpenAIStrictSchema({
+      type: 'object',
+      properties: {
+        english: { type: 'string' },
+        ripples: { type: 'object', additionalProperties: { type: 'string' } },
+      },
+      required: ['english', 'ripples'],
+    });
+    expect(out.properties.ripples).toBeUndefined();
+    expect(out.required).toEqual(['english']);
+    expect(out.properties.english.type).toBe('string');
+  });
+
+  it('drops ripples from the REAL lexicographer schema (disclosed degradation for openai/*)', () => {
+    const out = toOpenAIStrictSchema(lexicographerResponseSchema);
+    const senseSchema = out.properties.senses.items.properties.senses.items;
+    expect(senseSchema.properties.ripples).toBeUndefined();
+    expect(senseSchema.required).not.toContain('ripples');
+    // The rest of the sense contract survives.
+    expect(senseSchema.required).toEqual(expect.arrayContaining(['english', 'nuance']));
+  });
+
+  it('closed objects (fixed properties) are NOT treated as open maps', () => {
+    const out = toOpenAIStrictSchema({
+      type: 'object',
+      properties: {
+        handoff: { type: 'object', properties: { notes: { type: 'string' } }, additionalProperties: false },
+      },
+      required: [],
+    });
+    expect(out.properties.handoff).toBeDefined();
+    expect(out.required).toEqual(['handoff']);
+  });
+
+  it('stays idempotent after the drop', () => {
+    const once = toOpenAIStrictSchema(lexicographerResponseSchema);
+    expect(toOpenAIStrictSchema(once)).toEqual(once);
+  });
+});
+
+describe('scripts/sutta-studio/openai-strict-schema shim', () => {
+  it('re-exports the same functions the benchmark imports', () => {
+    expect(toOpenAIStrictSchemaViaShim).toBe(toOpenAIStrictSchema);
+    expect(needsOpenAIStrictSchemaViaShim).toBe(needsOpenAIStrictSchema);
   });
 });

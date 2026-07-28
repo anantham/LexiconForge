@@ -15,6 +15,7 @@ import { getDefaultApiKey } from '../../services/defaultApiKeyService';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import { extractBalancedJson, replacePlaceholders } from '../../services/ai/textUtils';
 import { validateAndClampParameter } from '../../services/ai/parameters';
+import { toOpenAIStrictSchema, needsOpenAIStrictSchema } from '../../services/ai/openaiStrictSchema';
 
 // Debug logging
 const dlog = (message: string, ...args: any[]) => {
@@ -174,11 +175,19 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     );
 
     if (hasStructuredOutputs && input.schema) {
+      // OpenAI's strict json_schema validator speaks a stricter dialect
+      // (every property required, additionalProperties:false, null-unions for
+      // optionality; open maps like `ripples` are inexpressible and DROPPED).
+      // Apply the transform only when the request actually targets OpenAI's
+      // validator: the direct OpenAI provider, or an OpenRouter openai/* slug.
+      // Previously only the benchmark applied this — the production compile
+      // pipeline sent untransformed schemas.
+      const targetsOpenAI = settings.provider === 'OpenAI' || needsOpenAIStrictSchema(model);
       requestOptions.response_format = {
         type: 'json_schema',
         json_schema: {
           name: input.schemaName || 'sutta_studio_response',
-          schema: input.schema,
+          schema: targetsOpenAI ? toOpenAIStrictSchema(input.schema) : input.schema,
           strict: true,
         },
       };
