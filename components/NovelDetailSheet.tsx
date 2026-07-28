@@ -4,12 +4,14 @@ import type { NovelEntry, NovelVersion, ChapterCoverageStats, MediaCorrespondenc
 import { VersionPicker } from './VersionPicker';
 import { CoverageDistribution } from './CoverageDistribution';
 import { NovelCoverImage } from './NovelCoverImage';
+import { GroupedChapterPicker } from './library/SectionTreePicker';
+import { isGroupableRange } from '../services/library/sectionGrouping';
 
 interface NovelDetailSheetProps {
   novel: NovelEntry | null;
   isOpen: boolean;
   onClose: () => void;
-  onStartReading: (novel: NovelEntry, version?: NovelVersion) => void;
+  onStartReading: (novel: NovelEntry, version?: NovelVersion, startChapterNumber?: number) => void;
   translatedCount?: number;
 }
 
@@ -132,6 +134,12 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
   const totalChapters = novel.metadata.chapterCount ||
     (novel.versions ? Math.max(...novel.versions.map(v => v.chapterRange.to)) : 0);
 
+  // A version whose chapters are grouped (e.g. the Bhagavad Gītā: 700 verses
+  // across 18 adhyāyas, encoded chapterNumber = group*1000 + item). Detected
+  // cheaply from the version's chapterRange alone — no chapter list needed —
+  // and only then do we render the nested tree (which lazily fetches verses).
+  const groupableVersion = novel.versions?.find(v => isGroupableRange(v.chapterRange)) ?? null;
+
   const chapterDisplay = typeof translatedCount === 'number' && translatedCount > 0
     ? `${translatedCount} / ${totalChapters}`
     : totalChapters;
@@ -229,8 +237,30 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
             </div>
           </div>
 
-          {/* Version Picker or Single Start Reading Button */}
-          {novel.versions && novel.versions.length > 0 ? (
+          {/* Grouped novel (Gītā-style): nested section tree + start-at-the-beginning.
+              Otherwise fall back to the existing version picker / single button. */}
+          {groupableVersion ? (
+            <div className="space-y-4">
+              <button
+                onClick={() => onStartReading(novel, groupableVersion)}
+                className="w-full px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
+              >
+                Start Reading from the beginning
+              </button>
+              <GroupedChapterPicker
+                sessionJsonUrl={groupableVersion.sessionJsonUrl}
+                onSelectVerse={(chapterNumber) => onStartReading(novel, groupableVersion, chapterNumber)}
+              />
+              {/* Other versions still selectable when more than one exists. */}
+              {novel.versions && novel.versions.length > 1 && (
+                <VersionPicker
+                  versions={novel.versions}
+                  totalNovelChapters={novel.metadata.chapterCount}
+                  onSelect={(version) => onStartReading(novel, version)}
+                />
+              )}
+            </div>
+          ) : novel.versions && novel.versions.length > 0 ? (
             <VersionPicker
               versions={novel.versions}
               totalNovelChapters={novel.metadata.chapterCount}

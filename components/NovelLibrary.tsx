@@ -122,12 +122,27 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     setSelectedNovel(null);
   };
 
-  const handleStartReading = async (novel: NovelEntry, version?: NovelVersion) => {
+  const handleStartReading = async (
+    novel: NovelEntry,
+    version?: NovelVersion,
+    startChapterNumber?: number
+  ) => {
     // Special routing for built-in study entries (e.g., Sutta Studio)
     if (novel.id === 'sutta-mn10') {
       window.location.href = '/sutta/demo';
       return;
     }
+
+    // When a specific verse/section was picked from the nested tree, open the
+    // reader there (overriding the saved resume point). Falls back to the given
+    // id when the target chapter isn't loaded yet (e.g. mid-stream).
+    const pickStartChapterId = (fallbackId: string | null): string | null => {
+      if (typeof startChapterNumber !== 'number') return fallbackId;
+      const match = Array.from(useAppStore.getState().chapters.values()).find(
+        (chapter) => chapter.chapterNumber === startChapterNumber
+      );
+      return match?.id ?? fallbackId;
+    };
 
     // Determine which session URL to use
     const sessionJsonUrl = version?.sessionJsonUrl || novel.sessionJsonUrl;
@@ -164,10 +179,12 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       if (firstCachedChapterId) {
         setImportProgress({ stage: 'importing', progress: 50, message: 'Loading from cache...' });
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
-        const resumeChapterId = BookshelfStateService.resolveResumeChapterId(
-          bookshelfEntry,
-          useAppStore.getState().chapters,
-          firstCachedChapterId
+        const resumeChapterId = pickStartChapterId(
+          BookshelfStateService.resolveResumeChapterId(
+            bookshelfEntry,
+            useAppStore.getState().chapters,
+            firstCachedChapterId
+          )
         );
         useAppStore.setState(state => ({
           navigationHistory: nav?.stableIds || [],
@@ -220,10 +237,12 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                 { limit: 10, versionId: requestedVersionId }
               );
               const bookshelfEntry = await BookshelfStateService.getEntry(novel.id, requestedVersionId);
-              const resumeChapterId = BookshelfStateService.resolveResumeChapterId(
-                bookshelfEntry,
-                useAppStore.getState().chapters,
-                firstChapterId
+              const resumeChapterId = pickStartChapterId(
+                BookshelfStateService.resolveResumeChapterId(
+                  bookshelfEntry,
+                  useAppStore.getState().chapters,
+                  firstChapterId
+                )
               );
 
               debugLog(
