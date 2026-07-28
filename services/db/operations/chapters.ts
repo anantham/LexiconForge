@@ -375,8 +375,16 @@ const findChapterModernByNumber = async (
 
 const getChaptersByNovelAndVersion = async (
   novelId: string,
-  libraryVersionId: string
+  libraryVersionId: string | null
 ): Promise<ChapterRecord[]> => {
+  if (!novelId) {
+    // Never query an index with null: IDBIndex.getAll(null) is an unbounded query that
+    // returns EVERY record in the store, silently converting a scoped lookup into a
+    // full-database scan (see the budget gate, which summed all novels against one cap).
+    throw new Error(
+      'getChaptersByNovelAndVersion requires a novelId — index.getAll(null) would return every chapter in the database.'
+    );
+  }
   return withReadTxn(
     STORE_NAMES.CHAPTERS,
     async (_txn, stores) => {
@@ -800,7 +808,7 @@ export class ChapterOps {
 
   static async getByNovelAndVersion(
     novelId: string,
-    libraryVersionId: string
+    libraryVersionId: string | null
   ): Promise<ChapterRecord[]> {
     return getChaptersByNovelAndVersion(novelId, libraryVersionId);
   }

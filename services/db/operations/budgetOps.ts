@@ -19,8 +19,18 @@ import { apiMetricsService } from '../../apiMetricsService';
  */
 export async function getNovelTranslationCost(
   novelId: string,
-  versionId: string
+  versionId: string | null
 ): Promise<number> {
+  if (!novelId) {
+    // Without a novel scope, getByNovelAndVersion would reach index.getAll(null) — an
+    // UNBOUNDED read that sums spend across EVERY novel in the database, producing a
+    // number the budget cap compares against meaninglessly. A budget question with no
+    // novel scope has no answer; refuse loudly and let the caller fail closed.
+    throw new Error(
+      'getNovelTranslationCost requires a novelId; refusing an unscoped (unbounded) cost query.'
+    );
+  }
+
   const chapters = await ChapterOps.getByNovelAndVersion(novelId, versionId);
 
   let totalCost = 0;

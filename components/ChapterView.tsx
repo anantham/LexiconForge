@@ -20,6 +20,7 @@ import { useFootnoteNavigation } from '../hooks/useFootnoteNavigation';
 import { useTokenizedContent } from '../hooks/useTokenizedContent';
 import { useChapterTelemetry } from '../hooks/useChapterTelemetry';
 import ReaderView from './chapter/ReaderView';
+import { deriveTranslationFailureUi } from './chapter/translationFailureUi';
 import { requestSelfInsert } from '../services/selfInsertService';
 import { useSillyTavernBridgeStatus } from '../hooks/useSillyTavernBridgeStatus';
 
@@ -101,12 +102,27 @@ const ChapterView: React.FC = () => {
   // Subscribe to activeTranslations state for reactive updates
   const activeTranslations = useAppStore(s => s.activeTranslations);
   const isRetranslationActive = currentChapterId ? (currentChapterId in activeTranslations || isTranslationActive(currentChapterId)) : false;
+  // Per-chapter failure record: background failures (CORE-012 routing) land in
+  // translationProgress[chapterId] instead of the global error, and are
+  // surfaced when the user returns to the chapter.
+  const perChapterProgress = useAppStore(s =>
+    // Optional-chained: several test harnesses (and defensive null-safety
+    // patterns elsewhere in this file) build partial store states.
+    currentChapterId ? s.translationProgress?.[currentChapterId] : undefined
+  );
   // Issue #14: in the failed state we have no translationResult, but the
   // user MUST be able to retry. Enable manual retranslate when either a
-  // translation exists OR a translation has failed (error present, English
-  // view). Without this, the failed state was a dead-end: button gray,
-  // inline error box without a retry path.
-  const hasFailedTranslation = viewMode === 'english' && !translationResult && !!error;
+  // translation exists OR a translation has failed — via the global error
+  // (foreground failure) or the per-chapter progress record (background
+  // failure). Without the latter, a failed background auto_visit translation
+  // was a dead-end: no error shown on return, button gray, and the
+  // auto-translate mediator refusing to re-fire.
+  const { hasFailedTranslation, translationError } = deriveTranslationFailureUi({
+    viewMode,
+    hasTranslationResult: !!translationResult,
+    globalError: error,
+    perChapterProgress,
+  });
   const canManualRetranslate = !!translationResult || hasFailedTranslation;
   const targetLanguageLabel = settings.targetLanguage || 'English';
   const handleRetranslateClick = useCallback((origin: 'desktop' | 'mobile' = 'desktop') => {
@@ -520,7 +536,10 @@ const ChapterView: React.FC = () => {
       modelLabel: settings.model,
       renderEnglishDiffs: viewMode === 'english',
       showEnglishLoader,
-      translationError: viewMode === 'english' && !translationResult && error ? error : null,
+      // Global error first, then the per-chapter background-failure record
+      // (deriveTranslationFailureUi encodes the precedence).
+      translationError,
+      // Telemetry context only accompanies the global error path.
       translationErrorTelemetry: viewMode === 'english' && !translationResult && error ? errorTelemetry : null,
       // Issue #14: inline retry from the failed-state UI.
       onRetryTranslation: () => handleRetranslateClick(),

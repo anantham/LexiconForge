@@ -57,6 +57,7 @@ const SessionInfo: React.FC = () => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showVersionPicker, setShowVersionPicker] = useState(false);
   const [versions, setVersions] = useState<TranslationVersion[]>([]);
+  const [versionsLoadError, setVersionsLoadError] = useState<string | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<number | ''>('');
 
   // Delete dialog state
@@ -86,6 +87,7 @@ const SessionInfo: React.FC = () => {
     let cancelled = false;
     if (!currentChapterId) {
       setVersions([]);
+      setVersionsLoadError(null);
       setSelectedVersion('');
       telemetryService.capturePerformance('ux:component:SessionInfo:versionsLoad', 0, {
         outcome: 'no_chapter',
@@ -104,13 +106,18 @@ const SessionInfo: React.FC = () => {
         if (cancelled) return;
         resolvedCount = Array.isArray(v) ? v.length : 0;
         setVersions(v);
+        setVersionsLoadError(null);
         const active = v.find((x: TranslationVersion) => x.isActive);
         setSelectedVersion(active ? active.version : (v[0]?.version ?? ''));
       } catch (error) {
         outcome = 'error';
         errorMessage = error instanceof Error ? error.message : String(error);
         if (!cancelled) {
+          // fetchTranslationVersions rethrows on infrastructure failure (it no
+          // longer masquerades as []). Show a load-error state instead of a
+          // silently empty version row.
           setVersions([]);
+          setVersionsLoadError(errorMessage || 'Failed to load translation versions');
           setSelectedVersion('');
         }
       } finally {
@@ -174,8 +181,15 @@ const SessionInfo: React.FC = () => {
       const v = await fetchTranslationVersions(currentChapterId);
       resolvedCount = Array.isArray(v) ? v.length : 0;
       setVersions(v);
+      setVersionsLoadError(null);
       const active = v.find((x: TranslationVersion) => x.isActive);
       setSelectedVersion(active ? active.version : (v[0]?.version ?? ''));
+    } catch (error) {
+      // fetchTranslationVersions rethrows on infrastructure failure; without
+      // this catch the rejection would escape the click handler. Keep the
+      // current version list on screen and surface the refresh failure.
+      console.error('[SessionInfo] Failed to refresh versions after delete:', error);
+      setVersionsLoadError(error instanceof Error ? error.message : String(error));
     } finally {
       telemetryService.capturePerformance('ux:component:SessionInfo:versionsRefreshAfterDelete', getTimestamp() - refreshStart, {
         chapterId: currentChapterId,
@@ -249,6 +263,17 @@ const SessionInfo: React.FC = () => {
           </label>
           <ChapterDropdown currentChapterId={currentChapterId} />
         </div>
+
+        {/* Version load failure - infrastructure error, not "no versions yet" */}
+        {!sessionIsEmpty && versionsLoadError && (
+          <div
+            role="alert"
+            className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400"
+          >
+            <span className="font-semibold flex-shrink-0">Couldn&apos;t load versions:</span>
+            <span className="truncate" title={versionsLoadError}>{versionsLoadError}</span>
+          </div>
+        )}
 
         {/* Version row - only show when versions exist */}
         {!sessionIsEmpty && versions.length > 0 && (

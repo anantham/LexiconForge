@@ -46,6 +46,27 @@ interface ExportWarning {
   details?: Record<string, unknown>;
 }
 
+/**
+ * Resolve which image version an export should embed for a marker.
+ *
+ * Order of trust:
+ *   1. Session-memory maps (activeImageVersion, then imageVersions) WHEN a key
+ *      exists — mid-session they are fresher than the persisted record:
+ *      version navigation updates them synchronously while persistence is
+ *      async and can fail.
+ *   2. The persisted imageVersionState.activeVersion — the only source that
+ *      survives a reload. Memory maps hydrate lazily per visited chapter, so
+ *      after a reload they are empty for unvisited chapters and the persisted
+ *      choice is authoritative (previously this fell back to v1, exporting the
+ *      wrong image).
+ *   3. 1 — legacy single-version images that predate version tracking.
+ */
+export const resolveExportedImageVersion = (
+  memoryActiveVersion: number | undefined,
+  memoryLatestVersion: number | undefined,
+  persistedActiveVersion: number | null | undefined
+): number => memoryActiveVersion ?? memoryLatestVersion ?? persistedActiveVersion ?? 1;
+
 // Debug logging utilities (copied from old store)
 const storeDebugEnabled = (): boolean => {
   try {
@@ -385,10 +406,14 @@ export const createExportSlice: StateCreator<
             const versionKey = ch.id && illust.placementMarker
               ? `${ch.id}:${illust.placementMarker}`
               : null;
-            const version = versionKey
-              ? activeImageVersion[versionKey] || imageVersions[versionKey] || 1
-              : 1;
             const versionStateEntry = active.imageVersionState?.[illust.placementMarker];
+            const version = versionKey
+              ? resolveExportedImageVersion(
+                  activeImageVersion[versionKey],
+                  imageVersions[versionKey],
+                  versionStateEntry?.activeVersion
+                )
+              : versionStateEntry?.activeVersion ?? 1;
             try {
               if (imageCacheKey && ch.id && imageCacheModule) {
                 // Modern path: Retrieve from Cache API using active version

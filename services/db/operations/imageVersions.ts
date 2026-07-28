@@ -52,12 +52,34 @@ const normalizeVersionEntries = (
   return [];
 };
 
+/**
+ * Post-delete state of a marker, as persisted. Version numbers are NEVER
+ * renumbered — a persisted image is keyed by chapterId:marker:version, so a
+ * surviving version keeps its original number (deleting v2 of {1,2,3} leaves
+ * {1,3}, not {1,2}). Callers must adopt these values rather than deriving
+ * their own contiguous numbering.
+ */
+export interface ImageVersionDeleteResult {
+  /** true when the whole marker entry was removed (cleanup of an entry with no versions). */
+  markerRemoved: boolean;
+  /** The marker state exactly as persisted; null when the marker was removed. */
+  markerState: {
+    versions: Record<number, ImageGenerationMetadata>;
+    activeVersion: number | null;
+    latestVersion: number;
+  } | null;
+  /** Original version numbers that survive the delete. */
+  survivingVersions: number[];
+  activeVersion: number | null;
+  latestVersion: number;
+}
+
 export class ImageOps {
   static async deleteImageVersion(
     chapterId: string,
     placementMarker: string,
     version: number
-  ): Promise<void> {
+  ): Promise<ImageVersionDeleteResult> {
     const chapter = await resolveChapter(chapterId);
     if (!chapter) throw missingChapterError(chapterId);
 
@@ -86,7 +108,13 @@ export class ImageOps {
       translationRecord.imageVersionState =
         Object.keys(versionState).length > 0 ? versionState : undefined;
       await translationFacade.update(translationRecord);
-      return;
+      return {
+        markerRemoved: true,
+        markerState: null,
+        survivingVersions: [],
+        activeVersion: null,
+        latestVersion: 0,
+      };
     }
 
     const filteredEntries = normalizedEntries.filter(([entryVersion]) => entryVersion !== version);
@@ -125,6 +153,19 @@ export class ImageOps {
       Object.keys(versionState).length > 0 ? versionState : undefined;
 
     await translationFacade.update(translationRecord);
+
+    const persistedMarkerState = versionState[placementMarker] as {
+      versions: Record<number, ImageGenerationMetadata>;
+      activeVersion: number | null;
+      latestVersion: number;
+    };
+    return {
+      markerRemoved: false,
+      markerState: persistedMarkerState,
+      survivingVersions: filteredEntries.map(([entryVersion]) => entryVersion),
+      activeVersion: persistedMarkerState.activeVersion,
+      latestVersion: persistedMarkerState.latestVersion,
+    };
   }
 
   static async getStorageDiagnostics(): Promise<{

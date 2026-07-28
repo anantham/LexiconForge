@@ -236,6 +236,21 @@ describe('SessionInfo: Critical Flows', () => {
         expect(screen.getByText('Export Book')).toBeInTheDocument();
       });
     });
+
+    it('shows a load-error state (not a silently empty version row) when versions fail to load', async () => {
+      // fetchTranslationVersions rethrows on infrastructure failure instead of
+      // masquerading as [] — the UI must distinguish "DB is broken" from
+      // "no versions yet".
+      mockFetchTranslationVersions.mockRejectedValue(new Error('IndexedDB unavailable'));
+
+      render(<SessionInfo />);
+
+      const alert = await screen.findByRole('alert');
+      expect(alert).toHaveTextContent(/Couldn't load versions/);
+      expect(alert).toHaveTextContent('IndexedDB unavailable');
+      // The version row must not render as if the chapter simply had no versions.
+      expect(screen.queryByText('Version:')).not.toBeInTheDocument();
+    });
   });
 
   describe('Export Flow', () => {

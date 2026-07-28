@@ -198,13 +198,31 @@ export const exportFullSessionToJson = async (
   const chaptersOut: any[] = [];
   const chapterImageSources: ChapterImageSource[] = [];
 
+  // Completeness accounting: a backup that silently omits user-authored data is
+  // worse than one that fails loudly. When a read fails we still export the rest,
+  // but the export SAYS SO — telemetry plus a metadata flag + warnings entry
+  // (mirrors the image-collection pattern in collectImageAssets above).
+  const integrityWarnings: Array<{ scope: string; message: string }> = [];
+  let feedbackComplete = true;
+  let promptTemplatesComplete = true;
+  let amendmentLogsComplete = true;
+
   for (const chapter of chapters) {
     const stableId = chapter.stableId || (await deps.getUrlMappingForUrl(chapter.url))?.stableId || undefined;
     const canonicalUrl = chapter.canonicalUrl || chapter.url;
     const versions = stableId
       ? await deps.getTranslationVersionsByStableId(stableId)
       : await deps.getTranslationVersions(canonicalUrl);
-    const feedback = await deps.getFeedback(canonicalUrl).catch(() => []);
+    const feedback = await deps.getFeedback(canonicalUrl).catch((error) => {
+      feedbackComplete = false;
+      const message = `Failed to read feedback for "${chapter.title || canonicalUrl}"; this backup omits that feedback.`;
+      integrityWarnings.push({ scope: 'feedback', message });
+      telemetryService.captureWarning('export-feedback', message, {
+        canonicalUrl,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return [];
+    });
 
     chaptersOut.push({
       stableId,
@@ -253,8 +271,24 @@ export const exportFullSessionToJson = async (
     chapterImageSources.push({ stableId, canonicalUrl, versions });
   }
 
-  const promptTemplates = await deps.getPromptTemplates().catch(() => []);
-  const amendmentLogs = await deps.getAmendmentLogs().catch(() => []);
+  const promptTemplates = await deps.getPromptTemplates().catch((error) => {
+    promptTemplatesComplete = false;
+    const message = 'Failed to read prompt templates; this backup omits them.';
+    integrityWarnings.push({ scope: 'promptTemplates', message });
+    telemetryService.captureWarning('export-prompt-templates', message, {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return [];
+  });
+  const amendmentLogs = await deps.getAmendmentLogs().catch((error) => {
+    amendmentLogsComplete = false;
+    const message = 'Failed to read amendment logs; this backup omits them.';
+    integrityWarnings.push({ scope: 'amendmentLogs', message });
+    telemetryService.captureWarning('export-amendment-logs', message, {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return [];
+  });
 
   let telemetrySnapshot: any = null;
   if (exportOptions.includeTelemetry) {
@@ -282,6 +316,12 @@ export const exportFullSessionToJson = async (
       telemetryIncluded: Boolean(telemetrySnapshot),
       imagesIncluded: exportOptions.includeImages && imageAssets.length > 0,
       navigationHistoryIncluded: Boolean(navHistory),
+      // Completeness flags: false means a read failed and the corresponding
+      // user-authored data is MISSING from this backup (details in warnings).
+      feedbackComplete,
+      promptTemplatesComplete,
+      amendmentLogsComplete,
+      warnings: integrityWarnings,
     },
     settings: redactApiCredentials(settings),
     urlMappings,

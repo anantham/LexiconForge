@@ -20,6 +20,7 @@ import { TranslationOps, AmendmentOps, FeedbackOps } from '../../services/db/ope
 import { adaptTranslationRecordToResult } from '../../services/navigation/converters';
 import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import { clientTelemetry } from '../../services/clientTelemetry';
+import { telemetryService } from '../../services/telemetryService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import type { TelemetryErrorContext, TelemetryEventType, TelemetryExtras, TelemetryFailureType, TranslationOrigin } from '../../types/telemetry';
 import { mergeGlossaryEntries } from '../../services/glossaryService';
@@ -317,7 +318,38 @@ export const createTranslationsSlice: StateCreator<
     try {
     if (context.settings.preloadMode === 'budget' && context.settings.preloadBudget && context.settings.preloadBudget > 0) {
       const { activeNovelId, activeVersionId } = state as any;
-      if (activeNovelId) {
+      if (!activeNovelId) {
+        // Budget spend is accounted PER NOVEL (getNovelTranslationCost is novel-scoped).
+        // With no active novel (raw-URL reading) there is nothing to scope the cap to —
+        // the previous `if (activeNovelId)` wrapper silently skipped enforcement
+        // entirely, so budget mode did not enforce at all in that state. Fail closed
+        // for automatic translations: skip rather than bill against a cap that can
+        // never trip. Manual translations proceed (explicit user intent wins), but the
+        // spend is knowingly unscoped and we say so.
+        if (origin === 'manual_translate') {
+          console.warn(
+            '[Budget] ⚠️ Budget mode is on but no active novel is set; this manual translation will NOT be counted against any novel budget.',
+            { chapterId, origin }
+          );
+          telemetryService.captureWarning(
+            'budget:unscopedManual',
+            'Manual translation in budget mode without an active novel; spend is unscoped.',
+            { chapterId, origin }
+          );
+        } else {
+          console.warn(
+            '[Budget] 🚫 Budget mode is on but no active novel is set; blocking automatic translation (fail-closed).',
+            { chapterId, origin }
+          );
+          telemetryService.captureWarning(
+            'budget:unscopedSkip',
+            'Automatic translation skipped: budget mode is active but there is no novel scope to enforce the cap against.',
+            { chapterId, origin }
+          );
+          releasePending();
+          return;
+        }
+      } else {
         // A budget can only be enforced for a model whose cost is computable.
         // An unpriced model records $0/chapter, so the gate would wave through
         // unlimited spend believing it free (TECH-DEBT P0.4): refuse instead.
@@ -844,6 +876,17 @@ export const createTranslationsSlice: StateCreator<
       set(prev => {
         const nextPending = new Set(prev.pendingTranslations);
         nextPending.delete(chapterId);
+        // The aborted path above parks translationProgress[chapterId] at
+        // {status:'pending'} and returns. Nothing ever transitions that entry
+        // again, so it would sit stale forever (and read as "still queued" to
+        // any consumer, e.g. ChapterView's failure surfacing). Clear it here;
+        // 'failed' and 'completed' entries are deliberately preserved.
+        const progressEntry = prev.translationProgress[chapterId];
+        if (progressEntry?.status === 'pending') {
+          const nextProgress = { ...prev.translationProgress };
+          delete nextProgress[chapterId];
+          return { pendingTranslations: nextPending, translationProgress: nextProgress };
+        }
         return { pendingTranslations: nextPending };
       });
       // Update loading states
@@ -1391,7 +1434,14 @@ export const createTranslationsSlice: StateCreator<
       return versions;
     } catch (error) {
       console.error('[TranslationsSlice] Failed to fetch translation versions:', error);
-      return [];
+      // Same masquerade class as the getVersionsByStableId note near the top of
+      // handleTranslate: returning [] here made real infrastructure failure
+      // indistinguishable from "no versions yet", so consumers proceeded as if
+      // the chapter were untranslated (preload re-billed it; delete cleared the
+      // surviving translation from memory). Emit telemetry, then rethrow — each
+      // consumer decides its own fail-closed behavior.
+      telemetryService.captureError('translations:fetchVersions', error, { chapterId });
+      throw error;
     }
   },
 
@@ -1448,7 +1498,23 @@ export const createTranslationsSlice: StateCreator<
 
       // If the deleted version was the active one, we need to promote a new version
       if (activeTranslation && activeTranslation.id === translationId) {
-        const remainingVersions = await get().fetchTranslationVersions(chapterId);
+        let remainingVersions: any[];
+        try {
+          remainingVersions = await get().fetchTranslationVersions(chapterId);
+        } catch (fetchError) {
+          // The delete itself succeeded, but we cannot see what survived. Do NOT
+          // fall through to the "no versions left" branch (the old []-on-error
+          // return did exactly that and cleared a translationResult that still
+          // exists in the DB). Surface the real state and stop.
+          console.error('[TranslationsSlice] Version deleted, but failed to load remaining versions:', fetchError);
+          const uiActionsOnError = get();
+          if (uiActionsOnError.setError) {
+            uiActionsOnError.setError(
+              'Version deleted, but the remaining versions could not be loaded. Reload to see the current state.'
+            );
+          }
+          return;
+        }
         if (remainingVersions.length > 0) {
           // Set the latest remaining version as active (they are sorted by version descending)
           const latestVersion = remainingVersions[0];

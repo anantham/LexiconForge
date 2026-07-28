@@ -19,6 +19,7 @@ import type { ImportedChapter } from '../../types';
 import { BookshelfStateService } from '../../services/bookshelfStateService';
 import { validateApiKey } from '../../services/ai/apiKeyValidation';
 import { debugLog, debugWarn } from '../../utils/debug';
+import { telemetryService } from '../../services/telemetryService';
 import { memoryCacheSnapshot } from '../../utils/memoryDiagnostics';
 import { mergeChapter } from '../../utils/mergeChapter';
 
@@ -992,7 +993,16 @@ export const createChaptersSlice: StateCreator<
 
         const { id: nextChapterId } = nextChapterInfo;
 
-        const existingVersions = await fetchTranslationVersions(nextChapterId);
+        let existingVersions: any[];
+        try {
+          existingVersions = await fetchTranslationVersions(nextChapterId);
+        } catch (versionsError: any) {
+          // Infrastructure failure, not "no versions yet" (fetchTranslationVersions
+          // rethrows instead of masquerading as []). Proceeding would risk paying
+          // for a translation the chapter may already have — stop the loop.
+          debugWarn('worker', 'summary', `[Worker] Could not verify existing versions for chapter #${targetNumber}; stopping preload rather than risking a duplicate paid translation: ${versionsError?.message ?? versionsError}`);
+          break;
+        }
         if (existingVersions.length > 0) {
           debugLog('worker', 'full', `[Worker] Skipping chapter #${targetNumber} - ${existingVersions.length} version(s) already exist.`);
           continue;
@@ -1021,6 +1031,19 @@ export const createChaptersSlice: StateCreator<
             debugLog('worker', 'summary', '[Worker] Preload mode changed mid-loop, stopping.');
             break;
           }
+          if (!activeNovelId) {
+            // The budget is enforced per novel. With no active novel the cost query
+            // is unscoped (it used to reach index.getAll(null) and sum EVERY novel
+            // in the DB against one cap that could never trip, while preload billed
+            // up to BUDGET_MODE_MAX_LOOKAHEAD chapters). Fail closed: stop preload.
+            debugWarn('worker', 'summary', '[Worker] Budget mode is on but no active novel is set; stopping preload (fail-closed, budget cannot be scoped).');
+            telemetryService.captureWarning(
+              'budget:unscopedSkip',
+              'Preload stopped: budget mode is active but there is no novel scope to enforce the cap against.',
+              { chapterId: nextChapterId }
+            );
+            break;
+          }
           // Ported from PR #108: stop the WHOLE preload loop once when the
           // model is unpriceable, instead of letting the per-chapter gate in
           // translationsSlice block every iteration (999 chapters = 999
@@ -1037,8 +1060,16 @@ export const createChaptersSlice: StateCreator<
             debugLog('worker', 'summary', '[Worker] Stopping preload: model pricing unknown.');
             break;
           }
-          const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
-          const spent = await getNovelTranslationCost(activeNovelId!, activeVersionId!);
+          let spent: number;
+          try {
+            const { getNovelTranslationCost } = await import('../../services/db/operations/budgetOps');
+            spent = await getNovelTranslationCost(activeNovelId, activeVersionId ?? null);
+          } catch (costError: any) {
+            // If the spend cannot be computed, the cap cannot be enforced —
+            // treat as blocked rather than translating with an unverifiable budget.
+            debugWarn('worker', 'summary', `[Worker] Budget cost check failed; stopping preload (fail-closed): ${costError?.message ?? costError}`);
+            break;
+          }
           if (spent >= latestSettings.preloadBudget) {
             const showNotification = (get() as any).showNotification;
             if (showNotification) {

@@ -167,7 +167,7 @@ afterEach(() => {
     );
   });
 
-  it('resets progress when translation is aborted', async () => {
+  it('clears progress when translation is aborted (no stale pending entry)', async () => {
     const chapterId = 'stable-4';
     const url = 'https://example.com/chapter/4';
     useAppStore.setState({
@@ -180,7 +180,12 @@ afterEach(() => {
 
     await useAppStore.getState().handleTranslate(chapterId);
 
-    expect(useAppStore.getState().translationProgress[chapterId]?.status).toBe('pending');
+    // The aborted path used to park {status:'pending'} here forever — nothing
+    // ever transitioned it again, so consumers of translationProgress (e.g.
+    // ChapterView's failure surfacing) read a phantom "still queued". The
+    // finally now clears the entry; 'failed'/'completed' are preserved (see
+    // the failure-routing tests below).
+    expect(useAppStore.getState().translationProgress[chapterId]).toBeUndefined();
     expect(storeTranslationSpy).not.toHaveBeenCalled();
   });
 
@@ -362,5 +367,59 @@ afterEach(() => {
 
     expect(setError).toHaveBeenCalledWith('Provider 500', expect.any(Object));
     expect(showNotification).not.toHaveBeenCalled();
+  });
+});
+
+describe('Translation slice fetchTranslationVersions() / deleteTranslationVersion()', () => {
+  let versionsSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    resetStore();
+    versionsSpy = vi.spyOn(TranslationOps, 'getVersionsByStableId');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('fetchTranslationVersions rethrows infrastructure failure instead of masquerading as []', async () => {
+    // Pre-fix, the catch returned [] — the exact error→empty masquerade class
+    // fixed for getVersionsByStableId inside handleTranslate. "DB is broken"
+    // must be distinguishable from "no versions yet": consumers used the []
+    // to re-bill preloads and to clear surviving translations after a delete.
+    versionsSpy.mockRejectedValue(new Error('IndexedDB unavailable'));
+
+    await expect(
+      useAppStore.getState().fetchTranslationVersions('stable-err')
+    ).rejects.toThrow('IndexedDB unavailable');
+  });
+
+  it('deleteTranslationVersion aborts (does NOT clear translationResult) when the remaining-versions fetch fails', async () => {
+    const chapterId = 'stable-del';
+    const url = 'https://example.com/chapter/del';
+    const setError = vi.fn();
+    const chapter = makeChapter(chapterId, url);
+    chapter.translationResult = mockResult() as any;
+    useAppStore.setState({
+      chapters: new Map([[chapterId, chapter]]),
+      settings: { ...defaultSettings },
+      setError,
+    } as any);
+
+    // The deleted version WAS the active one, so the promote path runs.
+    vi.spyOn(TranslationOps, 'getActiveByStableId').mockResolvedValue({ id: 'version-1' } as any);
+    vi.spyOn(TranslationOps, 'deleteVersion').mockResolvedValue(undefined as any);
+    // ...but the remaining-versions fetch hits infrastructure failure.
+    versionsSpy.mockRejectedValue(new Error('IndexedDB unavailable'));
+
+    await useAppStore.getState().deleteTranslationVersion(chapterId, 'version-1');
+
+    // Pre-fix: fetch masqueraded as [] → the "no versions left" branch cleared
+    // translationResult even though surviving versions still exist in the DB.
+    expect(useAppStore.getState().chapters.get(chapterId)?.translationResult).not.toBeNull();
+    expect(setError).toHaveBeenCalledWith(
+      expect.stringContaining('remaining versions could not be loaded')
+    );
   });
 });
