@@ -1,6 +1,10 @@
 /**
  * Morphology pass — adds case/number/gender/tense hints to segments. Runs
  * AFTER the Phase pass and refines segment morphology data.
+ *
+ * NOT yet the production compile path (CONSOLIDATION Phase 4 pending) —
+ * services/compiler/index.ts still orchestrates its own inline pass calls;
+ * this module serves benchmark/experiment callers until the orchestrator port.
  */
 
 import type { AppSettings } from '../../../types';

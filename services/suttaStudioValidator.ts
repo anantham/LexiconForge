@@ -1,4 +1,5 @@
 import type { DeepLoomPacket, PhaseView, ValidationIssue, WordSegment } from '../types/suttaStudio';
+import { repairEnglishStructure } from './sutta-studio/utils';
 
 type PhaseValidationOptions = {
   fallbackSegments?: Map<string, WordSegment[]>;
@@ -85,33 +86,47 @@ export const validatePhase = (
     };
   });
 
-  const cleanedEnglish = (phase.englishStructure ?? []).map((token) => {
-    if (token.linkedPaliId && !wordIds.has(token.linkedPaliId)) {
-      issues.push({
-        level: 'warn',
-        code: 'linked_pali_missing',
-        message: `English token linked to missing word "${token.linkedPaliId}"; link removed.`,
-        phaseId: phase.id,
-        tokenId: token.id,
-      });
-      const { linkedPaliId, ...rest } = token;
-      return rest;
-    }
-    // Segment-level links were the blind spot: MN117 shipped 59 dangling
-    // linkedSegmentId refs while only linkedPaliId was checked (2026-07-24).
-    if (token.linkedSegmentId && !segmentIds.has(token.linkedSegmentId)) {
-      issues.push({
-        level: 'warn',
-        code: 'linked_pali_missing',
-        message: `English token linked to missing segment "${token.linkedSegmentId}"; link removed.`,
-        phaseId: phase.id,
-        tokenId: token.id,
-      });
-      const { linkedSegmentId, ...rest } = token;
-      return rest;
-    }
-    return token;
+  // English-structure integrity delegates to repairEnglishStructure — the
+  // SAME pure repair the renderer applies as its backstop and the packet
+  // validator (check 4b) reports through, so the two repair layers cannot
+  // disagree. The previous inline version stripped a dangling link but KEPT
+  // the token, leaving an unlinked empty pill the backstop could no longer
+  // detect (it keys on the link being present). A dangling-linked token is
+  // now DROPPED entirely, and english_link_dangling counts it here.
+  // (Segment-level links were the historical blind spot: MN117 shipped 59
+  // dangling linkedSegmentId refs while only linkedPaliId was checked,
+  // 2026-07-24.)
+  const cleanedWordIds = new Set(cleanedWords.map((w) => w.id));
+  const cleanedSegmentIds = new Set(
+    cleanedWords.flatMap((w) => (w.segments ?? []).map((s) => s.id)).filter(Boolean)
+  );
+  const danglingTokenIds = (phase.englishStructure ?? [])
+    .filter((token) => !token.isGhost && (
+      (token.linkedPaliId && !cleanedWordIds.has(token.linkedPaliId)) ||
+      (!token.linkedPaliId && token.linkedSegmentId && !cleanedSegmentIds.has(token.linkedSegmentId))
+    ))
+    .map((token) => token.id);
+  const { tokens: repairedTokens, stats: englishRepairStats } = repairEnglishStructure({
+    paliWords: cleanedWords,
+    englishStructure: phase.englishStructure ?? [],
   });
+  const cleanedEnglish = repairedTokens as PhaseView['englishStructure'];
+  if (englishRepairStats.droppedDangling > 0) {
+    issues.push({
+      level: 'warn',
+      code: 'english_link_dangling',
+      message: `${englishRepairStats.droppedDangling} English token(s) linked words/segments that do not exist; dropped: ${danglingTokenIds.slice(0, 8).join(', ')}${danglingTokenIds.length > 8 ? ' …' : ''}`,
+      phaseId: phase.id,
+    });
+  }
+  if (englishRepairStats.collapsedStutter > 0) {
+    issues.push({
+      level: 'warn',
+      code: 'english_gloss_stutter',
+      message: `${englishRepairStats.collapsedStutter} repeat gloss token(s) collapsed (segment-level links without segment senses).`,
+      phaseId: phase.id,
+    });
+  }
 
   const tokenIds = new Set<string>();
   const tokenDuplicates = new Set<string>();
@@ -139,7 +154,14 @@ export const validatePhase = (
   };
 };
 
-export const validatePacket = (
+/**
+ * ID-level packet check ONLY (duplicate phase ids). Renamed from
+ * `validatePacket` — that name oversold it and collided with the RICH
+ * packet validator (services/suttaStudioPacketValidator.validatePacket),
+ * which checks segment coverage, surface integrity, english links, etc.
+ * The compiler runs BOTH at compile end; this one stays cheap and pure.
+ */
+export const validatePacketIds = (
   packet: DeepLoomPacket
 ): { packet: DeepLoomPacket; issues: ValidationIssue[] } => {
   const issues: ValidationIssue[] = [];

@@ -83,7 +83,8 @@ export type ValidationIssue = {
     | 'surface_repaired' // Anatomist surfaces auto-corrected to the canonical text (model mangled them)
     | 'surface_mismatch' // Rendered word surface not found in canonical text (repair skipped or missed)
     | 'english_link_dangling' // English token links a word/segment that does not exist (renders as an empty pill)
-    | 'english_gloss_stutter'; // Multiple senseless segment-tokens render one word's gloss repeatedly ("right view right view")
+    | 'english_gloss_stutter' // Multiple senseless segment-tokens render one word's gloss repeatedly ("right view right view")
+    | 'canonical_segment_ids_missing'; // Non-degraded phase has neither canonicalSegmentIds nor sourceSpan — segment-level checks are blind for it
   message: string;
   phaseId?: string;
   wordId?: string;
@@ -576,7 +577,15 @@ export type DeepLoomPacket = {
     studyToggleDefault: boolean;
   };
   compiler?: {
-    provider: 'openrouter' | 'openai' | 'local';
+    /**
+     * Lowercased label of the provider the compiler transport resolves to.
+     * 'openrouter' | 'openai' | 'local' are the historical values; the union
+     * is open because the compiler records settings.provider honestly now
+     * (gemini/claude/deepseek/... — previously everything non-OpenAI was
+     * hardcoded 'openrouter'). Note: OpenAI-keyed compiles route through
+     * OpenRouter (see resolveCompilerProvider), so they record 'openrouter'.
+     */
+    provider: 'openrouter' | 'openai' | 'local' | (string & {});
     model: string;
     promptVersion: string;
     createdAtISO: string;

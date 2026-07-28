@@ -437,7 +437,10 @@ export const SUTTA_STUDIO_LEXICO_COMPOUND_EXAMPLE_JSON = JSON.stringify(SUTTA_ST
 // is graded in 8 ranked phases; it was reglossed to "gacchati → goes" (absent from every
 // ranked phase). The lexico-example-leak test enforces this contract.
 //
-// The ripple key is the English token ID (e.g., "e10" for the ghost "was")
+// The ripple key is the English token ID (e.g., "e10" for the ghost "was").
+// Keys MUST be real e-prefixed token ids — production english token ids are
+// `e${tokenIndex}` from the weaver-built structure, so a made-up key like the
+// old "ghost_article" could never match anything at render time.
 export const SUTTA_STUDIO_LEXICO_RIPPLE_EXAMPLE: LexicographerPass = {
   id: 'phase-ripple',
   senses: [
@@ -454,15 +457,15 @@ export const SUTTA_STUDIO_LEXICO_RIPPLE_EXAMPLE: LexicographerPass = {
       ],
     },
     {
-      wordId: 'p1',  // ekāyano (example with article ripple)
+      wordId: 'p1',  // ekāyano (example with article ripple; e2 = the ghost article token)
       wordClass: 'content',
       senses: [
         // "the direct path" - uses "the"
-        { english: 'direct', nuance: 'straightforward', ripples: { ghost_article: 'the' } },
+        { english: 'direct', nuance: 'straightforward', ripples: { e2: 'the' } },
         // "a solitary path" - changes to "a"
-        { english: 'solitary', nuance: 'one-way only', ripples: { ghost_article: 'a' } },
+        { english: 'solitary', nuance: 'one-way only', ripples: { e2: 'a' } },
         // "the only path" - uses "the"
-        { english: 'only', nuance: 'exclusive', ripples: { ghost_article: 'the' } },
+        { english: 'only', nuance: 'exclusive', ripples: { e2: 'the' } },
       ],
     },
   ],

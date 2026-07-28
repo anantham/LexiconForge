@@ -3,7 +3,9 @@
  *
  * The canonical prompt builders live at `services/sutta-studio/prompts/`.
  * This file exists only for backward-compat with `services/compiler/index.ts`
- * (and the dead `services/compiler/skeleton.ts`).
+ * and `services/compiler/skeleton.ts` — both PRODUCTION modules (index.ts
+ * imports runSkeletonPass from skeleton.ts and runs it on every compile; an
+ * earlier version of this comment called skeleton.ts "dead", which was false).
  *
  * Per CONSOLIDATION.md Phase 1 — the single prompts module landed here.
  * Phase 4 cleanup will delete this shim once all consumers import from the

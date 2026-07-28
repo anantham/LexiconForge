@@ -13,7 +13,12 @@ import type {
 } from '../types/suttaStudio';
 import { partitionSurfaceMismatches, splitPaliTokens, repairEnglishStructure } from './sutta-studio/utils';
 
-const VALIDATOR_VERSION = '1.0.0';
+/**
+ * Single honest validator-version stamp. Exported so the compiler records the
+ * SAME value it actually validated with (it used to stamp a fictional 'v1'
+ * while this file said '1.0.0').
+ */
+export const VALIDATOR_VERSION = '1.0.0';
 
 const log = (message: string, ...args: unknown[]) =>
   console.log(`[PacketValidator] ${message}`, ...args);
@@ -129,6 +134,26 @@ export function validatePacket(
         code: 'canonical_segment_duplicate',
         message: `Segment ${segId} appears in ${phaseIds.length} phases (may be intentional sub-segment split): ${phaseIds.join(', ')}`,
         canonicalSegmentId: segId,
+      });
+    }
+  }
+
+  // 2a. Segment provenance must EXIST on every non-degraded phase. Without
+  // this, a packet whose phases omit canonicalSegmentIds sails through checks
+  // #1/#2/#5 vacuously (they iterate `phase.canonicalSegmentIds ?? []`) —
+  // exactly what every compiled packet did before the rehydrator populated
+  // the field. A phase with neither canonicalSegmentIds nor a sourceSpan to
+  // derive them from is an ERROR, not a silent pass.
+  for (const phase of packet.phases) {
+    if (phase.degraded) continue;
+    const hasCanonicalIds = (phase.canonicalSegmentIds?.length ?? 0) > 0;
+    const hasSourceSpan = (phase.sourceSpan?.length ?? 0) > 0;
+    if (!hasCanonicalIds && !hasSourceSpan) {
+      issues.push({
+        level: 'error',
+        code: 'canonical_segment_ids_missing',
+        message: `Phase ${phase.id} has neither canonicalSegmentIds nor sourceSpan — segment-level validation is blind for it`,
+        phaseId: phase.id,
       });
     }
   }

@@ -15,4 +15,22 @@
 //                      phase prompt window. See services/sutta-studio/utils.ts:formatPriorPhasesContext.
 //                      Bump invalidates v11 cache entries — they were correct under their window
 //                      but lacked the cross-phase observations v12 enables.
-export const SUTTA_STUDIO_PROMPT_VERSION = 'sutta-studio-v13-segment-senses';
+// v13-segment-senses: Per-segment senses (backfilled entry — the bump shipped in f48560a without
+//                      one). Lexicographer schema gained segmentSenses; prompt v13 asks for 1-2
+//                      senses per meaningful compound part / prefix (never pure inflectional
+//                      endings). The whole downstream (types, rehydrator, view, repair) already
+//                      carried the path; only the schema field and the prompt were missing.
+//                      Powers morpheme-level hover in the reader.
+// v14-ripples-map:     Ripples schema contradiction fixed: both schema copies said
+//                      array-of-{tradition,rendering} while prompt + type + renderer + worked
+//                      example all use Record<english-token-id, string> — under strict structured
+//                      outputs the documented feature was impossible to emit. Schemas now declare
+//                      the map shape ({ type:'object', additionalProperties:{type:'string'} }).
+//                      OpenAI strict dialect cannot express open maps, so toOpenAIStrictSchema
+//                      DROPS ripples for openai/* (disclosed degradation). Worked example's
+//                      impossible 'ghost_article' key reglossed to a real e-prefixed token id.
+//                      Also strips retired per-sense epistemicBasis/confidence instructions from
+//                      TRANSLATOR_DEBATE (schema forbids them under additionalProperties:false).
+//                      Bump invalidates v13 cache entries; benchmark runs across v13/v14 are NOT
+//                      comparable on the ripples/debate axes.
+export const SUTTA_STUDIO_PROMPT_VERSION = 'sutta-studio-v14-ripples-map';

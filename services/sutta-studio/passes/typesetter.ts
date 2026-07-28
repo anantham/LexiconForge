@@ -1,6 +1,10 @@
 /**
  * Typesetter pass — arranges Pali words into layout blocks for visual rendering.
  * Words from the same canonical segment stay in the same block.
+ *
+ * NOT yet the production compile path (CONSOLIDATION Phase 4 pending) —
+ * services/compiler/index.ts still orchestrates its own inline pass calls;
+ * this module serves benchmark/experiment callers until the orchestrator port.
  */
 
 import type { AppSettings } from '../../../types';
