@@ -33,20 +33,23 @@ const saRow = (s: AlignSegment) => s.renderings.find((r) => r.lang === 'sa-Deva'
 const isMarker = (t: AlignToken) => !t.pronunciation;
 
 describe('GitaChapter2Page', () => {
-  it('renders the chapter with verse-end markers and per-akshara sound rows', () => {
+  it('renders the chapter with verse-end markers and per-akshara sound rows', async () => {
     const { container } = render(<GitaChapter2Page />);
+    // The chapter data is dynamically imported, so wait for the interlinear.
     // The verse marker "॥२- NN॥" whitespace-splits into "॥२-" (one per verse)
     // and the numbered close; there is one verse-end per verse (72).
-    expect(screen.getAllByText('॥२-').length, 'expected 72 verse-end markers').toBe(72);
+    const markers = await screen.findAllByText('॥२-');
+    expect(markers.length, 'expected 72 verse-end markers').toBe(72);
     expect(screen.getAllByText('१॥').length, 'verse 2.1 close missing').toBeGreaterThan(0);
     expect(screen.getAllByText('७२॥').length, 'verse 2.72 close missing').toBeGreaterThan(0);
     // an akshara sound row is present (glyph stacked over its IAST)
     expect(container.querySelector('[id^="pc-"]')).toBeTruthy();
   });
 
-  it('offers both interaction modes and the Sanskrit rail', () => {
+  it('offers both interaction modes and the Sanskrit rail', async () => {
     render(<GitaChapter2Page />);
-    expect(screen.getByText('alignment')).toBeTruthy();
+    // the rail + mode toggle live in the interlinear → wait for the async data
+    expect(await screen.findByText('alignment')).toBeTruthy();
     expect(screen.getByText('etymology')).toBeTruthy();
     // "Sanskrit" appears in both the language rail and the labeling copy.
     expect(screen.getAllByText('Sanskrit').length).toBeGreaterThan(0);
@@ -65,7 +68,7 @@ describe('GitaChapter2Page', () => {
     });
     expect(pick, 'no glossed word with a unique first akshara found').toBeTruthy();
     const firstAkshara = aksharasOf(pick!.text)[0].text;
-    const glyph = screen.getByText(firstAkshara);
+    const glyph = await screen.findByText(firstAkshara); // wait for async data
     fireEvent.mouseEnter(glyph.closest('[id^="pc-"]')!);
     // the gloss text (its first sense fragment) appears in a tooltip
     const senseFragment = pick!.gloss!.split(/[,+]/)[0].trim();

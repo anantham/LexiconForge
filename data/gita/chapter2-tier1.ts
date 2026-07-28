@@ -40,7 +40,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: sam (to be disturbed, Dhātup. xix, 82) + ji (to win or acquire, conquer, vanquish)"
+      "gloss": "Sañjaya"
      },
      {
       "text": "उवाच",
@@ -88,7 +88,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "that; he, she, it"
      },
      {
       "text": "तथा",
@@ -106,7 +106,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "in that manner, so, thus"
+      "gloss": "so, in that way"
      },
      {
       "text": "कृपयाविष्टमश्रुपूर्णाकुलेक्षणम्",
@@ -184,7 +184,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: kfp (beautiful appearance, beauty, splendour) + Avizwa (entered) + aSrupUrRa (filled with tears) + kula () a herd, troop, flock) + kzaRa (any instantaneous point of time, instant, twinkling of an eye)"
+      "note": "padaccheda: kfpA (N. of a man, RV. viii, 3) + Avizwa (entered) + aSrupUrRa (filled with tears) + akulA (not of good family, low) + kzaRa (any instantaneous point of time, instant, twinkling of an eye)"
      },
      {
       "text": "।",
@@ -245,7 +245,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: vizin (poisoned, Pañcar) + da (id) + tamI (night) + da (id)"
+      "note": "padaccheda: vizin (poisoned, Pañcar) + id (Ved. even, just, only) + antama (next, nearest) + da (id)"
      },
      {
       "text": "वाक्यमुवाच",
@@ -388,7 +388,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: SrI (to mix, mingle, cook) + Bagavat (&c. See p. 743, col. 3) + vac (to speak, say, tell)"
+      "gloss": "to mix, mingle, cook + the Blessed One + to speak, say, tell",
+      "note": "padaccheda: SrI (to mix, mingle, cook) + Bagavat (the Blessed One) + vac (to speak, say, tell)"
      }
     ]
    }
@@ -628,7 +629,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: anAryajuzwa (practised, observed, or possessed by non-Āryas) + asvargya (not leading to heaven, ŚBr. x) + akIrtikara (causing disgrace, disparaging, insulting) + arjuna (white, clear)"
+      "note": "padaccheda: anAryajuzwa (practised, observed, or possessed by non-Āryas) + asvargya (not leading to heaven, ŚBr. x) + akIrtikara (causing disgrace, disparaging, insulting) + arjuna (Arjuna)"
      },
      {
       "text": "॥२-",
@@ -692,7 +693,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "mā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "do not"
      },
      {
       "text": "स्म",
@@ -740,7 +742,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "patr. of Tānva"
+      "gloss": "O son of Pṛthā — Arjuna"
      },
      {
       "text": "नैतत्त्वय्युपपद्यते",
@@ -788,7 +790,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: na (na the dental nasal) + etad (this, this here, here) + yuzmad (the base of the 2nd pers. pron. as used in comp) + upa (towards, near to, by the side of) + pad (to stand fast or fixed, Dhātup. iii, 1)"
+      "note": "padaccheda: nA (thin, spare) + etad (this) + yuzmad (the base of the 2nd pers. pron. as used in comp) + upa (towards, near to, by the side of) + pad (to stand fast or fixed, Dhātup. iii, 1)"
      },
      {
       "text": "।",
@@ -980,7 +982,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "white, clear"
+      "gloss": "Arjuna"
      },
      {
       "text": "उवाच",
@@ -1110,7 +1112,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "ca",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "and"
      },
      {
       "text": "मधुसूदन",
@@ -1346,8 +1349,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "only ifc. singing + wanting, deficient, defective + to strike, beat, pound",
-      "note": "padaccheda: gA (only ifc. singing) + Una (wanting, deficient, defective) + han (to strike, beat, pound)"
+      "gloss": "heavy, weighty, RV. i + to laugh, smile, laugh at + or",
+      "note": "padaccheda: guru (heavy, weighty, RV. i) + has (to laugh, smile, laugh at) + vA (or)"
      },
      {
       "text": "हि",
@@ -1359,7 +1362,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "hi",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "for, indeed"
      },
      {
       "text": "महानुभावान्",
@@ -1467,7 +1471,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: BEkzya (w.r. for BEkza) + ap (ap n, work, RV. i) + ha (ha the thirty-third and last consonant of the Nāgarī alphabet)"
+      "gloss": "w.r. for BEkza + also, even + attempt",
+      "note": "padaccheda: BEkzya (w.r. for BEkza) + api (also, even) + Iha (attempt)"
      },
      {
       "text": "लोके",
@@ -1546,7 +1551,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: han (to strike, beat, pound) + arTakAma (du. m. pl. utility and desire, wealth and pleasure) + tu (to have authority, be strong, RV. i)"
+      "gloss": "to strike, beat, pound + du. m. pl. utility and desire, wealth and pleasure + but",
+      "note": "padaccheda: han (to strike, beat, pound) + arTakAma (du. m. pl. utility and desire, wealth and pleasure) + tu (but)"
      },
      {
       "text": "गुरूनिहैव",
@@ -1579,8 +1585,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "heavy, weighty, RV. i + a vocative particle + going hurting an arrow weaving",
-      "note": "padaccheda: guru (heavy, weighty, RV. i) + hE (a vocative particle) + va (going hurting an arrow weaving)"
+      "gloss": "heavy, weighty, RV. i + to strike, beat, pound + just, only",
+      "note": "padaccheda: guru (heavy, weighty, RV. i) + han (to strike, beat, pound) + eva (just, only)"
      },
      {
       "text": "भुञ्जीय",
@@ -1715,7 +1721,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "चैतद्विद्मः",
@@ -1743,7 +1750,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + etad (this, this here, here) + vid (to know, understand, perceive)"
+      "gloss": "and + this + to know, understand, perceive",
+      "note": "padaccheda: ca (and) + etad (this) + vid (to know, understand, perceive)"
      },
      {
       "text": "कतरन्नो",
@@ -1771,8 +1779,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "mfn, who or which of two? whether of two? Analogously to katama above katara may occasionally be used to express ‘who or which of many?’, and may optionally be compounded with the word to which it refers + base of the first person pl, as used in comp",
-      "note": "padaccheda: katara (mfn, who or which of two? whether of two? Analogously to katama above katara may occasionally be used to express ‘who or which of many?’, and may optionally be compounded with the word to which it refers) + asmad (base of the first person pl, as used in comp)"
+      "gloss": "mfn, who or which of two? whether of two? Analogously to katama above katara may occasionally be used to express ‘who or which of many?’, and may optionally be compounded with the word to which it refers + a man, hero, person",
+      "note": "padaccheda: katara (mfn, who or which of two? whether of two? Analogously to katama above katara may occasionally be used to express ‘who or which of many?’, and may optionally be compounded with the word to which it refers) + nf (a man, hero, person)"
      },
      {
       "text": "गरीयो",
@@ -1866,7 +1874,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "vā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "or"
      },
      {
       "text": "नो",
@@ -1947,7 +1956,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: yAt (going, moving &c) + eva (eva ind, so, just so)"
+      "gloss": "going + otherwise, AV. xvi, 7",
+      "note": "padaccheda: ya (going) + aneva (otherwise, AV. xvi, 7)"
      },
      {
       "text": "हत्वा",
@@ -1977,7 +1987,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "जिजीविषाम-",
@@ -2210,8 +2221,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "an army or a hostile encounter + appeasing, curing, having curative properties",
-      "note": "padaccheda: pftanA (an army or a hostile encounter) + SAma (appeasing, curing, having curative properties)"
+      "gloss": "asking, questioning, question about + raw, uncooked",
+      "note": "padaccheda: pfcCA (asking, questioning, question about) + Ama (raw, uncooked)"
      },
      {
       "text": "त्वां",
@@ -2379,8 +2390,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + base of the first person pl, as used in comp",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + asmad (base of the first person pl, as used in comp)"
+      "gloss": "that; he, she, it + base of the first person pl, as used in comp",
+      "note": "padaccheda: tad (that; he, she, it) + asmad (base of the first person pl, as used in comp)"
      },
      {
       "text": "शिष्यस्तेऽहं",
@@ -2408,8 +2419,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "to hurt, injure, kill + to be, live, exist + base of the first person pl, as used in comp",
-      "note": "padaccheda: Siz (to hurt, injure, kill) + as (to be, live, exist) + asmad (base of the first person pl, as used in comp)"
+      "gloss": "&c. See 1. Sizwa p. 1076, col. 3, and p. 1077 + that; he, she, it + base of the first person pl, as used in comp",
+      "note": "padaccheda: Sizya (&c. See 1. Sizwa p. 1076, col. 3, and p. 1077) + tad (that; he, she, it) + asmad (base of the first person pl, as used in comp)"
      },
      {
       "text": "शाधि",
@@ -2526,7 +2537,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "हि",
@@ -2538,7 +2550,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "hi",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "for, indeed"
      },
      {
       "text": "प्रपश्यामि",
@@ -2605,7 +2618,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: mA (time, L. poison) + apanuda (removing driving away) + At (afterwards, then)"
+      "gloss": "do not + removing driving away + afterwards, then",
+      "note": "padaccheda: mA (do not) + apanuda (removing driving away) + At (afterwards, then)"
      },
      {
       "text": "यच्छोकमुच्छोषणमिन्द्रियाणाम्",
@@ -2767,8 +2781,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "the earth, soil, ground + not a rival, AV. i, 19 + forsaken, helpless",
-      "note": "padaccheda: BUmi (the earth, soil, ground) + asapatna (not a rival, AV. i, 19) + mfdDa (forsaken, helpless)"
+      "gloss": "the earth, soil, ground + not a rival, AV. i, 19 + increased, thriving, prosperous",
+      "note": "padaccheda: BUmi (the earth, soil, ground) + asapatna (not a rival, AV. i, 19) + fdDa (increased, thriving, prosperous)"
      },
      {
       "text": "राज्यं",
@@ -2819,7 +2833,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: surA (a god, divinity, deity) + api (or sometimes pi, expresses placing near or over, uniting to)"
+      "gloss": "a god, divinity, deity + also, even",
+      "note": "padaccheda: surA (a god, divinity, deity) + api (also, even)"
      },
      {
       "text": "चाधिपत्यम्",
@@ -2852,7 +2867,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + ADipatya (supremacy, sovereignty, power)"
+      "gloss": "and + supremacy, sovereignty, power",
+      "note": "padaccheda: ca (and) + ADipatya (supremacy, sovereignty, power)"
      },
      {
       "text": "॥२-",
@@ -2909,8 +2925,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "being, existing, occurring + to win or acquire, conquer, vanquish",
-      "note": "padaccheda: sat (being, existing, occurring) + ji (to win or acquire, conquer, vanquish)"
+      "gloss": "Sañjaya"
      },
      {
       "text": "उवाच",
@@ -3002,8 +3017,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "joy, satisfaction + the hair of the head",
-      "note": "padaccheda: hfzi (joy, satisfaction) + keSa (the hair of the head)"
+      "gloss": "Hṛṣīkeśa — Kṛṣṇa"
      },
      {
       "text": "गुडाकेशः",
@@ -3094,7 +3108,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "योत्स्य",
@@ -3130,7 +3145,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "ti",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "thus — close of speech"
      },
      {
       "text": "गोविन्दमुक्त्वा",
@@ -3163,8 +3179,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "‘= -vid ’, Kṛṣṇa + to speak, say, tell",
-      "note": "padaccheda: govinda (‘= -vid ’, Kṛṣṇa) + vac (to speak, say, tell)"
+      "gloss": "Govinda — Kṛṣṇa + to speak, say, tell",
+      "note": "padaccheda: govinda (Govinda — Kṛṣṇa) + vac (to speak, say, tell)"
      },
      {
       "text": "तूष्णीं",
@@ -3279,8 +3295,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + to speak, say, tell",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + vac (to speak, say, tell)"
+      "gloss": "that; he, she, it + to speak, say, tell",
+      "note": "padaccheda: tad (that; he, she, it) + vac (to speak, say, tell)"
      },
      {
       "text": "हृषीकेशः",
@@ -3308,8 +3324,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "an organ of sense + owning, possessing, sharing",
-      "note": "padaccheda: hfzIka (an organ of sense) + ISa (owning, possessing, sharing)"
+      "gloss": "Hṛṣīkeśa — Kṛṣṇa"
      },
      {
       "text": "प्रहसन्निव",
@@ -3342,7 +3357,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: prahasat (laughing, smiling) + iva (like, in the same manner as)"
+      "gloss": "laughing, smiling + like, as if",
+      "note": "padaccheda: prahasat (laughing, smiling) + iva (like, as if)"
      },
      {
       "text": "भारत",
@@ -3365,7 +3381,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+      "gloss": "O descendant of Bharata"
      },
      {
       "text": "।",
@@ -3475,7 +3491,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: vizin (poisoned, Pañcar) + dat (a tooth) + tamI (night) + da (id)"
+      "note": "padaccheda: vizin (poisoned, Pañcar) + id (Ved. even, just, only) + antama (next, nearest) + da (id)"
      },
      {
       "text": "वचः",
@@ -3570,7 +3586,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: SrI (to mix, mingle, cook) + Bagavat (&c. See p. 743, col. 3) + vac (to speak, say, tell)"
+      "gloss": "to mix, mingle, cook + the Blessed One + to speak, say, tell",
+      "note": "padaccheda: SrI (to mix, mingle, cook) + Bagavat (the Blessed One) + vac (to speak, say, tell)"
      }
     ]
    }
@@ -3663,7 +3680,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: prajYAvAda (a word of w˚) + ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church)"
+      "note": "padaccheda: prajYAvAda (a word of w˚) + ca (and)"
      },
      {
       "text": "भाषसे",
@@ -3757,7 +3774,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: gatAsu (one whose breath has gone, expired, dead) + agatAsu (not dead, alive) + ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church)"
+      "gloss": "one whose breath has gone, expired, dead + not dead, alive + and",
+      "note": "padaccheda: gatAsu (one whose breath has gone, expired, dead) + agatAsu (not dead, alive) + ca (and)"
      },
      {
       "text": "नानुशोचन्ति",
@@ -3790,7 +3808,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: nA (thin, spare) + nu (nu ind, now, still) + Suc (to shine, flame, gleam)"
+      "note": "padaccheda: na (not) + u (u the fifth letter and third short vowel of the alphabet, pronounced as the u in full) + Suc (to shine, flame, gleam)"
      },
      {
       "text": "पण्डिताः",
@@ -3859,7 +3877,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "त्वेवाहं",
@@ -3919,8 +3938,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "thin, spare + to be, live, exist",
-      "note": "padaccheda: nA (thin, spare) + as (to be, live, exist)"
+      "note": "padaccheda: nA (thin, spare) + sam (to be disturbed, Dhātup. xix, 82)"
      },
      {
       "text": "न",
@@ -3932,7 +3950,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "त्वं",
@@ -3990,7 +4009,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: svajana (a man of o˚'s own people, kinsman) + aDipa (a ruler, commander, regent)"
+      "gloss": "to generate, beget, produce + a ruler, commander, regent",
+      "note": "padaccheda: jan (to generate, beget, produce) + aDipa (a ruler, commander, regent)"
      },
      {
       "text": "।",
@@ -4025,7 +4045,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "चैव",
@@ -4043,7 +4064,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + i (i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c)"
+      "gloss": "and + just, only",
+      "note": "padaccheda: ca (and) + eva (just, only)"
      },
      {
       "text": "न",
@@ -4055,7 +4077,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "भविष्यामः",
@@ -4101,7 +4124,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "whole, entire, all"
+      "gloss": "all, every"
      },
      {
       "text": "वयमतः",
@@ -4129,8 +4152,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "going hurting an arrow weaving + a rein, curb, bridle",
-      "note": "padaccheda: va (going hurting an arrow weaving) + yama (a rein, curb, bridle)"
+      "gloss": "base of the first person pl, as used in comp + from this, than this",
+      "note": "padaccheda: asmad (base of the first person pl, as used in comp) + atas (from this, than this)"
      },
      {
       "text": "परम्",
@@ -4225,7 +4248,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: dehin (having a body, corporeal) + ayam (this one. See idam) + yaTA (in which manner or way, according as, as)"
+      "note": "padaccheda: dehin (having a body, corporeal) + ayam (this one. See idam) + yaTA (as, just as)"
      },
      {
       "text": "देहे",
@@ -4347,7 +4370,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "in that manner, so, thus"
+      "gloss": "so, in that way"
      },
      {
       "text": "देहान्तरप्राप्तिर्धीरस्तत्र",
@@ -4417,7 +4440,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "मुह्यति",
@@ -4507,7 +4531,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: mAtrAsparSa (material contact, the concurrence of material elements) + tu (to have authority, be strong, RV. i)"
+      "gloss": "material contact, the concurrence of material elements + but",
+      "note": "padaccheda: mAtrAsparSa (material contact, the concurrence of material elements) + tu (but)"
      },
      {
       "text": "कौन्तेय",
@@ -4530,7 +4555,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "metron. fr. Kuntī, N. of Yudhiṣṭhira, Bhīma-sena"
+      "gloss": "O son of Kuntī — Arjuna"
      },
      {
       "text": "शीतोष्णसुखदुःखदाः",
@@ -4675,7 +4700,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: AgamApAyin (‘coming and going’, transient, Bhag. ii) + Unita (lessened, reduced, fewer) + asta (asta mfn, thrown, cast) + tij (to be or become sharp, RV. i, 55)"
+      "note": "padaccheda: AgamApAyin (‘coming and going’, transient, Bhag. ii) + Unita (lessened, reduced, fewer) + tad (that; he, she, it) + tij (to be or become sharp, RV. i, 55)"
      },
      {
       "text": "भारत",
@@ -4698,7 +4723,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+      "gloss": "O descendant of Bharata"
      },
      {
       "text": "॥२-",
@@ -4757,7 +4782,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "hi",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "for, indeed"
      },
      {
       "text": "न",
@@ -4769,7 +4795,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "व्यथयन्त्येते",
@@ -4802,8 +4829,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "to tremble, waver, go astray + this, this here, here",
-      "note": "padaccheda: vyaT (to tremble, waver, go astray) + etad (this, this here, here)"
+      "gloss": "to tremble, waver, go astray + this",
+      "note": "padaccheda: vyaT (to tremble, waver, go astray) + etad (this)"
      },
      {
       "text": "पुरुषं",
@@ -4971,8 +4998,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + dead, deceased, death-like + one, several",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + mfta (dead, deceased, death-like) + tva (one, several)"
+      "gloss": "that; he, she, it + dead, deceased, death-like + one, several",
+      "note": "padaccheda: tad (that; he, she, it) + mfta (dead, deceased, death-like) + tva (one, several)"
      },
      {
       "text": "कल्पते",
@@ -5052,8 +5079,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "thin, spare + to be, live, exist",
-      "note": "padaccheda: nA (thin, spare) + as (to be, live, exist)"
+      "gloss": "not + to be, live, exist",
+      "note": "padaccheda: na (not) + as (to be, live, exist)"
      },
      {
       "text": "विद्यते",
@@ -5117,8 +5144,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "thin, spare + N. of the planet Venus or its regent",
-      "note": "padaccheda: nA (thin, spare) + BA (N. of the planet Venus or its regent)"
+      "gloss": "not + nonexistence, nullity, absence",
+      "note": "padaccheda: na (not) + aBAva (nonexistence, nullity, absence)"
      },
      {
       "text": "विद्यते",
@@ -5215,7 +5242,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: uBa (e, e mfn. du. both) + api (or sometimes pi, expresses placing near or over, uniting to)"
+      "gloss": "both, of both kinds, in both ways + unhurt, VS. viii, 5",
+      "note": "padaccheda: uBaya (both, of both kinds, in both ways) + arapa (unhurt, VS. viii, 5)"
      },
      {
       "text": "दृष्टोऽन्तस्त्वनयोस्तत्त्वदर्शिभिः",
@@ -5278,7 +5306,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: dfzwa (seen, looked at, beheld) + um (an interjection of anger) + ta (Lakṣmī) + tu (to have authority, be strong, RV. i) + ayam (this one. See idam) + tattvadarSin"
+      "note": "padaccheda: dfzwa (seen, looked at, beheld) + Um (an interjection of anger) + ta (Lakṣmī) + tu (but) + ayam (this one. See idam) + tattvadarSin"
      },
      {
       "text": "॥२-",
@@ -5352,7 +5380,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "tu",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "but"
      },
      {
       "text": "तद्विद्धि",
@@ -5375,8 +5404,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + to know, understand, perceive",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + vid (to know, understand, perceive)"
+      "gloss": "that; he, she, it + to know, understand, perceive",
+      "note": "padaccheda: tad (that; he, she, it) + vid (to know, understand, perceive)"
      },
      {
       "text": "येन",
@@ -5422,7 +5451,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: sarva (whole, entire, all) + ayam (this one. See idam)"
+      "note": "padaccheda: sarva (all, every) + ayam (this one. See idam)"
      },
      {
       "text": "ततम्",
@@ -5516,7 +5545,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: vinASa (utter loss, annihilation, perdition) + avyaya (avyaya or rarely avyaya mfn. made of sheep's skin) + As (Ah! Oh! &c)"
+      "gloss": "utter loss, annihilation, perdition + avyaya or rarely avyaya mfn. made of sheep's skin + to be, live, exist",
+      "note": "padaccheda: vinASa (utter loss, annihilation, perdition) + avyaya (avyaya or rarely avyaya mfn. made of sheep's skin) + as (to be, live, exist)"
      },
      {
       "text": "न",
@@ -5528,7 +5558,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "कश्चित्कर्तुमर्हति",
@@ -5571,7 +5602,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: kim (what? how? whence? wherefore? why?) + cit (ifc. ‘piling up’, see agni-, UrDva-) + kf (to make mention of, praise, speak highly of) + arh (to deserve, merit, be worthy of)"
+      "note": "padaccheda: kim (what? how? whence? wherefore? why?) + cid (cid in comp. for cit) + kf (to make mention of, praise, speak highly of) + arh (to deserve, merit, be worthy of)"
      },
      {
       "text": "॥२-",
@@ -5831,8 +5862,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + to fight, wage war, oppose or overcome in battle",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + yuD (to fight, wage war, oppose or overcome in battle)"
+      "gloss": "that; he, she, it + to fight, wage war, oppose or overcome in battle",
+      "note": "padaccheda: tad (that; he, she, it) + yuD (to fight, wage war, oppose or overcome in battle)"
      },
      {
       "text": "भारत",
@@ -5855,7 +5886,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+      "gloss": "O descendant of Bharata"
      },
      {
       "text": "॥२-",
@@ -5984,7 +6015,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: yad (who, which, what) + ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + ena (ena a pronom. base, he, she)"
+      "gloss": "who, which, what + and + pl. N. of a people, MBh. xiii",
+      "note": "padaccheda: yad (who, which, what) + ca (and) + Ena (pl. N. of a people, MBh. xiii)"
      },
      {
       "text": "मन्यते",
@@ -6084,7 +6116,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "that; he, she, it"
      },
      {
       "text": "न",
@@ -6096,7 +6128,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "विजानीतो",
@@ -6124,7 +6157,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: vij (to Dhātup. xxix, 23 and xxv, 12 also cl. 7. P. vinakti) + nIta (led, guided, brought &c)"
+      "note": "padaccheda: vijAni (‘strange, foreign’ or ‘having no wife’, AV. v) + i (i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c)"
      },
      {
       "text": "नायं",
@@ -6172,7 +6205,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "हन्यते",
@@ -6241,7 +6275,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "जायते",
@@ -6299,7 +6334,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "vā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "or"
      },
      {
       "text": "कदाचिन्नायं",
@@ -6386,7 +6422,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "vā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "or"
      },
      {
       "text": "न",
@@ -6398,7 +6435,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "भूयः",
@@ -6539,7 +6577,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "हन्यते",
@@ -6613,7 +6652,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: Sa (Sa the first of the three sibilants) + rIra (N. of Śiva)"
+      "note": "padaccheda: Sari (Sarin. See p. 1056, col. 3) + rA (acquiring, possessing, Naiṣ)"
      },
      {
       "text": "॥२-",
@@ -6685,8 +6724,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "to know, understand, perceive + imperishable, ŚBr. xiv",
-      "note": "padaccheda: vid (to know, understand, perceive) + avinASin (imperishable, ŚBr. xiv)"
+      "gloss": "N. of a pupil of Āyoda + imperishable, ŚBr. xiv",
+      "note": "padaccheda: vedA (N. of a pupil of Āyoda) + avinASin (imperishable, ŚBr. xiv)"
      },
      {
       "text": "नित्यं",
@@ -6765,7 +6804,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: e (e the eleventh vowel of the alphabet) + nam (to bend or bow, to bow to, subject or submit one's self) + jam (jam jmA, jmas. See 2. kzam) + vyaya (passing away, mutable, liable to change or decay)"
+      "note": "padaccheda: ena (ena a pronom. base, he, she) + a (a the first letter of the alphabet) + jam (jam jmA, jmas. See 2. kzam) + vyaya (passing away, mutable, liable to change or decay)"
      },
      {
       "text": "।",
@@ -6819,7 +6858,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "he"
      },
      {
       "text": "पुरुषः",
@@ -6860,7 +6899,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "patr. of Tānva"
+      "gloss": "O son of Pṛthā — Arjuna"
      },
      {
       "text": "कं",
@@ -7035,7 +7074,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "in which manner or way, according as, as"
+      "gloss": "as, just as"
      },
      {
       "text": "विहाय",
@@ -7178,7 +7217,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "in that manner, so, thus"
+      "gloss": "so, in that way"
      },
      {
       "text": "शरीराणि",
@@ -7206,8 +7245,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "a sort of reed or grass, Saccharum Sara, RV. &c. &c + wind",
-      "note": "padaccheda: SarI (a sort of reed or grass, Saccharum Sara, RV. &c. &c) + Ira (wind)"
+      "note": "padaccheda: SarIra + aRI (or aRI, f. the point of a needle or of a sharp stake, L. linchpin)"
      },
      {
       "text": "विहाय",
@@ -7379,7 +7417,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: na (na the dental nasal) + Ena (pl. N. of a people, MBh. xiii)"
+      "gloss": "not + pl. N. of a people, MBh. xiii",
+      "note": "padaccheda: na (not) + Ena (pl. N. of a people, MBh. xiii)"
      },
      {
       "text": "छिन्दन्ति",
@@ -7443,8 +7482,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "thin, spare + pl. N. of a people, MBh. xiii",
-      "note": "padaccheda: nA (thin, spare) + Ena (pl. N. of a people, MBh. xiii)"
+      "gloss": "not + pl. N. of a people, MBh. xiii",
+      "note": "padaccheda: na (not) + Ena (pl. N. of a people, MBh. xiii)"
      },
      {
       "text": "दहति",
@@ -7525,7 +7564,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "चैनं",
@@ -7543,7 +7583,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + Ena (pl. N. of a people, MBh. xiii)"
+      "gloss": "and + pl. N. of a people, MBh. xiii",
+      "note": "padaccheda: ca (and) + Ena (pl. N. of a people, MBh. xiii)"
      },
      {
       "text": "क्लेदयन्त्यापो",
@@ -7576,8 +7617,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "to be or become wet or damp, Suśr + to reach, overtake, meet with",
-      "note": "padaccheda: klid (to be or become wet or damp, Suśr) + Ap (to reach, overtake, meet with)"
+      "note": "padaccheda: kledayat + pa (guarding, protecting, ruling)"
      },
      {
       "text": "न",
@@ -7589,7 +7629,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "शोषयति",
@@ -7746,7 +7787,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: acCedya (improper or impossible to be cut, indivisible) + ya (going) + adAhya (incombustible) + yama (a rein, curb, bridle) + kledya (See a-kl˚) + aSozya (not to be dried up, not drying up, permanent)"
+      "note": "padaccheda: acCedya (improper or impossible to be cut, indivisible) + aya (going) + adAhya (incombustible) + yama (a rein, curb, bridle) + kledya (See a-kl˚) + aSozya (not to be dried up, not drying up, permanent)"
      },
      {
       "text": "एव",
@@ -7763,7 +7804,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "va",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "just, only"
      },
      {
       "text": "च",
@@ -7775,7 +7817,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "ca",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "and"
      },
      {
       "text": "।",
@@ -8033,7 +8076,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: avyakta (undeveloped, not manifest, unapparent) + aya (going) + acintya (inconceivable, surpassing thought, MaitrS. &c) + yama (a rein, curb, bridle) + vikArya (to be changed, liable to change) + ya (going) + muc (to cheat, Dhātup. vi, 12)"
+      "note": "padaccheda: avyakta (undeveloped, not manifest, unapparent) + ya (going) + acintya (inconceivable, surpassing thought, MaitrS. &c) + yama (a rein, curb, bridle) + vikArya (to be changed, liable to change) + ya (going) + muc (to cheat, Dhātup. vi, 12)"
      },
      {
       "text": "।",
@@ -8084,8 +8127,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + thus, in this way, in such a manner",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + evam (thus, in this way, in such a manner)"
+      "gloss": "that; he, she, it + thus, in this way, in such a manner",
+      "note": "padaccheda: tad (that; he, she, it) + evam (thus, in this way, in such a manner)"
      },
      {
       "text": "विदित्वैनं",
@@ -8162,7 +8205,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: na (na the dental nasal) + u (u the fifth letter and third short vowel of the alphabet, pronounced as the u in full) + Suc (to shine, flame, gleam) + arh (to deserve, merit, be worthy of)"
+      "note": "padaccheda: nA (thin, spare) + nu (nu ind, now, still) + Suc (to shine, flame, gleam) + arh (to deserve, merit, be worthy of)"
      },
      {
       "text": "॥२-",
@@ -8231,7 +8274,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + ena (ena a pronom. base, he, she)"
+      "gloss": "and + pl. N. of a people, MBh. xiii",
+      "note": "padaccheda: ca (and) + Ena (pl. N. of a people, MBh. xiii)"
      },
      {
       "text": "नित्यजातं",
@@ -8289,7 +8333,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "vā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "or"
      },
      {
       "text": "मन्यसे",
@@ -8381,8 +8426,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "in that manner, so, thus + guarding, protecting, ruling",
-      "note": "padaccheda: taTA (in that manner, so, thus) + pA (guarding, protecting, ruling)"
+      "gloss": "so, in that way + also, even",
+      "note": "padaccheda: taTA (so, in that way) + api (also, even)"
      },
      {
       "text": "त्वं",
@@ -8440,8 +8485,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "thin, spare + thus, in this way, in such a manner",
-      "note": "padaccheda: nA (thin, spare) + evam (thus, in this way, in such a manner)"
+      "gloss": "not + thus, in this way, in such a manner",
+      "note": "padaccheda: na (not) + evam (thus, in this way, in such a manner)"
      },
      {
       "text": "शोचितुमर्हसि",
@@ -8549,7 +8594,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "hi",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "for, indeed"
      },
      {
       "text": "ध्रुवो",
@@ -8649,7 +8695,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "ca",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "and"
      },
      {
       "text": "।",
@@ -8720,8 +8767,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + id, Gaut. &c + aim, purpose",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + aparihArya (id, Gaut. &c) + arTa (aim, purpose)"
+      "gloss": "that; he, she, it + id, Gaut. &c + aim, purpose",
+      "note": "padaccheda: tad (that; he, she, it) + aparihArya (id, Gaut. &c) + arTa (aim, purpose)"
      },
      {
       "text": "न",
@@ -8733,7 +8780,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "त्वं",
@@ -8851,8 +8899,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "undeveloped, not manifest, unapparent + scarce, scanty",
-      "note": "padaccheda: avyakta (undeveloped, not manifest, unapparent) + dIna (scarce, scanty)"
+      "gloss": "undeveloped, not manifest, unapparent + not depressed, noble-minded",
+      "note": "padaccheda: avyakta (undeveloped, not manifest, unapparent) + adIna (not depressed, noble-minded)"
      },
      {
       "text": "भूतानि",
@@ -8931,7 +8979,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+      "gloss": "O descendant of Bharata"
      },
      {
       "text": "।",
@@ -9002,7 +9050,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: avyakta (undeveloped, not manifest, unapparent) + niDana (having no property, poor) + eva (eva ind, so, just so)"
+      "gloss": "undeveloped, not manifest, unapparent + having no property, poor + just, only",
+      "note": "padaccheda: avyakta (undeveloped, not manifest, unapparent) + niDana (having no property, poor) + eva (just, only)"
      },
      {
       "text": "तत्र",
@@ -9206,7 +9255,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: kim (what? how? whence? wherefore? why?) + cid (cid in comp. for cit) + a (a the first letter of the alphabet) + mA (time, L. poison) + AScaryavat + vad (to speak, say, utter)"
+      "note": "padaccheda: kim (what? how? whence? wherefore? why?) + cit (ifc. ‘piling up’, see agni-, UrDva-) + e (e the eleventh vowel of the alphabet) + na (not) + AScaryavat + vad (to speak, say, utter)"
      },
      {
       "text": "तथैव",
@@ -9229,7 +9278,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: taTA (in that manner, so, thus) + eva (eva ind, so, just so)"
+      "gloss": "so, in that way + just, only",
+      "note": "padaccheda: taTA (so, in that way) + eva (just, only)"
      },
      {
       "text": "चान्यः",
@@ -9247,7 +9297,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + yad (who, which, what)"
+      "gloss": "and + nI for nis before r",
+      "note": "padaccheda: ca (and) + nI (nI for nis before r)"
      },
      {
       "text": "।",
@@ -9318,7 +9369,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: AScaryavat + ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + Ena (pl. N. of a people, MBh. xiii) + anya (anya, am, n. inexhaustibleness)"
+      "note": "padaccheda: AScaryavat + ca (and) + ena (ena a pronom. base, he, she) + anya (anya, am, n. inexhaustibleness)"
      },
      {
       "text": "शृणोति",
@@ -9369,7 +9420,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: Srut (hearing, listening) + vA (air, wind) + na (na the dental nasal)"
+      "gloss": "hearing, listening + or + not",
+      "note": "padaccheda: Srut (hearing, listening) + vA (or) + na (not)"
      },
      {
       "text": "वेद",
@@ -9399,7 +9451,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "चैव",
@@ -9417,7 +9470,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + eva (eva ind, so, just so)"
+      "note": "padaccheda: ca (and) + i (i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c)"
      },
      {
       "text": "कश्चित्",
@@ -9572,7 +9625,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "whole, entire, all"
+      "gloss": "all, every"
      },
      {
       "text": "भारत",
@@ -9595,7 +9648,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+      "gloss": "O descendant of Bharata"
      },
      {
       "text": "।",
@@ -9651,8 +9704,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + whole, entire, all",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + sarva (whole, entire, all)"
+      "gloss": "that; he, she, it + all, every",
+      "note": "padaccheda: tad (that; he, she, it) + sarva (all, every)"
      },
      {
       "text": "भूतानि",
@@ -9687,7 +9740,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "त्वं",
@@ -9805,7 +9859,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: svaDarma (o˚'s own rights) + api (or sometimes pi, expresses placing near or over, uniting to)"
+      "note": "padaccheda: svaDarma (o˚'s own rights) + api (also, even)"
      },
      {
       "text": "चावेक्ष्य",
@@ -9828,7 +9882,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + avekzya (to be attended to, MBh. ii, 2591)"
+      "gloss": "and + to be attended to, MBh. ii, 2591",
+      "note": "padaccheda: ca (and) + avekzya (to be attended to, MBh. ii, 2591)"
      },
      {
       "text": "न",
@@ -9840,7 +9895,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "विकम्पितुमर्हसि",
@@ -9883,8 +9939,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "N. of a man, Kṣitīś + juice, drink, nourishment + to deserve, merit, be worthy of",
-      "note": "padaccheda: vika (N. of a man, Kṣitīś) + pitu (juice, drink, nourishment) + arh (to deserve, merit, be worthy of)"
+      "gloss": "to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV + to tremble, shake + to deserve, merit, be worthy of",
+      "note": "padaccheda: vI (to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV) + kamp (to tremble, shake) + arh (to deserve, merit, be worthy of)"
      },
      {
       "text": "।",
@@ -9930,7 +9986,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: Darmya (legal, legitimate) + hi (to send forth, set in motion, impel)"
+      "gloss": "legal, legitimate + for, indeed",
+      "note": "padaccheda: Darmya (legal, legitimate) + hi (for, indeed)"
      },
      {
       "text": "युद्धाच्छ्रेयोऽन्यत्क्षत्रियस्य",
@@ -9995,7 +10052,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "विद्यते",
@@ -10108,7 +10166,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + upapanna (one who has approached a teacher, Suśr)"
+      "gloss": "and + one who has approached a teacher, Suśr",
+      "note": "padaccheda: ca (and) + upapanna (one who has approached a teacher, Suśr)"
      },
      {
       "text": "स्वर्गद्वारमपावृतम्",
@@ -10249,7 +10308,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "patr. of Tānva"
+      "gloss": "O son of Pṛthā — Arjuna"
      },
      {
       "text": "लभन्ते",
@@ -10390,7 +10449,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ced + tu (to have authority, be strong, RV. i) + ama (impetuosity, violence, strength) + ma (time, L. poison)"
+      "note": "padaccheda: ced + tu (but) + ama (impetuosity, violence, strength) + ma (time, L. poison)"
      },
      {
       "text": "धर्म्यं",
@@ -10443,7 +10502,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "करिष्यसि",
@@ -10564,7 +10624,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "ca",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "and"
      },
      {
       "text": "हित्वा",
@@ -10581,7 +10642,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "tvā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "for, indeed"
      },
      {
       "text": "पापमवाप्स्यसि",
@@ -10619,8 +10681,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "bad, vicious, wicked + to drive, impel, animate + to reach, overtake, meet with",
-      "note": "padaccheda: pApa (bad, vicious, wicked) + av (to drive, impel, animate) + Ap (to reach, overtake, meet with)"
+      "gloss": "bad, vicious, wicked + a bond + to reach, overtake, meet with",
+      "note": "padaccheda: pApa (bad, vicious, wicked) + mu (a bond) + Ap (to reach, overtake, meet with)"
      },
      {
       "text": "॥२-",
@@ -10779,8 +10841,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + passing away, mutable, liable to change or decay",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + vyaya (passing away, mutable, liable to change or decay)"
+      "gloss": "that; he, she, it + passing away, mutable, liable to change or decay",
+      "note": "padaccheda: tad (that; he, she, it) + vyaya (passing away, mutable, liable to change or decay)"
      },
      {
       "text": "।",
@@ -10899,7 +10961,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + akIrti (ill-fame, disgrace) + maraRa (the act of dying, death) + adat (eating, RV. x, 4) + ric (to empty, evacuate, leave)"
+      "note": "padaccheda: ca (and) + akIrti (ill-fame, disgrace) + maraRa (the act of dying, death) + adat (eating, RV. x, 4) + ric (to empty, evacuate, leave)"
      },
      {
       "text": "॥२-",
@@ -11097,7 +11159,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "ca",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "and"
      },
      {
       "text": "त्वं",
@@ -11278,7 +11341,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: avAcya (not to be addressed, Mn. ii, 128) + vAda (speaking of or about) + ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church)"
+      "gloss": "not to be addressed, Mn. ii, 128 + speaking of or about + and",
+      "note": "padaccheda: avAcya (not to be addressed, Mn. ii, 128) + vAda (speaking of or about) + ca (and)"
      },
      {
       "text": "बहून्वदिष्यन्ति",
@@ -11402,7 +11466,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ni (down, back, in) + danta + yuzmad (the base of the 2nd pers. pron. as used in comp)"
+      "note": "padaccheda: nindat + ta (Lakṣmī) + yuzmad (the base of the 2nd pers. pron. as used in comp)"
      },
      {
       "text": "सामर्थ्यं",
@@ -11565,7 +11629,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "vā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "or"
      },
      {
       "text": "प्राप्स्यसि",
@@ -11637,7 +11702,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "vā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "or"
      },
      {
       "text": "भोक्ष्यसे",
@@ -11739,8 +11805,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + a particle of doubt or deliberation + to stand, stand firmly, station one's self",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + ut (a particle of doubt or deliberation) + sTA (to stand, stand firmly, station one's self)"
+      "gloss": "that; he, she, it + a particle of doubt or deliberation + to stand, stand firmly, station one's self",
+      "note": "padaccheda: tad (that; he, she, it) + ut (a particle of doubt or deliberation) + sTA (to stand, stand firmly, station one's self)"
      },
      {
       "text": "कौन्तेय",
@@ -11763,7 +11829,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "metron. fr. Kuntī, N. of Yudhiṣṭhira, Bhīma-sena"
+      "gloss": "O son of Kuntī — Arjuna"
      },
      {
       "text": "युद्धाय",
@@ -12078,7 +12144,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: na (na the dental nasal) + evam (thus, in this way, in such a manner)"
+      "gloss": "thin, spare + thus, in this way, in such a manner",
+      "note": "padaccheda: nA (thin, spare) + evam (thus, in this way, in such a manner)"
      },
      {
       "text": "पापमवाप्स्यसि",
@@ -12169,7 +12236,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "gliding, running, hastening"
+      "gloss": "this"
      },
      {
       "text": "तेऽभिहिता",
@@ -12197,8 +12264,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + harnessed or put to",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + aBihita (harnessed or put to)"
+      "gloss": "that; he, she, it + harnessed or put to",
+      "note": "padaccheda: tad (that; he, she, it) + aBihita (harnessed or put to)"
      },
      {
       "text": "सांख्ये",
@@ -12376,7 +12443,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "patr. of Tānva"
+      "gloss": "O son of Pṛthā — Arjuna"
      },
      {
       "text": "कर्मबन्धं",
@@ -12556,7 +12623,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "विद्यते",
@@ -12833,7 +12901,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: budDi (the power of forming and retaining conceptions and general notions, intelligence, reason) + reka (&c. See p. 887, col. 1) + ha (ha the thirty-third and last consonant of the Nāgarī alphabet)"
+      "note": "padaccheda: budDi (the power of forming and retaining conceptions and general notions, intelligence, reason) + reka (&c. See p. 887, col. 1) + aha (surely, certainly)"
      },
      {
       "text": "कुरुनन्दन",
@@ -12945,7 +13013,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: hi (to send forth, set in motion, impel) + anantA (endless, boundless, eternal) + ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church)"
+      "note": "padaccheda: hI (ah! oh! alas l &c) + anantA (endless, boundless, eternal) + ca (and)"
      },
      {
       "text": "बुद्धयोऽव्यवसायिनाम्",
@@ -13146,8 +13214,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "fluttering, hovering + dental, Kāś + inspired, wise, learned",
-      "note": "padaccheda: prava (fluttering, hovering) + dantya (dental, Kāś) + vipaScit (inspired, wise, learned)"
+      "gloss": "the side or slope of a mountain, elevation, height + before, in the presence of near + unwise, ignorant, Kauś",
+      "note": "padaccheda: pravat (the side or slope of a mountain, elevation, height) + anti (before, in the presence of near) + avipaScit (unwise, ignorant, Kauś)"
      },
      {
       "text": "।",
@@ -13225,7 +13293,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "patr. of Tānva"
+      "gloss": "O son of Pṛthā — Arjuna"
      },
      {
       "text": "नान्यदस्तीति",
@@ -13258,7 +13326,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: na (na the dental nasal) + adasta (unexhausted, imperishable) + iti (ityE See above)"
+      "gloss": "not + unexhausted, imperishable + Iti f, plague, distress",
+      "note": "padaccheda: na (not) + adasta (unexhausted, imperishable) + Iti (Iti f, plague, distress)"
      },
      {
       "text": "वादिनः",
@@ -13535,8 +13604,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "any winding or curve, coil, RV. &c. &c + relating to or coming from a mighty lord or king, mighty powerful, majestic + not going, halting, without resource",
-      "note": "padaccheda: Boga (any winding or curve, coil, RV. &c. &c) + ESvarI (relating to or coming from a mighty lord or king, mighty powerful, majestic) + agati (not going, halting, without resource)"
+      "gloss": "any winding or curve, coil, RV. &c. &c + the state of being a mighty lord, sovereignty, supremacy + going, moving, gait",
+      "note": "padaccheda: Boga (any winding or curve, coil, RV. &c. &c) + ESvarya (the state of being a mighty lord, sovereignty, supremacy) + gati (going, moving, gait)"
      },
      {
       "text": "प्रति",
@@ -13689,8 +13758,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + taken away, carried off, stolen + splendour",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + apahfta (taken away, carried off, stolen) + cetas (splendour)"
+      "gloss": "that; he, she, it + taken away, carried off, stolen + splendour",
+      "note": "padaccheda: tad (that; he, she, it) + apahfta (taken away, carried off, stolen) + cetas (splendour)"
      },
      {
       "text": "।",
@@ -13804,7 +13873,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "विधीयते",
@@ -13832,8 +13902,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV + to DA",
-      "note": "padaccheda: vI (to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV) + DI (to DA)"
+      "note": "padaccheda: viDi (a worshipper, one who does homage) + i (i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c)"
      },
      {
       "text": "॥२-",
@@ -14184,8 +14253,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "a goer or mover + non-value, a worthless or useless object",
-      "note": "padaccheda: yA (a goer or mover) + anarTa (non-value, a worthless or useless object)"
+      "gloss": "Andrographis Paniculata + aim, purpose",
+      "note": "padaccheda: yAva (Andrographis Paniculata) + arTa (aim, purpose)"
      },
      {
       "text": "उदपाने",
@@ -14325,8 +14394,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "so great, so large, so much + whole, entire, all",
-      "note": "padaccheda: tAvat (so great, so large, so much) + sarva (whole, entire, all)"
+      "gloss": "so great, so large, so much + all, every",
+      "note": "padaccheda: tAvat (so great, so large, so much) + sarva (all, every)"
      },
      {
       "text": "वेदेषु",
@@ -14486,7 +14555,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: karmaRya (skilful in work, clever, diligent) + iva (like, in the same manner as) + aDika (additional, subsequent, later) + rasta"
+      "note": "padaccheda: karmaRyA (skilful in work, clever, diligent) + av (to drive, impel, animate) + aDikAra (authority) + as (to be, live, exist)"
      },
      {
       "text": "मा",
@@ -14498,7 +14567,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "mā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "do not"
      },
      {
       "text": "फलेषु",
@@ -14549,7 +14619,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: kadA (when? at what time?) + ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + na (na the dental nasal)"
+      "gloss": "to be confused, suffer mentally + N. of a man + not",
+      "note": "padaccheda: kad (to be confused, suffer mentally) + Aca (N. of a man) + na (not)"
      },
      {
       "text": "।",
@@ -14584,7 +14655,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "mā",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "do not"
      },
      {
       "text": "कर्मफलहेतुर्भूर्मा",
@@ -14632,7 +14704,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: karmaPalahetu (one who is actuated by the result of his acts) + BU (to become, be, arise) + mA (time, L. poison)"
+      "gloss": "one who is actuated by the result of his acts + to become, be, arise + do not",
+      "note": "padaccheda: karmaPalahetu (one who is actuated by the result of his acts) + BU (to become, be, arise) + mA (do not)"
      },
      {
       "text": "ते",
@@ -14645,7 +14718,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "thy; to thee"
      },
      {
       "text": "सङ्गोऽस्त्वकर्मणि",
@@ -15077,7 +15150,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: hi (to send forth, set in motion, impel) + vf (to cover, screen, veil)"
+      "note": "padaccheda: hI (ah! oh! alas l &c) + vf (to cover, screen, veil)"
      },
      {
       "text": "कर्म",
@@ -15369,7 +15442,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: hA (a form of Śiva or Bhairava) + Iha (attempt)"
+      "note": "padaccheda: jaha (see SarDam-) + Iha (attempt)"
      },
      {
       "text": "उभे",
@@ -15482,8 +15555,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + the act of yoking, joining, attaching",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + yoga (the act of yoking, joining, attaching)"
+      "gloss": "that; he, she, it + the act of yoking, joining, attaching",
+      "note": "padaccheda: tad (that; he, she, it) + yoga (the act of yoking, joining, attaching)"
      },
      {
       "text": "युज्यस्व",
@@ -15672,7 +15745,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "hi",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "for, indeed"
      },
      {
       "text": "फलं",
@@ -15869,8 +15943,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "to go, move, go away + to bend or bow, to bow to, subject or submit one's self",
-      "note": "padaccheda: gam (to go, move, go away) + nam (to bend or bow, to bow to, subject or submit one's self)"
+      "note": "padaccheda: gacCat (pr. p. P. fr. q.v) + nam (to bend or bow, to bow to, subject or submit one's self)"
      },
      {
       "text": "॥२-",
@@ -15935,7 +16008,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "thy; to thee"
      },
      {
       "text": "मोहकलिलं",
@@ -16166,7 +16239,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "ca",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "and"
      },
      {
       "text": "॥२-",
@@ -16256,7 +16330,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "thy; to thee"
      },
      {
       "text": "यदा",
@@ -16507,7 +16581,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "white, clear"
+      "gloss": "Arjuna"
      },
      {
       "text": "उवाच",
@@ -16661,7 +16735,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "having long or much or handsome hair, AV. viii, 6"
+      "gloss": "Keśava — Kṛṣṇa"
      },
      {
       "text": "।",
@@ -16895,7 +16969,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: SrI (to mix, mingle, cook) + Bagavat (&c. See p. 743, col. 3) + vac (to speak, say, tell)"
+      "gloss": "to mix, mingle, cook + the Blessed One + to speak, say, tell",
+      "note": "padaccheda: SrI (to mix, mingle, cook) + Bagavat (the Blessed One) + vac (to speak, say, tell)"
      }
     ]
    }
@@ -16991,8 +17066,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "wish, desire, longing + whole, entire, all + patr. of Tānva",
-      "note": "padaccheda: kAma (wish, desire, longing) + sarva (whole, entire, all) + pArTa (patr. of Tānva)"
+      "gloss": "wish, desire, longing + all, every + O son of Pṛthā — Arjuna",
+      "note": "padaccheda: kAma (wish, desire, longing) + sarva (all, every) + pArTa (O son of Pṛthā — Arjuna)"
      },
      {
       "text": "मनोगतान्",
@@ -17086,7 +17161,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: Atman (the breath) + eva (eva ind, so, just so) + tmanA (the vital breath, RV. i, 63)"
+      "gloss": "the breath + just, only + the vital breath, RV. i, 63",
+      "note": "padaccheda: Atman (the breath) + eva (just, only) + tmanA (the vital breath, RV. i, 63)"
      },
      {
       "text": "तुष्टः",
@@ -17235,8 +17311,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "uneasy, uncomfortable, unpleasant + free from apprehension or perplexity, easy in mind, Mṛcch. &c + an-, occasionally ana-, the substitute for 3. a",
-      "note": "padaccheda: duHKa (uneasy, uncomfortable, unpleasant) + anudvigna (free from apprehension or perplexity, easy in mind, Mṛcch. &c) + ana (an-, occasionally ana-, the substitute for 3. a)"
+      "gloss": "uneasy, uncomfortable, unpleasant + free from apprehension or perplexity, easy in mind, Mṛcch. &c + mind, intellect, intelligence",
+      "note": "padaccheda: duHKa (uneasy, uncomfortable, unpleasant) + anudvigna (free from apprehension or perplexity, easy in mind, Mṛcch. &c) + manas (mind, intellect, intelligence)"
      },
      {
       "text": "सुखेषु",
@@ -17411,8 +17487,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "steady-minded, firm, unmoved + impulse, eagerness, RV. vii + to speak, say, tell",
-      "note": "padaccheda: sTitaDI (steady-minded, firm, unmoved) + muni (impulse, eagerness, RV. vii) + vac (to speak, say, tell)"
+      "gloss": "steady-minded, firm, unmoved + sage, silent one + to speak, say, tell",
+      "note": "padaccheda: sTitaDI (steady-minded, firm, unmoved) + muni (sage, silent one) + vac (to speak, say, tell)"
      },
      {
       "text": "॥२-",
@@ -17522,7 +17598,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: sarvatra (everywhere, in every case, always) + anaBisneha (without affection, cold, unimpassioned) + tad (he f. she n. it, that, this) + tad (he f. she n. it, that, this) + prApya (to be reached, attainable, acquirable)"
+      "note": "padaccheda: sarvatra (everywhere, in every case, always) + anaBisneha (without affection, cold, unimpassioned) + tad (that; he, she, it) + tad (that; he, she, it) + prApya (to be reached, attainable, acquirable)"
      },
      {
       "text": "शुभाशुभम्",
@@ -17624,7 +17700,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "द्वेष्टि",
@@ -17660,7 +17737,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "that; he, she, it"
      },
      {
       "text": "प्रज्ञा",
@@ -17786,7 +17863,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: saMhara (˚raRa. See saM-) + tad (he f. she n. it, that, this)"
+      "note": "padaccheda: saMhara (˚raRa. See saM-) + tad (that; he, she, it)"
      },
      {
       "text": "चायं",
@@ -17804,7 +17881,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + i (i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c)"
+      "gloss": "and + going",
+      "note": "padaccheda: ca (and) + ya (going)"
      },
      {
       "text": "कूर्मोऽङ्गानीव",
@@ -17942,8 +18020,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "fit for or belonging to or agreeable to Indra + an object of sense, anything exciting the senses + he f. she n. it, that, this",
-      "note": "padaccheda: indriya (fit for or belonging to or agreeable to Indra) + indriyArTa (an object of sense, anything exciting the senses) + tad (he f. she n. it, that, this)"
+      "gloss": "fit for or belonging to or agreeable to Indra + an object of sense, anything exciting the senses + that; he, she, it",
+      "note": "padaccheda: indriya (fit for or belonging to or agreeable to Indra) + indriyArTa (an object of sense, anything exciting the senses) + tad (that; he, she, it)"
      },
      {
       "text": "प्रज्ञा",
@@ -18216,8 +18294,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "the sap or juice of plants, juice of fruit, any liquid or fluid + to be scattered or sown, KātyŚr",
-      "note": "padaccheda: rasA (the sap or juice of plants, juice of fruit, any liquid or fluid) + upya (to be scattered or sown, KātyŚr)"
+      "gloss": "the sap or juice of plants, juice of fruit, any liquid or fluid + mf n being in water, coming from water, connected with water",
+      "note": "padaccheda: rasa (the sap or juice of plants, juice of fruit, any liquid or fluid) + apya (mf n being in water, coming from water, connected with water)"
      },
      {
       "text": "परं",
@@ -18281,7 +18359,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: nivarta (&c. See ni-vft) + tad (he f. she n. it, that, this)"
+      "note": "padaccheda: nivarta (&c. See ni-vft) + tad (that; he, she, it)"
      },
      {
       "text": "॥२-",
@@ -18338,8 +18416,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "going + chiefly Ved. a father, RV. viii, 91",
-      "note": "padaccheda: ya (going) + tata (chiefly Ved. a father, RV. viii, 91)"
+      "gloss": "who, which, what + from this, than this",
+      "note": "padaccheda: yad (who, which, what) + atas (from this, than this)"
      },
      {
       "text": "ह्यपि",
@@ -18357,7 +18435,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: hi (to send forth, set in motion, impel) + api (or sometimes pi, expresses placing near or over, uniting to)"
+      "note": "padaccheda: hI (ah! oh! alas l &c) + api (also, even)"
      },
      {
       "text": "कौन्तेय",
@@ -18380,7 +18458,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "metron. fr. Kuntī, N. of Yudhiṣṭhira, Bhīma-sena"
+      "gloss": "O son of Kuntī — Arjuna"
      },
      {
       "text": "पुरुषस्य",
@@ -18631,7 +18709,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "that; he, she, it"
      },
      {
       "text": "सर्वाणि",
@@ -18654,7 +18732,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "whole, entire, all"
+      "gloss": "all, every"
      },
      {
       "text": "संयम्य",
@@ -18792,7 +18870,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "hi",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "for, indeed"
      },
      {
       "text": "यस्येन्द्रियाणि",
@@ -18844,7 +18923,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "that; he, she, it"
      },
      {
       "text": "प्रज्ञा",
@@ -19027,7 +19106,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: saNga (sticking, clinging to, touch) + tad (he f. she n. it, that, this) + upaja (upa-ja mfn, additional, accessory) + tad (he f. she n. it, that, this)"
+      "note": "padaccheda: saNga (sticking, clinging to, touch) + tad (that; he, she, it) + upaja (upa-ja mfn, additional, accessory) + i (i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c)"
      },
      {
       "text": "।",
@@ -19154,7 +19233,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: kAma (wish, desire, longing) + kroDa (anger, wrath, passion) + uBa (e, e mfn. du. both) + jan (to generate, beget, produce)"
+      "note": "padaccheda: kAma (wish, desire, longing) + kroDa (anger, wrath, passion) + aBija (ifc. produced all around) + i (i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c)"
      },
      {
       "text": "॥२-",
@@ -19364,7 +19443,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: smftiBraMSa (loss of m˚) + budDi (the power of forming and retaining conceptions and general notions, intelligence, reason) + Sa (Sa the first of the three sibilants)"
+      "note": "padaccheda: smftiBraMSa (loss of m˚) + budDi (the power of forming and retaining conceptions and general notions, intelligence, reason) + aSas (not blessing or wishing well, cursing, hating)"
      },
      {
       "text": "बुद्धिनाशात्प्रणश्यति",
@@ -19494,7 +19573,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: rAgadveza (du. love and hatred, Mn. xii, 26) + viyukta (disjoined, detached, separated or delivered from) + tu (to have authority, be strong, RV. i)"
+      "gloss": "du. love and hatred, Mn. xii, 26 + disjoined, detached, separated or delivered from + but",
+      "note": "padaccheda: rAgadveza (du. love and hatred, Mn. xii, 26) + viyukta (disjoined, detached, separated or delivered from) + tu (but)"
      },
      {
       "text": "विषयानिन्द्रियैश्चरन्",
@@ -19806,7 +19886,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: han (to strike, beat, pound) + anira (destitute of vigour, RV. iv, 5) + vap (to shear, shave, cut off) + jan (to generate, beget, produce)"
+      "note": "padaccheda: hAni (abandonment, relinquishment) + rasa (the sap or juice of plants, juice of fruit, any liquid or fluid) + vap (to shear, shave, cut off) + jan (to generate, beget, produce)"
      },
      {
       "text": "।",
@@ -19886,7 +19966,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: hi (to send forth, set in motion, impel) + ASu (fast, quick, going quickly)"
+      "note": "padaccheda: ha (ha the thirty-third and last consonant of the Nāgarī alphabet) + Su (to go &c)"
      },
      {
       "text": "बुद्धिः",
@@ -20046,7 +20126,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "चायुक्तस्य",
@@ -20074,7 +20155,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + yukta (yukti &c. See cols. 2, 3)"
+      "gloss": "and + joined with, united, applied to",
+      "note": "padaccheda: ca (and) + Ayukta (joined with, united, applied to)"
      },
      {
       "text": "भावना",
@@ -20132,7 +20214,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "चाभावयतः",
@@ -20165,7 +20248,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: ca (ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church) + aBAvayat (unconscious, unwise)"
+      "gloss": "and + unconscious, unwise",
+      "note": "padaccheda: ca (and) + aBAvayat (unconscious, unwise)"
      },
      {
       "text": "शान्तिरशान्तस्य",
@@ -20319,7 +20403,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "hi",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "for, indeed"
      },
      {
       "text": "चरतां",
@@ -20370,7 +20455,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: yat (going, moving, RV. &c. &c) + manu (thinking, wise, intelligent) + nu (nu ind, now, still)"
+      "note": "padaccheda: yad (who, which, what) + manu (thinking, wise, intelligent) + nu (nu ind, now, still)"
      },
      {
       "text": "विधीयते",
@@ -20398,7 +20483,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: viDi (a worshipper, one who does homage) + i (i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c)"
+      "gloss": "to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV + to DA",
+      "note": "padaccheda: vI (to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV) + DI (to DA)"
      },
      {
       "text": "।",
@@ -20444,8 +20530,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + to be, live, exist",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + as (to be, live, exist)"
+      "gloss": "that; he, she, it + to be, live, exist",
+      "note": "padaccheda: tad (that; he, she, it) + as (to be, live, exist)"
      },
      {
       "text": "हरति",
@@ -20534,7 +20620,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: vAyu (wind, air, RV. &c. &c) + nO (nO encl. acc. dat. gen. du. of 1st pers. pron, RV. &c. &c) + iva (like, in the same manner as) + amBas (water, RV. &c, the celestial waters)"
+      "note": "padaccheda: vAyu (wind, air, RV. &c. &c) + nO (nO encl. acc. dat. gen. du. of 1st pers. pron, RV. &c. &c) + iva (like, as if) + amBas (water, RV. &c, the celestial waters)"
      },
      {
       "text": "॥२-",
@@ -20596,8 +20682,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this + to froth up, foam",
-      "note": "padaccheda: tad (he f. she n. it, that, this) + yas (to froth up, foam)"
+      "gloss": "that; he, she, it + to froth up, foam",
+      "note": "padaccheda: tad (that; he, she, it) + yas (to froth up, foam)"
      },
      {
       "text": "महाबाहो",
@@ -20761,8 +20847,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "fit for or belonging to or agreeable to Indra + an object of sense, anything exciting the senses + he f. she n. it, that, this",
-      "note": "padaccheda: indriya (fit for or belonging to or agreeable to Indra) + indriyArTa (an object of sense, anything exciting the senses) + tad (he f. she n. it, that, this)"
+      "gloss": "fit for or belonging to or agreeable to Indra + an object of sense, anything exciting the senses + that; he, she, it",
+      "note": "padaccheda: indriya (fit for or belonging to or agreeable to Indra) + indriyArTa (an object of sense, anything exciting the senses) + tad (that; he, she, it)"
      },
      {
       "text": "प्रज्ञा",
@@ -20924,7 +21010,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "that; he, she, it"
      },
      {
       "text": "जागर्ति",
@@ -21070,7 +21156,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "she"
      },
      {
       "text": "निशा",
@@ -21129,7 +21215,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "impulse, eagerness, RV. vii"
+      "gloss": "sage, silent one"
      },
      {
       "text": "॥२-",
@@ -21289,7 +21375,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: prava (fluttering, hovering) + Santa (Santi &c. See p. 1055, col. 1)"
+      "note": "padaccheda: pra (before) + viS (to go, Dhātup. xvii, 71 ← viS cl. 6. P. viSati)"
      },
      {
       "text": "यद्वत्",
@@ -21423,7 +21509,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "whole, entire, all"
+      "gloss": "all, every"
      },
      {
       "text": "स",
@@ -21436,7 +21522,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "he"
      },
      {
       "text": "शान्तिमाप्नोति",
@@ -21482,7 +21568,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "pronunciation": "na",
         "akshara": true
        }
-      ]
+      ],
+      "gloss": "not"
      },
      {
       "text": "कामकामी",
@@ -21510,8 +21597,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "what? how? whence? wherefore? why? + without desire or wish",
-      "note": "padaccheda: kim (what? how? whence? wherefore? why?) + akAma (without desire or wish)"
+      "gloss": "wish, desire, longing + desirous, longing after",
+      "note": "padaccheda: kAma (wish, desire, longing) + kAmin (desirous, longing after)"
      },
      {
       "text": "॥२-",
@@ -21591,8 +21678,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "what? how? whence? wherefore? why? + to be respected or honoured, worthy of honour, respectable",
-      "note": "padaccheda: kim (what? how? whence? wherefore? why?) + mAnya (to be respected or honoured, worthy of honour, respectable)"
+      "note": "padaccheda: ka (ka as, m. N. of Prajāpati or of a Prajāpati, VS. xx) + AmAna"
      },
      {
       "text": "सर्वान्",
@@ -21615,7 +21701,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "whole, entire, all"
+      "gloss": "all, every"
      },
      {
       "text": "पुमांश्चरति",
@@ -21763,7 +21849,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "he f. she n. it, that, this"
+      "gloss": "he"
      },
      {
       "text": "शान्तिमधिगच्छति",
@@ -21859,7 +21945,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "gliding, running, hastening"
+      "gloss": "this"
      },
      {
       "text": "ब्राह्मी",
@@ -21913,7 +21999,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "gloss": "patr. of Tānva"
+      "gloss": "O son of Pṛthā — Arjuna"
      },
      {
       "text": "नैनां",
@@ -21931,7 +22017,8 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: na (na the dental nasal) + ena (ena a pronom. base, he, she)"
+      "gloss": "thin, spare + ena a pronom. base, he, she",
+      "note": "padaccheda: nA (thin, spare) + ena (ena a pronom. base, he, she)"
      },
      {
       "text": "प्राप्य",
@@ -22049,7 +22136,7 @@ export const GITA_CHAPTER2_TIER1: AlignSegment[] = [
         "akshara": true
        }
       ],
-      "note": "padaccheda: sTA (to stand, stand firmly, station one's self) + asi (a sword, scimitar, knife) + antaka (border, boundary) + lepin (besmearing or covering)"
+      "note": "padaccheda: sTA (to stand, stand firmly, station one's self) + as (to be, live, exist) + antaka (border, boundary) + lepin (besmearing or covering)"
      },
      {
       "text": "ब्रह्मनिर्वाणमृच्छति",

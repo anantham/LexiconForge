@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ConceptInterlinear } from '../liturgy/concept/ConceptInterlinear';
-import { GITA_CHAPTER2_TIER1 } from '../../data/gita/chapter2-tier1';
+import type { AlignSegment } from '../../types/liturgyAlign';
 
 const SERIF = "'Cardo', 'Gentium Plus', 'Noto Serif', serif";
 const DEVA = "'Noto Serif Devanagari', 'Devanagari MT', 'Kohinoor Devanagari', serif";
@@ -37,6 +37,19 @@ export const GitaChapter2Page: React.FC = () => {
   const [prefs, setPrefs] = useState<ReaderPrefs>(loadPrefs);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // The generated chapter data is ~468 KB — code-split it out of the initial
+  // bundle (the LazyLocalSutta pattern) so it loads only when this page opens.
+  const [segments, setSegments] = useState<AlignSegment[] | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    import('../../data/gita/chapter2-tier1').then((m) => {
+      if (!cancelled) setSegments(m.GITA_CHAPTER2_TIER1);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const update = (patch: Partial<ReaderPrefs>) => {
     setPrefs((prev) => {
@@ -171,7 +184,13 @@ export const GitaChapter2Page: React.FC = () => {
           </p>
         </div>
 
-        <ConceptInterlinear segments={GITA_CHAPTER2_TIER1} tooltips={prefs.tooltips} />
+        {segments ? (
+          <ConceptInterlinear segments={segments} tooltips={prefs.tooltips} />
+        ) : (
+          <p className="py-24 text-center text-sm text-slate-600" style={{ fontFamily: SERIF }}>
+            loading the chapter…
+          </p>
+        )}
 
         <p className="mt-20 text-center text-xs text-slate-600" style={{ fontFamily: SERIF }}>
           Sanskrit text:{' '}

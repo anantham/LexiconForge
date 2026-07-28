@@ -12,21 +12,16 @@
     {
      "surface": "सञ्जय",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "Sañjaya",
      "lemmas": [
-      "sam",
-      "ji"
+      "saYjaya"
      ],
      "pieces": [
       {
-       "slp": "sam",
-       "stem": "sam",
-       "gloss": "to be disturbed, Dhātup. xix, 82"
-      },
-      {
-       "slp": "jaya",
-       "stem": "ji",
-       "gloss": "to win or acquire, conquer, vanquish"
+       "slp": "saYjaya",
+       "stem": "saYjaya",
+       "gloss": "Sañjaya",
+       "override": true
       }
      ]
     },
@@ -53,7 +48,7 @@
     {
      "surface": "तं",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "that; he, she, it",
      "lemmas": [
       "tad"
      ],
@@ -61,14 +56,15 @@
       {
        "slp": "tam",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
     {
      "surface": "तथा",
      "isMarker": false,
-     "gloss": "in that manner, so, thus",
+     "gloss": "so, in that way",
      "lemmas": [
       "taTA"
      ],
@@ -76,7 +72,8 @@
       {
        "slp": "taTA",
        "stem": "taTA",
-       "gloss": "in that manner, so, thus"
+       "gloss": "so, in that way",
+       "override": true
       }
      ]
     },
@@ -85,17 +82,17 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "kfp",
+      "kfpA",
       "Avizwa",
       "aSrupUrRa",
-      "kula",
+      "akulA",
       "kzaRa"
      ],
      "pieces": [
       {
-       "slp": "kfpe",
-       "stem": "kfp",
-       "gloss": "beautiful appearance, beauty, splendour"
+       "slp": "kfpayA",
+       "stem": "kfpA",
+       "gloss": "N. of a man, RV. viii, 3"
       },
       {
        "slp": "Avizwam",
@@ -103,14 +100,14 @@
        "gloss": "entered"
       },
       {
-       "slp": "aSrupUrRA",
+       "slp": "aSrupUrRa",
        "stem": "aSrupUrRa",
        "gloss": "filled with tears"
       },
       {
-       "slp": "kule",
-       "stem": "kula",
-       "gloss": ") a herd, troop, flock"
+       "slp": "akule",
+       "stem": "akulA",
+       "gloss": "not of good family, low"
       },
       {
        "slp": "kzaRam",
@@ -137,8 +134,8 @@
      "gloss": "",
      "lemmas": [
       "vizin",
-      "da",
-      "tamI",
+      "id",
+      "antama",
       "da"
      ],
      "pieces": [
@@ -148,14 +145,14 @@
        "gloss": "poisoned, Pañcar"
       },
       {
-       "slp": "dam",
-       "stem": "da",
-       "gloss": "id"
+       "slp": "id",
+       "stem": "id",
+       "gloss": "Ved. even, just, only"
       },
       {
-       "slp": "tami",
-       "stem": "tamI",
-       "gloss": "night"
+       "slp": "antami",
+       "stem": "antama",
+       "gloss": "next, nearest"
       },
       {
        "slp": "dam",
@@ -222,7 +219,7 @@
     {
      "surface": "श्रीभगवानुवाच",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "to mix, mingle, cook + the Blessed One + to speak, say, tell",
      "lemmas": [
       "SrI",
       "Bagavat",
@@ -237,7 +234,8 @@
       {
        "slp": "BagavAn",
        "stem": "Bagavat",
-       "gloss": "&c. See p. 743, col. 3"
+       "gloss": "the Blessed One",
+       "override": true
       },
       {
        "slp": "uvAca",
@@ -364,7 +362,8 @@
       {
        "slp": "arjuna",
        "stem": "arjuna",
-       "gloss": "white, clear"
+       "gloss": "Arjuna",
+       "override": true
       }
      ]
     },
@@ -405,7 +404,7 @@
     {
      "surface": "मा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "do not",
      "lemmas": [
       "mA"
      ],
@@ -413,7 +412,8 @@
       {
        "slp": "mA",
        "stem": "mA",
-       "gloss": "time, L. poison"
+       "gloss": "do not",
+       "override": true
       }
      ]
     },
@@ -450,7 +450,7 @@
     {
      "surface": "पार्थ",
      "isMarker": false,
-     "gloss": "patr. of Tānva",
+     "gloss": "O son of Pṛthā — Arjuna",
      "lemmas": [
       "pArTa"
      ],
@@ -458,7 +458,8 @@
       {
        "slp": "pArTa",
        "stem": "pArTa",
-       "gloss": "patr. of Tānva"
+       "gloss": "O son of Pṛthā — Arjuna",
+       "override": true
       }
      ]
     },
@@ -467,7 +468,7 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "na",
+      "nA",
       "etad",
       "yuzmad",
       "upa",
@@ -475,14 +476,15 @@
      ],
      "pieces": [
       {
-       "slp": "na",
-       "stem": "na",
-       "gloss": "na the dental nasal"
+       "slp": "nA",
+       "stem": "nA",
+       "gloss": "thin, spare"
       },
       {
-       "slp": "etat",
+       "slp": "etad",
        "stem": "etad",
-       "gloss": "this, this here, here"
+       "gloss": "this",
+       "override": true
       },
       {
        "slp": "tvayi",
@@ -613,7 +615,7 @@
     {
      "surface": "अर्जुन",
      "isMarker": false,
-     "gloss": "white, clear",
+     "gloss": "Arjuna",
      "lemmas": [
       "arjuna"
      ],
@@ -621,7 +623,8 @@
       {
        "slp": "arjuna",
        "stem": "arjuna",
-       "gloss": "white, clear"
+       "gloss": "Arjuna",
+       "override": true
       }
      ]
     },
@@ -714,7 +717,7 @@
     {
      "surface": "च",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and",
      "lemmas": [
       "ca"
      ],
@@ -722,7 +725,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
@@ -841,34 +845,35 @@
     {
      "surface": "गुरूनहत्वा",
      "isMarker": false,
-     "gloss": "only ifc. singing + wanting, deficient, defective + to strike, beat, pound",
+     "gloss": "heavy, weighty, RV. i + to laugh, smile, laugh at + or",
      "lemmas": [
-      "gA",
-      "Una",
-      "han"
+      "guru",
+      "has",
+      "vA"
      ],
      "pieces": [
       {
-       "slp": "gur",
-       "stem": "gA",
-       "gloss": "only ifc. singing"
+       "slp": "gurUn",
+       "stem": "guru",
+       "gloss": "heavy, weighty, RV. i"
       },
       {
-       "slp": "Una",
-       "stem": "Una",
-       "gloss": "wanting, deficient, defective"
+       "slp": "ahat",
+       "stem": "has",
+       "gloss": "to laugh, smile, laugh at"
       },
       {
-       "slp": "hatvA",
-       "stem": "han",
-       "gloss": "to strike, beat, pound"
+       "slp": "vA",
+       "stem": "vA",
+       "gloss": "or",
+       "override": true
       }
      ]
     },
     {
      "surface": "हि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "for, indeed",
      "lemmas": [
       "hi"
      ],
@@ -876,7 +881,8 @@
       {
        "slp": "hi",
        "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "gloss": "for, indeed",
+       "override": true
       }
      ]
     },
@@ -934,11 +940,11 @@
     {
      "surface": "भैक्ष्यमपीह",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "w.r. for BEkza + also, even + attempt",
      "lemmas": [
       "BEkzya",
-      "ap",
-      "ha"
+      "api",
+      "Iha"
      ],
      "pieces": [
       {
@@ -947,14 +953,15 @@
        "gloss": "w.r. for BEkza"
       },
       {
-       "slp": "apI",
-       "stem": "ap",
-       "gloss": "ap n, work, RV. i"
+       "slp": "api",
+       "stem": "api",
+       "gloss": "also, even",
+       "override": true
       },
       {
-       "slp": "ha",
-       "stem": "ha",
-       "gloss": "ha the thirty-third and last consonant of the Nāgarī alphabet"
+       "slp": "Iha",
+       "stem": "Iha",
+       "gloss": "attempt"
       }
      ]
     },
@@ -988,7 +995,7 @@
     {
      "surface": "हत्वार्थकामांस्तु",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "to strike, beat, pound + du. m. pl. utility and desire, wealth and pleasure + but",
      "lemmas": [
       "han",
       "arTakAma",
@@ -1008,18 +1015,19 @@
       {
        "slp": "tu",
        "stem": "tu",
-       "gloss": "to have authority, be strong, RV. i"
+       "gloss": "but",
+       "override": true
       }
      ]
     },
     {
      "surface": "गुरूनिहैव",
      "isMarker": false,
-     "gloss": "heavy, weighty, RV. i + a vocative particle + going hurting an arrow weaving",
+     "gloss": "heavy, weighty, RV. i + to strike, beat, pound + just, only",
      "lemmas": [
       "guru",
-      "hE",
-      "va"
+      "han",
+      "eva"
      ],
      "pieces": [
       {
@@ -1028,14 +1036,15 @@
        "gloss": "heavy, weighty, RV. i"
       },
       {
-       "slp": "hE",
-       "stem": "hE",
-       "gloss": "a vocative particle"
+       "slp": "hA",
+       "stem": "han",
+       "gloss": "to strike, beat, pound"
       },
       {
-       "slp": "va",
-       "stem": "va",
-       "gloss": "going hurting an arrow weaving"
+       "slp": "eva",
+       "stem": "eva",
+       "gloss": "just, only",
+       "override": true
       }
      ]
     },
@@ -1106,7 +1115,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -1114,14 +1123,15 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "चैतद्विद्मः",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + this + to know, understand, perceive",
      "lemmas": [
       "ca",
       "etad",
@@ -1131,12 +1141,14 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
-       "slp": "etad",
+       "slp": "etat",
        "stem": "etad",
-       "gloss": "this, this here, here"
+       "gloss": "this",
+       "override": true
       },
       {
        "slp": "vidmas",
@@ -1148,21 +1160,21 @@
     {
      "surface": "कतरन्नो",
      "isMarker": false,
-     "gloss": "mfn, who or which of two? whether of two? Analogously to katama above katara may occasionally be used to express ‘who or which of many?’, and may optionally be compounded with the word to which it refers + base of the first person pl, as used in comp",
+     "gloss": "mfn, who or which of two? whether of two? Analogously to katama above katara may occasionally be used to express ‘who or which of many?’, and may optionally be compounded with the word to which it refers + a man, hero, person",
      "lemmas": [
       "katara",
-      "asmad"
+      "nf"
      ],
      "pieces": [
       {
-       "slp": "kataram",
+       "slp": "katarat",
        "stem": "katara",
        "gloss": "mfn, who or which of two? whether of two? Analogously to katama above katara may occasionally be used to express ‘who or which of many?’, and may optionally be compounded with the word to which it refers"
       },
       {
-       "slp": "nas",
-       "stem": "asmad",
-       "gloss": "base of the first person pl, as used in comp"
+       "slp": "nar",
+       "stem": "nf",
+       "gloss": "a man, hero, person"
       }
      ]
     },
@@ -1235,7 +1247,7 @@
     {
      "surface": "वा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "or",
      "lemmas": [
       "vA"
      ],
@@ -1243,7 +1255,8 @@
       {
        "slp": "vA",
        "stem": "vA",
-       "gloss": "air, wind"
+       "gloss": "or",
+       "override": true
       }
      ]
     },
@@ -1292,21 +1305,21 @@
     {
      "surface": "यानेव",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "going + otherwise, AV. xvi, 7",
      "lemmas": [
-      "yAt",
-      "eva"
+      "ya",
+      "aneva"
      ],
      "pieces": [
       {
-       "slp": "yAn",
-       "stem": "yAt",
-       "gloss": "going, moving &c"
+       "slp": "yA",
+       "stem": "ya",
+       "gloss": "going"
       },
       {
-       "slp": "eva",
-       "stem": "eva",
-       "gloss": "eva ind, so, just so"
+       "slp": "aneva",
+       "stem": "aneva",
+       "gloss": "otherwise, AV. xvi, 7"
       }
      ]
     },
@@ -1328,7 +1341,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -1336,7 +1349,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -1461,21 +1475,21 @@
     {
      "surface": "पृच्छामि",
      "isMarker": false,
-     "gloss": "an army or a hostile encounter + appeasing, curing, having curative properties",
+     "gloss": "asking, questioning, question about + raw, uncooked",
      "lemmas": [
-      "pftanA",
-      "SAma"
+      "pfcCA",
+      "Ama"
      ],
      "pieces": [
       {
-       "slp": "pft",
-       "stem": "pftanA",
-       "gloss": "an army or a hostile encounter"
+       "slp": "pfcCA",
+       "stem": "pfcCA",
+       "gloss": "asking, questioning, question about"
       },
       {
-       "slp": "SAmi",
-       "stem": "SAma",
-       "gloss": "appeasing, curing, having curative properties"
+       "slp": "Ami",
+       "stem": "Ama",
+       "gloss": "raw, uncooked"
       }
      ]
     },
@@ -1558,7 +1572,7 @@
      ],
      "pieces": [
       {
-       "slp": "syAt",
+       "slp": "syAm",
        "stem": "as",
        "gloss": "to be, live, exist"
       },
@@ -1587,7 +1601,7 @@
     {
      "surface": "तन्मे",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + base of the first person pl, as used in comp",
+     "gloss": "that; he, she, it + base of the first person pl, as used in comp",
      "lemmas": [
       "tad",
       "asmad"
@@ -1596,7 +1610,8 @@
       {
        "slp": "tad",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "me",
@@ -1608,22 +1623,23 @@
     {
      "surface": "शिष्यस्तेऽहं",
      "isMarker": false,
-     "gloss": "to hurt, injure, kill + to be, live, exist + base of the first person pl, as used in comp",
+     "gloss": "&c. See 1. Sizwa p. 1076, col. 3, and p. 1077 + that; he, she, it + base of the first person pl, as used in comp",
      "lemmas": [
-      "Siz",
-      "as",
+      "Sizya",
+      "tad",
       "asmad"
      ],
      "pieces": [
       {
-       "slp": "Sizya",
-       "stem": "Siz",
-       "gloss": "to hurt, injure, kill"
+       "slp": "Sizyas",
+       "stem": "Sizya",
+       "gloss": "&c. See 1. Sizwa p. 1076, col. 3, and p. 1077"
       },
       {
-       "slp": "ste",
-       "stem": "as",
-       "gloss": "to be, live, exist"
+       "slp": "te",
+       "stem": "tad",
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "aham",
@@ -1714,7 +1730,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -1722,14 +1738,15 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "हि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "for, indeed",
      "lemmas": [
       "hi"
      ],
@@ -1737,7 +1754,8 @@
       {
        "slp": "hi",
        "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "gloss": "for, indeed",
+       "override": true
       }
      ]
     },
@@ -1765,7 +1783,7 @@
     {
      "surface": "ममापनुद्याद्",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "do not + removing driving away + afterwards, then",
      "lemmas": [
       "mA",
       "apanuda",
@@ -1775,10 +1793,11 @@
       {
        "slp": "mama",
        "stem": "mA",
-       "gloss": "time, L. poison"
+       "gloss": "do not",
+       "override": true
       },
       {
-       "slp": "apanudi",
+       "slp": "apanudI",
        "stem": "apanuda",
        "gloss": "removing driving away"
       },
@@ -1852,11 +1871,11 @@
     {
      "surface": "भूमावसपत्नमृद्धं",
      "isMarker": false,
-     "gloss": "the earth, soil, ground + not a rival, AV. i, 19 + forsaken, helpless",
+     "gloss": "the earth, soil, ground + not a rival, AV. i, 19 + increased, thriving, prosperous",
      "lemmas": [
       "BUmi",
       "asapatna",
-      "mfdDa"
+      "fdDa"
      ],
      "pieces": [
       {
@@ -1865,14 +1884,14 @@
        "gloss": "the earth, soil, ground"
       },
       {
-       "slp": "asapatna",
+       "slp": "asapatnam",
        "stem": "asapatna",
        "gloss": "not a rival, AV. i, 19"
       },
       {
-       "slp": "mfdDam",
-       "stem": "mfdDa",
-       "gloss": "forsaken, helpless"
+       "slp": "fdDam",
+       "stem": "fdDa",
+       "gloss": "increased, thriving, prosperous"
       }
      ]
     },
@@ -1894,7 +1913,7 @@
     {
      "surface": "सुराणामपि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "a god, divinity, deity + also, even",
      "lemmas": [
       "surA",
       "api"
@@ -1908,14 +1927,15 @@
       {
        "slp": "api",
        "stem": "api",
-       "gloss": "or sometimes pi, expresses placing near or over, uniting to"
+       "gloss": "also, even",
+       "override": true
       }
      ]
     },
     {
      "surface": "चाधिपत्यम्",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + supremacy, sovereignty, power",
      "lemmas": [
       "ca",
       "ADipatya"
@@ -1924,7 +1944,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
        "slp": "ADipatyam",
@@ -1955,21 +1976,16 @@
     {
      "surface": "सञ्जय",
      "isMarker": false,
-     "gloss": "being, existing, occurring + to win or acquire, conquer, vanquish",
+     "gloss": "Sañjaya",
      "lemmas": [
-      "sat",
-      "ji"
+      "saYjaya"
      ],
      "pieces": [
       {
-       "slp": "san",
-       "stem": "sat",
-       "gloss": "being, existing, occurring"
-      },
-      {
-       "slp": "jaya",
-       "stem": "ji",
-       "gloss": "to win or acquire, conquer, vanquish"
+       "slp": "saYjaya",
+       "stem": "saYjaya",
+       "gloss": "Sañjaya",
+       "override": true
       }
      ]
     },
@@ -2017,21 +2033,16 @@
     {
      "surface": "हृषीकेशं",
      "isMarker": false,
-     "gloss": "joy, satisfaction + the hair of the head",
+     "gloss": "Hṛṣīkeśa — Kṛṣṇa",
      "lemmas": [
-      "hfzi",
-      "keSa"
+      "hfzIkeSa"
      ],
      "pieces": [
       {
-       "slp": "hfzI",
-       "stem": "hfzi",
-       "gloss": "joy, satisfaction"
-      },
-      {
-       "slp": "keSam",
-       "stem": "keSa",
-       "gloss": "the hair of the head"
+       "slp": "hfzIkeSam",
+       "stem": "hfzIkeSa",
+       "gloss": "Hṛṣīkeśa — Kṛṣṇa",
+       "override": true
       }
      ]
     },
@@ -2086,7 +2097,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -2094,7 +2105,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -2108,7 +2120,7 @@
      ],
      "pieces": [
       {
-       "slp": "ya",
+       "slp": "yA",
        "stem": "ya",
        "gloss": "going"
       },
@@ -2122,7 +2134,7 @@
     {
      "surface": "इति",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "thus — close of speech",
      "lemmas": [
       "iti"
      ],
@@ -2130,14 +2142,15 @@
       {
        "slp": "iti",
        "stem": "iti",
-       "gloss": "ityE See above"
+       "gloss": "thus — close of speech",
+       "override": true
       }
      ]
     },
     {
      "surface": "गोविन्दमुक्त्वा",
      "isMarker": false,
-     "gloss": "‘= -vid ’, Kṛṣṇa + to speak, say, tell",
+     "gloss": "Govinda — Kṛṣṇa + to speak, say, tell",
      "lemmas": [
       "govinda",
       "vac"
@@ -2146,7 +2159,8 @@
       {
        "slp": "govindam",
        "stem": "govinda",
-       "gloss": "‘= -vid ’, Kṛṣṇa"
+       "gloss": "Govinda — Kṛṣṇa",
+       "override": true
       },
       {
        "slp": "uktvA",
@@ -2222,7 +2236,7 @@
     {
      "surface": "तमुवाच",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + to speak, say, tell",
+     "gloss": "that; he, she, it + to speak, say, tell",
      "lemmas": [
       "tad",
       "vac"
@@ -2231,7 +2245,8 @@
       {
        "slp": "tam",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "uvAca",
@@ -2243,28 +2258,23 @@
     {
      "surface": "हृषीकेशः",
      "isMarker": false,
-     "gloss": "an organ of sense + owning, possessing, sharing",
+     "gloss": "Hṛṣīkeśa — Kṛṣṇa",
      "lemmas": [
-      "hfzIka",
-      "ISa"
+      "hfzIkeSa"
      ],
      "pieces": [
       {
-       "slp": "hfzIka",
-       "stem": "hfzIka",
-       "gloss": "an organ of sense"
-      },
-      {
-       "slp": "ISas",
-       "stem": "ISa",
-       "gloss": "owning, possessing, sharing"
+       "slp": "hfzIkeSaH",
+       "stem": "hfzIkeSa",
+       "gloss": "Hṛṣīkeśa — Kṛṣṇa",
+       "override": true
       }
      ]
     },
     {
      "surface": "प्रहसन्निव",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "laughing, smiling + like, as if",
      "lemmas": [
       "prahasat",
       "iva"
@@ -2278,14 +2288,15 @@
       {
        "slp": "iva",
        "stem": "iva",
-       "gloss": "like, in the same manner as"
+       "gloss": "like, as if",
+       "override": true
       }
      ]
     },
     {
      "surface": "भारत",
      "isMarker": false,
-     "gloss": "descended from Bharata or the Bharatas, RV. &c. &c",
+     "gloss": "O descendant of Bharata",
      "lemmas": [
       "BArata"
      ],
@@ -2293,7 +2304,8 @@
       {
        "slp": "BArata",
        "stem": "BArata",
-       "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+       "gloss": "O descendant of Bharata",
+       "override": true
       }
      ]
     },
@@ -2342,8 +2354,8 @@
      "gloss": "",
      "lemmas": [
       "vizin",
-      "dat",
-      "tamI",
+      "id",
+      "antama",
       "da"
      ],
      "pieces": [
@@ -2353,14 +2365,14 @@
        "gloss": "poisoned, Pañcar"
       },
       {
-       "slp": "dan",
-       "stem": "dat",
-       "gloss": "a tooth"
+       "slp": "id",
+       "stem": "id",
+       "gloss": "Ved. even, just, only"
       },
       {
-       "slp": "tami",
-       "stem": "tamI",
-       "gloss": "night"
+       "slp": "antami",
+       "stem": "antama",
+       "gloss": "next, nearest"
       },
       {
        "slp": "dam",
@@ -2406,7 +2418,7 @@
     {
      "surface": "श्रीभगवानुवाच",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "to mix, mingle, cook + the Blessed One + to speak, say, tell",
      "lemmas": [
       "SrI",
       "Bagavat",
@@ -2421,7 +2433,8 @@
       {
        "slp": "BagavAn",
        "stem": "Bagavat",
-       "gloss": "&c. See p. 743, col. 3"
+       "gloss": "the Blessed One",
+       "override": true
       },
       {
        "slp": "uvAca",
@@ -2485,7 +2498,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
@@ -2519,7 +2533,7 @@
     {
      "surface": "गतासूनगतासूंश्च",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "one whose breath has gone, expired, dead + not dead, alive + and",
      "lemmas": [
       "gatAsu",
       "agatAsu",
@@ -2539,7 +2553,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
@@ -2548,20 +2563,21 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "nA",
-      "nu",
+      "na",
+      "u",
       "Suc"
      ],
      "pieces": [
       {
-       "slp": "nAs",
-       "stem": "nA",
-       "gloss": "thin, spare"
+       "slp": "nAn",
+       "stem": "na",
+       "gloss": "not",
+       "override": true
       },
       {
-       "slp": "nu",
-       "stem": "nu",
-       "gloss": "nu ind, now, still"
+       "slp": "u",
+       "stem": "u",
+       "gloss": "u the fifth letter and third short vowel of the alphabet, pronounced as the u in full"
       },
       {
        "slp": "Socanti",
@@ -2607,7 +2623,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -2615,7 +2631,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -2658,10 +2675,10 @@
     {
      "surface": "नासं",
      "isMarker": false,
-     "gloss": "thin, spare + to be, live, exist",
+     "gloss": "",
      "lemmas": [
       "nA",
-      "as"
+      "sam"
      ],
      "pieces": [
       {
@@ -2670,16 +2687,16 @@
        "gloss": "thin, spare"
       },
       {
-       "slp": "Asam",
-       "stem": "as",
-       "gloss": "to be, live, exist"
+       "slp": "sam",
+       "stem": "sam",
+       "gloss": "to be disturbed, Dhātup. xix, 82"
       }
      ]
     },
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -2687,7 +2704,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -2724,16 +2742,16 @@
     {
      "surface": "जनाधिपाः",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "to generate, beget, produce + a ruler, commander, regent",
      "lemmas": [
-      "svajana",
+      "jan",
       "aDipa"
      ],
      "pieces": [
       {
-       "slp": "janA",
-       "stem": "svajana",
-       "gloss": "a man of o˚'s own people, kinsman"
+       "slp": "jana",
+       "stem": "jan",
+       "gloss": "to generate, beget, produce"
       },
       {
        "slp": "aDipAs",
@@ -2757,7 +2775,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -2765,35 +2783,38 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "चैव",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + just, only",
      "lemmas": [
       "ca",
-      "i"
+      "eva"
      ],
      "pieces": [
       {
-       "slp": "cA",
+       "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
-       "slp": "Eva",
-       "stem": "i",
-       "gloss": "i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c"
+       "slp": "eva",
+       "stem": "eva",
+       "gloss": "just, only",
+       "override": true
       }
      ]
     },
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -2801,7 +2822,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -2823,7 +2845,7 @@
     {
      "surface": "सर्वे",
      "isMarker": false,
-     "gloss": "whole, entire, all",
+     "gloss": "all, every",
      "lemmas": [
       "sarva"
      ],
@@ -2831,28 +2853,29 @@
       {
        "slp": "sarve",
        "stem": "sarva",
-       "gloss": "whole, entire, all"
+       "gloss": "all, every",
+       "override": true
       }
      ]
     },
     {
      "surface": "वयमतः",
      "isMarker": false,
-     "gloss": "going hurting an arrow weaving + a rein, curb, bridle",
+     "gloss": "base of the first person pl, as used in comp + from this, than this",
      "lemmas": [
-      "va",
-      "yama"
+      "asmad",
+      "atas"
      ],
      "pieces": [
       {
-       "slp": "va",
-       "stem": "va",
-       "gloss": "going hurting an arrow weaving"
+       "slp": "vayam",
+       "stem": "asmad",
+       "gloss": "base of the first person pl, as used in comp"
       },
       {
-       "slp": "yamatas",
-       "stem": "yama",
-       "gloss": "a rein, curb, bridle"
+       "slp": "atas",
+       "stem": "atas",
+       "gloss": "from this, than this"
       }
      ]
     },
@@ -2913,7 +2936,8 @@
       {
        "slp": "yaTA",
        "stem": "yaTA",
-       "gloss": "in which manner or way, according as, as"
+       "gloss": "as, just as",
+       "override": true
       }
      ]
     },
@@ -2992,7 +3016,7 @@
     {
      "surface": "तथा",
      "isMarker": false,
-     "gloss": "in that manner, so, thus",
+     "gloss": "so, in that way",
      "lemmas": [
       "taTA"
      ],
@@ -3000,7 +3024,8 @@
       {
        "slp": "taTA",
        "stem": "taTA",
-       "gloss": "in that manner, so, thus"
+       "gloss": "so, in that way",
+       "override": true
       }
      ]
     },
@@ -3034,7 +3059,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -3042,7 +3067,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -3083,7 +3109,7 @@
     {
      "surface": "मात्रास्पर्शास्तु",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "material contact, the concurrence of material elements + but",
      "lemmas": [
       "mAtrAsparSa",
       "tu"
@@ -3097,14 +3123,15 @@
       {
        "slp": "tu",
        "stem": "tu",
-       "gloss": "to have authority, be strong, RV. i"
+       "gloss": "but",
+       "override": true
       }
      ]
     },
     {
      "surface": "कौन्तेय",
      "isMarker": false,
-     "gloss": "metron. fr. Kuntī, N. of Yudhiṣṭhira, Bhīma-sena",
+     "gloss": "O son of Kuntī — Arjuna",
      "lemmas": [
       "kOnteya"
      ],
@@ -3112,7 +3139,8 @@
       {
        "slp": "kOnteya",
        "stem": "kOnteya",
-       "gloss": "metron. fr. Kuntī, N. of Yudhiṣṭhira, Bhīma-sena"
+       "gloss": "O son of Kuntī — Arjuna",
+       "override": true
       }
      ]
     },
@@ -3162,7 +3190,7 @@
      "lemmas": [
       "AgamApAyin",
       "Unita",
-      "asta",
+      "tad",
       "tij"
      ],
      "pieces": [
@@ -3172,14 +3200,15 @@
        "gloss": "‘coming and going’, transient, Bhag. ii"
       },
       {
-       "slp": "UnityA",
+       "slp": "UnityAs",
        "stem": "Unita",
        "gloss": "lessened, reduced, fewer"
       },
       {
-       "slp": "astAn",
-       "stem": "asta",
-       "gloss": "asta mfn, thrown, cast"
+       "slp": "tAn",
+       "stem": "tad",
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "titikzasva",
@@ -3191,7 +3220,7 @@
     {
      "surface": "भारत",
      "isMarker": false,
-     "gloss": "descended from Bharata or the Bharatas, RV. &c. &c",
+     "gloss": "O descendant of Bharata",
      "lemmas": [
       "BArata"
      ],
@@ -3199,7 +3228,8 @@
       {
        "slp": "BArata",
        "stem": "BArata",
-       "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+       "gloss": "O descendant of Bharata",
+       "override": true
       }
      ]
     },
@@ -3240,7 +3270,7 @@
     {
      "surface": "हि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "for, indeed",
      "lemmas": [
       "hi"
      ],
@@ -3248,14 +3278,15 @@
       {
        "slp": "hi",
        "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "gloss": "for, indeed",
+       "override": true
       }
      ]
     },
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -3263,14 +3294,15 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "व्यथयन्त्येते",
      "isMarker": false,
-     "gloss": "to tremble, waver, go astray + this, this here, here",
+     "gloss": "to tremble, waver, go astray + this",
      "lemmas": [
       "vyaT",
       "etad"
@@ -3284,7 +3316,8 @@
       {
        "slp": "ete",
        "stem": "etad",
-       "gloss": "this, this here, here"
+       "gloss": "this",
+       "override": true
       }
      ]
     },
@@ -3369,7 +3402,7 @@
     {
      "surface": "सोऽमृतत्वाय",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + dead, deceased, death-like + one, several",
+     "gloss": "that; he, she, it + dead, deceased, death-like + one, several",
      "lemmas": [
       "tad",
       "mfta",
@@ -3379,7 +3412,8 @@
       {
        "slp": "sas",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "mfta",
@@ -3430,16 +3464,17 @@
     {
      "surface": "नासतो",
      "isMarker": false,
-     "gloss": "thin, spare + to be, live, exist",
+     "gloss": "not + to be, live, exist",
      "lemmas": [
-      "nA",
+      "na",
       "as"
      ],
      "pieces": [
       {
-       "slp": "nA",
-       "stem": "nA",
-       "gloss": "thin, spare"
+       "slp": "na",
+       "stem": "na",
+       "gloss": "not",
+       "override": true
       },
       {
        "slp": "asatas",
@@ -3481,21 +3516,22 @@
     {
      "surface": "नाभावो",
      "isMarker": false,
-     "gloss": "thin, spare + N. of the planet Venus or its regent",
+     "gloss": "not + nonexistence, nullity, absence",
      "lemmas": [
-      "nA",
-      "BA"
+      "na",
+      "aBAva"
      ],
      "pieces": [
       {
-       "slp": "nA",
-       "stem": "nA",
-       "gloss": "thin, spare"
+       "slp": "na",
+       "stem": "na",
+       "gloss": "not",
+       "override": true
       },
       {
-       "slp": "BAvas",
-       "stem": "BA",
-       "gloss": "N. of the planet Venus or its regent"
+       "slp": "aBAvas",
+       "stem": "aBAva",
+       "gloss": "nonexistence, nullity, absence"
       }
      ]
     },
@@ -3544,21 +3580,21 @@
     {
      "surface": "उभयोरपि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "both, of both kinds, in both ways + unhurt, VS. viii, 5",
      "lemmas": [
-      "uBa",
-      "api"
+      "uBaya",
+      "arapa"
      ],
      "pieces": [
       {
-       "slp": "uBayos",
-       "stem": "uBa",
-       "gloss": "e, e mfn. du. both"
+       "slp": "uBayas",
+       "stem": "uBaya",
+       "gloss": "both, of both kinds, in both ways"
       },
       {
-       "slp": "api",
-       "stem": "api",
-       "gloss": "or sometimes pi, expresses placing near or over, uniting to"
+       "slp": "arapi",
+       "stem": "arapa",
+       "gloss": "unhurt, VS. viii, 5"
       }
      ]
     },
@@ -3568,7 +3604,7 @@
      "gloss": "",
      "lemmas": [
       "dfzwa",
-      "um",
+      "Um",
       "ta",
       "tu",
       "ayam",
@@ -3576,13 +3612,13 @@
      ],
      "pieces": [
       {
-       "slp": "dfzwa",
+       "slp": "dfzwA",
        "stem": "dfzwa",
        "gloss": "seen, looked at, beheld"
       },
       {
-       "slp": "um",
-       "stem": "um",
+       "slp": "Um",
+       "stem": "Um",
        "gloss": "an interjection of anger"
       },
       {
@@ -3593,7 +3629,8 @@
       {
        "slp": "tu",
        "stem": "tu",
-       "gloss": "to have authority, be strong, RV. i"
+       "gloss": "but",
+       "override": true
       },
       {
        "slp": "anayos",
@@ -3644,7 +3681,7 @@
     {
      "surface": "तु",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "but",
      "lemmas": [
       "tu"
      ],
@@ -3652,23 +3689,25 @@
       {
        "slp": "tu",
        "stem": "tu",
-       "gloss": "to have authority, be strong, RV. i"
+       "gloss": "but",
+       "override": true
       }
      ]
     },
     {
      "surface": "तद्विद्धि",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + to know, understand, perceive",
+     "gloss": "that; he, she, it + to know, understand, perceive",
      "lemmas": [
       "tad",
       "vid"
      ],
      "pieces": [
       {
-       "slp": "tad",
+       "slp": "tat",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "vidDi",
@@ -3704,7 +3743,8 @@
       {
        "slp": "sarvam",
        "stem": "sarva",
-       "gloss": "whole, entire, all"
+       "gloss": "all, every",
+       "override": true
       },
       {
        "slp": "idam",
@@ -3743,11 +3783,11 @@
     {
      "surface": "विनाशमव्ययस्यास्य",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "utter loss, annihilation, perdition + avyaya or rarely avyaya mfn. made of sheep's skin + to be, live, exist",
      "lemmas": [
       "vinASa",
       "avyaya",
-      "As"
+      "as"
      ],
      "pieces": [
       {
@@ -3761,16 +3801,16 @@
        "gloss": "avyaya or rarely avyaya mfn. made of sheep's skin"
       },
       {
-       "slp": "Asya",
-       "stem": "As",
-       "gloss": "Ah! Oh! &c"
+       "slp": "asya",
+       "stem": "as",
+       "gloss": "to be, live, exist"
       }
      ]
     },
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -3778,7 +3818,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -3788,7 +3829,7 @@
      "gloss": "",
      "lemmas": [
       "kim",
-      "cit",
+      "cid",
       "kf",
       "arh"
      ],
@@ -3799,9 +3840,9 @@
        "gloss": "what? how? whence? wherefore? why?"
       },
       {
-       "slp": "cit",
-       "stem": "cit",
-       "gloss": "ifc. ‘piling up’, see agni-, UrDva-"
+       "slp": "cid",
+       "stem": "cid",
+       "gloss": "cid in comp. for cit"
       },
       {
        "slp": "kartum",
@@ -3957,7 +3998,7 @@
     {
      "surface": "तस्माद्युध्यस्व",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + to fight, wage war, oppose or overcome in battle",
+     "gloss": "that; he, she, it + to fight, wage war, oppose or overcome in battle",
      "lemmas": [
       "tad",
       "yuD"
@@ -3966,7 +4007,8 @@
       {
        "slp": "tasmAt",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "yuDyasva",
@@ -3978,7 +4020,7 @@
     {
      "surface": "भारत",
      "isMarker": false,
-     "gloss": "descended from Bharata or the Bharatas, RV. &c. &c",
+     "gloss": "O descendant of Bharata",
      "lemmas": [
       "BArata"
      ],
@@ -3986,7 +4028,8 @@
       {
        "slp": "BArata",
        "stem": "BArata",
-       "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+       "gloss": "O descendant of Bharata",
+       "override": true
       }
      ]
     },
@@ -4072,11 +4115,11 @@
     {
      "surface": "यश्चैनं",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "who, which, what + and + pl. N. of a people, MBh. xiii",
      "lemmas": [
       "yad",
       "ca",
-      "ena"
+      "Ena"
      ],
      "pieces": [
       {
@@ -4085,14 +4128,15 @@
        "gloss": "who, which, what"
       },
       {
-       "slp": "cA",
+       "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
-       "slp": "enam",
-       "stem": "ena",
-       "gloss": "ena a pronom. base, he, she"
+       "slp": "Enam",
+       "stem": "Ena",
+       "gloss": "pl. N. of a people, MBh. xiii"
       }
      ]
     },
@@ -4156,7 +4200,7 @@
     {
      "surface": "तौ",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "that; he, she, it",
      "lemmas": [
       "tad"
      ],
@@ -4164,14 +4208,15 @@
       {
        "slp": "tO",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -4179,7 +4224,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -4188,19 +4234,19 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "vij",
-      "nIta"
+      "vijAni",
+      "i"
      ],
      "pieces": [
       {
-       "slp": "vijA",
-       "stem": "vij",
-       "gloss": "to Dhātup. xxix, 23 and xxv, 12 also cl. 7. P. vinakti"
+       "slp": "vijAnI",
+       "stem": "vijAni",
+       "gloss": "‘strange, foreign’ or ‘having no wife’, AV. v"
       },
       {
-       "slp": "nItas",
-       "stem": "nIta",
-       "gloss": "led, guided, brought &c"
+       "slp": "itas",
+       "stem": "i",
+       "gloss": "i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c"
       }
      ]
     },
@@ -4237,7 +4283,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -4245,7 +4291,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -4286,7 +4333,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -4294,7 +4341,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -4331,7 +4379,7 @@
     {
      "surface": "वा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "or",
      "lemmas": [
       "vA"
      ],
@@ -4339,7 +4387,8 @@
       {
        "slp": "vA",
        "stem": "vA",
-       "gloss": "air, wind"
+       "gloss": "or",
+       "override": true
       }
      ]
     },
@@ -4403,7 +4452,7 @@
     {
      "surface": "वा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "or",
      "lemmas": [
       "vA"
      ],
@@ -4411,14 +4460,15 @@
       {
        "slp": "vA",
        "stem": "vA",
-       "gloss": "air, wind"
+       "gloss": "or",
+       "override": true
       }
      ]
     },
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -4426,7 +4476,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -4526,7 +4577,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -4534,7 +4585,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -4573,19 +4625,19 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "Sa",
-      "rIra"
+      "Sari",
+      "rA"
      ],
      "pieces": [
       {
-       "slp": "Sa",
-       "stem": "Sa",
-       "gloss": "Sa the first of the three sibilants"
+       "slp": "Saris",
+       "stem": "Sari",
+       "gloss": "Sarin. See p. 1056, col. 3"
       },
       {
-       "slp": "rIre",
-       "stem": "rIra",
-       "gloss": "N. of Śiva"
+       "slp": "re",
+       "stem": "rA",
+       "gloss": "acquiring, possessing, Naiṣ"
       }
      ]
     },
@@ -4611,16 +4663,16 @@
     {
      "surface": "वेदाविनाशिनं",
      "isMarker": false,
-     "gloss": "to know, understand, perceive + imperishable, ŚBr. xiv",
+     "gloss": "N. of a pupil of Āyoda + imperishable, ŚBr. xiv",
      "lemmas": [
-      "vid",
+      "vedA",
       "avinASin"
      ],
      "pieces": [
       {
-       "slp": "veda",
-       "stem": "vid",
-       "gloss": "to know, understand, perceive"
+       "slp": "vedA",
+       "stem": "vedA",
+       "gloss": "N. of a pupil of Āyoda"
       },
       {
        "slp": "avinASinam",
@@ -4664,21 +4716,21 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "e",
-      "nam",
+      "ena",
+      "a",
       "jam",
       "vyaya"
      ],
      "pieces": [
       {
-       "slp": "e",
-       "stem": "e",
-       "gloss": "e the eleventh vowel of the alphabet"
+       "slp": "enam",
+       "stem": "ena",
+       "gloss": "ena a pronom. base, he, she"
       },
       {
-       "slp": "nama",
-       "stem": "nam",
-       "gloss": "to bend or bow, to bow to, subject or submit one's self"
+       "slp": "a",
+       "stem": "a",
+       "gloss": "a the first letter of the alphabet"
       },
       {
        "slp": "jama",
@@ -4722,7 +4774,7 @@
     {
      "surface": "स",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "he",
      "lemmas": [
       "tad"
      ],
@@ -4730,7 +4782,8 @@
       {
        "slp": "sa",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -4752,7 +4805,7 @@
     {
      "surface": "पार्थ",
      "isMarker": false,
-     "gloss": "patr. of Tānva",
+     "gloss": "O son of Pṛthā — Arjuna",
      "lemmas": [
       "pArTa"
      ],
@@ -4760,7 +4813,8 @@
       {
        "slp": "pArTa",
        "stem": "pArTa",
-       "gloss": "patr. of Tānva"
+       "gloss": "O son of Pṛthā — Arjuna",
+       "override": true
       }
      ]
     },
@@ -4876,7 +4930,7 @@
     {
      "surface": "यथा",
      "isMarker": false,
-     "gloss": "in which manner or way, according as, as",
+     "gloss": "as, just as",
      "lemmas": [
       "yaTA"
      ],
@@ -4884,7 +4938,8 @@
       {
        "slp": "yaTA",
        "stem": "yaTA",
-       "gloss": "in which manner or way, according as, as"
+       "gloss": "as, just as",
+       "override": true
       }
      ]
     },
@@ -4969,7 +5024,7 @@
     {
      "surface": "तथा",
      "isMarker": false,
-     "gloss": "in that manner, so, thus",
+     "gloss": "so, in that way",
      "lemmas": [
       "taTA"
      ],
@@ -4977,28 +5032,29 @@
       {
        "slp": "taTA",
        "stem": "taTA",
-       "gloss": "in that manner, so, thus"
+       "gloss": "so, in that way",
+       "override": true
       }
      ]
     },
     {
      "surface": "शरीराणि",
      "isMarker": false,
-     "gloss": "a sort of reed or grass, Saccharum Sara, RV. &c. &c + wind",
+     "gloss": "",
      "lemmas": [
-      "SarI",
-      "Ira"
+      "SarIra",
+      "aRI"
      ],
      "pieces": [
       {
-       "slp": "Sari",
-       "stem": "SarI",
-       "gloss": "a sort of reed or grass, Saccharum Sara, RV. &c. &c"
+       "slp": "SarIrA",
+       "stem": "SarIra",
+       "gloss": ""
       },
       {
-       "slp": "IrARi",
-       "stem": "Ira",
-       "gloss": "wind"
+       "slp": "aRi",
+       "stem": "aRI",
+       "gloss": "or aRI, f. the point of a needle or of a sharp stake, L. linchpin"
       }
      ]
     },
@@ -5105,7 +5161,7 @@
     {
      "surface": "नैनं",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not + pl. N. of a people, MBh. xiii",
      "lemmas": [
       "na",
       "Ena"
@@ -5114,7 +5170,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       },
       {
        "slp": "Enam",
@@ -5156,16 +5213,17 @@
     {
      "surface": "नैनं",
      "isMarker": false,
-     "gloss": "thin, spare + pl. N. of a people, MBh. xiii",
+     "gloss": "not + pl. N. of a people, MBh. xiii",
      "lemmas": [
-      "nA",
+      "na",
       "Ena"
      ],
      "pieces": [
       {
-       "slp": "nA",
-       "stem": "nA",
-       "gloss": "thin, spare"
+       "slp": "na",
+       "stem": "na",
+       "gloss": "not",
+       "override": true
       },
       {
        "slp": "Enam",
@@ -5219,7 +5277,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -5227,14 +5285,15 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "चैनं",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + pl. N. of a people, MBh. xiii",
      "lemmas": [
       "ca",
       "Ena"
@@ -5243,7 +5302,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
        "slp": "Enam",
@@ -5255,28 +5315,28 @@
     {
      "surface": "क्लेदयन्त्यापो",
      "isMarker": false,
-     "gloss": "to be or become wet or damp, Suśr + to reach, overtake, meet with",
+     "gloss": "",
      "lemmas": [
-      "klid",
-      "Ap"
+      "kledayat",
+      "pa"
      ],
      "pieces": [
       {
-       "slp": "kledayanti",
-       "stem": "klid",
-       "gloss": "to be or become wet or damp, Suśr"
+       "slp": "kledayantyA",
+       "stem": "kledayat",
+       "gloss": ""
       },
       {
-       "slp": "Apas",
-       "stem": "Ap",
-       "gloss": "to reach, overtake, meet with"
+       "slp": "pas",
+       "stem": "pa",
+       "gloss": "guarding, protecting, ruling"
       }
      ]
     },
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -5284,7 +5344,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -5343,7 +5404,7 @@
      "gloss": "",
      "lemmas": [
       "acCedya",
-      "ya",
+      "aya",
       "adAhya",
       "yama",
       "kledya",
@@ -5356,8 +5417,8 @@
        "gloss": "improper or impossible to be cut, indivisible"
       },
       {
-       "slp": "yam",
-       "stem": "ya",
+       "slp": "ayam",
+       "stem": "aya",
        "gloss": "going"
       },
       {
@@ -5385,7 +5446,7 @@
     {
      "surface": "एव",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "just, only",
      "lemmas": [
       "eva"
      ],
@@ -5393,14 +5454,15 @@
       {
        "slp": "eva",
        "stem": "eva",
-       "gloss": "eva ind, so, just so"
+       "gloss": "just, only",
+       "override": true
       }
      ]
     },
     {
      "surface": "च",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and",
      "lemmas": [
       "ca"
      ],
@@ -5408,7 +5470,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
@@ -5521,7 +5584,7 @@
      "gloss": "",
      "lemmas": [
       "avyakta",
-      "aya",
+      "ya",
       "acintya",
       "yama",
       "vikArya",
@@ -5535,8 +5598,8 @@
        "gloss": "undeveloped, not manifest, unapparent"
       },
       {
-       "slp": "ayam",
-       "stem": "aya",
+       "slp": "yam",
+       "stem": "ya",
        "gloss": "going"
       },
       {
@@ -5581,7 +5644,7 @@
     {
      "surface": "तस्मादेवं",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + thus, in this way, in such a manner",
+     "gloss": "that; he, she, it + thus, in this way, in such a manner",
      "lemmas": [
       "tad",
       "evam"
@@ -5590,7 +5653,8 @@
       {
        "slp": "tasmAt",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "evam",
@@ -5625,21 +5689,21 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "na",
-      "u",
+      "nA",
+      "nu",
       "Suc",
       "arh"
      ],
      "pieces": [
       {
-       "slp": "nAn",
-       "stem": "na",
-       "gloss": "na the dental nasal"
+       "slp": "nAs",
+       "stem": "nA",
+       "gloss": "thin, spare"
       },
       {
-       "slp": "u",
-       "stem": "u",
-       "gloss": "u the fifth letter and third short vowel of the alphabet, pronounced as the u in full"
+       "slp": "nu",
+       "stem": "nu",
+       "gloss": "nu ind, now, still"
       },
       {
        "slp": "Socitum",
@@ -5690,21 +5754,22 @@
     {
      "surface": "चैनं",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + pl. N. of a people, MBh. xiii",
      "lemmas": [
       "ca",
-      "ena"
+      "Ena"
      ],
      "pieces": [
       {
-       "slp": "cA",
+       "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
-       "slp": "enam",
-       "stem": "ena",
-       "gloss": "ena a pronom. base, he, she"
+       "slp": "Enam",
+       "stem": "Ena",
+       "gloss": "pl. N. of a people, MBh. xiii"
       }
      ]
     },
@@ -5741,7 +5806,7 @@
     {
      "surface": "वा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "or",
      "lemmas": [
       "vA"
      ],
@@ -5749,7 +5814,8 @@
       {
        "slp": "vA",
        "stem": "vA",
-       "gloss": "air, wind"
+       "gloss": "or",
+       "override": true
       }
      ]
     },
@@ -5798,21 +5864,23 @@
     {
      "surface": "तथापि",
      "isMarker": false,
-     "gloss": "in that manner, so, thus + guarding, protecting, ruling",
+     "gloss": "so, in that way + also, even",
      "lemmas": [
       "taTA",
-      "pA"
+      "api"
      ],
      "pieces": [
       {
        "slp": "taTA",
        "stem": "taTA",
-       "gloss": "in that manner, so, thus"
+       "gloss": "so, in that way",
+       "override": true
       },
       {
-       "slp": "pi",
-       "stem": "pA",
-       "gloss": "guarding, protecting, ruling"
+       "slp": "api",
+       "stem": "api",
+       "gloss": "also, even",
+       "override": true
       }
      ]
     },
@@ -5849,16 +5917,17 @@
     {
      "surface": "नैवं",
      "isMarker": false,
-     "gloss": "thin, spare + thus, in this way, in such a manner",
+     "gloss": "not + thus, in this way, in such a manner",
      "lemmas": [
-      "nA",
+      "na",
       "evam"
      ],
      "pieces": [
       {
-       "slp": "nA",
-       "stem": "nA",
-       "gloss": "thin, spare"
+       "slp": "na",
+       "stem": "na",
+       "gloss": "not",
+       "override": true
       },
       {
        "slp": "evam",
@@ -5925,7 +5994,7 @@
     {
      "surface": "हि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "for, indeed",
      "lemmas": [
       "hi"
      ],
@@ -5933,7 +6002,8 @@
       {
        "slp": "hi",
        "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "gloss": "for, indeed",
+       "override": true
       }
      ]
     },
@@ -6006,7 +6076,7 @@
     {
      "surface": "च",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and",
      "lemmas": [
       "ca"
      ],
@@ -6014,7 +6084,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
@@ -6033,7 +6104,7 @@
     {
      "surface": "तस्मादपरिहार्येऽर्थे",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + id, Gaut. &c + aim, purpose",
+     "gloss": "that; he, she, it + id, Gaut. &c + aim, purpose",
      "lemmas": [
       "tad",
       "aparihArya",
@@ -6043,7 +6114,8 @@
       {
        "slp": "tasmAt",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "aparihArye",
@@ -6060,7 +6132,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -6068,7 +6140,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -6130,21 +6203,21 @@
     {
      "surface": "अव्यक्तादीनि",
      "isMarker": false,
-     "gloss": "undeveloped, not manifest, unapparent + scarce, scanty",
+     "gloss": "undeveloped, not manifest, unapparent + not depressed, noble-minded",
      "lemmas": [
       "avyakta",
-      "dIna"
+      "adIna"
      ],
      "pieces": [
       {
-       "slp": "avyaktAs",
+       "slp": "avyaktA",
        "stem": "avyakta",
        "gloss": "undeveloped, not manifest, unapparent"
       },
       {
-       "slp": "dIni",
-       "stem": "dIna",
-       "gloss": "scarce, scanty"
+       "slp": "adIni",
+       "stem": "adIna",
+       "gloss": "not depressed, noble-minded"
       }
      ]
     },
@@ -6187,7 +6260,7 @@
     {
      "surface": "भारत",
      "isMarker": false,
-     "gloss": "descended from Bharata or the Bharatas, RV. &c. &c",
+     "gloss": "O descendant of Bharata",
      "lemmas": [
       "BArata"
      ],
@@ -6195,7 +6268,8 @@
       {
        "slp": "BArata",
        "stem": "BArata",
-       "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+       "gloss": "O descendant of Bharata",
+       "override": true
       }
      ]
     },
@@ -6214,7 +6288,7 @@
     {
      "surface": "अव्यक्तनिधनान्येव",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "undeveloped, not manifest, unapparent + having no property, poor + just, only",
      "lemmas": [
       "avyakta",
       "niDana",
@@ -6234,7 +6308,8 @@
       {
        "slp": "eva",
        "stem": "eva",
-       "gloss": "eva ind, so, just so"
+       "gloss": "just, only",
+       "override": true
       }
      ]
     },
@@ -6335,9 +6410,9 @@
      "gloss": "",
      "lemmas": [
       "kim",
-      "cid",
-      "a",
-      "mA",
+      "cit",
+      "e",
+      "na",
       "AScaryavat",
       "vad"
      ],
@@ -6348,19 +6423,20 @@
        "gloss": "what? how? whence? wherefore? why?"
       },
       {
-       "slp": "cid",
-       "stem": "cid",
-       "gloss": "cid in comp. for cit"
+       "slp": "cit",
+       "stem": "cit",
+       "gloss": "ifc. ‘piling up’, see agni-, UrDva-"
       },
       {
-       "slp": "ena",
-       "stem": "a",
-       "gloss": "a the first letter of the alphabet"
+       "slp": "e",
+       "stem": "e",
+       "gloss": "e the eleventh vowel of the alphabet"
       },
       {
-       "slp": "mA",
-       "stem": "mA",
-       "gloss": "time, L. poison"
+       "slp": "nam",
+       "stem": "na",
+       "gloss": "not",
+       "override": true
       },
       {
        "slp": "AScaryavat",
@@ -6377,7 +6453,7 @@
     {
      "surface": "तथैव",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "so, in that way + just, only",
      "lemmas": [
       "taTA",
       "eva"
@@ -6386,33 +6462,36 @@
       {
        "slp": "taTA",
        "stem": "taTA",
-       "gloss": "in that manner, so, thus"
+       "gloss": "so, in that way",
+       "override": true
       },
       {
        "slp": "eva",
        "stem": "eva",
-       "gloss": "eva ind, so, just so"
+       "gloss": "just, only",
+       "override": true
       }
      ]
     },
     {
      "surface": "चान्यः",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + nI for nis before r",
      "lemmas": [
       "ca",
-      "yad"
+      "nI"
      ],
      "pieces": [
       {
-       "slp": "cAn",
+       "slp": "cAs",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
-       "slp": "yas",
-       "stem": "yad",
-       "gloss": "who, which, what"
+       "slp": "nyas",
+       "stem": "nI",
+       "gloss": "nI for nis before r"
       }
      ]
     },
@@ -6435,7 +6514,7 @@
      "lemmas": [
       "AScaryavat",
       "ca",
-      "Ena",
+      "ena",
       "anya"
      ],
      "pieces": [
@@ -6445,14 +6524,15 @@
        "gloss": ""
       },
       {
-       "slp": "ca",
+       "slp": "cA",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
-       "slp": "Enam",
-       "stem": "Ena",
-       "gloss": "pl. N. of a people, MBh. xiii"
+       "slp": "enam",
+       "stem": "ena",
+       "gloss": "ena a pronom. base, he, she"
       },
       {
        "slp": "anyas",
@@ -6479,7 +6559,7 @@
     {
      "surface": "श्रुत्वाप्येनं",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "hearing, listening + or + not",
      "lemmas": [
       "Srut",
       "vA",
@@ -6494,12 +6574,14 @@
       {
        "slp": "vApye",
        "stem": "vA",
-       "gloss": "air, wind"
+       "gloss": "or",
+       "override": true
       },
       {
        "slp": "nam",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -6521,7 +6603,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -6529,7 +6611,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -6539,18 +6622,19 @@
      "gloss": "",
      "lemmas": [
       "ca",
-      "eva"
+      "i"
      ],
      "pieces": [
       {
-       "slp": "ca",
+       "slp": "cA",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
-       "slp": "eva",
-       "stem": "eva",
-       "gloss": "eva ind, so, just so"
+       "slp": "Eva",
+       "stem": "i",
+       "gloss": "i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c"
       }
      ]
     },
@@ -6654,7 +6738,7 @@
     {
      "surface": "सर्वस्य",
      "isMarker": false,
-     "gloss": "whole, entire, all",
+     "gloss": "all, every",
      "lemmas": [
       "sarva"
      ],
@@ -6662,14 +6746,15 @@
       {
        "slp": "sarvasya",
        "stem": "sarva",
-       "gloss": "whole, entire, all"
+       "gloss": "all, every",
+       "override": true
       }
      ]
     },
     {
      "surface": "भारत",
      "isMarker": false,
-     "gloss": "descended from Bharata or the Bharatas, RV. &c. &c",
+     "gloss": "O descendant of Bharata",
      "lemmas": [
       "BArata"
      ],
@@ -6677,7 +6762,8 @@
       {
        "slp": "BArata",
        "stem": "BArata",
-       "gloss": "descended from Bharata or the Bharatas, RV. &c. &c"
+       "gloss": "O descendant of Bharata",
+       "override": true
       }
      ]
     },
@@ -6696,7 +6782,7 @@
     {
      "surface": "तस्मात्सर्वाणि",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + whole, entire, all",
+     "gloss": "that; he, she, it + all, every",
      "lemmas": [
       "tad",
       "sarva"
@@ -6705,12 +6791,14 @@
       {
        "slp": "tasmAt",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "sarvARi",
        "stem": "sarva",
-       "gloss": "whole, entire, all"
+       "gloss": "all, every",
+       "override": true
       }
      ]
     },
@@ -6732,7 +6820,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -6740,7 +6828,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -6816,14 +6905,15 @@
       {
        "slp": "api",
        "stem": "api",
-       "gloss": "or sometimes pi, expresses placing near or over, uniting to"
+       "gloss": "also, even",
+       "override": true
       }
      ]
     },
     {
      "surface": "चावेक्ष्य",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + to be attended to, MBh. ii, 2591",
      "lemmas": [
       "ca",
       "avekzya"
@@ -6832,7 +6922,8 @@
       {
        "slp": "cA",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
        "slp": "avekzya",
@@ -6844,7 +6935,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -6852,29 +6943,30 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "विकम्पितुमर्हसि",
      "isMarker": false,
-     "gloss": "N. of a man, Kṣitīś + juice, drink, nourishment + to deserve, merit, be worthy of",
+     "gloss": "to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV + to tremble, shake + to deserve, merit, be worthy of",
      "lemmas": [
-      "vika",
-      "pitu",
+      "vI",
+      "kamp",
       "arh"
      ],
      "pieces": [
       {
-       "slp": "vikam",
-       "stem": "vika",
-       "gloss": "N. of a man, Kṣitīś"
+       "slp": "vi",
+       "stem": "vI",
+       "gloss": "to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV"
       },
       {
-       "slp": "pitum",
-       "stem": "pitu",
-       "gloss": "juice, drink, nourishment"
+       "slp": "kampitum",
+       "stem": "kamp",
+       "gloss": "to tremble, shake"
       },
       {
        "slp": "arhasi",
@@ -6898,7 +6990,7 @@
     {
      "surface": "धर्म्याद्धि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "legal, legitimate + for, indeed",
      "lemmas": [
       "Darmya",
       "hi"
@@ -6912,7 +7004,8 @@
       {
        "slp": "hi",
        "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "gloss": "for, indeed",
+       "override": true
       }
      ]
     },
@@ -6952,7 +7045,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -6960,7 +7053,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -7016,7 +7110,7 @@
     {
      "surface": "चोपपन्नं",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + one who has approached a teacher, Suśr",
      "lemmas": [
       "ca",
       "upapanna"
@@ -7025,7 +7119,8 @@
       {
        "slp": "cA",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
        "slp": "upapannam",
@@ -7100,7 +7195,7 @@
     {
      "surface": "पार्थ",
      "isMarker": false,
-     "gloss": "patr. of Tānva",
+     "gloss": "O son of Pṛthā — Arjuna",
      "lemmas": [
       "pArTa"
      ],
@@ -7108,7 +7203,8 @@
       {
        "slp": "pArTa",
        "stem": "pArTa",
-       "gloss": "patr. of Tānva"
+       "gloss": "O son of Pṛthā — Arjuna",
+       "override": true
       }
      ]
     },
@@ -7194,14 +7290,15 @@
      ],
      "pieces": [
       {
-       "slp": "cet",
+       "slp": "ced",
        "stem": "ced",
        "gloss": ""
       },
       {
        "slp": "tu",
        "stem": "tu",
-       "gloss": "to have authority, be strong, RV. i"
+       "gloss": "but",
+       "override": true
       },
       {
        "slp": "ami",
@@ -7254,7 +7351,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -7262,7 +7359,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -7341,7 +7439,7 @@
     {
      "surface": "च",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and",
      "lemmas": [
       "ca"
      ],
@@ -7349,14 +7447,15 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
     {
      "surface": "हित्वा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "for, indeed",
      "lemmas": [
       "hi"
      ],
@@ -7364,29 +7463,30 @@
       {
        "slp": "hitvA",
        "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "gloss": "for, indeed",
+       "override": true
       }
      ]
     },
     {
      "surface": "पापमवाप्स्यसि",
      "isMarker": false,
-     "gloss": "bad, vicious, wicked + to drive, impel, animate + to reach, overtake, meet with",
+     "gloss": "bad, vicious, wicked + a bond + to reach, overtake, meet with",
      "lemmas": [
       "pApa",
-      "av",
+      "mu",
       "Ap"
      ],
      "pieces": [
       {
-       "slp": "pApam",
+       "slp": "pApa",
        "stem": "pApa",
        "gloss": "bad, vicious, wicked"
       },
       {
-       "slp": "ava",
-       "stem": "av",
-       "gloss": "to drive, impel, animate"
+       "slp": "mo",
+       "stem": "mu",
+       "gloss": "a bond"
       },
       {
        "slp": "Apsyasi",
@@ -7477,7 +7577,7 @@
     {
      "surface": "तेऽव्ययाम्",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + passing away, mutable, liable to change or decay",
+     "gloss": "that; he, she, it + passing away, mutable, liable to change or decay",
      "lemmas": [
       "tad",
       "vyaya"
@@ -7486,7 +7586,8 @@
       {
        "slp": "te",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "vyayAm",
@@ -7537,7 +7638,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
        "slp": "akIrtis",
@@ -7682,7 +7784,7 @@
     {
      "surface": "च",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and",
      "lemmas": [
       "ca"
      ],
@@ -7690,7 +7792,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
@@ -7791,7 +7894,7 @@
     {
      "surface": "अवाच्यवादांश्च",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not to be addressed, Mn. ii, 128 + speaking of or about + and",
      "lemmas": [
       "avAcya",
       "vAda",
@@ -7811,7 +7914,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
@@ -7874,20 +7978,20 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "ni",
-      "danta",
+      "nindat",
+      "ta",
       "yuzmad"
      ],
      "pieces": [
       {
-       "slp": "nim",
-       "stem": "ni",
-       "gloss": "down, back, in"
+       "slp": "nindan",
+       "stem": "nindat",
+       "gloss": ""
       },
       {
-       "slp": "dantas",
-       "stem": "danta",
-       "gloss": ""
+       "slp": "tas",
+       "stem": "ta",
+       "gloss": "Lakṣmī"
       },
       {
        "slp": "tava",
@@ -8008,7 +8112,7 @@
     {
      "surface": "वा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "or",
      "lemmas": [
       "vA"
      ],
@@ -8016,7 +8120,8 @@
       {
        "slp": "vA",
        "stem": "vA",
-       "gloss": "air, wind"
+       "gloss": "or",
+       "override": true
       }
      ]
     },
@@ -8074,7 +8179,7 @@
     {
      "surface": "वा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "or",
      "lemmas": [
       "vA"
      ],
@@ -8082,7 +8187,8 @@
       {
        "slp": "vA",
        "stem": "vA",
-       "gloss": "air, wind"
+       "gloss": "or",
+       "override": true
       }
      ]
     },
@@ -8131,7 +8237,7 @@
     {
      "surface": "तस्मादुत्तिष्ठ",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + a particle of doubt or deliberation + to stand, stand firmly, station one's self",
+     "gloss": "that; he, she, it + a particle of doubt or deliberation + to stand, stand firmly, station one's self",
      "lemmas": [
       "tad",
       "ut",
@@ -8141,7 +8247,8 @@
       {
        "slp": "tasmAt",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "ut",
@@ -8158,7 +8265,7 @@
     {
      "surface": "कौन्तेय",
      "isMarker": false,
-     "gloss": "metron. fr. Kuntī, N. of Yudhiṣṭhira, Bhīma-sena",
+     "gloss": "O son of Kuntī — Arjuna",
      "lemmas": [
       "kOnteya"
      ],
@@ -8166,7 +8273,8 @@
       {
        "slp": "kOnteya",
        "stem": "kOnteya",
-       "gloss": "metron. fr. Kuntī, N. of Yudhiṣṭhira, Bhīma-sena"
+       "gloss": "O son of Kuntī — Arjuna",
+       "override": true
       }
      ]
     },
@@ -8354,16 +8462,16 @@
     {
      "surface": "नैवं",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "thin, spare + thus, in this way, in such a manner",
      "lemmas": [
-      "na",
+      "nA",
       "evam"
      ],
      "pieces": [
       {
-       "slp": "na",
-       "stem": "na",
-       "gloss": "na the dental nasal"
+       "slp": "nA",
+       "stem": "nA",
+       "gloss": "thin, spare"
       },
       {
        "slp": "evam",
@@ -8421,7 +8529,7 @@
     {
      "surface": "एषा",
      "isMarker": false,
-     "gloss": "gliding, running, hastening",
+     "gloss": "this",
      "lemmas": [
       "eza"
      ],
@@ -8436,7 +8544,7 @@
     {
      "surface": "तेऽभिहिता",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + harnessed or put to",
+     "gloss": "that; he, she, it + harnessed or put to",
      "lemmas": [
       "tad",
       "aBihita"
@@ -8445,7 +8553,8 @@
       {
        "slp": "te",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "aBihitA",
@@ -8586,7 +8695,7 @@
     {
      "surface": "पार्थ",
      "isMarker": false,
-     "gloss": "patr. of Tānva",
+     "gloss": "O son of Pṛthā — Arjuna",
      "lemmas": [
       "pArTa"
      ],
@@ -8594,7 +8703,8 @@
       {
        "slp": "pArTa",
        "stem": "pArTa",
-       "gloss": "patr. of Tānva"
+       "gloss": "O son of Pṛthā — Arjuna",
+       "override": true
       }
      ]
     },
@@ -8698,7 +8808,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -8706,7 +8816,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -8859,7 +8970,7 @@
      "lemmas": [
       "budDi",
       "reka",
-      "ha"
+      "aha"
      ],
      "pieces": [
       {
@@ -8873,9 +8984,9 @@
        "gloss": "&c. See p. 887, col. 1"
       },
       {
-       "slp": "ha",
-       "stem": "ha",
-       "gloss": "ha the thirty-third and last consonant of the Nāgarī alphabet"
+       "slp": "aha",
+       "stem": "aha",
+       "gloss": "surely, certainly"
       }
      ]
     },
@@ -8926,15 +9037,15 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "hi",
+      "hI",
       "anantA",
       "ca"
      ],
      "pieces": [
       {
-       "slp": "hi",
-       "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "slp": "hI",
+       "stem": "hI",
+       "gloss": "ah! oh! alas l &c"
       },
       {
        "slp": "anantAs",
@@ -8944,7 +9055,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
@@ -9042,27 +9154,27 @@
     {
      "surface": "प्रवदन्त्यविपश्चितः",
      "isMarker": false,
-     "gloss": "fluttering, hovering + dental, Kāś + inspired, wise, learned",
+     "gloss": "the side or slope of a mountain, elevation, height + before, in the presence of near + unwise, ignorant, Kauś",
      "lemmas": [
-      "prava",
-      "dantya",
-      "vipaScit"
+      "pravat",
+      "anti",
+      "avipaScit"
      ],
      "pieces": [
       {
-       "slp": "prava",
-       "stem": "prava",
-       "gloss": "fluttering, hovering"
+       "slp": "pravat",
+       "stem": "pravat",
+       "gloss": "the side or slope of a mountain, elevation, height"
       },
       {
-       "slp": "dantya",
-       "stem": "dantya",
-       "gloss": "dental, Kāś"
+       "slp": "anti",
+       "stem": "anti",
+       "gloss": "before, in the presence of near"
       },
       {
-       "slp": "vipaScitas",
-       "stem": "vipaScit",
-       "gloss": "inspired, wise, learned"
+       "slp": "avipaScitas",
+       "stem": "avipaScit",
+       "gloss": "unwise, ignorant, Kauś"
       }
      ]
     },
@@ -9096,7 +9208,7 @@
     {
      "surface": "पार्थ",
      "isMarker": false,
-     "gloss": "patr. of Tānva",
+     "gloss": "O son of Pṛthā — Arjuna",
      "lemmas": [
       "pArTa"
      ],
@@ -9104,34 +9216,36 @@
       {
        "slp": "pArTa",
        "stem": "pArTa",
-       "gloss": "patr. of Tānva"
+       "gloss": "O son of Pṛthā — Arjuna",
+       "override": true
       }
      ]
     },
     {
      "surface": "नान्यदस्तीति",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not + unexhausted, imperishable + Iti f, plague, distress",
      "lemmas": [
       "na",
       "adasta",
-      "iti"
+      "Iti"
      ],
      "pieces": [
       {
        "slp": "nAni",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       },
       {
-       "slp": "adasti",
+       "slp": "adastI",
        "stem": "adasta",
        "gloss": "unexhausted, imperishable"
       },
       {
-       "slp": "iti",
-       "stem": "iti",
-       "gloss": "ityE See above"
+       "slp": "Iti",
+       "stem": "Iti",
+       "gloss": "Iti f, plague, distress"
       }
      ]
     },
@@ -9268,27 +9382,27 @@
     {
      "surface": "भोगैश्वर्यगतिं",
      "isMarker": false,
-     "gloss": "any winding or curve, coil, RV. &c. &c + relating to or coming from a mighty lord or king, mighty powerful, majestic + not going, halting, without resource",
+     "gloss": "any winding or curve, coil, RV. &c. &c + the state of being a mighty lord, sovereignty, supremacy + going, moving, gait",
      "lemmas": [
       "Boga",
-      "ESvarI",
-      "agati"
+      "ESvarya",
+      "gati"
      ],
      "pieces": [
       {
-       "slp": "BogA",
+       "slp": "Boga",
        "stem": "Boga",
        "gloss": "any winding or curve, coil, RV. &c. &c"
       },
       {
-       "slp": "ESvari",
-       "stem": "ESvarI",
-       "gloss": "relating to or coming from a mighty lord or king, mighty powerful, majestic"
+       "slp": "ESvarya",
+       "stem": "ESvarya",
+       "gloss": "the state of being a mighty lord, sovereignty, supremacy"
       },
       {
-       "slp": "agatim",
-       "stem": "agati",
-       "gloss": "not going, halting, without resource"
+       "slp": "gatim",
+       "stem": "gati",
+       "gloss": "going, moving, gait"
       }
      ]
     },
@@ -9337,7 +9451,7 @@
      ],
      "pieces": [
       {
-       "slp": "BogA",
+       "slp": "Boga",
        "stem": "Boga",
        "gloss": "any winding or curve, coil, RV. &c. &c"
       },
@@ -9356,7 +9470,7 @@
     {
      "surface": "तयापहृतचेतसाम्",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + taken away, carried off, stolen + splendour",
+     "gloss": "that; he, she, it + taken away, carried off, stolen + splendour",
      "lemmas": [
       "tad",
       "apahfta",
@@ -9366,7 +9480,8 @@
       {
        "slp": "tayA",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "apahfta",
@@ -9440,7 +9555,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -9448,28 +9563,29 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "विधीयते",
      "isMarker": false,
-     "gloss": "to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV + to DA",
+     "gloss": "",
      "lemmas": [
-      "vI",
-      "DI"
+      "viDi",
+      "i"
      ],
      "pieces": [
       {
-       "slp": "vi",
-       "stem": "vI",
-       "gloss": "to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV"
+       "slp": "viDI",
+       "stem": "viDi",
+       "gloss": "a worshipper, one who does homage"
       },
       {
-       "slp": "DIyate",
-       "stem": "DI",
-       "gloss": "to DA"
+       "slp": "Iyate",
+       "stem": "i",
+       "gloss": "i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c"
       }
      ]
     },
@@ -9682,21 +9798,21 @@
     {
      "surface": "यावानर्थ",
      "isMarker": false,
-     "gloss": "a goer or mover + non-value, a worthless or useless object",
+     "gloss": "Andrographis Paniculata + aim, purpose",
      "lemmas": [
-      "yA",
-      "anarTa"
+      "yAva",
+      "arTa"
      ],
      "pieces": [
       {
-       "slp": "yAva",
-       "stem": "yA",
-       "gloss": "a goer or mover"
+       "slp": "yAvAn",
+       "stem": "yAva",
+       "gloss": "Andrographis Paniculata"
       },
       {
-       "slp": "anarTa",
-       "stem": "anarTa",
-       "gloss": "non-value, a worthless or useless object"
+       "slp": "arTa",
+       "stem": "arTa",
+       "gloss": "aim, purpose"
       }
      ]
     },
@@ -9760,7 +9876,7 @@
     {
      "surface": "तावान्सर्वेषु",
      "isMarker": false,
-     "gloss": "so great, so large, so much + whole, entire, all",
+     "gloss": "so great, so large, so much + all, every",
      "lemmas": [
       "tAvat",
       "sarva"
@@ -9774,7 +9890,8 @@
       {
        "slp": "sarvezu",
        "stem": "sarva",
-       "gloss": "whole, entire, all"
+       "gloss": "all, every",
+       "override": true
       }
      ]
     },
@@ -9847,38 +9964,38 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "karmaRya",
-      "iva",
-      "aDika",
-      "rasta"
+      "karmaRyA",
+      "av",
+      "aDikAra",
+      "as"
      ],
      "pieces": [
       {
-       "slp": "karmaRya",
-       "stem": "karmaRya",
+       "slp": "karmaRye",
+       "stem": "karmaRyA",
        "gloss": "skilful in work, clever, diligent"
       },
       {
-       "slp": "iva",
-       "stem": "iva",
-       "gloss": "like, in the same manner as"
+       "slp": "ava",
+       "stem": "av",
+       "gloss": "to drive, impel, animate"
       },
       {
-       "slp": "aDikA",
-       "stem": "aDika",
-       "gloss": "additional, subsequent, later"
+       "slp": "aDikAra",
+       "stem": "aDikAra",
+       "gloss": "authority"
       },
       {
-       "slp": "raste",
-       "stem": "rasta",
-       "gloss": ""
+       "slp": "ste",
+       "stem": "as",
+       "gloss": "to be, live, exist"
       }
      ]
     },
     {
      "surface": "मा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "do not",
      "lemmas": [
       "mA"
      ],
@@ -9886,7 +10003,8 @@
       {
        "slp": "mA",
        "stem": "mA",
-       "gloss": "time, L. poison"
+       "gloss": "do not",
+       "override": true
       }
      ]
     },
@@ -9908,27 +10026,28 @@
     {
      "surface": "कदाचन",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "to be confused, suffer mentally + N. of a man + not",
      "lemmas": [
-      "kadA",
-      "ca",
+      "kad",
+      "Aca",
       "na"
      ],
      "pieces": [
       {
-       "slp": "kadA",
-       "stem": "kadA",
-       "gloss": "when? at what time?"
+       "slp": "kad",
+       "stem": "kad",
+       "gloss": "to be confused, suffer mentally"
       },
       {
-       "slp": "ca",
-       "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "slp": "Aca",
+       "stem": "Aca",
+       "gloss": "N. of a man"
       },
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -9947,7 +10066,7 @@
     {
      "surface": "मा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "do not",
      "lemmas": [
       "mA"
      ],
@@ -9955,14 +10074,15 @@
       {
        "slp": "mA",
        "stem": "mA",
-       "gloss": "time, L. poison"
+       "gloss": "do not",
+       "override": true
       }
      ]
     },
     {
      "surface": "कर्मफलहेतुर्भूर्मा",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "one who is actuated by the result of his acts + to become, be, arise + do not",
      "lemmas": [
       "karmaPalahetu",
       "BU",
@@ -9975,21 +10095,22 @@
        "gloss": "one who is actuated by the result of his acts"
       },
       {
-       "slp": "BUs",
+       "slp": "BUr",
        "stem": "BU",
        "gloss": "to become, be, arise"
       },
       {
        "slp": "mA",
        "stem": "mA",
-       "gloss": "time, L. poison"
+       "gloss": "do not",
+       "override": true
       }
      ]
     },
     {
      "surface": "ते",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "thy; to thee",
      "lemmas": [
       "tad"
      ],
@@ -9997,7 +10118,8 @@
       {
        "slp": "te",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -10284,14 +10406,14 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "hi",
+      "hI",
       "vf"
      ],
      "pieces": [
       {
-       "slp": "hi",
-       "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "slp": "hI",
+       "stem": "hI",
+       "gloss": "ah! oh! alas l &c"
       },
       {
        "slp": "avaram",
@@ -10471,14 +10593,14 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "hA",
+      "jaha",
       "Iha"
      ],
      "pieces": [
       {
-       "slp": "jahAti",
-       "stem": "hA",
-       "gloss": "a form of Śiva or Bhairava"
+       "slp": "jahAt",
+       "stem": "jaha",
+       "gloss": "see SarDam-"
       },
       {
        "slp": "Iha",
@@ -10538,7 +10660,7 @@
     {
      "surface": "तस्माद्योगाय",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + the act of yoking, joining, attaching",
+     "gloss": "that; he, she, it + the act of yoking, joining, attaching",
      "lemmas": [
       "tad",
       "yoga"
@@ -10547,7 +10669,8 @@
       {
        "slp": "tasmAt",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "yogAya",
@@ -10674,7 +10797,7 @@
     {
      "surface": "हि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "for, indeed",
      "lemmas": [
       "hi"
      ],
@@ -10682,7 +10805,8 @@
       {
        "slp": "hi",
        "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "gloss": "for, indeed",
+       "override": true
       }
      ]
     },
@@ -10782,16 +10906,16 @@
     {
      "surface": "गच्छन्त्यनामयम्",
      "isMarker": false,
-     "gloss": "to go, move, go away + to bend or bow, to bow to, subject or submit one's self",
+     "gloss": "",
      "lemmas": [
-      "gam",
+      "gacCat",
       "nam"
      ],
      "pieces": [
       {
-       "slp": "gacCanti",
-       "stem": "gam",
-       "gloss": "to go, move, go away"
+       "slp": "gacCantI",
+       "stem": "gacCat",
+       "gloss": "pr. p. P. fr. q.v"
       },
       {
        "slp": "anAmayam",
@@ -10837,7 +10961,7 @@
     {
      "surface": "ते",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "thy; to thee",
      "lemmas": [
       "tad"
      ],
@@ -10845,7 +10969,8 @@
       {
        "slp": "te",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -10981,7 +11106,7 @@
     {
      "surface": "च",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and",
      "lemmas": [
       "ca"
      ],
@@ -10989,7 +11114,8 @@
       {
        "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       }
      ]
     },
@@ -11030,7 +11156,7 @@
     {
      "surface": "ते",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "thy; to thee",
      "lemmas": [
       "tad"
      ],
@@ -11038,7 +11164,8 @@
       {
        "slp": "te",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -11190,7 +11317,7 @@
     {
      "surface": "अर्जुन",
      "isMarker": false,
-     "gloss": "white, clear",
+     "gloss": "Arjuna",
      "lemmas": [
       "arjuna"
      ],
@@ -11198,7 +11325,8 @@
       {
        "slp": "arjuna",
        "stem": "arjuna",
-       "gloss": "white, clear"
+       "gloss": "Arjuna",
+       "override": true
       }
      ]
     },
@@ -11285,7 +11413,7 @@
     {
      "surface": "केशव",
      "isMarker": false,
-     "gloss": "having long or much or handsome hair, AV. viii, 6",
+     "gloss": "Keśava — Kṛṣṇa",
      "lemmas": [
       "keSava"
      ],
@@ -11293,7 +11421,8 @@
       {
        "slp": "keSava",
        "stem": "keSava",
-       "gloss": "having long or much or handsome hair, AV. viii, 6"
+       "gloss": "Keśava — Kṛṣṇa",
+       "override": true
       }
      ]
     },
@@ -11370,7 +11499,7 @@
      ],
      "pieces": [
       {
-       "slp": "kimA",
+       "slp": "kim",
        "stem": "kim",
        "gloss": "what? how? whence? wherefore? why?"
       },
@@ -11433,7 +11562,7 @@
     {
      "surface": "श्रीभगवानुवाच",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "to mix, mingle, cook + the Blessed One + to speak, say, tell",
      "lemmas": [
       "SrI",
       "Bagavat",
@@ -11448,7 +11577,8 @@
       {
        "slp": "BagavAn",
        "stem": "Bagavat",
-       "gloss": "&c. See p. 743, col. 3"
+       "gloss": "the Blessed One",
+       "override": true
       },
       {
        "slp": "uvAca",
@@ -11501,7 +11631,7 @@
     {
      "surface": "कामान्सर्वान्पार्थ",
      "isMarker": false,
-     "gloss": "wish, desire, longing + whole, entire, all + patr. of Tānva",
+     "gloss": "wish, desire, longing + all, every + O son of Pṛthā — Arjuna",
      "lemmas": [
       "kAma",
       "sarva",
@@ -11516,12 +11646,14 @@
       {
        "slp": "sarvAn",
        "stem": "sarva",
-       "gloss": "whole, entire, all"
+       "gloss": "all, every",
+       "override": true
       },
       {
        "slp": "pArTa",
        "stem": "pArTa",
-       "gloss": "patr. of Tānva"
+       "gloss": "O son of Pṛthā — Arjuna",
+       "override": true
       }
      ]
     },
@@ -11555,7 +11687,7 @@
     {
      "surface": "आत्मन्येवात्मना",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "the breath + just, only + the vital breath, RV. i, 63",
      "lemmas": [
       "Atman",
       "eva",
@@ -11570,7 +11702,8 @@
       {
        "slp": "evA",
        "stem": "eva",
-       "gloss": "eva ind, so, just so"
+       "gloss": "just, only",
+       "override": true
       },
       {
        "slp": "tmanA",
@@ -11643,11 +11776,11 @@
     {
      "surface": "दुःखेष्वनुद्विग्नमनाः",
      "isMarker": false,
-     "gloss": "uneasy, uncomfortable, unpleasant + free from apprehension or perplexity, easy in mind, Mṛcch. &c + an-, occasionally ana-, the substitute for 3. a",
+     "gloss": "uneasy, uncomfortable, unpleasant + free from apprehension or perplexity, easy in mind, Mṛcch. &c + mind, intellect, intelligence",
      "lemmas": [
       "duHKa",
       "anudvigna",
-      "ana"
+      "manas"
      ],
      "pieces": [
       {
@@ -11656,14 +11789,14 @@
        "gloss": "uneasy, uncomfortable, unpleasant"
       },
       {
-       "slp": "anudvignam",
+       "slp": "anudvigna",
        "stem": "anudvigna",
        "gloss": "free from apprehension or perplexity, easy in mind, Mṛcch. &c"
       },
       {
-       "slp": "anAs",
-       "stem": "ana",
-       "gloss": "an-, occasionally ana-, the substitute for 3. a"
+       "slp": "manAs",
+       "stem": "manas",
+       "gloss": "mind, intellect, intelligence"
       }
      ]
     },
@@ -11727,7 +11860,7 @@
     {
      "surface": "स्थितधीर्मुनिरुच्यते",
      "isMarker": false,
-     "gloss": "steady-minded, firm, unmoved + impulse, eagerness, RV. vii + to speak, say, tell",
+     "gloss": "steady-minded, firm, unmoved + sage, silent one + to speak, say, tell",
      "lemmas": [
       "sTitaDI",
       "muni",
@@ -11742,7 +11875,8 @@
       {
        "slp": "munis",
        "stem": "muni",
-       "gloss": "impulse, eagerness, RV. vii"
+       "gloss": "sage, silent one",
+       "override": true
       },
       {
        "slp": "ucyate",
@@ -11810,12 +11944,14 @@
       {
        "slp": "tat",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "tat",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "prApya",
@@ -11875,7 +12011,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -11883,7 +12019,8 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
@@ -11905,7 +12042,7 @@
     {
      "surface": "तस्य",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "that; he, she, it",
      "lemmas": [
       "tad"
      ],
@@ -11913,7 +12050,8 @@
       {
        "slp": "tasya",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -11998,28 +12136,30 @@
       {
        "slp": "te",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
     {
      "surface": "चायं",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + going",
      "lemmas": [
       "ca",
-      "i"
+      "ya"
      ],
      "pieces": [
       {
-       "slp": "cA",
+       "slp": "cAs",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
-       "slp": "Ayam",
-       "stem": "i",
-       "gloss": "i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c"
+       "slp": "yam",
+       "stem": "ya",
+       "gloss": "going"
       }
      ]
     },
@@ -12039,7 +12179,7 @@
        "gloss": "a tortoise, turtle"
       },
       {
-       "slp": "aNgAs",
+       "slp": "aNgA",
        "stem": "aNga",
        "gloss": "a particle implying attention, assent or desire, and sometimes impatience"
       },
@@ -12080,7 +12220,7 @@
     {
      "surface": "इन्द्रियाणीन्द्रियार्थेभ्यस्तस्य",
      "isMarker": false,
-     "gloss": "fit for or belonging to or agreeable to Indra + an object of sense, anything exciting the senses + he f. she n. it, that, this",
+     "gloss": "fit for or belonging to or agreeable to Indra + an object of sense, anything exciting the senses + that; he, she, it",
      "lemmas": [
       "indriya",
       "indriyArTa",
@@ -12100,7 +12240,8 @@
       {
        "slp": "tasya",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -12255,21 +12396,21 @@
     {
      "surface": "रसोऽप्यस्य",
      "isMarker": false,
-     "gloss": "the sap or juice of plants, juice of fruit, any liquid or fluid + to be scattered or sown, KātyŚr",
+     "gloss": "the sap or juice of plants, juice of fruit, any liquid or fluid + mf n being in water, coming from water, connected with water",
      "lemmas": [
-      "rasA",
-      "upya"
+      "rasa",
+      "apya"
      ],
      "pieces": [
       {
-       "slp": "rasA",
-       "stem": "rasA",
+       "slp": "rasas",
+       "stem": "rasa",
        "gloss": "the sap or juice of plants, juice of fruit, any liquid or fluid"
       },
       {
-       "slp": "upyasya",
-       "stem": "upya",
-       "gloss": "to be scattered or sown, KātyŚr"
+       "slp": "apyasya",
+       "stem": "apya",
+       "gloss": "mf n being in water, coming from water, connected with water"
       }
      ]
     },
@@ -12320,7 +12461,8 @@
       {
        "slp": "te",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -12346,21 +12488,21 @@
     {
      "surface": "यततो",
      "isMarker": false,
-     "gloss": "going + chiefly Ved. a father, RV. viii, 91",
+     "gloss": "who, which, what + from this, than this",
      "lemmas": [
-      "ya",
-      "tata"
+      "yad",
+      "atas"
      ],
      "pieces": [
       {
-       "slp": "ya",
-       "stem": "ya",
-       "gloss": "going"
+       "slp": "yat",
+       "stem": "yad",
+       "gloss": "who, which, what"
       },
       {
-       "slp": "tatas",
-       "stem": "tata",
-       "gloss": "chiefly Ved. a father, RV. viii, 91"
+       "slp": "atas",
+       "stem": "atas",
+       "gloss": "from this, than this"
       }
      ]
     },
@@ -12369,26 +12511,27 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "hi",
+      "hI",
       "api"
      ],
      "pieces": [
       {
-       "slp": "hi",
-       "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "slp": "hI",
+       "stem": "hI",
+       "gloss": "ah! oh! alas l &c"
       },
       {
        "slp": "api",
        "stem": "api",
-       "gloss": "or sometimes pi, expresses placing near or over, uniting to"
+       "gloss": "also, even",
+       "override": true
       }
      ]
     },
     {
      "surface": "कौन्तेय",
      "isMarker": false,
-     "gloss": "metron. fr. Kuntī, N. of Yudhiṣṭhira, Bhīma-sena",
+     "gloss": "O son of Kuntī — Arjuna",
      "lemmas": [
       "kOnteya"
      ],
@@ -12396,7 +12539,8 @@
       {
        "slp": "kOnteya",
        "stem": "kOnteya",
-       "gloss": "metron. fr. Kuntī, N. of Yudhiṣṭhira, Bhīma-sena"
+       "gloss": "O son of Kuntī — Arjuna",
+       "override": true
       }
      ]
     },
@@ -12539,7 +12683,7 @@
     {
      "surface": "तानि",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "that; he, she, it",
      "lemmas": [
       "tad"
      ],
@@ -12547,14 +12691,15 @@
       {
        "slp": "tAni",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
     {
      "surface": "सर्वाणि",
      "isMarker": false,
-     "gloss": "whole, entire, all",
+     "gloss": "all, every",
      "lemmas": [
       "sarva"
      ],
@@ -12562,7 +12707,8 @@
       {
        "slp": "sarvARi",
        "stem": "sarva",
-       "gloss": "whole, entire, all"
+       "gloss": "all, every",
+       "override": true
       }
      ]
     },
@@ -12656,7 +12802,7 @@
     {
      "surface": "हि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "for, indeed",
      "lemmas": [
       "hi"
      ],
@@ -12664,7 +12810,8 @@
       {
        "slp": "hi",
        "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "gloss": "for, indeed",
+       "override": true
       }
      ]
     },
@@ -12692,7 +12839,7 @@
     {
      "surface": "तस्य",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "that; he, she, it",
      "lemmas": [
       "tad"
      ],
@@ -12700,7 +12847,8 @@
       {
        "slp": "tasya",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -12803,7 +12951,7 @@
       "saNga",
       "tad",
       "upaja",
-      "tad"
+      "i"
      ],
      "pieces": [
       {
@@ -12814,17 +12962,18 @@
       {
        "slp": "tezu",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
-       "slp": "upajAya",
+       "slp": "upaja",
        "stem": "upaja",
        "gloss": "upa-ja mfn, additional, accessory"
       },
       {
-       "slp": "te",
-       "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "slp": "ayate",
+       "stem": "i",
+       "gloss": "i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c"
       }
      ]
     },
@@ -12889,8 +13038,8 @@
      "lemmas": [
       "kAma",
       "kroDa",
-      "uBa",
-      "jan"
+      "aBija",
+      "i"
      ],
      "pieces": [
       {
@@ -12899,19 +13048,19 @@
        "gloss": "wish, desire, longing"
       },
       {
-       "slp": "kroDA",
+       "slp": "kroDas",
        "stem": "kroDa",
        "gloss": "anger, wrath, passion"
       },
       {
-       "slp": "uBi",
-       "stem": "uBa",
-       "gloss": "e, e mfn. du. both"
+       "slp": "aBijA",
+       "stem": "aBija",
+       "gloss": "ifc. produced all around"
       },
       {
-       "slp": "jAyate",
-       "stem": "jan",
-       "gloss": "to generate, beget, produce"
+       "slp": "ayate",
+       "stem": "i",
+       "gloss": "i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c"
       }
      ]
     },
@@ -13010,7 +13159,7 @@
      "lemmas": [
       "smftiBraMSa",
       "budDi",
-      "Sa"
+      "aSas"
      ],
      "pieces": [
       {
@@ -13024,9 +13173,9 @@
        "gloss": "the power of forming and retaining conceptions and general notions, intelligence, reason"
       },
       {
-       "slp": "Sas",
-       "stem": "Sa",
-       "gloss": "Sa the first of the three sibilants"
+       "slp": "aSas",
+       "stem": "aSas",
+       "gloss": "not blessing or wishing well, cursing, hating"
       }
      ]
     },
@@ -13085,7 +13234,7 @@
     {
      "surface": "रागद्वेषवियुक्तैस्तु",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "du. love and hatred, Mn. xii, 26 + disjoined, detached, separated or delivered from + but",
      "lemmas": [
       "rAgadveza",
       "viyukta",
@@ -13105,7 +13254,8 @@
       {
        "slp": "tu",
        "stem": "tu",
-       "gloss": "to have authority, be strong, RV. i"
+       "gloss": "but",
+       "override": true
       }
      ]
     },
@@ -13159,7 +13309,7 @@
      ],
      "pieces": [
       {
-       "slp": "AtmavaSyA",
+       "slp": "AtmavaSi",
        "stem": "AtmavaSa",
        "gloss": "dependent on one's own will, Mn. iv, 159 seq"
       },
@@ -13246,7 +13396,7 @@
      ],
      "pieces": [
       {
-       "slp": "saru",
+       "slp": "sarU",
        "stem": "saru",
        "gloss": "minute, thin, fine"
       },
@@ -13262,21 +13412,21 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "han",
-      "anira",
+      "hAni",
+      "rasa",
       "vap",
       "jan"
      ],
      "pieces": [
       {
-       "slp": "hA",
-       "stem": "han",
-       "gloss": "to strike, beat, pound"
+       "slp": "hAni",
+       "stem": "hAni",
+       "gloss": "abandonment, relinquishment"
       },
       {
-       "slp": "anirasya",
-       "stem": "anira",
-       "gloss": "destitute of vigour, RV. iv, 5"
+       "slp": "rasya",
+       "stem": "rasa",
+       "gloss": "the sap or juice of plants, juice of fruit, any liquid or fluid"
       },
       {
        "slp": "Upa",
@@ -13328,19 +13478,19 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "hi",
-      "ASu"
+      "ha",
+      "Su"
      ],
      "pieces": [
       {
-       "slp": "hi",
-       "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "slp": "hyA",
+       "stem": "ha",
+       "gloss": "ha the thirty-third and last consonant of the Nāgarī alphabet"
       },
       {
-       "slp": "ASu",
-       "stem": "ASu",
-       "gloss": "fast, quick, going quickly"
+       "slp": "Su",
+       "stem": "Su",
+       "gloss": "to go &c"
       }
      ]
     },
@@ -13444,7 +13594,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -13452,28 +13602,30 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "चायुक्तस्य",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + joined with, united, applied to",
      "lemmas": [
       "ca",
-      "yukta"
+      "Ayukta"
      ],
      "pieces": [
       {
-       "slp": "cAs",
+       "slp": "ca",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
-       "slp": "yuktasya",
-       "stem": "yukta",
-       "gloss": "yukti &c. See cols. 2, 3"
+       "slp": "Ayuktasya",
+       "stem": "Ayukta",
+       "gloss": "joined with, united, applied to"
       }
      ]
     },
@@ -13507,7 +13659,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -13515,23 +13667,25 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "चाभावयतः",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "and + unconscious, unwise",
      "lemmas": [
       "ca",
       "aBAvayat"
      ],
      "pieces": [
       {
-       "slp": "ca",
+       "slp": "cA",
        "stem": "ca",
-       "gloss": "ca the 20th letter of the alphabet, 1st of the 2nd class of consonants, having the sound of ch in church"
+       "gloss": "and",
+       "override": true
       },
       {
        "slp": "aBAvayatas",
@@ -13628,7 +13782,7 @@
     {
      "surface": "हि",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "for, indeed",
      "lemmas": [
       "hi"
      ],
@@ -13636,7 +13790,8 @@
       {
        "slp": "hi",
        "stem": "hi",
-       "gloss": "to send forth, set in motion, impel"
+       "gloss": "for, indeed",
+       "override": true
       }
      ]
     },
@@ -13660,15 +13815,15 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "yat",
+      "yad",
       "manu",
       "nu"
      ],
      "pieces": [
       {
-       "slp": "yan",
-       "stem": "yat",
-       "gloss": "going, moving, RV. &c. &c"
+       "slp": "yat",
+       "stem": "yad",
+       "gloss": "who, which, what"
       },
       {
        "slp": "mano",
@@ -13685,21 +13840,21 @@
     {
      "surface": "विधीयते",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV + to DA",
      "lemmas": [
-      "viDi",
-      "i"
+      "vI",
+      "DI"
      ],
      "pieces": [
       {
-       "slp": "viDi",
-       "stem": "viDi",
-       "gloss": "a worshipper, one who does homage"
+       "slp": "vi",
+       "stem": "vI",
+       "gloss": "to some in the conjug. tenses substituted for 2. sg. vezi also as Impv. RV"
       },
       {
-       "slp": "Iyate",
-       "stem": "i",
-       "gloss": "i the third vowel of the alphabet, corresponding to i short, and pronounced as that letter in kill &c"
+       "slp": "DIyate",
+       "stem": "DI",
+       "gloss": "to DA"
       }
      ]
     },
@@ -13718,16 +13873,17 @@
     {
      "surface": "तदस्य",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + to be, live, exist",
+     "gloss": "that; he, she, it + to be, live, exist",
      "lemmas": [
       "tad",
       "as"
      ],
      "pieces": [
       {
-       "slp": "tat",
+       "slp": "tad",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "asya",
@@ -13790,7 +13946,8 @@
       {
        "slp": "iva",
        "stem": "iva",
-       "gloss": "like, in the same manner as"
+       "gloss": "like, as if",
+       "override": true
       },
       {
        "slp": "amBasi",
@@ -13821,7 +13978,7 @@
     {
      "surface": "तस्माद्यस्य",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this + to froth up, foam",
+     "gloss": "that; he, she, it + to froth up, foam",
      "lemmas": [
       "tad",
       "yas"
@@ -13830,7 +13987,8 @@
       {
        "slp": "tasmAt",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       },
       {
        "slp": "yasya",
@@ -13899,7 +14057,7 @@
     {
      "surface": "इन्द्रियाणीन्द्रियार्थेभ्यस्तस्य",
      "isMarker": false,
-     "gloss": "fit for or belonging to or agreeable to Indra + an object of sense, anything exciting the senses + he f. she n. it, that, this",
+     "gloss": "fit for or belonging to or agreeable to Indra + an object of sense, anything exciting the senses + that; he, she, it",
      "lemmas": [
       "indriya",
       "indriyArTa",
@@ -13919,7 +14077,8 @@
       {
        "slp": "tasya",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -14020,7 +14179,7 @@
     {
      "surface": "तस्यां",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "that; he, she, it",
      "lemmas": [
       "tad"
      ],
@@ -14028,7 +14187,8 @@
       {
        "slp": "tasyAm",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -14122,7 +14282,7 @@
     {
      "surface": "सा",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "she",
      "lemmas": [
       "tad"
      ],
@@ -14130,7 +14290,8 @@
       {
        "slp": "sA",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -14167,7 +14328,7 @@
     {
      "surface": "मुनेः",
      "isMarker": false,
-     "gloss": "impulse, eagerness, RV. vii",
+     "gloss": "sage, silent one",
      "lemmas": [
       "muni"
      ],
@@ -14175,7 +14336,8 @@
       {
        "slp": "muneH",
        "stem": "muni",
-       "gloss": "impulse, eagerness, RV. vii"
+       "gloss": "sage, silent one",
+       "override": true
       }
      ]
     },
@@ -14251,19 +14413,19 @@
      "isMarker": false,
      "gloss": "",
      "lemmas": [
-      "prava",
-      "Santa"
+      "pra",
+      "viS"
      ],
      "pieces": [
       {
-       "slp": "pravi",
-       "stem": "prava",
-       "gloss": "fluttering, hovering"
+       "slp": "pra",
+       "stem": "pra",
+       "gloss": "before"
       },
       {
-       "slp": "Santi",
-       "stem": "Santa",
-       "gloss": "Santi &c. See p. 1055, col. 1"
+       "slp": "viSanti",
+       "stem": "viS",
+       "gloss": "to go, Dhātup. xvii, 71 ← viS cl. 6. P. viSati"
       }
      ]
     },
@@ -14354,7 +14516,7 @@
     {
      "surface": "सर्वे",
      "isMarker": false,
-     "gloss": "whole, entire, all",
+     "gloss": "all, every",
      "lemmas": [
       "sarva"
      ],
@@ -14362,14 +14524,15 @@
       {
        "slp": "sarve",
        "stem": "sarva",
-       "gloss": "whole, entire, all"
+       "gloss": "all, every",
+       "override": true
       }
      ]
     },
     {
      "surface": "स",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "he",
      "lemmas": [
       "tad"
      ],
@@ -14377,7 +14540,8 @@
       {
        "slp": "sa",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -14405,7 +14569,7 @@
     {
      "surface": "न",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "not",
      "lemmas": [
       "na"
      ],
@@ -14413,28 +14577,29 @@
       {
        "slp": "na",
        "stem": "na",
-       "gloss": "na the dental nasal"
+       "gloss": "not",
+       "override": true
       }
      ]
     },
     {
      "surface": "कामकामी",
      "isMarker": false,
-     "gloss": "what? how? whence? wherefore? why? + without desire or wish",
+     "gloss": "wish, desire, longing + desirous, longing after",
      "lemmas": [
-      "kim",
-      "akAma"
+      "kAma",
+      "kAmin"
      ],
      "pieces": [
       {
-       "slp": "kAm",
-       "stem": "kim",
-       "gloss": "what? how? whence? wherefore? why?"
+       "slp": "kAma",
+       "stem": "kAma",
+       "gloss": "wish, desire, longing"
       },
       {
-       "slp": "akAmI",
-       "stem": "akAma",
-       "gloss": "without desire or wish"
+       "slp": "kAmI",
+       "stem": "kAmin",
+       "gloss": "desirous, longing after"
       }
      ]
     },
@@ -14475,28 +14640,28 @@
     {
      "surface": "कामान्यः",
      "isMarker": false,
-     "gloss": "what? how? whence? wherefore? why? + to be respected or honoured, worthy of honour, respectable",
+     "gloss": "",
      "lemmas": [
-      "kim",
-      "mAnya"
+      "ka",
+      "AmAna"
      ],
      "pieces": [
       {
-       "slp": "kAs",
-       "stem": "kim",
-       "gloss": "what? how? whence? wherefore? why?"
+       "slp": "ka",
+       "stem": "ka",
+       "gloss": "ka as, m. N. of Prajāpati or of a Prajāpati, VS. xx"
       },
       {
-       "slp": "mAnyas",
-       "stem": "mAnya",
-       "gloss": "to be respected or honoured, worthy of honour, respectable"
+       "slp": "AmAnyas",
+       "stem": "AmAna",
+       "gloss": ""
       }
      ]
     },
     {
      "surface": "सर्वान्",
      "isMarker": false,
-     "gloss": "whole, entire, all",
+     "gloss": "all, every",
      "lemmas": [
       "sarva"
      ],
@@ -14504,7 +14669,8 @@
       {
        "slp": "sarvAn",
        "stem": "sarva",
-       "gloss": "whole, entire, all"
+       "gloss": "all, every",
+       "override": true
       }
      ]
     },
@@ -14589,7 +14755,7 @@
     {
      "surface": "स",
      "isMarker": false,
-     "gloss": "he f. she n. it, that, this",
+     "gloss": "he",
      "lemmas": [
       "tad"
      ],
@@ -14597,7 +14763,8 @@
       {
        "slp": "sa",
        "stem": "tad",
-       "gloss": "he f. she n. it, that, this"
+       "gloss": "that; he, she, it",
+       "override": true
       }
      ]
     },
@@ -14650,7 +14817,7 @@
     {
      "surface": "एषा",
      "isMarker": false,
-     "gloss": "gliding, running, hastening",
+     "gloss": "this",
      "lemmas": [
       "eza"
      ],
@@ -14695,7 +14862,7 @@
     {
      "surface": "पार्थ",
      "isMarker": false,
-     "gloss": "patr. of Tānva",
+     "gloss": "O son of Pṛthā — Arjuna",
      "lemmas": [
       "pArTa"
      ],
@@ -14703,23 +14870,24 @@
       {
        "slp": "pArTa",
        "stem": "pArTa",
-       "gloss": "patr. of Tānva"
+       "gloss": "O son of Pṛthā — Arjuna",
+       "override": true
       }
      ]
     },
     {
      "surface": "नैनां",
      "isMarker": false,
-     "gloss": "",
+     "gloss": "thin, spare + ena a pronom. base, he, she",
      "lemmas": [
-      "na",
+      "nA",
       "ena"
      ],
      "pieces": [
       {
-       "slp": "na",
-       "stem": "na",
-       "gloss": "na the dental nasal"
+       "slp": "nA",
+       "stem": "nA",
+       "gloss": "thin, spare"
       },
       {
        "slp": "enAm",
@@ -14782,7 +14950,7 @@
      "gloss": "",
      "lemmas": [
       "sTA",
-      "asi",
+      "as",
       "antaka",
       "lepin"
      ],
@@ -14793,9 +14961,9 @@
        "gloss": "to stand, stand firmly, station one's self"
       },
       {
-       "slp": "asyAm",
-       "stem": "asi",
-       "gloss": "a sword, scimitar, knife"
+       "slp": "syAm",
+       "stem": "as",
+       "gloss": "to be, live, exist"
       },
       {
        "slp": "antakAs",

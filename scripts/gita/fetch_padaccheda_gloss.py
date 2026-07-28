@@ -236,12 +236,53 @@ _GARBAGE = re.compile(
 
 # Indeclinable particles (a small CLOSED class): MW's stem lookup returns a noun
 # or verb homograph ("vā = wind", "hi = to impel", "na = the dental nasal"), not
-# the particle sense. Mechanically unreliable → suppress (blank), never guess.
-# These are the single clearest candidate for a small curated gloss table.
+# the particle sense. Where the OVERRIDE table below does not carry them, they
+# are suppressed (blank) rather than shown a wrong homograph.
 _INDECL = {"na", "ca", "vA", "mA", "hi", "eva", "api", "iva", "tu", "vE", "u",
            "ha", "sma", "aTa", "uta", "atra", "iti", "aho", "nu", "kila", "KMalu"}
 
+# ── CURATED OVERRIDE TABLE (the planned particle / pronoun / epithet layer) ──
+# The dictionary scorer keys on "any MW entry that matches a parse", so a handful
+# of the commonest Gītā words come back confidently WRONG — the pronoun एषा
+# collides with the verb root एष ("to glide"), the epithet पार्थ with a stray
+# patronymic, and MW's Vedic-first ordering makes मुनि "impulse" not "sage".
+# These are a small CLOSED class of grammar words and proper names with settled,
+# concise meanings; the override takes PRECEDENCE over the dictionary for them.
+# Everything else still comes from Monier-Williams, and anything unresolved is
+# left BLANK rather than shown a low-fit hit.
+#
+# OVERRIDE_SURFACE keys the exact written token (for particles + pronoun forms
+# whose lemma is a homograph); OVERRIDE_LEMMA keys the SLP1 stem (for names /
+# epithets / muni that inflect, and for the same particles when sandhi-fused).
+OVERRIDE_SURFACE = {
+    # indeclinable particles
+    "न": "not", "च": "and", "वा": "or", "तु": "but", "हि": "for, indeed",
+    "एव": "just, only", "इति": "thus — close of speech", "अपि": "also, even",
+    "मा": "do not", "यथा": "as, just as", "तथा": "so, in that way", "इव": "like, as if",
+    # pronoun forms (exact — the lemma is a homograph or too broad)
+    "एषा": "this", "एष": "this", "एषः": "this", "एतत्": "this", "एतद्": "this",
+    "तत्": "that", "तद्": "that", "अयम्": "this", "इदम्": "this",
+    "सः": "he", "स": "he", "सा": "she", "अहम्": "I", "माम्": "me", "मया": "by me",
+    "मे": "my; to me", "मम": "my", "त्वम्": "thou", "त्वाम्": "thee", "ते": "thy; to thee",
+}
+OVERRIDE_LEMMA = {
+    # names & epithets (stems stay constant across cases → catch every inflection)
+    "pArTa": "O son of Pṛthā — Arjuna", "kOnteya": "O son of Kuntī — Arjuna",
+    "arjuna": "Arjuna", "DftarAzwra": "Dhṛtarāṣṭra", "saYjaya": "Sañjaya",
+    "kfzRa": "Kṛṣṇa", "keSava": "Keśava — Kṛṣṇa", "mADava": "Mādhava — Kṛṣṇa",
+    "govinda": "Govinda — Kṛṣṇa", "hfzIkeSa": "Hṛṣīkeśa — Kṛṣṇa",
+    "Bagavat": "the Blessed One", "BArata": "O descendant of Bharata",
+    "muni": "sage, silent one",
+    # pronouns / particles for SANDHI-FUSED occurrences (piece-level)
+    "tad": "that; he, she, it", "etad": "this", "idam": "this", "sarva": "all, every",
+    "na": "not", "ca": "and", "vA": "or", "tu": "but", "hi": "for, indeed",
+    "eva": "just, only", "api": "also, even", "iva": "like, as if",
+    "iti": "thus — close of speech", "mA": "do not", "yaTA": "as, just as", "taTA": "so, in that way",
+}
+
 def _bad(p):
+    if p.get("override"):
+        return False  # a curated override is trustworthy by construction
     return (not p["gloss"]) or len(p["stem"]) <= 1 or p["stem"] in _INDECL or bool(_GARBAGE.search(p["gloss"]))
 
 def confident_gloss(pieces):
@@ -277,8 +318,11 @@ def main():
         try:
             g = mw_head_gloss(stem)
         except Exception:
-            g = ""
-        mw[stem] = g
+            # TRANSIENT failure (timeout / rate-limit / network): do NOT cache —
+            # caching "" here would make a future run treat it as a confirmed
+            # miss forever. Return empty for this run; the stem retries next time.
+            return ""
+        mw[stem] = g  # cache only completed lookups (incl. a genuine empty miss)
         time.sleep(0.15)
         return g
 
@@ -291,20 +335,30 @@ def main():
     def choose(deva):
         best, best_key = None, (-1.0, -10**9)
         for a in analyses(deva):
-            covered = sum(1 for _, st in a if st and gloss(st))
+            # A curated override lemma counts as covered too, so a whole-word name
+            # (saMjaya, not in MW) beats splitting it into san + jaya.
+            covered = sum(1 for _, st in a if st and (st in OVERRIDE_LEMMA or gloss(st)))
             key = (covered / len(a), -len(a))  # coverage RATIO, then fewest pieces
             if key > best_key:
                 best_key, best = key, a
         if not best:
-            return {"gloss": "", "lemmas": [], "pieces": []}
+            # Even an unparsed token can be a curated indeclinable/pronoun surface.
+            return {"gloss": OVERRIDE_SURFACE.get(deva, ""), "lemmas": [], "pieces": []}
         pieces, lemmas = [], []
         for pc, st in best:
             g = gloss(st) if st else ""
             gs = ", ".join(x.strip() for x in g.split(",")[:3]).strip() if g else ""
-            pieces.append({"slp": pc, "stem": st, "gloss": gs})
+            piece = {"slp": pc, "stem": st, "gloss": gs}
+            if st and st in OVERRIDE_LEMMA:  # curated lemma wins over the dictionary
+                piece["gloss"] = OVERRIDE_LEMMA[st]
+                piece["override"] = True
+            pieces.append(piece)
             if st:
                 lemmas.append(st)
-        return {"gloss": confident_gloss(pieces), "lemmas": lemmas, "pieces": pieces}
+        # Surface override (highest precedence) → else confident composition, which
+        # now sees any piece-level curated glosses.
+        final = OVERRIDE_SURFACE[deva] if deva in OVERRIDE_SURFACE else confident_gloss(pieces)
+        return {"gloss": final, "lemmas": lemmas, "pieces": pieces}
 
     verses, wtot, wgot = {}, 0, 0
     keys = sorted(source, key=lambda k: (int(re.match(r"\d+", k).group()), {"s": 0, "a": 1, "b": 2}[k[-1]]))
