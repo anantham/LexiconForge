@@ -166,6 +166,16 @@ async function main() {
 
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
   console.log(`\nDetailed report written to: ${reportPath}`);
+
+  // Exit code carries the verdict (integrity scan 2026-07, P1): invalid packets
+  // must fail the process, matching audit-demo-packet.ts.
+  if (withErrors.length > 0) {
+    console.error(`\n${withErrors.length} packet(s) with errors — exiting non-zero.`);
+    process.exitCode = 1;
+  }
 }
 
-main().catch(console.error);
+main().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

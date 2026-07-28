@@ -9,7 +9,17 @@ import { BENCHMARK_CONFIG } from './benchmark-config';
 
 const MAX_CONCURRENT = 5; // Limit concurrent API calls to avoid rate limits
 
+// Roster guard (integrity scan 2026-07, P0): never spawn a child for an id the
+// roster doesn't know. benchmark.ts now also fails loudly on an unknown --model,
+// but refusing HERE means no child process (and no run directory) is created at all.
+const ROSTER_IDS = new Set(BENCHMARK_CONFIG.runs.map((r) => r.id));
+
 async function runModelBenchmark(modelId: string): Promise<{ modelId: string; success: boolean; error?: string }> {
+  if (!ROSTER_IDS.has(modelId)) {
+    const error = `refusing to spawn: "${modelId}" is not in the roster (${[...ROSTER_IDS].join(', ')})`;
+    console.log(`[${modelId}] ❌ ${error}`);
+    return { modelId, success: false, error };
+  }
   return new Promise((resolve) => {
     console.log(`[${modelId}] Starting...`);
 
@@ -84,7 +94,13 @@ async function runParallel() {
   if (failed.length > 0) {
     console.log(`\n❌ Failed: ${failed.length}/${results.length}`);
     failed.forEach(r => console.log(`   - ${r.modelId}: ${r.error?.slice(0, 100)}`));
+    // Propagate failure (integrity scan 2026-07, P0): this script used to exit 0
+    // no matter how many children failed, so wrappers/CI read a broken run as green.
+    process.exitCode = 1;
   }
 }
 
-runParallel().catch(console.error);
+runParallel().catch((error) => {
+  console.error('[benchmark-parallel] Failed:', error);
+  process.exitCode = 1;
+});

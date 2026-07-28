@@ -61,4 +61,32 @@ describe('chapter-parsing', () => {
     expect(parseChapterNumberToken('3269-3270')).toEqual({ from: 3269, to: 3270 });
     expect(parseChapterNumberToken('2388')).toEqual({ from: 2388, to: 2388 });
   });
+
+  // Regression guards (integrity scan 2026-07): the heading regexes used `\s`-class
+  // whitespace before the title group. `\s` matches `\n`, so a BARE heading absorbed
+  // the next body line as its TITLE — and buildChaptersFromHeadings then sliced that
+  // line out of the content, leaving an empty body that dropped the whole chapter.
+  it('keeps the body line after a bare Chinese heading (no title absorption)', () => {
+    const chapters = parseChineseMonolithicText('第1章\n正文第一行');
+
+    expect(chapters).toHaveLength(1);
+    expect(chapters[0].title).toBe('第1章');
+    expect(chapters[0].paragraphs.map((paragraph) => paragraph.text)).toEqual(['正文第一行']);
+  });
+
+  it('keeps the body line after a bare English heading (no title absorption)', () => {
+    const chapters = parseEnglishMonolithicText('Chapter 1\nThe first body line.');
+
+    expect(chapters).toHaveLength(1);
+    expect(chapters[0].title).toBe('Chapter 1');
+    expect(chapters[0].paragraphs.map((paragraph) => paragraph.text)).toEqual(['The first body line.']);
+  });
+
+  it('still parses titles separated by a full-width CJK space', () => {
+    const chapters = parseChineseMonolithicText('第3章　光幕仪\n\n第三段。');
+
+    expect(chapters).toHaveLength(1);
+    expect(chapters[0].title).toBe('第3章 光幕仪');
+    expect(chapters[0].paragraphs.map((paragraph) => paragraph.text)).toEqual(['第三段。']);
+  });
 });

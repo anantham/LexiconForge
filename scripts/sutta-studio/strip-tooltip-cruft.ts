@@ -25,6 +25,25 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// HALT (integrity scan 2026-07): DO NOT RUN.
+// This May-era one-off targeted components/sutta-studio/demoPacket.json, which
+// was DELETED 2026-05-19 — its content moved to content/references/sutta/mn10.json
+// and has been HAND-CURATED since. Re-pointing this destructive tooltip strip at
+// the curated flagship packet would re-apply a one-shot migration to adjudicated
+// data. Do not repoint or re-enable without re-adjudicating the transform.
+// ─────────────────────────────────────────────────────────────────────────────
+const HALTED = true as boolean; // branch form so tsc keeps type-checking the code below
+if (HALTED) {
+  console.error(
+    'HALTED: strip-tooltip-cruft.ts is a May-era one-off whose target ' +
+      '(components/sutta-studio/demoPacket.json) was deleted 2026-05-19. The packet now lives at ' +
+      'content/references/sutta/mn10.json and is hand-curated — this transform must not run against ' +
+      'it without re-adjudication. See the HALT comment at the top of this file.'
+  );
+  process.exit(1);
+}
+
 // Covers the full common-emoji ranges. Wider than services/utils.ts stripEmoji
 // (which stops at U+1F9FF and would miss U+1FA70-U+1FAFF — e.g., 🪵 wood log).
 // Acceptable here because this script is meant to strip more aggressively

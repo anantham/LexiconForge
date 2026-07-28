@@ -15,7 +15,8 @@ import {
   type LLMCaller,
 } from '../../services/suttaStudioPassRunners';
 import type { CanonicalSegment } from '../../types/suttaStudio';
-import { getModelPricing } from '../../services/capabilityService';
+import { resolveCallCostUsd } from './lib/cost';
+import { preflightOpenRouterKey } from './lib/preflight';
 
 // Configuration
 const MODEL_ID = 'google/gemini-3-flash-preview';
@@ -34,6 +35,9 @@ const createLLMCaller = (): LLMCaller => {
     let requestBody: Record<string, any> = {
       model: MODEL_ID,
       messages,
+      // Ask OpenRouter for its own cost accounting (usage.cost) — includes reasoning
+      // tokens and per-request charges local token math misses. See lib/cost.ts.
+      usage: { include: true },
       max_tokens: maxTokens ?? 4000,
       temperature: 0.2,
     };
@@ -76,15 +80,9 @@ const createLLMCaller = (): LLMCaller => {
 
     const promptTokens = json?.usage?.prompt_tokens ?? null;
     const completionTokens = json?.usage?.completion_tokens ?? null;
-    let costUsd: number | null = null;
-    if (promptTokens && completionTokens) {
-      try {
-        const pricing = await getModelPricing(MODEL_ID);
-        if (pricing) {
-          costUsd = (promptTokens / 1_000_000) * pricing.input + (completionTokens / 1_000_000) * pricing.output;
-        }
-      } catch {}
-    }
+    // Provider accounting first (usage.cost), token math fallback — shared with
+    // spend-guard.ts via lib/cost.ts instead of a forked local formula.
+    const costUsd = await resolveCallCostUsd(json?.usage, MODEL_ID);
 
     return {
       text,
@@ -102,6 +100,10 @@ const llmCaller = createLLMCaller();
 
 // Main
 async function main() {
+  // Key preflight BEFORE any paid call (free GET /api/v1/key; fail-closed on an
+  // exhausted key, warn-only on network failure).
+  await preflightOpenRouterKey();
+
   console.log('[Generate] Fetching segments from SuttaCentral...');
   const response = await fetch(`https://suttacentral.net/api/bilarasuttas/${WORK_ID}/sujato`);
   const data = await response.json() as { root_text: Record<string, string>; translation_text: Record<string, string> };

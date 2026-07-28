@@ -24,6 +24,7 @@ import type {
   WeaverPass,
 } from '../../types/suttaStudio';
 import { BENCHMARK_CONFIG, resolveSettingsForModel, type AnatomistFixtureConfig } from './benchmark-config';
+import { parseBenchmarkArgs } from './lib/benchmark-args';
 import { SpendGuard, resolveCostUsd } from './spend-guard';
 import {
   assemblePipelineToPacket,
@@ -464,6 +465,42 @@ const addProgressError = (
   state.errors.push({ at: new Date().toISOString(), ...payload });
 };
 
+/**
+ * The ACTUAL structured-output mode a call ran under. The OpenRouter caller can
+ * silently downgrade json_schema → json_object mid-call (structuredFallbackApplied);
+ * a MetricRow that recorded the REQUESTED mode would then lie about how the row was
+ * produced. Integrity scan 2026-07, P2.
+ */
+const actualStructuredOutputs = (
+  requested: boolean,
+  llm: { structuredFallbackApplied?: boolean } | null | undefined,
+): boolean => (llm?.structuredFallbackApplied ? false : requested);
+
+/** Surface a structured→json_object downgrade in progress errors (visible in active-run.json). */
+const noteStructuredFallback = (
+  state: BenchProgressState,
+  ctx: {
+    runId: string;
+    pass: PassName;
+    stage: MetricRow['stage'];
+    chunkIndex?: number | null;
+    chunkCount?: number | null;
+  },
+  llm: { structuredFallbackApplied?: boolean; model?: string } | null | undefined,
+) => {
+  if (!llm?.structuredFallbackApplied) return;
+  addProgressError(state, {
+    runId: ctx.runId,
+    pass: ctx.pass,
+    stage: ctx.stage,
+    message: `structured outputs downgraded to json_object (provider rejected json_schema)${
+      llm.model ? ` on ${llm.model}` : ''
+    } — metrics record structuredOutputs=false for this row`,
+    chunkIndex: ctx.chunkIndex ?? null,
+    chunkCount: ctx.chunkCount ?? null,
+  });
+};
+
 const toMetricRow = (params: {
   runId: string;
   pass: PassName;
@@ -676,6 +713,13 @@ const createOpenRouterLLMCaller = (
         !structuredFallbackApplied &&
         /response_format|structured_outputs|not supported/i.test(error?.message || '')
       ) {
+        // Loud, and recorded on the result: a downgrade must be visible in the
+        // metrics (structuredOutputs column records the ACTUAL mode), not just
+        // in scrollback. See integrity scan 2026-07, P2.
+        console.warn(
+          `[SuttaStudioBenchmark] ${settings.model}: provider rejected json_schema ` +
+            `(${error?.message || 'unknown error'}) — falling back to json_object for this call.`,
+        );
         requestBody = { ...requestBody, response_format: { type: 'json_object' } };
         structuredFallbackApplied = true;
         continue;
@@ -748,6 +792,7 @@ const createOpenRouterLLMCaller = (
       raw: response,
       provider: settings.provider,
       durationMs,
+      ...(structuredFallbackApplied ? { structuredFallbackApplied: true } : {}),
     };
   };
 };
@@ -1351,9 +1396,10 @@ const runBenchmark = async () => {
                       durationMs: llm.durationMs,
                       costUsd: llm.costUsd ?? null,
                       tokens: llm.tokens ?? null,
+                      structuredFallbackApplied: llm.structuredFallbackApplied ?? false,
                     }
                   : null,
-                structuredOutputs,
+                structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
                 schemaName: chunk.schemaName ?? null,
                 requestName: chunk.requestName,
               };
@@ -1366,6 +1412,11 @@ const runBenchmark = async () => {
               );
             }
 
+            noteStructuredFallback(
+              progressState,
+              { runId, pass, stage: 'chunk', chunkIndex: chunk.chunkIndex, chunkCount: chunk.chunkCount },
+              llm,
+            );
             rows.push(
               toMetricRow({
                 runId,
@@ -1374,7 +1425,7 @@ const runBenchmark = async () => {
                 provider: llm?.provider ?? settings.provider,
                 model: llm?.model ?? settings.model,
                 promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-                structuredOutputs,
+                structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
                 durationMs: llm?.durationMs ?? null,
                 costUsd: llm?.costUsd ?? null,
                 tokensPrompt,
@@ -1427,6 +1478,12 @@ const runBenchmark = async () => {
             await writeProgressState(BENCHMARK_CONFIG.outputRoot, progressPath, progressState);
           }
 
+            // Aggregate artifacts summarize all chunks: if ANY chunk downgraded, the
+            // aggregate did not run purely structured.
+            const anyChunkFellBack = skeletonResult.chunks.some(
+              (c) => c.llm?.structuredFallbackApplied,
+            );
+
             if (captureSkeletonOutputs && runOutputDir) {
               if (chunkWrites.length) {
                 await Promise.all(chunkWrites);
@@ -1438,7 +1495,7 @@ const runBenchmark = async () => {
                 segments: skeletonSegments,
                 phases: skeletonResult.phases,
                 chunkCount: skeletonResult.chunks.length,
-                structuredOutputs,
+                structuredOutputs: anyChunkFellBack ? false : structuredOutputs,
                 provider: settings.provider,
                 model: settings.model,
               };
@@ -1458,7 +1515,7 @@ const runBenchmark = async () => {
                 provider: settings.provider,
                 model: settings.model,
                 promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-                structuredOutputs,
+                structuredOutputs: anyChunkFellBack ? false : structuredOutputs,
                 durationMs: aggregateComplete ? aggregateDuration : null,
                 costUsd: aggregateComplete ? aggregateCost : null,
                 tokensPrompt: aggregateComplete ? aggregatePromptTokens : null,
@@ -1545,6 +1602,11 @@ const runBenchmark = async () => {
               const passResult = pipelineResult[passName];
               const llm = passResult.llm;
 
+              noteStructuredFallback(
+                progressState,
+                { runId, pass: passName, stage: 'pass' },
+                llm,
+              );
               rows.push(
                 toMetricRow({
                   runId,
@@ -1553,7 +1615,7 @@ const runBenchmark = async () => {
                   provider: llm?.provider ?? settings.provider,
                   model: llm?.model ?? settings.model,
                   promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-                  structuredOutputs,
+                  structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
                   durationMs: llm?.durationMs ?? null,
                   costUsd: llm?.costUsd ?? null,
                   tokensPrompt: llm?.tokens?.prompt ?? null,
@@ -1840,6 +1902,7 @@ const runBenchmark = async () => {
               });
 
               const llm = result.llm;
+              noteStructuredFallback(progressState, { runId, pass, stage: 'pass' }, llm);
               const row = toMetricRow({
                 runId,
                 pass,
@@ -1847,7 +1910,7 @@ const runBenchmark = async () => {
                 provider: llm?.provider ?? settings.provider,
                 model: llm?.model ?? settings.model,
                 promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-                structuredOutputs,
+                structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
                 durationMs: llm?.durationMs ?? null,
                 costUsd: llm?.costUsd ?? null,
                 tokensPrompt: llm?.tokens?.prompt ?? null,
@@ -1897,9 +1960,10 @@ const runBenchmark = async () => {
                         durationMs: llm.durationMs,
                         costUsd: llm.costUsd ?? null,
                         tokens: llm.tokens ?? null,
+                        structuredFallbackApplied: llm.structuredFallbackApplied ?? false,
                       }
                     : null,
-                  structuredOutputs,
+                  structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
                   schemaName: result.schemaName ?? null,
                   requestName: result.requestName,
                 };
@@ -1947,6 +2011,7 @@ const runBenchmark = async () => {
           });
 
           const llm = result.llm;
+          noteStructuredFallback(progressState, { runId, pass, stage: 'pass' }, llm);
           const row = toMetricRow({
             runId,
             pass,
@@ -1954,7 +2019,7 @@ const runBenchmark = async () => {
             provider: llm?.provider ?? settings.provider,
             model: llm?.model ?? settings.model,
             promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-            structuredOutputs,
+            structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
             durationMs: llm?.durationMs ?? null,
             costUsd: llm?.costUsd ?? null,
             tokensPrompt: llm?.tokens?.prompt ?? null,
@@ -2026,6 +2091,7 @@ const runBenchmark = async () => {
         });
 
         const llm = result.llm;
+        noteStructuredFallback(progressState, { runId, pass, stage: 'pass' }, llm);
         rows.push(
           toMetricRow({
             runId,
@@ -2034,7 +2100,7 @@ const runBenchmark = async () => {
             provider: llm?.provider ?? settings.provider,
             model: llm?.model ?? settings.model,
             promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-            structuredOutputs,
+            structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
             durationMs: llm?.durationMs ?? null,
             costUsd: llm?.costUsd ?? null,
             tokensPrompt: llm?.tokens?.prompt ?? null,
@@ -2135,6 +2201,7 @@ const runBenchmark = async () => {
         });
 
         const llm = result.llm;
+        noteStructuredFallback(progressState, { runId, pass, stage: 'pass' }, llm);
         rows.push(
           toMetricRow({
             runId,
@@ -2143,7 +2210,7 @@ const runBenchmark = async () => {
             provider: llm?.provider ?? settings.provider,
             model: llm?.model ?? settings.model,
             promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-            structuredOutputs,
+            structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
             durationMs: llm?.durationMs ?? null,
             costUsd: llm?.costUsd ?? null,
             tokensPrompt: llm?.tokens?.prompt ?? null,
@@ -2207,6 +2274,7 @@ const runBenchmark = async () => {
         });
 
         const llm = result.llm;
+        noteStructuredFallback(progressState, { runId, pass, stage: 'pass' }, llm);
         rows.push(
           toMetricRow({
             runId,
@@ -2215,7 +2283,7 @@ const runBenchmark = async () => {
             provider: llm?.provider ?? settings.provider,
             model: llm?.model ?? settings.model,
             promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-            structuredOutputs,
+            structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
             durationMs: llm?.durationMs ?? null,
             costUsd: llm?.costUsd ?? null,
             tokensPrompt: llm?.tokens?.prompt ?? null,
@@ -2272,6 +2340,7 @@ const runBenchmark = async () => {
         });
 
         const llm = result.llm;
+        noteStructuredFallback(progressState, { runId, pass, stage: 'pass' }, llm);
         rows.push(
           toMetricRow({
             runId,
@@ -2280,7 +2349,7 @@ const runBenchmark = async () => {
             provider: llm?.provider ?? settings.provider,
             model: llm?.model ?? settings.model,
             promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-            structuredOutputs,
+            structuredOutputs: actualStructuredOutputs(structuredOutputs, llm),
             durationMs: llm?.durationMs ?? null,
             costUsd: llm?.costUsd ?? null,
             tokensPrompt: llm?.tokens?.prompt ?? null,
@@ -2397,8 +2466,28 @@ const runBenchmark = async () => {
 
 const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : '';
 if (import.meta.url === invokedPath) {
-  runBenchmark().catch((error) => {
-    console.error('[SuttaStudioBenchmark] Failed:', error);
+  // --model <run-id>: restrict this process to ONE roster model. benchmark-parallel.ts
+  // has always passed this flag per child; before it was parsed here, every child ran
+  // the FULL roster (N× the intended spend). Parse failures are fatal — an unknown id
+  // would otherwise filter runsToExecute to [] and exit 0 as a silent no-op "success".
+  const { model: cliModel, error: cliError } = parseBenchmarkArgs(
+    process.argv.slice(2),
+    BENCHMARK_CONFIG.runs.map((r) => r.id),
+  );
+  if (cliError) {
+    console.error(`[SuttaStudioBenchmark] ${cliError}`);
     process.exitCode = 1;
-  });
+  } else {
+    if (cliModel) {
+      BENCHMARK_CONFIG.onlyRunIds = [cliModel];
+      console.log(
+        `[SuttaStudioBenchmark] --model ${cliModel}: running ONLY this model ` +
+          `(onlyRunIds=[${cliModel}]; the other ${BENCHMARK_CONFIG.runs.length - 1} roster models are skipped).`,
+      );
+    }
+    runBenchmark().catch((error) => {
+      console.error('[SuttaStudioBenchmark] Failed:', error);
+      process.exitCode = 1;
+    });
+  }
 }

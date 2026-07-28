@@ -277,3 +277,11 @@ fs.writeFileSync(
 console.log(lines.slice(0, 8).join('\n'));
 console.log(`\nWrote reports/sutta-studio/golden-verification.{md,json}`);
 console.log(`ROOT_MISMATCH (folk etymology) count: ${errors.filter((f) => f.kind === 'ROOT_MISMATCH').length}`);
+
+// Exit code carries the verdict (integrity scan 2026-07, P1): this is the money
+// check — ERROR-severity findings (probable folk etymologies in the golden) must
+// fail the process so callers/CI see red, not just tint a report nobody re-opens.
+if (errors.length > 0) {
+  console.error(`\n${errors.length} ERROR-severity flag(s) — exiting non-zero.`);
+  process.exitCode = 1;
+}

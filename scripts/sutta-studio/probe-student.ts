@@ -22,6 +22,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { preflightOpenRouterKey } from './lib/preflight';
 
 const KEY = process.env.OPENROUTER_API_KEY;
 if (!KEY) {
@@ -32,6 +33,11 @@ const argValue = (f: string) => {
   const i = process.argv.indexOf(f);
   return i >= 0 ? process.argv[i + 1] : undefined;
 };
+// --control-only: run ONLY the closed-book control half (no contestant material
+// sweeps). This flag existed in the docstring but was never parsed (integrity
+// scan 2026-07, P1 — the ledgered mode-guard-as-comment class): asking for the
+// cheap control run silently launched the full paid sweep instead.
+const CONTROL_ONLY = process.argv.includes('--control-only');
 // Paid slug: the :free variant is rate-limited upstream, and a 300-call run
 // needs reliability more than it needs $0.30. (First attempt used a slug that
 // doesn't exist — the a4b infix matters. Slug churn strikes again.)
@@ -57,9 +63,13 @@ for (const q of testQs) byPhase.set(q.phaseId, [...(byPhase.get(q.phaseId) ?? []
 // so a change to renderMaterial requires a FRESH results path or the rerun
 // silently reuses answers from the old material.
 const RESULTS = argValue('--results') || path.join(ROOT, 'probe-results.json');
-const results: Record<string, Record<string, { correct: string[]; wrong: string[] }>> = fs.existsSync(RESULTS)
+// `student` per cell = the slug that ACTUALLY answered (the paid→free fallback
+// swap and provider-side routing previously went unrecorded, so the file's
+// single `_student` header could mislabel cells — integrity scan 2026-07, P1).
+const results: Record<string, Record<string, { correct: string[]; wrong: string[]; student?: string }>> = fs.existsSync(RESULTS)
   ? JSON.parse(fs.readFileSync(RESULTS, 'utf8')).cells ?? {}
   : {};
+const slugsUsed = new Set<string>();
 
 const fold = (s: string) =>
   (s || '')
@@ -77,7 +87,10 @@ const isCorrect = (answer: string, accepted: string[]): boolean => {
   });
 };
 
-async function ask(model: string, prompt: string): Promise<Record<string, string>> {
+async function ask(
+  model: string,
+  prompt: string,
+): Promise<{ answers: Record<string, string>; slugUsed: string }> {
   let slug = model;
   for (let attempt = 1; attempt <= 4; attempt++) {
     try {
@@ -99,7 +112,10 @@ async function ask(model: string, prompt: string): Promise<Record<string, string
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
       const text: string = data.choices?.[0]?.message?.content ?? '';
-      return JSON.parse(text.replace(/^```(json)?|```$/g, '').trim());
+      // Record what ACTUALLY answered: the response's own model field beats the
+      // requested slug (fallback swaps + provider routing both happen upstream).
+      const slugUsed: string = data.model ?? slug;
+      return { answers: JSON.parse(text.replace(/^```(json)?|```$/g, '').trim()), slugUsed };
     } catch (e) {
       if (attempt === 2 && slug !== STUDENT_FALLBACK) slug = STUDENT_FALLBACK; // free tier flaked → paid sibling
       if (attempt === 4) throw e;
@@ -150,12 +166,20 @@ function renderMaterial(data: Record<string, any>): string {
 }
 
 const run = async () => {
-  // discover contestants
+  // Key preflight BEFORE any paid call (the 2026-07-22 rule: a run that will die
+  // on key exhaustion is fully predictable for free via GET /api/v1/key).
+  await preflightOpenRouterKey({ apiKey: KEY });
+
+  // discover contestants (skipped entirely under --control-only)
   const contestants = new Map<string, string>(); // model -> dir
-  for (const d of DIRS) {
-    const o = path.join(ROOT, d, 'outputs');
-    if (!fs.existsSync(o)) continue;
-    for (const m of fs.readdirSync(o)) if (fs.statSync(path.join(o, m)).isDirectory()) contestants.set(m, path.join(o, m));
+  if (!CONTROL_ONLY) {
+    for (const d of DIRS) {
+      const o = path.join(ROOT, d, 'outputs');
+      if (!fs.existsSync(o)) continue;
+      for (const m of fs.readdirSync(o)) if (fs.statSync(path.join(o, m)).isDirectory()) contestants.set(m, path.join(o, m));
+    }
+  } else {
+    console.log('[--control-only] closed-book control only; contestant sweeps skipped.');
   }
   const only = argValue('--models')?.split(',');
   const jobs: Array<[string, string | null]> = [['closed-book-control', null]];
@@ -177,13 +201,26 @@ const run = async () => {
         ? `Study this material about a Pāli passage, then answer the questions USING ONLY THE MATERIAL. If the material does not contain the answer, reply "unknown".\n\n${material}\n\nQUESTIONS:\n${qLines}`
         : `Answer these questions about Pāli words from your own knowledge. If unsure, reply "unknown".\n\nQUESTIONS:\n${qLines}`;
       try {
-        const answers = await ask(STUDENT, prompt);
+        const { answers, slugUsed } = await ask(STUDENT, prompt);
+        slugsUsed.add(slugUsed);
         const correct: string[] = [];
         const wrong: string[] = [];
         for (const q of qs) (isCorrect(String(answers[q.id] ?? ''), q.accepted) ? correct : wrong).push(q.id);
-        results[label][phaseId] = { correct, wrong };
-        fs.writeFileSync(RESULTS, JSON.stringify({ _student: STUDENT, _updatedAt: new Date().toISOString(), cells: results }, null, 1));
-        console.log(`[${label}] ${phaseId}: ${correct.length}/${qs.length}`);
+        results[label][phaseId] = { correct, wrong, student: slugUsed };
+        fs.writeFileSync(
+          RESULTS,
+          JSON.stringify(
+            {
+              _student: STUDENT, // the REQUESTED student
+              _studentSlugsUsed: [...slugsUsed].sort(), // what actually answered this run
+              _updatedAt: new Date().toISOString(),
+              cells: results,
+            },
+            null,
+            1,
+          ),
+        );
+        console.log(`[${label}] ${phaseId}: ${correct.length}/${qs.length}${slugUsed !== STUDENT ? ` (answered by ${slugUsed})` : ''}`);
       } catch (e) {
         console.log(`[${label}] ${phaseId}: FAILED ${e instanceof Error ? e.message : e}`);
       }
