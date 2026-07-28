@@ -21,6 +21,7 @@ import { fetchAndMergeGlossary, mergeGlossaryEntries } from '../services/glossar
 import { fetchNovelChapterCounts } from '../services/db/operations/summaries';
 import { fetchAndParseUrl } from '../services/scraping/fetcher';
 import { ChapterOps } from '../services/db/operations';
+import { parseGroupedChapterNumber } from '../services/library/sectionGrouping';
 
 interface NovelLibraryProps {
   onSessionLoaded?: () => void;
@@ -122,12 +123,38 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     setSelectedNovel(null);
   };
 
-  const handleStartReading = async (novel: NovelEntry, version?: NovelVersion) => {
+  const handleStartReading = async (
+    novel: NovelEntry,
+    version?: NovelVersion,
+    startChapterNumber?: number
+  ) => {
     // Special routing for built-in study entries (e.g., Sutta Studio)
     if (novel.id === 'sutta-mn10') {
       window.location.href = '/sutta/demo';
       return;
     }
+
+    // A specific verse/section was picked from the nested tree.
+    const hasPickedVerse = typeof startChapterNumber === 'number';
+
+    // Resolve the picked verse against whatever chapters are currently in the
+    // store. Returns null when a verse was picked but isn't loaded yet (e.g. it
+    // lies outside the first streamed batch) — callers must NOT silently fall
+    // back to chapter 1 in that case: the post-import reconcile below navigates
+    // to it once the full import completes.
+    const resolvePickedChapterId = (): string | null => {
+      if (!hasPickedVerse) return null;
+      const match = Array.from(useAppStore.getState().chapters.values()).find(
+        (chapter) => chapter.chapterNumber === startChapterNumber
+      );
+      return match?.id ?? null;
+    };
+
+    const pickedVerseLabel = (): string => {
+      if (!hasPickedVerse) return '';
+      const { group, item } = parseGroupedChapterNumber(startChapterNumber as number);
+      return `${group}.${item}`;
+    };
 
     // Determine which session URL to use
     const sessionJsonUrl = version?.sessionJsonUrl || novel.sessionJsonUrl;
@@ -164,11 +191,19 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       if (firstCachedChapterId) {
         setImportProgress({ stage: 'importing', progress: 50, message: 'Loading from cache...' });
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
-        const resumeChapterId = BookshelfStateService.resolveResumeChapterId(
-          bookshelfEntry,
-          useAppStore.getState().chapters,
-          firstCachedChapterId
-        );
+        // Cached path: every chapter is loaded, so a picked verse resolves here.
+        // If it genuinely isn't in this book, surface it rather than silently
+        // opening chapter 1.
+        const cachedPickedId = resolvePickedChapterId();
+        if (hasPickedVerse && !cachedPickedId) {
+          showNotification(`Couldn't find ${pickedVerseLabel()} in this book; opening where you left off.`, 'warning');
+        }
+        const resumeChapterId = cachedPickedId ??
+          BookshelfStateService.resolveResumeChapterId(
+            bookshelfEntry,
+            useAppStore.getState().chapters,
+            firstCachedChapterId
+          );
         useAppStore.setState(state => ({
           navigationHistory: nav?.stableIds || [],
           currentChapterId: resumeChapterId,
@@ -220,11 +255,17 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                 { limit: 10, versionId: requestedVersionId }
               );
               const bookshelfEntry = await BookshelfStateService.getEntry(novel.id, requestedVersionId);
-              const resumeChapterId = BookshelfStateService.resolveResumeChapterId(
-                bookshelfEntry,
-                useAppStore.getState().chapters,
-                firstChapterId
-              );
+              // Try to resolve the picked verse within the first streamed batch;
+              // it usually lies further in (e.g. Gītā 2.47 with only 10 chapters
+              // streamed so far), in which case pickedInBatch is null and the
+              // post-import reconcile handles it.
+              const pickedInBatch = resolvePickedChapterId();
+              const resumeChapterId = pickedInBatch ??
+                BookshelfStateService.resolveResumeChapterId(
+                  bookshelfEntry,
+                  useAppStore.getState().chapters,
+                  firstChapterId
+                );
 
               debugLog(
                 'import',
@@ -241,7 +282,13 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
               });
               if (resumeChapterId) {
                 setReaderReady();
-                await persistResumeEntry(novel.id, resumeChapterId, requestedVersionId);
+                // Persist now ONLY when we're on the intended target: no verse
+                // was picked, or the picked verse resolved in this batch. When a
+                // verse was picked but isn't loaded yet, do NOT persist chapter 1
+                // — the post-import reconcile persists the real target.
+                if (!hasPickedVerse || pickedInBatch) {
+                  await persistResumeEntry(novel.id, resumeChapterId, requestedVersionId);
+                }
               }
 
               const postHydrationState = useAppStore.getState();
@@ -281,6 +328,28 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
             registryVersionId: requestedVersionId,
           }
         );
+
+        // Reconcile an explicitly-picked verse that lay outside the first
+        // streamed batch. The stream has now fully completed, so load the whole
+        // chapter set, find the picked verse, and navigate/persist there. Never
+        // leave the reader parked on chapter 1 when a verse was explicitly chosen.
+        if (hasPickedVerse) {
+          const currentId = useAppStore.getState().currentChapterId;
+          const currentChapter = currentId ? useAppStore.getState().chapters.get(currentId) : null;
+          const alreadyOnTarget = currentChapter?.chapterNumber === startChapterNumber;
+
+          if (!alreadyOnTarget) {
+            await loadNovelIntoStore(novel.id, useAppStore.setState, { versionId: requestedVersionId });
+            const targetId = resolvePickedChapterId();
+            if (targetId) {
+              useAppStore.setState({ currentChapterId: targetId, appScreen: 'reader' });
+              setReaderReady();
+              await persistResumeEntry(novel.id, targetId, requestedVersionId);
+            } else {
+              showNotification(`Couldn't find ${pickedVerseLabel()} in this book; opened at the start instead.`, 'warning');
+            }
+          }
+        }
 
         showNotification(`All chapters are now cached and ready to read.${versionLabel}`, 'info');
       } else {

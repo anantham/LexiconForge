@@ -94,6 +94,21 @@ export interface SourceLinks {
   anime?: string;
 }
 
+/**
+ * Marks a novel whose chapters are grouped into sections (e.g. the Bhagavad
+ * Gītā: 700 verses across 18 adhyāyas). When present with scheme
+ * 'chapter-verse', chapterNumber is encoded as `groupNumber * 1000 + itemNumber`
+ * (2047 = Gītā 2.47) and the library detail modal renders a nested
+ * chapter → verse tree.
+ *
+ * This is an EXPLICIT opt-in marker, not inferred from chapter numbering: a long
+ * web novel that merely happens to be numbered 1001, 1002, … is NOT grouped
+ * unless its metadata carries this field.
+ */
+export interface NovelGrouping {
+  scheme: 'chapter-verse';
+}
+
 export interface NovelMetadata {
   originalLanguage: string;
   targetLanguage?: string;  // Make optional since versions have this
@@ -108,6 +123,7 @@ export interface NovelMetadata {
   originalPublicationDate?: string;
   lastUpdated: string;
   mediaCorrespondence?: MediaCorrespondenceAnchor[];  // Cross-media alignment anchors
+  grouping?: NovelGrouping;  // Opt-in section grouping (chapter → verse tree)
 }
 
 export interface NovelEntry {
