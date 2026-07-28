@@ -83,22 +83,29 @@ export interface EpubTemplate {
   customFooter?: string;
 }
 
+/** Structured warning emitted by the EPUB packager (missing metadata, invalid cover, XHTML parse errors, ...). */
+export interface EpubPackageWarning {
+  type: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
 export interface EpubExportOptions {
   title?: string;
   author?: string;
   description?: string;
   chapters: ChapterForEpub[];
-  settings: AppSettings;
+  /** Currently unused by generateEpub; kept optional for callers that pass it through. */
+  settings?: AppSettings;
   template?: EpubTemplate;
   novelConfig?: NovelConfig;
   telemetryInsights?: TelemetryInsights;
   includeTitlePage?: boolean;
   includeStatsPage?: boolean;
-  customTemplate?: any;
-  manualConfig?: any;
-  chapterUrls?: string[];
   /** Cover image as base64 data URL (e.g., "data:image/jpeg;base64,...") */
   coverImage?: string;
+  /** Receives packager warnings so callers can surface them (e.g. export warning counter). */
+  onWarning?: (warning: EpubPackageWarning) => void;
 }
 
 export interface EpubChapter {

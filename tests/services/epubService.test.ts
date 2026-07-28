@@ -31,7 +31,7 @@
  * ==================================
  * TEST COVERAGE OBJECTIVES
  * ==================================
- * 
+ *
  * ✅ Statistics accuracy with various provider/model combinations
  * ✅ Edge cases: empty data, single chapter, missing metrics
  * ✅ Data integrity: totals match breakdown sums
@@ -40,29 +40,19 @@
  * ✅ Provider/model breakdown correctness
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { 
-  collectActiveVersions, 
-  calculateTranslationStats, 
-  getDefaultTemplate, 
+import { describe, it, expect } from 'vitest';
+import {
+  calculateTranslationStats,
+  getDefaultTemplate,
   createCustomTemplate,
+  getNovelConfig,
   ChapterForEpub,
   TranslationStats,
   EpubTemplate
 } from '../../services/epubService';
-import { SessionChapterData } from '../../types';
-import type { TranslationResult, UsageMetrics } from '../../types';
+import type { UsageMetrics } from '../../types';
 
 // Mock data factory functions
-const createMockChapter = (overrides = {}) => ({
-  title: 'Chapter 1: The Beginning',
-  content: 'This is the content of chapter 1.',
-  originalUrl: 'https://example.com/chapter1',
-  nextUrl: 'https://example.com/chapter2',
-  prevUrl: null,
-  ...overrides
-});
-
 const createMockUsageMetrics = (overrides: Partial<UsageMetrics> = {}): UsageMetrics => ({
   totalTokens: 1000,
   promptTokens: 600,
@@ -73,144 +63,6 @@ const createMockUsageMetrics = (overrides: Partial<UsageMetrics> = {}): UsageMet
   model: 'gemini-2.5-flash',
   ...overrides,
 } as UsageMetrics);
-
-const createMockTranslationResult = (overrides: Partial<TranslationResult> = {}): TranslationResult => ({
-  translatedTitle: 'Translated Chapter 1: The Beginning',
-  translation: 'This is the translated content.',
-  proposal: null,
-  footnotes: [],
-  suggestedIllustrations: [
-    {
-      placementMarker: '[ILLUSTRATION-1]',
-      imagePrompt: 'A dramatic scene showing the protagonist',
-      url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
-    }
-  ],
-  usageMetrics: createMockUsageMetrics(),
-  ...overrides,
-} as TranslationResult);
-
-const createMockSessionData = (chapterCount = 3): Record<string, SessionChapterData> => {
-  const sessionData: Record<string, SessionChapterData> = {};
-  
-  for (let i = 1; i <= chapterCount; i++) {
-    const url = `https://example.com/chapter${i}`;
-    sessionData[url] = {
-      chapter: createMockChapter({
-        title: `Chapter ${i}: Part ${i}`,
-        originalUrl: url,
-        nextUrl: i < chapterCount ? `https://example.com/chapter${i + 1}` : null,
-        prevUrl: i > 1 ? `https://example.com/chapter${i - 1}` : null
-      }),
-      translationResult: createMockTranslationResult({
-        translatedTitle: `Translated Chapter ${i}: Part ${i}`,
-        usageMetrics: createMockUsageMetrics({
-          totalTokens: 1000 + (i * 100),
-          estimatedCost: 0.001 + (i * 0.0005),
-          requestTime: 2.0 + (i * 0.5),
-          provider: i % 2 === 0 ? 'OpenAI' : 'Gemini',
-          model: i % 2 === 0 ? 'gpt-5-mini' : 'gemini-2.5-flash'
-        }),
-        suggestedIllustrations: i <= 2 ? [
-          {
-            placementMarker: `[ILLUSTRATION-${i}]`,
-            imagePrompt: `Scene ${i} description`,
-            url: `data:image/png;base64,chapter${i}image`
-          }
-        ] : []
-      }),
-      availableVersions: [],
-      activeVersion: 1
-    };
-  }
-  
-  return sessionData;
-};
-
-describe('EPUB Service - Data Collection', () => {
-  
-  describe('collectActiveVersions', () => {
-    it('should collect chapters with complete usage metrics', () => {
-      const sessionData = createMockSessionData(2);
-      const urlHistory = ['https://example.com/chapter1', 'https://example.com/chapter2'];
-      
-      const chapters = collectActiveVersions(sessionData, urlHistory);
-      
-      expect(chapters).toHaveLength(2);
-      
-      // Verify first chapter
-      expect(chapters[0]).toMatchObject({
-        title: 'Chapter 1: Part 1',
-        translatedTitle: 'Translated Chapter 1: Part 1',
-        originalUrl: 'https://example.com/chapter1',
-        usageMetrics: {
-          totalTokens: 1100,
-          promptTokens: 600,
-          completionTokens: 400,
-          estimatedCost: 0.0015,
-          requestTime: 2.5,
-          provider: 'Gemini',
-          model: 'gemini-2.5-flash'
-        }
-      });
-      
-      // Verify images are collected
-      expect(chapters[0].images).toHaveLength(1);
-      expect(chapters[0].images[0]).toMatchObject({
-        marker: '[ILLUSTRATION-1]',
-        imageData: 'data:image/png;base64,chapter1image',
-        prompt: 'Scene 1 description'
-      });
-    });
-    
-    it('should handle chapters without translation results', () => {
-      const sessionData = createMockSessionData(2);
-      // Remove translation result from second chapter
-      sessionData['https://example.com/chapter2'].translationResult = null;
-      
-      const urlHistory = ['https://example.com/chapter1', 'https://example.com/chapter2'];
-      const chapters = collectActiveVersions(sessionData, urlHistory);
-      
-      // Should only return chapters with translation results
-      expect(chapters).toHaveLength(1);
-      expect(chapters[0].title).toBe('Chapter 1: Part 1');
-    });
-    
-    it('should handle empty session data', () => {
-      const sessionData = {};
-      const urlHistory: string[] = [];
-      
-      const chapters = collectActiveVersions(sessionData, urlHistory);
-      
-      expect(chapters).toHaveLength(0);
-      expect(Array.isArray(chapters)).toBe(true);
-    });
-    
-    it('should filter out images without data', () => {
-      const sessionData = createMockSessionData(1);
-      
-      // Add an illustration without image data
-      sessionData['https://example.com/chapter1'].translationResult!.suggestedIllustrations = [
-        {
-          placementMarker: '[ILLUSTRATION-1]',
-          imagePrompt: 'Scene with image',
-          url: 'data:image/png;base64,validimage'
-        },
-        {
-          placementMarker: '[ILLUSTRATION-2]',
-          imagePrompt: 'Scene without image',
-          url: '' // Empty image data
-        }
-      ];
-      
-      const urlHistory = ['https://example.com/chapter1'];
-      const chapters = collectActiveVersions(sessionData, urlHistory);
-      
-      expect(chapters[0].images).toHaveLength(1);
-      expect(chapters[0].images[0].marker).toBe('[ILLUSTRATION-1]');
-    });
-  });
-});
 
 describe('EPUB Service - Statistics Calculation', () => {
   
@@ -538,59 +390,69 @@ describe('EPUB Service - Edge Cases and Error Handling', () => {
     expect(isFinite(stats.totalTime)).toBe(true);
   });
   
-  it('should handle mixed data quality gracefully with default values', () => {
-    const sessionData = createMockSessionData(3);
-    
-    // Corrupt some data to test resilience
-    sessionData['https://example.com/chapter2'].translationResult!.usageMetrics.estimatedCost = NaN;
-    sessionData['https://example.com/chapter3'].translationResult!.suggestedIllustrations = undefined as any;
-    
-    const urlHistory = Object.keys(sessionData);
-    const chapters = collectActiveVersions(sessionData, urlHistory);
-    
-    // Should now include all chapters with fixed/default values
-    expect(chapters).toHaveLength(3);
-    
-    // Chapter 2 should have NaN cost fixed to 0
-    const chapter2 = chapters.find(ch => ch.title === 'Chapter 2: Part 2');
-    expect(chapter2?.usageMetrics.estimatedCost).toBe(0);
-    
-    // All chapters should have valid metrics
-    const validChapters = chapters.filter(ch => 
-      isFinite(ch.usageMetrics.estimatedCost) && 
-      ch.images !== undefined
-    );
-    
-    expect(validChapters.length).toBe(3);
+});
+
+describe('EPUB Service - Novel Config (integrity fixes)', () => {
+  it('does not let present-but-undefined manual values clobber defaults, and title-page generation does not throw', () => {
+    // Mirrors the generateEpub call shape when options.title/author/description
+    // are all absent: pre-fix these undefined values survived the merge spread,
+    // clobbered the defaults, and escapeXml(undefined) threw in generateTitlePage.
+    const config = getNovelConfig('https://example.com/some-novel/1', {
+      title: undefined,
+      author: undefined,
+      description: undefined,
+    }, undefined);
+
+    expect(config.title).toBe('Translated Novel');
+    expect(config.author).toBe('Unknown Author');
+
+    const stats: TranslationStats = {
+      totalCost: 0,
+      totalTime: 0,
+      totalTokens: 0,
+      chapterCount: 1,
+      imageCount: 0,
+      providerBreakdown: {},
+      modelBreakdown: {}
+    };
+    expect(() => generateTitlePage(config, stats)).not.toThrow();
   });
 
-  it('should handle completely missing usageMetrics with defaults', () => {
-    const sessionData = createMockSessionData(2);
-    
-    // Remove usageMetrics entirely from one chapter
-    sessionData['https://example.com/chapter1'].translationResult!.usageMetrics = undefined as any;
-    
-    const urlHistory = Object.keys(sessionData);
-    const chapters = collectActiveVersions(sessionData, urlHistory);
-    
-    // Should now include both chapters
-    expect(chapters).toHaveLength(2);
-    
-    // Chapter with missing metrics should use defaults
-    const chapter1 = chapters.find(ch => ch.title === 'Chapter 1: Part 1');
-    expect(chapter1?.usageMetrics).toMatchObject({
-      totalTokens: 0,
-      promptTokens: 0,
-      completionTokens: 0,
-      estimatedCost: 0,
-      requestTime: 0,
-      provider: 'Unknown',
-      model: 'Unknown'
-    });
-    
-    // Chapter with valid metrics should remain unchanged
-    const chapter2 = chapters.find(ch => ch.title === 'Chapter 2: Part 2');
-    expect(chapter2?.usageMetrics.estimatedCost).toBeGreaterThan(0);
+  it('never assigns another novel\'s hardcoded metadata based on the site URL', () => {
+    // kakuyomu.jp hosts many novels; pre-fix ANY kakuyomu URL was branded as
+    // "The Reincarnation of the Strongest Exorcist..." incl. a fake isbn that
+    // became the EPUB dc:identifier.
+    const kakuyomu = getNovelConfig('https://kakuyomu.jp/works/999/episodes/1', undefined, undefined);
+    expect(kakuyomu.title).toBe('Translated Novel');
+    expect(kakuyomu.author).toBe('Unknown Author');
+    expect(kakuyomu.isbn).toBeUndefined();
+    expect(kakuyomu.seriesName).toBeUndefined();
+    expect(kakuyomu.translationNotes).toBeUndefined();
+    expect(kakuyomu.originalLanguage).toBe('ja'); // site-generic hint is kept
+
+    const booktoki = getNovelConfig('https://booktoki468.com/novel/123', undefined, undefined);
+    expect(booktoki.title).toBe('Translated Novel');
+    expect(booktoki.author).toBe('Unknown Author');
+    expect(booktoki.isbn).toBeUndefined();
+    expect(booktoki.originalLanguage).toBe('ko'); // site-generic hint is kept
+  });
+
+  it('keeps the priority chain: manual config > chapter-title extraction > defaults', () => {
+    const manual = getNovelConfig(
+      'https://kakuyomu.jp/works/1/episodes/1',
+      { title: 'My Novel', author: 'Me' },
+      'Other Novel: Chapter 1 - Start'
+    );
+    expect(manual.title).toBe('My Novel');
+    expect(manual.author).toBe('Me');
+
+    const extracted = getNovelConfig(
+      'https://kakuyomu.jp/works/1/episodes/1',
+      undefined,
+      'Eon: Chapter 1 - The Beginning'
+    );
+    expect(extracted.title).toBe('Eon');
+    expect(extracted.author).toBe('Unknown Author');
   });
 });
 
@@ -750,6 +612,40 @@ describe('EPUB Content Generation E2E', () => {
       expect(xhtml).toContain('<sup><a href="#fn2"');
     });
 
+    /**
+     * REGRESSION: canonical bracketed markers ('[1]') must still produce valid,
+     * paired ids. Pre-fix, the footnote-section marker cleanup regex required a
+     * literal space (/^\ \[|\ \]$/) so '[1]' survived intact, producing
+     * li id="fn[1]" (invalid XML ID) while the inline ref pointed at #fn1 —
+     * every noteref and backlink in the exported EPUB was dead.
+     */
+    it("should pair fnref/fn links both directions when marker is '[1]'", () => {
+      const chapter: ChapterForEpub = {
+        title: 'Bracketed Markers',
+        content: 'Original with [1] marker.',
+        originalUrl: 'https://example.com/bracketed',
+        translatedTitle: 'Bracketed Markers Chapter',
+        translatedContent: 'A statement needing a note [1] right here.',
+        usageMetrics: createMockUsageMetrics(),
+        images: [],
+        footnotes: [
+          { marker: '[1]', text: 'The explanation.' }
+        ]
+      };
+
+      const xhtml = buildChapterXhtml(chapter);
+
+      // Footnote li gets the bracket-stripped id...
+      expect(xhtml).toContain('id="fn1"');
+      // ...never the invalid bracketed form
+      expect(xhtml).not.toContain('fn[1]');
+      // Inline noteref → footnote li
+      expect(xhtml).toContain('<sup><a href="#fn1"');
+      expect(xhtml).toContain('id="fnref1"');
+      // Footnote backlink → inline noteref
+      expect(xhtml).toContain('href="#fnref1"');
+    });
+
     it('should produce valid XHTML that can be parsed', () => {
       const chapter: ChapterForEpub = {
         title: 'Parse Test',
@@ -873,6 +769,28 @@ describe('EPUB Content Generation E2E', () => {
 
       expect(xhtml).toContain('src="test.png"');
       expect(xhtml).toContain('alt="Test Alt"');
+    });
+
+    /**
+     * REGRESSION: broken void tags like <br“ (a quote glued straight onto the
+     * tag name) must be repaired to <br/> with the quote kept as text. Two of
+     * the three original repair regexes required a literal space the lookahead
+     * made impossible and matched NOTHING; without repair the HTML parser eats
+     * the quote and following text as a bogus tag name/attributes, losing text.
+     */
+    it('should repair <br/<hr immediately followed by a quote, keeping the quote as text', () => {
+      const brCurly = htmlFragmentToXhtml('<p>line one<br“line two</p>');
+      expect(brCurly).toMatch(/<br\s*\/>/);
+      expect(brCurly).toContain('“line two');
+
+      const brStraight = htmlFragmentToXhtml('<p>alpha<br"beta</p>');
+      expect(brStraight).toMatch(/<br\s*\/>/);
+      expect(brStraight).toContain('"beta');
+
+      const hrCurly = htmlFragmentToXhtml('above<hr”below');
+      // Top-level void elements serialize with an xmlns attribute
+      expect(hrCurly).toMatch(/<hr[^>]*\/>/);
+      expect(hrCurly).toContain('”below');
     });
   });
 
