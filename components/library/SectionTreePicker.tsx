@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronRight, ChevronsDownUp, ChevronsUpDown, Play, Loader2, BookOpen } from 'lucide-react';
 import {
   buildSectionTree,
+  isGroupableChapters,
   type ChapterIndexItem,
   type GroupLabeler,
   type SectionGroup,
@@ -279,6 +280,13 @@ export function GroupedChapterPicker({ sessionJsonUrl, onSelectVerse }: GroupedC
         <span>Loading verses…</span>
       </div>
     );
+  }
+
+  // Secondary safety assert: the novel was marked grouped, but if the fetched
+  // chapters don't actually carry the chapter-verse shape, don't render a
+  // garbage tree — fall back to the "Start Reading" button above.
+  if (!isGroupableChapters(chapters)) {
+    return null;
   }
 
   return <SectionTreePicker chapters={chapters} onSelectVerse={onSelectVerse} />;

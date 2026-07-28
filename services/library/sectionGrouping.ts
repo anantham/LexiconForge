@@ -3,15 +3,14 @@
  * across 18 adhyāyas). Pure, dependency-free logic so it is trivially unit-
  * testable and re-usable by the library detail modal's nested section picker.
  *
- * GROUPING CONVENTION (agreed with the content build): a groupable novel
- * encodes `chapterNumber = groupNumber * 1000 + itemNumber`. So chapterNumber
- * 2047 = group 2 (Gītā chapter 2), item 47 (verse 47), displayed as "2.47".
+ * GROUPING CONVENTION (agreed with the content build): a grouped novel encodes
+ * `chapterNumber = groupNumber * 1000 + itemNumber`. So chapterNumber 2047 =
+ * group 2 (Gītā chapter 2), item 47 (verse 47), displayed as "2.47".
  *
- * A novel/version is "groupable" when its chapters all carry chapterNumber
- * >= 1000 AND the set spans more than one distinct Math.floor(n / 1000) group.
- * A single-section slice (e.g. just chapter 2, 2050–2072) is NOT groupable —
- * the existing flat "Start Reading" behaviour is kept for those, and for every
- * ordinary novel (Aithihyamala, etc.) whose chapters number 1, 2, 3, …
+ * DETECTION is by an EXPLICIT metadata marker (`metadata.grouping.scheme ===
+ * 'chapter-verse'`), NOT inferred from chapter numbering — a long web novel
+ * numbered 1001, 1002, … must render flat unless it opts in. `isGroupableChapters`
+ * below is a secondary safety assert on the fetched chapter shape, not the gate.
  */
 
 export interface ChapterIndexItem {
@@ -59,9 +58,26 @@ export function parseGroupedChapterNumber(chapterNumber: number): { group: numbe
   return { group, item };
 }
 
+/** The only grouping scheme currently supported: chapterNumber = group*1000 + item. */
+export const CHAPTER_VERSE_SCHEME = 'chapter-verse';
+
 /**
- * Groupability from the actual chapter set: every chapter >= 1000 AND the set
- * spans more than one distinct group. Empty/absent sets are not groupable.
+ * PRIMARY detection gate: is this novel explicitly marked as chapter-verse
+ * grouped? Driven by the metadata marker, never inferred from chapter numbers,
+ * so a plain web novel numbered 1001+ stays flat. Accepts a structural shape so
+ * this module stays dependency-free (the concrete type is `NovelGrouping`).
+ */
+export function isChapterVerseGrouping(
+  grouping: { scheme?: string } | null | undefined,
+): boolean {
+  return grouping?.scheme === CHAPTER_VERSE_SCHEME;
+}
+
+/**
+ * SECONDARY safety assert on the actual (fetched) chapter set: every chapter
+ * >= 1000 AND the set spans more than one distinct group. Used to guard against
+ * a mis-marked novel producing a garbage tree — it does NOT decide grouping on
+ * its own (that is the metadata marker's job). Empty/absent sets fail it.
  */
 export function isGroupableChapters(chapters: Array<{ chapterNumber?: number | null }>): boolean {
   const nums = chapters
@@ -73,24 +89,6 @@ export function isGroupableChapters(chapters: Array<{ chapterNumber?: number | n
 
   const groups = new Set(nums.map((n) => Math.floor(n / GROUP_BASE)));
   return groups.size > 1;
-}
-
-/**
- * Cheap groupability probe from a version's `chapterRange` alone — no chapter
- * list needed. Because `from` is the minimum chapter number and `to` the
- * maximum, `from >= 1000` implies every chapter is >= 1000, and differing
- * Math.floor(·/1000) endpoints imply the set spans multiple groups. This lets
- * the modal decide whether to render the nested tree using only the metadata
- * it already holds, deferring the (potentially heavier) chapter-index fetch to
- * the groupable case.
- */
-export function isGroupableRange(range: { from?: number | null; to?: number | null } | null | undefined): boolean {
-  if (!range) return false;
-  const { from, to } = range;
-  if (typeof from !== 'number' || typeof to !== 'number') return false;
-  if (!Number.isFinite(from) || !Number.isFinite(to)) return false;
-  if (from < GROUP_BASE) return false;
-  return Math.floor(from / GROUP_BASE) !== Math.floor(to / GROUP_BASE);
 }
 
 export type GroupLabeler = (group: number, verseCount: number) => { label: string; shortLabel: string };

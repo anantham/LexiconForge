@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   parseGroupedChapterNumber,
   isGroupableChapters,
-  isGroupableRange,
+  isChapterVerseGrouping,
   buildSectionTree,
   type ChapterIndexItem,
 } from '../../../services/library/sectionGrouping';
@@ -69,23 +69,21 @@ describe('isGroupableChapters', () => {
   });
 });
 
-describe('isGroupableRange (cheap, metadata-only)', () => {
-  it('detects the Gītā range 1001..18078', () => {
-    expect(isGroupableRange({ from: 1001, to: 18078 })).toBe(true);
+describe('isChapterVerseGrouping (primary gate — explicit marker only)', () => {
+  it('accepts the explicit chapter-verse marker', () => {
+    expect(isChapterVerseGrouping({ scheme: 'chapter-verse' })).toBe(true);
   });
 
-  // Red-proof: the flat Aithihyamala range must NOT be grouped.
-  it('rejects a flat range 1..126', () => {
-    expect(isGroupableRange({ from: 1, to: 126 })).toBe(false);
+  // Red-proof: grouping is by the MARKER, never inferred from chapter numbers —
+  // a long web novel numbered 1001+ carries no marker, so it must NOT be grouped.
+  it('rejects a marker-less novel regardless of chapter numbering', () => {
+    expect(isChapterVerseGrouping(undefined)).toBe(false);
+    expect(isChapterVerseGrouping(null)).toBe(false);
+    expect(isChapterVerseGrouping({})).toBe(false);
   });
 
-  it('rejects a single-group range 2050..2072', () => {
-    expect(isGroupableRange({ from: 2050, to: 2072 })).toBe(false);
-  });
-
-  it('rejects null / partial ranges', () => {
-    expect(isGroupableRange(null)).toBe(false);
-    expect(isGroupableRange({ from: 1001 })).toBe(false);
+  it('rejects an unknown scheme', () => {
+    expect(isChapterVerseGrouping({ scheme: 'volume-chapter' })).toBe(false);
   });
 });
 

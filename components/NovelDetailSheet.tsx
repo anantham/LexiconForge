@@ -5,7 +5,7 @@ import { VersionPicker } from './VersionPicker';
 import { CoverageDistribution } from './CoverageDistribution';
 import { NovelCoverImage } from './NovelCoverImage';
 import { GroupedChapterPicker } from './library/SectionTreePicker';
-import { isGroupableRange } from '../services/library/sectionGrouping';
+import { isChapterVerseGrouping } from '../services/library/sectionGrouping';
 
 interface NovelDetailSheetProps {
   novel: NovelEntry | null;
@@ -134,11 +134,15 @@ export function NovelDetailSheet({ novel, isOpen, onClose, onStartReading, trans
   const totalChapters = novel.metadata.chapterCount ||
     (novel.versions ? Math.max(...novel.versions.map(v => v.chapterRange.to)) : 0);
 
-  // A version whose chapters are grouped (e.g. the Bhagavad Gītā: 700 verses
-  // across 18 adhyāyas, encoded chapterNumber = group*1000 + item). Detected
-  // cheaply from the version's chapterRange alone — no chapter list needed —
-  // and only then do we render the nested tree (which lazily fetches verses).
-  const groupableVersion = novel.versions?.find(v => isGroupableRange(v.chapterRange)) ?? null;
+  // A grouped novel (e.g. the Bhagavad Gītā: 700 verses across 18 adhyāyas,
+  // encoded chapterNumber = group*1000 + item) is detected by an EXPLICIT
+  // metadata marker — never inferred from chapter numbers, so an ordinary web
+  // novel numbered 1001+ stays flat. When marked, we render the nested tree for
+  // the first version that has a session to fetch verses from.
+  const groupableVersion =
+    isChapterVerseGrouping(novel.metadata.grouping)
+      ? (novel.versions?.find(v => v.sessionJsonUrl) ?? null)
+      : null;
 
   const chapterDisplay = typeof translatedCount === 'number' && translatedCount > 0
     ? `${translatedCount} / ${totalChapters}`

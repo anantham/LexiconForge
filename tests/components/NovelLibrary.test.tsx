@@ -5,6 +5,7 @@ import { RegistryService } from '../../services/registryService';
 import { BookshelfStateService } from '../../services/bookshelfStateService';
 import { ImportService } from '../../services/importService';
 import { loadNovelIntoStore } from '../../services/readerHydrationService';
+import { clearChapterIndexCache } from '../../services/library/chapterIndexService';
 import { createMockEnhancedChapter } from '../utils/test-data';
 
 const storeState = vi.hoisted(() => ({
@@ -342,5 +343,113 @@ describe('NovelLibrary', () => {
     expect(loadNovelIntoStore).toHaveBeenCalledWith('novel-1', expect.any(Function), {
       versionId: 'st-enhanced',
     });
+  });
+
+  // P1 red-proof: a grouped novel opened at a verse OUTSIDE the first streamed
+  // batch (e.g. Gītā 2.47 when only the first chapter has streamed) must still
+  // open — and PERSIST — the picked verse after the full import completes, never
+  // silently parking on chapter 1.
+  it('opens a picked verse outside the initial streamed batch after full import (not chapter 1)', async () => {
+    clearChapterIndexCache();
+
+    const ch1001 = createMockEnhancedChapter({ id: 'ch-1001', novelId: 'gita', chapterNumber: 1001 });
+    const ch2047 = createMockEnhancedChapter({ id: 'ch-2047', novelId: 'gita', chapterNumber: 2047 });
+
+    // The lazy chapter-index fetch for the nested tree.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            chapters: [
+              { chapterNumber: 1001, title: '1.1' },
+              { chapterNumber: 2001, title: '2.1' },
+              { chapterNumber: 2047, title: '2.47' },
+              { chapterNumber: 2072, title: '2.72' },
+            ],
+          }),
+      })),
+    );
+
+    const gitaVersion = {
+      ...mockNovel.versions[0],
+      versionId: 'gita-v1',
+      displayName: 'Gītā',
+      sessionJsonUrl: 'https://example.com/gita.json',
+      chapterRange: { from: 1001, to: 18078 },
+    };
+    const gitaNovel = {
+      id: 'gita',
+      title: 'Bhagavad Gītā',
+      metadata: {
+        originalLanguage: 'Sanskrit',
+        targetLanguage: 'English',
+        chapterCount: 700,
+        genres: ['Scripture'],
+        description: 'The Song of the Lord.',
+        lastUpdated: '2026-07-28',
+        grouping: { scheme: 'chapter-verse' as const },
+      },
+      versions: [gitaVersion],
+    };
+    // A second novel so the card click opens the detail sheet (single-novel
+    // libraries skip it and read straight through).
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([gitaNovel, mockNovel] as any);
+
+    // Streaming path: first (cache) load is empty → stream. The initial batch
+    // holds ONLY chapter 1001; the post-import reconcile load holds 2047 too.
+    let loadCall = 0;
+    vi.mocked(loadNovelIntoStore).mockImplementation(async (_novelId, setState, options) => {
+      loadCall += 1;
+      if (loadCall === 1) return null; // cache check — not cached → stream
+      if (options?.limit === 10) {
+        setState({ chapters: new Map([['ch-1001', ch1001]]), urlIndex: new Map(), rawUrlIndex: new Map() } as any);
+        return 'ch-1001';
+      }
+      // reconcile: full set now available
+      setState({
+        chapters: new Map([['ch-1001', ch1001], ['ch-2047', ch2047]]),
+        urlIndex: new Map(),
+        rawUrlIndex: new Map(),
+      } as any);
+      return 'ch-1001';
+    });
+
+    // Drive the onFirstChaptersReady callback, then resolve (stream complete).
+    vi.mocked(ImportService.streamImportFromUrl).mockImplementation(
+      async (_url: any, _onProgress: any, onFirstReady: any) => {
+        await onFirstReady?.();
+        return {} as any;
+      }
+    );
+
+    render(<NovelLibrary />);
+
+    // Open the Gītā detail sheet.
+    await waitFor(() => expect(screen.getByText('Bhagavad Gītā')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Bhagavad Gītā'));
+
+    // The nested tree renders once the index fetch resolves.
+    await waitFor(() => expect(screen.getByText('Chapters & Verses')).toBeInTheDocument());
+
+    // Expand chapter 2 and pick verse 2.47.
+    fireEvent.click(screen.getByRole('button', { name: /Chapter 2/ }));
+    fireEvent.click(await screen.findByText('2.47'));
+
+    // After the full import + reconcile, the reader is on 2.47 (ch-2047),
+    // NOT parked on chapter 1 (ch-1001).
+    await waitFor(() => expect(storeState.currentChapterId).toBe('ch-2047'));
+
+    // …and the picked verse is what gets persisted as the resume point.
+    expect(BookshelfStateService.upsertEntry).toHaveBeenCalledWith(
+      expect.objectContaining({ novelId: 'gita', lastChapterId: 'ch-2047', lastChapterNumber: 2047 })
+    );
+    // Chapter 1 was never persisted as the resume for this open.
+    expect(BookshelfStateService.upsertEntry).not.toHaveBeenCalledWith(
+      expect.objectContaining({ lastChapterId: 'ch-1001' })
+    );
+
+    vi.unstubAllGlobals();
   });
 });
