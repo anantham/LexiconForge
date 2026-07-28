@@ -1,20 +1,28 @@
 import JSZip from 'jszip';
-import { EpubMeta, EpubChapter } from '../types';
+import { EpubMeta, EpubChapter, EpubPackageWarning } from '../types';
 import { escapeXml } from '../sanitizers/xhtmlSanitizer';
 import { EPUB_STYLESHEET_CSS } from './stylesheet';
 
 /**
- * Generates EPUB3-compliant ZIP file using JSZip (browser-compatible)
+ * Generates EPUB3-compliant ZIP file using JSZip (browser-compatible).
+ * Structural problems (missing metadata, invalid cover, XHTML parse errors)
+ * are reported via the optional `onWarning` callback in addition to the console.
  */
-export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapter[]): Promise<ArrayBuffer> => {
+export const generateEpub3WithJSZip = async (
+  meta: EpubMeta,
+  chapters: EpubChapter[],
+  onWarning?: (warning: EpubPackageWarning) => void
+): Promise<ArrayBuffer> => {
   const lang = meta.language || 'en';
   const bookId = meta.identifier || `urn:uuid:${crypto.randomUUID()}`;
 
-  type PackageWarning = { type: string; message: string; details?: Record<string, unknown> };
-  const packageWarnings: PackageWarning[] = [];
-  const recordWarning = (warning: PackageWarning) => {
-    packageWarnings.push(warning);
+  const recordWarning = (warning: EpubPackageWarning) => {
     console.warn('[EPUBPackager]', warning);
+    try {
+      onWarning?.(warning);
+    } catch (err) {
+      console.warn('[EPUBPackager] onWarning callback threw:', err);
+    }
   };
 
   if (!meta.title || meta.title.trim().length === 0) {
@@ -74,38 +82,6 @@ export const generateEpub3WithJSZip = async (meta: EpubMeta, chapters: EpubChapt
     </nav>
   </body>
 </html>`;
-
-  // Generate manifest items for content.opf
-  const manifestItems = chapters.map(ch =>
-    `<item id="${ch.id}" href="text/${ch.href}" media-type="application/xhtml+xml"/>`
-  ).join('\n        ');
-
-  // Generate spine items for content.opf
-  const spineItems = chapters.map(ch =>
-    `<itemref idref="${ch.id}"/>`
-  ).join('\n        ');
-
-  // Content.opf (package document)
-  const contentOpf = `<?xml version="1.0" encoding="utf-8"?>
-<package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" xml:lang="${lang}">
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:identifier id="bookid">${escapeXml(bookId)}</dc:identifier>
-    <dc:title>${escapeXml(meta.title)}</dc:title>
-    <dc:language>${lang}</dc:language>
-    ${meta.author ? `<dc:creator>${escapeXml(meta.author)}</dc:creator>` : ''}
-    ${meta.publisher ? `<dc:publisher>${escapeXml(meta.publisher)}</dc:publisher>` : ''}
-    ${meta.description ? `<dc:description>${escapeXml(meta.description)}</dc:description>` : ''}
-    <meta property="dcterms:modified">${new Date().toISOString()}</meta>
-  </metadata>
-  <manifest>
-    <item id="nav" href="text/nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
-    <item id="css" href="styles/stylesheet.css" media-type="text/css"/>
-        ${manifestItems}
-  </manifest>
-  <spine>
-        ${spineItems}
-  </spine>
-</package>`;
 
   // Container.xml (required EPUB metadata)
   const containerXml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -337,6 +337,16 @@ export const rehydratePhase = (params: RehydrateParams): PhaseView => {
 
   return {
     id: phaseId,
+    // Same ids the assembler already populates (suttaStudioPipelineAssembler
+    // assemblePhase) — without this every compiled packet passed the packet
+    // validator's segment checks VACUOUSLY (they iterate
+    // phase.canonicalSegmentIds ?? []), and translatorBank citations / reader
+    // fallback / enrich tooling had nothing to key on. Deduped: wordRange
+    // slices can repeat a segmentId within one phase, and a within-phase
+    // repeat would false-flag the cross-phase duplicate check. (sourceSpan is
+    // typed required but some test/experiment callers omit it via `as any` —
+    // stay defensive rather than throwing on them.)
+    canonicalSegmentIds: Array.from(new Set((sourceSpan ?? []).map((ref) => ref.segmentId))),
     title,
     sourceSpan,
     paliWords,
@@ -384,6 +394,9 @@ export const buildDegradedPhaseView = (params: {
 
   return {
     id: phaseId,
+    // Mirrors rehydratePhase — degraded phases still carry their segment
+    // provenance so packet-level checks and reader fallback can key on it.
+    canonicalSegmentIds: Array.from(new Set(sourceSpan.map((ref) => ref.segmentId))),
     title,
     sourceSpan,
     paliWords,

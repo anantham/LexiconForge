@@ -190,6 +190,12 @@ Don't put isAnchor on more than one word per phase. If you can't pick, the
 phase is probably too big — flag it.
 `.trim();
 
+// NOTE (v14): this amendment used to instruct per-sense epistemicBasis and
+// confidence fields. The lexicographer response schema does NOT admit them
+// (additionalProperties: false), so under strict structured outputs the model
+// could never emit them — instructing forbidden fields only invites schema
+// violations. The fields remain in the Sense TYPE for hand-curated packets;
+// the LLM pass carries the tradition attribution in `notes`.
 export const SUTTA_STUDIO_V2_TRANSLATOR_DEBATE = `
 TRANSLATOR-DEBATE AWARENESS (v2 — new pattern):
 
@@ -197,23 +203,16 @@ For words with significant scholarly disagreement (ekāyano, ātāpī, sampajān
 satimā, anupassī, paññā, etc.), generate MULTIPLE senses representing the
 distinct translator readings. Each sense should carry:
 
-  - epistemicBasis: 'curatorial'
-  - confidence: matched to scholarly weight (high for canonical / medium for
-    defensible / low for interpretive)
-  - notes: citing the translator tradition
+  - notes: citing the translator tradition (name the translator or lineage,
+    and how contested the reading is — canonical / defensible / interpretive)
 
 Example structure for Ekāyano (5 senses):
   [
-    { english: "direct",      epistemicBasis: "curatorial", confidence: "high",
-      notes: "Sujato's choice. 'Going-straight-to-one-goal'. Common in modern translations." },
-    { english: "one-way",     epistemicBasis: "curatorial", confidence: "medium",
-      notes: "Older translations. Emphasizes that this is THE method, no alternative. Doctrinally controversial." },
-    { english: "solitary",    epistemicBasis: "curatorial", confidence: "medium",
-      notes: "Bhikkhu Bodhi has favored 'the path one walks alone' — emphasizing meditative interiority." },
-    { english: "convergent",  epistemicBasis: "curatorial", confidence: "low",
-      notes: "Interpretive: 'all paths converge here'. Pedagogically interesting; less textually grounded." },
-    { english: "only",        epistemicBasis: "curatorial", confidence: "low",
-      notes: "The exclusivist reading. Most modern translators avoid in favor of 'direct'." }
+    { english: "direct",      notes: "Sujato's choice. 'Going-straight-to-one-goal'. Common in modern translations." },
+    { english: "one-way",     notes: "Older translations. Emphasizes that this is THE method, no alternative. Doctrinally controversial." },
+    { english: "solitary",    notes: "Bhikkhu Bodhi has favored 'the path one walks alone' — emphasizing meditative interiority." },
+    { english: "convergent",  notes: "Interpretive: 'all paths converge here'. Pedagogically interesting; less textually grounded." },
+    { english: "only",        notes: "The exclusivist reading. Most modern translators avoid in favor of 'direct'." }
   ]
 
 This lets the reader cycle through scholarly opinions rather than receive an

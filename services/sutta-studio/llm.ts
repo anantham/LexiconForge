@@ -65,6 +65,13 @@ export type CompilerLLMResult = ChatResponse & {
   provider: string;
   model: string;
   durationMs: number;
+  /**
+   * True when the caller REQUESTED structured outputs (json_schema) but the
+   * provider rejected them and the call silently retried as json_object.
+   * Benchmark metrics use this to record the ACTUAL output mode a row ran
+   * under (integrity scan 2026-07, P2) — absent/undefined means no downgrade.
+   */
+  structuredFallbackApplied?: boolean;
 };
 
 export const resolveCompilerProvider = async (

@@ -36,7 +36,8 @@ import { buildPhasePrompt } from '../../services/sutta-studio/prompts';
 import { buildPhaseStateEnvelope, parseJsonResponse } from '../../services/sutta-studio/utils';
 import { phaseResponseSchema } from '../../services/sutta-studio/schemas';
 import { SUTTA_STUDIO_PROMPT_VERSION } from '../../services/suttaStudioPromptVersion';
-import { getModelPricing } from '../../services/capabilityService';
+import { resolveCallCostUsd } from './lib/cost';
+import { preflightOpenRouterKey } from './lib/preflight';
 import type { CanonicalSegment, PhaseView } from '../../types/suttaStudio';
 
 // --- CLI arg parsing ------------------------------------------------------
@@ -75,6 +76,9 @@ const createLLMCaller = (model: string): LLMCaller => {
     const requestBody: Record<string, any> = {
       model,
       messages,
+      // Ask OpenRouter for its own cost accounting (usage.cost) — includes reasoning
+      // tokens and per-request charges local token math misses. See lib/cost.ts.
+      usage: { include: true },
       max_tokens: maxTokens ?? 4000,
       temperature: 0.2,
     };
@@ -117,15 +121,9 @@ const createLLMCaller = (model: string): LLMCaller => {
 
     const promptTokens = json?.usage?.prompt_tokens ?? null;
     const completionTokens = json?.usage?.completion_tokens ?? null;
-    let costUsd: number | null = null;
-    if (promptTokens && completionTokens) {
-      try {
-        const pricing = await getModelPricing(model);
-        if (pricing) {
-          costUsd = (promptTokens / 1_000_000) * pricing.input + (completionTokens / 1_000_000) * pricing.output;
-        }
-      } catch {}
-    }
+    // Provider accounting first (usage.cost), token math fallback — shared with
+    // spend-guard.ts via lib/cost.ts instead of a forked local formula.
+    const costUsd = await resolveCallCostUsd(json?.usage, model);
 
     return {
       text,
@@ -162,6 +160,10 @@ const reconstructEnglishFromPhase = (phase: any): string => {
 async function main() {
   console.log(`[Experiment] Phase ${phaseId} on model ${modelId}`);
   console.log(`[Experiment] Prompt version: ${SUTTA_STUDIO_PROMPT_VERSION}`);
+
+  // Key preflight BEFORE any paid call (free GET /api/v1/key; fail-closed on an
+  // exhausted key, warn-only on network failure).
+  await preflightOpenRouterKey();
 
   const packetPath = path.resolve('components/sutta-studio/demoPacket.json');
   const packetText = await fs.readFile(packetPath, 'utf-8');

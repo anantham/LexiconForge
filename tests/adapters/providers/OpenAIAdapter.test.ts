@@ -380,6 +380,75 @@ describe('OpenAIAdapter buildRequest placeholder expansion', () => {
   });
 });
 
+describe('OpenAIAdapter chatJSON strict-schema dialect (production wiring)', () => {
+  beforeEach(() => {
+    openAiMocks.create.mockReset();
+    recordMetricMock.mockClear();
+    supportsStructuredOutputsMock.mockResolvedValue(true);
+    supportsParametersMock.mockResolvedValue(true);
+  });
+
+  const jsonOk = {
+    choices: [{ finish_reason: 'stop', message: { content: '{"ok":true}' } }],
+    usage: { prompt_tokens: 5, completion_tokens: 2 },
+  };
+
+  // Optional property + open map — the two shapes the transform must handle.
+  const schema = {
+    type: 'object',
+    properties: {
+      english: { type: 'string' },
+      nuance: { type: 'string' },
+      ripples: { type: 'object', additionalProperties: { type: 'string' } },
+    },
+    required: ['english'],
+  };
+
+  const chatInput = (model: string, provider: 'OpenRouter' | 'OpenAI' = 'OpenRouter') => ({
+    settings: createMockAppSettings({ ...baseSettings, provider, model } as any),
+    model,
+    messages: [{ role: 'user' as const, content: 'go' }],
+    schema,
+    schemaName: 'test_schema',
+    structuredOutputs: true,
+  });
+
+  it('applies toOpenAIStrictSchema for OpenRouter openai/* slugs', async () => {
+    openAiMocks.create.mockResolvedValueOnce(jsonOk);
+    const adapter = new OpenAIAdapter('OpenRouter');
+    await adapter.chatJSON(chatInput('openai/gpt-5.4-mini') as any);
+
+    const sent = openAiMocks.create.mock.calls[0][0].response_format.json_schema.schema;
+    // Strict dialect: every (surviving) property required, null-union optionality.
+    expect(sent.required.sort()).toEqual(['english', 'nuance']);
+    expect(sent.properties.nuance.type).toEqual(['string', 'null']);
+    // Open maps are inexpressible in the strict dialect — dropped, disclosed.
+    expect(sent.properties.ripples).toBeUndefined();
+    expect(sent.additionalProperties).toBe(false);
+  });
+
+  it('applies the transform for the direct OpenAI provider (unprefixed slugs)', async () => {
+    openAiMocks.create.mockResolvedValueOnce(jsonOk);
+    const adapter = new OpenAIAdapter('OpenAI');
+    await adapter.chatJSON(chatInput('gpt-5.2', 'OpenAI') as any);
+
+    const sent = openAiMocks.create.mock.calls[0][0].response_format.json_schema.schema;
+    expect(sent.required.sort()).toEqual(['english', 'nuance']);
+    expect(sent.properties.ripples).toBeUndefined();
+  });
+
+  it('passes the schema through UNCHANGED for non-OpenAI slugs (ripples survives)', async () => {
+    openAiMocks.create.mockResolvedValueOnce(jsonOk);
+    const adapter = new OpenAIAdapter('OpenRouter');
+    await adapter.chatJSON(chatInput('google/gemini-3-flash-preview') as any);
+
+    const sent = openAiMocks.create.mock.calls[0][0].response_format.json_schema.schema;
+    expect(sent).toBe(schema); // referentially untouched
+    expect(sent.properties.ripples).toBeDefined();
+    expect(sent.required).toEqual(['english']);
+  });
+});
+
 describe('OpenAIAdapter short-translation corruption gate', () => {
   const shortResponse = {
     choices: [{

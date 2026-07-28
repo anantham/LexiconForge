@@ -14,6 +14,25 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { syllabifyPaliWord } from '../../services/sutta-studio/postPasses/syllabify';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// HALT (integrity scan 2026-07): DO NOT RUN.
+// This May-era one-off targeted components/sutta-studio/demoPacket.json, which
+// was DELETED 2026-05-19 — its content moved to content/references/sutta/mn10.json
+// and has been HAND-CURATED since. Re-pointing this backfill at the curated
+// flagship packet would write algorithmic pronunciations into adjudicated data.
+// Do not repoint or re-enable without re-adjudicating the transform.
+// ─────────────────────────────────────────────────────────────────────────────
+const HALTED = true as boolean; // branch form so tsc keeps type-checking the code below
+if (HALTED) {
+  console.error(
+    'HALTED: backfill-pronunciation.ts is a May-era one-off whose target ' +
+      '(components/sutta-studio/demoPacket.json) was deleted 2026-05-19. The packet now lives at ' +
+      'content/references/sutta/mn10.json and is hand-curated — this transform must not run against ' +
+      'it without re-adjudication. See the HALT comment at the top of this file.'
+  );
+  process.exit(1);
+}
+
 const PACKET_PATH = path.resolve('components/sutta-studio/demoPacket.json');
 
 const packet = JSON.parse(fs.readFileSync(PACKET_PATH, 'utf-8'));

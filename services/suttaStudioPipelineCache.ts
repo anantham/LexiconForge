@@ -1,11 +1,16 @@
 /**
  * Sutta Studio Pipeline Cache
  *
- * Multi-level caching for the Sutta Studio pipeline to reduce LLM costs.
+ * Caching for the Sutta Studio pipeline to reduce LLM costs.
  *
  * Cache Levels:
- * - L2: Morphology Cache - Word segmentation/tooltips (persisted, cross-sutta)
  * - L5: Segment Cache - Full phase outputs for identical segments (persisted, cross-sutta)
+ *
+ * (The L2 Morphology Cache described in SUTTA-006 was removed 2026-07: it had
+ * ZERO producers and ZERO consumers — nothing ever called morphologyCache.set
+ * or .get outside the module itself, so its stats reported a permanent 0% hit
+ * rate and its IndexedDB store held nothing. An orphaned `morphology_cache`
+ * object store may remain in existing browsers' DBs; it is never read.)
  *
  * See: docs/adr/SUTTA-006-pipeline-caching-architecture.md
  */
@@ -22,19 +27,6 @@ import { SUTTA_STUDIO_PROMPT_VERSION } from './suttaStudioPromptVersion';
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface MorphologyCacheEntry {
-  surface: string;
-  segments: Array<{
-    text: string;
-    type: 'root' | 'prefix' | 'suffix' | 'stem';
-    tooltips: string[];
-  }>;
-  wordClass: 'content' | 'function' | 'vocative';
-  promptVersion: string;
-  createdAt: string;
-  hitCount: number;
-}
-
 export interface SegmentCacheEntry {
   paliHash: string;
   paliText: string;
@@ -47,7 +39,6 @@ export interface SegmentCacheEntry {
 }
 
 export interface CacheStats {
-  morphology: { size: number; hits: number; misses: number; hitRate: string };
   segment: { size: number; hits: number; misses: number; hitRate: string };
   estimatedSavingsPercent: number;
 }
@@ -58,7 +49,6 @@ export interface CacheStats {
 
 const CACHE_DB_NAME = 'sutta-studio-cache';
 const CACHE_DB_VERSION = 2;
-const MORPHOLOGY_STORE_NAME = 'morphology_cache';
 const SEGMENT_STORE_NAME = 'segment_cache';
 
 let cacheDbPromise: Promise<IDBDatabase | null> | null = null;
@@ -83,11 +73,6 @@ function openCacheDatabase(): Promise<IDBDatabase | null> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(MORPHOLOGY_STORE_NAME)) {
-        const store = db.createObjectStore(MORPHOLOGY_STORE_NAME, { keyPath: 'surface' });
-        store.createIndex('promptVersion', 'promptVersion', { unique: false });
-        console.log('[MorphologyCache] Created IndexedDB store');
-      }
       if (!db.objectStoreNames.contains(SEGMENT_STORE_NAME)) {
         const store = db.createObjectStore(SEGMENT_STORE_NAME, { keyPath: 'paliHash' });
         store.createIndex('promptVersion', 'promptVersion', { unique: false });
@@ -354,243 +339,21 @@ class SegmentCache {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// L2: Morphology Cache (Persistent, Cross-Sutta)
-// ─────────────────────────────────────────────────────────────────────────────
-
-function normalizeSurface(surface: string): string {
-  return surface.replace(/[,."'—;:!?""'']/g, '').toLowerCase().trim();
-}
-
-class MorphologyCache {
-  private memoryCache: Map<string, MorphologyCacheEntry> = new Map();
-  private dbInstance: IDBDatabase | null = null;
-  private initialized = false;
-  private hits = 0;
-  private misses = 0;
-
-  /**
-   * Initialize the cache - loads entries into memory
-   */
-  async initialize(): Promise<void> {
-    if (this.initialized) return;
-
-    try {
-      this.dbInstance = await openCacheDatabase();
-      if (this.dbInstance) {
-        await this.loadIntoMemory();
-      }
-      this.initialized = true;
-      console.log(`[MorphologyCache] Initialized with ${this.memoryCache.size} entries`);
-    } catch (e) {
-      console.warn('[MorphologyCache] Failed to initialize IndexedDB, using memory-only:', e);
-      this.initialized = true;
-    }
-  }
-
-  private async loadIntoMemory(): Promise<void> {
-    if (!this.dbInstance) return;
-
-    const tx = this.dbInstance.transaction([MORPHOLOGY_STORE_NAME], 'readonly');
-    const store = tx.objectStore(MORPHOLOGY_STORE_NAME);
-    const request = store.getAll();
-
-    const entries = await new Promise<MorphologyCacheEntry[]>((resolve, reject) => {
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = () => reject(request.error);
-    });
-
-    this.memoryCache.clear();
-    let validCount = 0;
-    for (const entry of entries) {
-      // Only load entries from current prompt version
-      if (entry.promptVersion === SUTTA_STUDIO_PROMPT_VERSION) {
-        this.memoryCache.set(entry.surface, entry);
-        validCount++;
-      }
-    }
-    console.log(`[MorphologyCache] Loaded ${validCount}/${entries.length} entries (current version)`);
-  }
-
-  /**
-   * Get cached morphology for a word
-   */
-  get(surface: string): MorphologyCacheEntry | null {
-    const key = normalizeSurface(surface);
-    const entry = this.memoryCache.get(key);
-    if (entry) {
-      entry.hitCount++;
-      this.hits++;
-      return entry;
-    }
-    this.misses++;
-    return null;
-  }
-
-  /**
-   * Check if word is in cache
-   */
-  has(surface: string): boolean {
-    return this.memoryCache.has(normalizeSurface(surface));
-  }
-
-  /**
-   * Cache morphology for a word
-   */
-  async set(
-    surface: string,
-    segments: MorphologyCacheEntry['segments'],
-    wordClass: 'content' | 'function' | 'vocative'
-  ): Promise<void> {
-    const key = normalizeSurface(surface);
-
-    const entry: MorphologyCacheEntry = {
-      surface: key,
-      segments,
-      wordClass,
-      promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-      createdAt: new Date().toISOString(),
-      hitCount: 0,
-    };
-
-    this.memoryCache.set(key, entry);
-
-    // Persist to IndexedDB if available
-    if (this.dbInstance) {
-      try {
-        const tx = this.dbInstance.transaction([MORPHOLOGY_STORE_NAME], 'readwrite');
-        const store = tx.objectStore(MORPHOLOGY_STORE_NAME);
-        store.put(entry);
-        await new Promise<void>((resolve, reject) => {
-          tx.oncomplete = () => resolve();
-          tx.onerror = () => reject(tx.error);
-        });
-      } catch (e) {
-        console.warn('[MorphologyCache] Failed to persist:', e);
-      }
-    }
-  }
-
-  /**
-   * Batch set multiple entries
-   */
-  async setMany(
-    entries: Array<{
-      surface: string;
-      segments: MorphologyCacheEntry['segments'];
-      wordClass: 'content' | 'function' | 'vocative';
-    }>
-  ): Promise<void> {
-    const cacheEntries: MorphologyCacheEntry[] = entries.map((e) => ({
-      surface: normalizeSurface(e.surface),
-      segments: e.segments,
-      wordClass: e.wordClass,
-      promptVersion: SUTTA_STUDIO_PROMPT_VERSION,
-      createdAt: new Date().toISOString(),
-      hitCount: 0,
-    }));
-
-    // Update memory cache
-    for (const entry of cacheEntries) {
-      this.memoryCache.set(entry.surface, entry);
-    }
-
-    // Persist to IndexedDB
-    if (this.dbInstance) {
-      try {
-        const tx = this.dbInstance.transaction([MORPHOLOGY_STORE_NAME], 'readwrite');
-        const store = tx.objectStore(MORPHOLOGY_STORE_NAME);
-        for (const entry of cacheEntries) {
-          store.put(entry);
-        }
-        await new Promise<void>((resolve, reject) => {
-          tx.oncomplete = () => resolve();
-          tx.onerror = () => reject(tx.error);
-        });
-        console.log(`[MorphologyCache] Persisted ${cacheEntries.length} entries`);
-      } catch (e) {
-        console.warn('[MorphologyCache] Failed to persist batch:', e);
-      }
-    }
-  }
-
-  /**
-   * Clear entries from old prompt versions
-   */
-  async clearStaleEntries(): Promise<number> {
-    if (!this.dbInstance) return 0;
-
-    const tx = this.dbInstance.transaction([MORPHOLOGY_STORE_NAME], 'readwrite');
-    const store = tx.objectStore(MORPHOLOGY_STORE_NAME);
-    const index = store.index('promptVersion');
-
-    let clearedCount = 0;
-    const request = store.openCursor();
-
-    await new Promise<void>((resolve, reject) => {
-      request.onsuccess = (event) => {
-        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
-        if (cursor) {
-          const entry = cursor.value as MorphologyCacheEntry;
-          if (entry.promptVersion !== SUTTA_STUDIO_PROMPT_VERSION) {
-            cursor.delete();
-            clearedCount++;
-          }
-          cursor.continue();
-        } else {
-          resolve();
-        }
-      };
-      request.onerror = () => reject(request.error);
-    });
-
-    console.log(`[MorphologyCache] Cleared ${clearedCount} stale entries`);
-    return clearedCount;
-  }
-
-  /**
-   * Get cache statistics
-   */
-  getStats(): { size: number; hits: number; misses: number; hitRate: string } {
-    const total = this.hits + this.misses;
-    const hitRate = total > 0 ? ((this.hits / total) * 100).toFixed(1) + '%' : '0%';
-    return {
-      size: this.memoryCache.size,
-      hits: this.hits,
-      misses: this.misses,
-      hitRate,
-    };
-  }
-
-  /**
-   * Reset hit/miss counters (for benchmarking)
-   */
-  resetStats(): void {
-    this.hits = 0;
-    this.misses = 0;
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Singleton Instances
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const segmentCache = new SegmentCache();
-export const morphologyCache = new MorphologyCache();
 
 /**
- * Get combined statistics for all cache levels
+ * Get pipeline cache statistics (segment cache — the only live level).
  */
 export function getPipelineCacheStats(): CacheStats {
-  const morphStats = morphologyCache.getStats();
   const segStats = segmentCache.getStats();
 
-  const totalHits = morphStats.hits + segStats.hits;
-  const totalMisses = morphStats.misses + segStats.misses;
-  const total = totalHits + totalMisses;
-  const savingsPercent = total > 0 ? (totalHits / total) * 100 : 0;
+  const total = segStats.hits + segStats.misses;
+  const savingsPercent = total > 0 ? (segStats.hits / total) * 100 : 0;
 
   return {
-    morphology: morphStats,
     segment: segStats,
     estimatedSavingsPercent: Math.round(savingsPercent),
   };
@@ -600,7 +363,7 @@ export function getPipelineCacheStats(): CacheStats {
  * Initialize all caches (call at app startup)
  */
 export async function initializePipelineCaches(): Promise<void> {
-  await Promise.all([morphologyCache.initialize(), segmentCache.initialize()]);
+  await segmentCache.initialize();
   console.log('[PipelineCache] All caches initialized');
 }
 
@@ -622,7 +385,6 @@ export function logCacheStats(): void {
   console.log('┌─────────────────────────────────────────────┐');
   console.log('│           PIPELINE CACHE STATS              │');
   console.log('├─────────────────────────────────────────────┤');
-  console.log(`│ L2 Morphology: ${stats.morphology.size} entries, ${stats.morphology.hitRate} hit rate`);
   console.log(`│ L5 Segment:    ${stats.segment.size} entries, ${stats.segment.hitRate} hit rate`);
   console.log(`│ Est. Savings:  ~${stats.estimatedSavingsPercent}%`);
   console.log('└─────────────────────────────────────────────┘');

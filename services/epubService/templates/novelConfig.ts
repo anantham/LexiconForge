@@ -29,8 +29,25 @@ export const extractNovelTitleFromChapter = (chapterTitle?: string): string | un
 };
 
 /**
- * Gets novel configuration based on URL, chapter data, or manual configuration
- * Priority: manualConfig > URL pattern detection > chapter title extraction > defaults
+ * Drops keys whose value is undefined so a later spread cannot clobber
+ * earlier defaults with undefined (e.g. { title: undefined } must not
+ * overwrite defaultConfig.title).
+ */
+const omitUndefined = <T extends object>(obj?: Partial<T>): Partial<T> =>
+  obj
+    ? (Object.fromEntries(
+        Object.entries(obj).filter(([, v]) => v !== undefined)
+      ) as Partial<T>)
+    : {};
+
+/**
+ * Gets novel configuration based on manual configuration, chapter data, or defaults.
+ * Priority: manualConfig > site-generic URL hints > chapter title extraction > defaults.
+ *
+ * URL detection only supplies site-GENERIC hints (e.g. original language).
+ * It must never assign novel-specific metadata (title/author/isbn/...), because a
+ * site hosts many novels — hardcoding one novel's metadata per site shipped wrong
+ * titles, authors and dc:identifiers for every other novel on that site.
  */
 export const getNovelConfig = (
   firstChapterUrl?: string,
@@ -46,78 +63,30 @@ export const getNovelConfig = (
     publisher: 'LexiconForge Community'
   };
 
-  // Novel-specific configurations based on URL patterns
-  let novelSpecificConfig: Partial<NovelConfig> = {};
+  // Site-generic hints based on URL patterns (never novel-specific metadata)
+  const siteConfig: Partial<NovelConfig> = {};
 
   if (firstChapterUrl) {
-    if (firstChapterUrl.includes('kakuyomu.jp')) {
-      // Enhanced configuration based on Novel Updates data
-      novelSpecificConfig = {
-        title: 'The Reincarnation of the Strongest Exorcist in Another World',
-        author: 'Kosuzu Kiichi',
-        originalTitle: '最強陰陽師の異世界転生記 〜下僕の妖怪どもに比べてモンスターが弱すぎるんだが〜',
-        description: 'Haruyoshi, the strongest exorcist was on the verge of death after the betrayal of his companions. Hoping to be happy in the next life, he tried the secret technique of reincarnation and was sent to a different world! Born into a family of magicians, the magic he failed to inherit was nothing compared to his previous skills as an exorcist. "Who needs magic? I\'ll survive in this world with my old techniques!"',
-        genre: 'Action, Adventure, Fantasy, Harem, Romance',
-        originalLanguage: 'ja',
-        seriesName: 'The Reincarnation of the Strongest Exorcist',
-        volumeNumber: 1,
-        isbn: 'urn:uuid:strongest-exorcist-v1',
-        publisher: 'Futabasha (Original) / J-Novel Club (English)',
-        translationNotes: 'Translated from Japanese web novel published on Kakuyomu and Syosetu. Originally published in 2018 by Kosuzu Kiichi. Licensed by J-Novel Club for English publication. This is an AI-powered fan translation for educational and entertainment purposes.'
-      };
+    if (firstChapterUrl.includes('kakuyomu.jp') || firstChapterUrl.includes('syosetu.com')) {
+      siteConfig.originalLanguage = 'ja';
     } else if (firstChapterUrl.includes('booktoki468.com')) {
-      novelSpecificConfig = {
-        title: 'Dungeon Defense',
-        author: 'Yoo Heonhwa',
-        originalTitle: '던전 디펜스',
-        description: 'A dark fantasy novel about survival and strategy in a dungeon world where the protagonist must use cunning and manipulation to survive against overwhelming odds.',
-        genre: 'Dark Fantasy, Strategy, Psychological',
-        originalLanguage: 'ko',
-        seriesName: 'Dungeon Defense',
-        volumeNumber: 1,
-        isbn: 'urn:uuid:dungeon-defense-v1',
-        publisher: 'BookToki (Original)',
-        translationNotes: 'Translated from Korean web novel published on BookToki. Known for its complex psychological elements and strategic gameplay mechanics.'
-      };
-    } else if (firstChapterUrl.includes('syosetu.com') || firstChapterUrl.includes('ncode.syosetu.com')) {
-      // Syosetu - Japanese web novel platform
-      novelSpecificConfig = {
-        title: 'Web Novel from Syosetu',
-        author: 'Unknown Syosetu Author',
-        originalTitle: '小説家になろう作品',
-        description: 'Japanese web novel from the popular Syosetu platform.',
-        genre: 'Web Novel, Japanese Literature',
-        originalLanguage: 'ja',
-        publisher: 'Syosetu (Original)',
-        translationNotes: 'Translated from Japanese web novel published on Syosetu (Shōsetsuka ni Narō).'
-      };
-    } else if (firstChapterUrl.includes('novelupdates.com')) {
-      // Novel Updates - aggregator site
-      novelSpecificConfig = {
-        title: 'Novel from Novel Updates',
-        author: 'Unknown Author',
-        description: 'Novel sourced from Novel Updates database.',
-        genre: 'Various',
-        publisher: 'Novel Updates Community',
-        translationNotes: 'Novel information sourced from Novel Updates community database.'
-      };
+      siteConfig.originalLanguage = 'ko';
     }
-    // Add more novel configurations as needed
   }
 
-  // Try to extract title from chapter if neither URL detection nor manualConfig provided one
+  // Try to extract title from chapter if manualConfig did not provide one
   const hasManualTitle = manualConfig?.title && manualConfig.title !== 'Translated Novel';
-  if (!hasManualTitle && (!novelSpecificConfig.title || novelSpecificConfig.title === 'Translated Novel')) {
+  if (!hasManualTitle) {
     const extractedTitle = extractNovelTitleFromChapter(firstChapterTitle);
     if (extractedTitle) {
-      novelSpecificConfig.title = extractedTitle;
+      siteConfig.title = extractedTitle;
       console.log(`[NovelConfig] Extracted novel title from chapter: "${extractedTitle}"`);
     }
   }
 
   return {
     ...defaultConfig,
-    ...novelSpecificConfig,
-    ...manualConfig
+    ...omitUndefined(siteConfig),
+    ...omitUndefined(manualConfig)
   };
 };
