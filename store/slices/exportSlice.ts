@@ -29,7 +29,11 @@ export interface ExportSlice {
   exportEpub: () => Promise<void>;
 }
 
-type ExportWarningType = 'missing-translation' | 'image-cache-miss';
+type ExportWarningType =
+  | 'missing-translation'
+  | 'image-cache-miss'
+  | 'illustration-never-generated'
+  | 'epub-package-warning';
 
 interface ExportWarning {
   type: ExportWarningType;
@@ -436,7 +440,19 @@ export const createExportSlice: StateCreator<
                 };
               }
 
-              // No image available
+              // No image was ever generated for this illustration; the
+              // placeholder marker will be silently removed from the chapter,
+              // so surface it in the export warning counter like cache misses.
+              recordWarning({
+                type: 'illustration-never-generated',
+                message: `Illustration "${illust.placementMarker}" in "${ch.title || 'Untitled'}" (${sid}) was never generated; its placeholder will be removed from the EPUB.`,
+                chapterStableId: sid,
+                chapterId: ch.id,
+                chapterTitle: ch.title,
+                chapterUrl: ch.url,
+                marker: illust.placementMarker,
+                details: { reason: 'never-generated' }
+              });
               return null;
             } catch (error) {
               console.error(`[Export] Failed to retrieve image for marker ${illust.placementMarker}:`, error);
@@ -507,13 +523,6 @@ export const createExportSlice: StateCreator<
       // Generate EPUB via service
       const telemetryInsights = collectTelemetryInsights();
       const { generateEpub, getDefaultTemplate } = await import('../../services/epubService');
-      // Enable EPUB debug artifacts only when diagnostics logging level is FULL
-      let epubDebug = false;
-      try {
-        const level = localStorage.getItem('LF_AI_DEBUG_LEVEL');
-        const full = localStorage.getItem('LF_AI_DEBUG_FULL');
-        epubDebug = (level && level.toLowerCase() === 'full') || (full === '1' || (full ?? '').toLowerCase() === 'true');
-      } catch {}
 
       const tpl = getDefaultTemplate();
       if (settings.epubGratitudeMessage) tpl.gratitudeMessage = settings.epubGratitudeMessage;
@@ -574,10 +583,16 @@ export const createExportSlice: StateCreator<
         includeTitlePage: settings.includeTitlePage !== false,
         includeStatsPage: settings.includeStatsPage !== false,
         telemetryInsights: telemetryInsights || undefined,
-        customTemplate: undefined,
-        manualConfig: undefined,
-        chapterUrls: undefined,
         coverImage: coverImageData,
+        // Surface packager warnings (missing metadata, invalid cover, XHTML
+        // parse errors, ...) in the same counter/message as export warnings.
+        onWarning: (warning) => {
+          recordWarning({
+            type: 'epub-package-warning',
+            message: warning.message,
+            details: { packagerType: warning.type, ...warning.details }
+          });
+        },
       });
 
       const end = typeof performance !== 'undefined' && typeof performance.now === 'function'

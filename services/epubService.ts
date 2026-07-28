@@ -1,6 +1,7 @@
 import {
   ChapterForEpub,
   EpubExportOptions,
+  EpubPackageWarning,
   TranslationStats,
   TelemetryInsights,
   NovelConfig,
@@ -14,7 +15,6 @@ import {
 } from './epubService/templates/defaults';
 import { getNovelConfig } from './epubService/templates/novelConfig';
 import { calculateTranslationStats } from './epubService/data/stats';
-import { collectActiveVersions } from './epubService/data/collector';
 import { generateTitlePage } from './epubService/generators/titlePage';
 import { generateTableOfContents } from './epubService/generators/toc';
 import {
@@ -35,6 +35,7 @@ export type {
   NovelConfig,
   EpubTemplate,
   EpubExportOptions,
+  EpubPackageWarning,
   EpubChapter,
   EpubMeta
 };
@@ -43,8 +44,7 @@ export {
   getDefaultTemplate,
   createCustomTemplate,
   getNovelConfig,
-  calculateTranslationStats,
-  collectActiveVersions
+  calculateTranslationStats
 };
 
 // Re-export specific generators if needed by tests
@@ -55,7 +55,7 @@ export { renderTelemetryInsights };
  */
 export const generateEpub = async (options: EpubExportOptions): Promise<void> => {
   if (options.chapters.length === 0) {
-    throw new Error('No chapters available for EPUB export. Please ensure you have translated chapters with complete usage metrics before exporting.');
+    throw new Error('No chapters available for EPUB export. Please translate at least one chapter before exporting.');
   }
   
   console.log(`[EPUBService] Generating EPUB with ${options.chapters.length} valid chapters`);
@@ -71,13 +71,16 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
   const firstChapter = options.chapters[0];
   const firstChapterUrl = firstChapter.originalUrl;
   const firstChapterTitle = firstChapter.translatedTitle || firstChapter.title;
-  const novelConfig = getNovelConfig(firstChapterUrl, {
-    ...options.novelConfig,
-    // Pre-populate from options to skip extraction
-    title: options.title || options.novelConfig?.title,
-    author: options.author || options.novelConfig?.author,
-    description: options.description || options.novelConfig?.description,
-  }, firstChapterTitle);
+  // Build the manual config without introducing undefined keys: a key that is
+  // present-but-undefined would survive the spread in getNovelConfig's merge
+  // and clobber the defaults (escapeXml(undefined) then crashes title-page
+  // generation when title/author are absent).
+  const manualNovelConfig: Partial<NovelConfig> = { ...options.novelConfig };
+  // Pre-populate from options to skip extraction
+  if (options.title) manualNovelConfig.title = options.title;
+  if (options.author) manualNovelConfig.author = options.author;
+  if (options.description) manualNovelConfig.description = options.description;
+  const novelConfig = getNovelConfig(firstChapterUrl, manualNovelConfig, firstChapterTitle);
   
   // Use novel configuration for metadata (with fallbacks)
   const title = options.title || novelConfig.title;
@@ -97,8 +100,8 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
     description,
   };
   const titlePage = generateTitlePage(titlePageConfig, stats);
-  const includeTitle = (options as any).includeTitlePage !== false;
-  const includeStats = (options as any).includeStatsPage !== false;
+  const includeTitle = options.includeTitlePage !== false;
+  const includeStats = options.includeStatsPage !== false;
   const tableOfContents = generateTableOfContents(options.chapters, includeStats);
   const statsAndAcknowledgments = generateStatsAndAcknowledgments(stats, template, options.telemetryInsights);
   
@@ -144,7 +147,8 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
         .map(([model, data]) => `${model} (${data.chapters} ch)`)
     });
     
-    // Generate EPUB3 with JSZip
+    // Generate EPUB3 with JSZip; packager warnings are forwarded to the
+    // caller (e.g. the export slice's warning counter) via options.onWarning.
     const epubBuffer = await generateEpub3WithJSZip({
       title,
       author,
@@ -153,7 +157,7 @@ export const generateEpub = async (options: EpubExportOptions): Promise<void> =>
       identifier: bookId,
       publisher: novelConfig.publisher,
       coverImage: options.coverImage,
-    }, chapters);
+    }, chapters, options.onWarning);
     
     // Create download link
     const blob = new Blob([epubBuffer], { type: 'application/epub+zip' });
