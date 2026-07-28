@@ -35,3 +35,16 @@ describe('devanāgarī romanizer — self-validation against authoritative IAST'
     for (const w of words) expect(segmentAksharas(w.scriptAlt).join('')).toBe(w.scriptAlt);
   });
 });
+
+describe('avagraha fold is CONDITIONAL on the Devanagari surface (codex P2)', () => {
+  it('folds the apostrophe only for words that contain an avagraha', () => {
+    expect(romanizationMatches('रसोऽपि', "raso'pi")).toBe(true);
+  });
+
+  it('rejects a stray apostrophe in curated IAST when the surface has NO avagraha', () => {
+    // Pre-fix: the unconditional fold made this validate — a transcription
+    // error slipping through the never-show-a-guessed-sound gate.
+    expect(romanizationMatches('स्थित', "sthi'ta")).toBe(false);
+    expect(romanizationMatches('स्थित', 'sthita')).toBe(true);
+  });
+});
