@@ -335,6 +335,12 @@ export const compileSuttaStudioPacket = async (options: {
 
   let readySegments = 0;
   let degradedSegments = 0;
+  // Unique-id sets for the FINAL stamp: wordRange can split ONE canonical
+  // segment across multiple phases, so per-phase += counts overshoot
+  // totalSegments (codex review P2). The counters above stay as cheap
+  // mid-run progress estimates; the final count is unique ids.
+  const readySegmentIdSet = new Set<string>();
+  const degradedSegmentIdSet = new Set<string>();
   const totalSegments = canonicalWithOrder.length;
   const phaseLimit = phaseSkeleton.length;
 
@@ -742,6 +748,7 @@ export const compileSuttaStudioPacket = async (options: {
       const remaining = phaseSkeleton.length - (i + 1);
       const etaMs = avgPhaseMs * remaining;
       readySegments += phase.segmentIds.length;
+      phase.segmentIds.forEach((id) => readySegmentIdSet.add(id));
       const sourceSpan = buildSourceRefs(phase.segmentIds, segmentIdToWorkId, uidList[0]);
       let normalized: PhaseView;
 
@@ -825,6 +832,7 @@ export const compileSuttaStudioPacket = async (options: {
 
       readySegments += phase.segmentIds.length;
       degradedSegments += phase.segmentIds.length;
+      phase.segmentIds.forEach((id) => degradedSegmentIdSet.add(id));
       packet = {
         ...packet,
         phases: [...packet.phases, degradedPhase],
@@ -890,7 +898,14 @@ export const compileSuttaStudioPacket = async (options: {
   // segments (the compile's source of truth).
   let richIssues: ValidationIssue[] = [];
   try {
-    const richValidation = validatePacketRich(packet, canonicalWithOrder);
+    // Validate against the segments the retained skeleton actually COVERS:
+    // in pilot mode (phaseLimit) the full canonical source would flag every
+    // deliberately-uncompiled segment as missing (codex review P2).
+    const coveredIds = new Set(
+      phaseSkeleton.flatMap((ph) => ph.segmentIds ?? [])
+    );
+    const canonicalForValidation = canonicalWithOrder.filter((s) => coveredIds.has(s.ref.segmentId));
+    const richValidation = validatePacketRich(packet, canonicalForValidation);
     richIssues = richValidation.issues;
     if (richIssues.length) warn(`Rich packet validation reported ${richIssues.length} issue(s) (log-only).`);
   } catch (e) {
@@ -917,7 +932,10 @@ export const compileSuttaStudioPacket = async (options: {
       totalPhases: phaseLimit,
       readyPhases: readyPhasesFinal,
       totalSegments,
-      readySegments: Math.max(0, readySegments - degradedSegments),
+      // Unique canonical segments that landed in a non-degraded phase — a
+      // segment split across phases counts once; degraded-only segments
+      // don't count at all.
+      readySegments: [...readySegmentIdSet].filter((id) => !degradedSegmentIdSet.has(id)).length,
       state: 'complete',
       currentPhaseId: phaseSkeleton[phaseSkeleton.length - 1]?.id,
       lastProgressAt: Date.now(),
