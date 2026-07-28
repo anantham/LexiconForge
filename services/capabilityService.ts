@@ -42,6 +42,23 @@ export type Endpoint = {
   supported_parameters?: string[];  // provider-specific support
 };
 
+/**
+ * Where a capability answer came from.
+ * - 'metadata':      real model/endpoint metadata answered the question.
+ * - 'default-error': the metadata fetch FAILED — the answer is a hardcoded default, not knowledge.
+ * - 'default-miss':  metadata loaded fine but does not contain this model id — also a default.
+ *
+ * The distinction matters because consumers change the SHAPE of paid requests on these answers
+ * (e.g. downgrading structured outputs to json_object): acting on a default is a guess, and a
+ * guess that silently weakens a paid request must be visible in the logs.
+ */
+export type CapabilityAnswerSource = 'metadata' | 'default-error' | 'default-miss';
+
+export type StructuredOutputsSupport = {
+  supported: boolean;
+  source: CapabilityAnswerSource;
+};
+
 const ORIGIN = "https://openrouter.ai/api/v1";
 
 const cache = {
@@ -53,12 +70,68 @@ const cache = {
   failures: new Set<string>(), // key: "modelId:parameter"
 };
 
-async function loadModels(): Promise<Map<string, ModelMeta>> {
+// One warning per (function, model) per session — a per-call warn would spam every request in a
+// session where the capability API is down, and silence was the previous (worse) failure mode.
+const warnedDefaultAnswers = new Set<string>();
+
+function warnDefaultAnswer(
+  fn: string,
+  modelId: string,
+  source: CapabilityAnswerSource,
+  defaultedTo: boolean,
+  detail?: string
+): void {
+  const key = `${fn}:${modelId}`;
+  if (warnedDefaultAnswers.has(key)) return;
+  warnedDefaultAnswers.add(key);
+  const why = source === 'default-error'
+    ? 'the capability metadata fetch FAILED'
+    : 'the model is missing from capability metadata';
+  console.warn(
+    `[CapabilityService] ${fn}('${modelId}'${detail ? `, ${detail}` : ''}) answered ${defaultedTo} as a DEFAULT because ${why}. ` +
+    `This is a guess, not metadata — paid requests may be silently mis-shaped. (warned once per model per session)`
+  );
+}
+
+/**
+ * The capability map is keyed by OpenRouter slugs ('openai/gpt-4o', 'deepseek/deepseek-chat').
+ * Direct providers hand us bare ids ('gpt-4o', 'deepseek-chat'), which used to be a PERMANENT
+ * map miss: structured outputs stayed off forever for direct OpenAI (which supports them) and
+ * supportsParameters fail-opened forever. Namespace mapping: try the bare id first (real
+ * OpenRouter slugs pass through unchanged), then retry under the provider's OpenRouter author
+ * prefix — OpenAI's 'gpt-4o' resolves via 'openai/gpt-4o', DeepSeek's 'deepseek-chat' via
+ * 'deepseek/deepseek-chat'.
+ */
+const DIRECT_PROVIDER_OPENROUTER_AUTHOR: Record<string, string> = {
+  OpenAI: 'openai',
+  DeepSeek: 'deepseek',
+};
+
+function candidateModelIds(providerName: string, modelId: string): string[] {
+  const ids = [modelId];
+  const author = DIRECT_PROVIDER_OPENROUTER_AUTHOR[providerName];
+  if (author && !modelId.includes('/')) ids.push(`${author}/${modelId}`);
+  return ids;
+}
+
+function lookupModelMeta(
+  models: Map<string, ModelMeta>,
+  providerName: string,
+  modelId: string
+): ModelMeta | undefined {
+  for (const id of candidateModelIds(providerName, modelId)) {
+    const meta = models.get(id);
+    if (meta) return meta;
+  }
+  return undefined;
+}
+
+async function loadModels(): Promise<{ map: Map<string, ModelMeta>; loadError: boolean }> {
   const now = Date.now();
   if (cache.models && (now - cache.lastFetch) < cache.CACHE_DURATION) {
-    return cache.models;
+    return { map: cache.models, loadError: false };
   }
-  
+
   try {
     const m = await withRetry(async () => {
       const r = await fetch(`${ORIGIN}/models`, { signal: AbortSignal.timeout(15_000) });
@@ -73,19 +146,24 @@ async function loadModels(): Promise<Map<string, ModelMeta>> {
     });
     cache.models = m;
     cache.lastFetch = now;
-    return m;
+    return { map: m, loadError: false };
   } catch (error) {
     console.warn('[CapabilityService] Failed to load models (after retries):', error);
-    return cache.models || new Map();
+    // A HIT in the (possibly stale) cache is still real metadata; a MISS after a failed load
+    // proves nothing about the model, so callers must treat misses as 'default-error'.
+    return { map: cache.models || new Map(), loadError: true };
   }
 }
 
-async function loadEndpoints(author: string, slug: string): Promise<Endpoint[]> {
+async function loadEndpoints(
+  author: string,
+  slug: string
+): Promise<{ endpoints: Endpoint[]; loadError: boolean }> {
   const key = `${author}/${slug}`;
   if (cache.endpoints.has(key)) {
-    return cache.endpoints.get(key)!;
+    return { endpoints: cache.endpoints.get(key)!, loadError: false };
   }
-  
+
   try {
     const eps = await withRetry(async () => {
       const r = await fetch(`${ORIGIN}/models/${author}/${slug}/endpoints`, { signal: AbortSignal.timeout(15_000) });
@@ -97,48 +175,81 @@ async function loadEndpoints(author: string, slug: string): Promise<Endpoint[]> 
       onRetry: (a, d) => console.warn(`[CapabilityService] endpoints fetch retry ${a} in ${d}ms for ${key}`),
     });
     cache.endpoints.set(key, eps);
-    return eps;
+    return { endpoints: eps, loadError: false };
   } catch (error) {
     console.warn(`[CapabilityService] Failed to load endpoints for ${key} (after retries):`, error);
-    return [];
+    // Deliberately NOT cached: a later call may succeed. An empty list here is an unknown, not
+    // an answer, and the caller needs to know the difference.
+    return { endpoints: [], loadError: true };
   }
 }
 
 /**
- * Check if a model+provider combination supports structured outputs
+ * Check if a model+provider combination supports structured outputs, with provenance.
+ *
+ * The boolean alone loses the difference between "metadata says no" and "we could not find out"
+ * — and consumers downgrade paid requests to json_object on `false`, so the source matters.
+ * All boolean outcomes are identical to the historical supportsStructuredOutputs().
  */
-export async function supportsStructuredOutputs(providerName: string, modelId: string): Promise<boolean> {
+export async function getStructuredOutputsSupport(
+  providerName: string,
+  modelId: string
+): Promise<StructuredOutputsSupport> {
   try {
-    const models = await loadModels();
-    const meta = models.get(modelId);
-    
+    const { map: models, loadError } = await loadModels();
+    const meta = lookupModelMeta(models, providerName, modelId);
+
+    if (!meta) {
+      const source: CapabilityAnswerSource = loadError ? 'default-error' : 'default-miss';
+      warnDefaultAnswer('supportsStructuredOutputs', modelId, source, false);
+      return { supported: false, source };
+    }
+
     // Check if the model itself reports structured output support
-    const modelHasSO = 
-      meta?.supported_parameters?.includes("structured_outputs") || 
-      meta?.supported_parameters?.includes("response_format");
+    const modelHasSO =
+      meta.supported_parameters?.includes("structured_outputs") ||
+      meta.supported_parameters?.includes("response_format");
 
-    if (!modelHasSO) return false;
+    if (!modelHasSO) return { supported: false, source: 'metadata' };
 
-    // For OpenRouter, we can be even more specific if we have endpoint data
-    if (providerName === 'OpenRouter' && meta?.canonical_slug) {
+    // For OpenRouter, we can be even more specific if we have endpoint data. (Direct providers
+    // do not route through OpenRouter's endpoints; the model-level answer is the right one.)
+    if (providerName === 'OpenRouter' && meta.canonical_slug) {
       const slug = meta.canonical_slug.replace(/^@?/, "");
       const [author, ...rest] = slug.split("/");
       const simpleSlug = rest.join("/");
-      
+
       if (author && simpleSlug) {
-        const eps = await loadEndpoints(author, simpleSlug);
+        const { endpoints: eps, loadError: endpointsError } = await loadEndpoints(author, simpleSlug);
+        if (endpointsError) {
+          // Model-level metadata said yes but endpoint verification failed. The historical
+          // (conservative) answer is false — surfaced as a default, not as knowledge.
+          warnDefaultAnswer('supportsStructuredOutputs', modelId, 'default-error', false);
+          return { supported: false, source: 'default-error' };
+        }
         // Does ANY available endpoint support it?
-        return eps.some(ep => 
-          ep.supported_parameters?.includes("structured_outputs") || 
+        const supported = eps.some(ep =>
+          ep.supported_parameters?.includes("structured_outputs") ||
           ep.supported_parameters?.includes("response_format")
         );
+        return { supported, source: 'metadata' };
       }
     }
 
-    return !!modelHasSO;
+    return { supported: true, source: 'metadata' };
   } catch (error) {
-    return false;
+    warnDefaultAnswer('supportsStructuredOutputs', modelId, 'default-error', false);
+    return { supported: false, source: 'default-error' };
   }
+}
+
+/**
+ * Boolean compatibility wrapper around getStructuredOutputsSupport(). Prefer the full form in
+ * consumers that alter request shape on a `false` — the source tells them whether that `false`
+ * is metadata or a failure-default.
+ */
+export async function supportsStructuredOutputs(providerName: string, modelId: string): Promise<boolean> {
+  return (await getStructuredOutputsSupport(providerName, modelId)).supported;
 }
 
 /**
@@ -153,9 +264,15 @@ export async function supportsParameters(providerName: string, modelId: string, 
   }
 
   try {
-    const models = await loadModels();
-    const meta = models.get(modelId);
-    if (!meta) return true; // Default to true if unknown, let the adapter handle retry
+    const { map: models, loadError } = await loadModels();
+    const meta = lookupModelMeta(models, providerName, modelId);
+    if (!meta) {
+      // Default to true if unknown, let the adapter handle retry — but say so loudly: failing
+      // open on a metadata failure means unsupported params ship on paid requests.
+      const source: CapabilityAnswerSource = loadError ? 'default-error' : 'default-miss';
+      warnDefaultAnswer('supportsParameters', modelId, source, true, `[${parameters.join(', ')}]`);
+      return true;
+    }
 
     // 2. Check model-level support
     const modelSupports = parameters.every(p => meta.supported_parameters?.includes(p));
@@ -166,17 +283,18 @@ export async function supportsParameters(providerName: string, modelId: string, 
       const slug = meta.canonical_slug.replace(/^@?/, "");
       const [author, ...rest] = slug.split("/");
       const simpleSlug = rest.join("/");
-      
+
       if (author && simpleSlug) {
-        const eps = await loadEndpoints(author, simpleSlug);
+        const { endpoints: eps } = await loadEndpoints(author, simpleSlug);
         if (eps.length > 0) {
           return eps.some(ep => parameters.every(p => ep.supported_parameters?.includes(p)));
         }
       }
     }
-    
+
     return modelSupports;
   } catch (error) {
+    warnDefaultAnswer('supportsParameters', modelId, 'default-error', true, `[${parameters.join(', ')}]`);
     return true; // Fallback to permissive
   }
 }
@@ -190,10 +308,20 @@ export function recordParameterFailure(modelId: string, parameter: string): void
 }
 
 /**
+ * Synchronous check of the session's learned-failure cache. Request builders
+ * consult this so a KNOWN failing parameter (e.g. require_parameters after an
+ * OpenRouter "No endpoints found" 404) is pruned up front instead of
+ * repeating the fail-then-retry cycle on every call (codex review).
+ */
+export function hasRecordedParameterFailure(modelId: string, parameter: string): boolean {
+  return cache.failures.has(`${modelId}:${parameter}`);
+}
+
+/**
  * Get full model metadata
  */
 export async function getModelMetadata(modelId: string): Promise<ModelMeta | null> {
-  const models = await loadModels();
+  const { map: models } = await loadModels();
   return models.get(modelId) || null;
 }
 
@@ -218,4 +346,5 @@ export function clearCapabilityCache(): void {
   cache.endpoints.clear();
   cache.lastFetch = 0;
   cache.failures.clear();
+  warnedDefaultAnswers.clear();
 }

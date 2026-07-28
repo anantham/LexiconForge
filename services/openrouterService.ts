@@ -43,6 +43,34 @@ const MODELS_KEY = 'openrouter-models';
 const KEY_USAGE_KEY = 'openrouter-key-usage';
 const LAST_USED_KEY = 'openrouter-model-last-used';
 
+/**
+ * Models-cache TTL. `fetchedAt` is stored with the cache; reads that find it older than this
+ * serve the stale data immediately (pricing drift for one read is tolerable; blocking image
+ * generation on a models fetch is not) and trigger ONE non-blocking background refresh.
+ */
+export const MODELS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+export const isModelsCacheStale = (cache: OpenRouterModelsCache | null | undefined): boolean => {
+  if (!cache?.fetchedAt) return true;
+  const ageMs = Date.now() - new Date(cache.fetchedAt).getTime();
+  return !Number.isFinite(ageMs) || ageMs > MODELS_CACHE_TTL_MS;
+};
+
+let modelsRefreshInFlight: Promise<unknown> | null = null;
+
+/** Fire-and-forget models refresh, deduped so concurrent stale reads trigger a single fetch. */
+const triggerBackgroundModelsRefresh = (): void => {
+  if (modelsRefreshInFlight) return;
+  modelsRefreshInFlight = openrouterService
+    .fetchModels()
+    .catch((err) =>
+      debugLog('api', 'summary', '[OpenRouter] Background models refresh failed (stale cache still served):', err)
+    )
+    .finally(() => {
+      modelsRefreshInFlight = null;
+    });
+};
+
 const nowIso = () => new Date().toISOString();
 
 // Removed legacy maybeDebug - now using debugLog with 'api' pipeline
@@ -316,7 +344,9 @@ export const getOpenRouterImagePrice = async (modelId: string): Promise<number |
 
   let cache = await openrouterService.getCachedModels();
 
-  // If cache is empty or stale (>24h), try to fetch fresh data
+  // Empty cache: fetch synchronously — there is nothing to serve. Stale cache (fetchedAt older
+  // than MODELS_CACHE_TTL_MS): serve the stale price NOW and refresh in the background so the
+  // next read sees current pricing.
   if (!cache?.data || cache.data.length === 0) {
     debugLog('api', 'summary', '[OpenRouter] Models cache empty, fetching...');
     try {
@@ -324,6 +354,9 @@ export const getOpenRouterImagePrice = async (modelId: string): Promise<number |
     } catch (err) {
       debugLog('api', 'summary', '[OpenRouter] Failed to fetch models for pricing:', err);
     }
+  } else if (isModelsCacheStale(cache)) {
+    debugLog('api', 'summary', '[OpenRouter] Models cache older than 24h — serving stale price, refreshing in background');
+    triggerBackgroundModelsRefresh();
   }
 
   debugLog('api', 'full', '[OpenRouter] getOpenRouterImagePrice lookup:', {

@@ -2,7 +2,8 @@ import OpenAI from 'openai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } from '../../types';
-import { supportsStructuredOutputs, supportsParameters, recordParameterFailure } from '../../services/capabilityService';
+import { getStructuredOutputsSupport, supportsParameters, recordParameterFailure, hasRecordedParameterFailure } from '../../services/capabilityService';
+import type { StructuredOutputsSupport } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/ai/cost';
 import prompts from '../../config/prompts.json';
@@ -89,30 +90,47 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
           ? client.chat.completions.create(simpleOptions, { signal: abortSignal })
           : client.chat.completions.create(simpleOptions));
       } else {
-        dlogFull('Full error response:', JSON.stringify(error, null, 2));
+        // Same "No endpoints found" class as chatJSON: OpenRouter's routing 404 names no
+        // parameter, so isParameterError above can never match it. Retry once without
+        // require_parameters when that's what filtered every endpoint out.
+        const noEndpointsRetryOptions = this.isNoEndpointsError(error?.message || '')
+          ? this.withoutRequireParameters(requestOptions)
+          : null;
+        if (noEndpointsRetryOptions) {
+          console.warn(
+            `[OpenAI] OpenRouter found no endpoints for ${settings.model} with require_parameters — retrying once ` +
+            `WITHOUT require_parameters. The serving endpoint may silently ignore requested parameters on this retry.`
+          );
+          recordParameterFailure(settings.model, 'require_parameters');
+          response = await (abortSignal
+            ? client.chat.completions.create(noEndpointsRetryOptions, { signal: abortSignal })
+            : client.chat.completions.create(noEndpointsRetryOptions));
+        } else {
+          dlogFull('Full error response:', JSON.stringify(error, null, 2));
 
-        // Record failed API call
-        const endTime = performance.now();
-        const promptTokens = 0; // Unknown on failure
-        const completionTokens = 0;
-        const costUsd = 0;
+          // Record failed API call
+          const endTime = performance.now();
+          const promptTokens = 0; // Unknown on failure
+          const completionTokens = 0;
+          const costUsd = 0;
 
-        await apiMetricsService.recordMetric({
-          apiType: 'translation',
-          provider: settings.provider,
-          model: settings.model,
-          costUsd,
-          tokens: {
-            prompt: promptTokens,
-            completion: completionTokens,
-            total: promptTokens + completionTokens,
-          },
-          chapterId,
-          success: false,
-          errorMessage: error.message || 'Unknown error',
-        });
+          await apiMetricsService.recordMetric({
+            apiType: 'translation',
+            provider: settings.provider,
+            model: settings.model,
+            costUsd,
+            tokens: {
+              prompt: promptTokens,
+              completion: completionTokens,
+              total: promptTokens + completionTokens,
+            },
+            chapterId,
+            success: false,
+            errorMessage: error.message || 'Unknown error',
+          });
 
-        throw error;
+          throw error;
+        }
       }
     }
 
@@ -170,9 +188,19 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
       requestOptions.temperature = temperature;
     }
 
-    const hasStructuredOutputs = Boolean(input.schema) && Boolean(
-      input.structuredOutputs ?? (await supportsStructuredOutputs(settings.provider, model))
-    );
+    // When the caller doesn't pin structuredOutputs, ask the capability service — with
+    // provenance, because a `false` that came from a fetch failure (not metadata) means the
+    // downgrade below is a guess against a paid request and must be logged (integrity item 1).
+    let structuredSupport: StructuredOutputsSupport | null = null;
+    let hasStructuredOutputs: boolean;
+    if (!input.schema) {
+      hasStructuredOutputs = false;
+    } else if (input.structuredOutputs !== undefined) {
+      hasStructuredOutputs = Boolean(input.structuredOutputs);
+    } else {
+      structuredSupport = await getStructuredOutputsSupport(settings.provider, model);
+      hasStructuredOutputs = structuredSupport.supported;
+    }
 
     if (hasStructuredOutputs && input.schema) {
       // OpenAI's strict json_schema validator speaks a stricter dialect
@@ -192,12 +220,27 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         },
       };
       if (settings.provider === 'OpenRouter') {
+        // Honor the learned failure: once "No endpoints found" taught us this
+        // model can't route with require_parameters, don't send it again.
+        const rp = !hasRecordedParameterFailure(model, 'require_parameters');
+        if (!rp) {
+          dlog(`Omitting require_parameters for ${model} (learned failure this session)`);
+        }
         requestOptions.provider = {
-          require_parameters: true,
+          ...(rp ? { require_parameters: true } : {}),
           ...input.providerPreferences,
         };
       }
     } else {
+      // Downgrading to json_object is only legitimate when METADATA says the model lacks
+      // structured outputs. When the capability answer was itself a failure-default, this paid
+      // request is being silently weakened on a guess — log it, with the model id.
+      if (input.schema && structuredSupport && structuredSupport.source !== 'metadata') {
+        console.warn(
+          `[OpenAI] Structured outputs DOWNGRADED to json_object for ${model}: the capability answer was a ` +
+          `${structuredSupport.source === 'default-error' ? 'failure default (capability metadata fetch failed)' : 'miss default (model not in capability metadata)'}, not real metadata.`
+        );
+      }
       requestOptions.response_format = { type: 'json_object' };
       // Still apply provider preferences for non-structured outputs
       if (settings.provider === 'OpenRouter' && input.providerPreferences) {
@@ -217,7 +260,24 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         : client.chat.completions.create(requestOptions));
     } catch (error: any) {
       const message = error?.message || String(error);
-      if (hasStructuredOutputs && /response_format|structured_outputs|not supported/i.test(message)) {
+      // OpenRouter's real routing failure — 404 "No endpoints found that can handle the
+      // requested parameters" — names NO parameter, so the per-parameter failure net can never
+      // fire on it, and the structured-outputs fallback below rebuilds a request still carrying
+      // the parameters the routing filter rejected. When require_parameters is present, retry
+      // ONCE without it (bounded; a second failure propagates normally).
+      const noEndpointsRetryOptions = this.isNoEndpointsError(message)
+        ? this.withoutRequireParameters(requestOptions)
+        : null;
+      if (noEndpointsRetryOptions) {
+        console.warn(
+          `[OpenAI] OpenRouter found no endpoints for ${model} with require_parameters — retrying once WITHOUT ` +
+          `require_parameters. The serving endpoint may silently ignore requested parameters (e.g. response_format) on this retry.`
+        );
+        recordParameterFailure(model, 'require_parameters');
+        response = await (input.abortSignal
+          ? client.chat.completions.create(noEndpointsRetryOptions, { signal: input.abortSignal })
+          : client.chat.completions.create(noEndpointsRetryOptions));
+      } else if (hasStructuredOutputs && /response_format|structured_outputs|not supported/i.test(message)) {
         dlog('Structured outputs not supported; retrying without schema.');
         const fallbackOptions = {
           ...requestOptions,
@@ -333,7 +393,8 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     history: HistoricalChapter[], 
     fanTranslation?: string | null
   ): Promise<any> {
-    const hasStructuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
+    const structuredSupport = await getStructuredOutputsSupport(settings.provider, settings.model);
+    const hasStructuredOutputs = structuredSupport.supported;
 
     // Translation runs without the amendment protocol; proposals are generated separately.
     let systemPrompt = getTranslationSystemPrompt(settings.systemPrompt);
@@ -358,9 +419,23 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         }
       };
       if (settings.provider === 'OpenRouter') {
-        requestOptions.provider = { require_parameters: true };
+        // Same learned-failure gate as chatJSON (codex review).
+        if (hasRecordedParameterFailure(settings.model, 'require_parameters')) {
+          dlog(`Omitting require_parameters for ${settings.model} (learned failure this session)`);
+          requestOptions.provider = {};
+        } else {
+          requestOptions.provider = { require_parameters: true };
+        }
       }
     } else {
+      // A failure-default (fetch failed / model unknown) is not metadata: the paid translation
+      // request is being downgraded to json_object on a guess — log it (integrity item 1).
+      if (structuredSupport.source !== 'metadata') {
+        console.warn(
+          `[OpenAI] Structured outputs DOWNGRADED to json_object for ${settings.model}: the capability answer was a ` +
+          `${structuredSupport.source === 'default-error' ? 'failure default (capability metadata fetch failed)' : 'miss default (model not in capability metadata)'}, not real metadata.`
+        );
+      }
       requestOptions.response_format = { type: 'json_object' };
       const schemaString = JSON.stringify(schema, null, 2);
       const schemaInjection = `
@@ -491,6 +566,31 @@ ${schemaString}`;
     ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'].forEach(param => {
       delete cleaned[param];
     });
+    return cleaned;
+  }
+
+  /**
+   * OpenRouter's routing failure — 404 "No endpoints found that can handle the requested
+   * parameters" — names NO individual parameter, so isParameterError()/recordParameterFailure's
+   * per-parameter net can never fire on OpenRouter's REAL failure shape. It gets its own
+   * message-class detector.
+   */
+  private isNoEndpointsError(message: string): boolean {
+    return /no endpoints found/i.test(message || '');
+  }
+
+  /**
+   * A copy of requestOptions with provider.require_parameters removed, or null when it was not
+   * set — in which case a retry would rebuild the identical failing request and there is
+   * nothing to adapt.
+   */
+  private withoutRequireParameters(requestOptions: any): any | null {
+    const provider = requestOptions?.provider;
+    if (!provider || provider.require_parameters === undefined) return null;
+    const { require_parameters: _removed, ...rest } = provider;
+    const cleaned = { ...requestOptions };
+    if (Object.keys(rest).length > 0) cleaned.provider = rest;
+    else delete cleaned.provider;
     return cleaned;
   }
 

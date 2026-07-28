@@ -19,6 +19,20 @@ vi.mock('../../services/capabilityService', () => ({
   supportsStructuredOutputs: supportsStructuredOutputsMock,
 }));
 
+const geminiPlannerMocks = vi.hoisted(() => ({ generateContent: vi.fn() }));
+
+vi.mock('@google/genai', () => ({
+  GoogleGenAI: class {
+    models = { generateContent: (...args: any[]) => geminiPlannerMocks.generateContent(...args) };
+    constructor(_opts: any) {}
+  },
+  Type: {
+    OBJECT: 'OBJECT',
+    STRING: 'STRING',
+    ARRAY: 'ARRAY',
+  },
+}));
+
 import {
   generateIllustrationFromSelection,
   generateImagePlanFromCaption,
@@ -154,5 +168,86 @@ describe('imagePlanPlanner', () => {
     expect(result.warning).toContain('selection planner unavailable');
     expect(result.imagePrompt).toBe('The emperor nodded slowly');
     expect(result.imagePlan.subject).toContain('The emperor nodded slowly');
+  });
+});
+
+describe('imagePlanPlanner — Gemini request shape (integrity item 7)', () => {
+  // The @google/genai SDK wants { model, contents, config: {...} }. The planner used to pass
+  // systemInstruction + generationConfig at the TOP level behind an (ai as any) cast — the SDK
+  // silently ignored both, so the planner ran with no system prompt, default temperature, and
+  // no schema. These tests pin the CORRECT shape.
+  const geminiSettings = {
+    ...mockSettings,
+    provider: 'Gemini',
+    model: 'gemini-2.5-flash',
+    apiKeyGemini: 'test-gemini-key',
+  };
+
+  const validPlannerPayload = JSON.stringify({
+    imagePrompt: 'Silver-haired swordswoman alone in a ruined shrine.',
+    imagePlan: {
+      subject: 'Silver-haired swordswoman alone in a ruined shrine.',
+      characters: ['silver-haired swordswoman'],
+      scene: 'Ruined shrine at night.',
+      composition: 'Wide hero shot.',
+      camera: 'Low angle.',
+      lighting: 'Cold moonlight.',
+      style: 'Dark fantasy illustration.',
+      mood: 'Lonely and triumphant.',
+      details: ['broken steps'],
+      mustKeep: ['silver hair', 'moonlight'],
+      avoid: ['daylight'],
+      negativePrompt: ['watermark'],
+    },
+  });
+
+  beforeEach(() => {
+    geminiPlannerMocks.generateContent.mockReset();
+  });
+
+  it('sends systemInstruction, schema and generation params inside config — not top-level', async () => {
+    geminiPlannerMocks.generateContent.mockResolvedValue({ text: validPlannerPayload });
+
+    const result = await generateImagePlanFromCaption(
+      'Silver-haired swordswoman alone in a ruined shrine',
+      geminiSettings as any
+    );
+
+    expect(result.source).toBe('model');
+    expect(geminiPlannerMocks.generateContent).toHaveBeenCalledTimes(1);
+
+    const sent = geminiPlannerMocks.generateContent.mock.calls[0][0];
+    // The shape the SDK actually reads:
+    expect(sent.config).toBeDefined();
+    expect(typeof sent.config.systemInstruction).toBe('string');
+    expect(sent.config.systemInstruction.length).toBeGreaterThan(0);
+    expect(sent.config.responseMimeType).toBe('application/json');
+    expect(sent.config.responseSchema).toBeDefined();
+    expect(sent.config.temperature).toBe(0.4);
+    expect(sent.config.maxOutputTokens).toBeGreaterThan(0);
+    // The shapes the SDK IGNORES (the old, inert placement) must be gone:
+    expect(sent.systemInstruction).toBeUndefined();
+    expect(sent.generationConfig).toBeUndefined();
+  });
+
+  it('the schema-less retry keeps config (system prompt + JSON mime) and drops only the schema', async () => {
+    geminiPlannerMocks.generateContent
+      .mockRejectedValueOnce(new Error('responseSchema rejected'))
+      .mockResolvedValueOnce({ text: validPlannerPayload });
+
+    const result = await generateImagePlanFromCaption(
+      'Silver-haired swordswoman alone in a ruined shrine',
+      geminiSettings as any
+    );
+
+    expect(result.source).toBe('model');
+    expect(geminiPlannerMocks.generateContent).toHaveBeenCalledTimes(2);
+
+    const retry = geminiPlannerMocks.generateContent.mock.calls[1][0];
+    expect(retry.config).toBeDefined();
+    expect(retry.config.responseSchema).toBeUndefined();
+    expect(typeof retry.config.systemInstruction).toBe('string');
+    expect(retry.config.responseMimeType).toBe('application/json');
+    expect(retry.generationConfig).toBeUndefined();
   });
 });

@@ -1,3 +1,35 @@
+[DEBT][DECISION][2026-07-28] Chrome extension: both main lanes dead — keep-or-delete needs the operator
+- BookToki lane: popup gates every command on a PING the content script never answers (broken by the
+  2026-01-11 popup rewrite); Polyglotta lane: progress persisted to the BookToki session key, resumes
+  at section 0 forever, downloads always stamped _PARTIAL_. Extraction logic has drifted from the app
+  adapter (title regex, paragraph filters, nav discovery). ~3,000 lines of drift tax if kept.
+- Decide: re-sync contracts + add a parity test against siteAdapters, or delete the extension.
+
+[DEBT][PERIPHERAL][2026-07-28] Round-two P3 tail (scan reports have full detail; highest-value first)
+- publish-compare/ committed artifacts are add-only from 2026-07-01: half the live board 404s in the
+  View panel, the rest serve old-rubric numbers. Regenerate + add drift detection at publish time.
+- benchmark.ts legacy lexicographer pass: identical error-block pasted 4x (one failure logs 4);
+  legacy weaver/typesetter push zero. Fix when the legacy path is next touched.
+- capabilityService endpoints sub-cache frozen per session; clearCapabilityCache dead; three pricing
+  surfaces with two unit conventions (per-token vs per-million) — a units mixup is a latent money bug.
+- telemetry sessionDurationMs becomes ring-buffer-window duration after 500 events; redactString
+  misses bare AIza-style keys.
+- audio: opfs.ts is excluded from tsc AND eslint (never checked); config audioGeneration block has
+  zero readers (providers hardcode); OST library serves 8 URLs into a gitignored absent dir; the
+  eslint comment claims tsc tolerates literal-\n files (false).
+- imageService: 'image://' filter dead code; retry version-defaulting fork; stale per-token warning;
+  imagen-3.0-generate-001 default not in any table; ImageCacheKey declared twice.
+- fetcher.ts vs siteAdapters host-predicate mismatch (endsWith vs includes) can save the literal
+  'Loading Sutta content...' placeholder as chapter content on lookalike hosts.
+- liturgy-generator tokenize.ts is an undisclosed byte-identical fork of the declared single source
+  of truth (validation.ts) — import it instead before the regex evolves.
+- kanjiToNumber positional-digit misparse (第一四八話 → 8); siteAdapters' second chapter-number
+  derivation fabricates 0 on no-match.
+- store round-two P3s (report §P3): NovelLibrary render-phase mutation of registry state, VersionPicker
+  NaN%, EPUB metadata from one global localStorage key (multi-novel bleed), memory-fallback session
+  export drops version history, ChapterView dead editing scaffolding since 2025-08, uiSlice duplicate
+  action, oscilloscope tone threads never created, audioSlice provider-stats crash edge.
+
 [DEBT][DB][2026-07-28] maintenance.ts integrity-scan deferrals (fixed tier shipped same day — see WORKLOG)
 Full scan report findings NOT fixed in the first pass, each verified with quoted code:
 - Mapping-upsert FORK (P2): buildUrlMappingEntries (~L440) + normalizeStableIds inline puts (~L542)

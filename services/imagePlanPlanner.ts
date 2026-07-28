@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenAI, Type } from '@google/genai';
+import type { GenerateContentParameters, Schema } from '@google/genai';
 import OpenAI from 'openai';
 
 import prompts from '../config/prompts.json';
@@ -79,7 +80,9 @@ const plannerResponseSchema = {
   additionalProperties: false,
 } as const;
 
-const geminiPlannerResponseSchema = {
+// Typed as the SDK's Schema (not `as const`) so tsc verifies this is a shape the SDK's
+// responseSchema field actually accepts — the cast that hid the inert-config bug is gone.
+const geminiPlannerResponseSchema: Schema = {
   type: Type.OBJECT,
   properties: {
     imagePrompt: { type: Type.STRING, description: '' + prompts.illustrationImagePromptDescription },
@@ -124,7 +127,7 @@ const geminiPlannerResponseSchema = {
     },
   },
   required: ['imagePrompt', 'imagePlan'],
-} as const;
+};
 
 const cleanText = (value: string | null | undefined, fallback = ''): string => {
   const trimmed = value?.trim() || '';
@@ -311,20 +314,25 @@ const requestViaGemini = async (
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const baseRequest = {
+  // The @google/genai SDK wants { model, contents, config: {...} }. This used to pass
+  // systemInstruction and a `generationConfig` at the TOP level behind an `(ai as any)` cast —
+  // the SDK silently ignored both, so the planner ran with no system prompt, default
+  // temperature, no JSON mime type and no schema (sibling imageService.ts generateImages call
+  // had the correct { config } shape all along). Typed request, no cast: tsc now checks it.
+  const baseRequest: GenerateContentParameters = {
     model: request.settings.model,
     contents: [{ role: 'user', parts: [{ text: request.userPrompt }] }],
-    systemInstruction: replacePlaceholders(prompts.imagePlanPlannerSystemPrompt, request.settings),
-    generationConfig: {
+    config: {
+      systemInstruction: replacePlaceholders(prompts.imagePlanPlannerSystemPrompt, request.settings),
       temperature: PLANNER_TEMPERATURE,
       responseMimeType: 'application/json',
       responseSchema: geminiPlannerResponseSchema,
       maxOutputTokens: plannerMaxTokens(request.settings),
     },
-  } as const;
+  };
 
   try {
-    const response = await (ai as any).models.generateContent(baseRequest);
+    const response = await ai.models.generateContent(baseRequest);
     return parsePlannerJson(extractGeminiText(response), request.fallbackCaption);
   } catch (error) {
     console.warn('[ImagePlanPlanner] Gemini planner call failed, retrying without schema.', {
@@ -332,10 +340,12 @@ const requestViaGemini = async (
       error,
     });
 
-    const fallbackResponse = await (ai as any).models.generateContent({
+    // The schema now actually reaches the SDK, so a schema rejection is a real failure mode
+    // again: retry drops the responseSchema but keeps the system prompt and JSON mime type.
+    const fallbackResponse = await ai.models.generateContent({
       ...baseRequest,
-      generationConfig: {
-        ...baseRequest.generationConfig,
+      config: {
+        ...baseRequest.config,
         responseSchema: undefined,
       },
     });

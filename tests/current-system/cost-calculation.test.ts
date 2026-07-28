@@ -1,7 +1,16 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+
+// Lets the image-cost tests plant a "live" OpenRouter per-image price without network:
+// fetchOpenRouterImagePrice() consults the verified catalog via this adapter.
+const getVerifiedModelMock = vi.hoisted(() => vi.fn());
+vi.mock('../../services/openrouterImageModelAdapter', () => ({
+  getVerifiedOpenRouterImageModel: (...args: any[]) => getVerifiedModelMock(...args),
+  buildOpenRouterImageRequestConfig: vi.fn(),
+}));
+
 import { calculateCost } from '../../services/ai/cost';
 import { openrouterService } from '../../services/openrouterService';
-import { calculateImageCost } from '../../services/imageService';
+import { calculateImageCost, fetchOpenRouterImagePrice, UNPRICED_IMAGE_COST_USD } from '../../services/imageService';
 import { COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../../config/costs';
 
 const expectCost = async (model: string, promptTokens: number, completionTokens: number, expected: number) => {
@@ -146,7 +155,35 @@ describe('Image generation costs', () => {
     expect(calculateImageCost('Qubico/flux1-schnell')).toBe(IMAGE_COSTS['Qubico/flux1-schnell']);
   });
 
-  it('returns 0 for unknown image models', () => {
-    expect(calculateImageCost('unknown-image-model')).toBe(0);
+  it('prefers the LIVE OpenRouter price over a stale static entry (integrity item 5)', async () => {
+    // The seedream case: OpenRouter bills $0.04/image while the static table still says $0.01.
+    // The old static-first precedence recorded the stale $0.01 even with the live price cached
+    // (4x under-recording); its own docstring claimed the reverse order.
+    const model = 'openrouter/bytedance-seed/seedream-4.5';
+    expect(IMAGE_COSTS[model]).toBe(0.01); // static entry exists AND is stale
+
+    getVerifiedModelMock.mockResolvedValueOnce({ priceEstimate: 0.04, pricingLabel: '$0.04/image' });
+    await fetchOpenRouterImagePrice(model); // populates the live cache, as generateImage() does
+
+    expect(calculateImageCost(model)).toBe(0.04);
+  });
+
+  it('falls back to the static table when no live price is cached', () => {
+    // No fetch for this model in this test → cache miss → static price.
+    expect(calculateImageCost('openrouter/openai/gpt-5-image')).toBe(IMAGE_COSTS['openrouter/openai/gpt-5-image']);
+  });
+
+  it('records the conservative UNPRICED estimate — never $0 — for unknown image models', () => {
+    // RED pre-fix: unknown model → $0 recorded with no gate, invisible to every spend ledger.
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      expect(calculateImageCost('unknown-image-model')).toBe(UNPRICED_IMAGE_COST_USD);
+      expect(UNPRICED_IMAGE_COST_USD).toBeGreaterThan(0);
+      const unpricedErrors = errorSpy.mock.calls.filter(c => String(c[0]).includes('unknown-image-model'));
+      expect(unpricedErrors).toHaveLength(1);
+      expect(String(unpricedErrors[0][0])).toContain('NOT $0');
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 });

@@ -24,13 +24,23 @@ vi.mock('openai', () => ({ __esModule: true, default: openAiMocks.OpenAI }));
 
 const supportsStructuredOutputsMock = vi.fn().mockResolvedValue(true);
 const supportsParametersMock = vi.fn().mockResolvedValue(true);
+// Source-aware capability answer (integrity item 1). Default: metadata-backed, driven by the
+// boolean mock so existing tests keep controlling supported-ness with one knob.
+type CapabilitySupportAnswer = { supported: boolean; source: 'metadata' | 'default-error' | 'default-miss' };
+const getStructuredOutputsSupportMock = vi.fn(async (...args: any[]): Promise<CapabilitySupportAnswer> => ({
+  supported: await supportsStructuredOutputsMock(...args),
+  source: 'metadata',
+}));
+const recordParameterFailureMock = vi.fn();
 
 vi.mock('../../../services/capabilityService', () => ({
   supportsStructuredOutputs: (...args: any[]) => supportsStructuredOutputsMock(...args),
+  getStructuredOutputsSupport: (...args: any[]) => getStructuredOutputsSupportMock(...args),
   supportsParameters: (...args: any[]) => supportsParametersMock(...args),
   // Added when OpenAIAdapter started recording per-parameter rejection
-  // failures (so future calls skip the offending param). No-op mock.
-  recordParameterFailure: vi.fn(),
+  // failures (so future calls skip the offending param).
+  recordParameterFailure: (...args: any[]) => recordParameterFailureMock(...args),
+  hasRecordedParameterFailure: vi.fn(() => false),
 }));
 
 const rateLimitMock = vi.fn().mockResolvedValue(undefined);
@@ -446,6 +456,196 @@ describe('OpenAIAdapter chatJSON strict-schema dialect (production wiring)', () 
     expect(sent).toBe(schema); // referentially untouched
     expect(sent.properties.ripples).toBeDefined();
     expect(sent.required).toEqual(['english']);
+  });
+});
+
+describe('OpenAIAdapter capability-default downgrade logging (integrity item 1)', () => {
+  beforeEach(() => {
+    openAiMocks.create.mockReset();
+    recordMetricMock.mockClear();
+  });
+
+  it('buildRequest warns with the model id when the json_object downgrade rests on a failure-default', async () => {
+    // A fetch failure used to downgrade the paid request to json_object with NO log or signal.
+    getStructuredOutputsSupportMock.mockResolvedValueOnce({ supported: false, source: 'default-error' });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const adapter = new OpenAIAdapter() as any;
+      const payload = await adapter.buildRequest(baseSettings, 'T', 'Content', []);
+
+      expect(payload.response_format).toEqual({ type: 'json_object' });
+      const downgradeWarns = warnSpy.mock.calls.filter(c => /DOWNGRADED/.test(String(c[0])));
+      expect(downgradeWarns.length).toBe(1);
+      expect(String(downgradeWarns[0][0])).toContain('gpt-4o');
+      expect(String(downgradeWarns[0][0])).toContain('failure default');
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('buildRequest does NOT warn when metadata genuinely says unsupported', async () => {
+    getStructuredOutputsSupportMock.mockResolvedValueOnce({ supported: false, source: 'metadata' });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const adapter = new OpenAIAdapter() as any;
+      const payload = await adapter.buildRequest(baseSettings, 'T', 'Content', []);
+
+      expect(payload.response_format).toEqual({ type: 'json_object' });
+      expect(warnSpy.mock.calls.filter(c => /DOWNGRADED/.test(String(c[0])))).toHaveLength(0);
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('chatJSON warns on a miss-default downgrade when the caller did not pin structuredOutputs', async () => {
+    getStructuredOutputsSupportMock.mockResolvedValueOnce({ supported: false, source: 'default-miss' });
+    openAiMocks.create.mockResolvedValueOnce({
+      choices: [{ finish_reason: 'stop', message: { content: '{"ok":true}' } }],
+      usage: { prompt_tokens: 5, completion_tokens: 2 },
+    });
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const adapter = new OpenAIAdapter('OpenRouter');
+      await adapter.chatJSON({
+        settings: createMockAppSettings({ ...baseSettings, provider: 'OpenRouter', model: 'mystery/model' } as any),
+        model: 'mystery/model',
+        messages: [{ role: 'user' as const, content: 'go' }],
+        schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+        // structuredOutputs deliberately NOT set — the capability service decides.
+      } as any);
+
+      const sent = openAiMocks.create.mock.calls[0][0];
+      expect(sent.response_format).toEqual({ type: 'json_object' });
+      const downgradeWarns = warnSpy.mock.calls.filter(c => /DOWNGRADED/.test(String(c[0])));
+      expect(downgradeWarns.length).toBe(1);
+      expect(String(downgradeWarns[0][0])).toContain('mystery/model');
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+});
+
+describe('OpenAIAdapter "No endpoints found" adaptive retry (integrity item 3)', () => {
+  // OpenRouter's REAL failure shape for require_parameters routing: a 404 whose message names
+  // no parameter, so the per-parameter failure net could never fire on it.
+  const NO_ENDPOINTS_MSG = 'No endpoints found that can handle the requested parameters';
+
+  const jsonOk = {
+    choices: [{ finish_reason: 'stop', message: { content: '{"ok":true}' } }],
+    usage: { prompt_tokens: 5, completion_tokens: 2 },
+  };
+
+  beforeEach(() => {
+    openAiMocks.create.mockReset();
+    recordMetricMock.mockClear();
+    recordParameterFailureMock.mockClear();
+    supportsStructuredOutputsMock.mockResolvedValue(true);
+    supportsParametersMock.mockResolvedValue(true);
+  });
+
+  it('chatJSON retries ONCE without require_parameters and records the failure', async () => {
+    openAiMocks.create
+      .mockRejectedValueOnce(Object.assign(new Error(NO_ENDPOINTS_MSG), { status: 404 }))
+      .mockResolvedValueOnce(jsonOk);
+
+    const adapter = new OpenAIAdapter('OpenRouter');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const result = await adapter.chatJSON({
+        settings: createMockAppSettings({ ...baseSettings, provider: 'OpenRouter', model: 'openai/gpt-5.2' } as any),
+        model: 'openai/gpt-5.2',
+        messages: [{ role: 'user' as const, content: 'go' }],
+        schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+        structuredOutputs: true,
+      } as any);
+
+      expect(result.text).toBe('{"ok":true}');
+      expect(openAiMocks.create).toHaveBeenCalledTimes(2);
+
+      const firstSent = openAiMocks.create.mock.calls[0][0];
+      expect(firstSent.provider?.require_parameters).toBe(true);
+
+      // The adapted retry drops require_parameters (the routing filter), keeps the rest.
+      const retrySent = openAiMocks.create.mock.calls[1][0];
+      expect(retrySent.provider?.require_parameters).toBeUndefined();
+      expect(retrySent.response_format?.type).toBe('json_schema');
+
+      expect(recordParameterFailureMock).toHaveBeenCalledWith('openai/gpt-5.2', 'require_parameters');
+      expect(warnSpy.mock.calls.some(c => /no endpoints/i.test(String(c[0])) && String(c[0]).includes('openai/gpt-5.2'))).toBe(true);
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('chatJSON retry is BOUNDED: a second "No endpoints" failure propagates (no loop)', async () => {
+    openAiMocks.create.mockRejectedValue(Object.assign(new Error(NO_ENDPOINTS_MSG), { status: 404 }));
+
+    const adapter = new OpenAIAdapter('OpenRouter');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await expect(adapter.chatJSON({
+        settings: createMockAppSettings({ ...baseSettings, provider: 'OpenRouter', model: 'openai/gpt-5.2' } as any),
+        model: 'openai/gpt-5.2',
+        messages: [{ role: 'user' as const, content: 'go' }],
+        schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+        structuredOutputs: true,
+      } as any)).rejects.toThrow(/No endpoints found/);
+
+      expect(openAiMocks.create).toHaveBeenCalledTimes(2); // original + ONE adapted retry
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('chatJSON does NOT consume the retry when require_parameters was never sent', async () => {
+    openAiMocks.create.mockRejectedValue(Object.assign(new Error(NO_ENDPOINTS_MSG), { status: 404 }));
+
+    const adapter = new OpenAIAdapter('OpenAI');
+    await expect(adapter.chatJSON({
+      settings: createMockAppSettings({ ...baseSettings, provider: 'OpenAI', model: 'gpt-5.2' } as any),
+      model: 'gpt-5.2',
+      messages: [{ role: 'user' as const, content: 'go' }],
+      schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+      structuredOutputs: true,
+    } as any)).rejects.toThrow(/No endpoints found/);
+
+    // No provider.require_parameters in the request → nothing to adapt → single call.
+    expect(openAiMocks.create).toHaveBeenCalledTimes(1);
+    expect(recordParameterFailureMock).not.toHaveBeenCalled();
+  });
+
+  it('translate() also adapts: one retry without require_parameters', async () => {
+    const translationOk = {
+      choices: [{
+        finish_reason: 'stop',
+        message: { content: JSON.stringify({ translatedTitle: 'T', translation: realisticTranslation }) },
+      }],
+      usage: { prompt_tokens: 12, completion_tokens: 5 },
+    };
+    openAiMocks.create
+      .mockRejectedValueOnce(Object.assign(new Error(NO_ENDPOINTS_MSG), { status: 404 }))
+      .mockResolvedValueOnce(translationOk);
+
+    const settings = createMockAppSettings({
+      ...baseSettings,
+      provider: 'OpenRouter',
+      model: 'openai/gpt-5.2',
+      apiKeyOpenRouter: 'or-key',
+    } as any);
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const adapter = new OpenAIAdapter('OpenRouter');
+      const result = await adapter.translate({ title: 'T', content: 'Body', settings, history: [] });
+
+      expect(result.translation).toBe(realisticTranslation);
+      expect(openAiMocks.create).toHaveBeenCalledTimes(2);
+      expect(openAiMocks.create.mock.calls[0][0].provider?.require_parameters).toBe(true);
+      expect(openAiMocks.create.mock.calls[1][0].provider?.require_parameters).toBeUndefined();
+      expect(recordParameterFailureMock).toHaveBeenCalledWith('openai/gpt-5.2', 'require_parameters');
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 });
 

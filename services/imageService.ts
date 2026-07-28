@@ -22,12 +22,41 @@ const IMAGE_DIM_MAX = 4096;       // Maximum accepted by most providers
 const IMAGE_DIM_DEFAULT = 1024;   // Standard HD baseline
 const IMAGE_MAX_PIXELS = 1048576; // 1024×1024 — max total pixel budget for PiAPI
 
-// fetch() has NO default timeout, so a stalled connection never settles: the request hangs, and
-// with it the image's isLoading flag — forever, with no error and no way back except a reload.
-// The PiAPI poll already guarded itself this way; its siblings did not.
+// A stalled request that never settles hangs the image's isLoading flag — forever, with no error
+// and no way back except a reload. Every provider branch is guarded: the raw fetch() paths
+// (OpenRouter, PiAPI) pass AbortSignal.timeout, and the Google SDK calls (Imagen via
+// ai.models.generateImages, Gemini via model.generateContent) get an abort signal PLUS a
+// Promise.race timer backstop (withTimeout below) — the race unwedges the caller even if an SDK
+// code path drops the signal, though neither can cancel provider-side work already running.
 const IMAGE_GENERATION_TIMEOUT_MS = 180_000; // generation is genuinely slow; be generous
 const IMAGE_TASK_CREATE_TIMEOUT_MS = 30_000; // just enqueues a job
 const IMAGE_DOWNLOAD_TIMEOUT_MS = 60_000;    // fetching the finished image bytes
+
+/**
+ * Race a provider call against a timer. The timer REJECTS (unwedging the caller and failing the
+ * image honestly) — it does not and cannot cancel the underlying request, which is why the SDK
+ * calls also receive an AbortSignal where their signatures accept one.
+ */
+const withTimeout = async <T>(work: Promise<T>, ms: number, label: string): Promise<T> => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timedOut = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+            const err = new Error(
+                `${label} timed out after ${Math.round(ms / 1000)}s with no response. ` +
+                `The request was abandoned client-side; the provider may still complete (and bill) it.`
+            );
+            // Named so intermediate handlers (e.g. the Gemini guidance wrapper) can tell a hang
+            // from a provider rejection and let it propagate honestly.
+            err.name = 'ImageTimeoutError';
+            reject(err);
+        }, ms);
+    });
+    try {
+        return await Promise.race([work, timedOut]);
+    } finally {
+        clearTimeout(timer);
+    }
+};
 
 // Typed error extension used by image generation to carry actionable metadata
 interface ImageGenerationError extends Error {
@@ -49,32 +78,49 @@ let openRouterPriceCache: Record<string, number> = {};
 // --- IMAGE COST CALCULATION ---
 
 /**
- * Calculates the cost for generating one image with the specified model (sync version)
- * For OpenRouter models, uses cached dynamic pricing if available, falls back to static costs.ts
+ * Recorded for an image whose model has no price anywhere — the analogue of
+ * scripts/sutta-studio/spend-guard.ts's UNPRICED_CALL_ESTIMATE_USD and ai/cost.ts's fail-closed
+ * pairing: unpriced spend must drive the ledger UP where someone sees it, not vanish as $0.
+ * Deliberately above every price in the static table.
+ */
+export const UNPRICED_IMAGE_COST_USD = 0.25;
+
+/**
+ * Calculates the cost for generating one image with the specified model (sync version).
+ *
+ * Precedence: LIVE OpenRouter pricing (cached by fetchOpenRouterImagePrice) first, static
+ * costs.ts as the fallback, and the conservative UNPRICED estimate — never $0 — when neither
+ * knows the model. Live prices win because the static table goes stale: seedream-4.5 was billed
+ * at $0.04/image while the table still said $0.01, and the old static-first order recorded the
+ * stale number even when the live price was sitting in the cache.
+ *
  * @param model The image model ID
  * @returns Cost in USD for one image
  */
 export const calculateImageCost = (model: string): number => {
-    // Check static costs first
+    // 1. Live pricing first (OpenRouter models only; populated by fetchOpenRouterImagePrice —
+    //    per-image estimates from the verified image-model catalog).
+    if (model.startsWith('openrouter/')) {
+        const cleanId = model.slice(11); // Remove 'openrouter/' prefix
+        if (openRouterPriceCache[cleanId] != null) {
+            console.log(`[ImageCost] Using live OpenRouter price for ${model}: $${openRouterPriceCache[cleanId]}`);
+            return openRouterPriceCache[cleanId];
+        }
+        console.log(`[ImageCost] No live price cached for OpenRouter model: ${model} (cleanId: ${cleanId}); falling back to static table`);
+    }
+
+    // 2. Static fallback
     if (IMAGE_COSTS[model] != null) {
         console.log(`[ImageCost] Using static price for ${model}: $${IMAGE_COSTS[model]}`);
         return IMAGE_COSTS[model];
     }
 
-    // For OpenRouter models, check dynamic cache
-    if (model.startsWith('openrouter/')) {
-        const cleanId = model.slice(11); // Remove 'openrouter/' prefix
-        if (openRouterPriceCache[cleanId] != null) {
-            console.log(`[ImageCost] Using cached OpenRouter price for ${model}: $${openRouterPriceCache[cleanId]}`);
-            console.warn(`[ImageCost] ⚠️ NOTE: This is per-TOKEN pricing from OpenRouter API, not per-image!`);
-            return openRouterPriceCache[cleanId];
-        }
-        console.log(`[ImageCost] No price found for OpenRouter model: ${model} (cleanId: ${cleanId})`);
-        console.log(`[ImageCost] Cache contents:`, Object.keys(openRouterPriceCache));
-    }
-
-    console.log(`[ImageCost] No price found for model: ${model}, returning $0`);
-    return 0;
+    // 3. Unknown model: recording $0 hid the spend from every ledger. Record the conservative
+    //    estimate and say so loudly.
+    console.error(
+        `[ImageCost] No pricing found for image model ${model} — recording conservative $${UNPRICED_IMAGE_COST_USD} estimate (NOT $0) so the spend stays visible. Add the model to config/costs.ts IMAGE_COSTS.`
+    );
+    return UNPRICED_IMAGE_COST_USD;
 };
 
 /**
@@ -104,6 +150,15 @@ export const fetchOpenRouterImagePrice = async (model: string): Promise<number |
 };
 
 // --- IMAGE GENERATION SERVICE ---
+
+/**
+ * Does the provider branch for this model actually SEND the steering image to the provider?
+ * Only the PiAPI (Qubico/) img2img path does; the Imagen, Gemini and OpenRouter branches ignore
+ * steering images entirely. Callers that persist provenance metadata must consult this instead
+ * of assuming a configured steering image was applied (integrity item 6).
+ */
+export const modelConsumesSteeringImage = (imageModel: string): boolean =>
+    imageModel.startsWith('Qubico/');
 
 /**
  * Generates an image from a text prompt using the configured Image API.
@@ -145,7 +200,19 @@ export const generateImage = async (
         ? !!(settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'))
         : !!(settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY'));
     ilog(`[ImageService] - API Key present: ${hasKey}`);
-    
+
+    // Steering images are consumed ONLY by the PiAPI (Qubico/) branch below. Every other
+    // provider branch ignores them — which used to happen SILENTLY while the persisted metadata
+    // recorded the steering image as applied. This service has no notification hook (its only
+    // user-facing signals are thrown errors), so warn loudly here; the metadata honesty fix
+    // lives in imageGenerationService via modelConsumesSteeringImage().
+    if (steeringImagePath && !modelConsumesSteeringImage(imageModel)) {
+        console.warn(
+            `[ImageService] Steering image "${steeringImagePath}" will be IGNORED: model "${imageModel}" does not ` +
+            `support steering images in this app (only PiAPI Qubico/ models consume them). Generating from the text prompt alone.`
+        );
+    }
+
     const startTime = performance.now();
     
     try {
@@ -168,23 +235,25 @@ export const generateImage = async (
                 ratios.forEach((r,i)=>{ const d=Math.abs(r - ratioVal); if (d < bestDiff) { bestDiff = d; bestIdx = i; } });
                 const aspectLabel = labels[bestIdx];
                 const sampleImageSize = (Math.max(reqW, reqH) >= 1536) ? '2K' : '1K';
-                response = await ai.models.generateImages({
+                response = await withTimeout(ai.models.generateImages({
                     model: imageModel,
                     prompt: `${prompt}. Target size ~${reqW}x${reqH}. Please generate this image in a dark, atmospheric, and highly detailed anime/manga style.`,
                     config: {
                         numberOfImages: 1,
                         sampleImageSize: sampleImageSize,
                         aspectRatio: aspectLabel,
+                        abortSignal: AbortSignal.timeout(IMAGE_GENERATION_TIMEOUT_MS),
                     } as any,
-                });
+                }), IMAGE_GENERATION_TIMEOUT_MS, 'Imagen image generation');
             } else {
-                response = await ai.models.generateImages({
+                response = await withTimeout(ai.models.generateImages({
                     model: imageModel,
                     prompt: `${prompt}. Target size ~${reqW}x${reqH}. Please generate this image in a dark, atmospheric, and highly detailed anime/manga style.`,
                     config: {
                         numberOfImages: 1,
+                        abortSignal: AbortSignal.timeout(IMAGE_GENERATION_TIMEOUT_MS),
                     },
-                });
+                }), IMAGE_GENERATION_TIMEOUT_MS, 'Imagen image generation');
             }
 
             if (debugPipelineEnabled('image', 'full')) console.log('[ImageService/Imagen] Full API Response:', JSON.stringify(response, null, 2));
@@ -213,7 +282,11 @@ export const generateImage = async (
                 if (needsModalities) {
                     requestPayload.responseModalities = ['TEXT', 'IMAGE'];
                 }
-                const result = await model.generateContent(requestPayload);
+                const result = await withTimeout(
+                    model.generateContent(requestPayload, { signal: AbortSignal.timeout(IMAGE_GENERATION_TIMEOUT_MS) }),
+                    IMAGE_GENERATION_TIMEOUT_MS,
+                    'Gemini image generation'
+                );
                 const response = result.response;
                 let foundImageData = null as string | null;
                 const parts = response.candidates?.[0]?.content?.parts || [];
@@ -229,6 +302,10 @@ export const generateImage = async (
                 }
                 base64Data = foundImageData;
             } catch (err: any) {
+                // A timeout is a HANG, not a modality/safety rejection: the guidance wrapper
+                // below mentions "safety", which the outer handler would classify as
+                // SAFETY_FILTER — mislabeling a network stall as blocked content. Propagate it.
+                if (err?.name === 'ImageTimeoutError') throw err;
                 // Rich diagnostics for debugging (no auto-fallback)
                 try {
                     ierror('[ImageService/Gemini] generateContent error (object):', err);
