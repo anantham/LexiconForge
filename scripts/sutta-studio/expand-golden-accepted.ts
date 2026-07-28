@@ -1,15 +1,23 @@
 /**
  * expand-golden-accepted — attach DPD-attested "accepted" senses to each golden word.
  *
- * Content-F1 (ADR SUTTA-009) is symmetric token-F1: a model sense token not in the
- * golden counts as a false positive. But the diagnostic shows ~40% of those FPs are
- * CORRECT, DPD-attested alternates (nibbāna→"extinguishment", satta→"creature") that
- * the golden's short curated list simply omits — so good models are penalised for right
- * answers. This writes, per golden lexicographer word, `acceptedSenses`: the DPD English
- * senses for that word. The scorer treats a model token as FP only if it is in NEITHER
- * the core golden NOR this accepted set — so attested alternates go neutral, while random
- * synonym-spraying (not DPD-attested) still counts against the model. Recall (fn) is
- * unchanged: it is measured against the CORE golden only, never the expanded set.
+ * ⚠️ STATUS: ARCHIVED / UNCONSUMED ANNOTATION LAYER (header corrected 2026-07,
+ * integrity scan P1 — the earlier header described a scorer mechanism that no
+ * longer exists).
+ *
+ * The SUTTA-011 fp-neutralization this script fed (scorer treats a model sense
+ * token as FP only if in neither core golden nor acceptedSenses) was DELIBERATELY
+ * REVERTED in 7750bd0 (2026-07-02) after a dual-family REVISE: the
+ * uncontextualized DPD-homonym-union neutral set becomes a recall-only WSD hedge
+ * (a dict-lookup script could ace it; stop-word laundering). Content-F1 is back
+ * to strict SUTTA-009 balanced micro-F1, and NEITHER scorer (quality-scorer.ts,
+ * facts-scorer.ts) reads `acceptedSenses` today.
+ *
+ * The `acceptedSenses` data this script writes is RETAINED as raw material for
+ * the agreed path B in ADR SUTTA-011: curate context-valid senses INTO the core
+ * golden (human-adjudicated, per-context) while keeping strict F1. Do NOT re-land
+ * the neutralization mechanism off the back of this script — that is a metric
+ * decision requiring re-adjudication, not a code cleanup.
  *
  * Non-destructive: adds `acceptedSenses` to lexicographer entries; core `senses` untouched.
  *
@@ -62,6 +70,7 @@ for (const phaseId of Object.keys(lexGolden.lexicographer)) {
   if (touched) phasesTouched++;
 }
 
-lexGolden._acceptedSensesFrom = 'data/dpd/mn10 (2026-07-01) — see ADR SUTTA-011';
+lexGolden._acceptedSensesFrom =
+  'data/dpd/mn10 (2026-07-01) — ARCHIVED/UNCONSUMED: SUTTA-011 scorer mechanism reverted in 7750bd0; retained for a future adjudicated re-landing (ADR SUTTA-011 path B)';
 fs.writeFileSync(lexPath, JSON.stringify(lexGolden, null, 2) + '\n');
 console.log(`Added acceptedSenses to ${wordsTouched} words across ${phasesTouched} phases (${sensesAdded} DPD senses total).`);

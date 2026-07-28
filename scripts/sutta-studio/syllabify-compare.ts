@@ -3,6 +3,26 @@ import { syllabifyPaliWord } from '../../services/sutta-studio/postPasses/syllab
 import * as fs from 'fs';
 import * as path from 'path';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// HALT (integrity scan 2026-07): DO NOT RUN.
+// This May-era one-off compared the syllabifier against hand pronunciations in
+// components/sutta-studio/demoPacket.json, which was DELETED 2026-05-19 — its
+// content moved to content/references/sutta/mn10.json and has been hand-curated
+// since. Though read-only, its comparison baseline no longer exists; silently
+// re-pointing it at the curated packet would report against a different corpus
+// than the one it was calibrated on. Re-adjudicate before reviving.
+// ─────────────────────────────────────────────────────────────────────────────
+const HALTED = true as boolean; // branch form so tsc keeps type-checking the code below
+if (HALTED) {
+  console.error(
+    'HALTED: syllabify-compare.ts is a May-era one-off whose target ' +
+      '(components/sutta-studio/demoPacket.json) was deleted 2026-05-19. The packet now lives at ' +
+      'content/references/sutta/mn10.json — re-adjudicate before pointing this comparison at it. ' +
+      'See the HALT comment at the top of this file.'
+  );
+  process.exit(1);
+}
+
 const packet = JSON.parse(
   fs.readFileSync(path.resolve('components/sutta-studio/demoPacket.json'), 'utf-8')
 );

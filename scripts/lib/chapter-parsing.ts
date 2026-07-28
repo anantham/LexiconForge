@@ -9,8 +9,12 @@ import {
   splitTextIntoParagraphs,
 } from './text-processing';
 
-const CHINESE_CHAPTER_HEADING = /^第(\d+)章(?:\s+|[ \t\u3000]*)(.+)?$/gmu;
-const ENGLISH_CHAPTER_HEADING = /^Chapter\s+(\d+(?:-\d+)?)(?:\s*[:\-–]\s*(.+)|\s+(.+))?$/gmu;
+// HORIZONTAL whitespace only ([ \t\u3000]; U+3000 = full-width CJK space) around the
+// title group. `\s` also matches `\n`, which made a BARE heading absorb the next body
+// line as its TITLE - buildChaptersFromHeadings then sliced that line out of the
+// content, leaving an empty body that dropped the whole chapter (integrity scan 2026-07).
+const CHINESE_CHAPTER_HEADING = /^第(\d+)章[ \t\u3000]*(.+)?$/gmu;
+const ENGLISH_CHAPTER_HEADING = /^Chapter[ \t]+(\d+(?:-\d+)?)(?:[ \t]*[:\-–][ \t]*(.+)|[ \t　]+(.+))?$/gmu;
 
 interface HeadingMatch {
   matchIndex: number;

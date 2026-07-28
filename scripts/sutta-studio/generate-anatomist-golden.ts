@@ -11,6 +11,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { DEMO_PACKET_MN10 } from '../../components/sutta-studio/demoPacket';
+import { guardGoldenOverwrite } from './lib/golden-write-guard';
 import type {
   AnatomistPass,
   AnatomistWord,
@@ -141,8 +142,15 @@ function main() {
     anatomist: anatomistGoldens,
   };
 
-  // Write to file
+  // Write to file — REFUSE to clobber an existing fixture without --force:
+  // the checked-in golden carries hand curation the generator cannot reproduce.
   const outputPath = path.join(process.cwd(), OUTPUT_PATH);
+  const guard = guardGoldenOverwrite({ outputPath, argv: process.argv.slice(2) });
+  if (!guard.allowed) {
+    console.error(`\n${guard.message}`);
+    process.exit(1);
+  }
+  console.log(guard.message);
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2) + '\n');
 
   console.log(`\n✅ Wrote ${OUTPUT_PATH}`);

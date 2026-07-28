@@ -1,5 +1,5 @@
 /**
- * Apply the grounding pass to demoPacket.json.
+ * Apply the grounding pass to the flagship packet.
  *
  * TypeScript successor to scripts/sutta-studio/apply-contested-terms.py.
  * Same semantics, same idempotency, single source of truth shared with
@@ -15,8 +15,15 @@
  * In-app compilation will eventually call runGroundingPass directly
  * inside the compiler pipeline.
  *
+ * PATH + SAFETY (integrity scan 2026-07, P2): the packet moved from
+ * components/sutta-studio/demoPacket.json (deleted 2026-05-19) to
+ * content/references/sutta/mn10.json, which is now the HAND-CURATED flagship
+ * packet. The path is fixed here, but a "fixed" run must not silently mutate
+ * curated data — this script is DRY-RUN by default and only writes with --write.
+ *
  * Usage:
- *     npx tsx scripts/sutta-studio/ground-packet.ts
+ *     npx tsx scripts/sutta-studio/ground-packet.ts            # dry-run (report only)
+ *     npx tsx scripts/sutta-studio/ground-packet.ts --write    # apply to the packet
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
@@ -34,8 +41,11 @@ import type { PhaseView, Citation } from '../../types/suttaStudio';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = resolve(__filename, '../../..');
-const PACKET_PATH = resolve(ROOT, 'components/sutta-studio/demoPacket.json');
+const PACKET_PATH = resolve(ROOT, 'content/references/sutta/mn10.json');
 const REGISTRY_PATH = resolve(ROOT, 'data/sutta-studio/grounding/contested-terms.json');
+
+// Dry-run by default: mutating the curated flagship packet requires --write.
+const WRITE = process.argv.includes('--write');
 
 type Packet = {
   phases?: PhaseView[];
@@ -113,6 +123,16 @@ async function main(): Promise<number> {
 
   if (citationsAdded === 0 && sensesTouched === 0) {
     console.log('Nothing changed — already grounded (idempotent).');
+    return 0;
+  }
+
+  if (!WRITE) {
+    console.log(
+      `\n[DRY-RUN] Would add ${citationsAdded} new citations; ` +
+        `${sensesTouched} additional senses would gain chips.\n` +
+        `No file written. Re-run with --write to apply to ${PACKET_PATH} ` +
+        `(the hand-curated flagship packet — review the dry-run output first).`
+    );
     return 0;
   }
 

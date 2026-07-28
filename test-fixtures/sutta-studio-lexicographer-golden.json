@@ -6211,6 +6211,6 @@
       }
     }
   },
-  "_acceptedSensesFrom": "data/dpd/mn10 (2026-07-01) — see ADR SUTTA-011",
+  "_acceptedSensesFrom": "data/dpd/mn10 (2026-07-01) — ARCHIVED/UNCONSUMED: SUTTA-011 scorer mechanism reverted in 7750bd0; retained for a future adjudicated re-landing (ADR SUTTA-011 path B)",
   "_lastUpdated": "2026-07-02 (golden v2: SUTTA-011 path B — context-vetted DPD senses merged; see SUTTA-012)"
 }
