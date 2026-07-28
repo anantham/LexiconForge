@@ -85,6 +85,7 @@ vi.mock('../../services/capabilityService', () => ({
   }),
   supportsParameters: (...args: any[]) => supportsParametersMock(...args),
   recordParameterFailure: vi.fn(),
+  hasRecordedParameterFailure: vi.fn(() => false),
 }));
 
 const rateLimitMock = vi.fn().mockResolvedValue(undefined);

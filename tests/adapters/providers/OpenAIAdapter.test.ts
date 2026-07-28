@@ -40,6 +40,7 @@ vi.mock('../../../services/capabilityService', () => ({
   // Added when OpenAIAdapter started recording per-parameter rejection
   // failures (so future calls skip the offending param).
   recordParameterFailure: (...args: any[]) => recordParameterFailureMock(...args),
+  hasRecordedParameterFailure: vi.fn(() => false),
 }));
 
 const rateLimitMock = vi.fn().mockResolvedValue(undefined);

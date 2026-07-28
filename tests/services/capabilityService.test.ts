@@ -164,3 +164,13 @@ describe('capabilityService', () => {
     });
   });
 });
+
+describe('learned require_parameters failure is CONSULTED, not just recorded (codex)', () => {
+  it('hasRecordedParameterFailure flips after recordParameterFailure', async () => {
+    const { recordParameterFailure, hasRecordedParameterFailure, clearCapabilityCache } = await import('../../services/capabilityService');
+    clearCapabilityCache();
+    expect(hasRecordedParameterFailure('m/x', 'require_parameters')).toBe(false);
+    recordParameterFailure('m/x', 'require_parameters');
+    expect(hasRecordedParameterFailure('m/x', 'require_parameters')).toBe(true);
+  });
+});

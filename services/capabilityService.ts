@@ -308,6 +308,16 @@ export function recordParameterFailure(modelId: string, parameter: string): void
 }
 
 /**
+ * Synchronous check of the session's learned-failure cache. Request builders
+ * consult this so a KNOWN failing parameter (e.g. require_parameters after an
+ * OpenRouter "No endpoints found" 404) is pruned up front instead of
+ * repeating the fail-then-retry cycle on every call (codex review).
+ */
+export function hasRecordedParameterFailure(modelId: string, parameter: string): boolean {
+  return cache.failures.has(`${modelId}:${parameter}`);
+}
+
+/**
  * Get full model metadata
  */
 export async function getModelMetadata(modelId: string): Promise<ModelMeta | null> {

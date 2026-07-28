@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } from '../../types';
-import { getStructuredOutputsSupport, supportsParameters, recordParameterFailure } from '../../services/capabilityService';
+import { getStructuredOutputsSupport, supportsParameters, recordParameterFailure, hasRecordedParameterFailure } from '../../services/capabilityService';
 import type { StructuredOutputsSupport } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/ai/cost';
@@ -220,8 +220,14 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         },
       };
       if (settings.provider === 'OpenRouter') {
+        // Honor the learned failure: once "No endpoints found" taught us this
+        // model can't route with require_parameters, don't send it again.
+        const rp = !hasRecordedParameterFailure(model, 'require_parameters');
+        if (!rp) {
+          dlog(`Omitting require_parameters for ${model} (learned failure this session)`);
+        }
         requestOptions.provider = {
-          require_parameters: true,
+          ...(rp ? { require_parameters: true } : {}),
           ...input.providerPreferences,
         };
       }
@@ -413,7 +419,13 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         }
       };
       if (settings.provider === 'OpenRouter') {
-        requestOptions.provider = { require_parameters: true };
+        // Same learned-failure gate as chatJSON (codex review).
+        if (hasRecordedParameterFailure(settings.model, 'require_parameters')) {
+          dlog(`Omitting require_parameters for ${settings.model} (learned failure this session)`);
+          requestOptions.provider = {};
+        } else {
+          requestOptions.provider = { require_parameters: true };
+        }
       }
     } else {
       // A failure-default (fetch failed / model unknown) is not metadata: the paid translation
