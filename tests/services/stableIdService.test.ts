@@ -89,11 +89,13 @@ describe('normalizeUrlAggressively', () => {
     expect(result).toBe('https://hetushu.com/book/2991/2051040.html');
   });
 
-  it('returns custom protocol URLs as-is (URL constructor treats origin as null)', () => {
+  it('returns custom protocol URLs intact (origin is null for non-special schemes)', () => {
     const result = normalizeUrlAggressively('lexiconforge://novel-name/chapter/1');
-    // URL constructor can't parse custom protocols properly — origin is null
-    // The function returns a mangled result; this documents current behavior
-    expect(result).toBe('null/chapter/1');
+    // This test used to ASSERT the mangled 'null/chapter/1' output as
+    // "documented current behavior" — a characterization test standing guard
+    // over a defect that wrote corrupt canonical keys into url_mappings.
+    // Fixed 2026-07-28: custom schemes pass through with query/hash stripped.
+    expect(result).toBe('lexiconforge://novel-name/chapter/1');
   });
 });
 
@@ -196,5 +198,26 @@ describe('buildEnhancedChapter', () => {
     expect(ch.novelId).toBeNull();
     expect(ch.fanTranslation).toBeNull();
     expect(ch.feedback).toEqual([]);
+  });
+});
+
+describe('normalizeUrlAggressively — custom schemes (integrity fix 2026-07-28)', () => {
+  it('does NOT mangle non-http schemes into "null/..." strings', () => {
+    // Pre-fix: urlObj.origin is the literal string "null" for non-special
+    // schemes, producing corrupt canonical keys like "null/chapter/64".
+    expect(normalizeUrlAggressively('lexiconforge://aithihyamala/chapter/64'))
+      .toBe('lexiconforge://aithihyamala/chapter/64');
+    expect(normalizeUrlAggressively('lf-library://novel%3A%3Av1/ch1_ab_cd'))
+      .toBe('lf-library://novel%3A%3Av1/ch1_ab_cd');
+  });
+
+  it('still strips query/hash and trailing slash from custom schemes', () => {
+    expect(normalizeUrlAggressively('lexiconforge://novel/chapter/64/?x=1#frag'))
+      .toBe('lexiconforge://novel/chapter/64');
+  });
+
+  it('http(s) normalization is unchanged', () => {
+    expect(normalizeUrlAggressively('https://example.com/ch/1/?utm=x#top'))
+      .toBe('https://example.com/ch/1');
   });
 });

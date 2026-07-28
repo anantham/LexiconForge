@@ -388,6 +388,12 @@ export class ImportService {
         let totalChapters = 0;
         let metadata: any = null;
         let firstChaptersReadyCalled = false;
+        // Translation accounting — a number never travels without its
+        // denominator: expected (in the payload), stored (this run), and
+        // verified (read back from the database afterwards).
+        let translationsExpected = 0;
+        let translationsFailed = 0;
+        let translationsVerified = 0;
 
         const normalizeUsageMetrics = (
           metrics: Partial<UsageMetrics> | undefined,
@@ -694,25 +700,80 @@ export class ImportService {
           debugLog('import', 'full', `[IMPORT] Chapter #${chapter.chapterNumber} stored to CHAPTERS`);
 
           let activeVersion: number | null = null;
+          let chapterTranslationsStored = 0;
 
           for (const translation of translationInputs) {
+            translationsExpected++;
+            // A failed translation store must not abort the whole import —
+            // but it MUST be loud. A packaged translation that silently
+            // vanishes here re-bills the user downstream: the auto-translate
+            // mediator sees "untranslated" and fires a paid call for content
+            // the session already carried (observed live 2026-07-28).
+            try {
               const stored = await TranslationOps.store({
-              ref: { url: identity.storageUrl, stableId: identity.stableId },
-              result: translation.result,
-              settings: translation.settings,
-            });
+                ref: { url: identity.storageUrl, stableId: identity.stableId },
+                result: translation.result,
+                settings: translation.settings,
+              });
+              chapterTranslationsStored++;
 
-            if (
-              translation.isActive ||
-              (translationInputs.length === 1 && activeVersion === null)
-            ) {
-              activeVersion = stored.version;
+              if (
+                translation.isActive ||
+                (translationInputs.length === 1 && activeVersion === null)
+              ) {
+                activeVersion = stored.version;
+              }
+
+              debugLog(
+                'import', 'full',
+                `[IMPORT] Translation stored for chapter #${chapter.chapterNumber}: "${translation.result.translatedTitle}" (version ${stored.version})`
+              );
+            } catch (translationError) {
+              translationsFailed++;
+              const message = translationError instanceof Error ? translationError.message : String(translationError);
+              console.error(
+                `[StreamImport] ❌ Translation store FAILED for chapter #${chapter.chapterNumber} (${identity.stableId}) — the packaged translation is LOST for this chapter and auto-translate may re-bill it`,
+                translationError
+              );
+              telemetryService.capturePerformance('import:stream:translationStoreFailed', now() - streamStart, {
+                stableId: identity.stableId,
+                chapterNumber: chapter.chapterNumber ?? null,
+                provider: translation.settings.provider ?? null,
+                model: translation.settings.model ?? null,
+                reason: message,
+              });
             }
+          }
 
-            debugLog(
-              'import', 'full',
-              `[IMPORT] Translation stored for chapter #${chapter.chapterNumber}: "${translation.result.translatedTitle}" (version ${stored.version})`
-            );
+          // Read-back verification: the observed failure mode was a store()
+          // that RESOLVED while the row never became durable (chapter present,
+          // translations table empty, zero errors logged). Trust nothing —
+          // count what the database actually holds for this chapter.
+          if (chapterTranslationsStored > 0) {
+            try {
+              const persisted = await TranslationOps.getVersionsByStableId(identity.stableId);
+              translationsVerified += Math.min(persisted.length, chapterTranslationsStored);
+              if (persisted.length < chapterTranslationsStored) {
+                console.error(
+                  `[StreamImport] ❌ Translation VERIFY mismatch for chapter #${chapter.chapterNumber} (${identity.stableId}): stored ${chapterTranslationsStored}, database holds ${persisted.length}`
+                );
+                telemetryService.capturePerformance('import:stream:translationVerifyMissing', now() - streamStart, {
+                  stableId: identity.stableId,
+                  chapterNumber: chapter.chapterNumber ?? null,
+                  storedCount: chapterTranslationsStored,
+                  persistedCount: persisted.length,
+                });
+              }
+            } catch (verifyError) {
+              // The verify instrument must not kill the import, but its own
+              // failure is a signal too (infra errors now propagate from the
+              // repository instead of masquerading as "no translations").
+              console.error(`[StreamImport] Translation verify read failed for ${identity.stableId}`, verifyError);
+              telemetryService.capturePerformance('import:stream:translationVerifyError', now() - streamStart, {
+                stableId: identity.stableId,
+                reason: verifyError instanceof Error ? verifyError.message : String(verifyError),
+              });
+            }
           }
 
           if (activeVersion !== null && translationInputs.length > 1) {
@@ -885,9 +946,20 @@ export class ImportService {
           canStartReading: true,
         });
 
+        // End-of-stream reconciliation: expected vs verified is the honest
+        // headline. A clean run reports expected === verified; anything else
+        // is data loss with a paper trail instead of a silent spinner.
+        if (translationsVerified < translationsExpected) {
+          console.error(
+            `[StreamImport] ❌ Translation reconciliation: expected ${translationsExpected}, verified ${translationsVerified} in database (${translationsFailed} threw during store). Affected chapters were logged above.`
+          );
+        }
         telemetryService.capturePerformance('import:stream:complete', now() - streamStart, {
           chaptersLoaded,
           totalChapters: totalChapters || null,
+          translationsExpected,
+          translationsFailed,
+          translationsVerified,
         });
 
         debugLog(
