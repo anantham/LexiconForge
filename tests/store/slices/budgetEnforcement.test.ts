@@ -69,7 +69,10 @@ import { getNovelTranslationCost } from '../../../services/db/operations/budgetO
 import { hasKnownPricing } from '../../../services/ai/cost';
 import { createTranslationsSlice } from '../../../store/slices/translationsSlice';
 
-const createTestSlice = (settingsOverrides: Partial<AppSettings> = {}) => {
+const createTestSlice = (
+  settingsOverrides: Partial<AppSettings> = {},
+  stateOverrides: Record<string, any> = {}
+) => {
   const baseSettings: Partial<AppSettings> = {
     provider: 'Gemini',
     model: 'gemini-2.5-flash',
@@ -102,7 +105,7 @@ const createTestSlice = (settingsOverrides: Partial<AppSettings> = {}) => {
     },
     setError: vi.fn(),
     activePromptTemplate: null,
-  });
+  }, stateOverrides);
 
   return { state, get, notifications };
 };
@@ -197,5 +200,63 @@ describe('budget enforcement in handleTranslate', () => {
     await state.handleTranslate('ch-1', 'manual_translate').catch(() => {});
 
     expect(getNovelTranslationCost).not.toHaveBeenCalled();
+  });
+
+  describe('budget mode with NO active novel (unscoped — the gate must not fail open)', () => {
+    // Pre-fix, the entire budget check sat inside `if (activeNovelId)`, so
+    // raw-URL reading (novel never set) silently skipped enforcement: preload
+    // could bill up to 999 chapters against a cap that could never trip, and
+    // the cost query itself ran index.getAll(null) — an unbounded sum over
+    // every novel in the DB.
+
+    it('BLOCKS an auto_preload translation (fail-closed) without querying cost', async () => {
+      vi.mocked(getNovelTranslationCost).mockResolvedValue(0);
+      const { state } = createTestSlice({}, { activeNovelId: null, activeVersionId: null });
+
+      await state.handleTranslate('ch-1', 'auto_preload');
+
+      const { TranslationService } = await import('../../../services/translationService');
+      expect(TranslationService.translateChapterSequential).not.toHaveBeenCalled();
+      // Never issue the (previously unbounded) cost query with a null scope.
+      expect(getNovelTranslationCost).not.toHaveBeenCalled();
+      // The pending claim must be released so a later manual attempt isn't blocked.
+      expect(state.pendingTranslations?.size ?? 0).toBe(0);
+    });
+
+    it('BLOCKS an auto_visit translation (fail-closed)', async () => {
+      const { state } = createTestSlice({}, { activeNovelId: null, activeVersionId: null });
+
+      await state.handleTranslate('ch-1', 'auto_visit');
+
+      const { TranslationService } = await import('../../../services/translationService');
+      expect(TranslationService.translateChapterSequential).not.toHaveBeenCalled();
+      expect(getNovelTranslationCost).not.toHaveBeenCalled();
+      expect(state.pendingTranslations?.size ?? 0).toBe(0);
+    });
+
+    it('lets a MANUAL translation proceed (explicit user intent) with unscoped-spend logging, no cost query', async () => {
+      const { TranslationService } = await import('../../../services/translationService');
+      const { TranslationOps } = await import('../../../services/db/operations');
+      vi.mocked(TranslationOps.getVersionsByStableId).mockResolvedValue([] as any);
+      vi.mocked(TranslationService.translateChapterSequential).mockResolvedValue({
+        translationResult: undefined,
+      } as any);
+      const { state } = createTestSlice({}, { activeNovelId: null, activeVersionId: null });
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      await state.handleTranslate('ch-1', 'manual_translate').catch(() => {});
+
+      // Manual user intent wins: the translation was attempted…
+      expect(TranslationService.translateChapterSequential).toHaveBeenCalled();
+      // …but never against an unscoped cost query, and never silently: the
+      // unscoped accounting is logged.
+      expect(getNovelTranslationCost).not.toHaveBeenCalled();
+      expect(
+        warnSpy.mock.calls.some(call =>
+          String(call[0]).includes('NOT be counted against any novel budget')
+        )
+      ).toBe(true);
+      warnSpy.mockRestore();
+    });
   });
 });

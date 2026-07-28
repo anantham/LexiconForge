@@ -88,4 +88,37 @@ describe('getNovelTranslationCost', () => {
     expect(idsArg.has('ch-1')).toBe(true);
     expect(idsArg.has('ch-2')).toBe(true);
   });
+
+  it('REFUSES a null novelId — never issues the (unbounded) unscoped query', async () => {
+    // Pre-fix, a null novelId flowed into getByNovelAndVersion, whose
+    // index.getAll(null) is an UNBOUNDED read: the "spend" became a sum over
+    // every novel in the database, and the budget gate compared a per-novel
+    // cap against it. The scope question has no answer without a novel;
+    // fail loudly so callers fail closed.
+    await expect(getNovelTranslationCost(null as any, 'v1')).rejects.toThrow(
+      /requires a novelId/
+    );
+    await expect(getNovelTranslationCost(undefined as any, null)).rejects.toThrow(
+      /requires a novelId/
+    );
+
+    // The database must never have been touched.
+    expect(ChapterOps.getByNovelAndVersion).not.toHaveBeenCalled();
+    expect(TranslationOps.getVersionsByStableId).not.toHaveBeenCalled();
+    expect(failedCostMock).not.toHaveBeenCalled();
+  });
+
+  it('accepts a null versionId when the novel scope exists (chapters without a library version)', async () => {
+    vi.mocked(ChapterOps.getByNovelAndVersion).mockResolvedValue([
+      { stableId: 'ch-1', canonicalUrl: 'url-1' } as ChapterRecord,
+    ]);
+    vi.mocked(TranslationOps.getVersionsByStableId).mockResolvedValue([
+      { isActive: true, estimatedCost: 0.02 } as TranslationRecord,
+    ]);
+
+    const cost = await getNovelTranslationCost('novel-1', null);
+
+    expect(cost).toBeCloseTo(0.02);
+    expect(ChapterOps.getByNovelAndVersion).toHaveBeenCalledWith('novel-1', null);
+  });
 });

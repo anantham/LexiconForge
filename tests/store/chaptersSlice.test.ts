@@ -10,6 +10,32 @@ import { createChaptersSlice, type ChaptersSlice } from '../../store/slices/chap
 import { createMockEnhancedChapter, createMockImageCacheKey, createMockTranslationResult, createMockUsageMetrics } from '../utils/test-data';
 import { ChapterOps } from '../../services/db/operations';
 
+// Deterministic budget-path collaborators for the preload worker tests.
+vi.mock('../../services/ai/cost', () => ({
+  hasKnownPricing: vi.fn(async () => true),
+}));
+vi.mock('../../services/db/operations/budgetOps', () => ({
+  getNovelTranslationCost: vi.fn(async () => 0),
+}));
+import { getNovelTranslationCost } from '../../services/db/operations/budgetOps';
+// Pre-load the (mocked) cost module so the worker's dynamic import() resolves
+// as a microtask under fake timers — otherwise the worker stalls at the import
+// and assertions pass vacuously (proven against the pre-fix code).
+import { hasKnownPricing } from '../../services/ai/cost';
+void hasKnownPricing;
+
+/**
+ * Fire the worker's 1.5s start timer, then hand control back to REAL timers so
+ * its internal dynamic imports and awaits can settle before asserting.
+ */
+const runPreloadWorker = async (store: { getState: () => any }) => {
+  vi.useFakeTimers();
+  store.getState().preloadNextChapters();
+  await vi.advanceTimersByTimeAsync(1500);
+  vi.useRealTimers();
+  await new Promise(resolve => setTimeout(resolve, 100));
+};
+
 // Create a test store
 const createTestStore = () => {
   return create<ChaptersSlice>()((createChaptersSlice as any));
@@ -228,5 +254,85 @@ describe('chaptersSlice - preloadNextChapters', () => {
     await vi.advanceTimersByTimeAsync(1500);
 
     expect(findByNumberSpy).toHaveBeenCalledWith(2, 'orv', 'alice-v1');
+  });
+
+  it('budget mode with NO active novel: preload never calls handleTranslate and never issues an unscoped cost query', async () => {
+    // Pre-fix, the worker ran getNovelTranslationCost(activeNovelId!, …) with
+    // null — an unbounded index.getAll(null) summing every novel — and then
+    // billed up to BUDGET_MODE_MAX_LOOKAHEAD (999) chapters against a cap
+    // that could never trip. Fail-closed now: no novel scope ⇒ no preload.
+    vi.mocked(getNovelTranslationCost).mockClear();
+    const handleTranslate = vi.fn();
+
+    const store = create<any>()((set, get, api) => ({
+      ...createChaptersSlice(set, get, api),
+      activeNovelId: null,
+      activeVersionId: null,
+      settings: {
+        preloadMode: 'budget',
+        preloadBudget: 5,
+        provider: 'Gemini',
+        model: 'gemini-2.5-flash',
+        apiKeyGemini: 'test-key',
+      },
+      loadChapterFromIDB: vi.fn(),
+      fetchTranslationVersions: vi.fn().mockResolvedValue([]),
+      isTranslationActive: vi.fn().mockReturnValue(false),
+      handleTranslate,
+      pendingTranslations: new Set(),
+    }));
+
+    store.getState().importChapter(createMockEnhancedChapter({
+      id: 'ch-1', chapterNumber: 1, title: 'Chapter 1', nextUrl: null, prevUrl: null,
+    }));
+    store.getState().importChapter(createMockEnhancedChapter({
+      id: 'ch-2', chapterNumber: 2, title: 'Chapter 2', nextUrl: null, prevUrl: null,
+    }));
+    store.setState({ currentChapterId: 'ch-1' });
+
+    await runPreloadWorker(store);
+
+    expect(handleTranslate).not.toHaveBeenCalled();
+    expect(getNovelTranslationCost).not.toHaveBeenCalled();
+  });
+
+  it('stops preloading (does NOT translate) when the existing-versions check fails', async () => {
+    // fetchTranslationVersions rethrows on infrastructure failure instead of
+    // masquerading as []. Proceeding would risk re-billing a chapter that
+    // already has a translation — the worker must treat the failure as blocked.
+    const handleTranslate = vi.fn();
+
+    const store = create<any>()((set, get, api) => ({
+      ...createChaptersSlice(set, get, api),
+      activeNovelId: 'orv',
+      activeVersionId: 'alice-v1',
+      settings: {
+        preloadCount: 2,
+        preloadMode: 'chapters',
+        provider: 'Gemini',
+        model: 'gemini-2.5-flash',
+        apiKeyGemini: 'test-key',
+      },
+      loadChapterFromIDB: vi.fn(),
+      fetchTranslationVersions: vi.fn().mockRejectedValue(new Error('IndexedDB unavailable')),
+      isTranslationActive: vi.fn().mockReturnValue(false),
+      handleTranslate,
+      pendingTranslations: new Set(),
+    }));
+
+    store.getState().importChapter(createMockEnhancedChapter({
+      id: 'ch-1', chapterNumber: 1, title: 'Chapter 1', nextUrl: null, prevUrl: null,
+    }));
+    store.getState().importChapter(createMockEnhancedChapter({
+      id: 'ch-2', chapterNumber: 2, title: 'Chapter 2', nextUrl: null, prevUrl: null,
+    }));
+    store.getState().importChapter(createMockEnhancedChapter({
+      id: 'ch-3', chapterNumber: 3, title: 'Chapter 3', nextUrl: null, prevUrl: null,
+    }));
+    store.setState({ currentChapterId: 'ch-1' });
+
+    await runPreloadWorker(store);
+
+    expect(handleTranslate).not.toHaveBeenCalled();
   });
 });

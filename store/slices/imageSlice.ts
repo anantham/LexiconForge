@@ -199,8 +199,7 @@ export const createImageSlice: StateCreator<
     const chapter = chapters.get(chapterId);
     if (!chapter?.translationResult) return;
 
-    const versionStateMap = chapter.translationResult.imageVersionState ?? {};
-    const existingEntry = versionStateMap[placementMarker] as ImageVersionStateEntry | undefined;
+    const existingEntry = chapter.translationResult.imageVersionState?.[placementMarker] as ImageVersionStateEntry | undefined;
     const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
     const latestFromStore = storeState.imageVersions?.[`${chapterId}:${placementMarker}`] ?? 0;
     const latestVersion = Math.max(
@@ -209,12 +208,24 @@ export const createImageSlice: StateCreator<
       activeVersion
     );
 
-    versionStateMap[placementMarker] = {
-      latestVersion,
-      activeVersion,
-      versions
+    // Copy-on-write: never mutate the chapter object the store already holds.
+    // The old in-place write left subscribers with an unchanged reference (no
+    // re-render) and let readers observe half-updated state.
+    const updatedTranslationResult = {
+      ...chapter.translationResult,
+      imageVersionState: {
+        ...(chapter.translationResult.imageVersionState ?? {}),
+        [placementMarker]: { latestVersion, activeVersion, versions },
+      },
     };
-    chapter.translationResult.imageVersionState =versionStateMap;
+
+    set(prevState => {
+      const liveChapter = prevState.chapters?.get(chapterId);
+      if (!liveChapter?.translationResult) return {};
+      const newChapters = new Map(prevState.chapters);
+      newChapters.set(chapterId, { ...liveChapter, translationResult: updatedTranslationResult });
+      return { chapters: newChapters };
+    });
 
     const snapshot = buildPersistenceSnapshot(chapter);
     if (!snapshot) return;
@@ -222,7 +233,7 @@ export const createImageSlice: StateCreator<
     try {
       await TranslationPersistenceService.persistUpdatedTranslation(
         chapter.id,
-        chapter.translationResult as any,
+        updatedTranslationResult as any,
         snapshot
       );
     } catch (error) {
@@ -589,21 +600,6 @@ export const createImageSlice: StateCreator<
                 1
               );
 
-              if (!illust.generatedImage) {
-                const migrated: GeneratedImageResult = {
-                  imageData: '',
-                  imageCacheKey: cacheKey,
-                  requestTime: 0,
-                  cost: 0
-                };
-                illust.generatedImage = migrated;
-              } else {
-                illust.generatedImage.imageCacheKey = cacheKey;
-                illust.generatedImage.imageData = '';
-              }
-
-              delete (illust as any).url;
-
               const metadata: ImageGenerationMetadata = {
                 version: cacheKey.version,
                 prompt: illust?.imagePrompt || `Illustration ${marker}`,
@@ -617,31 +613,69 @@ export const createImageSlice: StateCreator<
                 generatedAt: new Date().toISOString()
               };
 
-              // translationResult is guaranteed present by the enclosing
-              // `if (chapter?.translationResult?.suggestedIllustrations)` guard;
-              // re-narrow here because TS drops it across this async closure.
-              const translationResult = chapter.translationResult;
-              if (!translationResult) return;
-              const existingState = translationResult.imageVersionState ?? {};
-              const existingEntry = existingState[marker] as ImageVersionStateEntry | undefined;
-              const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
-              versions[cacheKey.version] = metadata;
+              // Copy-on-write, routed through set(): the old code mutated the
+              // captured chapter/illustration objects in place (illust.generatedImage,
+              // delete illust.url, translationResult.imageVersionState = …), so the
+              // store's subscribers never saw a reference change and other codepaths
+              // could read half-migrated state. Re-read the LIVE chapter inside the
+              // updater so concurrent per-marker migrations compose.
+              let updatedTranslationResult: any | null = null;
+              set(prevState => {
+                const liveChapter = prevState.chapters?.get(chapterId);
+                if (!liveChapter?.translationResult?.suggestedIllustrations) return {};
+                const liveResult = liveChapter.translationResult;
+                const idx = liveResult.suggestedIllustrations.findIndex(
+                  (s: any) => s?.placementMarker === marker
+                );
+                if (idx < 0) return {};
 
-              const versionState: ImageVersionStateEntry = {
-                latestVersion: Math.max(cacheKey.version, existingEntry?.latestVersion ?? 0),
-                activeVersion: get().activeImageVersion?.[`${chapterId}:${marker}`] ?? cacheKey.version,
-                versions
-              };
-              const currentVersionState = existingState;
-              translationResult.imageVersionState ={
-                ...currentVersionState,
-                [marker]: versionState
-              };
+                const liveIllust: any = liveResult.suggestedIllustrations[idx];
+                const migratedIllust: any = { ...liveIllust };
+                delete migratedIllust.url;
+                migratedIllust.generatedImage = liveIllust.generatedImage
+                  ? { ...liveIllust.generatedImage, imageCacheKey: cacheKey, imageData: '' }
+                  : ({
+                      imageData: '',
+                      imageCacheKey: cacheKey,
+                      requestTime: 0,
+                      cost: 0
+                    } satisfies GeneratedImageResult);
 
-              if (persistenceSnapshot) {
+                const updatedIllustrations = [...liveResult.suggestedIllustrations];
+                updatedIllustrations[idx] = migratedIllust;
+
+                const existingState = liveResult.imageVersionState ?? {};
+                const existingEntry = existingState[marker] as ImageVersionStateEntry | undefined;
+                const versions = existingEntry?.versions ? { ...existingEntry.versions } : {};
+                versions[cacheKey.version] = metadata;
+
+                const versionState: ImageVersionStateEntry = {
+                  latestVersion: Math.max(cacheKey.version, existingEntry?.latestVersion ?? 0),
+                  activeVersion: prevState.activeImageVersion?.[`${chapterId}:${marker}`] ?? cacheKey.version,
+                  versions
+                };
+
+                updatedTranslationResult = {
+                  ...liveResult,
+                  suggestedIllustrations: updatedIllustrations,
+                  imageVersionState: {
+                    ...existingState,
+                    [marker]: versionState
+                  }
+                };
+
+                const newChapters = new Map(prevState.chapters);
+                newChapters.set(chapterId, {
+                  ...liveChapter,
+                  translationResult: updatedTranslationResult
+                });
+                return { chapters: newChapters };
+              });
+
+              if (updatedTranslationResult && persistenceSnapshot) {
                 await TranslationPersistenceService.persistUpdatedTranslation(
                   chapter.id,
-                  chapter.translationResult as any,
+                  updatedTranslationResult,
                   persistenceSnapshot
                 );
               }
@@ -661,7 +695,12 @@ export const createImageSlice: StateCreator<
       await Promise.allSettled(legacyMigrations);
     }
 
-    const existingImages = ImageGenerationService.loadExistingImages(chapterId, chapters);
+    // Migrations write cloned chapters into the store; re-read so the
+    // hydration below sees the migrated cache keys, not the stale snapshot.
+    const chaptersAfterMigration = get().chapters || chapters;
+    const chapterAfterMigration = chaptersAfterMigration.get(chapterId) ?? chapter;
+
+    const existingImages = ImageGenerationService.loadExistingImages(chapterId, chaptersAfterMigration);
     const count = Object.keys(existingImages).length;
 
     // DIAGNOSTIC: Log what was loaded
@@ -678,12 +717,12 @@ export const createImageSlice: StateCreator<
     const versionUpdates: Record<string, number> = {};
     const activeUpdates: Record<string, number> = {};
 
-    if (chapter?.translationResult?.suggestedIllustrations) {
-      chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
+    if (chapterAfterMigration?.translationResult?.suggestedIllustrations) {
+      chapterAfterMigration.translationResult.suggestedIllustrations.forEach((illust: any) => {
         const marker = illust?.placementMarker;
         if (!marker) return;
         const key = `${chapterId}:${marker}`;
-        const versionState = chapter.translationResult?.imageVersionState?.[marker];
+        const versionState = chapterAfterMigration.translationResult?.imageVersionState?.[marker];
         let version =
           versionState?.latestVersion ??
           illust?.generatedImage?.imageCacheKey?.version ??
@@ -858,14 +897,30 @@ export const createImageSlice: StateCreator<
   // Batch controls
   resetAdvancedControls: (chapterId, placementMarker) => {
     const key = `${chapterId}:${placementMarker}`;
+    // Copy-on-write, like resetAllAdvancedControls below. The previous shallow
+    // copy ({ ...prevState }) kept the SAME nested map objects, so the deletes
+    // mutated prevState in place and subscribers saw unchanged references — no
+    // re-render.
     set(prevState => {
-      const newState = { ...prevState };
-      delete newState.steeringImages[key];
-      delete newState.negativePrompts[key];
-      delete newState.guidanceScales[key];
-      delete newState.loraModels[key];
-      delete newState.loraStrengths[key];
-      return newState;
+      const newSteeringImages = { ...prevState.steeringImages };
+      const newNegativePrompts = { ...prevState.negativePrompts };
+      const newGuidanceScales = { ...prevState.guidanceScales };
+      const newLoraModels = { ...prevState.loraModels };
+      const newLoraStrengths = { ...prevState.loraStrengths };
+
+      delete newSteeringImages[key];
+      delete newNegativePrompts[key];
+      delete newGuidanceScales[key];
+      delete newLoraModels[key];
+      delete newLoraStrengths[key];
+
+      return {
+        steeringImages: newSteeringImages,
+        negativePrompts: newNegativePrompts,
+        guidanceScales: newGuidanceScales,
+        loraModels: newLoraModels,
+        loraStrengths: newLoraStrengths
+      };
     });
   },
   
@@ -1066,10 +1121,11 @@ export const createImageSlice: StateCreator<
     debugLog('image', 'summary', `[ImageSlice] Deleting version ${versionToDelete} for ${placementMarker} in chapter ${chapterId}`);
 
     try {
-      let skippedIndexedDbCleanup = false;
+      // Null when the DB record was already missing (UI-only cleanup).
+      let dbResult: Awaited<ReturnType<typeof ImageOps.deleteImageVersion>> | null = null;
 
       try {
-        await ImageOps.deleteImageVersion(chapterId, placementMarker, versionToDelete);
+        dbResult = await ImageOps.deleteImageVersion(chapterId, placementMarker, versionToDelete);
       } catch (error: any) {
         const message = typeof error?.message === 'string' ? error.message : '';
         const isMissingChapter =
@@ -1079,7 +1135,6 @@ export const createImageSlice: StateCreator<
 
         if (isMissingChapter) {
           console.warn(`[ImageSlice] Record missing while deleting ${placementMarker} v${versionToDelete}; continuing with UI cleanup.`);
-          skippedIndexedDbCleanup = true;
         } else {
           throw error;
         }
@@ -1096,7 +1151,10 @@ export const createImageSlice: StateCreator<
       }
 
       // If we deleted the only version, clear all image state for this marker
-      if (totalVersions === 1) {
+      const survivorsRemain = dbResult
+        ? dbResult.survivingVersions.length > 0
+        : totalVersions > 1;
+      if (!survivorsRemain) {
         debugLog('image', 'summary', `[ImageSlice] Deleted last version, clearing all state for ${placementMarker}`);
         set(prevState => {
           const newGeneratedImages = { ...prevState.generatedImages };
@@ -1129,36 +1187,70 @@ export const createImageSlice: StateCreator<
           };
         });
       } else {
-        // Multiple versions exist - adjust active version if needed
-        let newActiveVersion = currentVersion;
-        if (versionToDelete === currentVersion) {
-          // If deleting current version, switch to latest remaining
-          if (versionToDelete === totalVersions) {
-            // Deleted the last version, go to previous
-            newActiveVersion = totalVersions - 1;
-          } else {
-            // Deleted middle version, stay at same number (which now points to next version)
-            newActiveVersion = versionToDelete;
-          }
+        // Multiple versions survive. Adopt the DB's NON-renumbering semantics —
+        // the same invariant handleRetryImage documents: persisted images are
+        // keyed by chapterId:marker:version, so survivors keep their original
+        // numbers (deleting v2 of {1,2,3} leaves {1,3}). The previous code
+        // renumbered contiguously here (total-1, active shifted), which forked
+        // from the DB record and pointed the active version at cache keys that
+        // no longer exist.
+        let newActiveVersion: number;
+        let newLatestVersion: number;
+        if (dbResult && dbResult.activeVersion != null) {
+          newActiveVersion = dbResult.activeVersion;
+          newLatestVersion = dbResult.latestVersion;
+        } else {
+          // Degraded path: the DB record was missing (dbResult is null).
+          // Derive without renumbering, assuming the pre-delete set was the
+          // contiguous 1..totalVersions the in-memory counter implies.
+          newLatestVersion = versionToDelete === totalVersions ? totalVersions - 1 : totalVersions;
+          newActiveVersion =
+            versionToDelete === currentVersion
+              ? (versionToDelete < totalVersions ? versionToDelete + 1 : versionToDelete - 1)
+              : currentVersion;
         }
 
-        debugLog('image', 'summary', `[ImageSlice] Adjusting version tracking: total ${totalVersions} -> ${totalVersions - 1}, active ${currentVersion} -> ${newActiveVersion}`);
+        debugLog('image', 'summary', `[ImageSlice] Adjusting version tracking (non-renumbering): latest ${totalVersions} -> ${newLatestVersion}, active ${currentVersion} -> ${newActiveVersion}`);
 
         set(prevState => ({
           imageVersions: {
             ...prevState.imageVersions,
-            [key]: totalVersions - 1
+            [key]: newLatestVersion
           },
           activeImageVersion: {
             ...prevState.activeImageVersion,
             [key]: newActiveVersion
           }
         }));
+      }
 
-        // Persist the new active version
-        if (!skippedIndexedDbCleanup) {
-          await persistImageVersionState(chapterId, placementMarker, newActiveVersion);
-        }
+      // Sync the in-memory chapter record FROM the DB's post-delete state.
+      // (The old code did the reverse — persistImageVersionState wrote the
+      // stale in-memory map back over the DB record, resurrecting the deleted
+      // version.) No extra persistence call is needed: ImageOps.deleteImageVersion
+      // already wrote the authoritative record.
+      const dbState = dbResult;
+      if (dbState) {
+        set(prevState => {
+          const chapterNow = prevState.chapters?.get(chapterId);
+          if (!chapterNow?.translationResult) return {};
+          const newVersionStateMap = { ...(chapterNow.translationResult.imageVersionState ?? {}) };
+          if (dbState.markerState) {
+            newVersionStateMap[placementMarker] = dbState.markerState as any;
+          } else {
+            delete newVersionStateMap[placementMarker];
+          }
+          const newChapters = new Map(prevState.chapters);
+          newChapters.set(chapterId, {
+            ...chapterNow,
+            translationResult: {
+              ...chapterNow.translationResult,
+              imageVersionState:
+                Object.keys(newVersionStateMap).length > 0 ? newVersionStateMap : undefined,
+            },
+          });
+          return { chapters: newChapters };
+        });
       }
 
       debugLog('image', 'summary', `[ImageSlice] Successfully deleted version ${versionToDelete}`);
