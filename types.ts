@@ -172,6 +172,13 @@ export interface ImageGenerationMetadata {
   loraModel?: string | null;
   loraStrength?: number;
   steeringImage?: string | null;
+  /**
+   * True when a steering image WAS configured but the selected model's provider branch does not
+   * consume steering images (only PiAPI Qubico/ img2img does) — the image was generated from the
+   * text prompt alone. steeringImage is recorded as null in that case so provenance does not
+   * claim an influence that never reached the provider.
+   */
+  steeringIgnored?: boolean;
   provider?: string | null;
   model?: string | null;
   generatedAt: string;

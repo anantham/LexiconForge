@@ -10,7 +10,7 @@
  * - Image metrics and persistence
  */
 
-import { generateImage } from './imageService';
+import { generateImage, modelConsumesSteeringImage } from './imageService';
 import { TranslationPersistenceService } from './translationPersistenceService';
 import type { AppSettings, PromptTemplate, ImageGenerationMetadata, ImageVersionStateEntry } from '../types';
 import type { EnhancedChapter } from './stableIdService';
@@ -183,6 +183,9 @@ export class ImageGenerationService {
         
         // Get advanced controls for this illustration
         const steeringImagePath = steeringImages[key] || null;
+        // Only the PiAPI branch consumes steering images; recording an ignored steering image
+        // as applied made the persisted provenance lie (integrity item 6).
+        const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(settings.imageModel);
         const negativePrompt = negativePrompts[key] || settings.defaultNegativePrompt || '';
         const guidanceScale = guidanceScales[key] || settings.defaultGuidanceScale || 3.5;
         const loraModel = loraModels[key] || null;
@@ -263,7 +266,10 @@ export class ImageGenerationService {
               guidanceScale,
               loraModel,
               loraStrength,
-              steeringImage: steeringImagePath,
+              // Honest provenance: a steering image the provider branch never consumed is
+              // recorded as null + steeringIgnored, not as applied (integrity item 6).
+              steeringImage: steeringIgnored ? null : steeringImagePath,
+              ...(steeringIgnored ? { steeringIgnored: true } : {}),
               provider: settings.provider,
               model: settings.imageModel,
               generatedAt: new Date().toISOString()
@@ -405,6 +411,8 @@ export class ImageGenerationService {
     try {
       // Get advanced controls for this illustration
       const steeringImagePath = steeringImages[key] || null;
+      // Only the PiAPI branch consumes steering images (see generateImages above).
+      const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(settings.imageModel);
       const negativePrompt = negativePrompts[key] || settings.defaultNegativePrompt || '';
       const guidanceScale = guidanceScales[key] || settings.defaultGuidanceScale || 3.5;
       const loraModel = loraModels[key] || null;
@@ -465,7 +473,10 @@ export class ImageGenerationService {
             guidanceScale,
             loraModel,
             loraStrength,
-            steeringImage: steeringImagePath,
+            // Honest provenance: a steering image the provider branch never consumed is
+            // recorded as null + steeringIgnored, not as applied (integrity item 6).
+            steeringImage: steeringIgnored ? null : steeringImagePath,
+            ...(steeringIgnored ? { steeringIgnored: true } : {}),
             provider: settings.provider,
             model: settings.imageModel,
             generatedAt: new Date().toISOString()
