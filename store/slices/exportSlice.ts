@@ -443,16 +443,21 @@ export const createExportSlice: StateCreator<
               // No image was ever generated for this illustration; the
               // placeholder marker will be silently removed from the chapter,
               // so surface it in the export warning counter like cache misses.
-              recordWarning({
-                type: 'illustration-never-generated',
-                message: `Illustration "${illust.placementMarker}" in "${ch.title || 'Untitled'}" (${sid}) was never generated; its placeholder will be removed from the EPUB.`,
-                chapterStableId: sid,
-                chapterId: ch.id,
-                chapterTitle: ch.title,
-                chapterUrl: ch.url,
-                marker: illust.placementMarker,
-                details: { reason: 'never-generated' }
-              });
+              // Only when NO cache key existed — a keyed lookup that missed
+              // was already recorded as image-cache-miss above (codex review:
+              // both firing double-counted one missing image).
+              if (!imageCacheKey) {
+                recordWarning({
+                  type: 'illustration-never-generated',
+                  message: `Illustration "${illust.placementMarker}" in "${ch.title || 'Untitled'}" (${sid}) was never generated; its placeholder will be removed from the EPUB.`,
+                  chapterStableId: sid,
+                  chapterId: ch.id,
+                  chapterTitle: ch.title,
+                  chapterUrl: ch.url,
+                  marker: illust.placementMarker,
+                  details: { reason: 'never-generated' }
+                });
+              }
               return null;
             } catch (error) {
               console.error(`[Export] Failed to retrieve image for marker ${illust.placementMarker}:`, error);
