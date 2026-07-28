@@ -10,6 +10,7 @@ import {
   NavigationOps,
 } from '../../services/db/operations';
 import { ensureModelFieldsRepaired } from '../../services/db/migrationService';
+import { telemetryService } from '../../services/telemetryService';
 import type { NovelEntry, NovelVersion } from '../../types/novel';
 
 // ---------------------------------------------------------------------------
@@ -148,6 +149,7 @@ const runBootRepairs = async (): Promise<void> => {
       { name: 'syncSummaries', fn: () => MaintenanceOps.syncSummaries() },
     ];
 
+    const failedRepairs: string[] = [];
     for (const { name, fn } of repairs) {
       try {
         bootstrapLog(`${name} start`);
@@ -155,11 +157,26 @@ const runBootRepairs = async (): Promise<void> => {
         bootstrapLog(`${name} done`);
       } catch (e) {
         bootstrapLog(`${name} failed (non-fatal)`);
-        console.warn(`[Store] ${name} failed:`, e);
+        const reason = e instanceof Error ? e.message : String(e);
+        console.error(`[Store] Boot repair ${name} failed:`, e);
+        telemetryService.captureError('boot:repairFailed', e, { name, reason });
+        failedRepairs.push(name);
       }
     }
 
-    await SettingsOps.set('bootRepairsDone', true);
+    // Record completion ONLY when every repair succeeded. Each repair has its
+    // own internal settings flag, so on the retry boot the already-succeeded
+    // ones are cheap no-ops — that is their design. Setting bootRepairsDone
+    // over failures (the old behavior) meant a failed repair was NEVER
+    // retried on any subsequent boot.
+    if (failedRepairs.length === 0) {
+      await SettingsOps.set('bootRepairsDone', true);
+    } else {
+      console.error(
+        `[Store] ${failedRepairs.length} boot repair(s) failed (${failedRepairs.join(', ')}); ` +
+          'leaving bootRepairsDone unset so they retry on next boot.'
+      );
+    }
   } else {
     bootstrapLog('bootRepairs skipped (already done)');
   }
@@ -180,6 +197,13 @@ const runBootRepairs = async (): Promise<void> => {
     {
       name: 'correctChapterNumberDriftV5',
       fn: () => MaintenanceOps.correctChapterNumberDrift({ dryRun: false }).then(() => undefined),
+    },
+    {
+      // V6: purge persisted "null/..." canonical keys (the custom-scheme
+      // URL.origin mangle) from url_mappings / chapters / summaries. The
+      // generator is fixed in stableIdService; this heals what it wrote.
+      name: 'repairMangledCanonicalKeysV6',
+      fn: () => MaintenanceOps.repairMangledCanonicalKeys().then(() => undefined),
     },
   ];
   for (const { name, fn } of postBootRepairs) {

@@ -1,3 +1,30 @@
+[DEBT][DB][2026-07-28] maintenance.ts integrity-scan deferrals (fixed tier shipped same day — see WORKLOG)
+Full scan report findings NOT fixed in the first pass, each verified with quoted code:
+- Mapping-upsert FORK (P2): buildUrlMappingEntries (~L440) + normalizeStableIds inline puts (~L542)
+  blind-put url_mappings rows that omit libraryVersionId and clobber existing dateAdded/novelId —
+  exactly the drift StableIdManager.ensureUrlMappings' docstring says it exists to prevent. Consolidate
+  through the canonical upsert (txn-shape care needed: these run inside open batch txns).
+- Summary-record FORK (P2): two inline ChapterSummaryRecord literals (~L1070, ~L2261) bypass the
+  canonical buildSummaryRecord (which is IMPORTED and never called). hasTranslation semantics quick-fixed;
+  full delegation deferred.
+- consolidateBookshelfDuplicates DECISION (P1): zero production callers since bef65dd (2026-05-10)
+  unwired it; render-side dedup in NovelLibrary is the only live defense; its tests exercise dead code.
+  Decide: rewire post-boot with flag-check-first, or delete (+ keep render dedup + fix tests).
+- Bookshelf dedupe THREE contradictory keep-policies in one file: V2 keeps best-per-VERSION (~L1231),
+  consolidate keeps one-per-NOVEL (~L1360), V4 keeps one-per-novel forced-canonical (~L2378); render
+  dedup is a fourth. Pick ONE policy, document it, make the others delegate.
+- clearAllData can hang forever on another open tab (~L2685: onblocked only warns; promise never
+  settles). Add timeout + rejection.
+- V2 urlMappingsUpdated counter inflation (~L1031-1057): counts survivor-refresh rows as "updated".
+- buildDuplicateFingerprint (~L324): the URL component degenerates to the stableId itself for scoped
+  storage URLs — the fingerprint's discriminating power silently halves exactly where dedup matters.
+- Dead surface: 9 exported types with zero importers; MaintenanceOps.auditChapterDuplicates has zero
+  callers in prod AND tests (console-only via window.MaintenanceOps) — document as console tool or delete.
+- summaries.ts:191 fetchNovelChapterCounts logs unconditionally on a full-store getAll at library render
+  ("Processing N total summaries") — debug-gate it.
+- Naming sprawl: one store-rewrite concept under seven verbs (backfill/normalize/repair/sync/
+  consolidate/unwrap/correct) — add the rule to docs/CONVENTIONS.md when the next rename happens.
+
 [DEBT][LIBRARY][2026-07-28] VITE_DEFAULT_OPENROUTER_KEY is dead — keyless visitors' translate/search 401s
 - Evidence: live repro 2026-07-28 — auto-translate fell back to the baked trial key and
   OpenRouter answered 401 "User not found" (key deleted). Every deployed build's trial lane
