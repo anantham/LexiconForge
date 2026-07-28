@@ -35,6 +35,7 @@ vi.mock('../../services/db/operations/translations', () => ({
   TranslationOps: {
     store: vi.fn().mockResolvedValue({ id: 't1', version: 1 }),
     setActiveByUrl: vi.fn().mockResolvedValue(undefined),
+    getVersionsByStableId: vi.fn().mockResolvedValue([{ id: 't1', version: 1 }]),
   },
 }));
 
@@ -158,5 +159,54 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     );
 
     expect(onFirstChaptersReady).not.toHaveBeenCalled();
+  });
+});
+
+describe('streamImportFromUrl — translation-loss telemetry (2026-07-28 race)', () => {
+  it('a failed translation store does NOT abort the import and is loudly accounted', async () => {
+    const { TranslationOps } = await import('../../services/db/operations/translations');
+    const { telemetryService } = await import('../../services/telemetryService');
+    (TranslationOps.store as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('tx aborted'));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(sessionWithOneChapter)));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const onFirstChaptersReady = vi.fn();
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      onFirstChaptersReady,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    // Import survives (the chapter is still readable in original view)…
+    expect(onFirstChaptersReady).toHaveBeenCalledTimes(1);
+    // …but the loss is loud: console + a dedicated telemetry event.
+    expect(consoleError.mock.calls.some(c => String(c[0]).includes('Translation store FAILED'))).toBe(true);
+    const events = (telemetryService.capturePerformance as ReturnType<typeof vi.fn>).mock.calls.map(c => c[0]);
+    expect(events).toContain('import:stream:translationStoreFailed');
+    consoleError.mockRestore();
+  });
+
+  it('read-back verification flags a store that resolved without persisting', async () => {
+    const { TranslationOps } = await import('../../services/db/operations/translations');
+    const { telemetryService } = await import('../../services/telemetryService');
+    // store() RESOLVES (the observed race: no error, no row)…
+    (TranslationOps.store as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 't1', version: 1 });
+    // …but the database holds nothing on read-back.
+    (TranslationOps as any).getVersionsByStableId = vi.fn().mockResolvedValue([]);
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(sessionWithOneChapter)));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      undefined,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    expect(consoleError.mock.calls.some(c => String(c[0]).includes('VERIFY mismatch'))).toBe(true);
+    const events = (telemetryService.capturePerformance as ReturnType<typeof vi.fn>).mock.calls.map(c => c[0]);
+    expect(events).toContain('import:stream:translationVerifyMissing');
+    consoleError.mockRestore();
   });
 });

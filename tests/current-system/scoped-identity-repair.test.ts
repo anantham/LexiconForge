@@ -49,18 +49,24 @@ describe('scoped identity repair', () => {
 
     await SettingsOps.set('navigation-history', { stableIds: [nestedStableId, cleanStableId] });
     await SettingsOps.set('lastActiveChapter', { id: nestedStableId, url: 'https://hetushu.com/book/2991/2051040.html' });
+    // Fixture design: the entry that WINS the recency dedupe (newest
+    // lastReadAtIso) carries the CORRUPT nested id, so the final
+    // lastChapterId assertion passes only if the stableId remap actually
+    // fires on the surviving entry. (An earlier version of this fixture put
+    // the clean id on the winner, which masked a bug where the bookshelf
+    // remap consulted an always-empty shadow replacement map.)
     await SettingsOps.set('bookshelf-state', {
       [novelId]: {
         novelId,
         versionId,
-        lastChapterId: nestedStableId,
+        lastChapterId: cleanStableId,
         lastChapterNumber: 2,
         lastReadAtIso: '2026-04-09T11:00:00.000Z',
       },
       [buildLibraryBookshelfKey(novelId, versionId)]: {
         novelId,
         versionId,
-        lastChapterId: cleanStableId,
+        lastChapterId: nestedStableId,
         lastChapterNumber: 2,
         lastReadAtIso: '2026-04-09T11:10:00.000Z',
       },

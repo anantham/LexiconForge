@@ -11,6 +11,7 @@ import { generateStableChapterId, normalizeUrlAggressively } from '../../stableI
 import { DB_NAME, getConnection, resetConnection } from '../core/connection';
 import { STORE_NAMES } from '../core/schema';
 import { withWriteTxn, withReadTxn, promisifyRequest } from '../core/txn';
+import { StableIdManager } from '../core/stable-ids';
 import { SettingsOps } from './settings';
 import {
   buildLibraryScopeKey,
@@ -19,15 +20,9 @@ import {
   isScopedStableId,
   parseScopedStableId,
 } from '../../libraryScope';
-import { debugLog, debugWarn } from '../../../utils/debug';
+import { debugLog } from '../../../utils/debug';
 
-import {
-  recomputeSummary,
-  deleteSummary,
-  buildSummaryRecord,
-  fetchChapterSummaries,
-  syncAllChapterSummaries,
-} from './summaries';
+import { syncAllChapterSummaries } from './summaries';
 import { ChapterOps } from './chapters';
 import { TranslationOps } from './translations';
 
@@ -39,12 +34,17 @@ const SETTINGS = {
   ACTIVE_TRANSLATIONS_V2: 'activeTranslationsBackfilledV2',
   TRANSLATION_METADATA_BACKFILLED: 'translationMetadataBackfilled',
   NOVEL_ID_BACKFILLED: 'novelIdBackfilled',
-  SUMMARY_NOVEL_ID_BACKFILLED: 'summaryNovelIdBackfilled',
+  // '-v2': the original backfill's extraction was unsatisfiable (split(':')
+  // output can never contain '::'), so every run backfilled 0 summaries and
+  // recorded success under 'summaryNovelIdBackfilled'. Bumping the key makes
+  // existing users' summaries actually get healed on next boot.
+  SUMMARY_NOVEL_ID_BACKFILLED: 'summaryNovelIdBackfilled-v2',
   SCOPED_IDENTITY_REPAIRED_V2: 'scopedStableIdRepairV2',
   SUMMARIES_SYNCED: 'summariesSyncedV2',
   BOOKSHELF_DEDUPED_V3: 'bookshelfDedupedV3',
   CHAPTER_IDS_UNWRAPPED_V4: 'chapterIdsUnwrappedV4',
   CHAPTER_NUMBER_CORRECTED_V5: 'chapterNumberCorrectedV5',
+  MANGLED_CANONICAL_REPAIRED_V6: 'mangledCanonicalKeysRepairedV6',
 } as const;
 
 const BARE_HASH_PATTERN = /^ch[0-9]+_/;
@@ -229,7 +229,8 @@ const summarizeScope = (novelId: string | null | undefined, libraryVersionId: st
   return novelId ? buildLibraryScopeKey(novelId, libraryVersionId ?? null) : 'unscoped';
 };
 
-const getScopedStableIdDepth = (stableId: string | null | undefined): number => {
+// Exported for unit tests (tests/services/db/maintenance-helpers.test.ts).
+export const getScopedStableIdDepth = (stableId: string | null | undefined): number => {
   // Narrow to a non-null string up front (isScopedStableId is not a type guard),
   // matching peelAllScopes/collapseScopedStableId. isScopedStableId(null) is false,
   // so the added typeof check preserves the return-0 behavior for null/undefined.
@@ -243,7 +244,16 @@ const getScopedStableIdDepth = (stableId: string | null | undefined): number => 
 
   while (isScopedStableId(current) && !seen.has(current)) {
     seen.add(current);
-    const parsed = parseScopedStableId(current);
+    let parsed: ReturnType<typeof parseScopedStableId>;
+    try {
+      parsed = parseScopedStableId(current);
+    } catch {
+      // Malformed scope (parseScopedStableId throws) — same policy as
+      // peelAllScopes: stop peeling and report the depth counted so far.
+      // One corrupt row must not wedge callers (e.g. the V4 migration)
+      // with an exception on every boot.
+      break;
+    }
     if (!parsed) break;
     depth += 1;
     current = parsed.baseStableId;
@@ -261,8 +271,8 @@ const getScopedStableIdDepth = (stableId: string | null | undefined): number => 
  * mismatched novel/version. We need to find the true bare base so we can
  * re-canonicalize under one scope.
  *
- * Returns null only when input is null/undefined. If unwrap fails partway
- * (malformed scope), returns the deepest reachable string.
+ * Returns null when input is null/undefined or the empty string. If unwrap
+ * fails partway (malformed scope), returns the deepest reachable string.
  */
 const peelAllScopes = (stableId: string | null | undefined): string | null => {
   if (typeof stableId !== 'string' || stableId.length === 0) return null;
@@ -285,7 +295,41 @@ const isWellFormedBareHash = (s: string | null | undefined): boolean => {
   return typeof s === 'string' && BARE_HASH_PATTERN.test(s);
 };
 
-const collapseScopedStableId = (
+/**
+ * Extract the novelId embedded in a scoped stableId.
+ *
+ * Tries the canonical parser (parseScopedStableId) first. Falls back to a
+ * regex that tolerates BOTH the encoded (`%3A%3A`) and raw (`::`) scope
+ * delimiter forms, so corrupted ids that make the canonical parser throw
+ * can still be healed. Returns null when no novelId can be recovered.
+ *
+ * Exported for unit tests (tests/services/db/maintenance-helpers.test.ts).
+ */
+export const extractNovelIdFromStableId = (
+  stableId: string | null | undefined
+): string | null => {
+  if (typeof stableId !== 'string' || !isScopedStableId(stableId)) {
+    return null;
+  }
+
+  try {
+    const parsed = parseScopedStableId(stableId);
+    if (parsed?.novelId) return parsed.novelId;
+  } catch {
+    // Corrupted id — fall through to the tolerant regex below.
+  }
+
+  const match = stableId.match(/^lf-library:(.+?)(?:%3A%3A|::)/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+};
+
+// Exported for unit tests (tests/services/db/maintenance-helpers.test.ts).
+export const collapseScopedStableId = (
   stableId: string | null | undefined,
   novelId: string | null | undefined,
   libraryVersionId: string | null | undefined
@@ -300,7 +344,15 @@ const collapseScopedStableId = (
 
   while (isScopedStableId(current) && !seen.has(current)) {
     seen.add(current);
-    const parsed = parseScopedStableId(current);
+    let parsed: ReturnType<typeof parseScopedStableId>;
+    try {
+      parsed = parseScopedStableId(current);
+    } catch {
+      // Malformed scope (parseScopedStableId throws) — return the input
+      // unchanged, same policy as the `!parsed` branch below. One corrupt
+      // row must not wedge the migration with a throw on every boot.
+      return current;
+    }
     if (!parsed) {
       return current;
     }
@@ -724,19 +776,11 @@ export class MaintenanceOps {
         for (const summary of summaries) {
           if (summary.novelId) continue;
 
-          // Attempt to extract novelId from stableId
-          let novelId: string | null = null;
-          if (isScopedStableId(summary.stableId)) {
-            // Use a simple split if parseScopedStableId is too strict for corrupted ones
-            // Format is lf-library:novelId::versionId:baseId
-            const parts = summary.stableId.split(':');
-            if (parts.length >= 2) {
-              const scopePart = parts[1];
-              if (scopePart.includes('::')) {
-                novelId = scopePart.split('::')[0];
-              }
-            }
-          }
+          // Attempt to extract novelId from stableId. (The pre-v2 version of
+          // this block split on ':' and then looked for '::' inside a single
+          // split part — impossible by construction, so it backfilled 0
+          // summaries on every database while recording success.)
+          const novelId = extractNovelIdFromStableId(summary.stableId);
 
           if (novelId) {
             summary.novelId = novelId;
@@ -902,8 +946,13 @@ export class MaintenanceOps {
           });
         }
 
+        // ONE replacement map, shared by the duplicate-group repair below AND
+        // the bookshelf remap after it. (Historically a second, always-empty
+        // shadow map was declared between the two, so the bookshelf remap
+        // never saw a single real replacement.)
+        const stableIdReplacementMap = new Map<string, string>();
+
         if (duplicateGroups.length > 0) {
-          const stableIdReplacementMap = new Map<string, string>();
           const chapterUrlReplacementMap = new Map<string, string>();
           const mergedChaptersByStableId = new Map<string, ChapterRecord>();
 
@@ -962,7 +1011,26 @@ export class MaintenanceOps {
 
             const targetStableId = replacementStableId || translation.stableId || '';
             const targetChapterUrl = replacementChapterUrl || translation.chapterUrl;
-            if (!targetStableId) continue;
+            if (!targetStableId) {
+              // A translation with no stableId whose chapterUrl is being
+              // remapped used to be skipped here — keeping its OLD chapterUrl
+              // while the old chapter row was deleted (orphaned forever; boot
+              // order runs this repair BEFORE the stableId backfill that
+              // would have fixed it). Match V4's keep-semantics: write the
+              // URL move (stableId stays empty), skip only when nothing
+              // changes. The version-renumbering bucket below is keyed by
+              // stableId, so these rows are written directly instead.
+              if (targetChapterUrl !== translation.chapterUrl) {
+                await promisifyRequest(
+                  translationsStore.put({
+                    ...translation,
+                    chapterUrl: targetChapterUrl,
+                  })
+                );
+                summary.translationsMoved += 1;
+              }
+              continue;
+            }
 
             const updated = {
               ...translation,
@@ -1075,7 +1143,9 @@ export class MaintenanceOps {
               title: chapter.title,
               translatedTitle: active?.translatedTitle,
               chapterNumber: chapter.chapterNumber,
-              hasTranslation: Boolean(activeTranslations.length),
+              // Active-only, matching buildSummaryRecord's canonical semantics
+              // (hasTranslation reflects the ACTIVE translation, not any row).
+              hasTranslation: Boolean(active),
               hasImages: Boolean(
                 active?.suggestedIllustrations?.some(illustration => illustration?.url || illustration?.generatedImage)
               ),
@@ -1134,7 +1204,13 @@ export class MaintenanceOps {
                 updatedAt: nowIso(),
               })
             );
-            summary.navigationEntriesUpdated = navigationHistory.length;
+            // Count entries actually touched — ids rewritten by the remap plus
+            // duplicates removed by the dedupe — not the whole history length.
+            const remappedCount = navigationHistory.filter(
+              (id, index) => repairedHistory[index] !== id
+            ).length;
+            const removedCount = repairedHistory.length - dedupedHistory.length;
+            summary.navigationEntriesUpdated = remappedCount + removedCount;
           }
 
           const lastActiveSetting = (await promisifyRequest(settingsStore.get('lastActiveChapter'))) as
@@ -1157,8 +1233,6 @@ export class MaintenanceOps {
         } else {
           debugLog('indexeddb', 'summary', '[MaintenanceOps] No scoped stableId duplicates detected.');
         }
-
-        const stableIdReplacementMap = new Map<string, string>(); // Stub for bookshelf logic if duplicateGroups.length === 0
 
         const bookshelfSetting = (await promisifyRequest(settingsStore.get('bookshelf-state'))) as
           | { key: string; value: Record<string, any>; updatedAt?: string }
@@ -1249,7 +1323,12 @@ export class MaintenanceOps {
                 updatedAt: nowIso(),
               })
             );
-            summary.bookshelfEntriesUpdated = Object.keys(bookshelfSetting.value).length;
+            // Count entries that actually changed (rewritten, re-keyed, or
+            // dropped) rather than claiming every entry was updated.
+            summary.bookshelfEntriesUpdated = Object.entries(bookshelfSetting.value).filter(
+              ([key, value]) =>
+                JSON.stringify(nextBookshelfState[key]) !== JSON.stringify(value)
+            ).length;
           }
         }
       },
@@ -1303,9 +1382,15 @@ export class MaintenanceOps {
    *   - Discard the rest.
    *   - Persist only if the resulting object differs from the original.
    *
-   * Idempotent: a clean state passes through unchanged. The render-side
-   * dedup in NovelLibrary.tsx catches duplicates that appear AFTER this
-   * migration runs (the migration won't re-run because its flag is set).
+   * Idempotent: a clean state passes through unchanged.
+   *
+   * NOTE (2026-07): this function is NOT wired into boot. Commit bef65dd
+   * (2026-05-10, the issue #20 chapterNumber-drift fix) rebuilt the boot
+   * repair pipeline and dropped consolidateBookshelfDuplicates from the
+   * repairs list without a stated rationale in its message. The render-side
+   * dedup in NovelLibrary.tsx is therefore the ONLY live defense against
+   * duplicate bookshelf entries; this function remains available for manual
+   * console use via window.MaintenanceOps.consolidateBookshelfDuplicates().
    */
   static async consolidateBookshelfDuplicates(): Promise<{
     duplicateGroupsCollapsed: number;
@@ -1796,7 +1881,9 @@ export class MaintenanceOps {
    *   3. Re-key all references (summaries, translations, url_mappings, amendments, diffResults,
    *      bookshelf, navigation, lastActiveChapter).
    *   4. On collision (multiple old stableIds map to same new stableId), pick a survivor
-   *      preferring most-recent lastAccessed and chapter rows with active translations.
+   *      via chooseSurvivor, in order: least scope-nesting depth, then most ACTIVE
+   *      translations, then most total translations, then shortest stableId, with final
+   *      ties broken by EARLIEST dateAdded (lastAccessed is never consulted).
    *      Translation rows are NEVER dropped — all are re-keyed onto the survivor stableId
    *      and re-numbered to avoid version conflicts.
    *
@@ -1805,7 +1892,6 @@ export class MaintenanceOps {
    *   - Rows with different bare base hashes (different content families) stay as distinct
    *     stableIds even when they collide on chapterNumber.
    *   - chapterNumber field correction (separate Phase 2 migration).
-   *   - Cross-novel pollution detection (separate Phase 4 audit).
    *
    * Default is dry-run: returns a plan without writing. Pass { dryRun: false, force: true }
    * to commit. Re-runs after success are gated by CHAPTER_IDS_UNWRAPPED_V4 settings flag.
@@ -1829,6 +1915,49 @@ export class MaintenanceOps {
     const flagAlreadySet = Boolean(
       await SettingsOps.getKey<boolean>(SETTINGS.CHAPTER_IDS_UNWRAPPED_V4)
     );
+
+    // Fast path: a completed migration must not pay Phase 1's six-store
+    // getAll() scan (full chapter + translation bodies into memory) on every
+    // boot. Same condition and return shape as the post-scan short-circuit
+    // below (which is kept as a harmless backstop).
+    if (flagAlreadySet && !force && !dryRun) {
+      debugLog(
+        'indexeddb',
+        'summary',
+        '[MaintenanceOps.unwrapNestedScopedIds] Already applied (flag set). Pass force=true to re-run.'
+      );
+      return {
+        schemaVersion: '1',
+        generatedAt: nowIso(),
+        dryRun: false,
+        flagAlreadySet,
+        canonicalVersions,
+        totals: {
+          chaptersScanned: 0,
+          chaptersWithNestedIds: 0,
+          chaptersToRewrite: 0,
+          collisionGroups: 0,
+          chaptersDeleted: 0,
+          translationsRekeyed: 0,
+          summariesRekeyed: 0,
+          urlMappingsRekeyed: 0,
+          amendmentsRekeyed: 0,
+          diffResultsRekeyed: 0,
+          bookshelfEntriesRekeyed: 0,
+          navigationEntriesRekeyed: 0,
+          lastActiveRekeyed: false,
+        },
+        orphans: {
+          rowsWithoutNovelId: [],
+          novelsNotInCanonicalMap: [],
+          malformedBareHashes: [],
+          translationsWithoutChapter: [],
+          amendmentsWithoutChapter: [],
+        },
+        rewriteSample: [],
+        collisions: [],
+      };
+    }
 
     // ─── Phase 1: scan and plan (read-only) ────────────────────────────────
     const conn = await getConnection();
@@ -2266,7 +2395,9 @@ export class MaintenanceOps {
             title: merged.title,
             translatedTitle: active?.translatedTitle,
             chapterNumber: merged.chapterNumber,
-            hasTranslation: trBucket.length > 0,
+            // Active-only, matching buildSummaryRecord's canonical semantics
+            // (hasTranslation reflects the ACTIVE translation, not any row).
+            hasTranslation: Boolean(active),
             hasImages: Boolean(
               active?.suggestedIllustrations?.some(
                 i => i?.url || i?.generatedImage
@@ -2402,7 +2533,13 @@ export class MaintenanceOps {
                 updatedAt: nowIso(),
               })
             );
-            commitReport.totals.bookshelfEntriesRekeyed = Object.keys(bookshelfSetting.value).length;
+            // Count entries that actually changed (rewritten, re-keyed, or
+            // dropped) rather than claiming every entry was rekeyed.
+            commitReport.totals.bookshelfEntriesRekeyed = Object.entries(
+              bookshelfSetting.value
+            ).filter(
+              ([key, value]) => JSON.stringify(next[key]) !== JSON.stringify(value)
+            ).length;
           }
         }
 
@@ -2419,7 +2556,11 @@ export class MaintenanceOps {
                 updatedAt: nowIso(),
               })
             );
-            commitReport.totals.navigationEntriesRekeyed = ids.length;
+            // Count entries actually touched — ids rewritten by the remap plus
+            // duplicates removed by the dedupe — not the whole history length.
+            const rekeyedCount = ids.filter((id, index) => repaired[index] !== id).length;
+            const removedCount = repaired.length - deduped.length;
+            commitReport.totals.navigationEntriesRekeyed = rekeyedCount + removedCount;
           }
         }
 
@@ -2505,6 +2646,29 @@ export class MaintenanceOps {
     const flagAlreadySet = Boolean(
       await SettingsOps.getKey<boolean>(SETTINGS.CHAPTER_NUMBER_CORRECTED_V5)
     );
+
+    // Fast path: a completed migration must not pay the chapters+summaries
+    // getAll() scan on every boot. Same condition and return shape as the
+    // post-scan short-circuit below (kept as a harmless backstop).
+    if (flagAlreadySet && !force && !dryRun) {
+      return {
+        schemaVersion: '1' as const,
+        generatedAt: nowIso(),
+        dryRun: false,
+        flagAlreadySet,
+        totals: {
+          chaptersScanned: 0,
+          driftedRows: 0,
+          corrected: 0,
+          summariesUpdated: 0,
+          skipped_noBareHash: 0,
+          skipped_titleMissingNumber: 0,
+          skipped_bareTitleDisagree: 0,
+        },
+        correctionSample: [],
+        skippedSample: [],
+      };
+    }
 
     const conn = await getConnection();
     const planTxn = conn.transaction(
@@ -2642,7 +2806,9 @@ export class MaintenanceOps {
           const updated: ChapterRecord = {
             ...d.record,
             chapterNumber: d.bareN,
-            lastAccessed: nowIso(),
+            // lastAccessed deliberately preserved (via the spread): a
+            // background repair is not a user access, and lastAccessed is a
+            // real recency signal elsewhere.
           };
           await promisifyRequest(chaptersStore.put(updated));
           corrected += 1;
@@ -2675,6 +2841,113 @@ export class MaintenanceOps {
       commitReport.totals
     );
     return commitReport;
+  }
+
+  /**
+   * V6 (2026-07-28): purge the normalizeUrlAggressively custom-scheme mangle
+   * from PERSISTED keys. For non-special schemes (lf-library://,
+   * lexiconforge://) URL.origin serializes as the literal string "null", and
+   * five maintenance paths persisted that mangle as url_mappings PRIMARY KEYS
+   * ("null/chapter/64"), chapters.canonicalUrl, and summaries.canonicalUrl.
+   * The generator is fixed (stableIdService now passes custom schemes
+   * through); this repairs what it already wrote. Flag is checked BEFORE any
+   * store scan — the V4/V5 boot-cost lesson.
+   */
+  static async repairMangledCanonicalKeys(): Promise<{
+    mappingsDeleted: number;
+    chaptersRepaired: number;
+    summariesRepaired: number;
+    skipped: boolean;
+  }> {
+    const already = await SettingsOps.getKey<boolean>(SETTINGS.MANGLED_CANONICAL_REPAIRED_V6);
+    if (already) {
+      return { mappingsDeleted: 0, chaptersRepaired: 0, summariesRepaired: 0, skipped: true };
+    }
+
+    let mappingsDeleted = 0;
+    let chaptersRepaired = 0;
+    let summariesRepaired = 0;
+    const repairedChapters: ChapterRecord[] = [];
+
+    await withWriteTxn(
+      [STORE_NAMES.CHAPTERS, STORE_NAMES.URL_MAPPINGS, STORE_NAMES.CHAPTER_SUMMARIES],
+      async (_txn, stores) => {
+        const mappingsStore = stores[STORE_NAMES.URL_MAPPINGS];
+        const mappings = (await promisifyRequest(mappingsStore.getAll())) as UrlMappingRecord[];
+        for (const mapping of mappings) {
+          // "null/..." is the mangle signature — no legitimate URL key starts
+          // with it (URL.origin === "null" string-concatenated with a path).
+          if (typeof mapping.url === 'string' && mapping.url.startsWith('null/')) {
+            await promisifyRequest(mappingsStore.delete(mapping.url));
+            mappingsDeleted++;
+          }
+        }
+
+        const chaptersStore = stores[STORE_NAMES.CHAPTERS];
+        const chapters = (await promisifyRequest(chaptersStore.getAll())) as ChapterRecord[];
+        for (const chapter of chapters) {
+          if (chapter.canonicalUrl && chapter.canonicalUrl.startsWith('null/')) {
+            chapter.canonicalUrl =
+              normalizeUrlAggressively(chapter.originalUrl || chapter.url) || chapter.url;
+            await promisifyRequest(chaptersStore.put(chapter));
+            repairedChapters.push(chapter);
+            chaptersRepaired++;
+          }
+        }
+
+        const summariesStore = stores[STORE_NAMES.CHAPTER_SUMMARIES];
+        const summaries = (await promisifyRequest(summariesStore.getAll())) as ChapterSummaryRecord[];
+        // Consult ALL chapters, not just the ones repaired above — a summary
+        // can be mangled while its chapter's canonicalUrl is healthy.
+        const chapterByStableId = new Map(
+          chapters.filter(c => c.stableId).map(c => [c.stableId as string, c])
+        );
+        for (const summary of summaries) {
+          if (summary.canonicalUrl && summary.canonicalUrl.startsWith('null/')) {
+            const chapter = chapterByStableId.get(summary.stableId);
+            if (chapter) {
+              summary.canonicalUrl =
+                chapter.canonicalUrl ||
+                normalizeUrlAggressively(chapter.originalUrl || chapter.url) ||
+                chapter.url;
+              await promisifyRequest(summariesStore.put(summary));
+              summariesRepaired++;
+            } else {
+              // True orphan: no chapter row exists for this summary. Trimming
+              // the "null/" prefix would persist a RELATIVE path under a
+              // permanent one-time flag (codex review P2) — delete instead;
+              // syncSummaries rebuilds summaries from chapters.
+              await promisifyRequest(summariesStore.delete(summary.stableId));
+              summariesRepaired++;
+            }
+          }
+        }
+      },
+      'maintenance',
+      'operations',
+      'repairMangledCanonicalKeys'
+    );
+
+    // Re-emit honest canonical mappings for the repaired chapters through THE
+    // canonical upsert (own transactions; errors propagate — a repair that
+    // silently failed to re-map would recreate the resolve-miss class).
+    for (const chapter of repairedChapters) {
+      if (chapter.stableId) {
+        await StableIdManager.ensureUrlMappings(chapter.url, chapter.stableId, {
+          novelId: chapter.novelId ?? null,
+          libraryVersionId: chapter.libraryVersionId ?? null,
+          chapterNumber: chapter.chapterNumber,
+        });
+      }
+    }
+
+    await SettingsOps.set(SETTINGS.MANGLED_CANONICAL_REPAIRED_V6, true);
+    if (mappingsDeleted || chaptersRepaired || summariesRepaired) {
+      console.log(
+        `[Maintenance] repairMangledCanonicalKeys: deleted ${mappingsDeleted} mangled mapping key(s), repaired ${chaptersRepaired} chapter(s) + ${summariesRepaired} summarie(s)`
+      );
+    }
+    return { mappingsDeleted, chaptersRepaired, summariesRepaired, skipped: false };
   }
 
   static async clearAllData(): Promise<void> {

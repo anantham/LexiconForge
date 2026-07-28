@@ -317,11 +317,12 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     await handleStartReading(novel, savedVersion);
   };
 
-  // Dedupe: keep ONE entry per novelId — the most recently read one. Defense
-  // in depth against IDB-resident duplicate bookshelf entries (legacy
-  // unscoped key + scoped key for the same novel). The boot-time
-  // consolidateBookshelfDuplicates migration cleans IDB; this render-side
-  // dedup catches anything that slips past or appears after migration.
+  // Dedupe: keep ONE entry per novelId — the most recently read one. This
+  // render-side dedup is the ONLY live defense against IDB-resident duplicate
+  // bookshelf entries (legacy unscoped key + scoped key for the same novel):
+  // MaintenanceOps.consolidateBookshelfDuplicates was unwired from boot in
+  // commit bef65dd (2026-05-10) and now runs only when invoked manually via
+  // the window.MaintenanceOps console handle.
   const dedupedBookshelfEntries = (() => {
     const byNovel = new Map<string, BookshelfEntry>();
     for (const entry of Object.values(bookshelfState) as BookshelfEntry[]) {
