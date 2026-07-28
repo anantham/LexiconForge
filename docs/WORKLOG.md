@@ -1,3 +1,10 @@
+### [2026-07-28 · reader gate] [Agent: Fable 5] — "Opening Reader…" forever: 1-chapter library sessions could never open the reader
+**Status:** Fixed on branch; PR + codex review + merge
+**Root cause (live-reproduced twice, IDB dumped):** on the library streaming path, onFirstChaptersReady is the ONLY transition from 'reader-loading' to 'reader', and its threshold is min(metadata.chapterCount, 10) — the NOVEL's advertised size (Aithihyamala: 126), not the session's. The packaged session carries 1 built chapter → 1 >= 10 never fires → spinner forever over a FULLY hydrated store (25k-char Opus translation present, hasTranslation:true underneath). Any session under 10 chapters hangs; the other four novels have 500+ chapter sessions, which is why only Aithihyamala died.
+**Fix:** fire the ready callback at stream end whenever any chapter arrived (backstop after the threshold logic). 3 guard tests; the 1-chapter case proven RED pre-fix.
+**Also found (filed in INBOX):** VITE_DEFAULT_OPENROUTER_KEY is DEAD (401 User not found — keyless visitors' translate/search broken; operator must mint a capped trial key into Vercel env); normalizeUrlAggressively writes "null/chapter/64" canonical mappings for custom schemes; one unreproduced cold-fetch race where the stream stored the chapter but not its translation (billing exposure via the auto-translate that follows).
+**User-goal note:** the deep interleaved Aithihyamala reader (hover meanings + etymology) is the separate /malayalam/urakam-ammathiruvadi route and works; verified live.
+
 ### [2026-07-26 · benchmark tails] [Agent: Fable 5] — judge pass shipped + twelfth model measured; board columns complete
 **Status:** Complete on branch; PR + codex review + merge
 **Task:** Operator "go" on the filed tails: judge pass (Halluc/Semantic showed "—"; grant text promises a hallucination metric) + gpt-5.4-mini strict-schema adapter.
