@@ -7,7 +7,8 @@
  *     expressed as a type union with null, not by omission from `required`
  *   - `additionalProperties: false` on every object
  * Anthropic/Google accept our schemas as written, so this transform is applied
- * for openai/* slugs only. Same logical contract, provider-dialect compliance.
+ * only to direct OpenAI requests and OpenRouter openai/* slugs. Same logical
+ * contract, provider-dialect compliance.
  *
  * HONESTY NOTE (2026-07-26 re-probe): the identical untransformed anatomist
  * schema now returns 200 on openai/gpt-5.4-mini — the provider relaxed or

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { AppSettings } from '../../../types';
 import type { TranslationRequest } from '../../../services/translate/Translator';
 import { OpenAIAdapter } from '../../../adapters/providers/OpenAIAdapter';
+import { getTranslationOnlyResponseJsonSchema } from '../../../services/translate/translationResponseSchema';
 import { createMockAppSettings } from '../../utils/test-data';
 
 const openAiMocks = vi.hoisted(() => {
@@ -481,6 +482,29 @@ describe('OpenAIAdapter chatJSON strict-schema dialect (production wiring)', () 
     expect(sent.properties.ripples).toBeDefined();
     expect(sent.required).toEqual(['english']);
   });
+
+  it('applies the strict dialect to direct OpenAI translation schemas', async () => {
+    const adapter = new OpenAIAdapter('OpenAI') as any;
+    const request = await adapter.buildRequest(baseSettings, 'Title', 'Content', []);
+    const sent = request.response_format.json_schema.schema;
+    const illustration = sent.properties.suggestedIllustrations.items;
+
+    expect(illustration.required.sort()).toEqual(['imagePlan', 'imagePrompt', 'placementMarker']);
+    expect(illustration.properties.imagePlan.type).toContain('null');
+    expect(sent.additionalProperties).toBe(false);
+  });
+
+  it('keeps translation schemas unchanged for non-OpenAI OpenRouter models', async () => {
+    const adapter = new OpenAIAdapter('OpenRouter') as any;
+    const settings = createMockAppSettings({
+      ...baseSettings,
+      provider: 'OpenRouter',
+      model: 'google/gemini-3-flash-preview',
+    } as any);
+    const request = await adapter.buildRequest(settings, 'Title', 'Content', []);
+
+    expect(request.response_format.json_schema.schema).toBe(getTranslationOnlyResponseJsonSchema());
+  });
 });
 
 describe('OpenAIAdapter request-time structured-output policy', () => {
@@ -691,6 +715,63 @@ describe('OpenAIAdapter "No endpoints found" adaptive retry (integrity item 3)',
     }
   });
 
+  it('chatJSON composes routing relaxation with one schema fallback', async () => {
+    openAiMocks.create
+      .mockRejectedValueOnce(Object.assign(new Error(NO_ENDPOINTS_MSG), { status: 404 }))
+      .mockRejectedValueOnce(new Error('response_format json_schema is not supported'))
+      .mockResolvedValueOnce(jsonOk);
+
+    const adapter = new OpenAIAdapter('OpenRouter');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const result = await adapter.chatJSON({
+        settings: createMockAppSettings({ ...baseSettings, provider: 'OpenRouter', model: 'openai/gpt-5.2' } as any),
+        model: 'openai/gpt-5.2',
+        messages: [{ role: 'user' as const, content: 'go' }],
+        schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+        structuredOutputs: true,
+      } as any);
+
+      expect(result.text).toBe('{"ok":true}');
+      expect(openAiMocks.create).toHaveBeenCalledTimes(3);
+      expect(openAiMocks.create.mock.calls[1][0].provider?.require_parameters).toBeUndefined();
+      expect(openAiMocks.create.mock.calls[1][0].response_format?.type).toBe('json_schema');
+      const schemaFallback = openAiMocks.create.mock.calls[2][0];
+      expect(schemaFallback.provider?.require_parameters).toBeUndefined();
+      expect(schemaFallback.response_format).toEqual({ type: 'json_object' });
+      expect(schemaFallback.messages[0].content).toContain('following JSON schema');
+      expect(recordParameterFailureMock).toHaveBeenCalledWith('openai/gpt-5.2', 'require_parameters');
+      expect(recordParameterFailureMock).toHaveBeenCalledWith('openai/gpt-5.2', 'response_format');
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('keeps the composed routing and schema fallback bounded', async () => {
+    openAiMocks.create
+      .mockRejectedValueOnce(Object.assign(new Error(NO_ENDPOINTS_MSG), { status: 404 }))
+      .mockRejectedValueOnce(new Error('response_format json_schema is not supported'))
+      .mockRejectedValueOnce(new Error('response_format remains unsupported'));
+
+    const adapter = new OpenAIAdapter('OpenRouter');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await expect(adapter.chatJSON({
+        settings: createMockAppSettings({ ...baseSettings, provider: 'OpenRouter', model: 'openai/gpt-5.2' } as any),
+        model: 'openai/gpt-5.2',
+        messages: [{ role: 'user' as const, content: 'go' }],
+        schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+        structuredOutputs: true,
+      } as any)).rejects.toThrow(/remains unsupported/);
+
+      expect(openAiMocks.create).toHaveBeenCalledTimes(3);
+      expect(openAiMocks.create.mock.calls[2][0].response_format).toEqual({ type: 'json_object' });
+      expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('chatJSON retry is BOUNDED: a second "No endpoints" failure propagates (no loop)', async () => {
     openAiMocks.create.mockRejectedValue(Object.assign(new Error(NO_ENDPOINTS_MSG), { status: 404 }));
 
@@ -757,6 +838,41 @@ describe('OpenAIAdapter "No endpoints found" adaptive retry (integrity item 3)',
       expect(openAiMocks.create.mock.calls[0][0].provider?.require_parameters).toBe(true);
       expect(openAiMocks.create.mock.calls[1][0].provider?.require_parameters).toBeUndefined();
       expect(recordParameterFailureMock).toHaveBeenCalledWith('openai/gpt-5.2', 'require_parameters');
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('translate() composes routing relaxation with one schema fallback', async () => {
+    openAiMocks.create
+      .mockRejectedValueOnce(Object.assign(new Error(NO_ENDPOINTS_MSG), { status: 404 }))
+      .mockRejectedValueOnce(new Error('response_format json_schema is not supported'))
+      .mockResolvedValueOnce(successResponse);
+
+    const settings = createMockAppSettings({
+      ...baseSettings,
+      provider: 'OpenRouter',
+      model: 'openai/gpt-5.2',
+      apiKeyOpenRouter: 'or-key',
+    } as any);
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const adapter = new OpenAIAdapter('OpenRouter');
+      const result = await adapter.translate({ title: 'T', content: 'Body', settings, history: [] });
+
+      expect(result.translation).toBe(realisticTranslation);
+      expect(openAiMocks.create).toHaveBeenCalledTimes(3);
+      expect(openAiMocks.create.mock.calls[1][0].provider?.require_parameters).toBeUndefined();
+      expect(openAiMocks.create.mock.calls[1][0].response_format?.type).toBe('json_schema');
+      const schemaFallback = openAiMocks.create.mock.calls[2][0];
+      expect(schemaFallback.provider?.require_parameters).toBeUndefined();
+      expect(schemaFallback.response_format).toEqual({ type: 'json_object' });
+      expect(schemaFallback.messages.some((message: any) =>
+        message.role === 'system' && message.content.includes('following JSON schema')
+      )).toBe(true);
+      expect(recordParameterFailureMock).toHaveBeenCalledWith('openai/gpt-5.2', 'require_parameters');
+      expect(recordParameterFailureMock).toHaveBeenCalledWith('openai/gpt-5.2', 'response_format');
     } finally {
       warnSpy.mockRestore();
     }
