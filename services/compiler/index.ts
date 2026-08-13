@@ -11,7 +11,7 @@
  *   skeleton.ts   — runSkeletonPass (chunked skeleton phase)
  */
 
-import { supportsStructuredOutputs } from '../capabilityService';
+import { shouldRequestStructuredOutputs } from '../ai/structuredOutputPolicy';
 import type { AppSettings } from '../../types';
 import type {
   AnatomistPass,
@@ -194,8 +194,8 @@ export const compileSuttaStudioPacket = async (options: {
   if (!settings?.model) {
     throw new Error('No model selected for Sutta Studio compiler. Please select a model in Settings.');
   }
-  const structuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
-  log(`Structured outputs supported: ${structuredOutputs}`);
+  const structuredOutputs = shouldRequestStructuredOutputs(settings.provider);
+  log(`Structured outputs requested by local provider policy: ${structuredOutputs}`);
   logPipelineEvent({
     level: 'info',
     stage: 'compile',

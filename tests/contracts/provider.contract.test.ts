@@ -72,18 +72,7 @@ vi.mock('@google/generative-ai', () => ({
   },
 }));
 
-const supportsStructuredOutputsMock = vi.fn().mockResolvedValue(false);
-const supportsParametersMock = vi.fn().mockResolvedValue(false);
-
 vi.mock('../../services/capabilityService', () => ({
-  supportsStructuredOutputs: (...args: any[]) => supportsStructuredOutputsMock(...args),
-  // Source-aware variant used by OpenAIAdapter (integrity item 1); 'metadata' here so contract
-  // tests exercise the plain "metadata says no" path without downgrade warnings.
-  getStructuredOutputsSupport: async (...args: any[]) => ({
-    supported: await supportsStructuredOutputsMock(...args),
-    source: 'metadata' as const,
-  }),
-  supportsParameters: (...args: any[]) => supportsParametersMock(...args),
   recordParameterFailure: vi.fn(),
   hasRecordedParameterFailure: vi.fn(() => false),
 }));
@@ -151,8 +140,6 @@ describe('Provider Contract (VCR replay-only)', () => {
     calculateCostMock.mockReset();
     recordMetricMock.mockClear();
 
-    supportsStructuredOutputsMock.mockResolvedValue(false);
-    supportsParametersMock.mockResolvedValue(false);
   });
 
   describe('OpenAIAdapter', () => {

@@ -2,8 +2,7 @@ import OpenAI from 'openai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } from '../../types';
-import { getStructuredOutputsSupport, supportsParameters, recordParameterFailure, hasRecordedParameterFailure } from '../../services/capabilityService';
-import type { StructuredOutputsSupport } from '../../services/capabilityService';
+import { recordParameterFailure, hasRecordedParameterFailure } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/ai/cost';
 import prompts from '../../config/prompts.json';
@@ -21,6 +20,7 @@ import {
   getChatCompletionRequestParameters,
   getChatCompletionTokenLimit,
 } from '../../services/ai/openaiRequestParameters';
+import { shouldRequestStructuredOutputs } from '../../services/ai/structuredOutputPolicy';
 
 // Debug logging
 const dlog = (message: string, ...args: any[]) => {
@@ -38,6 +38,19 @@ const dlogFull = (message: string, ...args: any[]) => {
       console.log(`[OpenAI] ${message}`, ...args);
     }
   } catch {}
+};
+
+type OpenAIRequestMessage = {
+  role: string;
+  content?: unknown;
+  [key: string]: unknown;
+};
+
+type OpenAIRequestOptions = {
+  messages?: OpenAIRequestMessage[];
+  provider?: Record<string, unknown>;
+  response_format?: { type?: string; [key: string]: unknown };
+  [key: string]: unknown;
 };
 
 export class OpenAIAdapter implements TranslationProvider, Provider {
@@ -94,10 +107,11 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
           ? client.chat.completions.create(simpleOptions, { signal: abortSignal })
           : client.chat.completions.create(simpleOptions));
       } else {
+        const errorMessage = error?.message || '';
         // Same "No endpoints found" class as chatJSON: OpenRouter's routing 404 names no
         // parameter, so isParameterError above can never match it. Retry once without
         // require_parameters when that's what filtered every endpoint out.
-        const noEndpointsRetryOptions = this.isNoEndpointsError(error?.message || '')
+        const noEndpointsRetryOptions = this.isNoEndpointsError(errorMessage)
           ? this.withoutRequireParameters(requestOptions)
           : null;
         if (noEndpointsRetryOptions) {
@@ -109,6 +123,21 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
           response = await (abortSignal
             ? client.chat.completions.create(noEndpointsRetryOptions, { signal: abortSignal })
             : client.chat.completions.create(noEndpointsRetryOptions));
+        } else if (
+          requestOptions.response_format?.type === 'json_schema' &&
+          this.isStructuredOutputError(errorMessage)
+        ) {
+          console.warn(
+            `[OpenAI] ${settings.model} rejected json_schema; retrying once with json_object and an explicit schema instruction.`
+          );
+          recordParameterFailure(settings.model, 'response_format');
+          const fallbackOptions = this.withJsonObjectResponse(
+            requestOptions,
+            getTranslationOnlyResponseJsonSchema()
+          );
+          response = await (abortSignal
+            ? client.chat.completions.create(fallbackOptions, { signal: abortSignal })
+            : client.chat.completions.create(fallbackOptions));
         } else {
           dlogFull('Full error response:', JSON.stringify(error, null, 2));
 
@@ -180,7 +209,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
       input.temperature ?? settings.temperature ?? 0.2,
       'temperature'
     );
-    const requestOptions: any = {
+    let requestOptions: any = {
       model,
       messages,
       ...getChatCompletionRequestParameters(
@@ -191,19 +220,12 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
       ),
     };
 
-    // When the caller doesn't pin structuredOutputs, ask the capability service — with
-    // provenance, because a `false` that came from a fetch failure (not metadata) means the
-    // downgrade below is a guess against a paid request and must be logged (integrity item 1).
-    let structuredSupport: StructuredOutputsSupport | null = null;
-    let hasStructuredOutputs: boolean;
-    if (!input.schema) {
-      hasStructuredOutputs = false;
-    } else if (input.structuredOutputs !== undefined) {
-      hasStructuredOutputs = Boolean(input.structuredOutputs);
-    } else {
-      structuredSupport = await getStructuredOutputsSupport(settings.provider, model);
-      hasStructuredOutputs = structuredSupport.supported;
-    }
+    // Request construction is local and deterministic. OpenRouter model metadata remains
+    // advisory UI data; it must not hold an ordinary paid request behind its retry budget.
+    // A real provider rejection is handled once below and remembered for this session.
+    const hasStructuredOutputs = Boolean(input.schema) &&
+      shouldRequestStructuredOutputs(settings.provider, input.structuredOutputs ?? true) &&
+      !hasRecordedParameterFailure(model, 'response_format');
 
     if (hasStructuredOutputs && input.schema) {
       // OpenAI's strict json_schema validator speaks a stricter dialect
@@ -235,16 +257,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         };
       }
     } else {
-      // Downgrading to json_object is only legitimate when METADATA says the model lacks
-      // structured outputs. When the capability answer was itself a failure-default, this paid
-      // request is being silently weakened on a guess — log it, with the model id.
-      if (input.schema && structuredSupport && structuredSupport.source !== 'metadata') {
-        console.warn(
-          `[OpenAI] Structured outputs DOWNGRADED to json_object for ${model}: the capability answer was a ` +
-          `${structuredSupport.source === 'default-error' ? 'failure default (capability metadata fetch failed)' : 'miss default (model not in capability metadata)'}, not real metadata.`
-        );
-      }
-      requestOptions.response_format = { type: 'json_object' };
+      requestOptions = this.withJsonObjectResponse(requestOptions, input.schema);
       // Still apply provider preferences for non-structured outputs
       if (settings.provider === 'OpenRouter' && input.providerPreferences) {
         requestOptions.provider = { ...input.providerPreferences };
@@ -280,12 +293,10 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         response = await (input.abortSignal
           ? client.chat.completions.create(noEndpointsRetryOptions, { signal: input.abortSignal })
           : client.chat.completions.create(noEndpointsRetryOptions));
-      } else if (hasStructuredOutputs && /response_format|structured_outputs|not supported/i.test(message)) {
-        dlog('Structured outputs not supported; retrying without schema.');
-        const fallbackOptions = {
-          ...requestOptions,
-          response_format: { type: 'json_object' },
-        };
+      } else if (hasStructuredOutputs && this.isStructuredOutputError(message)) {
+        dlog('Structured outputs not supported; retrying with json_object.');
+        recordParameterFailure(model, 'response_format');
+        const fallbackOptions = this.withJsonObjectResponse(requestOptions, input.schema);
         response = await (input.abortSignal
           ? client.chat.completions.create(fallbackOptions, { signal: input.abortSignal })
           : client.chat.completions.create(fallbackOptions));
@@ -374,8 +385,8 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     history: HistoricalChapter[], 
     fanTranslation?: string | null
   ): Promise<any> {
-    const structuredSupport = await getStructuredOutputsSupport(settings.provider, settings.model);
-    const hasStructuredOutputs = structuredSupport.supported;
+    const hasStructuredOutputs = shouldRequestStructuredOutputs(settings.provider) &&
+      !hasRecordedParameterFailure(settings.model, 'response_format');
 
     // Translation runs without the amendment protocol; proposals are generated separately.
     let systemPrompt = getTranslationSystemPrompt(settings.systemPrompt);
@@ -409,21 +420,8 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         }
       }
     } else {
-      // A failure-default (fetch failed / model unknown) is not metadata: the paid translation
-      // request is being downgraded to json_object on a guess — log it (integrity item 1).
-      if (structuredSupport.source !== 'metadata') {
-        console.warn(
-          `[OpenAI] Structured outputs DOWNGRADED to json_object for ${settings.model}: the capability answer was a ` +
-          `${structuredSupport.source === 'default-error' ? 'failure default (capability metadata fetch failed)' : 'miss default (model not in capability metadata)'}, not real metadata.`
-        );
-      }
       requestOptions.response_format = { type: 'json_object' };
-      const schemaString = JSON.stringify(schema, null, 2);
-      const schemaInjection = `
-
-Your response MUST be a single, valid JSON object that conforms to the following JSON schema:
-
-${schemaString}`;
+      const schemaInjection = this.getJsonSchemaInstruction(schema);
 
       // Avoid duplicating the injection if the user's prompt already contains it
       if (!systemPrompt.includes('Your response MUST be a single, valid JSON object')) {
@@ -466,12 +464,12 @@ ${schemaString}`;
     requestOptions.messages = messages;
 
     // Add supported parameters
-    await this.addSupportedParameters(requestOptions, settings);
+    this.addSupportedParameters(requestOptions, settings);
 
     return requestOptions;
   }
 
-  private async addSupportedParameters(requestOptions: any, settings: AppSettings): Promise<void> {
+  private addSupportedParameters(requestOptions: any, settings: AppSettings): void {
     const optionalParameters = getChatCompletionOptionalParameters(
       settings.provider,
       settings.model,
@@ -493,16 +491,7 @@ ${schemaString}`;
           : {}),
       }
     );
-    const candidates = Object.entries(optionalParameters);
-    const supported = await Promise.all(
-      candidates.map(([parameter]) =>
-        supportsParameters(settings.provider, settings.model, [parameter])
-      )
-    );
-
-    for (const [index, [parameter, value]] of candidates.entries()) {
-      if (supported[index]) requestOptions[parameter] = value;
-    }
+    Object.assign(requestOptions, optionalParameters);
 
     // Add max tokens — always send a value to avoid API-default truncation.
     // OpenRouter in particular returns short responses when max_tokens is omitted.
@@ -561,16 +550,64 @@ ${schemaString}`;
     return /no endpoints found/i.test(message || '');
   }
 
+  private isStructuredOutputError(message: string): boolean {
+    return /response[_ ]format|structured[_ ]outputs?|json[_ ]schema|schema.{0,40}not supported|not support.{0,40}schema/i.test(message || '');
+  }
+
+  private getJsonSchemaInstruction(schema: unknown): string {
+    return `
+
+Your response MUST be a single, valid JSON object that conforms to the following JSON schema:
+
+${JSON.stringify(schema, null, 2)}`;
+  }
+
+  private withJsonObjectResponse<T extends OpenAIRequestOptions>(
+    requestOptions: T,
+    schema?: unknown
+  ): T {
+    const jsonObjectOptions = {
+      ...requestOptions,
+      response_format: { type: 'json_object' },
+    } as T;
+    const withoutRoutingRequirement = this.withoutRequireParameters(jsonObjectOptions) ?? jsonObjectOptions;
+    if (!schema || !Array.isArray(withoutRoutingRequirement.messages)) {
+      return withoutRoutingRequirement;
+    }
+
+    const marker = 'Your response MUST be a single, valid JSON object';
+    const instruction = this.getJsonSchemaInstruction(schema);
+    const messages = withoutRoutingRequirement.messages.map((message) => ({ ...message }));
+    let targetIndex = -1;
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      if (messages[i]?.role === 'system') {
+        targetIndex = i;
+        break;
+      }
+    }
+
+    if (targetIndex >= 0) {
+      const content = String(messages[targetIndex].content ?? '');
+      if (!content.includes(marker)) {
+        messages[targetIndex].content = `${content}${instruction}`;
+      }
+    } else {
+      messages.unshift({ role: 'system', content: instruction.trim() });
+    }
+
+    return { ...withoutRoutingRequirement, messages } as T;
+  }
+
   /**
    * A copy of requestOptions with provider.require_parameters removed, or null when it was not
    * set — in which case a retry would rebuild the identical failing request and there is
    * nothing to adapt.
    */
-  private withoutRequireParameters(requestOptions: any): any | null {
+  private withoutRequireParameters<T extends OpenAIRequestOptions>(requestOptions: T): T | null {
     const provider = requestOptions?.provider;
     if (!provider || provider.require_parameters === undefined) return null;
     const { require_parameters: _removed, ...rest } = provider;
-    const cleaned = { ...requestOptions };
+    const cleaned = { ...requestOptions } as T;
     if (Object.keys(rest).length > 0) cleaned.provider = rest;
     else delete cleaned.provider;
     return cleaned;

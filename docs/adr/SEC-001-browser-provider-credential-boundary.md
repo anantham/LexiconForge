@@ -75,8 +75,8 @@ The following invariants apply:
 - `services/defaultApiKeyService.ts` and `components/DefaultKeyBanner.tsx` were removed.
 - `scripts/security/scan-client-secrets.mjs` and `.github/workflows/test.yml` enforce the artifact boundary with pattern checks and build canaries.
 - `docs/guides/EnvVars.md` and `docs/guides/DEPLOYMENT.md` define the operator contract.
-- Sutta Studio compilation, compiler capability/provenance checks, and word alignment resolve the configured provider exactly; they do not rewrite OpenAI to OpenRouter or silently change credential sources.
-- OpenAI-compatible request construction applies deterministic local GPT-5 parameter restrictions; remote OpenRouter capability metadata is not a prerequisite for ordinary provider requests.
+- Sutta Studio compilation, compiler request policy/provenance, and word alignment resolve the configured provider exactly; they do not rewrite OpenAI to OpenRouter or silently change credential sources.
+- OpenAI-compatible request construction applies deterministic local GPT-5 parameter restrictions. `services/ai/structuredOutputPolicy.ts` also selects the initial schema mode synchronously; remote OpenRouter capability metadata is advisory and is not a prerequisite for translation, Sutta Studio compilation, or illustration planning. OpenRouter model variance is handled from the configured provider's real response with one bounded `json_schema` to `json_object` fallback.
 
 ## Verification
 

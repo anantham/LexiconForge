@@ -108,7 +108,7 @@ if (!apiKey) {
 
 ### capabilityService
 
-Runtime detection of provider capabilities:
+Runtime metadata for Settings hints and pricing:
 
 ```typescript
 // Check structured output support
@@ -120,6 +120,12 @@ const supportsTemp = await supportsParameters('OpenRouter', 'gpt-4o', ['temperat
 // Get model pricing
 const pricing = await getModelPricing('gpt-4o');
 ```
+
+Ordinary request construction does not await this metadata service. Initial structured-output
+mode comes from the synchronous transport policy in `services/ai/structuredOutputPolicy.ts`;
+OpenAI-compatible adapters use a bounded `json_schema` to `json_object` fallback when the
+configured provider explicitly rejects the schema request. This keeps metadata outages off the
+paid request path while retaining adaptive behavior for OpenRouter's model-dependent support.
 
 ### Capability Matrix
 

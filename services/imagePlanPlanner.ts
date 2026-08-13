@@ -5,13 +5,13 @@ import OpenAI from 'openai';
 
 import prompts from '../config/prompts.json';
 import type { AppSettings, ImagePlan } from '../types';
-import { supportsStructuredOutputs } from './capabilityService';
 import {
   getConfiguredApiKey,
   getOpenAICompatibleConfig,
 } from './ai/providerCredentials';
 import { extractBalancedJson, replacePlaceholders } from './ai/textUtils';
 import { getChatCompletionRequestParameters } from './ai/openaiRequestParameters';
+import { shouldRequestStructuredOutputs } from './ai/structuredOutputPolicy';
 import { buildImagePlanFromCaption, normalizeImagePlan } from './imagePlanService';
 
 export interface PlannedIllustration {
@@ -235,7 +235,7 @@ const requestViaOpenAICompatible = async (
   }
 
   const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
-  const supportsSchema = await supportsStructuredOutputs(settings.provider, settings.model);
+  const supportsSchema = shouldRequestStructuredOutputs(settings.provider);
   const requestParameters = getChatCompletionRequestParameters(
     settings.provider,
     settings.model,
@@ -252,10 +252,16 @@ const requestViaOpenAICompatible = async (
       content: userPrompt,
     },
   ];
+  const schemaGuidedMessages = messages.map((message, index) => index === 0
+    ? {
+        ...message,
+        content: `${message.content}\n\nReturn one JSON object matching this schema:\n${JSON.stringify(plannerResponseSchema, null, 2)}`,
+      }
+    : message);
 
   const requestBody: Record<string, unknown> = {
     model: settings.model,
-    messages,
+    messages: supportsSchema ? messages : schemaGuidedMessages,
     ...requestParameters,
   };
 
@@ -270,9 +276,6 @@ const requestViaOpenAICompatible = async (
     };
   } else {
     requestBody.response_format = { type: 'json_object' };
-    if (settings.provider === 'OpenRouter') {
-      requestBody.provider = { require_parameters: true };
-    }
   }
 
   try {
@@ -290,7 +293,7 @@ const requestViaOpenAICompatible = async (
 
     const fallbackResponse = await client.chat.completions.create({
       model: settings.model,
-      messages,
+      messages: schemaGuidedMessages,
       ...requestParameters,
     });
 

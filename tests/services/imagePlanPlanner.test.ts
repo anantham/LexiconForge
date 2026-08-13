@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { openAiCreateMock, supportsStructuredOutputsMock } = vi.hoisted(() => ({
+const { openAiCreateMock, capabilityMetadataMock } = vi.hoisted(() => ({
   openAiCreateMock: vi.fn(),
-  supportsStructuredOutputsMock: vi.fn(),
+  capabilityMetadataMock: vi.fn(() => Promise.reject(
+    new Error('ordinary planning must not await capability metadata')
+  )),
 }));
 
 vi.mock('openai', () => ({
@@ -16,7 +18,7 @@ vi.mock('openai', () => ({
 }));
 
 vi.mock('../../services/capabilityService', () => ({
-  supportsStructuredOutputs: supportsStructuredOutputsMock,
+  supportsStructuredOutputs: capabilityMetadataMock,
 }));
 
 const geminiPlannerMocks = vi.hoisted(() => ({ generateContent: vi.fn() }));
@@ -55,7 +57,6 @@ const mockSettings = {
 describe('imagePlanPlanner', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    supportsStructuredOutputsMock.mockResolvedValue(true);
   });
 
   it('uses the few-shot caption planner prompt and parses structured JSON', async () => {
@@ -99,6 +100,48 @@ describe('imagePlanPlanner', () => {
     expect(requestBody.messages[1].content).toContain('Caption: "Silver-haired swordswoman alone in a ruined shrine"');
     expect(requestBody.messages[1].content).toContain('Context: "dark fantasy, lonely victory"');
     expect(requestBody.temperature).toBe(0.4);
+    expect(requestBody.response_format?.type).toBe('json_schema');
+    expect(capabilityMetadataMock).not.toHaveBeenCalled();
+  });
+
+  it('uses json_object locally for the known non-schema DeepSeek transport', async () => {
+    openAiCreateMock.mockResolvedValue({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            imagePrompt: 'A quiet mountain path.',
+            imagePlan: {
+              subject: 'A quiet mountain path.',
+              characters: [],
+              scene: 'Mountain path at dawn.',
+              composition: 'Wide shot.',
+              camera: 'Eye level.',
+              lighting: 'Soft dawn light.',
+              style: 'Painterly.',
+              mood: 'Still.',
+              details: ['mist'],
+              mustKeep: ['path'],
+              avoid: ['city'],
+              negativePrompt: ['watermark'],
+            },
+          }),
+        },
+      }],
+    });
+
+    await generateImagePlanFromCaption(
+      'A quiet mountain path.',
+      {
+        ...mockSettings,
+        provider: 'DeepSeek',
+        model: 'deepseek-chat',
+        apiKeyDeepSeek: 'test-deepseek-key',
+      } as any
+    );
+
+    expect(openAiCreateMock.mock.calls[0][0].response_format).toEqual({ type: 'json_object' });
+    expect(openAiCreateMock.mock.calls[0][0].messages[0].content).toContain('matching this schema');
+    expect(capabilityMetadataMock).not.toHaveBeenCalled();
   });
 
   it('falls back to a caption-derived plan when planner calls fail', async () => {
@@ -152,6 +195,7 @@ describe('imagePlanPlanner', () => {
       expect(request).not.toHaveProperty('max_tokens');
       expect(request).not.toHaveProperty('temperature');
     }
+    expect(openAiCreateMock.mock.calls[1][0].messages[0].content).toContain('matching this schema');
   });
 
   it('builds structured prompts for selection-based illustration planning', async () => {
