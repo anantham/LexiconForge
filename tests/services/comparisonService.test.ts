@@ -21,15 +21,9 @@ const openAiMocks = vi.hoisted(() => {
   return { createMock, ctorMock, MockOpenAI };
 });
 
-const supportsParametersMock = vi.hoisted(() => vi.fn());
-
 vi.mock('openai', () => ({
   __esModule: true,
   OpenAI: openAiMocks.MockOpenAI,
-}));
-
-vi.mock('../../services/capabilityService', () => ({
-  supportsParameters: supportsParametersMock,
 }));
 
 import { ComparisonService } from '../../services/comparisonService';
@@ -60,7 +54,6 @@ const baseArgs = {
 beforeEach(() => {
   openAiMocks.createMock.mockReset();
   openAiMocks.ctorMock.mockClear();
-  supportsParametersMock.mockReset().mockResolvedValue(true);
 });
 
 describe('ComparisonService.requestFocusedComparison', () => {

@@ -236,11 +236,11 @@ const requestViaOpenAICompatible = async (
 
   const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
   const supportsSchema = await supportsStructuredOutputs(settings.provider, settings.model);
-  const requestParameters = await getChatCompletionRequestParameters(
+  const requestParameters = getChatCompletionRequestParameters(
     settings.provider,
     settings.model,
     plannerMaxTokens(settings),
-    PLANNER_TEMPERATURE
+    { temperature: PLANNER_TEMPERATURE }
   );
   const messages = [
     {

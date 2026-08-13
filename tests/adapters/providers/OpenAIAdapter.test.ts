@@ -243,6 +243,7 @@ describe('OpenAIAdapter translate() parameter handling', () => {
     openAiMocks.ctor.mockClear();
     recordMetricMock.mockClear();
     supportsStructuredOutputsMock.mockResolvedValue(false);
+    supportsParametersMock.mockReset().mockResolvedValue(true);
   });
 
   it('retries without advanced params when parameter error occurs', async () => {
@@ -279,13 +280,17 @@ describe('OpenAIAdapter translate() parameter handling', () => {
     expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
   });
 
-  it('omits temperature up front for direct OpenAI GPT-5 translation requests', async () => {
+  it('omits unsupported optional parameters up front for direct OpenAI GPT-5 translations', async () => {
     const adapter = new OpenAIAdapter('OpenAI');
     openAiMocks.create.mockResolvedValueOnce(successResponse);
     const settings: AppSettings = {
       ...baseSettings,
       model: 'gpt-5-mini',
       temperature: 0.9,
+      topP: 0.5,
+      frequencyPenalty: 1,
+      presencePenalty: 0.2,
+      seed: 123,
     };
 
     await adapter.translate({ title: 'T', content: 'Body', settings, history: [] });
@@ -294,6 +299,12 @@ describe('OpenAIAdapter translate() parameter handling', () => {
     expect(request.max_completion_tokens).toBeDefined();
     expect(request).not.toHaveProperty('max_tokens');
     expect(request).not.toHaveProperty('temperature');
+    expect(request).not.toHaveProperty('top_p');
+    expect(request).not.toHaveProperty('frequency_penalty');
+    expect(request).not.toHaveProperty('presence_penalty');
+    expect(request.seed).toBe(123);
+    expect(supportsParametersMock).toHaveBeenCalledOnce();
+    expect(supportsParametersMock).toHaveBeenCalledWith('OpenAI', 'gpt-5-mini', ['seed']);
   });
 });
 

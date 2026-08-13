@@ -138,11 +138,11 @@ export class ComparisonService {
     const completion = await client.chat.completions.create({
       model: settings.model,
       messages: [{ role: 'user', content: prompt }],
-      ...await getChatCompletionRequestParameters(
+      ...getChatCompletionRequestParameters(
         settings.provider,
         settings.model,
         maxOutput,
-        0
+        { temperature: 0 }
       ),
     });
 

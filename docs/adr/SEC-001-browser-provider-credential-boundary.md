@@ -76,6 +76,7 @@ The following invariants apply:
 - `scripts/security/scan-client-secrets.mjs` and `.github/workflows/test.yml` enforce the artifact boundary with pattern checks and build canaries.
 - `docs/guides/EnvVars.md` and `docs/guides/DEPLOYMENT.md` define the operator contract.
 - Sutta Studio compilation, compiler capability/provenance checks, and word alignment resolve the configured provider exactly; they do not rewrite OpenAI to OpenRouter or silently change credential sources.
+- OpenAI-compatible request construction applies deterministic local GPT-5 parameter restrictions; remote OpenRouter capability metadata is not a prerequisite for ordinary provider requests.
 
 ## Verification
 

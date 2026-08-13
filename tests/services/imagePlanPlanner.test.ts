@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { openAiCreateMock, supportsStructuredOutputsMock, supportsParametersMock } = vi.hoisted(() => ({
+const { openAiCreateMock, supportsStructuredOutputsMock } = vi.hoisted(() => ({
   openAiCreateMock: vi.fn(),
   supportsStructuredOutputsMock: vi.fn(),
-  supportsParametersMock: vi.fn(),
 }));
 
 vi.mock('openai', () => ({
@@ -18,7 +17,6 @@ vi.mock('openai', () => ({
 
 vi.mock('../../services/capabilityService', () => ({
   supportsStructuredOutputs: supportsStructuredOutputsMock,
-  supportsParameters: supportsParametersMock,
 }));
 
 const geminiPlannerMocks = vi.hoisted(() => ({ generateContent: vi.fn() }));
@@ -58,7 +56,6 @@ describe('imagePlanPlanner', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     supportsStructuredOutputsMock.mockResolvedValue(true);
-    supportsParametersMock.mockResolvedValue(true);
   });
 
   it('uses the few-shot caption planner prompt and parses structured JSON', async () => {

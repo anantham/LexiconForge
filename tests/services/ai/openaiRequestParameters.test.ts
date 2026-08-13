@@ -1,20 +1,18 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-const supportsParametersMock = vi.hoisted(() => vi.fn());
+const supportsParametersMock = vi.hoisted(() => vi.fn(() => {
+  throw new Error('request construction must not query remote capability metadata');
+}));
 
 vi.mock('../../../services/capabilityService', () => ({
   supportsParameters: supportsParametersMock,
 }));
 
 import {
+  getChatCompletionOptionalParameters,
   getChatCompletionRequestParameters,
-  getChatCompletionTemperature,
   getChatCompletionTokenLimit,
 } from '../../../services/ai/openaiRequestParameters';
-
-beforeEach(() => {
-  supportsParametersMock.mockReset().mockResolvedValue(true);
-});
 
 describe('getChatCompletionTokenLimit', () => {
   it.each([
@@ -31,55 +29,52 @@ describe('getChatCompletionTokenLimit', () => {
 });
 
 describe('getChatCompletionRequestParameters', () => {
-  it('omits temperature fail-closed for direct OpenAI GPT-5 models', async () => {
-    const result = await getChatCompletionRequestParameters('OpenAI', 'gpt-5-mini', 2048, 0.5);
+  it('omits unsupported optional parameters fail-closed for direct OpenAI GPT-5 models', () => {
+    const result = getChatCompletionRequestParameters('OpenAI', 'gpt-5-mini', 2048, {
+      temperature: 0.5,
+      top_p: 0.8,
+      frequency_penalty: 0.2,
+      presence_penalty: 0.3,
+      seed: 42,
+    });
 
-    expect(result).toEqual({ max_completion_tokens: 2048 });
-    expect(supportsParametersMock).not.toHaveBeenCalled();
+    expect(result).toEqual({ max_completion_tokens: 2048, seed: 42 });
   });
 
-  it('omits temperature fail-closed for GPT-5 models routed through OpenRouter', async () => {
-    const result = await getChatCompletionRequestParameters(
+  it('omits unsupported optional parameters for GPT-5 models routed through OpenRouter', () => {
+    const result = getChatCompletionRequestParameters(
       'OpenRouter',
       'openai/gpt-5.4-mini',
       2048,
-      0.5
+      { temperature: 0.5, top_p: 0.8 }
     );
 
     expect(result).toEqual({ max_tokens: 2048 });
+  });
+
+  it('retains optional parameters for other models without awaiting remote metadata', () => {
+    const result = getChatCompletionRequestParameters(
+      'OpenRouter',
+      'google/gemini-flash',
+      2048,
+      { temperature: 0.25, top_p: 0.9 }
+    );
+
+    expect(result).toEqual({ max_tokens: 2048, temperature: 0.25, top_p: 0.9 });
+    expect(result).not.toBeInstanceOf(Promise);
     expect(supportsParametersMock).not.toHaveBeenCalled();
   });
 
-  it('omits temperature when provider metadata reports it unsupported', async () => {
-    supportsParametersMock.mockResolvedValueOnce(false);
-
-    const result = await getChatCompletionRequestParameters(
+  it('exposes the same pure optional-parameter contract without a token limit', () => {
+    expect(getChatCompletionOptionalParameters(
       'OpenRouter',
-      'vendor/reasoning-model',
-      2048,
-      0.5
-    );
-
-    expect(result).toEqual({ max_tokens: 2048 });
-    expect(supportsParametersMock).toHaveBeenCalledWith(
+      'openai/gpt-5',
+      { temperature: 0.2, top_p: 0.9, seed: 7 }
+    )).toEqual({ seed: 7 });
+    expect(getChatCompletionOptionalParameters(
       'OpenRouter',
-      'vendor/reasoning-model',
-      ['temperature']
-    );
-  });
-
-  it('retains temperature for a model that reports support', async () => {
-    const result = await getChatCompletionRequestParameters('OpenAI', 'gpt-4o-mini', 2048, 0.25);
-
-    expect(result).toEqual({ max_tokens: 2048, temperature: 0.25 });
-  });
-
-  it('exposes the same temperature-only contract for callers without a token limit', async () => {
-    expect(
-      await getChatCompletionTemperature('OpenRouter', 'openai/gpt-5', 0.2)
-    ).toEqual({});
-    expect(
-      await getChatCompletionTemperature('OpenRouter', 'google/gemini-flash', 0.2)
-    ).toEqual({ temperature: 0.2 });
+      'google/gemini-flash',
+      { temperature: 0.2 }
+    )).toEqual({ temperature: 0.2 });
   });
 });

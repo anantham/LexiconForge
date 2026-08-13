@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   create: vi.fn(),
-  supportsParameters: vi.fn(),
   recordMetric: vi.fn(),
 }));
 
@@ -10,10 +9,6 @@ vi.mock('openai', () => ({
   default: class OpenAI {
     chat = { completions: { create: mocks.create } };
   },
-}));
-
-vi.mock('../../../services/capabilityService', () => ({
-  supportsParameters: mocks.supportsParameters,
 }));
 
 vi.mock('../../../services/ai/cost', () => ({
@@ -33,7 +28,6 @@ describe('SimpleLLMAdapter request parameters', () => {
       usage: { prompt_tokens: 1, completion_tokens: 1 },
       model: 'openai/gpt-5',
     });
-    mocks.supportsParameters.mockReset().mockResolvedValue(true);
     mocks.recordMetric.mockReset().mockResolvedValue(undefined);
     vi.spyOn(console, 'log').mockImplementation(() => undefined);
   });

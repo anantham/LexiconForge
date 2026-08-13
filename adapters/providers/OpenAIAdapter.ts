@@ -17,8 +17,8 @@ import { extractBalancedJson, replacePlaceholders } from '../../services/ai/text
 import { validateAndClampParameter } from '../../services/ai/parameters';
 import { toOpenAIStrictSchema, needsOpenAIStrictSchema } from '../../services/ai/openaiStrictSchema';
 import {
+  getChatCompletionOptionalParameters,
   getChatCompletionRequestParameters,
-  getChatCompletionTemperature,
   getChatCompletionTokenLimit,
 } from '../../services/ai/openaiRequestParameters';
 
@@ -183,11 +183,11 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     const requestOptions: any = {
       model,
       messages,
-      ...await getChatCompletionRequestParameters(
+      ...getChatCompletionRequestParameters(
         settings.provider,
         model,
         maxTokens,
-        temperature
+        { temperature }
       ),
     };
 
@@ -472,32 +472,36 @@ ${schemaString}`;
   }
 
   private async addSupportedParameters(requestOptions: any, settings: AppSettings): Promise<void> {
-    // Check parameter support
-    const requestedTemperature = settings.temperature !== appConfig.aiParameters.defaults.temperature
-      ? validateAndClampParameter(settings.temperature, 'temperature')
-      : undefined;
-    const [temperatureParameters, supportsTopP, supportsFreqPen, supportsPresPen, supportsSeed] =
-      await Promise.all([
-        getChatCompletionTemperature(settings.provider, settings.model, requestedTemperature),
-        supportsParameters(settings.provider, settings.model, ['top_p']),
-        supportsParameters(settings.provider, settings.model, ['frequency_penalty']),
-        supportsParameters(settings.provider, settings.model, ['presence_penalty']),
-        supportsParameters(settings.provider, settings.model, ['seed'])
-      ]);
+    const optionalParameters = getChatCompletionOptionalParameters(
+      settings.provider,
+      settings.model,
+      {
+        ...(settings.temperature !== appConfig.aiParameters.defaults.temperature
+          ? { temperature: validateAndClampParameter(settings.temperature, 'temperature') }
+          : {}),
+        ...(settings.topP !== undefined && settings.topP !== appConfig.aiParameters.defaults.top_p
+          ? { top_p: validateAndClampParameter(settings.topP, 'top_p') }
+          : {}),
+        ...(settings.frequencyPenalty !== undefined && settings.frequencyPenalty !== appConfig.aiParameters.defaults.frequency_penalty
+          ? { frequency_penalty: validateAndClampParameter(settings.frequencyPenalty, 'frequency_penalty') }
+          : {}),
+        ...(settings.presencePenalty !== undefined && settings.presencePenalty !== appConfig.aiParameters.defaults.presence_penalty
+          ? { presence_penalty: validateAndClampParameter(settings.presencePenalty, 'presence_penalty') }
+          : {}),
+        ...(settings.seed !== undefined && settings.seed !== null
+          ? { seed: validateAndClampParameter(settings.seed, 'seed') }
+          : {}),
+      }
+    );
+    const candidates = Object.entries(optionalParameters);
+    const supported = await Promise.all(
+      candidates.map(([parameter]) =>
+        supportsParameters(settings.provider, settings.model, [parameter])
+      )
+    );
 
-    // Add parameters if supported and different from defaults
-    Object.assign(requestOptions, temperatureParameters);
-    if (supportsTopP && settings.topP !== undefined && settings.topP !== appConfig.aiParameters.defaults.top_p) {
-      requestOptions.top_p = validateAndClampParameter(settings.topP, 'top_p');
-    }
-    if (supportsFreqPen && settings.frequencyPenalty !== undefined && settings.frequencyPenalty !== appConfig.aiParameters.defaults.frequency_penalty) {
-      requestOptions.frequency_penalty = validateAndClampParameter(settings.frequencyPenalty, 'frequency_penalty');
-    }
-    if (supportsPresPen && settings.presencePenalty !== undefined && settings.presencePenalty !== appConfig.aiParameters.defaults.presence_penalty) {
-      requestOptions.presence_penalty = validateAndClampParameter(settings.presencePenalty, 'presence_penalty');
-    }
-    if (supportsSeed && settings.seed !== undefined && settings.seed !== null) {
-      requestOptions.seed = validateAndClampParameter(settings.seed, 'seed');
+    for (const [index, [parameter, value]] of candidates.entries()) {
+      if (supported[index]) requestOptions[parameter] = value;
     }
 
     // Add max tokens — always send a value to avoid API-default truncation.

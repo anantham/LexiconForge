@@ -8,7 +8,7 @@
 import OpenAI from 'openai';
 import { calculateCost } from '../ai/cost';
 import { apiMetricsService } from '../apiMetricsService';
-import { getChatCompletionTemperature } from '../ai/openaiRequestParameters';
+import { getChatCompletionOptionalParameters } from '../ai/openaiRequestParameters';
 
 interface SimpleLLMResponse {
   translatedText: string;
@@ -67,10 +67,10 @@ export function createSimpleLLMAdapter(apiKey?: string): SimpleLLMProvider {
             ...(options.systemPrompt ? [{ role: 'system' as const, content: options.systemPrompt }] : []),
             { role: 'user' as const, content: options.text }
           ],
-          ...await getChatCompletionTemperature(
+          ...getChatCompletionOptionalParameters(
             options.provider,
             options.model,
-            options.temperature
+            { temperature: options.temperature }
           ),
           response_format: { type: 'json_object' }
         });

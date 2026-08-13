@@ -79,11 +79,11 @@ export class ExplanationService {
       const requestBody: OpenAI.Chat.Completions.ChatCompletionCreateParams = {
         model: settings.model,
         messages,
-        ...await getChatCompletionRequestParameters(
+        ...getChatCompletionRequestParameters(
           settings.provider,
           settings.model,
           maxOutput,
-          0.5
+          { temperature: 0.5 }
         ),
       };
 
