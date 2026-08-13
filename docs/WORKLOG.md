@@ -1,3 +1,12 @@
+### [2026-08-13 16:29 IST] [Agent: Codex]
+**Status:** In progress - removing a false-green review workflow discovered on PR #137
+**Task:** Ensure the credential-containment PR receives a real Codex review without preserving a misleading CI result.
+**Root cause:** `.github/workflows/codex-review.yml` passed an unsupported `review-comment` input to `openai/codex-action@v1`. GitHub warned about the input, skipped `codex exec`, and still marked the job successful because no review-output assertion existed.
+**Decision:** Delete the broken workflow. A direct `@codex review` request was posted through the repository's already-connected Codex GitHub integration; the integration acknowledged it with an eyes reaction. Adding a new permanent API-key path for every private PR requires a separate, explicit data-egress decision and is outside this incident fix.
+**Prediction:** the follow-up commit removes the false green; PR #137 remains unmerged until the acknowledged Codex integration posts an actual review and the Test workflow succeeds.
+**Fallback:** if the connected integration does not return a review, leave the PR open and report that exact external blocker rather than treating the deleted workflow's historical success as review evidence.
+**Confidence:** 0.99
+
 ### [2026-08-13 16:01 IST] [Agent: Codex]
 **Status:** Ready for commit and PR; external containment, implementation, and local verification complete
 **Task:** Contain production provider credentials and replace browser build-time/shared-key pathways with Settings-only BYOK.
