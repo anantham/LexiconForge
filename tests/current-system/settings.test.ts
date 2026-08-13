@@ -4,6 +4,7 @@ import { defaultSettings } from '../../services/sessionManagementService';
 import { createMockStorage, applyStorageMock } from '../utils/storage-mocks';
 import type { EnhancedChapter } from '../../services/stableIdService';
 import type { AppSettings, TranslationResult } from '../../types';
+import { audioService } from '../../services/audio/AudioService';
 
 const resetStoreState = () => {
   useAppStore.setState({
@@ -89,6 +90,32 @@ describe('Settings slice integration', () => {
     expect(payload.contextDepth).toBe(4);
     expect(payload.apiKeyOpenAI).toBe('sk-test');
     expect(payload.systemPrompt).toBe('Custom system prompt');
+  });
+
+  it('rotates and clears audio provider credentials without a reload', () => {
+    const initializeSpy = vi.spyOn(audioService, 'initialize');
+    const store = useAppStore.getState();
+
+    store.updateSettings({ apiKeyPiAPI: 'first-piapi-key' });
+    expect(initializeSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({ apiKeyPiAPI: 'first-piapi-key' })
+    );
+    expect(audioService.isAvailable()).toBe(true);
+
+    useAppStore.getState().updateSettings({ apiKeyPiAPI: 'rotated-piapi-key' });
+    expect(initializeSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({ apiKeyPiAPI: 'rotated-piapi-key' })
+    );
+
+    useAppStore.getState().resetSettings();
+    expect(initializeSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        provider: defaultSettings.provider,
+        model: defaultSettings.model,
+      })
+    );
+    expect(initializeSpy.mock.calls.at(-1)?.[0].apiKeyPiAPI).toBeUndefined();
+    expect(audioService.isAvailable()).toBe(false);
   });
 
   it('loads stored settings when requested', () => {

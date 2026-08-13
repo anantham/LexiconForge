@@ -367,6 +367,7 @@ describe('bootstrap helpers', () => {
       expect(state.activeNovelId).toBeNull();
       expect(state.viewMode).toBe('fan');
       expect(state.chapters instanceof Map).toBe(true);
+      expect(state.initializeAudioService).toHaveBeenCalledWith(state.settings);
       expect(state.loadPromptTemplates).toHaveBeenCalledTimes(1);
       expect(history.replaceState).toHaveBeenCalledWith({}, '', '/app');
     });

@@ -421,13 +421,16 @@ describe('OpenAIAdapter chatJSON strict-schema dialect (production wiring)', () 
     const adapter = new OpenAIAdapter('OpenRouter');
     await adapter.chatJSON(chatInput('openai/gpt-5.4-mini') as any);
 
-    const sent = openAiMocks.create.mock.calls[0][0].response_format.json_schema.schema;
+    const request = openAiMocks.create.mock.calls[0][0];
+    const sent = request.response_format.json_schema.schema;
     // Strict dialect: every (surviving) property required, null-union optionality.
     expect(sent.required.sort()).toEqual(['english', 'nuance']);
     expect(sent.properties.nuance.type).toEqual(['string', 'null']);
     // Open maps are inexpressible in the strict dialect — dropped, disclosed.
     expect(sent.properties.ripples).toBeUndefined();
     expect(sent.additionalProperties).toBe(false);
+    expect(request.max_tokens).toBe(16384);
+    expect(request).not.toHaveProperty('max_completion_tokens');
   });
 
   it('applies the transform for the direct OpenAI provider (unprefixed slugs)', async () => {
@@ -435,9 +438,12 @@ describe('OpenAIAdapter chatJSON strict-schema dialect (production wiring)', () 
     const adapter = new OpenAIAdapter('OpenAI');
     await adapter.chatJSON(chatInput('gpt-5.2', 'OpenAI') as any);
 
-    const sent = openAiMocks.create.mock.calls[0][0].response_format.json_schema.schema;
+    const request = openAiMocks.create.mock.calls[0][0];
+    const sent = request.response_format.json_schema.schema;
     expect(sent.required.sort()).toEqual(['english', 'nuance']);
     expect(sent.properties.ripples).toBeUndefined();
+    expect(request.max_completion_tokens).toBe(16384);
+    expect(request).not.toHaveProperty('max_tokens');
   });
 
   it('passes the schema through UNCHANGED for non-OpenAI slugs (ripples survives)', async () => {

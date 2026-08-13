@@ -17,6 +17,19 @@ import { SessionManagementService, defaultSettings } from '../../services/sessio
 import { debugLog, debugWarn } from '../../utils/debug';
 import { providerCreditCacheService } from '../../services/providerCreditCacheService';
 import { getConfiguredApiKey } from '../../services/ai/providerCredentials';
+import { audioService } from '../../services/audio/AudioService';
+
+const syncAudioProviders = (
+  previousSettings: AppSettings,
+  nextSettings: AppSettings,
+  force = false
+): void => {
+  const previousKey = getConfiguredApiKey(previousSettings, 'PiAPI');
+  const nextKey = getConfiguredApiKey(nextSettings, 'PiAPI');
+  if (force || previousKey !== nextKey) {
+    audioService.initialize(nextSettings);
+  }
+};
 
 export interface SettingsState {
   // Core settings
@@ -87,14 +100,18 @@ export const createSettingsSlice: StateCreator<
     const currentSettings = get().settings;
     const newSettings = SessionManagementService.updateSettings(currentSettings, partial);
     set({ settings: newSettings });
+    syncAudioProviders(currentSettings, newSettings);
   },
   
   resetSettings: () => {
+    const currentSettings = get().settings;
+    const resetSettings = { ...defaultSettings };
     SessionManagementService.saveSettings(defaultSettings);
     set({ 
-      settings: { ...defaultSettings },
+      settings: resetSettings,
       settingsError: null 
     });
+    syncAudioProviders(currentSettings, resetSettings, true);
   },
   
   loadSettings: () => {
@@ -106,6 +123,7 @@ export const createSettingsSlice: StateCreator<
         settingsLoaded: true,
         settingsError: null
       });
+      syncAudioProviders(get().settings, loadedSettings, true);
     } catch (error) {
       console.error('[SettingsSlice] Failed to load settings:', error);
       set({
@@ -230,6 +248,7 @@ export const createSettingsSlice: StateCreator<
   
   importSettings: async (config) => {
     try {
+      const currentSettings = get().settings;
       SessionManagementService.importSessionConfig(config);
       
       // Reload settings after import
@@ -238,6 +257,7 @@ export const createSettingsSlice: StateCreator<
         settings: loadedSettings,
         settingsError: null 
       });
+      syncAudioProviders(currentSettings, loadedSettings, true);
       
       // Reload prompt templates if they were included
       await get().loadPromptTemplates();

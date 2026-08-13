@@ -15,8 +15,6 @@ import { useAppStore } from '../../store';
 import { DiffOps } from '../db/operations';
 import { getConfiguredApiKey } from '../ai/providerCredentials';
 
-const diffService = new DiffAnalysisService();
-
 interface TranslationCompleteEvent extends CustomEvent {
   detail: {
     chapterId: string;
@@ -62,7 +60,7 @@ export function cleanupDiffTriggerService(): void {
 /**
  * Handle translation completion events
  */
-async function handleTranslationComplete(event: Event): Promise<void> {
+export async function handleTranslationComplete(event: Event): Promise<void> {
   const customEvent = event as TranslationCompleteEvent;
   const {
     chapterId,
@@ -87,12 +85,6 @@ async function handleTranslationComplete(event: Event): Promise<void> {
   const settings = useAppStore.getState().settings;
   const diffPrompt = settings.diffAnalysisPrompt ?? null;
   const openRouterApiKey = getConfiguredApiKey(settings, 'OpenRouter');
-  if (openRouterApiKey) {
-    diffService.setTranslator(createSimpleLLMAdapter(openRouterApiKey));
-  } else {
-    diffService.setTranslator(undefined);
-    console.warn('[DiffTriggerService] No OpenRouter key in Settings; diff analysis will not generate markers');
-  }
 
   try {
     debugLog('diff', 'summary', '[DiffTrigger] Starting diff analysis for chapter:', chapterId);
@@ -100,7 +92,6 @@ async function handleTranslationComplete(event: Event): Promise<void> {
     const aiHash = computeDiffHash(aiTranslation);
     const fanHash = fanTranslation ? computeDiffHash(fanTranslation) : null;
     const rawHash = computeDiffHash(rawText);
-    const normalizedFanId = fanTranslationId ?? '';
 
     let cachedResult: DiffResult | null = null;
     if (aiTranslationId) {
@@ -145,6 +136,16 @@ async function handleTranslationComplete(event: Event): Promise<void> {
       window.dispatchEvent(new CustomEvent('diff:updated', { detail: { chapterId, cacheHit: true } }));
       return;
     }
+
+    if (!openRouterApiKey) {
+      console.warn(
+        '[DiffTriggerService] No OpenRouter key in Settings; uncached diff analysis was skipped and no placeholder was saved'
+      );
+      return;
+    }
+
+    const diffService = new DiffAnalysisService();
+    diffService.setTranslator(createSimpleLLMAdapter(openRouterApiKey));
 
     const normalizedProvider = preferredProvider?.toLowerCase() ?? null;
     const supportsRequestedProvider = normalizedProvider === 'openrouter';

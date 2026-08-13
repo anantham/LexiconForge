@@ -35,6 +35,15 @@ const dlogFull = (message: string, ...args: any[]) => {
   } catch {}
 };
 
+const setMaxOutputTokens = (requestOptions: Record<string, unknown>, model: string, maxTokens: number): void => {
+  const usesMaxCompletionTokens = ['claude', 'gpt-5'].some(prefix => model.startsWith(prefix));
+  if (usesMaxCompletionTokens) {
+    requestOptions.max_completion_tokens = maxTokens;
+  } else {
+    requestOptions.max_tokens = maxTokens;
+  }
+};
+
 export class OpenAIAdapter implements TranslationProvider, Provider {
   name: ProviderName;
 
@@ -174,8 +183,8 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     const requestOptions: any = {
       model,
       messages,
-      max_tokens: maxTokens,
     };
+    setMaxOutputTokens(requestOptions, model, maxTokens);
 
     // Only add temperature if model supports it (e.g., gpt-5.2-chat doesn't)
     const supportsTemp = await supportsParameters(settings.provider, model, ['temperature']);
@@ -500,14 +509,7 @@ ${schemaString}`;
     const effectiveMaxTokens = (settings.maxOutputTokens && settings.maxOutputTokens > 0)
       ? settings.maxOutputTokens
       : 16384; // sensible default matching Claude adapter
-    const modelsThatUseMaxCompletionTokens = ['claude', 'gpt-5'];
-    const useMaxCompletionTokens = modelsThatUseMaxCompletionTokens.some(p => settings.model.startsWith(p));
-
-    if (useMaxCompletionTokens) {
-      requestOptions.max_completion_tokens = effectiveMaxTokens;
-    } else {
-      requestOptions.max_tokens = effectiveMaxTokens;
-    }
+    setMaxOutputTokens(requestOptions, settings.model, effectiveMaxTokens);
 
     // Add OpenRouter headers if needed
     if (settings.provider === 'OpenRouter') {
