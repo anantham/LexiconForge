@@ -1,3 +1,12 @@
+### [2026-08-13 16:46 IST] [Agent: Codex]
+**Status:** Complete - CI failure diagnosed without changing production behavior
+**Failure:** GitHub Test run `31694489119` passed install, typecheck, lint, canary build, artifact scan, and 9,074 tests; its only failure was `tests/current-system/providers.test.ts`, whose hard-coded four-provider set correctly detected the newly registered OpenAI provider as a contract change.
+**Resolution:** Updated the existing canonical provider-registration test to cover both live registries plus OpenAI dispatch, and deleted the newly added duplicate initialization test. This preserves one test owner for the provider contract rather than teaching the same list in two files.
+**Prediction:** the focused provider test and complete suite pass; no production file changes are required for this CI correction.
+**Results:** Focused provider coverage passed 33/33. The complete Node 24.19.0 suite passed with one worker: 264/264 files, 9,074 tests passed, 347 skipped, 0 failed. `git diff --check` remained clean.
+**Fallback:** if registry module isolation makes the combined assertion order-dependent, expose one immutable provider-name contract from `adapters/providers/index.ts` and assert both registries against it instead of weakening either assertion.
+**Confidence:** 0.99
+
 ### [2026-08-13 16:38 IST] [Agent: Codex]
 **Status:** Complete - both Codex review findings investigated and addressed
 **Review findings:** P1 OpenAI was selectable but absent from both live provider registries; confirmed by tracing `translatorRouter -> Translator` and the explicit omission in `adapters/providers/index.ts`. P1 client canaries could leak through a whole-object `import.meta.env` read; the claimed current build failure was refuted by both the green GitHub Test run and an exact local canary build/scan, but the broad read remains an avoidable latent exposure boundary.
