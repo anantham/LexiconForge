@@ -3,7 +3,7 @@ import { AppSettings } from '../types';
 import prompts from '../config/prompts.json';
 import { OpenAI } from 'openai';
 import { getConfiguredApiKey } from './ai/providerCredentials';
-import { getChatCompletionTokenLimit } from './ai/openaiRequestParameters';
+import { getChatCompletionRequestParameters } from './ai/openaiRequestParameters';
 
 // Basic logging for the service
 const log = (message: string, ...args: any[]) => console.log(`[ExplanationService] ${message}`, ...args);
@@ -79,8 +79,12 @@ export class ExplanationService {
       const requestBody: OpenAI.Chat.Completions.ChatCompletionCreateParams = {
         model: settings.model,
         messages,
-        temperature: 0.5, // Use a moderate temperature for factual but nuanced explanations
-        ...getChatCompletionTokenLimit(settings.model, maxOutput),
+        ...await getChatCompletionRequestParameters(
+          settings.provider,
+          settings.model,
+          maxOutput,
+          0.5
+        ),
       };
 
       log('Sending explanation request to:', settings.model);

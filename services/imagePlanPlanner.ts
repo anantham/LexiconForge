@@ -11,7 +11,7 @@ import {
   getOpenAICompatibleConfig,
 } from './ai/providerCredentials';
 import { extractBalancedJson, replacePlaceholders } from './ai/textUtils';
-import { getChatCompletionTokenLimit } from './ai/openaiRequestParameters';
+import { getChatCompletionRequestParameters } from './ai/openaiRequestParameters';
 import { buildImagePlanFromCaption, normalizeImagePlan } from './imagePlanService';
 
 export interface PlannedIllustration {
@@ -236,6 +236,12 @@ const requestViaOpenAICompatible = async (
 
   const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
   const supportsSchema = await supportsStructuredOutputs(settings.provider, settings.model);
+  const requestParameters = await getChatCompletionRequestParameters(
+    settings.provider,
+    settings.model,
+    plannerMaxTokens(settings),
+    PLANNER_TEMPERATURE
+  );
   const messages = [
     {
       role: 'system' as const,
@@ -250,8 +256,7 @@ const requestViaOpenAICompatible = async (
   const requestBody: Record<string, unknown> = {
     model: settings.model,
     messages,
-    temperature: PLANNER_TEMPERATURE,
-    ...getChatCompletionTokenLimit(settings.model, plannerMaxTokens(settings)),
+    ...requestParameters,
   };
 
   if (supportsSchema) {
@@ -286,8 +291,7 @@ const requestViaOpenAICompatible = async (
     const fallbackResponse = await client.chat.completions.create({
       model: settings.model,
       messages,
-      temperature: PLANNER_TEMPERATURE,
-      ...getChatCompletionTokenLimit(settings.model, plannerMaxTokens(settings)),
+      ...requestParameters,
     });
 
     return parsePlannerJson(

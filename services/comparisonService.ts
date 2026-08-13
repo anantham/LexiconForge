@@ -3,7 +3,7 @@ import prompts from '../config/prompts.json';
 import { OpenAI } from 'openai';
 import { debugLog } from '../utils/debug';
 import { getConfiguredApiKey, getOpenAICompatibleConfig } from './ai/providerCredentials';
-import { getChatCompletionTokenLimit } from './ai/openaiRequestParameters';
+import { getChatCompletionRequestParameters } from './ai/openaiRequestParameters';
 
 const clog = (...args: any[]) => debugLog('comparison', 'summary', '[ComparisonService]', ...args);
 
@@ -137,9 +137,13 @@ export class ComparisonService {
 
     const completion = await client.chat.completions.create({
       model: settings.model,
-      temperature: 0,
       messages: [{ role: 'user', content: prompt }],
-      ...getChatCompletionTokenLimit(settings.model, maxOutput),
+      ...await getChatCompletionRequestParameters(
+        settings.provider,
+        settings.model,
+        maxOutput,
+        0
+      ),
     });
 
     const content = completion.choices[0]?.message?.content ?? '';

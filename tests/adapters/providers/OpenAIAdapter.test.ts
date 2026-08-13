@@ -278,6 +278,23 @@ describe('OpenAIAdapter translate() parameter handling', () => {
     expect(retryArgs.top_p).toBeUndefined();
     expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
   });
+
+  it('omits temperature up front for direct OpenAI GPT-5 translation requests', async () => {
+    const adapter = new OpenAIAdapter('OpenAI');
+    openAiMocks.create.mockResolvedValueOnce(successResponse);
+    const settings: AppSettings = {
+      ...baseSettings,
+      model: 'gpt-5-mini',
+      temperature: 0.9,
+    };
+
+    await adapter.translate({ title: 'T', content: 'Body', settings, history: [] });
+
+    const request = openAiMocks.create.mock.calls[0][0];
+    expect(request.max_completion_tokens).toBeDefined();
+    expect(request).not.toHaveProperty('max_tokens');
+    expect(request).not.toHaveProperty('temperature');
+  });
 });
 
 describe('OpenAIAdapter adversarial scenarios', () => {
@@ -444,6 +461,7 @@ describe('OpenAIAdapter chatJSON strict-schema dialect (production wiring)', () 
     expect(sent.properties.ripples).toBeUndefined();
     expect(request.max_completion_tokens).toBe(16384);
     expect(request).not.toHaveProperty('max_tokens');
+    expect(request).not.toHaveProperty('temperature');
   });
 
   it('passes the schema through UNCHANGED for non-OpenAI slugs (ripples survives)', async () => {

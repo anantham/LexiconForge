@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { openAiCreateMock, supportsStructuredOutputsMock } = vi.hoisted(() => ({
+const { openAiCreateMock, supportsStructuredOutputsMock, supportsParametersMock } = vi.hoisted(() => ({
   openAiCreateMock: vi.fn(),
   supportsStructuredOutputsMock: vi.fn(),
+  supportsParametersMock: vi.fn(),
 }));
 
 vi.mock('openai', () => ({
@@ -17,6 +18,7 @@ vi.mock('openai', () => ({
 
 vi.mock('../../services/capabilityService', () => ({
   supportsStructuredOutputs: supportsStructuredOutputsMock,
+  supportsParameters: supportsParametersMock,
 }));
 
 const geminiPlannerMocks = vi.hoisted(() => ({ generateContent: vi.fn() }));
@@ -56,6 +58,7 @@ describe('imagePlanPlanner', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     supportsStructuredOutputsMock.mockResolvedValue(true);
+    supportsParametersMock.mockResolvedValue(true);
   });
 
   it('uses the few-shot caption planner prompt and parses structured JSON', async () => {
@@ -98,6 +101,7 @@ describe('imagePlanPlanner', () => {
     expect(requestBody.messages[1].content).toContain('Example 1');
     expect(requestBody.messages[1].content).toContain('Caption: "Silver-haired swordswoman alone in a ruined shrine"');
     expect(requestBody.messages[1].content).toContain('Context: "dark fantasy, lonely victory"');
+    expect(requestBody.temperature).toBe(0.4);
   });
 
   it('falls back to a caption-derived plan when planner calls fail', async () => {
@@ -149,6 +153,7 @@ describe('imagePlanPlanner', () => {
     for (const [request] of openAiCreateMock.mock.calls) {
       expect(request.max_completion_tokens).toBe(2048);
       expect(request).not.toHaveProperty('max_tokens');
+      expect(request).not.toHaveProperty('temperature');
     }
   });
 

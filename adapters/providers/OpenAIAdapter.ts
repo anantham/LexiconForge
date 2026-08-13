@@ -16,7 +16,11 @@ import { apiMetricsService } from '../../services/apiMetricsService';
 import { extractBalancedJson, replacePlaceholders } from '../../services/ai/textUtils';
 import { validateAndClampParameter } from '../../services/ai/parameters';
 import { toOpenAIStrictSchema, needsOpenAIStrictSchema } from '../../services/ai/openaiStrictSchema';
-import { getChatCompletionTokenLimit } from '../../services/ai/openaiRequestParameters';
+import {
+  getChatCompletionRequestParameters,
+  getChatCompletionTemperature,
+  getChatCompletionTokenLimit,
+} from '../../services/ai/openaiRequestParameters';
 
 // Debug logging
 const dlog = (message: string, ...args: any[]) => {
@@ -172,21 +176,20 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
 
     const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? 16384;
 
+    const temperature = validateAndClampParameter(
+      input.temperature ?? settings.temperature ?? 0.2,
+      'temperature'
+    );
     const requestOptions: any = {
       model,
       messages,
-      ...getChatCompletionTokenLimit(model, maxTokens),
+      ...await getChatCompletionRequestParameters(
+        settings.provider,
+        model,
+        maxTokens,
+        temperature
+      ),
     };
-
-    // Only add temperature if model supports it (e.g., gpt-5.2-chat doesn't)
-    const supportsTemp = await supportsParameters(settings.provider, model, ['temperature']);
-    if (supportsTemp) {
-      const temperature = validateAndClampParameter(
-        input.temperature ?? settings.temperature ?? 0.2,
-        'temperature'
-      );
-      requestOptions.temperature = temperature;
-    }
 
     // When the caller doesn't pin structuredOutputs, ask the capability service — with
     // provenance, because a `false` that came from a fetch failure (not metadata) means the
@@ -470,9 +473,12 @@ ${schemaString}`;
 
   private async addSupportedParameters(requestOptions: any, settings: AppSettings): Promise<void> {
     // Check parameter support
-    const [supportsTemperature, supportsTopP, supportsFreqPen, supportsPresPen, supportsSeed] = 
+    const requestedTemperature = settings.temperature !== appConfig.aiParameters.defaults.temperature
+      ? validateAndClampParameter(settings.temperature, 'temperature')
+      : undefined;
+    const [temperatureParameters, supportsTopP, supportsFreqPen, supportsPresPen, supportsSeed] =
       await Promise.all([
-        supportsParameters(settings.provider, settings.model, ['temperature']),
+        getChatCompletionTemperature(settings.provider, settings.model, requestedTemperature),
         supportsParameters(settings.provider, settings.model, ['top_p']),
         supportsParameters(settings.provider, settings.model, ['frequency_penalty']),
         supportsParameters(settings.provider, settings.model, ['presence_penalty']),
@@ -480,9 +486,7 @@ ${schemaString}`;
       ]);
 
     // Add parameters if supported and different from defaults
-    if (supportsTemperature && settings.temperature !== appConfig.aiParameters.defaults.temperature) {
-      requestOptions.temperature = validateAndClampParameter(settings.temperature, 'temperature');
-    }
+    Object.assign(requestOptions, temperatureParameters);
     if (supportsTopP && settings.topP !== undefined && settings.topP !== appConfig.aiParameters.defaults.top_p) {
       requestOptions.top_p = validateAndClampParameter(settings.topP, 'top_p');
     }

@@ -18,6 +18,7 @@ import { createMockAppSettings } from '../../utils/test-data';
 const llmMock = vi.hoisted(() => vi.fn());
 const segmentsMock = vi.hoisted(() => vi.fn());
 const skeletonMock = vi.hoisted(() => vi.fn());
+const supportsStructuredOutputsMock = vi.hoisted(() => vi.fn());
 
 vi.mock('../../../services/compiler/llm', () => ({
   callCompilerLLM: (...args: any[]) => llmMock(...args),
@@ -33,7 +34,7 @@ vi.mock('../../../services/compiler/skeleton', () => ({
 }));
 
 vi.mock('../../../services/capabilityService', () => ({
-  supportsStructuredOutputs: vi.fn(async () => false),
+  supportsStructuredOutputs: (...args: unknown[]) => supportsStructuredOutputsMock(...args),
 }));
 
 // Grounding is network/registry-backed and out of scope here.
@@ -113,6 +114,7 @@ beforeEach(() => {
   llmMock.mockReset();
   segmentsMock.mockReset();
   skeletonMock.mockReset();
+  supportsStructuredOutputsMock.mockReset().mockResolvedValue(false);
 });
 
 const requestNamesOf = () => llmMock.mock.calls.map((c) => c[4]?.meta?.requestName);
@@ -193,5 +195,36 @@ describe('compileSuttaStudioPacket — phaseView call economy', () => {
     expect(packet.phases[0].title).toBe('Direct Path');
     // The pass outputs survived into the rendered phase.
     expect(packet.phases[0].paliWords.map((w) => w.id)).toEqual(['p1', 'p2', 'p3']);
+  });
+
+  it('uses direct OpenAI for capability lookup and packet provenance', async () => {
+    const pali = 'evaṁ me sutaṁ';
+    segmentsMock.mockResolvedValue([makeSegment('mn-openai:1.1', pali, 'Thus have I heard.')]);
+    skeletonMock.mockResolvedValue([{ id: 'phase-openai', title: 'Opening', segmentIds: ['mn-openai:1.1'] }]);
+
+    await segmentCache.initialize();
+    segmentCache.setAnatomist(pali, anatomistFor('phase-openai'));
+    segmentCache.setLexicographer(pali, lexicographerFor('phase-openai'));
+    segmentCache.setWeaver(pali, weaverFor('phase-openai'));
+    segmentCache.setTypesetter(pali, typesetterFor('phase-openai'));
+
+    const openAISettings = createMockAppSettings({
+      provider: 'OpenAI',
+      model: 'gpt-5-mini',
+      apiKeyOpenAI: 'settings-openai-key',
+      apiKeyOpenRouter: '',
+      suttaStudioProvider: 'OpenAI',
+      suttaStudioModel: 'gpt-5-mini',
+    } as any);
+    const packet = await compileSuttaStudioPacket({
+      uid: 'mn-openai',
+      lang: 'en',
+      author: 'sujato',
+      settings: openAISettings,
+    });
+
+    expect(supportsStructuredOutputsMock).toHaveBeenCalledWith('OpenAI', 'gpt-5-mini');
+    expect(packet.compiler?.provider).toBe('openai');
+    expect(llmMock).not.toHaveBeenCalled();
   });
 });

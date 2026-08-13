@@ -49,9 +49,6 @@ const combineSignals = (external: AbortSignal | undefined, timeout: AbortSignal)
   return typeof anyFn === 'function' ? anyFn([external, timeout]) : timeout;
 };
 
-const warn = (message: string, ...args: any[]) =>
-  console.warn(`[SuttaStudioCompiler] ${message}`, ...args);
-
 export type CompilerLLMOptions = {
   schemaName?: string;
   schema?: any;
@@ -78,21 +75,8 @@ export const resolveCompilerProvider = async (
   settings: AppSettings
 ): Promise<{ provider: Provider; settings: AppSettings }> => {
   await initializeProviders();
-  const providerName = settings.provider === 'OpenAI' ? 'OpenRouter' : settings.provider;
-  let provider: Provider;
-  try {
-    provider = getProvider(providerName as ProviderName);
-  } catch (e) {
-    warn(`Provider ${providerName} not registered for compiler; falling back to OpenRouter.`);
-    provider = getProvider('OpenRouter');
-  }
-
-  const effectiveSettings =
-    providerName === settings.provider
-      ? settings
-      : { ...settings, provider: providerName as AppSettings['provider'] };
-
-  return { provider, settings: effectiveSettings };
+  const provider = getProvider(settings.provider as ProviderName);
+  return { provider, settings };
 };
 
 export const callCompilerLLM = async (

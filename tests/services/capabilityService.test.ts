@@ -21,7 +21,7 @@ const fetchMock = vi.fn();
 const MODELS_FIXTURE = {
   data: [
     // OpenRouter slugs — the ONLY namespace the capability map speaks.
-    { id: 'openai/gpt-5', supported_parameters: ['structured_outputs', 'response_format', 'temperature'] },
+    { id: 'openai/gpt-5', supported_parameters: ['structured_outputs', 'response_format'] },
     { id: 'deepseek/deepseek-chat', supported_parameters: ['response_format', 'temperature'] },
   ],
 };
@@ -66,6 +66,7 @@ describe('capabilityService', () => {
 
       expect(support).toEqual({ supported: true, source: 'metadata' });
       expect(await supportsStructuredOutputs('OpenAI', 'gpt-5')).toBe(true);
+      expect(await supportsParameters('OpenAI', 'gpt-5', ['temperature'])).toBe(false);
       expect(defaultWarns(warnSpy)).toHaveLength(0);
     });
 

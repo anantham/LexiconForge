@@ -21,9 +21,15 @@ const openAiMocks = vi.hoisted(() => {
   return { createMock, ctorMock, MockOpenAI };
 });
 
+const supportsParametersMock = vi.hoisted(() => vi.fn());
+
 vi.mock('openai', () => ({
   __esModule: true,
   OpenAI: openAiMocks.MockOpenAI,
+}));
+
+vi.mock('../../services/capabilityService', () => ({
+  supportsParameters: supportsParametersMock,
 }));
 
 import { ComparisonService } from '../../services/comparisonService';
@@ -54,6 +60,7 @@ const baseArgs = {
 beforeEach(() => {
   openAiMocks.createMock.mockReset();
   openAiMocks.ctorMock.mockClear();
+  supportsParametersMock.mockReset().mockResolvedValue(true);
 });
 
 describe('ComparisonService.requestFocusedComparison', () => {
@@ -279,6 +286,7 @@ describe('ComparisonService.requestFocusedComparison', () => {
       const request = openAiMocks.createMock.mock.calls[0][0];
       expect(request.max_completion_tokens).toBe(8192);
       expect(request).not.toHaveProperty('max_tokens');
+      expect(request).not.toHaveProperty('temperature');
     });
 
     it('configures OpenAI client correctly for DeepSeek provider', async () => {

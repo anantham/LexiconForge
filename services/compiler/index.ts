@@ -194,8 +194,7 @@ export const compileSuttaStudioPacket = async (options: {
   if (!settings?.model) {
     throw new Error('No model selected for Sutta Studio compiler. Please select a model in Settings.');
   }
-  const structuredOutputProvider = settings.provider === 'OpenAI' ? 'OpenRouter' : settings.provider;
-  const structuredOutputs = await supportsStructuredOutputs(structuredOutputProvider, settings.model);
+  const structuredOutputs = await supportsStructuredOutputs(settings.provider, settings.model);
   log(`Structured outputs supported: ${structuredOutputs}`);
   logPipelineEvent({
     level: 'info',
@@ -205,18 +204,9 @@ export const compileSuttaStudioPacket = async (options: {
   });
   const throttle = createCompilerThrottle(COMPILER_MIN_CALL_GAP_MS);
 
-  // Honest packet-provenance provider label. Mirrors the deterministic part
-  // of resolveCompilerProvider: OpenAI-keyed compiles route through
-  // OpenRouter, everything else records the provider actually configured,
-  // lowercased. (The old expression hardcoded 'openrouter' for everything
-  // non-OpenAI — a Gemini/Claude/DeepSeek compile lied about its provider —
-  // and recorded 'openai' for OpenAI even though the transport is
-  // OpenRouter.) A call-time fallback to OpenRouter for an UNREGISTERED
-  // provider is not knowable here; resolveCompilerProvider warns when it
-  // happens.
-  const compilerProviderLabel = (
-    settings.provider === 'OpenAI' ? 'OpenRouter' : settings.provider
-  ).toLowerCase();
+  // Provider resolution is exact and fail-closed, so packet provenance is the
+  // configured transport rather than a compatibility fallback.
+  const compilerProviderLabel = settings.provider.toLowerCase();
 
   // Emit early progress so UI shows "building" state immediately
   const earlyPacket: DeepLoomPacket = {

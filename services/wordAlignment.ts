@@ -14,7 +14,7 @@
  * separate and on-demand.
  */
 import type { AppSettings } from '../types';
-import type { ChatMessage } from '../adapters/providers/Provider';
+import type { ChatMessage, ProviderName } from '../adapters/providers/Provider';
 import { initializeProviders } from '../adapters/providers';
 import { getProvider } from '../adapters/providers/registry';
 import { extractBalancedJson } from './ai/textUtils';
@@ -181,13 +181,7 @@ export async function alignWords(req: AlignmentRequest): Promise<WordAlignment> 
   }
 
   await initializeProviders();
-  const providerName = settings.provider === 'OpenAI' ? 'OpenRouter' : settings.provider;
-  let provider;
-  try {
-    provider = getProvider(providerName as any);
-  } catch {
-    provider = getProvider('OpenRouter');
-  }
+  const provider = getProvider(settings.provider as ProviderName);
 
   const model = modelOverride || settings.model;
   const messages: ChatMessage[] = [
@@ -227,8 +221,7 @@ export async function alignWords(req: AlignmentRequest): Promise<WordAlignment> 
     pairs: validated,
     translationVersionId: translationVersionId ?? null,
     alignedAt: new Date().toISOString(),
-    modelUsed: model || providerName,
+    modelUsed: model || settings.provider,
     pairCount: validated.length,
   };
 }
-

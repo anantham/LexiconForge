@@ -104,7 +104,7 @@ A backward-compatible shim at `services/suttaStudioCompiler.ts` re-exports from 
 
 | File | LOC | Responsibility |
 |------|-----|----------------|
-| `services/compiler/index.ts` | 618 | Pipeline orchestration and packet assembly |
+| `services/compiler/index.ts` | 957 | Pipeline orchestration and packet assembly |
 | `services/compiler/schemas.ts` | 401 | JSON schemas for all passes |
 | `services/compiler/prompts.ts` | 347 | Prompt builders for each pass |
 | `services/compiler/utils.ts` | 218 | Shared compiler utilities |

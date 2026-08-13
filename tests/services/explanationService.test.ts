@@ -13,7 +13,12 @@ const openAiMocks = vi.hoisted(() => {
   return { create, OpenAI };
 });
 
+const supportsParametersMock = vi.hoisted(() => vi.fn());
+
 vi.mock('openai', () => ({ OpenAI: openAiMocks.OpenAI }));
+vi.mock('../../services/capabilityService', () => ({
+  supportsParameters: supportsParametersMock,
+}));
 
 import { ExplanationService } from '../../services/explanationService';
 
@@ -22,6 +27,7 @@ describe('ExplanationService request parameters', () => {
     openAiMocks.create.mockReset().mockResolvedValue({
       choices: [{ message: { content: 'A concise explanation.' } }],
     });
+    supportsParametersMock.mockReset().mockResolvedValue(true);
     vi.spyOn(console, 'log').mockImplementation(() => undefined);
   });
 
@@ -46,5 +52,6 @@ describe('ExplanationService request parameters', () => {
     const request = openAiMocks.create.mock.calls[0][0];
     expect(request.max_completion_tokens).toBe(6000);
     expect(request).not.toHaveProperty('max_tokens');
+    expect(request).not.toHaveProperty('temperature');
   });
 });
