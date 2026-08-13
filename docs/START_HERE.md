@@ -15,10 +15,11 @@ LexiconForge is a React-based web application for reading and translating web no
 ```bash
 git clone https://github.com/anantham/LexiconForge.git
 cd LexiconForge
-npm install
-cp .env.example .env.local  # Add your API keys
+npm ci
 npm run dev
 ```
+
+Add provider credentials through **Settings -> API Keys** after the app opens. Do not put provider credentials in `VITE_` variables; Vite exposes them to the browser.
 
 ---
 
@@ -131,7 +132,7 @@ ADRs explain *why* we made key design decisions. They're organized by domain:
 ## Key Design Principles
 
 1. **Agent-First**: Files stay small and single-purpose (see [CONVENTIONS.md](./CONVENTIONS.md) §4 for friction-based sizing policy)
-2. **Privacy-First**: API keys and data stay on-device (IndexedDB)
+2. **Privacy-First**: API keys and reading data stay in browser-local storage; provider requests still go to the provider the user selects
 3. **Provider-Agnostic**: Adapters abstract AI providers; easy to add new ones
 4. **Offline-Capable**: Sessions persist across browser restarts
 

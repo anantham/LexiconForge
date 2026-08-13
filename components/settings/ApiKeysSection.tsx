@@ -21,6 +21,7 @@ interface ProviderCredits {
 interface ApiKeysSectionProps {
   // Current API key values
   apiKeyGemini: string;
+  apiKeyOpenAI: string;
   apiKeyDeepSeek: string;
   apiKeyOpenRouter: string;
   apiKeyClaude: string;
@@ -42,6 +43,7 @@ interface ApiKeysSectionProps {
 
 export const ApiKeysSection: React.FC<ApiKeysSectionProps> = ({
   apiKeyGemini,
+  apiKeyOpenAI,
   apiKeyDeepSeek,
   apiKeyOpenRouter,
   apiKeyClaude,
@@ -112,6 +114,21 @@ export const ApiKeysSection: React.FC<ApiKeysSectionProps> = ({
             value={apiKeyGemini}
             onChange={(e) => onApiKeyChange('apiKeyGemini', e.target.value)}
             placeholder="Enter your Gemini API Key"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* OpenAI API Key */}
+        <div>
+          <label htmlFor="apiKeyOpenAI" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            OpenAI API Key
+          </label>
+          <input
+            id="apiKeyOpenAI"
+            type="password"
+            value={apiKeyOpenAI}
+            onChange={(e) => onApiKeyChange('apiKeyOpenAI', e.target.value)}
+            placeholder="Enter your OpenAI API Key"
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

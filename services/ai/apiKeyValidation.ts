@@ -1,31 +1,26 @@
-import { getEnvVar, hasEnvVar } from '../env';
-import {
-  getDefaultApiKey,
-  getDefaultKeyStatus,
-} from '../defaultApiKeyService';
 import type { AppSettings } from '../../types';
 import type { TelemetryFailureType } from '../../types/telemetry';
-import { debugLog } from '../../utils/debug';
+import { getConfiguredApiKey } from './providerCredentials';
 
-const PROVIDER_ENV_MAP: Record<AppSettings['provider'], { env: string; label: string }> = {
-  Gemini: { env: 'GEMINI_API_KEY', label: 'Google Gemini' },
-  OpenAI: { env: 'OPENAI_API_KEY', label: 'OpenAI' },
-  DeepSeek: { env: 'DEEPSEEK_API_KEY', label: 'DeepSeek' },
-  OpenRouter: { env: 'OPENROUTER_API_KEY', label: 'OpenRouter' },
-  Claude: { env: 'CLAUDE_API_KEY', label: 'Claude (Anthropic)' },
+const PROVIDER_LABELS: Record<AppSettings['provider'], string> = {
+  Gemini: 'Google Gemini',
+  OpenAI: 'OpenAI',
+  DeepSeek: 'DeepSeek',
+  OpenRouter: 'OpenRouter',
+  Claude: 'Claude (Anthropic)',
 };
 
 export interface ApiKeyValidationResult {
   isValid: boolean;
   errorMessage?: string;
-  failureType?: Extract<TelemetryFailureType, 'trial_limit' | 'missing_api_key' | 'unknown'>;
+  failureType?: Extract<TelemetryFailureType, 'missing_api_key' | 'unknown'>;
 }
 
 export const validateApiKey = (
   settings: AppSettings
 ): ApiKeyValidationResult => {
-  const providerMeta = PROVIDER_ENV_MAP[settings.provider as AppSettings['provider']];
-  if (!providerMeta) {
+  const providerLabel = PROVIDER_LABELS[settings.provider as AppSettings['provider']];
+  if (!providerLabel) {
     return {
       isValid: false,
       errorMessage: `Unknown provider: ${settings.provider}`,
@@ -33,50 +28,18 @@ export const validateApiKey = (
     };
   }
 
-  let requiredApiKey: string | undefined;
+  const requiredApiKey = getConfiguredApiKey(settings, settings.provider);
 
-  if (settings.provider === 'OpenRouter') {
-    const userKey = settings.apiKeyOpenRouter;
-    const envVarKey = getEnvVar(providerMeta.env) as string | undefined;
-    const trialKey = getDefaultApiKey();
-    requiredApiKey = userKey || envVarKey || trialKey || undefined;
-
-    debugLog('api', 'summary', '[OpenRouter] API Key Priority Check:', {
-      hasUserKey: !!userKey,
-      hasEnvKey: !!envVarKey,
-      hasTrialKey: !!trialKey,
-      usingSource: userKey
-        ? 'user_settings'
-        : envVarKey
-        ? 'environment_var'
-        : trialKey
-        ? 'trial_key'
-        : 'none',
-      finalKeyAvailable: !!requiredApiKey,
-    });
-
-    if (!userKey && !envVarKey && requiredApiKey) {
-      const status = getDefaultKeyStatus();
-      debugLog('api', 'summary', `[DefaultKey] Using trial key - ${status.remainingUses} requests remaining`);
-    }
-  } else {
-    const keyProp = `apiKey${settings.provider}` as keyof AppSettings;
-    requiredApiKey = (settings[keyProp] as string | undefined) || (getEnvVar(providerMeta.env) as string | undefined);
-  }
-
-  if (!requiredApiKey?.trim()) {
+  if (!requiredApiKey) {
     console.error('[API Key Validation Failed]', {
-      provider: providerMeta.label,
+      provider: providerLabel,
       hasSettingsKey: !!settings[`apiKey${settings.provider}` as keyof typeof settings],
-      hasEnvKey: hasEnvVar(providerMeta.env),
     });
 
     return {
       isValid: false,
-      errorMessage: buildProviderErrorMessage(settings.provider, providerMeta.label),
-      failureType: settings.provider === 'OpenRouter' && getDefaultKeyStatus().hasExceeded
-        ? 'trial_limit'
-        : 'missing_api_key',
+      errorMessage: buildProviderErrorMessage(settings.provider, providerLabel),
+      failureType: 'missing_api_key',
     };
   }
 
@@ -85,11 +48,7 @@ export const validateApiKey = (
 
 const buildProviderErrorMessage = (provider: AppSettings['provider'], providerLabel: string): string => {
   if (provider === 'OpenRouter') {
-    const trialStatus = getDefaultKeyStatus();
-    if (trialStatus.hasExceeded) {
-      return `Daily limit reached (${trialStatus.usageCount}/10 free requests today). Resets tomorrow.\n\nGet your own free OpenRouter API key at: https://openrouter.ai/keys\nOr request more trial credits at: https://t.me/everythingisrelative`;
-    }
-    return `${providerLabel} API key is missing. Add it in settings or .env file.\n\nGet your API key at: https://openrouter.ai/keys\nOr request free credits at: https://t.me/webnovels`;
+    return `${providerLabel} API key is missing. Add your own key in Settings.\n\nGet your API key at: https://openrouter.ai/keys`;
   }
 
   const helpLinks: Partial<Record<AppSettings['provider'], string>> = {
@@ -103,5 +62,5 @@ const buildProviderErrorMessage = (provider: AppSettings['provider'], providerLa
     ? `\n\nGet your API key at: ${helpLinks[provider]}`
     : '';
 
-  return `${providerLabel} API key is missing. Add it in settings or .env file.${helpMessage}`;
+  return `${providerLabel} API key is missing. Add your own key in Settings.${helpMessage}`;
 };

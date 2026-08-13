@@ -78,19 +78,13 @@ export interface TranslationProvider {
 **Used for**: OpenAI, OpenRouter, DeepSeek (all OpenAI-compatible APIs)
 
 ```typescript
-switch (settings.provider) {
-  case 'OpenAI':
-    baseURL = 'https://api.openai.com/v1';
-    apiKey = settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY');
-    break;
-  case 'OpenRouter':
-    baseURL = 'https://openrouter.ai/api/v1';
-    apiKey = settings.apiKeyOpenRouter || getDefaultApiKey();
-    break;
-  case 'DeepSeek':
-    baseURL = 'https://api.deepseek.com/v1';
-    apiKey = settings.apiKeyDeepSeek;
-    break;
+const { apiKey, baseURL } = getOpenAICompatibleConfig(
+  settings,
+  settings.provider
+);
+
+if (!apiKey) {
+  throw new Error(`${settings.provider} API key is missing. Please add it in Settings.`);
 }
 ```
 
@@ -114,7 +108,7 @@ switch (settings.provider) {
 
 ### capabilityService
 
-Runtime detection of provider capabilities:
+Runtime metadata for Settings hints and pricing:
 
 ```typescript
 // Check structured output support
@@ -126,6 +120,12 @@ const supportsTemp = await supportsParameters('OpenRouter', 'gpt-4o', ['temperat
 // Get model pricing
 const pricing = await getModelPricing('gpt-4o');
 ```
+
+Ordinary request construction does not await this metadata service. Initial structured-output
+mode comes from the synchronous transport policy in `services/ai/structuredOutputPolicy.ts`;
+OpenAI-compatible adapters use a bounded `json_schema` to `json_object` fallback when the
+configured provider explicitly rejects the schema request. This keeps metadata outages off the
+paid request path while retaining adaptive behavior for OpenRouter's model-dependent support.
 
 ### Capability Matrix
 
@@ -231,11 +231,14 @@ registerProvider(geminiAdapter);
 registerProvider(claudeAdapter);
 ```
 
-## API Key Resolution Priority
+## API Key Boundary
 
-1. **User settings** (`settings.apiKey{Provider}`)
-2. **Environment variables** (`OPENAI_API_KEY`, etc.)
-3. **Trial key** (OpenRouter only via `getDefaultApiKey()`)
+Browser provider calls have exactly one credential source: the current user's Settings value (`settings.apiKey{Provider}`), resolved through `services/ai/providerCredentials.ts`.
+
+- Build-time and runtime environment fallbacks are forbidden in browser services.
+- There is no shared client-side trial key.
+- Node-only benchmark scripts may read `process.env.OPENROUTER_API_KEY`; that path is outside the browser adapter graph.
+- Shared funded access would require an authenticated server-side broker and a separate architecture decision.
 
 ## Metrics Recording
 

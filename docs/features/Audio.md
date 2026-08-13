@@ -11,7 +11,7 @@ This guide explains how to generate background music and audio cues directly in 
 
 ## Requirements
 
-- API key: set `VITE_PIAPI_API_KEY` in `.env.local` or add in Settings → API Keys
+- Add your PiAPI key in Settings -> API Keys.
 
 ## Quick Start
 
@@ -39,4 +39,3 @@ This guide explains how to generate background music and audio cues directly in 
 - Service layer: `services/audio/*`
 - Types: `types.ts` (Audio*)
 - UI: `components/AudioPlayer.tsx`
-

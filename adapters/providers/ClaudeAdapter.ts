@@ -6,7 +6,7 @@ import type { TranslationResult } from '../../types';
 import { calculateCost } from '../../services/ai/cost';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import { translateWithClaude } from '../../services/claudeService';
-import { getEnvVar } from '../../services/env';
+import { requireConfiguredApiKey } from '../../services/ai/providerCredentials';
 
 /**
  * Claude provider adapter that bridges the new adapter pattern with the existing Claude service
@@ -31,10 +31,7 @@ export class ClaudeAdapter implements TranslationProvider, Provider {
       throw new Error('chatJSON requires settings');
     }
 
-    const apiKey = settings.apiKeyClaude || (getEnvVar('CLAUDE_API_KEY') as any);
-    if (!apiKey) {
-      throw new Error('Claude API key is missing. Please add it in settings.');
-    }
+    const apiKey = requireConfiguredApiKey(settings, 'Claude');
 
     if (input.abortSignal?.aborted) {
       throw new DOMException('Aborted', 'AbortError');

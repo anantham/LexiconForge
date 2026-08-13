@@ -19,7 +19,7 @@ import { AceStepProvider } from './AceStepProvider';
 import { DiffRhythmProvider } from './DiffRhythmProvider';
 import appConfig from '../../config/app.json';
 import { debugLog } from '../../utils/debug';
-import { getEnvVar } from '../env';
+import { getConfiguredApiKey } from '../ai/providerCredentials';
 
 const AUDIO_PROVIDERS: readonly AudioProvider[] = ['ace-step', 'diffrhythm'] as const;
 const AUDIO_TASK_TYPES: readonly AudioTaskType[] = ['txt2audio', 'audio2audio', 'txt2audio-base', 'txt2audio-full'] as const;
@@ -58,7 +58,9 @@ export class AudioService {
    * Initialize the audio service with API keys from settings
    */
   initialize(settings: AppSettings) {
-    const piApiKey = settings.apiKeyPiAPI || getEnvVar('PIAPI_API_KEY');
+    // Re-initialization must also forget a key that was removed from Settings.
+    this.providers.clear();
+    const piApiKey = getConfiguredApiKey(settings, 'PiAPI');
     
     if (!piApiKey) {
       console.warn('[AudioService] PiAPI key not found. Audio generation will not be available.');

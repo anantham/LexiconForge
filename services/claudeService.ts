@@ -5,7 +5,7 @@ import prompts from '../config/prompts.json';
 import { calculateCost } from './ai/cost';
 import { buildFanTranslationContext, formatHistory } from './prompts';
 import { buildPreambleFromSettings } from './prompts/metadataPreamble';
-import { getEnvVar } from './env';
+import { requireConfiguredApiKey } from './ai/providerCredentials';
 import { getTranslationSystemPrompt } from '../utils/promptUtils';
 import { replacePlaceholders } from './ai/textUtils';
 
@@ -36,10 +36,7 @@ export const translateWithClaude = async (
     abortSignal?: AbortSignal
 ): Promise<TranslationResult> => {
 
-    const apiKey = settings.apiKeyClaude || (getEnvVar('CLAUDE_API_KEY') as any);
-    if (!apiKey) {
-        throw new Error("Claude API key is missing. Please add it in the settings.");
-    }
+    const apiKey = requireConfiguredApiKey(settings, 'Claude');
 
     const startTime = performance.now();
     const claude = new Anthropic({

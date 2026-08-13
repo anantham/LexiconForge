@@ -59,6 +59,6 @@ This page summarizes key settings and where they apply. The source of truth for 
 
 ## API Keys
 
-- Supply via `.env.local` as `VITE_*` variables or via Settings UI.
+- Supply provider credentials only through the Settings UI. They are browser-local user settings, not deployment/build variables.
 - Keys: `apiKeyGemini`, `apiKeyOpenAI`, `apiKeyDeepSeek`, `apiKeyClaude`, `apiKeyOpenRouter`, `apiKeyPiAPI`.
-- See `docs/EnvVars.md` for a full list and precedence notes.
+- See [EnvVars.md](./EnvVars.md) for the browser/build boundary.

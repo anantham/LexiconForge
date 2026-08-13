@@ -18,6 +18,9 @@ import { createMockAppSettings } from '../../utils/test-data';
 const llmMock = vi.hoisted(() => vi.fn());
 const segmentsMock = vi.hoisted(() => vi.fn());
 const skeletonMock = vi.hoisted(() => vi.fn());
+const supportsStructuredOutputsMock = vi.hoisted(() => vi.fn(() => Promise.reject(
+  new Error('ordinary compilation must not await capability metadata')
+)));
 
 vi.mock('../../../services/compiler/llm', () => ({
   callCompilerLLM: (...args: any[]) => llmMock(...args),
@@ -33,7 +36,7 @@ vi.mock('../../../services/compiler/skeleton', () => ({
 }));
 
 vi.mock('../../../services/capabilityService', () => ({
-  supportsStructuredOutputs: vi.fn(async () => false),
+  supportsStructuredOutputs: supportsStructuredOutputsMock,
 }));
 
 // Grounding is network/registry-backed and out of scope here.
@@ -113,6 +116,7 @@ beforeEach(() => {
   llmMock.mockReset();
   segmentsMock.mockReset();
   skeletonMock.mockReset();
+  supportsStructuredOutputsMock.mockClear();
 });
 
 const requestNamesOf = () => llmMock.mock.calls.map((c) => c[4]?.meta?.requestName);
@@ -186,6 +190,7 @@ describe('compileSuttaStudioPacket — phaseView call economy', () => {
     const packet = await compileSuttaStudioPacket(compileOptions('mn1'));
 
     expect(requestNamesOf()).toEqual(['weaver', 'phase_view']);
+    expect(llmMock.mock.calls.every((call) => call[4]?.structuredOutputs === true)).toBe(true);
     expect(packet.phases).toHaveLength(1);
     // Pre-fix: the phaseView rejection hit the phase-fatal catch and this
     // phase shipped degraded, discarding both successful cached passes.
@@ -193,5 +198,36 @@ describe('compileSuttaStudioPacket — phaseView call economy', () => {
     expect(packet.phases[0].title).toBe('Direct Path');
     // The pass outputs survived into the rendered phase.
     expect(packet.phases[0].paliWords.map((w) => w.id)).toEqual(['p1', 'p2', 'p3']);
+  });
+
+  it('uses direct OpenAI local policy and packet provenance without metadata lookup', async () => {
+    const pali = 'evaṁ me sutaṁ';
+    segmentsMock.mockResolvedValue([makeSegment('mn-openai:1.1', pali, 'Thus have I heard.')]);
+    skeletonMock.mockResolvedValue([{ id: 'phase-openai', title: 'Opening', segmentIds: ['mn-openai:1.1'] }]);
+
+    await segmentCache.initialize();
+    segmentCache.setAnatomist(pali, anatomistFor('phase-openai'));
+    segmentCache.setLexicographer(pali, lexicographerFor('phase-openai'));
+    segmentCache.setWeaver(pali, weaverFor('phase-openai'));
+    segmentCache.setTypesetter(pali, typesetterFor('phase-openai'));
+
+    const openAISettings = createMockAppSettings({
+      provider: 'OpenAI',
+      model: 'gpt-5-mini',
+      apiKeyOpenAI: 'settings-openai-key',
+      apiKeyOpenRouter: '',
+      suttaStudioProvider: 'OpenAI',
+      suttaStudioModel: 'gpt-5-mini',
+    } as any);
+    const packet = await compileSuttaStudioPacket({
+      uid: 'mn-openai',
+      lang: 'en',
+      author: 'sujato',
+      settings: openAISettings,
+    });
+
+    expect(supportsStructuredOutputsMock).not.toHaveBeenCalled();
+    expect(packet.compiler?.provider).toBe('openai');
+    expect(llmMock).not.toHaveBeenCalled();
   });
 });

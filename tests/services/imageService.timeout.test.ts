@@ -31,7 +31,6 @@ vi.mock('@google/generative-ai', () => ({
 vi.mock('../../services/apiMetricsService', () => ({
   apiMetricsService: { recordMetric: vi.fn().mockResolvedValue(undefined) },
 }));
-vi.mock('../../services/env', () => ({ getEnvVar: () => 'test-key' }));
 vi.mock('../../services/openrouterImageModelAdapter', () => ({
   getVerifiedOpenRouterImageModel: vi.fn(),
   buildOpenRouterImageRequestConfig: vi.fn(),

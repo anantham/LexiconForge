@@ -244,7 +244,7 @@ export class TranslationService {
       return {
         error: `Translation API error: ${apiValidation.errorMessage}`,
         failureType: apiValidation.failureType ?? 'unknown',
-        expected: apiValidation.failureType === 'trial_limit' || apiValidation.failureType === 'missing_api_key',
+        expected: apiValidation.failureType === 'missing_api_key',
       };
     }
 

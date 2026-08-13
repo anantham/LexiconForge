@@ -112,7 +112,7 @@ This is an indirect theory of impact, not a claim to solve model control or alig
 
 The original LexiconForge application is a local-first web-novel reading and translation workbench.
 
-- Bring API keys for Gemini, Claude, OpenAI, DeepSeek, OpenRouter, image, and audio providers.
+- Bring your own API keys for Gemini, Claude, OpenAI, DeepSeek, OpenRouter, image, and audio providers; add them in Settings.
 - Compare raw text, AI renderings, and attributed human or fan translation witnesses inline.
 - Ask contextual questions about selected spans, give feedback, edit output, and retain version history.
 - Generate illustrations or audio, track cost and usage, and export curated EPUB or session data.
@@ -132,11 +132,11 @@ API keys and reading data are stored locally by default, but translation and med
 ```bash
 git clone <your-fork-url>
 cd LexiconForge
-npm install
+npm ci
 npm run dev
 ```
 
-Add only the provider keys you intend to use to `.env.local`. See the [environment variable reference](./docs/guides/EnvVars.md) and [provider guide](./docs/guides/Providers.md) for current names and behavior.
+Open Settings in the app and add only the provider keys you intend to use. Provider credentials must not be placed in `.env.local`, `VITE_` variables, or a client deployment's build environment. See the [environment variable reference](./docs/guides/EnvVars.md) and [provider guide](./docs/guides/Providers.md) for the current boundary.
 
 Reference translations can be merged into an exported session as attributed witnesses:
 

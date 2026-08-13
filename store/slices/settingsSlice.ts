@@ -16,6 +16,20 @@ import type { ProviderCreditSummary, SupportedCreditProvider } from '../../servi
 import { SessionManagementService, defaultSettings } from '../../services/sessionManagementService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { providerCreditCacheService } from '../../services/providerCreditCacheService';
+import { getConfiguredApiKey } from '../../services/ai/providerCredentials';
+import { audioService } from '../../services/audio/AudioService';
+
+const syncAudioProviders = (
+  previousSettings: AppSettings,
+  nextSettings: AppSettings,
+  force = false
+): void => {
+  const previousKey = getConfiguredApiKey(previousSettings, 'PiAPI');
+  const nextKey = getConfiguredApiKey(nextSettings, 'PiAPI');
+  if (force || previousKey !== nextKey) {
+    audioService.initialize(nextSettings);
+  }
+};
 
 export interface SettingsState {
   // Core settings
@@ -86,14 +100,18 @@ export const createSettingsSlice: StateCreator<
     const currentSettings = get().settings;
     const newSettings = SessionManagementService.updateSettings(currentSettings, partial);
     set({ settings: newSettings });
+    syncAudioProviders(currentSettings, newSettings);
   },
   
   resetSettings: () => {
+    const currentSettings = get().settings;
+    const resetSettings = { ...defaultSettings };
     SessionManagementService.saveSettings(defaultSettings);
     set({ 
-      settings: { ...defaultSettings },
+      settings: resetSettings,
       settingsError: null 
     });
+    syncAudioProviders(currentSettings, resetSettings, true);
   },
   
   loadSettings: () => {
@@ -105,6 +123,7 @@ export const createSettingsSlice: StateCreator<
         settingsLoaded: true,
         settingsError: null
       });
+      syncAudioProviders(get().settings, loadedSettings, true);
     } catch (error) {
       console.error('[SettingsSlice] Failed to load settings:', error);
       set({
@@ -229,6 +248,7 @@ export const createSettingsSlice: StateCreator<
   
   importSettings: async (config) => {
     try {
+      const currentSettings = get().settings;
       SessionManagementService.importSessionConfig(config);
       
       // Reload settings after import
@@ -237,6 +257,7 @@ export const createSettingsSlice: StateCreator<
         settings: loadedSettings,
         settingsError: null 
       });
+      syncAudioProviders(currentSettings, loadedSettings, true);
       
       // Reload prompt templates if they were included
       await get().loadPromptTemplates();
@@ -285,18 +306,7 @@ export const createSettingsSlice: StateCreator<
       }
       
       // Fetch fresh models
-      let apiKey = get().settings.apiKeyOpenRouter;
-      
-      // If no API key in settings, check environment variables as fallback
-      if (!apiKey) {
-        try {
-          apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || 
-                   (globalThis as any).process?.env?.OPENROUTER_API_KEY ||
-                   '';
-        } catch (e) {
-          // Ignore environment access errors
-        }
-      }
+      const apiKey = getConfiguredApiKey(get().settings, 'OpenRouter');
       
       const modelsCache = await openrouterService.fetchModels(apiKey);
       
@@ -321,26 +331,14 @@ export const createSettingsSlice: StateCreator<
     try {
       const { openrouterService } = await import('../../services/openrouterService');
       
-      // Check for API key in settings first, then fall back to env
-      let apiKey = get().settings.apiKeyOpenRouter;
-      
-      // If no API key in settings, check environment variables as fallback
-      if (!apiKey) {
-        try {
-          apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || 
-                   (globalThis as any).process?.env?.OPENROUTER_API_KEY ||
-                   '';
-        } catch (e) {
-          // Ignore environment access errors
-        }
-      }
+      const apiKey = getConfiguredApiKey(get().settings, 'OpenRouter');
       
       if (!apiKey) {
-        debugWarn('api', 'summary', '[SettingsSlice] No OpenRouter API key available for credit check (checked settings and env)');
+        debugWarn('api', 'summary', '[SettingsSlice] No OpenRouter API key in Settings for credit check');
         return;
       }
       
-      debugLog('translation', 'summary', '[SettingsSlice] Using OpenRouter API key from:', get().settings.apiKeyOpenRouter ? 'settings' : 'environment');
+      debugLog('translation', 'summary', '[SettingsSlice] Refreshing OpenRouter credits with the Settings key');
       
       const keyUsage = await openrouterService.fetchKeyUsage(apiKey);
       
@@ -360,34 +358,10 @@ export const createSettingsSlice: StateCreator<
   refreshProviderCredits: async (provider) => {
     try {
       const state = get();
-      let apiKey: string | undefined | null;
-
-      if (provider === 'DeepSeek') {
-        apiKey = state.settings.apiKeyDeepSeek;
-        if (!apiKey) {
-          try {
-            apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY ||
-              (globalThis as any).process?.env?.DEEPSEEK_API_KEY ||
-              '';
-          } catch {
-            /* noop */
-          }
-        }
-      } else if (provider === 'PiAPI') {
-        apiKey = state.settings.apiKeyPiAPI;
-        if (!apiKey) {
-          try {
-            apiKey = import.meta.env.VITE_PIAPI_API_KEY ||
-              (globalThis as any).process?.env?.PIAPI_API_KEY ||
-              '';
-          } catch {
-            /* noop */
-          }
-        }
-      }
+      const apiKey = getConfiguredApiKey(state.settings, provider);
 
       if (!apiKey) {
-        debugWarn('api', 'summary', `[SettingsSlice] No ${provider} API key available for credit check (checked settings and env)`);
+        debugWarn('api', 'summary', `[SettingsSlice] No ${provider} API key in Settings for credit check`);
         set(current => ({
           providerCredits: {
             ...current.providerCredits,
@@ -400,10 +374,7 @@ export const createSettingsSlice: StateCreator<
       debugLog(
         'translation',
         'summary',
-        `[SettingsSlice] Refreshing ${provider} credits using`,
-        provider === 'PiAPI'
-          ? state.settings.apiKeyPiAPI ? 'settings key' : 'environment key'
-          : state.settings.apiKeyDeepSeek ? 'settings key' : 'environment key'
+        `[SettingsSlice] Refreshing ${provider} credits with the Settings key`
       );
 
       const summary = provider === 'DeepSeek'

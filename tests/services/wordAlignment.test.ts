@@ -10,14 +10,17 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { AppSettings } from '../../types';
 
-const chatJSONSpy = vi.fn();
+const { chatJSONSpy, getProviderSpy } = vi.hoisted(() => ({
+  chatJSONSpy: vi.fn(),
+  getProviderSpy: vi.fn(),
+}));
 
 vi.mock('../../adapters/providers', () => ({
   initializeProviders: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('../../adapters/providers/registry', () => ({
-  getProvider: vi.fn(() => ({ name: 'Gemini', chatJSON: chatJSONSpy })),
+  getProvider: getProviderSpy,
 }));
 
 import { alignWords } from '../../services/wordAlignment';
@@ -38,6 +41,7 @@ const baseSettings: AppSettings = {
 describe('wordAlignment', () => {
   beforeEach(() => {
     chatJSONSpy.mockReset();
+    getProviderSpy.mockReset().mockReturnValue({ name: 'Gemini', chatJSON: chatJSONSpy });
   });
 
   describe('alignWords', () => {
@@ -150,6 +154,28 @@ describe('wordAlignment', () => {
       expect(callArgs.messages).toHaveLength(2);
       expect(callArgs.messages[0].role).toBe('system');
       expect(callArgs.messages[1].role).toBe('user');
+    });
+
+    it('uses direct OpenAI without remapping Settings to OpenRouter', async () => {
+      chatJSONSpy.mockResolvedValueOnce({ text: '{"pairs":[]}' });
+      const settings = {
+        ...baseSettings,
+        provider: 'OpenAI',
+        model: 'gpt-5-mini',
+        apiKeyOpenAI: 'settings-openai-key',
+        apiKeyOpenRouter: '',
+      } as AppSettings;
+
+      await alignWords({ source: 'sati', target: 'mindfulness', settings });
+
+      expect(getProviderSpy).toHaveBeenCalledOnce();
+      expect(getProviderSpy).toHaveBeenCalledWith('OpenAI');
+      expect(chatJSONSpy.mock.calls[0][0].settings).toMatchObject({
+        provider: 'OpenAI',
+        model: 'gpt-5-mini',
+        apiKeyOpenAI: 'settings-openai-key',
+        apiKeyOpenRouter: '',
+      });
     });
   });
 });

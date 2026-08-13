@@ -1,6 +1,6 @@
 # Tech Debt Status
 
-**Last Updated:** March 29, 2026
+**Last Updated:** August 13, 2026 (credential-boundary item only; scan metrics below remain the March 29 snapshot)
 **Last Surface Scan:** March 29, 2026 (v1.1.0, post-review corrected)
 
 ## Completed Milestones ✅
@@ -63,7 +63,7 @@ Commit:     5d18e77
 
 | Item | Location | Issue | Status |
 |------|----------|-------|--------|
-| Security: API keys in build | `vite.config.ts:96-117` | 6 API keys bundled into client JS via `define:` — remove build-time secret injection (local-first app, not a backend proxy issue) | NEW |
+| Security: API keys in build | `vite.config.ts`, `services/ai/providerCredentials.ts`, `scripts/security/scan-client-secrets.mjs` | Provider keys were bundled into client JS and resolved through divergent fallbacks. Settings-only BYOK boundary, trial removal, canary build, and artifact scan implemented; the exposed Gemini key was revoked and the other three exact credentials were confirmed invalid. See [SEC-001](../adr/SEC-001-browser-provider-credential-boundary.md). | RESOLVED 2026-08-13 |
 | `as any` casts (systemic) | Live code (scoped) | 296 `as any` in live code — see breakdown below | NEW |
 | Silent error swallowing | `services/navigation/index.ts` (4), `store/slices/chaptersSlice.ts` (4) | 8 truly empty `.catch(() => {})` blocks hiding DB/navigation failures | NEW |
 | Async anti-pattern | `rateLimitService.ts:30`, `importService.ts:201` | `new Promise(async ...)` — 2 instances, swallows errors escaping the promise chain | NEW |

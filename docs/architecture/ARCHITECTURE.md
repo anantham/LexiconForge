@@ -104,7 +104,7 @@ A backward-compatible shim at `services/suttaStudioCompiler.ts` re-exports from 
 
 | File | LOC | Responsibility |
 |------|-----|----------------|
-| `services/compiler/index.ts` | 618 | Pipeline orchestration and packet assembly |
+| `services/compiler/index.ts` | 957 | Pipeline orchestration and packet assembly |
 | `services/compiler/schemas.ts` | 401 | JSON schemas for all passes |
 | `services/compiler/prompts.ts` | 347 | Prompt builders for each pass |
 | `services/compiler/utils.ts` | 218 | Shared compiler utilities |
@@ -196,7 +196,8 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 | `services/suttaStudioPassRunners.ts` | 586 | Watchlist | All per-pass runners in one file; no tests |
 | `components/sutta-studio/SuttaStudioApp.tsx` | ~498 | Watchlist | Store wiring, navigation, compilation, and render gating |
 | `services/db/repositories/TranslationRepository.ts` | 405 | Watchlist | Translation versioning, active-version mutation, stableId fallback, and direct IDB write paths share one module |
-| `adapters/providers/OpenAIAdapter.ts` | 717 | Monitor | Largest single adapter; manageable but growing |
+| `adapters/providers/OpenAIAdapter.ts` | 886 | Split candidate | Translation/chat request construction, adaptive fallbacks, metrics, and response parsing share one adapter |
+| `services/imagePlanPlanner.ts` | 451 | Watchlist | Planner schema/prompt logic and three provider transports share one module |
 | `store/slices/imageSlice.ts` | 1,081 | Keep | Single domain, all parts change together |
 | `store/slices/translationsSlice.ts` | 1,059 | Keep | Single domain, complex but cohesive |
 | `store/slices/chaptersSlice.ts` | 825 | Keep | Single domain |

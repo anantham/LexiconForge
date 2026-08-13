@@ -10,7 +10,6 @@
 #### **1. Prerequisites**
 - GitHub repository pushed to your account
 - Vercel account (free tier available)
-- API keys for at least one AI provider
 
 #### **2. Connect Repository**
 1. Go to [vercel.com](https://vercel.com) and sign in
@@ -20,18 +19,11 @@
 5. Root Directory: `./` (default)
 
 #### **3. Configure Environment Variables**
-In Vercel Dashboard → Project → Settings → Environment Variables:
+No AI-provider credential is required for the browser deployment. Users bring their own keys through **Settings -> API Keys**.
 
-```bash
-# Required: At least one AI provider
-GEMINI_API_KEY=your_gemini_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here  
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
-```
+Do not add Gemini, OpenAI, DeepSeek, Claude, OpenRouter, or PiAPI credentials to Vercel's project environment. Do not use `VITE_` provider-key variables. Vite client variables and previous build-time `define` values are downloadable by every visitor.
 
-**Environment Types:**
-- Set for: `Production`, `Preview`, `Development`
-- This ensures keys work in all environments
+`VITE_DB_BACKEND` is the only supported optional browser build variable. It is public configuration, not a credential; omit it to use the modern IndexedDB backend.
 
 #### **4. Deploy**
 - Click "Deploy" - Vercel handles the rest automatically
@@ -44,7 +36,7 @@ DEEPSEEK_API_KEY=your_deepseek_api_key_here
 - Framework: Vite (auto-detected)
 - Build Command: `npm run build`
 - Output Directory: `dist`
-- Install Command: `npm install`
+- Install Command: `npm ci`
 
 **Custom Configuration (vercel.json):**
 ```json
@@ -80,21 +72,22 @@ Client telemetry should remain best-effort only:
 
 ## 🔒 **Security Considerations**
 
-### **⚠️ Critical Security Warning**
+### **Credential Boundary**
 
-**Client-Side API Key Exposure:**
-- This is a **client-side application**
-- API keys are **visible in browser** (dev tools → sources/network)
-- Anyone can extract and potentially misuse your keys
+- LexiconForge is a client-side, bring-your-own-key application.
+- Each user enters credentials in Settings; those values remain in that browser's local settings and are sent to the provider selected for a request.
+- Never ship an operator-owned or shared provider key in JavaScript, HTML, static assets, or public runtime configuration.
+- Client-side throttles and counters are UX controls, not security controls. A visitor can bypass them.
+- CI builds with synthetic canaries and rejects provider-shaped credentials in `dist/`.
 
 ### **🛡️ Production Security Best Practices**
 
-#### **1. Separate API Keys**
-- **Never use personal/primary API keys in production**
-- Create separate, limited-scope keys for public deployment
-- Use different keys for development vs. production
+#### **1. Keep Provider Keys Out of Deployment Configuration**
+- Remove provider credentials from Vercel, Netlify, and other client build environments.
+- Run `npm run build && npm run security:scan-client` before publishing static artifacts.
+- Rotate a key immediately if it has appeared in a deployed artifact or shared log.
 
-#### **2. Set Usage Limits**
+#### **2. Encourage User-Owned Limits**
 **Google Gemini:**
 - Go to [Google Cloud Console](https://console.cloud.google.com)
 - Set daily/monthly quotas
@@ -110,16 +103,18 @@ Client telemetry should remain best-effort only:
 - Set up balance alerts
 - Monitor usage patterns
 
-#### **3. Monitor Usage**
+#### **3. Monitor Provider Usage**
 - Set up email alerts for unusual usage spikes
 - Regularly check API dashboards for unauthorized usage
 - Rotate keys if you notice suspicious activity
 
-#### **4. Rate Limiting (Application Level)**
-The app includes built-in rate limiting:
+#### **4. Application-Level Pacing**
+The app includes request pacing for reliability and cost feedback:
 - 6.5 second intervals between API calls
 - Automatic retry with exponential backoff
 - Cost tracking to prevent runaway usage
+
+These controls do not protect a shared key because they execute in code controlled by the visitor.
 
 ### **🏢 Enterprise Deployment Options**
 
@@ -131,7 +126,7 @@ Frontend (LexiconForge) → Your API Server → AI Providers
 ```
 - Add authentication/authorization
 - Hide API keys server-side
-- Implement per-user rate limiting
+- Implement fail-closed per-user rate limiting and cumulative spend caps
 - Add usage analytics
 
 #### **Option 2: Serverless Functions**
@@ -139,8 +134,10 @@ Frontend (LexiconForge) → Your API Server → AI Providers
 Frontend → Vercel/Netlify Functions → AI Providers
 ```
 - Environment variables on server-side only
-- Per-function rate limiting
+- Authentication, authorization, and per-user rate limiting
 - Built-in logging and monitoring
+
+The current repository does not implement a shared-key broker. Do not treat Vercel project variables as server-only when the Vite build reads them.
 
 ## 🌍 **Alternative Deployment Platforms**
 
@@ -148,7 +145,7 @@ Frontend → Vercel/Netlify Functions → AI Providers
 1. Connect GitHub repository
 2. Build command: `npm run build`
 3. Publish directory: `dist`
-4. Add environment variables in Site Settings
+4. Leave provider credentials out of Site Settings
 
 ### **GitHub Pages**
 ```bash
@@ -158,10 +155,10 @@ npm run build
 
 ### **Self-Hosted (Docker)**
 ```dockerfile
-FROM node:18-alpine
+FROM node:24-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npm run build
 EXPOSE 3000
@@ -171,9 +168,10 @@ CMD ["npx", "serve", "dist", "-s", "-l", "3000"]
 ## 🧪 **Testing Deployment**
 
 ### **Pre-Deployment Checklist**
-- [ ] Test local build: `npm run build && npm run preview`
-- [ ] Verify all environment variables are set
-- [ ] Test with each AI provider
+- [ ] Run `npm run typecheck` and `npm run lint`
+- [ ] Run `npm run build && npm run security:scan-client`
+- [ ] Verify no provider credentials are configured in the client deployment
+- [ ] Test provider flows with a disposable user-owned key entered through Settings
 - [ ] Check mobile responsiveness
 - [ ] Verify error handling for missing API keys
 
@@ -207,24 +205,25 @@ Vercel automatically deploys on:
 ### **Build Failures**
 ```bash
 # Install dependencies
-npm install
+npm ci
 
 # Test local build
 npm run build
 
 # Check for TypeScript errors
-npm run type-check
+npm run typecheck
 ```
 
 ### **Environment Variable Issues**
-- Ensure variables are set for correct environment (Production/Preview)
-- Check variable names match exactly (case-sensitive)
-- Redeploy after adding new variables
+- Provider credentials are not supported as client environment variables.
+- Check [EnvVars.md](./EnvVars.md) before adding public build configuration.
+- Redeploy after changing supported public configuration.
 
 ### **API Key Problems**
 - Verify keys are valid and have correct permissions
 - Check API quotas haven't been exceeded
 - Ensure keys support the specific models you're using
+- Re-enter the key in Settings; do not add it to Vercel or `.env.local`
 
 ### **Runtime Errors**
 - Check Vercel function logs for server-side errors
@@ -244,4 +243,4 @@ npm run type-check
 - Implement user authentication to prevent abuse
 - Set strict usage quotas per user
 
-This deployment guide ensures secure, scalable deployment of LexiconForge while maintaining awareness of the security implications of client-side API keys.
+This deployment model keeps operator credentials out of public artifacts. Users remain responsible for the provider keys they enter locally; a future shared-credit product must use a separately reviewed server-side boundary.

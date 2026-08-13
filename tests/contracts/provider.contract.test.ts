@@ -72,18 +72,7 @@ vi.mock('@google/generative-ai', () => ({
   },
 }));
 
-const supportsStructuredOutputsMock = vi.fn().mockResolvedValue(false);
-const supportsParametersMock = vi.fn().mockResolvedValue(false);
-
 vi.mock('../../services/capabilityService', () => ({
-  supportsStructuredOutputs: (...args: any[]) => supportsStructuredOutputsMock(...args),
-  // Source-aware variant used by OpenAIAdapter (integrity item 1); 'metadata' here so contract
-  // tests exercise the plain "metadata says no" path without downgrade warnings.
-  getStructuredOutputsSupport: async (...args: any[]) => ({
-    supported: await supportsStructuredOutputsMock(...args),
-    source: 'metadata' as const,
-  }),
-  supportsParameters: (...args: any[]) => supportsParametersMock(...args),
   recordParameterFailure: vi.fn(),
   hasRecordedParameterFailure: vi.fn(() => false),
 }));
@@ -108,14 +97,6 @@ vi.mock('../../services/apiMetricsService', () => ({
   apiMetricsService: {
     recordMetric: (...args: any[]) => recordMetricMock(...args),
   },
-}));
-
-vi.mock('../../services/env', () => ({
-  getEnvVar: (_key: string) => undefined,
-}));
-
-vi.mock('../../services/defaultApiKeyService', () => ({
-  getDefaultApiKey: () => undefined,
 }));
 
 function buildSettings(provider: 'OpenAI' | 'Gemini', cassette: OpenAICassette | GeminiCassette): AppSettings {
@@ -159,8 +140,6 @@ describe('Provider Contract (VCR replay-only)', () => {
     calculateCostMock.mockReset();
     recordMetricMock.mockClear();
 
-    supportsStructuredOutputsMock.mockResolvedValue(false);
-    supportsParametersMock.mockResolvedValue(false);
   });
 
   describe('OpenAIAdapter', () => {
@@ -257,4 +236,3 @@ describe('Provider Contract (VCR replay-only)', () => {
     });
   });
 });
-

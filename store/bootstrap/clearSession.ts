@@ -60,6 +60,7 @@ export const createClearSession = (ctx: BootstrapContext): SessionActions['clear
       await SessionManagementService.clearSession(options);
 
       ctx.set(buildResetState(ctx.get()));
+      ctx.get().initializeAudioService(ctx.get().settings);
 
       if (!options.clearSettings) {
         await ctx.get().loadPromptTemplates();

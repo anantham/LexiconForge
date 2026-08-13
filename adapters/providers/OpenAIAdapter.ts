@@ -2,21 +2,25 @@ import OpenAI from 'openai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter, UsageMetrics } from '../../types';
-import { getStructuredOutputsSupport, supportsParameters, recordParameterFailure, hasRecordedParameterFailure } from '../../services/capabilityService';
-import type { StructuredOutputsSupport } from '../../services/capabilityService';
+import { recordParameterFailure, hasRecordedParameterFailure } from '../../services/capabilityService';
 import { rateLimitService } from '../../services/rateLimitService';
 import { calculateCost } from '../../services/ai/cost';
 import prompts from '../../config/prompts.json';
 import appConfig from '../../config/app.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
-import { getEnvVar } from '../../services/env';
+import { getOpenAICompatibleConfig } from '../../services/ai/providerCredentials';
 import { getTranslationOnlyResponseJsonSchema } from '../../services/translate/translationResponseSchema';
 import { getTranslationSystemPrompt } from '../../utils/promptUtils';
-import { getDefaultApiKey } from '../../services/defaultApiKeyService';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import { extractBalancedJson, replacePlaceholders } from '../../services/ai/textUtils';
 import { validateAndClampParameter } from '../../services/ai/parameters';
 import { toOpenAIStrictSchema, needsOpenAIStrictSchema } from '../../services/ai/openaiStrictSchema';
+import {
+  getChatCompletionOptionalParameters,
+  getChatCompletionRequestParameters,
+  getChatCompletionTokenLimit,
+} from '../../services/ai/openaiRequestParameters';
+import { shouldRequestStructuredOutputs } from '../../services/ai/structuredOutputPolicy';
 
 // Debug logging
 const dlog = (message: string, ...args: any[]) => {
@@ -35,6 +39,28 @@ const dlogFull = (message: string, ...args: any[]) => {
     }
   } catch {}
 };
+
+type OpenAIRequestMessage = {
+  role: string;
+  content?: unknown;
+  [key: string]: unknown;
+};
+
+type OpenAIRequestOptions = {
+  messages?: OpenAIRequestMessage[];
+  provider?: Record<string, unknown>;
+  response_format?: { type?: string; [key: string]: unknown };
+  [key: string]: unknown;
+};
+
+type RequestAdaptation = 'advanced_parameters' | 'routing_requirement' | 'structured_output';
+const ADVANCED_PARAMETERS = [
+  'temperature',
+  'top_p',
+  'frequency_penalty',
+  'presence_penalty',
+  'seed',
+] as const;
 
 export class OpenAIAdapter implements TranslationProvider, Provider {
   name: ProviderName;
@@ -67,71 +93,33 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     let response: OpenAI.Chat.Completions.ChatCompletion;
 
     try {
-      // Make API call with abort signal
-      response = await (abortSignal
-        ? client.chat.completions.create(requestOptions, { signal: abortSignal })
-        : client.chat.completions.create(requestOptions));
-
-    } catch (error: any) {
-      // Handle parameter errors by retrying without unsupported parameters
-      if (this.isParameterError(error)) {
-        const errorMsg = (error.message || '').toLowerCase();
-        dlog('Parameter error detected, retrying without advanced parameters', errorMsg);
-        
-        // Record which parameter failed so we don't try it again for this model
-        ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'].forEach(param => {
-          if (errorMsg.includes(param)) {
-            recordParameterFailure(settings.model, param);
-          }
-        });
-
-        const simpleOptions = this.removeAdvancedParameters(requestOptions);
-        response = await (abortSignal
-          ? client.chat.completions.create(simpleOptions, { signal: abortSignal })
-          : client.chat.completions.create(simpleOptions));
-      } else {
-        // Same "No endpoints found" class as chatJSON: OpenRouter's routing 404 names no
-        // parameter, so isParameterError above can never match it. Retry once without
-        // require_parameters when that's what filtered every endpoint out.
-        const noEndpointsRetryOptions = this.isNoEndpointsError(error?.message || '')
-          ? this.withoutRequireParameters(requestOptions)
-          : null;
-        if (noEndpointsRetryOptions) {
-          console.warn(
-            `[OpenAI] OpenRouter found no endpoints for ${settings.model} with require_parameters — retrying once ` +
-            `WITHOUT require_parameters. The serving endpoint may silently ignore requested parameters on this retry.`
-          );
-          recordParameterFailure(settings.model, 'require_parameters');
-          response = await (abortSignal
-            ? client.chat.completions.create(noEndpointsRetryOptions, { signal: abortSignal })
-            : client.chat.completions.create(noEndpointsRetryOptions));
-        } else {
-          dlogFull('Full error response:', JSON.stringify(error, null, 2));
-
-          // Record failed API call
-          const endTime = performance.now();
-          const promptTokens = 0; // Unknown on failure
-          const completionTokens = 0;
-          const costUsd = 0;
-
-          await apiMetricsService.recordMetric({
-            apiType: 'translation',
-            provider: settings.provider,
-            model: settings.model,
-            costUsd,
-            tokens: {
-              prompt: promptTokens,
-              completion: completionTokens,
-              total: promptTokens + completionTokens,
-            },
-            chapterId,
-            success: false,
-            errorMessage: error.message || 'Unknown error',
-          });
-
-          throw error;
+      response = await this.createCompletionWithFallbacks(
+        options => abortSignal
+          ? client.chat.completions.create(options, { signal: abortSignal })
+          : client.chat.completions.create(options),
+        requestOptions,
+        {
+          model: settings.model,
+          schema: getTranslationOnlyResponseJsonSchema(),
+          allowAdvancedParameterFallback: true,
         }
-      }
+      );
+    } catch (error: unknown) {
+      dlogFull('Full error response:', JSON.stringify(error, null, 2));
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      await apiMetricsService.recordMetric({
+        apiType: 'translation',
+        provider: settings.provider,
+        model: settings.model,
+        costUsd: 0,
+        tokens: { prompt: 0, completion: 0, total: 0 },
+        chapterId,
+        success: false,
+        errorMessage: errorMessage || 'Unknown error',
+      });
+
+      throw error;
     }
 
     const endTime = performance.now();
@@ -172,35 +160,27 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
 
     const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? 16384;
 
-    const requestOptions: any = {
+    const temperature = validateAndClampParameter(
+      input.temperature ?? settings.temperature ?? 0.2,
+      'temperature'
+    );
+    let requestOptions: any = {
       model,
       messages,
-      max_tokens: maxTokens,
+      ...getChatCompletionRequestParameters(
+        settings.provider,
+        model,
+        maxTokens,
+        { temperature }
+      ),
     };
 
-    // Only add temperature if model supports it (e.g., gpt-5.2-chat doesn't)
-    const supportsTemp = await supportsParameters(settings.provider, model, ['temperature']);
-    if (supportsTemp) {
-      const temperature = validateAndClampParameter(
-        input.temperature ?? settings.temperature ?? 0.2,
-        'temperature'
-      );
-      requestOptions.temperature = temperature;
-    }
-
-    // When the caller doesn't pin structuredOutputs, ask the capability service — with
-    // provenance, because a `false` that came from a fetch failure (not metadata) means the
-    // downgrade below is a guess against a paid request and must be logged (integrity item 1).
-    let structuredSupport: StructuredOutputsSupport | null = null;
-    let hasStructuredOutputs: boolean;
-    if (!input.schema) {
-      hasStructuredOutputs = false;
-    } else if (input.structuredOutputs !== undefined) {
-      hasStructuredOutputs = Boolean(input.structuredOutputs);
-    } else {
-      structuredSupport = await getStructuredOutputsSupport(settings.provider, model);
-      hasStructuredOutputs = structuredSupport.supported;
-    }
+    // Request construction is local and deterministic. OpenRouter model metadata remains
+    // advisory UI data; it must not hold an ordinary paid request behind its retry budget.
+    // A real provider rejection is handled once below and remembered for this session.
+    const hasStructuredOutputs = Boolean(input.schema) &&
+      shouldRequestStructuredOutputs(settings.provider, input.structuredOutputs ?? true) &&
+      !hasRecordedParameterFailure(model, 'response_format');
 
     if (hasStructuredOutputs && input.schema) {
       // OpenAI's strict json_schema validator speaks a stricter dialect
@@ -232,16 +212,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         };
       }
     } else {
-      // Downgrading to json_object is only legitimate when METADATA says the model lacks
-      // structured outputs. When the capability answer was itself a failure-default, this paid
-      // request is being silently weakened on a guess — log it, with the model id.
-      if (input.schema && structuredSupport && structuredSupport.source !== 'metadata') {
-        console.warn(
-          `[OpenAI] Structured outputs DOWNGRADED to json_object for ${model}: the capability answer was a ` +
-          `${structuredSupport.source === 'default-error' ? 'failure default (capability metadata fetch failed)' : 'miss default (model not in capability metadata)'}, not real metadata.`
-        );
-      }
-      requestOptions.response_format = { type: 'json_object' };
+      requestOptions = this.withJsonObjectResponse(requestOptions, input.schema);
       // Still apply provider preferences for non-structured outputs
       if (settings.provider === 'OpenRouter' && input.providerPreferences) {
         requestOptions.provider = { ...input.providerPreferences };
@@ -255,55 +226,31 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     let response: OpenAI.Chat.Completions.ChatCompletion;
 
     try {
-      response = await (input.abortSignal
-        ? client.chat.completions.create(requestOptions, { signal: input.abortSignal })
-        : client.chat.completions.create(requestOptions));
-    } catch (error: any) {
-      const message = error?.message || String(error);
-      // OpenRouter's real routing failure — 404 "No endpoints found that can handle the
-      // requested parameters" — names NO parameter, so the per-parameter failure net can never
-      // fire on it, and the structured-outputs fallback below rebuilds a request still carrying
-      // the parameters the routing filter rejected. When require_parameters is present, retry
-      // ONCE without it (bounded; a second failure propagates normally).
-      const noEndpointsRetryOptions = this.isNoEndpointsError(message)
-        ? this.withoutRequireParameters(requestOptions)
-        : null;
-      if (noEndpointsRetryOptions) {
-        console.warn(
-          `[OpenAI] OpenRouter found no endpoints for ${model} with require_parameters — retrying once WITHOUT ` +
-          `require_parameters. The serving endpoint may silently ignore requested parameters (e.g. response_format) on this retry.`
-        );
-        recordParameterFailure(model, 'require_parameters');
-        response = await (input.abortSignal
-          ? client.chat.completions.create(noEndpointsRetryOptions, { signal: input.abortSignal })
-          : client.chat.completions.create(noEndpointsRetryOptions));
-      } else if (hasStructuredOutputs && /response_format|structured_outputs|not supported/i.test(message)) {
-        dlog('Structured outputs not supported; retrying without schema.');
-        const fallbackOptions = {
-          ...requestOptions,
-          response_format: { type: 'json_object' },
-        };
-        response = await (input.abortSignal
-          ? client.chat.completions.create(fallbackOptions, { signal: input.abortSignal })
-          : client.chat.completions.create(fallbackOptions));
-      } else {
-        dlogFull('Full compiler error response:', JSON.stringify(error, null, 2));
-        await apiMetricsService.recordMetric({
-          apiType: input.apiType ?? 'sutta_studio',
-          provider: settings.provider,
-          model,
-          costUsd: 0,
-          tokens: {
-            prompt: 0,
-            completion: 0,
-            total: 0,
-          },
-          chapterId: input.chapterId,
-          success: false,
-          errorMessage: message || 'Unknown error',
-        });
-        throw error;
-      }
+      response = await this.createCompletionWithFallbacks(
+        options => input.abortSignal
+          ? client.chat.completions.create(options, { signal: input.abortSignal })
+          : client.chat.completions.create(options),
+        requestOptions,
+        { model, schema: input.schema, allowAdvancedParameterFallback: false }
+      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      dlogFull('Full compiler error response:', JSON.stringify(error, null, 2));
+      await apiMetricsService.recordMetric({
+        apiType: input.apiType ?? 'sutta_studio',
+        provider: settings.provider,
+        model,
+        costUsd: 0,
+        tokens: {
+          prompt: 0,
+          completion: 0,
+          total: 0,
+        },
+        chapterId: input.chapterId,
+        success: false,
+        errorMessage: message || 'Unknown error',
+      });
+      throw error;
     }
 
     const endTime = performance.now();
@@ -349,41 +296,19 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
   }
 
   private getApiConfig(settings: AppSettings): { apiKey: string; baseURL: string } {
-    let apiKey: string | undefined;
-    let baseURL: string;
-
     switch (settings.provider) {
       case 'OpenAI':
-        apiKey = settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY');
-        baseURL = 'https://api.openai.com/v1';
-        break;
       case 'DeepSeek':
-        apiKey = settings.apiKeyDeepSeek || getEnvVar('DEEPSEEK_API_KEY');
-        baseURL = 'https://api.deepseek.com/v1';
-        break;
-      case 'OpenRouter':
-        // Try user key first, then env var, then trial key
-        apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY') || getDefaultApiKey() || undefined;
-        console.log('[OpenRouter] API Key Priority Check:', {
-          hasUserKey: !!settings.apiKeyOpenRouter,
-          hasEnvKey: !!getEnvVar('OPENROUTER_API_KEY'),
-          hasTrialKey: !!getDefaultApiKey(),
-          usingSource: settings.apiKeyOpenRouter ? 'user_settings' :
-                       getEnvVar('OPENROUTER_API_KEY') ? 'env_var' :
-                       getDefaultApiKey() ? 'trial_key' : 'none',
-          finalKeyAvailable: !!apiKey
-        });
-        baseURL = 'https://openrouter.ai/api/v1';
-        break;
+      case 'OpenRouter': {
+        const { apiKey, baseURL } = getOpenAICompatibleConfig(settings, settings.provider);
+        if (!apiKey) {
+          throw new Error(`${settings.provider} API key is missing. Please add it in Settings.`);
+        }
+        return { apiKey, baseURL };
+      }
       default:
         throw new Error(`Unsupported provider: ${settings.provider}`);
     }
-
-    if (!apiKey) {
-      throw new Error(`${settings.provider} API key is missing. Please add it in settings.`);
-    }
-
-    return { apiKey, baseURL };
   }
 
   private async buildRequest(
@@ -393,8 +318,8 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     history: HistoricalChapter[], 
     fanTranslation?: string | null
   ): Promise<any> {
-    const structuredSupport = await getStructuredOutputsSupport(settings.provider, settings.model);
-    const hasStructuredOutputs = structuredSupport.supported;
+    const hasStructuredOutputs = shouldRequestStructuredOutputs(settings.provider) &&
+      !hasRecordedParameterFailure(settings.model, 'response_format');
 
     // Translation runs without the amendment protocol; proposals are generated separately.
     let systemPrompt = getTranslationSystemPrompt(settings.systemPrompt);
@@ -410,11 +335,12 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     const requestOptions: any = { model: settings.model };
 
     if (hasStructuredOutputs) {
+      const targetsOpenAI = settings.provider === 'OpenAI' || needsOpenAIStrictSchema(settings.model);
       requestOptions.response_format = {
         type: 'json_schema',
         json_schema: {
           name: 'translation_response',
-          schema: schema,
+          schema: targetsOpenAI ? toOpenAIStrictSchema(schema) : schema,
           strict: true
         }
       };
@@ -428,21 +354,8 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         }
       }
     } else {
-      // A failure-default (fetch failed / model unknown) is not metadata: the paid translation
-      // request is being downgraded to json_object on a guess — log it (integrity item 1).
-      if (structuredSupport.source !== 'metadata') {
-        console.warn(
-          `[OpenAI] Structured outputs DOWNGRADED to json_object for ${settings.model}: the capability answer was a ` +
-          `${structuredSupport.source === 'default-error' ? 'failure default (capability metadata fetch failed)' : 'miss default (model not in capability metadata)'}, not real metadata.`
-        );
-      }
       requestOptions.response_format = { type: 'json_object' };
-      const schemaString = JSON.stringify(schema, null, 2);
-      const schemaInjection = `
-
-Your response MUST be a single, valid JSON object that conforms to the following JSON schema:
-
-${schemaString}`;
+      const schemaInjection = this.getJsonSchemaInstruction(schema);
 
       // Avoid duplicating the injection if the user's prompt already contains it
       if (!systemPrompt.includes('Your response MUST be a single, valid JSON object')) {
@@ -485,52 +398,44 @@ ${schemaString}`;
     requestOptions.messages = messages;
 
     // Add supported parameters
-    await this.addSupportedParameters(requestOptions, settings);
+    this.addSupportedParameters(requestOptions, settings);
 
     return requestOptions;
   }
 
-  private async addSupportedParameters(requestOptions: any, settings: AppSettings): Promise<void> {
-    // Check parameter support
-    const [supportsTemperature, supportsTopP, supportsFreqPen, supportsPresPen, supportsSeed] = 
-      await Promise.all([
-        supportsParameters(settings.provider, settings.model, ['temperature']),
-        supportsParameters(settings.provider, settings.model, ['top_p']),
-        supportsParameters(settings.provider, settings.model, ['frequency_penalty']),
-        supportsParameters(settings.provider, settings.model, ['presence_penalty']),
-        supportsParameters(settings.provider, settings.model, ['seed'])
-      ]);
-
-    // Add parameters if supported and different from defaults
-    if (supportsTemperature && settings.temperature !== appConfig.aiParameters.defaults.temperature) {
-      requestOptions.temperature = validateAndClampParameter(settings.temperature, 'temperature');
-    }
-    if (supportsTopP && settings.topP !== undefined && settings.topP !== appConfig.aiParameters.defaults.top_p) {
-      requestOptions.top_p = validateAndClampParameter(settings.topP, 'top_p');
-    }
-    if (supportsFreqPen && settings.frequencyPenalty !== undefined && settings.frequencyPenalty !== appConfig.aiParameters.defaults.frequency_penalty) {
-      requestOptions.frequency_penalty = validateAndClampParameter(settings.frequencyPenalty, 'frequency_penalty');
-    }
-    if (supportsPresPen && settings.presencePenalty !== undefined && settings.presencePenalty !== appConfig.aiParameters.defaults.presence_penalty) {
-      requestOptions.presence_penalty = validateAndClampParameter(settings.presencePenalty, 'presence_penalty');
-    }
-    if (supportsSeed && settings.seed !== undefined && settings.seed !== null) {
-      requestOptions.seed = validateAndClampParameter(settings.seed, 'seed');
-    }
+  private addSupportedParameters(requestOptions: any, settings: AppSettings): void {
+    const optionalParameters = getChatCompletionOptionalParameters(
+      settings.provider,
+      settings.model,
+      {
+        ...(settings.temperature !== appConfig.aiParameters.defaults.temperature
+          ? { temperature: validateAndClampParameter(settings.temperature, 'temperature') }
+          : {}),
+        ...(settings.topP !== undefined && settings.topP !== appConfig.aiParameters.defaults.top_p
+          ? { top_p: validateAndClampParameter(settings.topP, 'top_p') }
+          : {}),
+        ...(settings.frequencyPenalty !== undefined && settings.frequencyPenalty !== appConfig.aiParameters.defaults.frequency_penalty
+          ? { frequency_penalty: validateAndClampParameter(settings.frequencyPenalty, 'frequency_penalty') }
+          : {}),
+        ...(settings.presencePenalty !== undefined && settings.presencePenalty !== appConfig.aiParameters.defaults.presence_penalty
+          ? { presence_penalty: validateAndClampParameter(settings.presencePenalty, 'presence_penalty') }
+          : {}),
+        ...(settings.seed !== undefined && settings.seed !== null
+          ? { seed: validateAndClampParameter(settings.seed, 'seed') }
+          : {}),
+      }
+    );
+    Object.assign(requestOptions, optionalParameters);
 
     // Add max tokens — always send a value to avoid API-default truncation.
     // OpenRouter in particular returns short responses when max_tokens is omitted.
     const effectiveMaxTokens = (settings.maxOutputTokens && settings.maxOutputTokens > 0)
       ? settings.maxOutputTokens
       : 16384; // sensible default matching Claude adapter
-    const modelsThatUseMaxCompletionTokens = ['claude', 'gpt-5'];
-    const useMaxCompletionTokens = modelsThatUseMaxCompletionTokens.some(p => settings.model.startsWith(p));
-
-    if (useMaxCompletionTokens) {
-      requestOptions.max_completion_tokens = effectiveMaxTokens;
-    } else {
-      requestOptions.max_tokens = effectiveMaxTokens;
-    }
+    Object.assign(
+      requestOptions,
+      getChatCompletionTokenLimit(settings.model, effectiveMaxTokens)
+    );
 
     // Add OpenRouter headers if needed
     if (settings.provider === 'OpenRouter') {
@@ -548,25 +453,103 @@ ${schemaString}`;
   }
 
   /**
+   * Execute one request while applying each safe request-shape adaptation at most once.
+   * Adaptations are monotonic, so composed provider failures can progress without an
+   * unbounded retry loop: advanced parameters -> routing requirement -> structured output.
+   */
+  private async createCompletionWithFallbacks<T extends OpenAIRequestOptions>(
+    createCompletion: (_options: T) => Promise<OpenAI.Chat.Completions.ChatCompletion>,
+    initialOptions: T,
+    config: {
+      model: string;
+      schema?: unknown;
+      allowAdvancedParameterFallback: boolean;
+    }
+  ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
+    let requestOptions = initialOptions;
+    const applied = new Set<RequestAdaptation>();
+
+    while (true) {
+      try {
+        return await createCompletion(requestOptions);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        const normalizedMessage = message.toLowerCase();
+
+        if (
+          config.allowAdvancedParameterFallback &&
+          !applied.has('advanced_parameters') &&
+          this.isParameterError(error)
+        ) {
+          const retryOptions = this.withoutAdvancedParameters(requestOptions);
+          if (retryOptions) {
+            dlog('Parameter error detected, retrying without advanced parameters', normalizedMessage);
+            ADVANCED_PARAMETERS.forEach(param => {
+              if (normalizedMessage.includes(param)) {
+                recordParameterFailure(config.model, param);
+              }
+            });
+            applied.add('advanced_parameters');
+            requestOptions = retryOptions;
+            continue;
+          }
+        }
+
+        const routingRetryOptions = !applied.has('routing_requirement') && this.isNoEndpointsError(message)
+          ? this.withoutRequireParameters(requestOptions)
+          : null;
+        if (routingRetryOptions) {
+          console.warn(
+            `[OpenAI] OpenRouter found no endpoints for ${config.model} with require_parameters - retrying once ` +
+            `WITHOUT require_parameters. The serving endpoint may silently ignore requested parameters on this retry.`
+          );
+          recordParameterFailure(config.model, 'require_parameters');
+          applied.add('routing_requirement');
+          requestOptions = routingRetryOptions;
+          continue;
+        }
+
+        if (
+          !applied.has('structured_output') &&
+          requestOptions.response_format?.type === 'json_schema' &&
+          this.isStructuredOutputError(message)
+        ) {
+          console.warn(
+            `[OpenAI] ${config.model} rejected json_schema; retrying once with json_object and an explicit schema instruction.`
+          );
+          recordParameterFailure(config.model, 'response_format');
+          applied.add('structured_output');
+          requestOptions = this.withJsonObjectResponse(requestOptions, config.schema);
+          continue;
+        }
+
+        throw error;
+      }
+    }
+  }
+
+  /**
    * True only for errors that retrying WITHOUT the advanced parameters can
    * actually fix — i.e. the error names one of the parameters that
-   * removeAdvancedParameters() removes. The previous predicate also matched
+   * withoutAdvancedParameters() removes. The previous predicate also matched
    * 'invalid_request_error' (OpenAI's type for essentially every 4xx),
    * 'max_tokens', and bare 'not supported' — none of which the retry
    * removes, so every context-length or schema failure burned a second,
    * materially identical API call under a "Parameter error detected" log.
    */
-  private isParameterError(error: any): boolean {
-    const message = (error.message || '').toLowerCase();
-    const removable = ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'];
-    return removable.some((p) => message.includes(p));
+  private isParameterError(error: unknown): boolean {
+    const message = (error instanceof Error ? error.message : String(error ?? '')).toLowerCase();
+    return ADVANCED_PARAMETERS.some((parameter) => message.includes(parameter));
   }
-  private removeAdvancedParameters(requestOptions: any): any {
+  private withoutAdvancedParameters<T extends OpenAIRequestOptions>(requestOptions: T): T | null {
+    if (!ADVANCED_PARAMETERS.some(param => Object.prototype.hasOwnProperty.call(requestOptions, param))) {
+      return null;
+    }
     const cleaned = { ...requestOptions };
-    ['temperature', 'top_p', 'frequency_penalty', 'presence_penalty', 'seed'].forEach(param => {
+    ADVANCED_PARAMETERS.forEach(param => {
       delete cleaned[param];
     });
-    return cleaned;
+    return cleaned as T;
   }
 
   /**
@@ -579,16 +562,64 @@ ${schemaString}`;
     return /no endpoints found/i.test(message || '');
   }
 
+  private isStructuredOutputError(message: string): boolean {
+    return /response[_ ]format|structured[_ ]outputs?|json[_ ]schema|schema.{0,40}not supported|not support.{0,40}schema/i.test(message || '');
+  }
+
+  private getJsonSchemaInstruction(schema: unknown): string {
+    return `
+
+Your response MUST be a single, valid JSON object that conforms to the following JSON schema:
+
+${JSON.stringify(schema, null, 2)}`;
+  }
+
+  private withJsonObjectResponse<T extends OpenAIRequestOptions>(
+    requestOptions: T,
+    schema?: unknown
+  ): T {
+    const jsonObjectOptions = {
+      ...requestOptions,
+      response_format: { type: 'json_object' },
+    } as T;
+    const withoutRoutingRequirement = this.withoutRequireParameters(jsonObjectOptions) ?? jsonObjectOptions;
+    if (!schema || !Array.isArray(withoutRoutingRequirement.messages)) {
+      return withoutRoutingRequirement;
+    }
+
+    const marker = 'Your response MUST be a single, valid JSON object';
+    const instruction = this.getJsonSchemaInstruction(schema);
+    const messages = withoutRoutingRequirement.messages.map((message) => ({ ...message }));
+    let targetIndex = -1;
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      if (messages[i]?.role === 'system') {
+        targetIndex = i;
+        break;
+      }
+    }
+
+    if (targetIndex >= 0) {
+      const content = String(messages[targetIndex].content ?? '');
+      if (!content.includes(marker)) {
+        messages[targetIndex].content = `${content}${instruction}`;
+      }
+    } else {
+      messages.unshift({ role: 'system', content: instruction.trim() });
+    }
+
+    return { ...withoutRoutingRequirement, messages } as T;
+  }
+
   /**
    * A copy of requestOptions with provider.require_parameters removed, or null when it was not
    * set — in which case a retry would rebuild the identical failing request and there is
    * nothing to adapt.
    */
-  private withoutRequireParameters(requestOptions: any): any | null {
+  private withoutRequireParameters<T extends OpenAIRequestOptions>(requestOptions: T): T | null {
     const provider = requestOptions?.provider;
     if (!provider || provider.require_parameters === undefined) return null;
     const { require_parameters: _removed, ...rest } = provider;
-    const cleaned = { ...requestOptions };
+    const cleaned = { ...requestOptions } as T;
     if (Object.keys(rest).length > 0) cleaned.provider = rest;
     else delete cleaned.provider;
     return cleaned;

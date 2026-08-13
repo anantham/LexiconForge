@@ -272,7 +272,7 @@ export const createTranslationsSlice: StateCreator<
         model: context.settings.model,
         failureType,
         errorMessage: failureMessage,
-        expected: failureType === 'trial_limit' || failureType === 'missing_api_key',
+        expected: failureType === 'missing_api_key',
       });
 
       set(prevState => ({

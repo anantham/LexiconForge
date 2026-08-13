@@ -9,26 +9,11 @@ import { DiffAnalysisService, DiffAnalysisJsonParseError } from './DiffAnalysisS
 import type { DiffResult } from './types';
 import { debugLog } from '../../utils/debug';
 import { createSimpleLLMAdapter } from './SimpleLLMAdapter';
-import { getEnvVar } from '../env';
 import { computeDiffHash } from './hash';
 import { DIFF_ALGO_VERSION, DIFF_DEFAULT_PROVIDER } from './constants';
 import { useAppStore } from '../../store';
 import { DiffOps } from '../db/operations';
-
-const diffService = new DiffAnalysisService();
-
-// Initialize translator adapter with OpenRouter API key
-try {
-  const apiKey = getEnvVar('OPENROUTER_API_KEY');
-  if (apiKey) {
-    const adapter = createSimpleLLMAdapter(apiKey);
-    diffService.setTranslator(adapter);
-  } else {
-    console.warn('[DiffTriggerService] OPENROUTER_API_KEY not found - diff analysis will not generate markers');
-  }
-} catch (e) {
-  console.warn('[DiffTriggerService] Failed to initialize LLM adapter:', e);
-}
+import { getConfiguredApiKey } from '../ai/providerCredentials';
 
 interface TranslationCompleteEvent extends CustomEvent {
   detail: {
@@ -75,7 +60,7 @@ export function cleanupDiffTriggerService(): void {
 /**
  * Handle translation completion events
  */
-async function handleTranslationComplete(event: Event): Promise<void> {
+export async function handleTranslationComplete(event: Event): Promise<void> {
   const customEvent = event as TranslationCompleteEvent;
   const {
     chapterId,
@@ -97,15 +82,12 @@ async function handleTranslationComplete(event: Event): Promise<void> {
     return;
   }
 
-  const diffPrompt = useAppStore.getState().settings.diffAnalysisPrompt ?? null;
-
   try {
     debugLog('diff', 'summary', '[DiffTrigger] Starting diff analysis for chapter:', chapterId);
 
     const aiHash = computeDiffHash(aiTranslation);
     const fanHash = fanTranslation ? computeDiffHash(fanTranslation) : null;
     const rawHash = computeDiffHash(rawText);
-    const normalizedFanId = fanTranslationId ?? '';
 
     let cachedResult: DiffResult | null = null;
     if (aiTranslationId) {
@@ -150,6 +132,27 @@ async function handleTranslationComplete(event: Event): Promise<void> {
       window.dispatchEvent(new CustomEvent('diff:updated', { detail: { chapterId, cacheHit: true } }));
       return;
     }
+
+    // Cache lookup is async. Re-read Settings afterwards so a key removal or heatmap
+    // disable that happened while awaiting IndexedDB takes effect before any paid request.
+    const currentSettings = useAppStore.getState().settings;
+    if (!(currentSettings.showDiffHeatmap ?? true)) {
+      debugLog('diff', 'summary', '[DiffTrigger] Diff analysis skipped after cache lookup (showDiffHeatmap is disabled)');
+      return;
+    }
+
+    const openRouterApiKey = getConfiguredApiKey(currentSettings, 'OpenRouter');
+
+    if (!openRouterApiKey) {
+      console.warn(
+        '[DiffTriggerService] No OpenRouter key in Settings; uncached diff analysis was skipped and no placeholder was saved'
+      );
+      return;
+    }
+
+    const diffService = new DiffAnalysisService();
+    diffService.setTranslator(createSimpleLLMAdapter(openRouterApiKey));
+    const diffPrompt = currentSettings.diffAnalysisPrompt ?? null;
 
     const normalizedProvider = preferredProvider?.toLowerCase() ?? null;
     const supportsRequestedProvider = normalizedProvider === 'openrouter';

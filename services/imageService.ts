@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AppSettings, GeneratedImageResult } from '../types';
 import { imageFileToBase64 } from './imageUtils';
-import { getEnvVar } from './env';
+import { getConfiguredApiKey } from './ai/providerCredentials';
 import { apiMetricsService } from './apiMetricsService';
 import { debugPipelineEnabled, debugLog as _debugLog, debugWarn as _debugWarn } from '../utils/debug';
 
@@ -195,10 +195,10 @@ export const generateImage = async (
     ilog(`[ImageService] - Model: ${imageModel}`);
     ilog(`[ImageService] - Prompt: ${prompt.substring(0, 100)}...`);
     const hasKey = imageModel.startsWith('Qubico/')
-      ? !!(settings.apiKeyPiAPI || getEnvVar('PIAPI_API_KEY'))
+      ? !!getConfiguredApiKey(settings, 'PiAPI')
       : imageModel.startsWith('openrouter/')
-        ? !!(settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'))
-        : !!(settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY'));
+        ? !!getConfiguredApiKey(settings, 'OpenRouter')
+        : !!getConfiguredApiKey(settings, 'Gemini');
     ilog(`[ImageService] - API Key present: ${hasKey}`);
 
     // Steering images are consumed ONLY by the PiAPI (Qubico/) branch below. Every other
@@ -223,7 +223,7 @@ export const generateImage = async (
 
         if (imageModel.startsWith('imagen')) {
             ilog('[ImageService] Using Imagen model:', imageModel);
-            const apiKey = settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY'); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Imagen.');
+            const apiKey = getConfiguredApiKey(settings, 'Gemini'); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Imagen.');
             const ai = new GoogleGenAI({ apiKey });
             let response: any;
             if (imageModel.startsWith('imagen-4.0')) {
@@ -266,7 +266,7 @@ export const generateImage = async (
 
         } else if (imageModel.startsWith('gemini')) {
             ilog('[ImageService] Using Gemini native image generation:', imageModel);
-            const apiKey = settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY'); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Gemini.');
+            const apiKey = getConfiguredApiKey(settings, 'Gemini'); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Gemini.');
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({ model: imageModel });
             try {
@@ -338,7 +338,7 @@ export const generateImage = async (
         
         } else if (imageModel.startsWith('openrouter/')) {
             // --- OpenRouter image generation via chat completions ---
-            const orKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+            const orKey = getConfiguredApiKey(settings, 'OpenRouter');
             if (!orKey) throw new Error('OpenRouter API key is missing. Please add it in Settings.');
             const modelSlug = imageModel.replace('openrouter/', '');
             const modelProfile = await getVerifiedOpenRouterImageModel(modelSlug);
@@ -510,7 +510,7 @@ export const generateImage = async (
 
         } else if (imageModel.startsWith('Qubico/')) {
             // --- PiAPI Flux (task-based) with img2img support ---
-            const apiKeyPi = settings.apiKeyPiAPI || getEnvVar('PIAPI_API_KEY');
+            const apiKeyPi = getConfiguredApiKey(settings, 'PiAPI');
             if (!apiKeyPi) throw new Error('PiAPI API key is missing. Please add it in Settings.');
 
             // Determine task type based on whether steering image is provided

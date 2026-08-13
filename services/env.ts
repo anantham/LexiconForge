@@ -1,32 +1,37 @@
 type EnvRecord = Record<string, string | undefined>;
 type EnvSource = EnvRecord | undefined;
 
-const normalizeKey = (key: string): string => (key.startsWith('VITE_') ? key : `VITE_${key}`);
+const readPublicDbBackend = (): string | undefined => {
+  try {
+    return import.meta.env.VITE_DB_BACKEND;
+  } catch {
+    return undefined;
+  }
+};
 
-const readFromImportMeta = (key: string): string | undefined => {
-  const env = import.meta.env as EnvRecord | undefined;
-  return env ? env[normalizeKey(key)] ?? env[key] : undefined;
+const CLIENT_ENV_ALLOWLIST: EnvRecord = {
+  DB_BACKEND: readPublicDbBackend(),
 };
 
 const readFromProcess = (key: string): string | undefined => {
-  if (typeof process === 'undefined') {
+  if (typeof window !== 'undefined' || typeof process === 'undefined') {
     return undefined;
   }
 
   try {
     const env = process.env as EnvSource;
-    return env ? env[normalizeKey(key)] ?? env[key] : undefined;
+    return env ? env[key] : undefined;
   } catch {
     return undefined;
   }
 };
 
 /**
- * Retrieve an environment variable from the build/runtime context.
- * Works with both Vite's `import.meta.env` and traditional `process.env`.
+ * Read an explicitly public client setting or a Node-only process variable.
+ *
+ * Never dynamically index import.meta.env here. Vite would serialize every VITE_ variable
+ * into the browser bundle, including provider credentials added by a deployment operator.
  */
 export const getEnvVar = (key: string): string | undefined => {
-  return readFromImportMeta(key) ?? readFromProcess(key);
+  return CLIENT_ENV_ALLOWLIST[key] ?? readFromProcess(key);
 };
-
-export const hasEnvVar = (key: string): boolean => getEnvVar(key) !== undefined;

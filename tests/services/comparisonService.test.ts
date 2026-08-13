@@ -69,9 +69,6 @@ describe('ComparisonService.requestFocusedComparison', () => {
     });
 
     it('throws when API key is missing', async () => {
-      delete (process.env as Record<string, string | undefined>).VITE_OPENAI_API_KEY;
-      delete (process.env as Record<string, string | undefined>).OPENAI_API_KEY;
-
       await expect(
         ComparisonService.requestFocusedComparison({
           ...baseArgs,
@@ -252,6 +249,7 @@ describe('ComparisonService.requestFocusedComparison', () => {
       expect(openAiMocks.createMock).toHaveBeenCalledWith(
         expect.objectContaining({
           model: 'gpt-4o-mini',
+          max_tokens: 4096,
           temperature: 0, // Comparison should use 0 for determinism
           messages: expect.arrayContaining([
             expect.objectContaining({
@@ -261,6 +259,27 @@ describe('ComparisonService.requestFocusedComparison', () => {
           ])
         })
       );
+    });
+
+    it('uses the direct OpenAI GPT-5 completion-token field', async () => {
+      openAiMocks.createMock.mockResolvedValueOnce({
+        choices: [{ message: { content: '{"fanExcerpt": "test"}' } }],
+      });
+
+      await ComparisonService.requestFocusedComparison({
+        ...baseArgs,
+        settings: buildSettings({
+          provider: 'OpenAI',
+          model: 'gpt-5-mini',
+          apiKeyOpenAI: 'sk-test-key',
+          maxOutputTokens: 8192,
+        }),
+      });
+
+      const request = openAiMocks.createMock.mock.calls[0][0];
+      expect(request.max_completion_tokens).toBe(8192);
+      expect(request).not.toHaveProperty('max_tokens');
+      expect(request).not.toHaveProperty('temperature');
     });
 
     it('configures OpenAI client correctly for DeepSeek provider', async () => {

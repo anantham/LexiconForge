@@ -11,18 +11,48 @@ concurrency:
 
 jobs:
   test:
-    name: vitest
+    name: quality gates
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'npm'
 
       - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build with credential canaries
+        run: npm run build
+        env:
+          GEMINI_API_KEY: LF_SECRET_CANARY_GEMINI
+          VITE_GEMINI_API_KEY: LF_SECRET_CANARY_VITE_GEMINI
+          OPENAI_API_KEY: LF_SECRET_CANARY_OPENAI
+          VITE_OPENAI_API_KEY: LF_SECRET_CANARY_VITE_OPENAI
+          DEEPSEEK_API_KEY: LF_SECRET_CANARY_DEEPSEEK
+          VITE_DEEPSEEK_API_KEY: LF_SECRET_CANARY_VITE_DEEPSEEK
+          CLAUDE_API_KEY: LF_SECRET_CANARY_CLAUDE
+          VITE_CLAUDE_API_KEY: LF_SECRET_CANARY_VITE_CLAUDE
+          OPENROUTER_API_KEY: LF_SECRET_CANARY_OPENROUTER
+          VITE_OPENROUTER_API_KEY: LF_SECRET_CANARY_VITE_OPENROUTER
+          PIAPI_API_KEY: LF_SECRET_CANARY_PIAPI
+          VITE_PIAPI_API_KEY: LF_SECRET_CANARY_VITE_PIAPI
+          DEFAULT_OPENROUTER_KEY: LF_SECRET_CANARY_DEFAULT_TRIAL
+          VITE_DEFAULT_OPENROUTER_KEY: LF_SECRET_CANARY_TRIAL
+          VITE_GOOGLE_DRIVE_API_KEY: LF_SECRET_CANARY_GOOGLE_DRIVE
+
+      - name: Reject credentials in client artifacts
+        run: npm run security:scan-client
+        env:
+          LF_CLIENT_SECRET_CANARIES: LF_SECRET_CANARY_GEMINI,LF_SECRET_CANARY_VITE_GEMINI,LF_SECRET_CANARY_OPENAI,LF_SECRET_CANARY_VITE_OPENAI,LF_SECRET_CANARY_DEEPSEEK,LF_SECRET_CANARY_VITE_DEEPSEEK,LF_SECRET_CANARY_CLAUDE,LF_SECRET_CANARY_VITE_CLAUDE,LF_SECRET_CANARY_OPENROUTER,LF_SECRET_CANARY_VITE_OPENROUTER,LF_SECRET_CANARY_PIAPI,LF_SECRET_CANARY_VITE_PIAPI,LF_SECRET_CANARY_DEFAULT_TRIAL,LF_SECRET_CANARY_TRIAL,LF_SECRET_CANARY_GOOGLE_DRIVE
 
       - name: Run unit + integration tests
         run: npx vitest run

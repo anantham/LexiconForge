@@ -467,6 +467,7 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
 
       <ApiKeysSection
         apiKeyGemini={currentSettings.apiKeyGemini || ''}
+        apiKeyOpenAI={currentSettings.apiKeyOpenAI || ''}
         apiKeyDeepSeek={currentSettings.apiKeyDeepSeek || ''}
         apiKeyOpenRouter={currentSettings.apiKeyOpenRouter || ''}
         apiKeyClaude={currentSettings.apiKeyClaude || ''}

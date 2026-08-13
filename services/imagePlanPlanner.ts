@@ -5,10 +5,13 @@ import OpenAI from 'openai';
 
 import prompts from '../config/prompts.json';
 import type { AppSettings, ImagePlan } from '../types';
-import { supportsStructuredOutputs } from './capabilityService';
-import { getDefaultApiKey } from './defaultApiKeyService';
-import { getEnvVar } from './env';
+import {
+  getConfiguredApiKey,
+  getOpenAICompatibleConfig,
+} from './ai/providerCredentials';
 import { extractBalancedJson, replacePlaceholders } from './ai/textUtils';
+import { getChatCompletionRequestParameters } from './ai/openaiRequestParameters';
+import { shouldRequestStructuredOutputs } from './ai/structuredOutputPolicy';
 import { buildImagePlanFromCaption, normalizeImagePlan } from './imagePlanService';
 
 export interface PlannedIllustration {
@@ -214,20 +217,9 @@ const plannerMaxTokens = (settings: AppSettings): number =>
 const resolveOpenAICompatibleCredentials = (settings: AppSettings): { apiKey?: string; baseURL?: string } => {
   switch (settings.provider) {
     case 'OpenAI':
-      return {
-        apiKey: settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY'),
-        baseURL: 'https://api.openai.com/v1',
-      };
     case 'DeepSeek':
-      return {
-        apiKey: settings.apiKeyDeepSeek || getEnvVar('DEEPSEEK_API_KEY'),
-        baseURL: 'https://api.deepseek.com/v1',
-      };
     case 'OpenRouter':
-      return {
-        apiKey: settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY') || getDefaultApiKey() || undefined,
-        baseURL: 'https://openrouter.ai/api/v1',
-      };
+      return getOpenAICompatibleConfig(settings, settings.provider);
     default:
       return {};
   }
@@ -243,7 +235,13 @@ const requestViaOpenAICompatible = async (
   }
 
   const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
-  const supportsSchema = await supportsStructuredOutputs(settings.provider, settings.model);
+  const supportsSchema = shouldRequestStructuredOutputs(settings.provider);
+  const requestParameters = getChatCompletionRequestParameters(
+    settings.provider,
+    settings.model,
+    plannerMaxTokens(settings),
+    { temperature: PLANNER_TEMPERATURE }
+  );
   const messages = [
     {
       role: 'system' as const,
@@ -254,12 +252,17 @@ const requestViaOpenAICompatible = async (
       content: userPrompt,
     },
   ];
+  const schemaGuidedMessages = messages.map((message, index) => index === 0
+    ? {
+        ...message,
+        content: `${message.content}\n\nReturn one JSON object matching this schema:\n${JSON.stringify(plannerResponseSchema, null, 2)}`,
+      }
+    : message);
 
   const requestBody: Record<string, unknown> = {
     model: settings.model,
-    messages,
-    temperature: PLANNER_TEMPERATURE,
-    max_tokens: plannerMaxTokens(settings),
+    messages: supportsSchema ? messages : schemaGuidedMessages,
+    ...requestParameters,
   };
 
   if (supportsSchema) {
@@ -273,9 +276,6 @@ const requestViaOpenAICompatible = async (
     };
   } else {
     requestBody.response_format = { type: 'json_object' };
-    if (settings.provider === 'OpenRouter') {
-      requestBody.provider = { require_parameters: true };
-    }
   }
 
   try {
@@ -293,9 +293,8 @@ const requestViaOpenAICompatible = async (
 
     const fallbackResponse = await client.chat.completions.create({
       model: settings.model,
-      messages,
-      temperature: PLANNER_TEMPERATURE,
-      max_tokens: plannerMaxTokens(settings),
+      messages: schemaGuidedMessages,
+      ...requestParameters,
     });
 
     return parsePlannerJson(
@@ -308,7 +307,7 @@ const requestViaOpenAICompatible = async (
 const requestViaGemini = async (
   request: PlannerRequest
 ): Promise<PlannedIllustration> => {
-  const apiKey = request.settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY');
+  const apiKey = getConfiguredApiKey(request.settings, 'Gemini');
   if (!apiKey) {
     throw new Error('Gemini API key is missing for illustration planning.');
   }
@@ -357,7 +356,7 @@ const requestViaGemini = async (
 const requestViaClaude = async (
   request: PlannerRequest
 ): Promise<PlannedIllustration> => {
-  const apiKey = request.settings.apiKeyClaude || getEnvVar('CLAUDE_API_KEY');
+  const apiKey = getConfiguredApiKey(request.settings, 'Claude');
   if (!apiKey) {
     throw new Error('Claude API key is missing for illustration planning.');
   }
