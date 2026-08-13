@@ -11,6 +11,7 @@ import {
   getOpenAICompatibleConfig,
 } from './ai/providerCredentials';
 import { extractBalancedJson, replacePlaceholders } from './ai/textUtils';
+import { getChatCompletionTokenLimit } from './ai/openaiRequestParameters';
 import { buildImagePlanFromCaption, normalizeImagePlan } from './imagePlanService';
 
 export interface PlannedIllustration {
@@ -250,7 +251,7 @@ const requestViaOpenAICompatible = async (
     model: settings.model,
     messages,
     temperature: PLANNER_TEMPERATURE,
-    max_tokens: plannerMaxTokens(settings),
+    ...getChatCompletionTokenLimit(settings.model, plannerMaxTokens(settings)),
   };
 
   if (supportsSchema) {
@@ -286,7 +287,7 @@ const requestViaOpenAICompatible = async (
       model: settings.model,
       messages,
       temperature: PLANNER_TEMPERATURE,
-      max_tokens: plannerMaxTokens(settings),
+      ...getChatCompletionTokenLimit(settings.model, plannerMaxTokens(settings)),
     });
 
     return parsePlannerJson(

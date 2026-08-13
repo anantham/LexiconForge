@@ -115,6 +115,43 @@ describe('imagePlanPlanner', () => {
     expect(result.imagePlan.subject).toContain('Grainy dorm-room selfie');
   });
 
+  it('uses the GPT-5 completion-token field for both OpenAI-compatible attempts', async () => {
+    const payload = {
+      imagePrompt: 'Lanterns over a quiet river.',
+      imagePlan: {
+        subject: 'Lanterns over a quiet river.',
+        characters: [],
+        scene: 'River at night.',
+        composition: 'Wide shot.',
+        camera: 'Eye level.',
+        lighting: 'Warm lantern light.',
+        style: 'Painterly fantasy.',
+        mood: 'Quiet.',
+        details: ['reflections'],
+        mustKeep: ['lanterns'],
+        avoid: ['daylight'],
+        negativePrompt: ['watermark'],
+      },
+    };
+    openAiCreateMock
+      .mockRejectedValueOnce(new Error('schema rejected'))
+      .mockResolvedValueOnce({
+        choices: [{ message: { content: JSON.stringify(payload) } }],
+      });
+
+    const result = await generateImagePlanFromCaption(
+      payload.imagePrompt,
+      { ...mockSettings, model: 'gpt-5-mini' } as any
+    );
+
+    expect(result.source).toBe('model');
+    expect(openAiCreateMock).toHaveBeenCalledTimes(2);
+    for (const [request] of openAiCreateMock.mock.calls) {
+      expect(request.max_completion_tokens).toBe(2048);
+      expect(request).not.toHaveProperty('max_tokens');
+    }
+  });
+
   it('builds structured prompts for selection-based illustration planning', async () => {
     openAiCreateMock.mockResolvedValue({
       choices: [

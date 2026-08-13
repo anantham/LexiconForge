@@ -1,3 +1,16 @@
+### [2026-08-13 18:13 IST] [Agent: Codex]
+**Status:** Complete - consolidated the final direct OpenAI token-limit pathways
+**Review finding:** A superseded Codex review posted one additional valid P2 while the exact-head review was running: the adapter fixed GPT-5 token selection, but comparison, explanation, and both OpenAI-compatible image-planner attempts still constructed `max_tokens` independently.
+**Audit:** Production search found four OpenAI SDK request owners: `OpenAIAdapter`, `ComparisonService`, `ExplanationService`, and `imagePlanPlanner`. `SimpleLLMAdapter` also uses the SDK but sends no output-token field and is OpenRouter-only. Claude SDK `max_tokens` paths are a different contract and must remain unchanged.
+**Decision:** Extract one pure OpenAI-compatible token-limit function that returns exactly one field, then use it in every request owner and both planner attempts.
+**Prediction:** direct `gpt-5*` requests in all four owners use only `max_completion_tokens`; OpenRouter-prefixed GPT-5 and older models retain only `max_tokens`; all existing provider tests remain green.
+**Fallback:** if an OpenAI-compatible backend rejects the shared model-prefix contract, extend the helper with an explicit provider argument and provider-specific table rather than reintroducing per-service branches.
+**Confidence:** 0.97
+**Files:** `services/ai/openaiRequestParameters.ts` owns the pure field-selection contract; `adapters/providers/OpenAIAdapter.ts`, `services/comparisonService.ts`, `services/explanationService.ts`, and `services/imagePlanPlanner.ts` now consume it; focused regressions live in `tests/services/ai/openaiRequestParameters.test.ts`, `tests/adapters/providers/OpenAIAdapter.test.ts`, `tests/services/comparisonService.test.ts`, `tests/services/explanationService.test.ts`, and `tests/services/imagePlanPlanner.test.ts`.
+**Result:** direct `gpt-5*` calls send only `max_completion_tokens`, OpenRouter-prefixed and older-model calls send only `max_tokens`, and both image-planner attempts share the same rule. Production SDK search found no remaining independent OpenAI token-field constructor; Claude SDK and benchmark/script contracts remain intentionally separate.
+**Verification:** focused provider suite 60/60; TypeScript clean; focused and repository-wide ESLint 0 errors (existing warnings remain); full single-worker Vitest 267 files, 9,086 passed, 347 skipped; credential-canary production build passed; built artifact rejected all 15 canaries/provider-key patterns; Malayalam surface validator passed. Main JS remains 4,685.51 kB (1,114.65 kB gzip).
+**Refactor metrics:** browser production token-selection ownership 4 pathways -> 1 pure helper; selector cyclomatic complexity remains 2 while divergent branches drop to zero; no active `any` added; no runtime I/O or performance-path change beyond constructing the same one-field object.
+
 ### [2026-08-13 18:04 IST] [Agent: Codex]
 **Status:** Complete - post-review diff credential snapshot race closed
 **Finding:** The request-local analyzer removed shared mutable key state, but `DiffTriggerService` still captured the Settings key before awaiting the IndexedDB cache lookup. A user removing or rotating the key during that await could fund one uncached request with the stale credential.

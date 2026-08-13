@@ -16,6 +16,7 @@ import { apiMetricsService } from '../../services/apiMetricsService';
 import { extractBalancedJson, replacePlaceholders } from '../../services/ai/textUtils';
 import { validateAndClampParameter } from '../../services/ai/parameters';
 import { toOpenAIStrictSchema, needsOpenAIStrictSchema } from '../../services/ai/openaiStrictSchema';
+import { getChatCompletionTokenLimit } from '../../services/ai/openaiRequestParameters';
 
 // Debug logging
 const dlog = (message: string, ...args: any[]) => {
@@ -33,15 +34,6 @@ const dlogFull = (message: string, ...args: any[]) => {
       console.log(`[OpenAI] ${message}`, ...args);
     }
   } catch {}
-};
-
-const setMaxOutputTokens = (requestOptions: Record<string, unknown>, model: string, maxTokens: number): void => {
-  const usesMaxCompletionTokens = ['claude', 'gpt-5'].some(prefix => model.startsWith(prefix));
-  if (usesMaxCompletionTokens) {
-    requestOptions.max_completion_tokens = maxTokens;
-  } else {
-    requestOptions.max_tokens = maxTokens;
-  }
 };
 
 export class OpenAIAdapter implements TranslationProvider, Provider {
@@ -183,8 +175,8 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     const requestOptions: any = {
       model,
       messages,
+      ...getChatCompletionTokenLimit(model, maxTokens),
     };
-    setMaxOutputTokens(requestOptions, model, maxTokens);
 
     // Only add temperature if model supports it (e.g., gpt-5.2-chat doesn't)
     const supportsTemp = await supportsParameters(settings.provider, model, ['temperature']);
@@ -509,7 +501,10 @@ ${schemaString}`;
     const effectiveMaxTokens = (settings.maxOutputTokens && settings.maxOutputTokens > 0)
       ? settings.maxOutputTokens
       : 16384; // sensible default matching Claude adapter
-    setMaxOutputTokens(requestOptions, settings.model, effectiveMaxTokens);
+    Object.assign(
+      requestOptions,
+      getChatCompletionTokenLimit(settings.model, effectiveMaxTokens)
+    );
 
     // Add OpenRouter headers if needed
     if (settings.provider === 'OpenRouter') {
