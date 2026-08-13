@@ -4,8 +4,6 @@ import { createMockAppSettings, createMockTranslationResult } from '../utils/tes
 
 const initializeProvidersMock = vi.fn().mockResolvedValue(undefined);
 const translateMock = vi.fn<(...args: any[]) => Promise<TranslationResult>>();
-const incrementUsageMock = vi.fn();
-const getDefaultKeyStatusMock = vi.fn(() => ({ usageCount: 0, remainingUses: 10, hasExceeded: false }));
 
 vi.mock('../../adapters/providers', () => ({
   initializeProviders: initializeProvidersMock,
@@ -17,25 +15,13 @@ vi.mock('../../services/translate/Translator', () => ({
   },
 }));
 
-vi.mock('../../services/defaultApiKeyService', () => ({
-  getDefaultApiKey: vi.fn(() => 'trial-key'),
-  incrementDefaultKeyUsage: incrementUsageMock,
-  canUseDefaultKey: vi.fn(() => true),
-  getDefaultKeyStatus: getDefaultKeyStatusMock,
-}));
-
-vi.mock('../../services/env', () => ({
-  getEnvVar: vi.fn(() => undefined),
-  hasEnvVar: vi.fn(() => false),
-}));
-
 const baseSettings: AppSettings = createMockAppSettings({
   provider: 'OpenRouter',
   model: 'openai/gpt-4o',
   temperature: 0.5,
   systemPrompt: 'System prompt',
   imageModel: 'openrouter-image-model',
-  apiKeyOpenRouter: '',
+  apiKeyOpenRouter: 'user-key',
   includeFanTranslationInPrompt: true,
   showDiffHeatmap: false,
 });
@@ -57,11 +43,10 @@ const baseResult: TranslationResult = createMockTranslationResult({
 describe('translateChapter', () => {
   beforeEach(() => {
     translateMock.mockReset();
-    incrementUsageMock.mockReset();
     initializeProvidersMock.mockClear();
   });
 
-  it('increments default key usage on successful translation', async () => {
+  it('delegates a successful translation', async () => {
     translateMock.mockResolvedValue(baseResult);
     const { translateChapter } = await import('../../services/ai/translatorRouter');
 
@@ -75,10 +60,9 @@ describe('translateChapter', () => {
     expect(result.translation).toBe('Translation body');
     expect(initializeProvidersMock).toHaveBeenCalled();
     expect(translateMock).toHaveBeenCalled();
-    expect(incrementUsageMock).toHaveBeenCalledTimes(1);
   });
 
-  it('does not increment default key usage when translation fails', async () => {
+  it('preserves translation failures', async () => {
     const error = new Error('network failure');
     translateMock.mockRejectedValue(error);
     const { translateChapter } = await import('../../services/ai/translatorRouter');
@@ -90,20 +74,5 @@ describe('translateChapter', () => {
       [],
     )).rejects.toThrow('network failure');
 
-    expect(incrementUsageMock).not.toHaveBeenCalled();
-  });
-
-  it('skips trial counter when user supplies OpenRouter key', async () => {
-    translateMock.mockResolvedValue(baseResult);
-    const { translateChapter } = await import('../../services/ai/translatorRouter');
-
-    await translateChapter(
-      'Chapter',
-      'Content',
-      { ...baseSettings, apiKeyOpenRouter: 'user-key' } as AppSettings,
-      [],
-    );
-
-    expect(incrementUsageMock).not.toHaveBeenCalled();
   });
 });

@@ -295,9 +295,13 @@ export class DiffAnalysisService {
   /**
    * Set the translator instance for making LLM API calls
    */
-  setTranslator(translator: SimpleLLMProvider): void {
+  setTranslator(translator?: SimpleLLMProvider): void {
     this.translator = translator;
-    console.log(`✅ [DiffAnalysisService] Translator instance injected`);
+    console.log(
+      translator
+        ? '[DiffAnalysisService] Translator instance injected'
+        : '[DiffAnalysisService] Translator instance cleared'
+    );
   }
 
   /**

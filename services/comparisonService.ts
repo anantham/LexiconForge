@@ -2,7 +2,7 @@ import { AppSettings } from '../types';
 import prompts from '../config/prompts.json';
 import { OpenAI } from 'openai';
 import { debugLog } from '../utils/debug';
-import { getEnvVar } from './env';
+import { getConfiguredApiKey, getOpenAICompatibleConfig } from './ai/providerCredentials';
 
 const clog = (...args: any[]) => debugLog('comparison', 'summary', '[ComparisonService]', ...args);
 
@@ -182,31 +182,20 @@ export class ComparisonService {
 function resolveApiConfig(settings: AppSettings): { apiKey?: string; baseURL?: string } {
   switch (settings.provider) {
     case 'OpenAI':
-      return {
-        apiKey: settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY'),
-        baseURL: 'https://api.openai.com/v1',
-      };
     case 'DeepSeek':
-      return {
-        apiKey: settings.apiKeyDeepSeek || getEnvVar('DEEPSEEK_API_KEY'),
-        baseURL: 'https://api.deepseek.com/v1',
-      };
     case 'OpenRouter':
-      return {
-        apiKey: settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
-        baseURL: 'https://openrouter.ai/api/v1',
-      };
+      return getOpenAICompatibleConfig(settings, settings.provider);
     case 'Gemini':
     case 'Claude':
       console.warn('[ComparisonService] Provider not directly supported, defaulting to OpenRouter.');
       return {
-        apiKey: settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
+        apiKey: getConfiguredApiKey(settings, 'OpenRouter'),
         baseURL: 'https://openrouter.ai/api/v1',
       };
     default:
       console.warn('[ComparisonService] Unknown provider, defaulting to OpenRouter.');
       return {
-        apiKey: settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY'),
+        apiKey: getConfiguredApiKey(settings, 'OpenRouter'),
         baseURL: 'https://openrouter.ai/api/v1',
       };
   }

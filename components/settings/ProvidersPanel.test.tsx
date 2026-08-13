@@ -41,6 +41,7 @@ const defaultSettings = {
   sourceLanguage: 'Korean',
   targetLanguage: 'English',
   apiKeyGemini: '',
+  apiKeyOpenAI: '',
   apiKeyDeepSeek: '',
   apiKeyOpenRouter: '',
   apiKeyClaude: '',
@@ -85,6 +86,9 @@ vi.mock('../../config/constants', () => ({
       { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash' },
       { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
     ],
+    OpenAI: [
+      { id: 'gpt-5-mini', name: 'GPT-5 mini' },
+    ],
     DeepSeek: [
       { id: 'deepseek-chat', name: 'DeepSeek Chat' },
       { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner' },
@@ -107,6 +111,7 @@ vi.mock('../../config/costs', () => ({
   MODELS: [
     { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', provider: 'Gemini' },
     { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'Gemini' },
+    { id: 'gpt-5-mini', name: 'GPT-5 mini', provider: 'OpenAI' },
     { id: 'deepseek-chat', name: 'DeepSeek Chat', provider: 'DeepSeek' },
     { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', provider: 'DeepSeek' },
     { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Claude' },
@@ -115,6 +120,7 @@ vi.mock('../../config/costs', () => ({
   COSTS_PER_MILLION_TOKENS: {
     'gemini-2.0-flash': { input: 0.10, output: 0.40 },
     'gemini-1.5-pro': { input: 1.25, output: 5.00 },
+    'gpt-5-mini': { input: 0.25, output: 2.00 },
     'deepseek-chat': { input: 0.14, output: 0.28 },
     'deepseek-reasoner': { input: 0.55, output: 2.19 },
     'claude-3-opus': { input: 15.00, output: 75.00 },
@@ -199,6 +205,7 @@ describe('ProvidersPanel', () => {
       const providerSelect = screen.getByLabelText('Text Provider');
       expect(providerSelect).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Google Gemini' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'OpenAI' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'DeepSeek' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'OpenRouter' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Claude (Anthropic)' })).toBeInTheDocument();
@@ -208,12 +215,14 @@ describe('ProvidersPanel', () => {
       render(<ProvidersPanel isOpen={true} />);
 
       const geminiInput = screen.getByLabelText('Google Gemini API Key');
+      const openaiInput = screen.getByLabelText('OpenAI API Key');
       const deepseekInput = screen.getByLabelText('DeepSeek API Key');
       const openrouterInput = screen.getByLabelText('OpenRouter API Key');
       const claudeInput = screen.getByLabelText('Claude API Key');
       const piapiInput = screen.getByLabelText('Pi API Key');
 
       expect(geminiInput).toHaveAttribute('type', 'password');
+      expect(openaiInput).toHaveAttribute('type', 'password');
       expect(deepseekInput).toHaveAttribute('type', 'password');
       expect(openrouterInput).toHaveAttribute('type', 'password');
       expect(claudeInput).toHaveAttribute('type', 'password');
@@ -320,6 +329,15 @@ describe('ProvidersPanel', () => {
 
       // Each character triggers onChange
       expect(mockHandleSettingChange).toHaveBeenCalledWith('apiKeyGemini', expect.any(String));
+    });
+
+    it('calls handleSettingChange when OpenAI key changes', async () => {
+      render(<ProvidersPanel isOpen={true} />);
+
+      const input = screen.getByLabelText('OpenAI API Key');
+      await userEvent.type(input, 'sk-test');
+
+      expect(mockHandleSettingChange).toHaveBeenCalledWith('apiKeyOpenAI', expect.any(String));
     });
 
     it('calls handleSettingChange when DeepSeek key changes', async () => {

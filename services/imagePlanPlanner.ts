@@ -6,8 +6,10 @@ import OpenAI from 'openai';
 import prompts from '../config/prompts.json';
 import type { AppSettings, ImagePlan } from '../types';
 import { supportsStructuredOutputs } from './capabilityService';
-import { getDefaultApiKey } from './defaultApiKeyService';
-import { getEnvVar } from './env';
+import {
+  getConfiguredApiKey,
+  getOpenAICompatibleConfig,
+} from './ai/providerCredentials';
 import { extractBalancedJson, replacePlaceholders } from './ai/textUtils';
 import { buildImagePlanFromCaption, normalizeImagePlan } from './imagePlanService';
 
@@ -214,20 +216,9 @@ const plannerMaxTokens = (settings: AppSettings): number =>
 const resolveOpenAICompatibleCredentials = (settings: AppSettings): { apiKey?: string; baseURL?: string } => {
   switch (settings.provider) {
     case 'OpenAI':
-      return {
-        apiKey: settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY'),
-        baseURL: 'https://api.openai.com/v1',
-      };
     case 'DeepSeek':
-      return {
-        apiKey: settings.apiKeyDeepSeek || getEnvVar('DEEPSEEK_API_KEY'),
-        baseURL: 'https://api.deepseek.com/v1',
-      };
     case 'OpenRouter':
-      return {
-        apiKey: settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY') || getDefaultApiKey() || undefined,
-        baseURL: 'https://openrouter.ai/api/v1',
-      };
+      return getOpenAICompatibleConfig(settings, settings.provider);
     default:
       return {};
   }
@@ -308,7 +299,7 @@ const requestViaOpenAICompatible = async (
 const requestViaGemini = async (
   request: PlannerRequest
 ): Promise<PlannedIllustration> => {
-  const apiKey = request.settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY');
+  const apiKey = getConfiguredApiKey(request.settings, 'Gemini');
   if (!apiKey) {
     throw new Error('Gemini API key is missing for illustration planning.');
   }
@@ -357,7 +348,7 @@ const requestViaGemini = async (
 const requestViaClaude = async (
   request: PlannerRequest
 ): Promise<PlannedIllustration> => {
-  const apiKey = request.settings.apiKeyClaude || getEnvVar('CLAUDE_API_KEY');
+  const apiKey = getConfiguredApiKey(request.settings, 'Claude');
   if (!apiKey) {
     throw new Error('Claude API key is missing for illustration planning.');
   }

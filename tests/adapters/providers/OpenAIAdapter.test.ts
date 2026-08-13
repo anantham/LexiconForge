@@ -63,22 +63,15 @@ vi.mock('../../../services/apiMetricsService', () => ({
   },
 }));
 
-vi.mock('../../../services/env', () => ({
-  getEnvVar: (key: string) => key === 'OPENAI_API_KEY' ? 'env-openai-key' : undefined,
-}));
-
-vi.mock('../../../services/defaultApiKeyService', () => ({
-  getDefaultApiKey: vi.fn(() => 'trial-key'),
-}));
-
 const baseSettings: AppSettings = createMockAppSettings({
   provider: 'OpenAI',
   model: 'gpt-4o',
   systemPrompt: 'Translate text.',
   temperature: 0.7,
-  apiKeyOpenAI: '',
+  apiKeyOpenAI: 'user-openai-key',
   apiKeyGemini: '',
   apiKeyDeepSeek: '',
+  apiKeyOpenRouter: 'user-openrouter-key',
 });
 
 // Use realistic translation length to avoid triggering corruption detection

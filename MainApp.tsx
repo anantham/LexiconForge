@@ -9,7 +9,6 @@ import SettingsModal from './components/SettingsModal';
 import Loader from './components/Loader';
 import MigrationRecovery from './components/MigrationRecovery';
 import { LandingPage } from './components/LandingPage';
-import { DefaultKeyBanner } from './components/DefaultKeyBanner';
 import OscilloscopePanel from './components/oscilloscope/OscilloscopePanel';
 import NotificationToast from './components/NotificationToast';
 import BackgroundWorkBanner from './components/BackgroundWorkBanner';
@@ -33,24 +32,6 @@ const [dbGate, setDbGate] = React.useState<{
   result: VersionCheckResult | null;
 }>({ status: 'checking', result: null });
 
-// Browser-side env diagnostics (masked) when LF_AI_DEBUG=1
-useEffect(() => {
-  try {
-    const debug = typeof localStorage !== 'undefined' && localStorage.getItem('LF_AI_DEBUG') === '1';
-    if (!debug) return;
-    const mask = (k: any) => {
-      if (!k || typeof k !== 'string') return String(k ?? '');
-      return '*'.repeat(Math.max(0, k.length - 4)) + k.slice(-4);
-    };
-    // console.log('[Env Diagnostic] Keys (masked):', {
-    //   GEMINI_API_KEY: mask((process as any).env?.GEMINI_API_KEY),
-    //   OPENAI_API_KEY: mask((process as any).env?.OPENAI_API_KEY),
-    //   DEEPSEEK_API_KEY: mask((process as any).env?.DEEPSEEK_API_KEY),
-    //   CLAUDE_API_KEY: mask((process as any).env?.CLAUDE_API_KEY),
-    //   OPENROUTER_API_KEY: mask((process as any).env?.OPENROUTER_API_KEY),
-    // });
-  } catch {}
-}, []);
 // inside App component, near the top
 // Individual primitive selectors to avoid fresh object creation
 const currentChapterId = useAppStore((s) => s.currentChapterId);
@@ -255,7 +236,6 @@ const settingsFingerprint = React.useMemo(
       content = (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 sm:p-6">
           <main className="container mx-auto">
-            <DefaultKeyBanner />
             <SessionInfo />
             <OscilloscopePanel />
             <ChapterView />

@@ -13,11 +13,10 @@ import { ClaudeAdapter } from '../../../adapters/providers/ClaudeAdapter';
 import type { ChatRequest } from '../../../adapters/providers/Provider';
 import { createMockAppSettings } from '../../utils/test-data';
 
-const { messagesCreateMock, recordMetricMock, calculateCostMock, getEnvVarMock } = vi.hoisted(() => ({
+const { messagesCreateMock, recordMetricMock, calculateCostMock } = vi.hoisted(() => ({
   messagesCreateMock: vi.fn(),
   recordMetricMock: vi.fn().mockResolvedValue(undefined),
   calculateCostMock: vi.fn().mockResolvedValue(0.001),
-  getEnvVarMock: vi.fn(),
 }));
 
 // Anthropic is invoked via `new Anthropic(...)`. Define the class inside
@@ -36,10 +35,6 @@ vi.mock('../../../services/ai/cost', () => ({
 
 vi.mock('../../../services/apiMetricsService', () => ({
   apiMetricsService: { recordMetric: recordMetricMock },
-}));
-
-vi.mock('../../../services/env', () => ({
-  getEnvVar: getEnvVarMock,
 }));
 
 // translateWithClaude is unused in chatJSON but the module is imported
@@ -72,7 +67,6 @@ describe('ClaudeAdapter.chatJSON', () => {
     recordMetricMock.mockClear();
     calculateCostMock.mockClear();
     calculateCostMock.mockResolvedValue(0.001);
-    getEnvVarMock.mockReset();
   });
 
   it('throws when settings is missing', async () => {
@@ -82,8 +76,7 @@ describe('ClaudeAdapter.chatJSON', () => {
     );
   });
 
-  it('throws when no API key is configured (settings + env both empty)', async () => {
-    getEnvVarMock.mockReturnValue('');
+  it('throws when no API key is configured in Settings', async () => {
     const adapter = new ClaudeAdapter();
     const request = buildRequest({
       settings: createMockAppSettings({
@@ -96,24 +89,6 @@ describe('ClaudeAdapter.chatJSON', () => {
     await expect(adapter.chatJSON(request)).rejects.toThrow(
       /Claude API key is missing/
     );
-  });
-
-  it('falls back to CLAUDE_API_KEY env var when settings.apiKeyClaude is empty', async () => {
-    getEnvVarMock.mockReturnValue('sk-ant-from-env');
-    messagesCreateMock.mockResolvedValue(buildSuccessResponse());
-
-    const adapter = new ClaudeAdapter();
-    const request = buildRequest({
-      settings: createMockAppSettings({
-        provider: 'Claude',
-        model: 'claude-3-5-sonnet',
-        apiKeyClaude: undefined,
-      }),
-    });
-
-    const result = await adapter.chatJSON(request);
-    expect(result.text).toBe('response text');
-    expect(getEnvVarMock).toHaveBeenCalledWith('CLAUDE_API_KEY');
   });
 
   it('throws AbortError when abortSignal is already aborted at entry', async () => {

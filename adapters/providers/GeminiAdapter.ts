@@ -7,7 +7,7 @@ import { calculateCost } from '../../services/ai/cost';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import prompts from '../../config/prompts.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
-import { getEnvVar } from '../../services/env';
+import { requireConfiguredApiKey } from '../../services/ai/providerCredentials';
 import { getTranslationOnlyResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
 import { getTranslationSystemPrompt } from '../../utils/promptUtils';
 import { replacePlaceholders } from '../../services/ai/textUtils';
@@ -58,13 +58,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     const { title, content, settings, history, fanTranslation, abortSignal } = request;
     
     // Get API key
-    const envKey = getEnvVar('GEMINI_API_KEY');
-    const apiKey = settings.apiKeyGemini || envKey;
-    const keySource = settings.apiKeyGemini ? 'settings' : envKey ? 'env' : 'missing';
-    dlog(`Key source: ${keySource}, present: ${apiKey ? 'yes' : 'no'}, length: ${apiKey ? apiKey.length : 0}`);
-    if (!apiKey) {
-      throw new Error('Gemini API key is missing. Please add it in settings.');
-    }
+    const apiKey = requireConfiguredApiKey(settings, 'Gemini');
 
     // Check rate limits
     await rateLimitService.acquireRequestSlot(settings.model);
@@ -138,11 +132,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
       .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
       .join('\n\n');
 
-    const envKey = getEnvVar('GEMINI_API_KEY');
-    const apiKey = settings.apiKeyGemini || envKey;
-    if (!apiKey) {
-      throw new Error('Gemini API key is missing. Please add it in settings.');
-    }
+    const apiKey = requireConfiguredApiKey(settings, 'Gemini');
 
     await rateLimitService.acquireRequestSlot(modelId);
 

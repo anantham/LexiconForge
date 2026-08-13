@@ -101,8 +101,8 @@ export abstract class BaseAudioProvider {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': this.apiKey ? `${this.apiKey.substring(0, 8)}...` : 'MISSING',
       },
+      credentialPresent: Boolean(this.apiKey),
       payloadKeys: Object.keys(payload || {}),
       payloadSize: JSON.stringify(payload).length,
     });

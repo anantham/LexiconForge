@@ -9,10 +9,9 @@ import { calculateCost } from '../../services/ai/cost';
 import prompts from '../../config/prompts.json';
 import appConfig from '../../config/app.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
-import { getEnvVar } from '../../services/env';
+import { getOpenAICompatibleConfig } from '../../services/ai/providerCredentials';
 import { getTranslationOnlyResponseJsonSchema } from '../../services/translate/translationResponseSchema';
 import { getTranslationSystemPrompt } from '../../utils/promptUtils';
-import { getDefaultApiKey } from '../../services/defaultApiKeyService';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import { extractBalancedJson, replacePlaceholders } from '../../services/ai/textUtils';
 import { validateAndClampParameter } from '../../services/ai/parameters';
@@ -349,41 +348,19 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
   }
 
   private getApiConfig(settings: AppSettings): { apiKey: string; baseURL: string } {
-    let apiKey: string | undefined;
-    let baseURL: string;
-
     switch (settings.provider) {
       case 'OpenAI':
-        apiKey = settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY');
-        baseURL = 'https://api.openai.com/v1';
-        break;
       case 'DeepSeek':
-        apiKey = settings.apiKeyDeepSeek || getEnvVar('DEEPSEEK_API_KEY');
-        baseURL = 'https://api.deepseek.com/v1';
-        break;
-      case 'OpenRouter':
-        // Try user key first, then env var, then trial key
-        apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY') || getDefaultApiKey() || undefined;
-        console.log('[OpenRouter] API Key Priority Check:', {
-          hasUserKey: !!settings.apiKeyOpenRouter,
-          hasEnvKey: !!getEnvVar('OPENROUTER_API_KEY'),
-          hasTrialKey: !!getDefaultApiKey(),
-          usingSource: settings.apiKeyOpenRouter ? 'user_settings' :
-                       getEnvVar('OPENROUTER_API_KEY') ? 'env_var' :
-                       getDefaultApiKey() ? 'trial_key' : 'none',
-          finalKeyAvailable: !!apiKey
-        });
-        baseURL = 'https://openrouter.ai/api/v1';
-        break;
+      case 'OpenRouter': {
+        const { apiKey, baseURL } = getOpenAICompatibleConfig(settings, settings.provider);
+        if (!apiKey) {
+          throw new Error(`${settings.provider} API key is missing. Please add it in Settings.`);
+        }
+        return { apiKey, baseURL };
+      }
       default:
         throw new Error(`Unsupported provider: ${settings.provider}`);
     }
-
-    if (!apiKey) {
-      throw new Error(`${settings.provider} API key is missing. Please add it in settings.`);
-    }
-
-    return { apiKey, baseURL };
   }
 
   private async buildRequest(

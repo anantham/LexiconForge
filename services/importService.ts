@@ -199,17 +199,11 @@ export class ImportService {
     // Convert GitHub URLs to raw format
     let fetchUrl = normalizeImportUrl(url);
 
-    // Convert Google Drive share links to Google Drive API endpoint
+    // Convert public Google Drive share links to their direct-download endpoint.
     if (url.includes('drive.google.com/file/d/')) {
       const fileId = url.match(/\/d\/([^/]+)/)?.[1];
       if (fileId) {
-        const apiKey = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
-        if (apiKey) {
-          fetchUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${apiKey}`;
-        } else {
-          debugWarn('import', 'summary', '[Import] GOOGLE_DRIVE_API_KEY not found. Set VITE_GOOGLE_DRIVE_API_KEY in .env.local to enable Google Drive downloads.');
-          fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-        }
+        fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
       }
     }
 
@@ -365,12 +359,7 @@ export class ImportService {
       if (url.includes('drive.google.com/file/d/')) {
         const fileId = url.match(/\/d\/([^/]+)/)?.[1];
         if (fileId) {
-          const apiKey = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
-          if (apiKey) {
-            fetchUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${apiKey}`;
-          } else {
-            fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-          }
+          fetchUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
         }
       }
 

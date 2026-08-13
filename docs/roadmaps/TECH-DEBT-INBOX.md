@@ -228,3 +228,11 @@ Append-only raw debt receipts discovered during implementation.
 [DEBT][PIPELINE][2026-07-24 · reader-report-II] Stateless phases make cut consistency luck — add a per-run cut cache
 - Evidence: bhikkhave ×88 with 2 different cuts; hoti ×23 with 2; 61 of MN117's 391 distinct surfaces are cut inconsistently (flagship: 4 of 113). The most repeated words are the least consistent because every phase re-analyzes from scratch.
 - Fix: per-run memoization — first anatomist analysis of a surface wins, later phases reuse it. Kills the class AND saves paid tokens. Candidate metric: cross-phase cut-consistency rate (countable today; see docs/benchmarks/reader-report-mn117-2026-07-24.md for the sweep script's logic).
+
+[DEBT][SECURITY][2026-08-13] Resolution: client-side provider keys and trial fallback removed
+- Supersedes the 2026-07-28 receipt recommending a new `VITE_DEFAULT_OPENROUTER_KEY`.
+- Evidence: Vite `define` serialized six provider credentials; browser services also carried Settings/env/trial resolution paths. Client-side limits could not protect the shared key.
+- Resolution: browser provider calls are Settings-only BYOK; the shared trial service/banner and all provider env fallbacks were removed; Google Drive import uses its existing public-download path without a browser API key.
+- Release gate: CI injects synthetic legacy env canaries, builds, and scans `dist/` for canaries and provider-shaped credentials.
+- Operator action completed: all provider variables were removed from Vercel, the exposed Gemini key was revoked, and the exact OpenAI/OpenRouter/DeepSeek keys were confirmed invalid. The active production aliases were redeployed without credentials; the BYOK-only application deploys when this change lands.
+- Decision record: `docs/adr/SEC-001-browser-provider-credential-boundary.md`.

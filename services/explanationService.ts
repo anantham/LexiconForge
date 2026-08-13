@@ -2,7 +2,7 @@
 import { AppSettings } from '../types';
 import prompts from '../config/prompts.json';
 import { OpenAI } from 'openai';
-import { getEnvVar } from './env';
+import { getConfiguredApiKey } from './ai/providerCredentials';
 
 // Basic logging for the service
 const log = (message: string, ...args: any[]) => console.log(`[ExplanationService] ${message}`, ...args);
@@ -34,35 +34,33 @@ export class ExplanationService {
 
       switch (settings.provider) {
         case 'OpenAI':
-          apiKey = settings.apiKeyOpenAI || getEnvVar('OPENAI_API_KEY');
+          apiKey = getConfiguredApiKey(settings, 'OpenAI');
           baseURL = 'https://api.openai.com/v1';
           break;
         case 'DeepSeek':
-          apiKey = settings.apiKeyDeepSeek || getEnvVar('DEEPSEEK_API_KEY');
+          apiKey = getConfiguredApiKey(settings, 'DeepSeek');
           baseURL = 'https://api.deepseek.com/v1';
           break;
         case 'OpenRouter':
-          apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+          apiKey = getConfiguredApiKey(settings, 'OpenRouter');
           baseURL = 'https://openrouter.ai/api/v1';
           break;
         case 'Gemini':
-            apiKey = settings.apiKeyGemini || getEnvVar('GEMINI_API_KEY');
             // Note: Gemini uses a different SDK, this service currently uses OpenAI-compatible calls.
             // This will likely fail for Gemini until the service is updated to use the Gemini SDK.
             // For now, we fall back to OpenRouter if Gemini is selected.
             warn(`Gemini provider is not yet supported for explanations. Using OpenRouter as a fallback.`);
-            apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+            apiKey = getConfiguredApiKey(settings, 'OpenRouter');
             baseURL = 'https://openrouter.ai/api/v1';
             break;
         case 'Claude':
-            apiKey = settings.apiKeyClaude || getEnvVar('CLAUDE_API_KEY');
             warn(`Claude provider is not yet supported for explanations. Using OpenRouter as a fallback.`);
-            apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+            apiKey = getConfiguredApiKey(settings, 'OpenRouter');
             baseURL = 'https://openrouter.ai/api/v1';
             break;
         default:
           warn(`Unsupported provider for explanation: ${settings.provider}. Using OpenRouter as fallback.`);
-          apiKey = settings.apiKeyOpenRouter || getEnvVar('OPENROUTER_API_KEY');
+          apiKey = getConfiguredApiKey(settings, 'OpenRouter');
           baseURL = 'https://openrouter.ai/api/v1';
       }
 

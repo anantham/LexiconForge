@@ -6,7 +6,6 @@
  */
 
 import OpenAI from 'openai';
-import { getEnvVar } from '../env';
 import { calculateCost } from '../ai/cost';
 import { apiMetricsService } from '../apiMetricsService';
 
@@ -39,13 +38,10 @@ export function createSimpleLLMAdapter(apiKey?: string): SimpleLLMProvider {
       try {
         // Get API configuration based on provider
         let baseURL: string;
-        let effectiveApiKey: string | undefined = apiKey;
+        const effectiveApiKey = apiKey?.trim() || undefined;
 
         if (options.provider === 'OpenRouter') {
           baseURL = 'https://openrouter.ai/api/v1';
-          if (!effectiveApiKey) {
-            effectiveApiKey = getEnvVar('OPENROUTER_API_KEY');
-          }
         } else {
           throw new Error(`Unsupported provider for SimpleLLMAdapter: ${options.provider}`);
         }

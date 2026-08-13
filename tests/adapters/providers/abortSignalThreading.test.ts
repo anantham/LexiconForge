@@ -30,8 +30,6 @@ vi.mock('@anthropic-ai/sdk', () => {
 vi.mock('../../../services/ai/cost', () => ({ calculateCost: vi.fn().mockResolvedValue(0) }));
 vi.mock('../../../services/apiMetricsService', () => ({ apiMetricsService: { recordMetric: vi.fn().mockResolvedValue(undefined) } }));
 vi.mock('../../../services/rateLimitService', () => ({ rateLimitService: { acquireRequestSlot: vi.fn().mockResolvedValue(undefined) } }));
-vi.mock('../../../services/env', () => ({ getEnvVar: () => undefined }));
-
 import { GeminiAdapter } from '../../../adapters/providers/GeminiAdapter';
 import { translateWithClaude } from '../../../services/claudeService';
 

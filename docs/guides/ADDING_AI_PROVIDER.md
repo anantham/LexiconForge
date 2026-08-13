@@ -46,7 +46,7 @@ import type { TranslationProvider, TranslationRequest } from '../../services/tra
 import type { TranslationResult, AppSettings } from '../../types';
 import { calculateCost } from '../../services/aiService';
 import { apiMetricsService } from '../../services/apiMetricsService';
-import { getEnvVar } from '../../services/env';
+import { requireConfiguredApiKey } from '../../services/ai/providerCredentials';
 
 export class YourProviderAdapter implements Provider, TranslationProvider {
   name: ProviderName = 'YourProvider';
@@ -69,10 +69,7 @@ async chatJSON(input: ChatRequest): Promise<ChatResponse> {
   if (!settings) throw new Error('chatJSON requires settings');
 
   // 1. Get API key
-  const apiKey = settings.apiKeyYourProvider || getEnvVar('YOUR_PROVIDER_API_KEY');
-  if (!apiKey) {
-    throw new Error('YourProvider API key is missing. Please add it in settings.');
-  }
+  const apiKey = requireConfiguredApiKey(settings, 'YourProvider');
 
   // 2. Prepare messages
   const messages = input.messages?.length
@@ -173,15 +170,17 @@ export interface AppSettings {
 }
 ```
 
+Add the provider-to-field mapping in `services/ai/providerCredentials.ts`, then expose the
+new Settings field through `components/settings/ApiKeysSection.tsx` and
+`components/settings/ProvidersPanel.tsx`. Browser adapters must not read provider credentials
+from `import.meta.env`, `process.env`, or another shared fallback.
+
 ## Error Handling Patterns
 
 ### Missing API Keys
 
 ```typescript
-const apiKey = settings.apiKeyYourProvider || getEnvVar('YOUR_PROVIDER_API_KEY');
-if (!apiKey) {
-  throw new Error('YourProvider API key is missing. Please add it in settings.');
-}
+const apiKey = requireConfiguredApiKey(settings, 'YourProvider');
 ```
 
 ### Empty Responses

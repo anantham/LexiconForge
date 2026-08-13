@@ -110,14 +110,6 @@ vi.mock('../../services/apiMetricsService', () => ({
   },
 }));
 
-vi.mock('../../services/env', () => ({
-  getEnvVar: (_key: string) => undefined,
-}));
-
-vi.mock('../../services/defaultApiKeyService', () => ({
-  getDefaultApiKey: () => undefined,
-}));
-
 function buildSettings(provider: 'OpenAI' | 'Gemini', cassette: OpenAICassette | GeminiCassette): AppSettings {
   const base: Partial<AppSettings> = {
     provider,
@@ -257,4 +249,3 @@ describe('Provider Contract (VCR replay-only)', () => {
     });
   });
 });
-

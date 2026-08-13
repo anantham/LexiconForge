@@ -9,26 +9,13 @@ import { DiffAnalysisService, DiffAnalysisJsonParseError } from './DiffAnalysisS
 import type { DiffResult } from './types';
 import { debugLog } from '../../utils/debug';
 import { createSimpleLLMAdapter } from './SimpleLLMAdapter';
-import { getEnvVar } from '../env';
 import { computeDiffHash } from './hash';
 import { DIFF_ALGO_VERSION, DIFF_DEFAULT_PROVIDER } from './constants';
 import { useAppStore } from '../../store';
 import { DiffOps } from '../db/operations';
+import { getConfiguredApiKey } from '../ai/providerCredentials';
 
 const diffService = new DiffAnalysisService();
-
-// Initialize translator adapter with OpenRouter API key
-try {
-  const apiKey = getEnvVar('OPENROUTER_API_KEY');
-  if (apiKey) {
-    const adapter = createSimpleLLMAdapter(apiKey);
-    diffService.setTranslator(adapter);
-  } else {
-    console.warn('[DiffTriggerService] OPENROUTER_API_KEY not found - diff analysis will not generate markers');
-  }
-} catch (e) {
-  console.warn('[DiffTriggerService] Failed to initialize LLM adapter:', e);
-}
 
 interface TranslationCompleteEvent extends CustomEvent {
   detail: {
@@ -97,7 +84,15 @@ async function handleTranslationComplete(event: Event): Promise<void> {
     return;
   }
 
-  const diffPrompt = useAppStore.getState().settings.diffAnalysisPrompt ?? null;
+  const settings = useAppStore.getState().settings;
+  const diffPrompt = settings.diffAnalysisPrompt ?? null;
+  const openRouterApiKey = getConfiguredApiKey(settings, 'OpenRouter');
+  if (openRouterApiKey) {
+    diffService.setTranslator(createSimpleLLMAdapter(openRouterApiKey));
+  } else {
+    diffService.setTranslator(undefined);
+    console.warn('[DiffTriggerService] No OpenRouter key in Settings; diff analysis will not generate markers');
+  }
 
   try {
     debugLog('diff', 'summary', '[DiffTrigger] Starting diff analysis for chapter:', chapterId);

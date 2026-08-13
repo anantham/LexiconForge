@@ -69,9 +69,6 @@ describe('ComparisonService.requestFocusedComparison', () => {
     });
 
     it('throws when API key is missing', async () => {
-      delete (process.env as Record<string, string | undefined>).VITE_OPENAI_API_KEY;
-      delete (process.env as Record<string, string | undefined>).OPENAI_API_KEY;
-
       await expect(
         ComparisonService.requestFocusedComparison({
           ...baseArgs,
