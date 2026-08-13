@@ -1,3 +1,12 @@
+### [2026-08-13 18:04 IST] [Agent: Codex]
+**Status:** Complete - post-review diff credential snapshot race closed
+**Finding:** The request-local analyzer removed shared mutable key state, but `DiffTriggerService` still captured the Settings key before awaiting the IndexedDB cache lookup. A user removing or rotating the key during that await could fund one uncached request with the stale credential.
+**Decision:** Preserve the keyless cache-read behavior, then re-read heatmap enablement, prompt, and OpenRouter credential from current Settings only after a cache miss and immediately before adapter construction.
+**Prediction:** a regression that removes the key during the cache await performs no adapter creation, analysis, or save; existing keyless-cache and keyed-analysis tests remain green.
+**Fallback:** pass an immutable credential snapshot in the originating translation-complete event only if product semantics explicitly require using the historical key; current security semantics favor revocation taking effect before the next paid request.
+**Confidence:** 0.97
+**Result:** The key, heatmap flag, and prompt are now read after the cache await and immediately before adapter construction. The new removal-during-cache regression passes, as do all four diff-trigger tests; TypeScript, focused ESLint (0 warnings/errors), and `git diff --check` pass. Full CI will be rerun on the follow-up commit before merge.
+
 ### [2026-08-13 17:43 IST] [Agent: Codex]
 **Status:** Complete - exact-head Codex review follow-ups implemented and locally verified
 **Review findings:** P1 Settings changes do not refresh the singleton audio providers, so a removed or rotated PiAPI credential remains usable until reload. P2 direct OpenAI GPT-5 `chatJSON` requests send `max_tokens` even though the translation path already knows these models require `max_completion_tokens`. P2 a keyless diff cache miss continues through `analyzeDiff`, then persists the no-translator placeholder and prevents later keyed recomputation through the hash cache.

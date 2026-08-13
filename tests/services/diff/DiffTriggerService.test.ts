@@ -104,6 +104,29 @@ describe('DiffTriggerService credential boundary', () => {
     window.removeEventListener('diff:updated', updatedListener);
   });
 
+  it('honors a key removal that occurs while awaiting the cache lookup', async () => {
+    mocks.settings = createMockAppSettings({
+      ...defaultSettings,
+      showDiffHeatmap: true,
+      apiKeyOpenRouter: 'key-removed-during-cache-read',
+    });
+    mocks.findByHashes.mockImplementationOnce(async () => {
+      mocks.settings = createMockAppSettings({
+        ...defaultSettings,
+        showDiffHeatmap: true,
+        apiKeyOpenRouter: '',
+      });
+      return null;
+    });
+    const analyzeSpy = vi.spyOn(DiffAnalysisService.prototype, 'analyzeDiff');
+
+    await handleTranslationComplete(translationCompleteEvent());
+
+    expect(mocks.createAdapter).not.toHaveBeenCalled();
+    expect(analyzeSpy).not.toHaveBeenCalled();
+    expect(mocks.save).not.toHaveBeenCalled();
+  });
+
   it('creates a request-local analyzer and saves its result when a key exists', async () => {
     mocks.settings = createMockAppSettings({
       ...defaultSettings,

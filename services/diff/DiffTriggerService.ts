@@ -82,10 +82,6 @@ export async function handleTranslationComplete(event: Event): Promise<void> {
     return;
   }
 
-  const settings = useAppStore.getState().settings;
-  const diffPrompt = settings.diffAnalysisPrompt ?? null;
-  const openRouterApiKey = getConfiguredApiKey(settings, 'OpenRouter');
-
   try {
     debugLog('diff', 'summary', '[DiffTrigger] Starting diff analysis for chapter:', chapterId);
 
@@ -137,6 +133,16 @@ export async function handleTranslationComplete(event: Event): Promise<void> {
       return;
     }
 
+    // Cache lookup is async. Re-read Settings afterwards so a key removal or heatmap
+    // disable that happened while awaiting IndexedDB takes effect before any paid request.
+    const currentSettings = useAppStore.getState().settings;
+    if (!(currentSettings.showDiffHeatmap ?? true)) {
+      debugLog('diff', 'summary', '[DiffTrigger] Diff analysis skipped after cache lookup (showDiffHeatmap is disabled)');
+      return;
+    }
+
+    const openRouterApiKey = getConfiguredApiKey(currentSettings, 'OpenRouter');
+
     if (!openRouterApiKey) {
       console.warn(
         '[DiffTriggerService] No OpenRouter key in Settings; uncached diff analysis was skipped and no placeholder was saved'
@@ -146,6 +152,7 @@ export async function handleTranslationComplete(event: Event): Promise<void> {
 
     const diffService = new DiffAnalysisService();
     diffService.setTranslator(createSimpleLLMAdapter(openRouterApiKey));
+    const diffPrompt = currentSettings.diffAnalysisPrompt ?? null;
 
     const normalizedProvider = preferredProvider?.toLowerCase() ?? null;
     const supportsRequestedProvider = normalizedProvider === 'openrouter';
