@@ -60,7 +60,6 @@ interface RuntimeEnv {
 }
 
 const getRuntimeEnv = (): RuntimeEnv => {
-  const viteEnv = (import.meta as any).env ?? {};
   // process.env fallback covers test environments where vi.stubEnv only
   // patches process.env (vitest's stubEnv doesn't always propagate to
   // import.meta.env). Same fallback was already in place for the SHA;
@@ -68,12 +67,12 @@ const getRuntimeEnv = (): RuntimeEnv => {
   const procEnv: Record<string, string | undefined> =
     typeof process !== 'undefined' ? (process.env ?? {}) : {};
   return {
-    VERCEL_GIT_COMMIT_SHA: viteEnv.VERCEL_GIT_COMMIT_SHA ?? procEnv.VERCEL_GIT_COMMIT_SHA,
-    VITE_APP_BUILD_ID: viteEnv.VITE_APP_BUILD_ID ?? procEnv.VITE_APP_BUILD_ID,
+    VERCEL_GIT_COMMIT_SHA: procEnv.VERCEL_GIT_COMMIT_SHA,
+    VITE_APP_BUILD_ID: import.meta.env.VITE_APP_BUILD_ID ?? procEnv.VITE_APP_BUILD_ID,
     VITE_ENABLE_CLIENT_TELEMETRY:
-      viteEnv.VITE_ENABLE_CLIENT_TELEMETRY ?? procEnv.VITE_ENABLE_CLIENT_TELEMETRY,
-    PROD: viteEnv.PROD,
-    NODE_ENV: viteEnv.MODE ?? procEnv.NODE_ENV,
+      import.meta.env.VITE_ENABLE_CLIENT_TELEMETRY ?? procEnv.VITE_ENABLE_CLIENT_TELEMETRY,
+    PROD: import.meta.env.PROD,
+    NODE_ENV: import.meta.env.MODE ?? procEnv.NODE_ENV,
   };
 };
 

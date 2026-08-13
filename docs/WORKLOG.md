@@ -1,3 +1,12 @@
+### [2026-08-13 16:38 IST] [Agent: Codex]
+**Status:** Complete - both Codex review findings investigated and addressed
+**Review findings:** P1 OpenAI was selectable but absent from both live provider registries; confirmed by tracing `translatorRouter -> Translator` and the explicit omission in `adapters/providers/index.ts`. P1 client canaries could leak through a whole-object `import.meta.env` read; the claimed current build failure was refuted by both the green GitHub Test run and an exact local canary build/scan, but the broad read remains an avoidable latent exposure boundary.
+**Decision:** Register the existing OpenAI adapter in both registries and collapse the duplicated registration lists into one adapter table. The official SDK already has the explicit `dangerouslyAllowBrowser` mode used by this BYOK app, and a credential-free CORS preflight from `https://read.adityaarpitha.com` returned HTTP 200 with matching origin, authorization/content-type headers, and POST allowed. Replace telemetry's whole environment-object read with explicit public properties.
+**Predictions:** selectable OpenAI now reaches the adapter and fails specifically on a missing Settings key rather than `Provider not registered`; the provider registries cannot drift independently; focused tests, typecheck, lint, and a canary build/scan pass; no provider canary appears in `dist`.
+**Results:** One initial test assertion expected different existing error wording; the adapter dispatch itself succeeded. After narrowing the assertion to the stable missing-key behavior: 121 provider/translator/settings/telemetry tests passed, TypeScript passed, focused ESLint passed, the production build passed under all 15 legacy canaries, and the artifact scanner found no provider pattern or canary. The prior GitHub Test workflow was also green. Production client JavaScript changed from 4,685.44 kB before the review fixes to 4,685.07 kB after them (-0.37 kB).
+**Fallback:** if direct OpenAI fails focused browser validation despite the successful preflight, remove the selectable option while retaining the Settings key field for legacy-data cleanup. If direct env reads break telemetry tests, keep the explicit allowlist and repair only the test fallback rather than restoring a whole-object read.
+**Confidence:** 0.96
+
 ### [2026-08-13 16:29 IST] [Agent: Codex]
 **Status:** In progress - removing a false-green review workflow discovered on PR #137
 **Task:** Ensure the credential-containment PR receives a real Codex review without preserving a misleading CI result.
