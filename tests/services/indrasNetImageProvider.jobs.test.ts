@@ -70,7 +70,12 @@ describe('IndrasNet resumable image jobs', () => {
       onJobEvent: event => events.push(event),
     });
 
-    expect(events).toContainEqual({ type: 'submitted', externalTaskId: 'broker-job-1', resumeKind: 'indrasnet' });
+    expect(events).toContainEqual({
+      type: 'submitted',
+      externalTaskId: 'broker-job-1',
+      resumeKind: 'indrasnet',
+      brokerBaseUrl: 'https://asus.example',
+    });
     expect(result).toMatchObject({ base64: 'aW1hZ2U=', mimeType: 'image/png', promptId: 'comfy-prompt-1', brokerTimingMs: 8000 });
     expect(fetchMock.mock.calls[1][0]).toBe('https://asus.example/api/comfyui/jobs');
     expect(fetchMock.mock.calls[2][0]).toBe('https://asus.example/api/comfyui/jobs/broker-job-1');

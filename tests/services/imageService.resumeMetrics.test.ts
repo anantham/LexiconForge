@@ -168,4 +168,39 @@ describe('restored image-job ETA metrics', () => {
     }));
     expect(mocks.recordMetric.mock.calls[0][0]).not.toHaveProperty('duration');
   });
+
+  it('keeps a PiAPI task recoverable across credential errors', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      message: 'invalid API key',
+    }), { status: 401 }));
+
+    const error = await resumePiApiImageTask({
+      taskId: 'pi-credential-task',
+      settings: { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'rotated-key' } as any,
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      version: 2,
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ errorType: 'PIAPI_HTTP_401', canRetry: true });
+    expect(mocks.recordMetric).not.toHaveBeenCalled();
+  });
+
+  it('retires a PiAPI task missing inside an HTTP-200 error envelope', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      code: 404,
+      message: 'task not found',
+    }), { status: 200 }));
+
+    const error = await resumePiApiImageTask({
+      taskId: 'pi-missing-task',
+      settings: { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'test-key' } as any,
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      version: 2,
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ errorType: 'PIAPI_ENVELOPE_404', canRetry: false });
+    expect(mocks.recordMetric).not.toHaveBeenCalled();
+  });
 });

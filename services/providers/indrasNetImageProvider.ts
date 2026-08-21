@@ -416,7 +416,12 @@ export const generateIndrasNetImage = async (
     const submitted = await readJsonObjectResponse<SubmitJobResponse>(response, `workflow job "${workflowName}"`);
     const jobId = submitted.job_id?.trim();
     if (!jobId) throw invalidJsonResponseError(`workflow job "${workflowName}"`);
-    input.onJobEvent?.({ type: 'submitted', externalTaskId: jobId, resumeKind: 'indrasnet' });
+    input.onJobEvent?.({
+      type: 'submitted',
+      externalTaskId: jobId,
+      resumeKind: 'indrasnet',
+      brokerBaseUrl: baseUrl,
+    });
     result = await pollIndrasNetJob(baseUrl, jobId, input.onJobEvent);
   }
   return downloadIndrasNetResult(baseUrl, workflowName, result);

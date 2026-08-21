@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, CheckCircle2, Clock3, Loader2, X } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Loader2, X } from 'lucide-react';
 import { useAppStore } from '../store';
 import type { ImageJob } from '../store/slices/imageJobsSlice';
 
@@ -21,6 +21,7 @@ const ImageJobsBanner: React.FC = () => {
   const showNotification = useAppStore(state => state.showNotification);
   const dismissImageJob = useAppStore(state => state.dismissImageJob);
   const [now, setNow] = React.useState(() => Date.now());
+  const [selectedJobId, setSelectedJobId] = React.useState<string | null>(null);
 
   const visibleJobs = React.useMemo(() => Object.values(imageJobs)
     .filter(job => isActive(job) || job.status === 'interrupted' || job.status === 'completed' || job.status === 'failed')
@@ -34,7 +35,9 @@ const ImageJobsBanner: React.FC = () => {
 
   if (visibleJobs.length === 0) return null;
 
-  const job = visibleJobs[0];
+  const selectedIndexCandidate = visibleJobs.findIndex(candidate => candidate.id === selectedJobId);
+  const selectedIndex = selectedIndexCandidate >= 0 ? selectedIndexCandidate : 0;
+  const job = visibleJobs[selectedIndex];
   const chapter = chapters.get(job.chapterId);
   const title = chapter?.translationResult?.translatedTitle || chapter?.title || job.chapterId;
   const elapsedSeconds = ((job.completedAt || now) - job.startedAt) / 1000;
@@ -44,7 +47,10 @@ const ImageJobsBanner: React.FC = () => {
   const progress = job.estimatedDurationSeconds
     ? Math.min(95, Math.round((elapsedSeconds / job.estimatedDurationSeconds) * 100))
     : null;
-  const more = visibleJobs.length - 1;
+  const cycleJob = (offset: number): void => {
+    const nextIndex = (selectedIndex + offset + visibleJobs.length) % visibleJobs.length;
+    setSelectedJobId(visibleJobs[nextIndex].id);
+  };
 
   const icon = job.status === 'completed'
     ? <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -72,12 +78,16 @@ const ImageJobsBanner: React.FC = () => {
 
   const openOrigin = async (): Promise<void> => {
     try {
-      const origin = chapters.get(job.chapterId) || await loadChapterFromIDB(job.chapterId);
-      if (!origin) {
-        console.error('[ImageJobsBanner] Origin chapter is unavailable after hydration', {
+      const cachedOrigin = chapters.get(job.chapterId);
+      const origin = cachedOrigin && !cachedOrigin._translationLoadError && cachedOrigin.translationResult
+        ? cachedOrigin
+        : await loadChapterFromIDB(job.chapterId);
+      if (!origin || origin._translationLoadError || !origin.translationResult) {
+        console.error('[ImageJobsBanner] Origin chapter translation is unavailable after hydration', {
           jobId: job.id,
           chapterId: job.chapterId,
           placementMarker: job.placementMarker,
+          translationLoadError: origin?._translationLoadError,
         });
         showNotification('The originating chapter could not be loaded. The image job was preserved.', 'error');
         return;
@@ -109,9 +119,31 @@ const ImageJobsBanner: React.FC = () => {
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold">{title}</span>
               <span className="block text-xs opacity-85">{statusText}</span>
-              {more > 0 && <span className="block text-xs opacity-70">+{more} more image job{more === 1 ? '' : 's'}</span>}
+              {visibleJobs.length > 1 && (
+                <span className="block text-xs opacity-70">Job {selectedIndex + 1} of {visibleJobs.length}</span>
+              )}
             </span>
           </button>
+          {visibleJobs.length > 1 && (
+            <span className="flex shrink-0 items-center gap-0.5">
+              <button
+                type="button"
+                aria-label="Previous image job"
+                onClick={() => cycleJob(-1)}
+                className="rounded p-1 opacity-70 hover:opacity-100"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Next image job"
+                onClick={() => cycleJob(1)}
+                className="rounded p-1 opacity-70 hover:opacity-100"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </span>
+          )}
           {!isActive(job) && (
             <button type="button" aria-label="Dismiss image job" onClick={() => dismissImageJob(job.id)} className="rounded p-1 opacity-70 hover:opacity-100">
               <X className="h-4 w-4" />

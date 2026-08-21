@@ -19,6 +19,7 @@ export interface ImageJob {
   taskModel?: string;
   taskProvider?: string;
   fallback?: ImageExecutionMetadata['fallback'];
+  brokerBaseUrl?: string;
   executedModel?: string;
   status: ImageJobStatus;
   resumeKind: ImageJobResumeKind;
@@ -101,6 +102,7 @@ export interface ImageJobsActions {
     resumeKind: Exclude<ImageJobResumeKind, 'none'>,
     _submittedModel?: string,
     _fallback?: ImageExecutionMetadata['fallback'],
+    _brokerBaseUrl?: string,
   ) => void;
   markImageJobProviderSwitched: (
     _jobId: string,
@@ -214,7 +216,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
     return id;
   },
 
-  markImageJobSubmitted: (jobId, externalTaskId, resumeKind, submittedModel, fallback) => {
+  markImageJobSubmitted: (jobId, externalTaskId, resumeKind, submittedModel, fallback, brokerBaseUrl) => {
     const current = get().imageJobs[jobId];
     if (!current) return;
     assignTaskOwner(jobId, submittedModel || current.taskModel || current.requestedModel, fallback);
@@ -227,6 +229,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
           ...current,
           externalTaskId,
           resumeKind,
+          brokerBaseUrl: brokerBaseUrl ?? current.brokerBaseUrl,
           status: 'submitted' as const,
           updatedAt: Date.now(),
         },

@@ -92,6 +92,34 @@ describe('imageJobsSlice', () => {
     expect(persisted[0]).toMatchObject({ id: resumable, externalTaskId: 'task-123', resumeKind: 'piapi' });
   });
 
+  it('persists the normalized broker origin with a durable IndrasNet task', () => {
+    const slice = createSlice();
+    const jobId = slice.startImageJob({
+      chapterId: 'chapter-broker',
+      placementMarker: '[ILLUSTRATION-6]',
+      model: 'indrasnet/gen_anime',
+      version: 1,
+    });
+
+    slice.markImageJobSubmitted(
+      jobId,
+      'broker-origin-task',
+      'indrasnet',
+      'indrasnet/gen_anime',
+      undefined,
+      'https://original-broker.example',
+    );
+
+    expect(slice.imageJobs[jobId]).toMatchObject({
+      brokerBaseUrl: 'https://original-broker.example',
+      externalTaskId: 'broker-origin-task',
+    });
+    expect(JSON.parse(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1') || '[]')[0]).toMatchObject({
+      brokerBaseUrl: 'https://original-broker.example',
+      externalTaskId: 'broker-origin-task',
+    });
+  });
+
   it('persists the actual fallback model that owns a durable provider task', async () => {
     const slice = createSlice();
     const jobId = slice.startImageJob({

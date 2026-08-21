@@ -361,7 +361,7 @@ export const createImageSlice: StateCreator<
       const jobId = jobIdsByMarker.get(marker);
       if (!jobId) return;
       if (event.type === 'submitted') {
-        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback);
+        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback, event.brokerBaseUrl);
       } else if (event.type === 'provider_switched') {
         get().markImageJobProviderSwitched(jobId, event.model, event.fallback);
       } else {
@@ -601,7 +601,7 @@ export const createImageSlice: StateCreator<
     get().markImageJobRunning(jobId);
     context.onJobEvent = (_marker, event) => {
       if (event.type === 'submitted') {
-        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback);
+        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback, event.brokerBaseUrl);
       } else if (event.type === 'provider_switched') {
         get().markImageJobProviderSwitched(jobId, event.model, event.fallback);
       } else {
@@ -717,7 +717,11 @@ export const createImageSlice: StateCreator<
       const state = get();
       return {
         chapters: state.chapters,
-        settings: { ...state.settings, imageModel: job.taskModel ?? job.requestedModel },
+        settings: {
+          ...state.settings,
+          imageModel: job.taskModel ?? job.requestedModel,
+          indrasNetBaseUrl: job.brokerBaseUrl ?? state.settings.indrasNetBaseUrl,
+        },
         activePromptTemplate: state.activePromptTemplate ?? undefined,
         steeringImages: state.steeringImages,
         negativePrompts: state.negativePrompts,
@@ -729,7 +733,7 @@ export const createImageSlice: StateCreator<
         nextVersion: job.version,
         onJobEvent: (_marker, event) => {
           if (event.type === 'submitted') {
-            get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback);
+            get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback, event.brokerBaseUrl);
           } else if (event.type === 'provider_switched') {
             get().markImageJobProviderSwitched(job.id, event.model, event.fallback);
           } else {

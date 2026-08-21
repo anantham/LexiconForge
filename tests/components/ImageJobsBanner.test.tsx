@@ -55,7 +55,7 @@ describe('ImageJobsBanner', () => {
 
   it('shows an empirical ETA and navigates to the loaded originating chapter', async () => {
     storeState.imageJobs = { 'job-1': job() };
-    storeState.chapters = new Map([['chapter-1', { title: 'Origin Chapter' }]]);
+    storeState.chapters = new Map([['chapter-1', { title: 'Origin Chapter', translationResult: {} }]]);
     render(<ImageJobsBanner />);
 
     expect(screen.getByText('Origin Chapter')).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('ImageJobsBanner', () => {
 
   it('hydrates a shelved origin before opening it', async () => {
     storeState.imageJobs = { 'job-1': job({ status: 'completed' }) };
-    loadChapterFromIDB.mockResolvedValue({ id: 'chapter-1', title: 'Hydrated Origin' });
+    loadChapterFromIDB.mockResolvedValue({ id: 'chapter-1', title: 'Hydrated Origin', translationResult: {} });
     render(<ImageJobsBanner />);
 
     fireEvent.click(screen.getByRole('button', { name: /open chapter-1/i }));
@@ -89,6 +89,47 @@ describe('ImageJobsBanner', () => {
     ));
     expect(setCurrentChapter).not.toHaveBeenCalled();
     expect(screen.getByText(/illustration ready/i)).toBeInTheDocument();
+  });
+
+  it('rehydrates a cached translation-error stub before navigating', async () => {
+    storeState.imageJobs = { 'job-1': job({ status: 'completed' }) };
+    storeState.chapters = new Map([['chapter-1', {
+      id: 'chapter-1',
+      _translationLoadError: 'IndexedDB transaction aborted',
+    }]]);
+    loadChapterFromIDB.mockResolvedValue({ id: 'chapter-1', translationResult: {} });
+    render(<ImageJobsBanner />);
+
+    fireEvent.click(screen.getByRole('button', { name: /open chapter-1/i }));
+
+    await waitFor(() => expect(loadChapterFromIDB).toHaveBeenCalledWith('chapter-1'));
+    expect(setCurrentChapter).toHaveBeenCalledWith('chapter-1');
+  });
+
+  it('lets every visible job be selected, opened, and dismissed', async () => {
+    storeState.imageJobs = {
+      'job-1': job({ status: 'completed', completedAt: Date.now(), updatedAt: 200 }),
+      'job-2': job({
+        id: 'job-2',
+        chapterId: 'chapter-2',
+        status: 'completed',
+        completedAt: Date.now(),
+        updatedAt: 100,
+      }),
+    };
+    storeState.chapters = new Map([
+      ['chapter-1', { title: 'First Origin', translationResult: {} }],
+      ['chapter-2', { title: 'Second Origin', translationResult: {} }],
+    ]);
+    render(<ImageJobsBanner />);
+
+    expect(screen.getByText('First Origin')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /next image job/i }));
+    expect(screen.getByText('Second Origin')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /open second origin/i }));
+    await waitFor(() => expect(setCurrentChapter).toHaveBeenCalledWith('chapter-2'));
+    fireEvent.click(screen.getByRole('button', { name: /dismiss image job/i }));
+    expect(dismissImageJob).toHaveBeenCalledWith('job-2');
   });
 
   it('does not invent an ETA when there is no empirical history', () => {

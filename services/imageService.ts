@@ -1018,6 +1018,9 @@ export const resumePiApiImageTask = async (
     };
 };
 
+const piApiTaskFailureCanRetry = (status: number): boolean =>
+    status === 401 || status === 403 || [408, 425, 429].includes(status) || status >= 500;
+
 async function pollPiApiTask(
     taskId: string,
     apiKey: string,
@@ -1037,16 +1040,24 @@ async function pollPiApiTask(
             let json: any = {};
             try { json = raw ? JSON.parse(raw) : {}; } catch {}
             if (!poll.ok) {
-                const canRetry = [408, 425, 429].includes(poll.status) || poll.status >= 500;
                 throw Object.assign(
                     new Error(`PiAPI get-task failed (${poll.status}): ${raw}`),
-                    { errorType: `PIAPI_HTTP_${poll.status}`, canRetry },
+                    { errorType: `PIAPI_HTTP_${poll.status}`, canRetry: piApiTaskFailureCanRetry(poll.status) },
                 );
             }
             const status = String(json.status || json.state || json.data?.status || json.data?.state || '').toLowerCase();
             if ((json && json.error) || (typeof json.code === 'number' && json.code >= 400)) {
                 const message = json?.error?.message || json?.message || 'Unknown PiAPI polling error';
-                throw new Error(`PiAPI get-task returned error: ${message}\nBody: ${raw}`);
+                const envelopeCode = typeof json.code === 'number'
+                    ? json.code
+                    : typeof json?.error?.code === 'number' ? json.error.code : undefined;
+                throw Object.assign(
+                    new Error(`PiAPI get-task returned error: ${message}\nBody: ${raw}`),
+                    {
+                        errorType: envelopeCode ? `PIAPI_ENVELOPE_${envelopeCode}` : 'PIAPI_ERROR_ENVELOPE',
+                        ...(envelopeCode ? { canRetry: piApiTaskFailureCanRetry(envelopeCode) } : {}),
+                    },
+                );
             }
             if (/succeeded|completed|success/.test(status)) return json;
             if (/failed|error/.test(status)) throw new Error(`PiAPI task failed: ${raw || JSON.stringify(json)}`);

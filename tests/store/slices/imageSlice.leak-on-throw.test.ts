@@ -369,6 +369,42 @@ describe('imageSlice — durable task recovery', () => {
     );
   });
 
+  it('recovers an IndrasNet task from the broker origin that accepted it', async () => {
+    const slice = createSlice();
+    slice.settings.indrasNetBaseUrl = 'https://new-broker.example';
+    slice.imageJobs['saved-indras-job'] = {
+      id: 'saved-indras-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'indrasnet/gen_anime',
+      requestedProvider: 'Asus / IndrasNet',
+      taskModel: 'indrasnet/gen_anime',
+      taskProvider: 'Asus / IndrasNet',
+      brokerBaseUrl: 'https://original-broker.example',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'broker-task-123',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+    resumeImageJobMock.mockResolvedValue({
+      imageState: { isLoading: false, data: 'recovered-image', error: null },
+      metrics: { chapterId: 'chapter-1', count: 1, totalTime: 5, totalCost: 0, lastModel: 'indrasnet/gen_anime' },
+    });
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(resumeImageJobMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'saved-indras-job' }),
+      expect.objectContaining({
+        settings: expect.objectContaining({ indrasNetBaseUrl: 'https://original-broker.example' }),
+      }),
+    );
+    expect(slice.imageJobs['saved-indras-job'].status).toBe('completed');
+  });
+
   it('claims restored jobs before awaiting so duplicate boot effects cannot poll twice', async () => {
     const slice = createSlice();
     slice.imageJobs['saved-job'] = {

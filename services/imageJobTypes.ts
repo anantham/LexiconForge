@@ -16,6 +16,7 @@ export type ImageJobLifecycleEvent =
       resumeKind: Exclude<ImageJobResumeKind, 'none'>;
       submittedModel?: string;
       fallback?: ImageExecutionMetadata['fallback'];
+      brokerBaseUrl?: string;
     }
   | { type: 'running' };
 
