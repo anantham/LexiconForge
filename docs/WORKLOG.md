@@ -3172,3 +3172,12 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Fallback:** Revert the two pass-through fields; no database or persistence schema migration is introduced.
 **Result:** Confirmed. Both database navigation and bulk reader hydration now pass the complete stored `imageVersionState` into chapter state, so recovered image application extends the existing version map instead of replacing it with only the recovered version.
 **Verification:** Pinned Node 24.19.0: focused hydration/recovery regressions 39/39; exact one-worker suite 278 files, 9,255 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.
+
+### [2026-08-21 23:53 IST] [Agent: Codex]
+**Status:** Addressing exact-head round-31 review on completed-artifact authentication failures.
+**Issues:** Artifact GET 401/403 was classified terminal after an accepted task completed, discarding the durable ID even though corrected broker/Tailnet authentication could recover the same artifact.
+**Options:** (A) treat artifact 401/403 like poll authentication failures and preserve the task — selected; (B) retire and allow regeneration — rejected due duplicate paid/GPU work risk. Impact high, effort/risk low, reversible, confidence 0.99.
+**Hypothesis:** The retryable artifact status set is the only classification gap. Prediction: 401/403 preserve with fallback disabled while explicit artifact 404 remains terminal.
+**Fallback:** Revert the two added statuses; no request, persistence, or provider schema changes are introduced.
+**Result:** Confirmed. Completed-artifact GET 401/403 now preserves the accepted durable task with fallback disabled, while explicit artifact 404 remains terminal.
+**Verification:** Pinned Node 24.19.0: focused provider/recovery regressions 44/44; exact one-worker suite 278 files, 9,258 passed and 347 skipped, 0 failed; TypeScript clean; targeted ESLint 0 warnings/errors and repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.

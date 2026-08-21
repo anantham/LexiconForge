@@ -235,6 +235,46 @@ describe('IndrasNet resumable image jobs', () => {
     });
   });
 
+  it.each([401, 403])('preserves a completed broker task after artifact HTTP %s', async status => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(json({
+        job_id: 'completed-auth-job',
+        status: 'completed',
+        images: ['/api/comfyui/view?filename=protected.png&type=output'],
+      }))
+      .mockResolvedValueOnce(json({ detail: 'artifact authentication failed' }, status)));
+
+    const error = await resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'completed-auth-job',
+      workflowName: 'gen_anime',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({
+      retryable: true,
+      fallbackEligible: false,
+      status,
+    });
+  });
+
+  it('retires a completed broker task when its artifact is explicitly missing', async () => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(json({
+        job_id: 'completed-missing-artifact',
+        status: 'completed',
+        images: ['/api/comfyui/view?filename=missing.png&type=output'],
+      }))
+      .mockResolvedValueOnce(json({ detail: 'artifact not found' }, 404)));
+
+    const error = await resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'completed-missing-artifact',
+      workflowName: 'gen_anime',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ retryable: false, status: 404 });
+  });
+
   it('keeps broker-queued work submitted until the broker reports running', async () => {
     const originalSetTimeout = globalThis.setTimeout.bind(globalThis);
     vi.spyOn(globalThis, 'setTimeout').mockImplementation(((handler: TimerHandler, timeout?: number, ...args: any[]) => {
