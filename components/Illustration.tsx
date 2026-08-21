@@ -204,44 +204,38 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = React.useState<number | null>(null);
   const [countdownStartTime, setCountdownStartTime] = React.useState<number | null>(null);
   const [estimatedTotalTime, setEstimatedTotalTime] = React.useState<number | null>(null);
+  const [estimateSampleCount, setEstimateSampleCount] = React.useState(0);
 
   // Effect to manage countdown timer when loading starts/stops
   React.useEffect(() => {
+    let cancelled = false;
+
     if (isLoading) {
-      // Fetch estimated time when loading starts
       const imageModel = settings?.imageModel;
 
       const fetchEstimatedTime = async () => {
-        let estimatedSeconds: number;
+        if (!imageModel) return;
+        const timeData = await apiMetricsService.getAverageImageGenerationTime(imageModel);
+        if (cancelled || !timeData) return;
 
-        if (imageModel) {
-          // Try model-specific average first
-          const timeData = await apiMetricsService.getAverageImageGenerationTime(imageModel);
-          if (timeData?.avgTimeSeconds) {
-            estimatedSeconds = timeData.avgTimeSeconds;
-          } else {
-            // Fall back to median of all models
-            const medianTime = await apiMetricsService.getMedianImageGenerationTime();
-            estimatedSeconds = medianTime;
-          }
-        } else {
-          // No model selected, use median of all data
-          const medianTime = await apiMetricsService.getMedianImageGenerationTime();
-          estimatedSeconds = medianTime;
-        }
-
-        setEstimatedTotalTime(estimatedSeconds);
-        setEstimatedTimeRemaining(estimatedSeconds);
+        setEstimatedTotalTime(timeData.avgTimeSeconds);
+        setEstimatedTimeRemaining(timeData.avgTimeSeconds);
+        setEstimateSampleCount(timeData.sampleCount);
         setCountdownStartTime(Date.now());
       };
 
-      fetchEstimatedTime();
+      void fetchEstimatedTime();
     } else {
       // Reset countdown when loading completes
       setEstimatedTimeRemaining(null);
       setCountdownStartTime(null);
       setEstimatedTotalTime(null);
+      setEstimateSampleCount(0);
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [isLoading, settings?.imageModel]);
 
   // Effect to update countdown every second
@@ -423,10 +417,14 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
         <div className="flex flex-col items-center justify-center h-48">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Generating illustration...</p>
-          {estimatedTimeRemaining !== null && (
+          {estimatedTimeRemaining === null ? (
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
+              Gathering ETA data…
+            </p>
+          ) : (
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
               {estimatedTimeRemaining > 0
-                ? `~${Math.ceil(estimatedTimeRemaining)}s remaining`
+                ? `~${Math.ceil(estimatedTimeRemaining)}s remaining (${estimateSampleCount} prior ${estimateSampleCount === 1 ? 'run' : 'runs'})`
                 : 'Almost done...'}
             </p>
           )}

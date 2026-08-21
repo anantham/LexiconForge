@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TranslationPersistenceService } from '../../services/translationPersistenceService';
 import { TranslationOps } from '../../services/db/operations';
 import type { TranslationResult } from '../../types';
@@ -9,12 +9,14 @@ import type { TranslationRecord } from '../../services/db/types';
 vi.mock('../../services/db/operations', () => ({
   TranslationOps: {
     storeByStableId: vi.fn(),
+    getById: vi.fn(),
     update: vi.fn(),
     setActiveByStableId: vi.fn(),
   },
 }));
 
 const mockStoreByStableId = vi.mocked(TranslationOps.storeByStableId);
+const mockGetById = vi.mocked(TranslationOps.getById);
 const mockUpdate = vi.mocked(TranslationOps.update);
 const mockSetActive = vi.mocked(TranslationOps.setActiveByStableId);
 
@@ -87,6 +89,7 @@ describe('TranslationPersistenceService', () => {
     });
 
     it('updates existing record when given a TranslationRecord (has chapterUrl + id)', async () => {
+      mockGetById.mockResolvedValue(storedRecord);
       mockUpdate.mockResolvedValue(undefined);
 
       const result = await TranslationPersistenceService.persistUpdatedTranslation(
@@ -95,9 +98,60 @@ describe('TranslationPersistenceService', () => {
         baseSettings
       );
 
-      expect(mockUpdate).toHaveBeenCalledWith(storedRecord);
+      expect(mockGetById).toHaveBeenCalledWith(storedRecord.id);
+      expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+        id: storedRecord.id,
+        model: storedRecord.model,
+        provider: storedRecord.provider,
+      }));
       expect(mockStoreByStableId).not.toHaveBeenCalled();
-      expect(result).toBe(storedRecord);
+      expect(result).toEqual(storedRecord);
+    });
+
+    it('preserves stored provenance when a hydrated result updates an illustration', async () => {
+      const hydratedUpdate = {
+        ...baseTranslation,
+        id: storedRecord.id,
+        version: storedRecord.version,
+        chapterUrl: storedRecord.chapterUrl,
+        provider: undefined,
+        model: undefined,
+        usageMetrics: {
+          ...baseTranslation.usageMetrics,
+          provider: 'unknown',
+          model: 'unknown',
+        },
+        suggestedIllustrations: [{
+          placementMarker: '[ILLUSTRATION-1]',
+          imagePrompt: 'A riverboat at dusk',
+          generatedImage: {
+            imageData: '',
+            requestTime: 187,
+            cost: 0,
+          },
+        }],
+      } as any;
+      mockGetById.mockResolvedValue(storedRecord);
+      mockUpdate.mockResolvedValue(undefined);
+
+      const result = await TranslationPersistenceService.persistUpdatedTranslation(
+        storedRecord.stableId!,
+        hydratedUpdate,
+        { ...baseSettings, model: 'a-different-current-model' }
+      );
+
+      expect(mockGetById).toHaveBeenCalledWith(storedRecord.id);
+      expect(mockStoreByStableId).not.toHaveBeenCalled();
+      expect(mockUpdate).toHaveBeenCalledTimes(1);
+      expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
+        id: storedRecord.id,
+        version: storedRecord.version,
+        provider: storedRecord.provider,
+        model: storedRecord.model,
+        totalTokens: storedRecord.totalTokens,
+        suggestedIllustrations: hydratedUpdate.suggestedIllustrations,
+      }));
+      expect(result?.model).toBe(storedRecord.model);
     });
 
     it('throws on storage failure (does not swallow errors)', async () => {
