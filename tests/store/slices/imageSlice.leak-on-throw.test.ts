@@ -126,6 +126,38 @@ describe('imageSlice — handleRetryImage cleans up isLoading on service throw',
     expect(slice.hasImagesInProgress()).toBe(false);
   });
 
+  it('keeps a durable task after retryImage returns a retryable error state', async () => {
+    const slice = createSlice();
+    slice.settings = { ...slice.settings, imageModel: 'indrasnet/gen_anime' };
+    retryImageMock.mockImplementationOnce(async (_chapterId, _placementMarker, context) => {
+      context.onJobEvent?.('[ILLUSTRATION-1]', {
+        type: 'submitted',
+        externalTaskId: 'broker-single-retry-1',
+        resumeKind: 'indrasnet',
+      });
+      return {
+        imageState: {
+          isLoading: false,
+          data: null,
+          error: 'Completed artifact is temporarily unreachable',
+          errorType: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
+          canRetry: true,
+        },
+      };
+    });
+
+    await slice.handleRetryImage('chapter-1', '[ILLUSTRATION-1]');
+
+    expect(Object.values(slice.imageJobs)).toContainEqual(expect.objectContaining({
+      status: 'interrupted',
+      externalTaskId: 'broker-single-retry-1',
+      resumeKind: 'indrasnet',
+    }));
+    expect(JSON.parse(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1') || '[]')).toEqual([
+      expect.objectContaining({ status: 'interrupted', externalTaskId: 'broker-single-retry-1' }),
+    ]);
+  });
+
   it('skips duplicate retry calls while the same image is already loading', async () => {
     const slice = createSlice();
     const key = 'chapter-1:[ILLUSTRATION-1]';

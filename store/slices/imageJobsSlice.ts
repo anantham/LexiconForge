@@ -1,7 +1,10 @@
 import type { StateCreator } from 'zustand';
 import { apiMetricsService } from '../../services/apiMetricsService';
 import { imageProviderForModel } from '../../services/imageService';
-import type { ImageJobResumeKind } from '../../services/imageJobTypes';
+import {
+  RESUMABLE_IMAGE_JOBS_STORAGE_KEY,
+  type ImageJobResumeKind,
+} from '../../services/imageJobTypes';
 import type { StoreState } from '../storeTypes';
 
 export type ImageJobStatus = 'queued' | 'submitted' | 'running' | 'completed' | 'failed' | 'interrupted';
@@ -26,7 +29,6 @@ export interface ImageJob {
   error?: string;
 }
 
-const STORAGE_KEY = 'LF_RESUMABLE_IMAGE_JOBS_V1';
 const ACTIVE_STATUSES = new Set<ImageJobStatus>(['queued', 'submitted', 'running']);
 
 const blocksDuplicateSubmission = (job: ImageJob): boolean =>
@@ -47,7 +49,7 @@ const newId = (): string => {
 const loadRecoverableJobs = (): Record<string, ImageJob> => {
   if (typeof localStorage === 'undefined') return {};
   try {
-    const decoded = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') as unknown;
+    const decoded = JSON.parse(localStorage.getItem(RESUMABLE_IMAGE_JOBS_STORAGE_KEY) || '[]') as unknown;
     if (!Array.isArray(decoded)) return {};
     return decoded.reduce<Record<string, ImageJob>>((jobs, candidate) => {
       if (!candidate || typeof candidate !== 'object') return jobs;
@@ -71,8 +73,8 @@ const persistRecoverableJobs = (jobs: Record<string, ImageJob>): void => {
     && (ACTIVE_STATUSES.has(job.status) || job.status === 'interrupted')
   );
   try {
-    if (recoverable.length === 0) localStorage.removeItem(STORAGE_KEY);
-    else localStorage.setItem(STORAGE_KEY, JSON.stringify(recoverable));
+    if (recoverable.length === 0) localStorage.removeItem(RESUMABLE_IMAGE_JOBS_STORAGE_KEY);
+    else localStorage.setItem(RESUMABLE_IMAGE_JOBS_STORAGE_KEY, JSON.stringify(recoverable));
   } catch (error) {
     console.error('[ImageJobs] Failed to persist resumable image jobs:', error);
   }

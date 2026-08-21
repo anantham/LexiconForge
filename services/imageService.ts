@@ -901,6 +901,7 @@ export const resumeIndrasNetTask = async (
             imageCount: 1,
             chapterId: input.chapterId,
             success: true,
+            idempotencyKey: `image:indrasnet:${input.taskId}`,
         });
     }
 

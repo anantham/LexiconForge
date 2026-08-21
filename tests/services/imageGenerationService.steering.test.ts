@@ -121,6 +121,26 @@ describe('ImageGenerationService — steering-image provenance (integrity item 6
     expect(metadata.steeringIgnored).toBe(true);
   });
 
+  it('preserves provider retryability when a single-image retry returns an error state', async () => {
+    const { context } = makeContext('indrasnet/gen_anime', null);
+    generateImageMock.mockRejectedValueOnce(Object.assign(
+      new Error('Completed artifact is temporarily unreachable'),
+      { errorType: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', canRetry: true },
+    ));
+
+    const result = await ImageGenerationService.retryImage(
+      'ch-1',
+      '[ILLUSTRATION-1]',
+      context,
+    );
+
+    expect(result.imageState).toMatchObject({
+      error: expect.stringContaining('temporarily unreachable'),
+      errorType: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
+      canRetry: true,
+    });
+  });
+
   it('reports the model that actually executed in batch progress and final metrics', async () => {
     const { context } = makeContext('indrasnet/gen_anime', null);
     const onProgressUpdate = vi.fn();

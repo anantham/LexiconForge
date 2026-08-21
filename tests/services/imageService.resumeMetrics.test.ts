@@ -57,6 +57,7 @@ describe('restored image-job ETA metrics', () => {
       model: 'indrasnet/gen_anime',
       duration: 12.5,
       success: true,
+      idempotencyKey: 'image:indrasnet:broker-job-1',
     }));
   });
 

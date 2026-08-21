@@ -565,12 +565,15 @@ export class ImageGenerationService {
 
     } catch (error: any) {
       console.error(`[ImageGen] Failed to retry image for ${placementMarker}:`, error);
+      const canRetry = error?.canRetry === true || error?.retryable === true;
       
       return {
         imageState: {
           isLoading: false,
           data: null,
-          error: error.message || 'Image generation failed'
+          error: error.message || 'Image generation failed',
+          errorType: typeof error?.errorType === 'string' ? error.errorType : undefined,
+          canRetry,
         }
       };
     }
