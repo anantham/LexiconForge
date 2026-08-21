@@ -459,8 +459,15 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
         <div className="flex min-h-48 flex-col items-center justify-center p-4 text-center">
           <p className="font-semibold text-amber-700 dark:text-amber-300">Illustration paused</p>
           <p className="mt-2 max-w-md text-xs text-gray-600 dark:text-gray-400">
-            {activeImageJob.error || 'The saved provider task could not be checked. It will be checked again after reload.'}
+            {activeImageJob.error || (activeImageJob.recoveryPersistenceError
+              ? 'The provider task could not be checked in this tab.'
+              : 'The saved provider task could not be checked. It will be checked again after reload.')}
           </p>
+          {activeImageJob.recoveryPersistenceError && (
+            <p className="mt-2 max-w-md text-xs font-semibold text-amber-700 dark:text-amber-300" role="alert">
+              {activeImageJob.recoveryPersistenceError}
+            </p>
+          )}
           <p className="mt-2 max-w-md text-xs text-gray-500 dark:text-gray-500">
             Dismiss the saved task only if you want to start a new generation; the provider task may still finish.
           </p>

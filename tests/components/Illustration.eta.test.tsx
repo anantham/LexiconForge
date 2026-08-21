@@ -257,4 +257,26 @@ describe('Illustration empirical ETA', () => {
     fireEvent.click(screen.getByRole('button', { name: /dismiss paused task/i }));
     expect(storeState.dismissImageJob).toHaveBeenCalledWith('job-1');
   });
+
+  it('does not promise reload recovery for an interrupted task whose id was never saved', () => {
+    storeState.generatedImages = {};
+    storeState.imageJobs = {
+      'job-1': {
+        id: 'job-1',
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        requestedModel: 'indrasnet/gen_anime',
+        status: 'interrupted',
+        resumeKind: 'indrasnet',
+        externalTaskId: 'broker-task-unsaved',
+        error: 'IndrasNet is temporarily unreachable.',
+        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open until the illustration finishes.',
+      },
+    };
+
+    render(<Illustration marker="[ILLUSTRATION-1]" />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/reload recovery is unavailable.*keep this tab open/i);
+    expect(screen.queryByText(/checked again after reload/i)).not.toBeInTheDocument();
+  });
 });
