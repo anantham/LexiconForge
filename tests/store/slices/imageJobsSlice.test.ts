@@ -258,6 +258,33 @@ describe('imageJobsSlice', () => {
     }
   });
 
+  it('starts the execution clock when provider-submitted work begins running', () => {
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_000);
+    try {
+      const slice = createSlice();
+      const id = slice.startImageJob({
+        chapterId: 'chapter-provider-clock',
+        placementMarker: '[ILLUSTRATION-1]',
+        model: 'Qubico/flux1-dev',
+        version: 1,
+      });
+
+      now.mockReturnValue(2_000);
+      slice.markImageJobSubmitted(id, 'pi-task-1', 'piapi');
+      expect(slice.imageJobs[id]).toMatchObject({ status: 'submitted', startedAt: 1_000 });
+
+      now.mockReturnValue(8_000);
+      slice.markImageJobRunning(id);
+      expect(slice.imageJobs[id]).toMatchObject({ status: 'running', startedAt: 8_000 });
+
+      now.mockReturnValue(9_000);
+      slice.markImageJobRunning(id);
+      expect(slice.imageJobs[id]).toMatchObject({ status: 'running', startedAt: 8_000 });
+    } finally {
+      now.mockRestore();
+    }
+  });
+
   it('starts a fresh exact-model clock when fallback takes task ownership', () => {
     const now = vi.spyOn(Date, 'now').mockReturnValue(1_000);
     try {

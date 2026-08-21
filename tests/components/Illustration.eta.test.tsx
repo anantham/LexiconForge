@@ -145,4 +145,22 @@ describe('Illustration empirical ETA', () => {
     expect(screen.getByText(/waiting for earlier illustrations/i)).toBeInTheDocument();
     expect(getAverageImageGenerationTime).not.toHaveBeenCalled();
   });
+
+  it('does not start an inline countdown while the provider still has the task queued', () => {
+    storeState.imageJobs = {
+      'job-1': {
+        id: 'job-1',
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        requestedModel: 'indrasnet/gen_anime',
+        status: 'submitted',
+      },
+    };
+
+    render(<Illustration marker="[ILLUSTRATION-1]" />);
+
+    expect(screen.getByText(/queued by provider/i)).toBeInTheDocument();
+    expect(screen.queryByText(/generating illustration/i)).not.toBeInTheDocument();
+    expect(getAverageImageGenerationTime).not.toHaveBeenCalled();
+  });
 });

@@ -461,6 +461,7 @@ describe('imageSlice — durable task recovery', () => {
     const firstRecovery = slice.resumeInterruptedImageJobs();
     await slice.resumeInterruptedImageJobs();
     expect(resumeImageJobMock).toHaveBeenCalledTimes(1);
+    expect(slice.imageJobs['saved-job'].status).toBe('submitted');
 
     deferred.resolve({
       imageState: { isLoading: false, data: 'recovered-image', error: null },
@@ -493,7 +494,7 @@ describe('imageSlice — durable task recovery', () => {
 
     const recovery = slice.resumeInterruptedImageJobs();
     await vi.waitFor(() => expect(slice.imageJobs['fast-job'].status).toBe('completed'));
-    expect(slice.imageJobs['slow-job'].status).toBe('running');
+    expect(slice.imageJobs['slow-job'].status).toBe('submitted');
 
     first.resolve({
       imageState: { isLoading: false, data: 'slow-image', error: null },

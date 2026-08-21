@@ -250,7 +250,9 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
     const current = state.imageJobs[jobId];
     if (!current) return {};
     const now = Date.now();
-    const executionStarting = current.status === 'queued' || current.status === 'interrupted';
+    const executionStarting = current.status === 'queued'
+      || current.status === 'submitted'
+      || current.status === 'interrupted';
     const imageJobs = {
       ...state.imageJobs,
       [jobId]: {

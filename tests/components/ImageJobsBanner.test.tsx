@@ -147,6 +147,15 @@ describe('ImageJobsBanner', () => {
     expect(screen.queryByLabelText(/estimated .* complete/i)).not.toBeInTheDocument();
   });
 
+  it('shows provider-submitted work without an execution countdown or progress bar', () => {
+    storeState.imageJobs = { 'job-1': job({ status: 'submitted' }) };
+    render(<ImageJobsBanner />);
+
+    expect(screen.getByText(/^queued by provider$/i)).toBeInTheDocument();
+    expect(screen.queryByText(/about .* left|elapsed|gathering ETA/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/estimated .* complete/i)).not.toBeInTheDocument();
+  });
+
   it('lets a completed job be dismissed', () => {
     storeState.imageJobs = { 'job-1': job({ status: 'completed', completedAt: Date.now(), durationSeconds: 33 }) };
     render(<ImageJobsBanner />);

@@ -161,7 +161,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     };
   }));
   const countdownModel = activeImageJob.model ?? settings?.imageModel;
-  const isQueued = isLoading && activeImageJob.status === 'queued';
+  const isQueued = isLoading && (activeImageJob.status === 'queued' || activeImageJob.status === 'submitted');
 
   // NEW: Support for Cache API with version tracking
   const baseCacheKey = illust?.generatedImage?.imageCacheKey ||
@@ -440,7 +440,11 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     <div className="my-6 flex justify-center flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
       {isQueued && (
         <div className="flex h-48 flex-col items-center justify-center text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Waiting for earlier illustrations to finish…</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {activeImageJob.status === 'submitted'
+              ? 'Queued by provider…'
+              : 'Waiting for earlier illustrations to finish…'}
+          </p>
         </div>
       )}
       {isLoading && !isQueued && (

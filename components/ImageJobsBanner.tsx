@@ -10,7 +10,7 @@ const formatDuration = (seconds: number): string => {
 };
 
 const isActive = (job: ImageJob): boolean => ['queued', 'submitted', 'running'].includes(job.status);
-const isExecuting = (job: ImageJob): boolean => job.status === 'submitted' || job.status === 'running';
+const isExecuting = (job: ImageJob): boolean => job.status === 'running';
 
 const ImageJobsBanner: React.FC = () => {
   // Some test/embedded consumers intentionally provide a partial store. The
@@ -69,9 +69,11 @@ const ImageJobsBanner: React.FC = () => {
         ? `Illustration paused: ${job.error || 'provider task will be checked again after reload'}`
         : job.status === 'queued'
           ? 'Waiting for earlier illustrations to finish'
+          : job.status === 'submitted'
+            ? 'Queued by provider'
         : remainingSeconds !== null && job.estimateSampleCount > 0
-          ? `${job.status === 'submitted' ? 'Queued by provider' : 'Generating'} · about ${formatDuration(remainingSeconds)} left (${job.estimateSampleCount} prior run${job.estimateSampleCount === 1 ? '' : 's'})`
-          : `${job.status === 'submitted' ? 'Queued by provider' : 'Generating'} · ${formatDuration(elapsedSeconds)} elapsed · gathering ETA data`;
+          ? `Generating · about ${formatDuration(remainingSeconds)} left (${job.estimateSampleCount} prior run${job.estimateSampleCount === 1 ? '' : 's'})`
+          : `Generating · ${formatDuration(elapsedSeconds)} elapsed · gathering ETA data`;
 
   const tone = job.status === 'completed'
     ? 'border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/90 dark:text-emerald-100'

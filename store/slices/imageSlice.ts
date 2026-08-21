@@ -746,10 +746,20 @@ export const createImageSlice: StateCreator<
         },
       };
     };
-    // Claim every restored job synchronously before the first await. This
-    // prevents React development StrictMode (or another boot caller) from
-    // starting a second recovery pass for the same provider task.
-    for (const job of interrupted) get().markImageJobRunning(job.id);
+    // Claim every restored job synchronously before the first await. Retain
+    // the provider-submitted state until polling explicitly reports execution;
+    // this still prevents StrictMode (or another boot caller) from starting a
+    // second recovery pass for the same durable task.
+    for (const job of interrupted) {
+      get().markImageJobSubmitted(
+        job.id,
+        job.externalTaskId!,
+        job.resumeKind as 'piapi' | 'indrasnet',
+        job.taskModel ?? job.requestedModel,
+        job.fallback,
+        job.brokerBaseUrl,
+      );
+    }
     await Promise.all(interrupted.map(async job => {
       try {
         await ensureChapterHydrated(job.chapterId);
