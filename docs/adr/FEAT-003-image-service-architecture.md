@@ -165,3 +165,13 @@ configuration errors.
   boundary.
 - `components/settings/IndrasNetImageProviderSection.tsx` exposes endpoint,
   discovery state, and fallback selection.
+
+### Review hardening — 2026-08-21
+
+- Unstructured HTTP 500/503 responses are not sufficient to authorize a cloud
+  fallback. The client accepts an explicit structured `retryable: true`, while
+  unstructured 502/504 gateway failures remain availability signals.
+- Completed-workflow image downloads have a separate 60-second budget and do
+  not trigger cloud generation if transfer fails.
+- If the selected fallback also fails, one descriptive error preserves both
+  provider/model attempts and both failure reasons.

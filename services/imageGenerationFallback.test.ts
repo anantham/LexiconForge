@@ -8,7 +8,7 @@ vi.mock('./imageService', () => ({
   imageProviderForModel: (model: string) => model.startsWith('indrasnet/') ? 'Asus / IndrasNet' : 'Gemini',
 }));
 
-import { generateImageWithConfiguredFallback } from './imageGenerationFallback';
+import { generateImageWithConfiguredFallback, ImageFallbackError } from './imageGenerationFallback';
 
 const settings = {
   imageModel: 'indrasnet/gen_anime',
@@ -65,5 +65,35 @@ describe('configured image fallback', () => {
       settings: { ...settings, imageFallbackModel: 'none' },
     })).rejects.toBe(failure);
     expect(mockGenerateImage).toHaveBeenCalledTimes(1);
+  });
+
+  it('preserves both provider errors when the configured fallback also fails', async () => {
+    const primaryFailure = Object.assign(new Error('GPU lease is busy'), {
+      errorType: 'GPU_BUSY',
+      canRetry: true,
+    });
+    const fallbackFailure = Object.assign(new Error('cloud quota exhausted'), {
+      errorType: 'RATE_LIMIT',
+      canRetry: true,
+    });
+    mockGenerateImage
+      .mockRejectedValueOnce(primaryFailure)
+      .mockRejectedValueOnce(fallbackFailure);
+
+    const error = await generateImageWithConfiguredFallback({ prompt: 'castle', settings })
+      .catch(cause => cause);
+
+    expect(error).toBeInstanceOf(ImageFallbackError);
+    expect(error).toMatchObject({
+      errorType: 'IMAGE_FALLBACK_FAILED',
+      canRetry: false,
+      primaryError: primaryFailure,
+      fallbackError: fallbackFailure,
+      attemptedModel: 'indrasnet/gen_anime',
+      fallbackModel: 'imagen-3.0-generate-002',
+    });
+    expect(error.message).toContain('[GPU_BUSY]: GPU lease is busy');
+    expect(error.message).toContain('[RATE_LIMIT]: cloud quota exhausted');
+    expect(mockGenerateImage).toHaveBeenCalledTimes(2);
   });
 });

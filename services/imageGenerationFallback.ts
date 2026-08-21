@@ -20,6 +20,37 @@ interface RetryableImageError extends Error {
   canRetry?: boolean;
 }
 
+export class ImageFallbackError extends Error {
+  readonly errorType = 'IMAGE_FALLBACK_FAILED';
+  readonly canRetry = false;
+  readonly primaryError: Error;
+  readonly fallbackError: Error;
+  readonly attemptedModel: string;
+  readonly fallbackModel: string;
+
+  constructor(options: {
+    primaryError: RetryableImageError;
+    fallbackError: RetryableImageError;
+    attemptedModel: string;
+    fallbackModel: string;
+    primaryReasonCode: string;
+  }) {
+    const fallbackReasonCode = options.fallbackError.errorType || 'FALLBACK_PROVIDER_FAILURE';
+    super(
+      `Image generation failed on ${imageProviderForModel(options.attemptedModel)} (${options.attemptedModel}) `
+      + `[${options.primaryReasonCode}]: ${options.primaryError.message}. `
+      + `The configured fallback ${imageProviderForModel(options.fallbackModel)} (${options.fallbackModel}) `
+      + `also failed [${fallbackReasonCode}]: ${options.fallbackError.message}`,
+      { cause: options.fallbackError },
+    );
+    this.name = 'ImageFallbackError';
+    this.primaryError = options.primaryError;
+    this.fallbackError = options.fallbackError;
+    this.attemptedModel = options.attemptedModel;
+    this.fallbackModel = options.fallbackModel;
+  }
+}
+
 const invoke = (input: ImageGenerationInvocation): Promise<GeneratedImageResult> =>
   generateImage(
     input.prompt,
@@ -64,10 +95,24 @@ export const generateImageWithConfiguredFallback = async (
       reason: error.message,
     });
 
-    const fallbackResult = await invoke({
-      ...input,
-      settings: { ...input.settings, imageModel: fallbackModel },
-    });
+    let fallbackResult: GeneratedImageResult;
+    try {
+      fallbackResult = await invoke({
+        ...input,
+        settings: { ...input.settings, imageModel: fallbackModel },
+      });
+    } catch (fallbackUnknownError) {
+      const fallbackError = fallbackUnknownError instanceof Error
+        ? fallbackUnknownError as RetryableImageError
+        : Object.assign(new Error(String(fallbackUnknownError)), { errorType: 'FALLBACK_PROVIDER_FAILURE' });
+      throw new ImageFallbackError({
+        primaryError: error,
+        fallbackError,
+        attemptedModel: input.settings.imageModel,
+        fallbackModel,
+        primaryReasonCode: reasonCode,
+      });
+    }
     return {
       ...fallbackResult,
       requestTime: primaryElapsedSeconds + fallbackResult.requestTime,

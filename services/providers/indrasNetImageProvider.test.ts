@@ -48,6 +48,7 @@ describe('IndrasNet image provider', () => {
   });
 
   it('submits only semantic inputs exposed by the workflow manifest and downloads the image', async () => {
+    const timeoutSpy = vi.spyOn(AbortSignal, 'timeout');
     const fetchMock = vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), {
         status: 200,
@@ -82,6 +83,7 @@ describe('IndrasNet image provider', () => {
     });
     expect(result).toMatchObject({ mimeType: 'image/png', promptId: 'prompt-7', brokerTimingMs: 4321 });
     expect(result.base64.length).toBeGreaterThan(0);
+    expect(timeoutSpy.mock.calls.map(([timeoutMs]) => timeoutMs)).toEqual([10_000, 1_830_000, 60_000]);
   });
 
   it('preserves structured broker errors for explicit fallback decisions', async () => {
@@ -101,5 +103,33 @@ describe('IndrasNet image provider', () => {
 
     expect(error).toBeInstanceOf(IndrasNetProviderError);
     expect(error).toMatchObject({ code: 'GPU_BUSY', retryable: true, status: 503 });
+  });
+
+  it('does not infer fallback eligibility from an unstructured internal server error', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('internal failure', { status: 500 }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_500', retryable: false, status: 500 });
+  });
+
+  it('treats an unstructured gateway timeout as an availability failure', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('gateway timeout', { status: 504 }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_504', retryable: true, status: 504 });
   });
 });

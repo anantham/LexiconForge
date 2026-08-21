@@ -67,7 +67,10 @@ appear without a LexiconForge code change.
 The optional cloud fallback is disabled by default. If enabled, it is used only
 when Asus is offline, busy, or otherwise returns a retryable availability
 failure. The actual provider/model and fallback reason are saved in the image's
-provenance.
+provenance. Arbitrary broker 5xx responses and failures downloading an already
+completed local image do not start a potentially paid cloud generation. If both
+the local and explicitly selected fallback providers fail, the error reports
+both attempts.
 
 ### Flux Models (via PiAPI)
 

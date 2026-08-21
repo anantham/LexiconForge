@@ -5,7 +5,9 @@ export const DEFAULT_INDRASNET_BASE_URL = 'https://asus-strix-scar.tail4741ad.ts
 
 const DISCOVERY_TIMEOUT_MS = 10_000;
 const GENERATION_TIMEOUT_MS = 1_830_000;
+const IMAGE_DOWNLOAD_TIMEOUT_MS = 60_000;
 const CATALOGUE_TTL_MS = 60_000;
+const UNSTRUCTURED_GATEWAY_AVAILABILITY_STATUSES = new Set([502, 504]);
 
 export interface IndrasNetSemanticBinding {
   node_id: string;
@@ -129,23 +131,43 @@ const requestError = async (response: Response, action: string): Promise<IndrasN
   const code = payload.code || (response.status === 401 || response.status === 403
     ? 'INDRASNET_AUTH_REJECTED'
     : `INDRASNET_HTTP_${response.status}`);
-  const retryable = payload.retryable ?? response.status >= 500;
+  const retryable = payload.retryable === true
+    || (payload.retryable === undefined
+      && !payload.code
+      && UNSTRUCTURED_GATEWAY_AVAILABILITY_STATUSES.has(response.status));
   return new IndrasNetProviderError(
     `${action} failed (${code}): ${payload.detail || `${response.status} ${response.statusText}`}`,
     { code, retryable, status: response.status },
   );
 };
 
-const fetchWithTimeout = async (url: string, init: RequestInit, timeoutMs: number): Promise<Response> => {
+interface FetchFailurePolicy {
+  retryable?: boolean;
+  timeoutCode?: string;
+  unreachableCode?: string;
+  timeoutMessage?: string;
+  unreachableMessage?: string;
+}
+
+const fetchWithTimeout = async (
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+  policy: FetchFailurePolicy = {},
+): Promise<Response> => {
   try {
     return await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
   } catch (cause) {
     const timeout = cause instanceof DOMException && cause.name === 'TimeoutError';
     throw new IndrasNetProviderError(
       timeout
-        ? `IndrasNet did not respond within ${Math.round(timeoutMs / 1000)} seconds.`
-        : 'IndrasNet is unreachable from this device. Check Tailscale, the HTTPS endpoint, and the broker service.',
-      { code: timeout ? 'INDRASNET_TIMEOUT' : 'COMFYUI_OFFLINE', retryable: true, cause },
+        ? policy.timeoutMessage || `IndrasNet did not respond within ${Math.round(timeoutMs / 1000)} seconds.`
+        : policy.unreachableMessage || 'IndrasNet is unreachable from this device. Check Tailscale, the HTTPS endpoint, and the broker service.',
+      {
+        code: timeout ? policy.timeoutCode || 'INDRASNET_TIMEOUT' : policy.unreachableCode || 'COMFYUI_OFFLINE',
+        retryable: policy.retryable ?? true,
+        cause,
+      },
     );
   }
 };
@@ -265,7 +287,14 @@ export const generateIndrasNetImage = async (
   const imageResponse = await fetchWithTimeout(
     imageUrl,
     { method: 'GET', headers: { Accept: 'image/*' } },
-    DISCOVERY_TIMEOUT_MS,
+    IMAGE_DOWNLOAD_TIMEOUT_MS,
+    {
+      retryable: false,
+      timeoutCode: 'INDRASNET_IMAGE_DOWNLOAD_TIMEOUT',
+      unreachableCode: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
+      timeoutMessage: 'IndrasNet completed the workflow, but the image download did not finish within 60 seconds.',
+      unreachableMessage: 'IndrasNet completed the workflow, but the image could not be downloaded from this device.',
+    },
   );
   if (!imageResponse.ok) throw await requestError(imageResponse, 'IndrasNet image download');
 
