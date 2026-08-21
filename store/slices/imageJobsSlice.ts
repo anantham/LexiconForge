@@ -244,9 +244,16 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
   markImageJobRunning: (jobId) => set(state => {
     const current = state.imageJobs[jobId];
     if (!current) return {};
+    const now = Date.now();
+    const executionStarting = current.status === 'queued' || current.status === 'interrupted';
     const imageJobs = {
       ...state.imageJobs,
-      [jobId]: { ...current, status: 'running' as const, updatedAt: Date.now() },
+      [jobId]: {
+        ...current,
+        status: 'running' as const,
+        startedAt: executionStarting ? now : current.startedAt,
+        updatedAt: now,
+      },
     };
     persistRecoverableJobs(imageJobs);
     return { imageJobs };

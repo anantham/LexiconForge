@@ -118,6 +118,22 @@ describe('ImageGenerationService.generateImages — duplicate marker guard', () 
     expect(generateImageMock).toHaveBeenCalledTimes(2);
   });
 
+  it('publishes each sequential marker running only at its execution boundary', async () => {
+    const ctx = context([
+      { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'one' },
+      { placementMarker: '[ILLUSTRATION-2]', imagePrompt: 'two' },
+    ]);
+    const events: Array<{ marker: string; type: string }> = [];
+    ctx.onJobEvent = (marker, event) => events.push({ marker, type: event.type });
+
+    await ImageGenerationService.generateImages('ch-1', ctx);
+
+    expect(events).toEqual([
+      { marker: '[ILLUSTRATION-1]', type: 'running' },
+      { marker: '[ILLUSTRATION-2]', type: 'running' },
+    ]);
+  });
+
   it('does not issue a paid generation for a marker owned by another image job', async () => {
     const ctx = context([
       { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'already owned' },

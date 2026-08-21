@@ -283,6 +283,40 @@ describe('imageSlice — handleGenerateImages cleans up isLoading on service thr
     expect(Object.values(slice.imageJobs)).toHaveLength(1);
     expect(Object.values(slice.imageJobs)[0]).toMatchObject({ status: 'completed' });
   });
+
+  it('keeps later batch jobs queued until their own generation begins', async () => {
+    const slice = createSlice();
+    generateImagesMock.mockImplementationOnce(async (chapterId, context) => {
+      const jobsByMarker = Object.fromEntries(
+        Object.values(slice.imageJobs).map(job => [job.placementMarker, job]),
+      );
+      expect(jobsByMarker['[ILLUSTRATION-1]']).toMatchObject({ status: 'queued' });
+      expect(jobsByMarker['[ILLUSTRATION-2]']).toMatchObject({ status: 'queued' });
+
+      context.onJobEvent?.('[ILLUSTRATION-1]', { type: 'running' });
+      expect(slice.imageJobs[jobsByMarker['[ILLUSTRATION-1]'].id]).toMatchObject({ status: 'running' });
+      expect(slice.imageJobs[jobsByMarker['[ILLUSTRATION-2]'].id]).toMatchObject({ status: 'queued' });
+
+      context.onJobEvent?.('[ILLUSTRATION-2]', { type: 'running' });
+      expect(slice.imageJobs[jobsByMarker['[ILLUSTRATION-2]'].id]).toMatchObject({ status: 'running' });
+      return {
+        generatedImages: {
+          [`${chapterId}:[ILLUSTRATION-1]`]: { isLoading: false, data: 'image-1', error: null },
+          [`${chapterId}:[ILLUSTRATION-2]`]: { isLoading: false, data: 'image-2', error: null },
+        },
+        metrics: {
+          chapterId, count: 2, totalTime: 4, totalCost: 0.06, lastModel: mockSettings.imageModel,
+        },
+      };
+    });
+
+    await slice.handleGenerateImages('chapter-1');
+
+    expect(Object.values(slice.imageJobs)).toEqual([
+      expect.objectContaining({ placementMarker: '[ILLUSTRATION-1]', status: 'completed' }),
+      expect.objectContaining({ placementMarker: '[ILLUSTRATION-2]', status: 'completed' }),
+    ]);
+  });
 });
 
 describe('imageSlice — chapter-owned metrics', () => {

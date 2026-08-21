@@ -10,6 +10,7 @@ const formatDuration = (seconds: number): string => {
 };
 
 const isActive = (job: ImageJob): boolean => ['queued', 'submitted', 'running'].includes(job.status);
+const isExecuting = (job: ImageJob): boolean => job.status === 'submitted' || job.status === 'running';
 
 const ImageJobsBanner: React.FC = () => {
   // Some test/embedded consumers intentionally provide a partial store. The
@@ -28,7 +29,7 @@ const ImageJobsBanner: React.FC = () => {
     .sort((a, b) => b.updatedAt - a.updatedAt), [imageJobs]);
 
   React.useEffect(() => {
-    if (!visibleJobs.some(isActive)) return;
+    if (!visibleJobs.some(isExecuting)) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, [visibleJobs]);
@@ -41,10 +42,10 @@ const ImageJobsBanner: React.FC = () => {
   const chapter = chapters.get(job.chapterId);
   const title = chapter?.translationResult?.translatedTitle || chapter?.title || job.chapterId;
   const elapsedSeconds = ((job.completedAt || now) - job.startedAt) / 1000;
-  const remainingSeconds = job.estimatedDurationSeconds
+  const remainingSeconds = isExecuting(job) && job.estimatedDurationSeconds
     ? Math.max(0, job.estimatedDurationSeconds - elapsedSeconds)
     : null;
-  const progress = job.estimatedDurationSeconds
+  const progress = isExecuting(job) && job.estimatedDurationSeconds
     ? Math.min(95, Math.round((elapsedSeconds / job.estimatedDurationSeconds) * 100))
     : null;
   const cycleJob = (offset: number): void => {
@@ -66,6 +67,8 @@ const ImageJobsBanner: React.FC = () => {
       ? `Illustration failed: ${job.error || 'provider error'}`
       : job.status === 'interrupted'
         ? `Illustration paused: ${job.error || 'provider task will be checked again after reload'}`
+        : job.status === 'queued'
+          ? 'Waiting for earlier illustrations to finish'
         : remainingSeconds !== null && job.estimateSampleCount > 0
           ? `${job.status === 'submitted' ? 'Queued by provider' : 'Generating'} · about ${formatDuration(remainingSeconds)} left (${job.estimateSampleCount} prior run${job.estimateSampleCount === 1 ? '' : 's'})`
           : `${job.status === 'submitted' ? 'Queued by provider' : 'Generating'} · ${formatDuration(elapsedSeconds)} elapsed · gathering ETA data`;
@@ -150,7 +153,7 @@ const ImageJobsBanner: React.FC = () => {
             </button>
           )}
         </div>
-        {progress !== null && isActive(job) && (
+        {progress !== null && isExecuting(job) && (
           <div className="h-1 overflow-hidden rounded-b-xl bg-black/10" aria-label={`Estimated ${progress}% complete`}>
             <div className="h-full bg-current opacity-50 transition-[width] duration-1000" style={{ width: `${progress}%` }} />
           </div>

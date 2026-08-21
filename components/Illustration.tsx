@@ -149,6 +149,19 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const hasIllust = !!illust;
   const isLoading = imageState?.isLoading || false;
   const error = imageState?.error || null;
+  const activeImageJob = useAppStore(useShallow(state => {
+    const job = Object.values(state.imageJobs ?? {}).find(candidate =>
+      candidate.chapterId === canonicalChapterId
+      && normalizeMarker(candidate.placementMarker) === normalizedMarker
+      && ['queued', 'submitted', 'running'].includes(candidate.status)
+    );
+    return {
+      status: job?.status ?? null,
+      model: job?.taskModel ?? job?.requestedModel ?? null,
+    };
+  }));
+  const countdownModel = activeImageJob.model ?? settings?.imageModel;
+  const isQueued = isLoading && activeImageJob.status === 'queued';
 
   // NEW: Support for Cache API with version tracking
   const baseCacheKey = illust?.generatedImage?.imageCacheKey ||
@@ -205,18 +218,29 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const [countdownStartTime, setCountdownStartTime] = React.useState<number | null>(null);
   const [estimatedTotalTime, setEstimatedTotalTime] = React.useState<number | null>(null);
   const [estimateSampleCount, setEstimateSampleCount] = React.useState(0);
+  const [estimatedModel, setEstimatedModel] = React.useState<string | null>(null);
+  const estimateMatchesModel = estimatedModel === countdownModel;
+  const displayedTimeRemaining = estimateMatchesModel ? estimatedTimeRemaining : null;
+  const displayedTotalTime = estimateMatchesModel ? estimatedTotalTime : null;
+  const displayedCountdownStart = estimateMatchesModel ? countdownStartTime : null;
 
   // Effect to manage countdown timer when loading starts/stops
   React.useEffect(() => {
     let cancelled = false;
 
-    if (isLoading) {
-      const imageModel = settings?.imageModel;
-
+    if (isLoading && !isQueued) {
       const fetchEstimatedTime = async () => {
-        if (!imageModel) return;
-        const timeData = await apiMetricsService.getAverageImageGenerationTime(imageModel);
-        if (cancelled || !timeData) return;
+        if (!countdownModel) return;
+        const timeData = await apiMetricsService.getAverageImageGenerationTime(countdownModel);
+        if (cancelled) return;
+        setEstimatedModel(countdownModel);
+        if (!timeData) {
+          setEstimatedTotalTime(null);
+          setEstimatedTimeRemaining(null);
+          setEstimateSampleCount(0);
+          setCountdownStartTime(null);
+          return;
+        }
 
         setEstimatedTotalTime(timeData.avgTimeSeconds);
         setEstimatedTimeRemaining(timeData.avgTimeSeconds);
@@ -231,16 +255,17 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
       setCountdownStartTime(null);
       setEstimatedTotalTime(null);
       setEstimateSampleCount(0);
+      setEstimatedModel(null);
     }
 
     return () => {
       cancelled = true;
     };
-  }, [isLoading, settings?.imageModel]);
+  }, [countdownModel, isLoading, isQueued]);
 
   // Effect to update countdown every second
   React.useEffect(() => {
-    if (!isLoading || countdownStartTime === null || estimatedTotalTime === null) {
+    if (!isLoading || !estimateMatchesModel || countdownStartTime === null || estimatedTotalTime === null) {
       return;
     }
 
@@ -251,7 +276,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [isLoading, countdownStartTime, estimatedTotalTime]);
+  }, [isLoading, estimateMatchesModel, countdownStartTime, estimatedTotalTime]);
 
   // Advanced controls state
   const controlsKey = canonicalChapterId
@@ -413,27 +438,32 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
 
   return (
     <div className="my-6 flex justify-center flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-      {isLoading && (
+      {isQueued && (
+        <div className="flex h-48 flex-col items-center justify-center text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Waiting for earlier illustrations to finish…</p>
+        </div>
+      )}
+      {isLoading && !isQueued && (
         <div className="flex flex-col items-center justify-center h-48">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Generating illustration...</p>
-          {estimatedTimeRemaining === null ? (
+          {displayedTimeRemaining === null ? (
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
               Gathering ETA data…
             </p>
           ) : (
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-              {estimatedTimeRemaining > 0
-                ? `~${Math.ceil(estimatedTimeRemaining)}s remaining (${estimateSampleCount} prior ${estimateSampleCount === 1 ? 'run' : 'runs'})`
+              {displayedTimeRemaining > 0
+                ? `~${Math.ceil(displayedTimeRemaining)}s remaining (${estimateSampleCount} prior ${estimateSampleCount === 1 ? 'run' : 'runs'})`
                 : 'Almost done...'}
             </p>
           )}
-          {estimatedTotalTime !== null && countdownStartTime !== null && (
+          {displayedTotalTime !== null && displayedCountdownStart !== null && (
             <div className="mt-2 w-32 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-blue-500 transition-all duration-1000 ease-linear"
                 style={{
-                  width: `${Math.min(100, ((estimatedTotalTime - (estimatedTimeRemaining ?? 0)) / estimatedTotalTime) * 100)}%`
+                  width: `${Math.min(100, ((displayedTotalTime - (displayedTimeRemaining ?? 0)) / displayedTotalTime) * 100)}%`
                 }}
               />
             </div>

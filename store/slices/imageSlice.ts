@@ -349,7 +349,6 @@ export const createImageSlice: StateCreator<
         model: imageModel,
         version: 1,
       });
-      get().markImageJobRunning(jobId);
       jobIdsByMarker.set(marker, jobId);
     });
     if (jobIdsByMarker.size === 0) {

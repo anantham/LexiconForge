@@ -37,6 +37,7 @@ const storeState: Record<string, any> = {
     defaultNegativePrompt: '',
     defaultGuidanceScale: 3.5,
   },
+  imageJobs: {},
   imageVersions: {},
   activeImageVersion: {},
   navigateToNextVersion: vi.fn(),
@@ -68,6 +69,7 @@ vi.mock('../../components/illustration/IllustrationPromptEditor', () => ({ defau
 describe('Illustration empirical ETA', () => {
   beforeEach(() => {
     getAverageImageGenerationTime.mockReset();
+    storeState.imageJobs = {};
   });
 
   it('does not invent a countdown before this exact workflow has measured history', async () => {
@@ -93,5 +95,54 @@ describe('Illustration empirical ETA', () => {
     render(<Illustration marker="[ILLUSTRATION-1]" />);
 
     expect(await screen.findByText(/~187s remaining \(3 prior runs\)/i)).toBeInTheDocument();
+  });
+
+  it('switches inline ETA to the active fallback task model and clears stale history', async () => {
+    let resolveFallback!: (_value: unknown) => void;
+    const fallbackEstimate = new Promise(_resolve => { resolveFallback = _resolve; });
+    getAverageImageGenerationTime.mockImplementation((model: string) => model === 'indrasnet/gen_anime'
+      ? Promise.resolve({ avgTimeSeconds: 187, sampleCount: 3 })
+      : fallbackEstimate);
+    storeState.imageJobs = {
+      'job-1': {
+        id: 'job-1',
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        requestedModel: 'indrasnet/gen_anime',
+        taskModel: 'indrasnet/gen_anime',
+        status: 'running',
+      },
+    };
+
+    const view = render(<Illustration marker="[ILLUSTRATION-1]" />);
+    expect(await screen.findByText(/~187s remaining/i)).toBeInTheDocument();
+
+    storeState.imageJobs = {
+      'job-1': { ...storeState.imageJobs['job-1'], taskModel: 'Qubico/flux1-dev' },
+    };
+    view.rerender(<Illustration marker="[ILLUSTRATION-1]" />);
+
+    await waitFor(() => expect(getAverageImageGenerationTime).toHaveBeenCalledWith('Qubico/flux1-dev'));
+    expect(screen.getByText(/gathering ETA data/i)).toBeInTheDocument();
+    expect(screen.queryByText(/~187s remaining/i)).not.toBeInTheDocument();
+    resolveFallback({ avgTimeSeconds: 42, sampleCount: 2 });
+    expect(await screen.findByText(/~42s remaining \(2 prior runs\)/i)).toBeInTheDocument();
+  });
+
+  it('does not start an inline countdown while its batch job is queued', () => {
+    storeState.imageJobs = {
+      'job-1': {
+        id: 'job-1',
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        requestedModel: 'indrasnet/gen_anime',
+        status: 'queued',
+      },
+    };
+
+    render(<Illustration marker="[ILLUSTRATION-1]" />);
+
+    expect(screen.getByText(/waiting for earlier illustrations/i)).toBeInTheDocument();
+    expect(getAverageImageGenerationTime).not.toHaveBeenCalled();
   });
 });

@@ -138,6 +138,15 @@ describe('ImageJobsBanner', () => {
     expect(screen.getByText(/gathering ETA data/i)).toBeInTheDocument();
   });
 
+  it('shows queued batch work without a generating countdown or progress bar', () => {
+    storeState.imageJobs = { 'job-1': job({ status: 'queued' }) };
+    render(<ImageJobsBanner />);
+
+    expect(screen.getByText(/waiting for earlier illustrations/i)).toBeInTheDocument();
+    expect(screen.queryByText(/about .* left|elapsed|gathering ETA/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/estimated .* complete/i)).not.toBeInTheDocument();
+  });
+
   it('lets a completed job be dismissed', () => {
     storeState.imageJobs = { 'job-1': job({ status: 'completed', completedAt: Date.now(), durationSeconds: 33 }) };
     render(<ImageJobsBanner />);

@@ -234,6 +234,30 @@ describe('imageJobsSlice', () => {
     expect(slice.imageJobs[id].durationSeconds).toBe(12);
   });
 
+  it('starts the execution clock when a queued job actually begins', () => {
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_000);
+    try {
+      const slice = createSlice();
+      const id = slice.startImageJob({
+        chapterId: 'chapter-clock',
+        placementMarker: '[ILLUSTRATION-1]',
+        model: 'openrouter/model',
+        version: 1,
+      });
+
+      expect(slice.imageJobs[id]).toMatchObject({ status: 'queued', startedAt: 1_000 });
+      now.mockReturnValue(5_000);
+      slice.markImageJobRunning(id);
+      expect(slice.imageJobs[id]).toMatchObject({ status: 'running', startedAt: 5_000 });
+
+      now.mockReturnValue(9_000);
+      slice.markImageJobRunning(id);
+      expect(slice.imageJobs[id]).toMatchObject({ status: 'running', startedAt: 5_000 });
+    } finally {
+      now.mockRestore();
+    }
+  });
+
   it('restores a durable provider task as interrupted instead of replaying a paid request', () => {
     localStorage.setItem('LF_RESUMABLE_IMAGE_JOBS_V1', JSON.stringify([{
       id: 'saved-job',

@@ -204,6 +204,10 @@ export class ImageGenerationService {
       
       try {
         slog(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
+        // Batch jobs are created together, but requests execute sequentially.
+        // Publish the execution boundary here so later jobs remain queued and
+        // their clocks do not include time spent behind earlier illustrations.
+        context.onJobEvent?.(illust.placementMarker, { type: 'running' });
         
         // Get advanced controls for this illustration
         const steeringImagePath = steeringImages[key] || null;
