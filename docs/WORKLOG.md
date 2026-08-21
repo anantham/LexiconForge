@@ -2664,3 +2664,9 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Validation:** Node 24.19.0; `npm run typecheck` passed; focused 57/57 passed; full Vitest 9,120 passed and 347 skipped across 272 files; production build passed with existing chunk/dynamic-import warnings; targeted ESLint had 0 errors (existing warnings); built-client secret scan passed.
 **Operational note:** Tailscale Serve `https://asus-strix-scar.tail4741ad.ts.net:9443` was configured and verified against the current broker. Semantic-manifest/CORS deployment on Asus still follows the IndrasNet branch release.
 **Confidence:** 0.92. Fallback remains user-selected and is never used for manifest/configuration errors.
+
+### [2026-08-21 07:58 IST] [Agent: Codex]
+**Status:** Frontend source remains green and pushed in PR #138; do not merge/deploy as end-to-end ready yet.
+**Live evidence:** Asus now serves exact-origin CORS and dynamic client-ready workflow manifests over tailnet HTTPS. `gen_anime` accepted the semantic prompt, completed in ComfyUI, and produced a downloadable 1,660,534-byte PNG. The broker request then returned HTTP 500 because an inherited missing `subprocess` import crashes the post-run service-stop fallback after a `netstat` timeout; TemporalCoordination structured error row 352 identifies `agents/routes/services/_helpers.py:70`.
+**Readiness boundary:** Production `read.adityaarpitha.com` cannot show the Asus entries until PR #138 is reviewed, merged, and deployed. Even after deployment, the confirmed broker cleanup bug must be repaired and `gen_anime` plus `gen_real` revalidated before claiming usable local illustration generation. Explicit cloud fallback is implemented but is not a substitute for that validation.
+**Confidence:** 0.99 in the current blocker; 0.85 that the isolated broker import repair will make `gen_anime` return successfully, pending a resumed live test.
