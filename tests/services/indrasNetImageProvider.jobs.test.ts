@@ -191,6 +191,25 @@ describe('IndrasNet resumable image jobs', () => {
     expect(error).toMatchObject({ retryable: false, status: 404 });
   });
 
+  it.each([
+    ['malformed JSON', () => new Response('not-json', { status: 200 })],
+    ['an unknown status', () => json({ job_id: 'ambiguous-job', status: 'temporarily_weird' })],
+  ])('preserves an accepted broker task after %s', async (_label, response) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(response()));
+
+    const error = await resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'ambiguous-job',
+      workflowName: 'gen_anime',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({
+      code: 'INDRASNET_INVALID_RESPONSE',
+      retryable: true,
+      fallbackEligible: false,
+    });
+  });
+
   it('retires every explicit failed broker task even when a new submission may be retryable', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(json({
       job_id: 'failed-job',

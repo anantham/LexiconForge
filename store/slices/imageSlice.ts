@@ -812,7 +812,25 @@ export const createImageSlice: StateCreator<
           get().showNotification('A previously submitted illustration was already saved in its originating chapter.', 'success');
           return;
         }
-        const artifact = await ImageGenerationService.resumeImageJobArtifact(job, contextForJob(job));
+        const cacheKey = {
+          chapterId: job.chapterId,
+          placementMarker: job.placementMarker,
+          version: job.version,
+        };
+        const cachedArtifactExists = await ImageCacheStore.has(cacheKey);
+        const artifact: GeneratedImageResult = cachedArtifactExists
+          ? {
+              imageData: '',
+              imageCacheKey: cacheKey,
+              requestTime: 0,
+              cost: 0,
+              execution: {
+                provider: job.taskProvider ?? job.requestedProvider,
+                model: job.taskModel ?? job.requestedModel,
+                ...(job.fallback ? { fallback: job.fallback } : {}),
+              },
+            }
+          : await ImageGenerationService.resumeImageJobArtifact(job, contextForJob(job));
         await applyWithinChapter(job.chapterId, async () => {
           const result = await ImageGenerationService.applyResumedImageJobArtifact(
             job,

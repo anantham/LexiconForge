@@ -18,11 +18,16 @@ import type { AppSettings } from '../../../types';
 import { createImageSlice, type ImageSlice } from '../../../store/slices/imageSlice';
 import { createImageJobsSlice, type ImageJobsSlice } from '../../../store/slices/imageJobsSlice';
 
-const { retryImageMock, generateImagesMock, resumeImageJobMock, applyResumedImageJobArtifactMock } = vi.hoisted(() => ({
+const { retryImageMock, generateImagesMock, resumeImageJobMock, applyResumedImageJobArtifactMock, imageCacheHasMock } = vi.hoisted(() => ({
   retryImageMock: vi.fn(),
   generateImagesMock: vi.fn(),
   resumeImageJobMock: vi.fn(),
   applyResumedImageJobArtifactMock: vi.fn(),
+  imageCacheHasMock: vi.fn(),
+}));
+
+vi.mock('../../../services/imageCacheService', () => ({
+  ImageCacheStore: { has: imageCacheHasMock },
 }));
 
 vi.mock('../../../services/imageGenerationService', () => ({
@@ -111,6 +116,7 @@ const createDeferred = <T>() => {
 describe('imageSlice — handleRetryImage cleans up isLoading on service throw', () => {
   beforeEach(() => {
     retryImageMock.mockReset();
+    imageCacheHasMock.mockReset().mockResolvedValue(false);
   });
 
   it('clears isLoading and captures error when ImageGenerationService.retryImage throws', async () => {
@@ -453,6 +459,53 @@ describe('imageSlice — durable task recovery', () => {
       expect.objectContaining({ id: 'metadata-only-job' }),
       expect.anything(),
     );
+  });
+
+  it('reapplies an exact cached artifact before repolling an expired provider task', async () => {
+    const slice = createSlice();
+    slice.imageJobs['cached-job'] = {
+      id: 'cached-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'indrasnet/gen_anime',
+      requestedProvider: 'Asus / IndrasNet',
+      taskModel: 'indrasnet/gen_anime',
+      taskProvider: 'Asus / IndrasNet',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'expired-after-cache',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+    imageCacheHasMock.mockResolvedValueOnce(true);
+    applyResumedImageJobArtifactMock.mockResolvedValueOnce({
+      imageState: { isLoading: false, data: '', error: null },
+      metrics: { chapterId: 'chapter-1', lastModel: 'indrasnet/gen_anime' },
+    });
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(imageCacheHasMock).toHaveBeenCalledWith({
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      version: 2,
+    });
+    expect(resumeImageJobMock).not.toHaveBeenCalled();
+    expect(applyResumedImageJobArtifactMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'cached-job' }),
+      expect.anything(),
+      expect.objectContaining({
+        imageData: '',
+        imageCacheKey: {
+          chapterId: 'chapter-1',
+          placementMarker: '[ILLUSTRATION-1]',
+          version: 2,
+        },
+      }),
+    );
+    expect(slice.imageJobs['cached-job']).toMatchObject({ status: 'completed' });
   });
 
   it('reattaches to an interrupted provider task and applies it to the originating marker', async () => {

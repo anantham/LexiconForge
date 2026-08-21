@@ -478,6 +478,7 @@ export class ImageGenerationService {
       });
       const executedModel = result.execution?.model || settings.imageModel;
       const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(executedModel);
+      const advancedControlsKnown = existingResult === undefined;
 
       debugLog('image', 'full', '[ImageGen] Retry prompt payload', {
         chapterId,
@@ -516,14 +517,21 @@ export class ImageGenerationService {
             imagePlan: compiled.imagePlan,
             imagePlanMode: compiled.imagePlanMode,
             imagePlanSourceCaption: compiled.imagePlanSourceCaption,
-            negativePrompt,
-            guidanceScale,
-            loraModel,
-            loraStrength,
-            // Honest provenance: a steering image the provider branch never consumed is
-            // recorded as null + steeringIgnored, not as applied (integrity item 6).
-            steeringImage: steeringIgnored ? null : steeringImagePath,
-            ...(steeringIgnored ? { steeringIgnored: true } : {}),
+            ...(advancedControlsKnown ? {
+              negativePrompt,
+              guidanceScale,
+              loraModel,
+              loraStrength,
+              // Honest provenance: a steering image the provider branch never consumed is
+              // recorded as null + steeringIgnored, not as applied (integrity item 6).
+              steeringImage: steeringIgnored ? null : steeringImagePath,
+              ...(steeringIgnored ? { steeringIgnored: true } : {}),
+            } : {
+              // Durable jobs deliberately persist neither prompts nor controls.
+              // After reload, empty in-memory maps are not evidence of what the
+              // paid submission used, so record the provenance gap explicitly.
+              advancedControlsUnavailableAfterRecovery: true,
+            }),
             provider: result.execution?.provider || null,
             model: executedModel,
             fallback: result.execution?.fallback,

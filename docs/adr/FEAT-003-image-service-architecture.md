@@ -297,3 +297,9 @@ configuration errors.
   to the older blocking broker during rollout.
 - `store/slices/imageSlice.ts` remains responsible for applying completed image
   results to chapter/version state and persistent translations.
+- Ambiguous HTTP-200 poll bodies preserve accepted task IDs; only explicit
+  terminal status or missing-task responses retire them. Recovery reuses an
+  exact cached `{chapter, marker, version}` artifact before repolling.
+- Durable jobs continue to omit prompts and advanced controls. When recovery
+  cannot know submission-time controls, persisted version metadata marks that
+  provenance unavailable instead of reconstructing it from post-reload state.

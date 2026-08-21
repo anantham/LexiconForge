@@ -169,6 +169,33 @@ describe('ImageGenerationService — steering-image provenance (integrity item 6
     expect(result.metrics).toBeUndefined();
   });
 
+  it('marks recovered advanced-control provenance unknown instead of rebuilding it from empty maps', async () => {
+    const { context, chapter } = makeContext('Qubico/flux1-dev', null);
+    context.nextVersion = 2;
+    context.negativePrompts = { 'ch-1:[ILLUSTRATION-1]': 'a post-reload default' };
+    context.guidanceScales = { 'ch-1:[ILLUSTRATION-1]': 4.5 };
+
+    await ImageGenerationService.retryImage(
+      'ch-1',
+      '[ILLUSTRATION-1]',
+      context,
+      {
+        imageData: 'data:image/png;base64,AAAA',
+        cost: 0.03,
+        requestTime: 12,
+        execution: { provider: 'PiAPI', model: 'Qubico/flux1-dev' },
+      },
+    );
+
+    const metadata = metadataOf(chapter);
+    expect(metadata).toMatchObject({ advancedControlsUnavailableAfterRecovery: true });
+    expect(metadata).not.toHaveProperty('negativePrompt');
+    expect(metadata).not.toHaveProperty('guidanceScale');
+    expect(metadata).not.toHaveProperty('loraModel');
+    expect(metadata).not.toHaveProperty('loraStrength');
+    expect(metadata).not.toHaveProperty('steeringImage');
+  });
+
   it('keeps an initially submitted durable retry recoverable when origin persistence fails', async () => {
     const { context } = makeContext('indrasnet/gen_anime', null);
     persistUpdatedTranslationMock.mockRejectedValueOnce(new Error('IndexedDB transaction aborted'));

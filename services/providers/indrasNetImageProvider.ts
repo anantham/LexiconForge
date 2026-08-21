@@ -177,6 +177,17 @@ const invalidJsonResponseError = (context: string, cause?: unknown): IndrasNetPr
     { code: 'INDRASNET_INVALID_RESPONSE', retryable: false, cause },
   );
 
+const ambiguousJobPollResponseError = (jobId: string, cause?: unknown): IndrasNetProviderError =>
+  new IndrasNetProviderError(
+    `IndrasNet returned an ambiguous response while checking accepted workflow job ${jobId}; the saved task ID was preserved for a later retry.`,
+    {
+      code: 'INDRASNET_INVALID_RESPONSE',
+      retryable: true,
+      fallbackEligible: false,
+      cause,
+    },
+  );
+
 const CLIENT_SEMANTIC_INPUTS = [
   'prompt',
   'negative_prompt',
@@ -489,7 +500,8 @@ const pollIndrasNetJob = async (
         retryable: RETRYABLE_JOB_POLL_HTTP_STATUSES.has(response.status) || response.status >= 500,
       });
     }
-    const job = await readJsonObjectResponse<JobStatusResponse>(response, `workflow job ${jobId}`);
+    const job = await readJsonObjectResponse<JobStatusResponse>(response, `workflow job ${jobId}`)
+      .catch(cause => { throw ambiguousJobPollResponseError(jobId, cause); });
     const status = job.status?.toLowerCase();
     if (status === 'completed') {
       const terminalObservedAt = performance.now();
@@ -514,7 +526,7 @@ const pollIndrasNetJob = async (
       );
     }
     if (status !== 'queued' && status !== 'running') {
-      throw invalidJsonResponseError(`workflow job ${jobId}`);
+      throw ambiguousJobPollResponseError(jobId);
     }
     if (status === 'running') {
       if (executionStartedAt === undefined) executionStartedAt = performance.now();

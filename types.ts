@@ -191,6 +191,8 @@ export interface ImageGenerationMetadata {
    * claim an influence that never reached the provider.
    */
   steeringIgnored?: boolean;
+  /** Advanced-control values cannot be reconstructed honestly after reload because durable jobs omit prompts and controls. */
+  advancedControlsUnavailableAfterRecovery?: boolean;
   provider?: string | null;
   model?: string | null;
   fallback?: ImageExecutionMetadata['fallback'];
