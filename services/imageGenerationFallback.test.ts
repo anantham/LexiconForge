@@ -114,4 +114,22 @@ describe('configured image fallback', () => {
     expect(error.message).toContain('[RATE_LIMIT]: cloud quota exhausted');
     expect(mockGenerateImage).toHaveBeenCalledTimes(2);
   });
+
+  it('keeps a retryable primary recoverable when the cloud fallback fails terminally', async () => {
+    mockGenerateImage
+      .mockRejectedValueOnce(Object.assign(new Error('broker temporarily offline'), {
+        errorType: 'COMFYUI_OFFLINE',
+        canRetry: true,
+      }))
+      .mockRejectedValueOnce(Object.assign(new Error('cloud key rejected'), {
+        errorType: 'INVALID_API_KEY',
+        canRetry: false,
+      }));
+
+    const error = await generateImageWithConfiguredFallback({ prompt: 'castle', settings })
+      .catch(cause => cause);
+
+    expect(error).toBeInstanceOf(ImageFallbackError);
+    expect(error.canRetry).toBe(true);
+  });
 });

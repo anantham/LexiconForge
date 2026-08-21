@@ -50,7 +50,10 @@ export class ImageFallbackError extends Error {
     this.fallbackError = options.fallbackError;
     this.attemptedModel = options.attemptedModel;
     this.fallbackModel = options.fallbackModel;
-    this.canRetry = options.fallbackError.canRetry === true;
+    // A retryable primary may already have emitted a durable provider task
+    // ID before the explicit fallback failed. Preserve that recoverability
+    // even when the fallback's own failure is terminal.
+    this.canRetry = options.primaryError.canRetry === true || options.fallbackError.canRetry === true;
   }
 }
 

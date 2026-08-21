@@ -187,6 +187,42 @@ describe('imageSlice — handleGenerateImages cleans up isLoading on service thr
     // Aggregate selector must report no work in progress
     expect(slice.hasImagesInProgress()).toBe(false);
   });
+
+  it('preserves a submitted durable ID when batch polling fails transiently', async () => {
+    const slice = createSlice();
+    const chapter = slice.chapters.get('chapter-1');
+    chapter.translationResult.suggestedIllustrations = [
+      { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'Hero on ridge' },
+    ];
+    generateImagesMock.mockImplementationOnce(async (chapterId, context, onProgress) => {
+      context.onJobEvent?.('[ILLUSTRATION-1]', {
+        type: 'submitted',
+        externalTaskId: 'broker-task-123',
+        resumeKind: 'indrasnet',
+      });
+      const generatedImages = {
+        [`${chapterId}:[ILLUSTRATION-1]`]: {
+          isLoading: false,
+          data: null,
+          error: 'IndrasNet is temporarily unreachable.',
+          canRetry: true,
+        },
+      };
+      onProgress(generatedImages, null);
+      return { generatedImages };
+    });
+
+    await slice.handleGenerateImages('chapter-1');
+
+    expect(Object.values(slice.imageJobs)).toContainEqual(expect.objectContaining({
+      status: 'interrupted',
+      externalTaskId: 'broker-task-123',
+      resumeKind: 'indrasnet',
+    }));
+    expect(JSON.parse(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1') || '[]')).toEqual([
+      expect.objectContaining({ status: 'interrupted', externalTaskId: 'broker-task-123' }),
+    ]);
+  });
 });
 
 describe('imageSlice — durable task recovery', () => {
@@ -282,6 +318,65 @@ describe('imageSlice — durable task recovery', () => {
       metrics: { count: 1, totalTime: 5, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
     });
     await firstRecovery;
+  });
+
+  it('does not poll the provider until the originating translation marker hydrates', async () => {
+    const slice = createSlice();
+    slice.chapters.set('chapter-1', {
+      id: 'chapter-1',
+      _translationLoadError: 'IndexedDB transaction aborted',
+    });
+    slice.imageJobs['saved-job'] = {
+      id: 'saved-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'indrasnet/gen_anime',
+      requestedProvider: 'Asus / IndrasNet',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'broker-task-123',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(resumeImageJobMock).not.toHaveBeenCalled();
+    expect(slice.imageJobs['saved-job']).toMatchObject({
+      status: 'interrupted',
+      externalTaskId: 'broker-task-123',
+      error: expect.stringContaining('could not hydrate its translation'),
+    });
+  });
+
+  it('retires a durable task whose stable originating marker is genuinely gone', async () => {
+    const slice = createSlice();
+    slice.imageJobs['orphaned-job'] = {
+      id: 'orphaned-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-99]',
+      requestedModel: 'indrasnet/gen_anime',
+      requestedProvider: 'Asus / IndrasNet',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'broker-task-orphaned',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(resumeImageJobMock).not.toHaveBeenCalled();
+    expect(slice.imageJobs['orphaned-job']).toMatchObject({
+      status: 'failed',
+      externalTaskId: 'broker-task-orphaned',
+      error: expect.stringContaining('Originating illustration [ILLUSTRATION-99] is unavailable'),
+    });
+    expect(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1')).toBeNull();
   });
 
   it('keeps the provider task id when recovery is temporarily unreachable', async () => {

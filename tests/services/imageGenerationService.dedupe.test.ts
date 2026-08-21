@@ -68,4 +68,17 @@ describe('ImageGenerationService.generateImages — duplicate marker guard', () 
 
     expect(generateImageMock).toHaveBeenCalledTimes(2);
   });
+
+  it('does not issue a paid generation for a marker owned by another image job', async () => {
+    const ctx = context([
+      { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'already owned' },
+      { placementMarker: '[ILLUSTRATION-2]', imagePrompt: 'new work' },
+    ]);
+    ctx.excludedPlacementMarkers = new Set(['[ILLUSTRATION-1]']);
+
+    await ImageGenerationService.generateImages('ch-1', ctx);
+
+    expect(generateImageMock).toHaveBeenCalledTimes(1);
+    expect(generateImageMock.mock.calls[0][8]).toBe('[ILLUSTRATION-2]');
+  });
 });

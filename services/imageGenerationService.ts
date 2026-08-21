@@ -38,6 +38,7 @@ export interface ImageGenerationContext {
   activeImageVersion: Record<string, number>;
   // Version tracking for image regeneration
   nextVersion?: number;
+  excludedPlacementMarkers?: ReadonlySet<string>;
   onJobEvent?: (placementMarker: string, event: ImageJobLifecycleEvent) => void;
 }
 
@@ -132,6 +133,7 @@ export class ImageGenerationService {
     // Initialize loading states for all illustrations
     const initialImageStates: Record<string, ImageState> = {};
     translationResult.suggestedIllustrations.forEach((illust: any) => {
+      if (illust.generatedImage || context.excludedPlacementMarkers?.has(illust.placementMarker)) return;
       const key = `${chapterId}:${illust.placementMarker}`;
       initialImageStates[key] = { isLoading: true, data: null, error: null };
     });
@@ -152,6 +154,7 @@ export class ImageGenerationService {
     const seenMarkers = new Set<string>();
     const illustrationsNeedingGeneration = translationResult.suggestedIllustrations.filter(
       (illust: any) => {
+        if (context.excludedPlacementMarkers?.has(illust.placementMarker)) return false;
         if (illust.generatedImage) return false;
         if (seenMarkers.has(illust.placementMarker)) {
           swarn(`[ImageGen] Dropping duplicate illustration for marker ${illust.placementMarker} — one image renders per marker.`);

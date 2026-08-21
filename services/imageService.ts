@@ -75,6 +75,12 @@ interface ImageGenerationError extends Error {
   suggestedActions?: string[];
 }
 
+interface RetryableProviderError extends Error {
+  canRetry?: boolean;
+  retryable?: boolean;
+  errorType?: string;
+}
+
 // --- CONSTANTS ---
 // Using a cutting-edge model known for high-quality image generation.
 // This could be parameterized in settings later if needed.
@@ -729,7 +735,9 @@ export const generateImage = async (
 
         // Enhanced error handling with specific detection for common issues
         let message = error.message || 'Unknown error occurred';
-        let errorType = 'GENERIC_ERROR';
+        let errorType = typeof (error as RetryableProviderError).errorType === 'string'
+            ? (error as RetryableProviderError).errorType as string
+            : 'GENERIC_ERROR';
 
         if (error instanceof IndrasNetProviderError) {
             errorType = error.code;
@@ -782,7 +790,9 @@ export const generateImage = async (
           model: imageModel,
           canRetry: error instanceof IndrasNetProviderError
             ? error.retryable
-            : ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType),
+            : (error as RetryableProviderError).canRetry === true
+              || (error as RetryableProviderError).retryable === true
+              || ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType),
           suggestedActions: getSuggestedActions(errorType, imageModel),
         });
 
@@ -1001,7 +1011,13 @@ async function pollPiApiTask(
             const raw = await poll.text().catch(() => '');
             let json: any = {};
             try { json = raw ? JSON.parse(raw) : {}; } catch {}
-            if (!poll.ok) throw new Error(`PiAPI get-task failed (${poll.status}): ${raw}`);
+            if (!poll.ok) {
+                const canRetry = [408, 425, 429].includes(poll.status) || poll.status >= 500;
+                throw Object.assign(
+                    new Error(`PiAPI get-task failed (${poll.status}): ${raw}`),
+                    { errorType: `PIAPI_HTTP_${poll.status}`, canRetry },
+                );
+            }
             const status = String(json.status || json.state || json.data?.status || json.data?.state || '').toLowerCase();
             if ((json && json.error) || (typeof json.code === 'number' && json.code >= 400)) {
                 const message = json?.error?.message || json?.message || 'Unknown PiAPI polling error';
@@ -1016,10 +1032,19 @@ async function pollPiApiTask(
                 console.warn(`[PiAPI] Poll timeout on attempt ${tries + 1}/60, retrying task ${taskId}.`);
                 continue;
             }
+            if (error instanceof TypeError) {
+                throw Object.assign(
+                    new Error(`PiAPI task ${taskId} is temporarily unreachable.`, { cause: error }),
+                    { errorType: 'PIAPI_UNREACHABLE', canRetry: true },
+                );
+            }
             throw error;
         }
     }
-    throw new Error(`PiAPI task ${taskId} did not complete within the polling window.`);
+    throw Object.assign(
+        new Error(`PiAPI task ${taskId} did not complete within the polling window.`),
+        { errorType: 'PIAPI_POLL_TIMEOUT', canRetry: true },
+    );
 }
 
 async function extractPiApiTaskImage(taskData: unknown): Promise<string> {
@@ -1031,7 +1056,10 @@ async function extractPiApiTaskImage(taskData: unknown): Promise<string> {
                 base64 = await fetchImageAsBase64(imageUrl);
             } catch (error) {
                 ierror('[ImageService/PiAPI] Failed to fetch image_url:', imageUrl, error);
-                throw new Error(`PiAPI task returned an image_url but it could not be fetched (possible CORS or network issue). URL: ${imageUrl}`);
+                throw Object.assign(
+                    new Error(`PiAPI task returned an image_url but it could not be fetched (possible CORS or network issue). URL: ${imageUrl}`, { cause: error }),
+                    { errorType: 'PIAPI_IMAGE_DOWNLOAD_FAILED', canRetry: true },
+                );
             }
         }
     }
