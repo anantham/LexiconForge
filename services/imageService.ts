@@ -901,19 +901,17 @@ export const resumeIndrasNetTask = async (
     // Only the broker's own end-to-end timing is a valid empirical ETA sample;
     // the browser's post-reload observation is still useful for this job's UI
     // but must not contaminate the model history.
-    if (brokerDurationSeconds !== undefined) {
-        await apiMetricsService.recordMetric({
-            apiType: 'image',
-            provider: 'Asus / IndrasNet',
-            model: input.settings.imageModel,
-            costUsd: 0,
-            duration: brokerDurationSeconds,
-            imageCount: 1,
-            chapterId: input.chapterId,
-            success: true,
-            idempotencyKey: `image:indrasnet:${input.taskId}`,
-        });
-    }
+    await apiMetricsService.recordMetric({
+        apiType: 'image',
+        provider: 'Asus / IndrasNet',
+        model: input.settings.imageModel,
+        costUsd: 0,
+        ...(brokerDurationSeconds !== undefined ? { duration: brokerDurationSeconds } : {}),
+        imageCount: 1,
+        chapterId: input.chapterId,
+        success: true,
+        idempotencyKey: `image:indrasnet:${input.taskId}`,
+    });
 
     try {
         const { ImageCacheStore } = await import('./imageCacheService');

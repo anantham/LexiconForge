@@ -102,6 +102,11 @@ export interface ImageJobsActions {
     _submittedModel?: string,
     _fallback?: ImageExecutionMetadata['fallback'],
   ) => void;
+  markImageJobProviderSwitched: (
+    _jobId: string,
+    _model: string,
+    _fallback: NonNullable<ImageExecutionMetadata['fallback']>,
+  ) => void;
   markImageJobRunning: (jobId: string) => void;
   completeImageJob: (jobId: string, executedModel?: string, durationSeconds?: number) => void;
   failImageJob: (jobId: string, error: string) => void;
@@ -113,7 +118,53 @@ export interface ImageJobsActions {
 
 export type ImageJobsSlice = ImageJobsState & ImageJobsActions;
 
-export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSlice> = (set, get) => ({
+export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSlice> = (set, get) => {
+  const assignTaskOwner = (
+    jobId: string,
+    taskModel: string,
+    fallback?: ImageExecutionMetadata['fallback'],
+  ): void => {
+    let ownerChanged = false;
+    set(state => {
+      const current = state.imageJobs[jobId];
+      if (!current) return {};
+      ownerChanged = taskModel !== (current.taskModel ?? current.requestedModel);
+      const imageJobs = {
+        ...state.imageJobs,
+        [jobId]: {
+          ...current,
+          taskModel,
+          taskProvider: imageProviderForModel(taskModel),
+          fallback: fallback ?? current.fallback,
+          ...(ownerChanged ? { estimatedDurationSeconds: undefined, estimateSampleCount: 0 } : {}),
+          updatedAt: Date.now(),
+        },
+      };
+      persistRecoverableJobs(imageJobs);
+      return { imageJobs };
+    });
+    if (!ownerChanged) return;
+    void apiMetricsService.getAverageImageGenerationTime(taskModel).then(estimate => {
+      if (!estimate) return;
+      set(state => {
+        const current = state.imageJobs[jobId];
+        if (!current || current.taskModel !== taskModel || !ACTIVE_STATUSES.has(current.status)) return {};
+        return {
+          imageJobs: {
+            ...state.imageJobs,
+            [jobId]: {
+              ...current,
+              estimatedDurationSeconds: estimate.avgTimeSeconds,
+              estimateSampleCount: estimate.sampleCount,
+              updatedAt: Date.now(),
+            },
+          },
+        };
+      });
+    }).catch(error => console.warn('[ImageJobs] Failed to refresh empirical ETA after provider switch:', error));
+  };
+
+  return {
   imageJobs: loadRecoverableJobs(),
 
   startImageJob: ({ chapterId, placementMarker, model, version }) => {
@@ -164,23 +215,18 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
   },
 
   markImageJobSubmitted: (jobId, externalTaskId, resumeKind, submittedModel, fallback) => {
-    let refreshEstimateFor: string | undefined;
+    const current = get().imageJobs[jobId];
+    if (!current) return;
+    assignTaskOwner(jobId, submittedModel || current.taskModel || current.requestedModel, fallback);
     set(state => {
       const current = state.imageJobs[jobId];
       if (!current) return {};
-      const taskModel = submittedModel || current.taskModel || current.requestedModel;
-      const ownerChanged = taskModel !== (current.taskModel ?? current.requestedModel);
-      if (ownerChanged) refreshEstimateFor = taskModel;
       const imageJobs = {
         ...state.imageJobs,
         [jobId]: {
           ...current,
           externalTaskId,
           resumeKind,
-          taskModel,
-          taskProvider: imageProviderForModel(taskModel),
-          fallback: fallback ?? current.fallback,
-          ...(ownerChanged ? { estimatedDurationSeconds: undefined, estimateSampleCount: 0 } : {}),
           status: 'submitted' as const,
           updatedAt: Date.now(),
         },
@@ -188,27 +234,9 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
       persistRecoverableJobs(imageJobs);
       return { imageJobs };
     });
-    const estimateModel = refreshEstimateFor;
-    if (!estimateModel) return;
-    void apiMetricsService.getAverageImageGenerationTime(estimateModel).then(estimate => {
-      if (!estimate) return;
-      set(state => {
-        const current = state.imageJobs[jobId];
-        if (!current || current.taskModel !== estimateModel || !ACTIVE_STATUSES.has(current.status)) return {};
-        return {
-          imageJobs: {
-            ...state.imageJobs,
-            [jobId]: {
-              ...current,
-              estimatedDurationSeconds: estimate.avgTimeSeconds,
-              estimateSampleCount: estimate.sampleCount,
-              updatedAt: Date.now(),
-            },
-          },
-        };
-      });
-    }).catch(error => console.warn('[ImageJobs] Failed to refresh empirical ETA after provider fallback:', error));
   },
+
+  markImageJobProviderSwitched: (jobId, model, fallback) => assignTaskOwner(jobId, model, fallback),
 
   markImageJobRunning: (jobId) => set(state => {
     const current = state.imageJobs[jobId];
@@ -283,4 +311,5 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
   },
 
   hasActiveImageJobs: () => Object.values(get().imageJobs).some(job => ACTIVE_STATUSES.has(job.status)),
-});
+  };
+};

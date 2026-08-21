@@ -20,6 +20,7 @@ describe('configured image fallback', () => {
   afterEach(() => vi.restoreAllMocks());
 
   it('uses the explicitly selected cloud model for a retryable local failure and records provenance', async () => {
+    const onJobEvent = vi.fn();
     const now = vi.spyOn(performance, 'now')
       .mockReturnValueOnce(1_000)
       .mockReturnValueOnce(11_000);
@@ -32,7 +33,7 @@ describe('configured image fallback', () => {
         execution: { provider: 'Imagen', model: 'imagen-3.0-generate-002' },
       });
 
-    const result = await generateImageWithConfiguredFallback({ prompt: 'castle', settings });
+    const result = await generateImageWithConfiguredFallback({ prompt: 'castle', settings, onJobEvent });
 
     expect(mockGenerateImage).toHaveBeenCalledTimes(2);
     expect(mockGenerateImage.mock.calls[1][1]).toMatchObject({ imageModel: 'imagen-3.0-generate-002' });
@@ -41,6 +42,16 @@ describe('configured image fallback', () => {
       attemptedModel: 'indrasnet/gen_anime',
       reasonCode: 'GPU_BUSY',
       reason: 'GPU is busy',
+    });
+    expect(onJobEvent).toHaveBeenCalledWith({
+      type: 'provider_switched',
+      model: 'imagen-3.0-generate-002',
+      fallback: {
+        attemptedProvider: 'Asus / IndrasNet',
+        attemptedModel: 'indrasnet/gen_anime',
+        reasonCode: 'GPU_BUSY',
+        reason: 'GPU is busy',
+      },
     });
     expect(result.requestTime).toBe(12);
     now.mockRestore();

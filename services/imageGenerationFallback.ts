@@ -129,6 +129,7 @@ export const generateImageWithConfiguredFallback = async (
       reasonCode,
       reason: error.message,
     });
+    input.onJobEvent?.({ type: 'provider_switched', model: fallbackModel, fallback });
 
     let fallbackResult: GeneratedImageResult;
     let durableFallbackSubmitted = false;

@@ -1,3 +1,16 @@
+### [2026-08-21 19:55 IST] [Agent: Codex]
+**Status:** Complete - PR #139 exact-head review round 10
+**Issues:** The exact-head rereview found that request/response cloud fallback emits no durable submission, so its running job retains the Asus ETA; and a recovered IndrasNet success without optional broker timing avoids ETA contamination but is omitted from call/image accounting.
+**Hypotheses:** H1 (0.99) an explicit provider-switch lifecycle event, independent of task persistence, lets every fallback immediately move the active job to exact-model ETA history. H2 (0.99) recording every recovered broker success with a task-id idempotency key while conditionally omitting only `duration` preserves accounting without fabricating an ETA sample.
+**Options:** (A) add one provider-switch event and make duration optional on the existing recovered metric - low-to-moderate effort, reversible, selected; (B) infer direct fallback only after completion - too late for in-flight ETA; (C) show no ETA for any fallback and omit untimed calls - simpler but violates the approved exact-model telemetry/accounting behavior.
+**Predicted tests:** a direct fallback emits model/provenance before its invocation and the job refreshes against that model without becoming durable; an untimed recovered IndrasNet success records one idempotent image/call metric with no duration.
+**Fallback:** revert this isolated round and leave PR #139 unmerged; no persisted schema migration or broker change is involved.
+**Confidence:** 0.99
+**Results:** H1 confirmed: configured fallback emits `provider_switched` before invoking any cloud provider; the active job changes task model/provider, fallback provenance, and exact-model ETA without inventing a durable ID, while PiAPI can subsequently add its resumable task normally. H2 confirmed: recovered IndrasNet success always writes the same task-idempotent call/image metric; broker duration is included only when present, so untimed success appears in accounting but not ETA samples.
+**Verification:** pinned Node 24.19.0: focused image-job/provider regressions 90/90; exact one-worker suite 278 files, 9,201 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors and 1,909 existing warnings; production build passed; client-secret scan passed; `git diff --check` passed.
+**Files modified:** `services/imageJobTypes.ts`; `services/imageGenerationFallback.ts`; `services/imageService.ts`; `store/slices/imageJobsSlice.ts`; `store/slices/imageSlice.ts`; focused fallback/service/store tests; this worklog. The unrelated `public/steering-images.json` newline diff remains unstaged.
+**Files likely affected:** `services/imageJobTypes.ts`; `services/imageGenerationFallback.ts`; `services/imageService.ts`; `store/slices/imageJobsSlice.ts`; `store/slices/imageSlice.ts`; focused tests; this worklog. The unrelated `public/steering-images.json` newline diff remains unstaged.
+
 ### [2026-08-21 19:39 IST] [Agent: Codex]
 **Status:** Complete - PR #139 exact-head review round 9
 **Issues:** The exact-head rereview found that fallback task ownership overwrote the original requested model and lost fallback provenance after reload; the original model's asynchronous ETA lookup could race and overwrite fallback-model history; and a terminal durable fallback inherited retryability from the pre-submission primary failure.

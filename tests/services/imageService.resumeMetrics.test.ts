@@ -124,7 +124,7 @@ describe('restored image-job ETA metrics', () => {
     }));
   });
 
-  it('does not create an empirical sample when the broker has no full timing', async () => {
+  it('records an untimed recovered success when the broker has no full timing', async () => {
     mocks.resumeIndrasNetImageTask.mockResolvedValue({
       base64: 'aW1hZ2U=',
       mimeType: 'image/png',
@@ -132,7 +132,15 @@ describe('restored image-job ETA metrics', () => {
 
     await resumeIndrasNetTask(input as any);
 
-    expect(mocks.recordMetric).not.toHaveBeenCalled();
+    expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
+      apiType: 'image',
+      provider: 'Asus / IndrasNet',
+      model: 'indrasnet/gen_anime',
+      imageCount: 1,
+      success: true,
+      idempotencyKey: 'image:indrasnet:broker-job-1',
+    }));
+    expect(mocks.recordMetric.mock.calls[0][0]).not.toHaveProperty('duration');
   });
 
   it('records recovered PiAPI spend once without treating partial polling time as an ETA sample', async () => {

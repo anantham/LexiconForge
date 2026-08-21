@@ -362,6 +362,8 @@ export const createImageSlice: StateCreator<
       if (!jobId) return;
       if (event.type === 'submitted') {
         get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback);
+      } else if (event.type === 'provider_switched') {
+        get().markImageJobProviderSwitched(jobId, event.model, event.fallback);
       } else {
         get().markImageJobRunning(jobId);
       }
@@ -600,6 +602,8 @@ export const createImageSlice: StateCreator<
     context.onJobEvent = (_marker, event) => {
       if (event.type === 'submitted') {
         get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback);
+      } else if (event.type === 'provider_switched') {
+        get().markImageJobProviderSwitched(jobId, event.model, event.fallback);
       } else {
         get().markImageJobRunning(jobId);
       }
@@ -726,6 +730,8 @@ export const createImageSlice: StateCreator<
         onJobEvent: (_marker, event) => {
           if (event.type === 'submitted') {
             get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback);
+          } else if (event.type === 'provider_switched') {
+            get().markImageJobProviderSwitched(job.id, event.model, event.fallback);
           } else {
             get().markImageJobRunning(job.id);
           }

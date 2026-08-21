@@ -6,6 +6,11 @@ export const RESUMABLE_IMAGE_JOBS_STORAGE_KEY = 'LF_RESUMABLE_IMAGE_JOBS_V1';
 
 export type ImageJobLifecycleEvent =
   | {
+      type: 'provider_switched';
+      model: string;
+      fallback: NonNullable<ImageExecutionMetadata['fallback']>;
+    }
+  | {
       type: 'submitted';
       externalTaskId: string;
       resumeKind: Exclude<ImageJobResumeKind, 'none'>;

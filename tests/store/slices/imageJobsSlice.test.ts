@@ -133,6 +133,37 @@ describe('imageJobsSlice', () => {
     });
   });
 
+  it('switches exact-model ETA for a non-durable fallback without persisting a task', async () => {
+    const slice = createSlice();
+    const jobId = slice.startImageJob({
+      chapterId: 'chapter-direct-fallback',
+      placementMarker: '[ILLUSTRATION-5]',
+      model: 'indrasnet/gen_anime',
+      version: 1,
+    });
+    const fallback = {
+      attemptedProvider: 'Asus / IndrasNet',
+      attemptedModel: 'indrasnet/gen_anime',
+      reasonCode: 'COMFYUI_OFFLINE',
+      reason: 'broker offline',
+    };
+
+    slice.markImageJobRunning(jobId);
+    slice.markImageJobProviderSwitched(jobId, 'openrouter/fallback-model', fallback);
+    await vi.waitFor(() => expect(slice.imageJobs[jobId].estimateSampleCount).toBe(3));
+
+    expect(slice.imageJobs[jobId]).toMatchObject({
+      requestedModel: 'indrasnet/gen_anime',
+      taskModel: 'openrouter/fallback-model',
+      taskProvider: 'OpenRouter',
+      fallback,
+      resumeKind: 'none',
+      status: 'running',
+      estimatedDurationSeconds: 42,
+    });
+    expect(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1')).toBeNull();
+  });
+
   it('does not let the requested-model ETA overwrite fallback-model history', async () => {
     let resolveRequestedEstimate!: (_value: unknown) => void;
     const requestedEstimate = new Promise<unknown>(resolve => { resolveRequestedEstimate = resolve; });
