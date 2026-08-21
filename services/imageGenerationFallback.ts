@@ -82,8 +82,15 @@ export const generateImageWithConfiguredFallback = async (
   input: ImageGenerationInvocation,
 ): Promise<GeneratedImageResult> => {
   const primaryStartedAt = performance.now();
+  let durablePrimarySubmitted = false;
   try {
-    return await invoke(input);
+    return await invoke({
+      ...input,
+      onJobEvent: event => {
+        if (event.type === 'submitted') durablePrimarySubmitted = true;
+        input.onJobEvent?.(event);
+      },
+    });
   } catch (unknownError) {
     const primaryElapsedSeconds = (performance.now() - primaryStartedAt) / 1000;
     const error = unknownError as RetryableImageError;
@@ -92,7 +99,8 @@ export const generateImageWithConfiguredFallback = async (
     const fallbackEnabled = fallbackModel.toLowerCase() !== 'none' && !localFallbackInvalid;
     const eligible = isIndrasNetImageModel(input.settings.imageModel)
       && error.canRetry === true
-      && error.fallbackEligible !== false;
+      && error.fallbackEligible !== false
+      && !durablePrimarySubmitted;
 
     if (localFallbackInvalid) {
       console.warn('[ImageGenerationFallback] Ignoring invalid local fallback; fallback must be a cloud model', {

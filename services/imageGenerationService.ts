@@ -256,22 +256,6 @@ export class ImageGenerationService {
         totalCost += result.cost;
         generatedCount++;
 
-        // Update state for immediate UI updates
-        generatedImages[key] = {
-          isLoading: false,
-          data: result.imageData,
-          error: null
-        };
-
-        // Pass current metrics for real-time UI updates
-        onProgressUpdate?.(generatedImages, {
-          chapterId,
-          count: generatedCount,
-          totalTime,
-          totalCost,
-          lastModel: lastExecutedModel
-        });
-
         // Store in chapter's translationResult for persistence
         if (chapter && chapter.translationResult) {
           const suggestionIndex = chapter.translationResult.suggestedIllustrations.findIndex(
@@ -356,6 +340,22 @@ export class ImageGenerationService {
             }
           }
         }
+
+        // A durable provider ID remains the crash-safe owner until the chapter
+        // write above succeeds. Publishing non-loading success any earlier lets
+        // the store complete the job and delete that recovery ID mid-write.
+        generatedImages[key] = {
+          isLoading: false,
+          data: result.imageData,
+          error: null
+        };
+        onProgressUpdate?.(generatedImages, {
+          chapterId,
+          count: generatedCount,
+          totalTime,
+          totalCost,
+          lastModel: lastExecutedModel
+        });
         
         slog(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
         

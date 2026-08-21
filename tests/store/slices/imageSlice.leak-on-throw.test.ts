@@ -257,6 +257,32 @@ describe('imageSlice — handleGenerateImages cleans up isLoading on service thr
       expect.objectContaining({ status: 'interrupted', externalTaskId: 'broker-task-123' }),
     ]);
   });
+
+  it('does not exclude a duplicate marker because this batch already created its job', async () => {
+    const slice = createSlice();
+    const chapter = slice.chapters.get('chapter-1');
+    chapter.translationResult.suggestedIllustrations = [
+      { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'first prompt' },
+      { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'duplicate imported prompt' },
+    ];
+    generateImagesMock.mockImplementationOnce(async (chapterId, context) => {
+      expect(context.excludedPlacementMarkers?.has('[ILLUSTRATION-1]')).toBe(false);
+      return {
+        generatedImages: {
+          [`${chapterId}:[ILLUSTRATION-1]`]: { isLoading: false, data: 'one-image', error: null },
+        },
+        metrics: {
+          chapterId, count: 1, totalTime: 2, totalCost: 0.03, lastModel: mockSettings.imageModel,
+        },
+      };
+    });
+
+    await slice.handleGenerateImages('chapter-1');
+
+    expect(generateImagesMock).toHaveBeenCalledTimes(1);
+    expect(Object.values(slice.imageJobs)).toHaveLength(1);
+    expect(Object.values(slice.imageJobs)[0]).toMatchObject({ status: 'completed' });
+  });
 });
 
 describe('imageSlice — chapter-owned metrics', () => {

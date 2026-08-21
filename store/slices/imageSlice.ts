@@ -334,6 +334,10 @@ export const createImageSlice: StateCreator<
     chapter.translationResult.suggestedIllustrations.forEach((illustration: any) => {
       const marker = illustration?.placementMarker;
       if (!marker || illustration?.generatedImage) return;
+      // A duplicate suggestion encountered after this loop created the marker's
+      // job belongs to this batch; it is not externally owned and must not be
+      // added to the service exclusion set.
+      if (jobIdsByMarker.has(marker)) return;
       const existingJob = get().getActiveImageJobFor(chapterId, marker);
       if (existingJob) {
         ownedMarkers.add(marker);

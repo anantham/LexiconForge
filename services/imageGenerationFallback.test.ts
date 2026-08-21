@@ -69,6 +69,24 @@ describe('configured image fallback', () => {
     expect(mockGenerateImage).toHaveBeenCalledTimes(1);
   });
 
+  it('does not start cloud fallback after the local broker accepted a durable task', async () => {
+    const failure = Object.assign(new Error('broker poll temporarily unreachable'), {
+      errorType: 'COMFYUI_JOB_POLL_UNREACHABLE',
+      canRetry: true,
+    });
+    mockGenerateImage.mockImplementationOnce(async (...args: any[]) => {
+      args[10]?.({ type: 'submitted', externalTaskId: 'broker-task-accepted', resumeKind: 'indrasnet' });
+      throw failure;
+    });
+
+    await expect(generateImageWithConfiguredFallback({
+      prompt: 'castle',
+      settings,
+      onJobEvent: vi.fn(),
+    })).rejects.toBe(failure);
+    expect(mockGenerateImage).toHaveBeenCalledTimes(1);
+  });
+
   it('does not silently fallback when the setting is disabled', async () => {
     const failure = Object.assign(new Error('offline'), { errorType: 'COMFYUI_OFFLINE', canRetry: true });
     mockGenerateImage.mockRejectedValueOnce(failure);

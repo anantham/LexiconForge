@@ -208,6 +208,32 @@ describe('ImageGenerationService — steering-image provenance (integrity item 6
     });
   });
 
+  it('does not publish batch success until origin persistence completes', async () => {
+    const { context } = makeContext('indrasnet/gen_anime', null);
+    let resolvePersistence!: () => void;
+    persistUpdatedTranslationMock.mockReturnValueOnce(new Promise<void>(resolve => {
+      resolvePersistence = resolve;
+    }));
+    const onProgressUpdate = vi.fn();
+
+    const generation = ImageGenerationService.generateImages('ch-1', context, onProgressUpdate);
+    await vi.waitFor(() => expect(persistUpdatedTranslationMock).toHaveBeenCalledTimes(1));
+    expect(onProgressUpdate).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        'ch-1:[ILLUSTRATION-1]': expect.objectContaining({ isLoading: true }),
+      }),
+    );
+
+    resolvePersistence();
+    await generation;
+    expect(onProgressUpdate).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        'ch-1:[ILLUSTRATION-1]': expect.objectContaining({ isLoading: false, error: null }),
+      }),
+      expect.objectContaining({ chapterId: 'ch-1', count: 1 }),
+    );
+  });
+
   it('reports the model that actually executed in batch progress and final metrics', async () => {
     const { context } = makeContext('indrasnet/gen_anime', null);
     const onProgressUpdate = vi.fn();
