@@ -75,6 +75,7 @@ describe('restored image-job ETA metrics', () => {
     expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
       idempotencyKey: 'image:indrasnet:broker-initial-1',
+      executionDuration: expect.any(Number),
     }));
   });
 
@@ -122,6 +123,24 @@ describe('restored image-job ETA metrics', () => {
       duration: 12.5,
       success: true,
       idempotencyKey: 'image:indrasnet:broker-job-1',
+    }));
+  });
+
+  it('records a recovered IndrasNet running-phase duration separately from broker wall time', async () => {
+    vi.spyOn(performance, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(5_000)
+      .mockReturnValueOnce(17_000);
+    mocks.resumeIndrasNetImageTask.mockImplementation(async input => {
+      input.onJobEvent?.({ type: 'running' });
+      return { base64: 'aW1hZ2U=', mimeType: 'image/png', brokerTimingMs: 60_000 };
+    });
+
+    await resumeIndrasNetTask(input as any);
+
+    expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
+      duration: 60,
+      executionDuration: 12,
     }));
   });
 

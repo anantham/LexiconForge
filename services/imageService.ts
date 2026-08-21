@@ -243,11 +243,15 @@ export const generateImage = async (
 
     const startTime = performance.now();
     let durableMetricIdempotencyKey: string | undefined;
+    let executionStartedAt: number | undefined;
     const handleJobEvent: ImageJobLifecycleListener = event => {
         if (event.type === 'submitted') {
             durableMetricIdempotencyKey = `image:${event.resumeKind}:${event.externalTaskId}`;
             onJobEvent?.({ ...event, submittedModel: imageModel });
             return;
+        }
+        if (event.type === 'running' && executionStartedAt === undefined) {
+            executionStartedAt = performance.now();
         }
         onJobEvent?.(event);
     };
@@ -668,7 +672,11 @@ export const generateImage = async (
             throw new Error(`Unrecognized image model: ${imageModel}. Supported prefixes: indrasnet/, imagen, gemini, openrouter/, Qubico/.`);
         }
 
-        const requestTime = (performance.now() - startTime) / 1000; // in seconds
+        const providerFinishedAt = performance.now();
+        const requestTime = (providerFinishedAt - startTime) / 1000; // in seconds
+        const executionDuration = executionStartedAt === undefined
+            ? undefined
+            : Math.max(0, (providerFinishedAt - executionStartedAt) / 1000);
 
         // For OpenRouter models, fetch dynamic pricing before calculating cost
         if (imageModel.startsWith('openrouter/')) {
@@ -689,6 +697,7 @@ export const generateImage = async (
             model: imageModel,
             costUsd: cost,
             duration: requestTime,
+            ...(executionDuration !== undefined ? { executionDuration } : {}),
             imageCount: 1,
             chapterId,
             success: true,
@@ -884,13 +893,23 @@ export const resumeIndrasNetTask = async (
         throw new Error(`Cannot resume IndrasNet task with model "${input.settings.imageModel}".`);
     }
     const resumedAt = performance.now();
+    let executionStartedAt: number | undefined;
     const output = await resumeIndrasNetImageTask({
         baseUrl: input.settings.indrasNetBaseUrl,
         jobId: input.taskId,
         workflowName: workflowNameFromImageModel(input.settings.imageModel),
-        onJobEvent: input.onJobEvent,
+        onJobEvent: event => {
+            if (event.type === 'running' && executionStartedAt === undefined) {
+                executionStartedAt = performance.now();
+            }
+            input.onJobEvent?.(event);
+        },
     });
-    const resumeObservationSeconds = (performance.now() - resumedAt) / 1000;
+    const providerFinishedAt = performance.now();
+    const resumeObservationSeconds = (providerFinishedAt - resumedAt) / 1000;
+    const executionDuration = executionStartedAt === undefined
+        ? undefined
+        : Math.max(0, (providerFinishedAt - executionStartedAt) / 1000);
     const brokerDurationSeconds = typeof output.brokerTimingMs === 'number' && Number.isFinite(output.brokerTimingMs)
         ? Math.max(0, output.brokerTimingMs / 1000)
         : undefined;
@@ -898,15 +917,15 @@ export const resumeIndrasNetTask = async (
     const imageData = `data:${output.mimeType};base64,${output.base64}`;
 
     // A restored job may have spent hours waiting while the tab was closed.
-    // Only the broker's own end-to-end timing is a valid empirical ETA sample;
-    // the browser's post-reload observation is still useful for this job's UI
-    // but must not contaminate the model history.
+    // Broker/browser end-to-end timing remains useful telemetry, but the
+    // running-state ETA consumes only the observed execution-phase duration.
     await apiMetricsService.recordMetric({
         apiType: 'image',
         provider: 'Asus / IndrasNet',
         model: input.settings.imageModel,
         costUsd: 0,
         ...(brokerDurationSeconds !== undefined ? { duration: brokerDurationSeconds } : {}),
+        ...(executionDuration !== undefined ? { executionDuration } : {}),
         imageCount: 1,
         chapterId: input.chapterId,
         success: true,
@@ -966,9 +985,19 @@ export const resumePiApiImageTask = async (
     if (!apiKey) throw new Error('PiAPI API key is missing. Cannot resume the existing image task.');
 
     const resumedAt = performance.now();
-    const taskData = await pollPiApiTask(input.taskId, apiKey, input.onJobEvent);
+    let executionStartedAt: number | undefined;
+    const taskData = await pollPiApiTask(input.taskId, apiKey, event => {
+        if (event.type === 'running' && executionStartedAt === undefined) {
+            executionStartedAt = performance.now();
+        }
+        input.onJobEvent?.(event);
+    });
     const base64 = await extractPiApiTaskImage(taskData);
-    const resumeSeconds = (performance.now() - resumedAt) / 1000;
+    const providerFinishedAt = performance.now();
+    const resumeSeconds = (providerFinishedAt - resumedAt) / 1000;
+    const executionDuration = executionStartedAt === undefined
+        ? undefined
+        : Math.max(0, (providerFinishedAt - executionStartedAt) / 1000);
     const requestTime = resumeSeconds;
     const cost = calculateImageCost(model);
     const imageData = `data:image/png;base64,${base64}`;
@@ -982,6 +1011,7 @@ export const resumePiApiImageTask = async (
         provider: 'PiAPI',
         model,
         costUsd: cost,
+        ...(executionDuration !== undefined ? { executionDuration } : {}),
         imageCount: 1,
         chapterId: input.chapterId,
         success: true,

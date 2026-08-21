@@ -30,6 +30,8 @@ export interface ApiCallMetric {
     total: number;
   };
   duration?: number; // For audio - duration in seconds
+  /** Provider-running to terminal observation used by phase-specific image ETAs. */
+  executionDuration?: number;
   imageCount?: number; // For image generation
   chapterId?: string; // Associated chapter (if applicable)
   success: boolean; // Whether the API call succeeded
@@ -142,7 +144,17 @@ export interface ImageTimeEstimate {
   maxTimeSeconds: number;
 }
 
-/** Exact-model image ETA from measured successful durations only. */
+const imageEtaDuration = (metric: ApiCallMetric): number | null => {
+  if (typeof metric.executionDuration === 'number' && metric.executionDuration > 0) {
+    return metric.executionDuration;
+  }
+  const isDurableProviderTask = metric.idempotencyKey?.startsWith('image:piapi:')
+    || metric.idempotencyKey?.startsWith('image:indrasnet:');
+  if (isDurableProviderTask) return null;
+  return typeof metric.duration === 'number' && metric.duration > 0 ? metric.duration : null;
+};
+
+/** Exact-model image ETA from phase-compatible successful durations only. */
 export function estimateImageGenerationTime(
   allMetrics: ApiCallMetric[],
   modelId: string,
@@ -152,10 +164,9 @@ export function estimateImageGenerationTime(
       metric.apiType === 'image'
       && metric.model === modelId
       && metric.success
-      && typeof metric.duration === 'number'
-      && metric.duration > 0
     )
-    .map(metric => metric.duration as number);
+    .map(imageEtaDuration)
+    .filter((duration): duration is number => duration !== null);
   if (durations.length === 0) return null;
   return {
     avgTimeSeconds: median(durations),
@@ -337,7 +348,7 @@ class ApiMetricsService {
       }
 
       // Generate CSV
-      const headers = ['Timestamp', 'Type', 'Provider', 'Model', 'Cost (USD)', 'Tokens', 'Success', 'Chapter ID', 'Error'];
+      const headers = ['Timestamp', 'Type', 'Provider', 'Model', 'Cost (USD)', 'Tokens', 'Duration (s)', 'Execution Duration (s)', 'Success', 'Chapter ID', 'Error'];
       const rows = filteredMetrics.map(m => [
         m.timestamp,
         m.apiType,
@@ -345,6 +356,8 @@ class ApiMetricsService {
         m.model,
         m.costUsd.toFixed(4),
         m.tokens ? m.tokens.total.toString() : 'N/A',
+        m.duration?.toString() ?? 'N/A',
+        m.executionDuration?.toString() ?? 'N/A',
         m.success ? 'Yes' : 'No',
         m.chapterId || 'N/A',
         m.errorMessage || 'N/A',
@@ -527,20 +540,18 @@ class ApiMetricsService {
       });
 
       // Filter to successful image generation calls with duration data
-      const imageMetrics = allMetrics.filter(m =>
-        m.apiType === 'image' &&
-        m.success &&
-        typeof m.duration === 'number' &&
-        m.duration > 0
-      );
+      const times = allMetrics
+        .filter(m => m.apiType === 'image' && m.success)
+        .map(imageEtaDuration)
+        .filter((duration): duration is number => duration !== null)
+        .sort((a, b) => a - b);
 
-      if (imageMetrics.length === 0) {
+      if (times.length === 0) {
         console.log('[ApiMetrics] No historical image time data available, using default 20s');
         return 20;
       }
 
       // Calculate median
-      const times = imageMetrics.map(m => m.duration!).sort((a, b) => a - b);
       const mid = Math.floor(times.length / 2);
       const median = times.length % 2 !== 0
         ? times[mid]

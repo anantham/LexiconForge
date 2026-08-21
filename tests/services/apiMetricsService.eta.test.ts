@@ -188,6 +188,32 @@ describe('estimateImageGenerationTime — empirical image jobs', () => {
       maxTimeSeconds: 120,
     });
   });
+
+  it('uses execution-phase samples for durable providers and excludes legacy queue-inclusive samples', () => {
+    const metrics = [
+      mkMetric('indrasnet/gen_anime', 'Asus / IndrasNet', 900, {
+        apiType: 'image',
+        idempotencyKey: 'image:indrasnet:legacy-queued-job',
+      }),
+      mkMetric('indrasnet/gen_anime', 'Asus / IndrasNet', 420, {
+        apiType: 'image',
+        executionDuration: 18,
+        idempotencyKey: 'image:indrasnet:phase-measured-job',
+      }),
+      mkMetric('indrasnet/gen_anime', 'Asus / IndrasNet', 22, {
+        apiType: 'image',
+        executionDuration: 20,
+        idempotencyKey: 'image:indrasnet:second-phase-measured-job',
+      }),
+    ];
+
+    expect(estimateImageGenerationTime(metrics, 'indrasnet/gen_anime')).toEqual({
+      avgTimeSeconds: 19,
+      sampleCount: 2,
+      minTimeSeconds: 18,
+      maxTimeSeconds: 20,
+    });
+  });
 });
 
 describe('durable metric idempotency', () => {
