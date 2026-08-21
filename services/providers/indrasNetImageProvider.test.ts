@@ -224,4 +224,46 @@ describe('IndrasNet image provider', () => {
 
     expect(error).toMatchObject({ code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: false });
   });
+
+  it('rejects an HTML artifact body returned with HTTP 200', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
+        status: 200,
+      }))
+      .mockResolvedValueOnce(new Response('<html>sign in</html>', {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_INVALID_IMAGE', retryable: false });
+    expect(error.message).toContain('text/html');
+  });
+
+  it('rejects an empty image artifact returned with HTTP 200', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
+        status: 200,
+      }))
+      .mockResolvedValueOnce(new Response(new Uint8Array(0), {
+        status: 200,
+        headers: { 'content-type': 'image/png' },
+      }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_INVALID_IMAGE', retryable: false });
+    expect(error.message).toContain('0 bytes');
+  });
 });

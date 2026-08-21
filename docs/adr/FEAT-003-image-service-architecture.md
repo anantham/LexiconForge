@@ -191,3 +191,10 @@ configuration errors.
   development remains allowed from an HTTP page.
 - Successful HTTP responses with invalid catalogue or workflow-result JSON are
   reported as descriptive, non-retryable `INDRASNET_INVALID_RESPONSE` errors.
+
+### Artifact integrity — 2026-08-21
+
+- A successful artifact HTTP status is not sufficient for persistence. The
+  response must declare an `image/*` media type and contain non-empty bytes;
+  HTML/auth bodies and empty files fail with non-retryable
+  `INDRASNET_INVALID_IMAGE`.

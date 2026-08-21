@@ -324,14 +324,30 @@ export const generateIndrasNetImage = async (
     throw await requestError(imageResponse, 'IndrasNet image download', { retryable: false });
   }
 
-  const mimeType = imageResponse.headers.get('content-type') || 'image/png';
-  let dataUrl: string;
+  const mimeType = imageResponse.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() || '';
+  let imageBlob: Blob;
   try {
-    dataUrl = await blobToBase64DataUrl(await imageResponse.blob());
+    imageBlob = await imageResponse.blob();
   } catch (cause) {
     throw new IndrasNetProviderError(
       'IndrasNet completed the workflow, but reading the downloaded image failed.',
       { code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: false, cause },
+    );
+  }
+  if (!mimeType.startsWith('image/') || imageBlob.size === 0) {
+    throw new IndrasNetProviderError(
+      `IndrasNet returned an invalid image artifact (${mimeType || 'missing content type'}, ${imageBlob.size} bytes).`,
+      { code: 'INDRASNET_INVALID_IMAGE', retryable: false },
+    );
+  }
+
+  let dataUrl: string;
+  try {
+    dataUrl = await blobToBase64DataUrl(imageBlob);
+  } catch (cause) {
+    throw new IndrasNetProviderError(
+      'IndrasNet completed the workflow, but encoding the downloaded image failed.',
+      { code: 'INDRASNET_INVALID_IMAGE', retryable: false, cause },
     );
   }
   const comma = dataUrl.indexOf(',');
