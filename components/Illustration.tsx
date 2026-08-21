@@ -158,6 +158,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     return {
       status: job?.status ?? null,
       model: job?.taskModel ?? job?.requestedModel ?? null,
+      startedAt: job?.status === 'running' ? job.startedAt : null,
     };
   }));
   const isLoading = imageStateIsLoading || activeImageJob.status !== null;
@@ -243,10 +244,12 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           return;
         }
 
+        const executionStartedAt = activeImageJob.startedAt ?? Date.now();
+        const elapsedSeconds = Math.max(0, (Date.now() - executionStartedAt) / 1000);
         setEstimatedTotalTime(timeData.avgTimeSeconds);
-        setEstimatedTimeRemaining(timeData.avgTimeSeconds);
+        setEstimatedTimeRemaining(Math.max(0, timeData.avgTimeSeconds - elapsedSeconds));
         setEstimateSampleCount(timeData.sampleCount);
-        setCountdownStartTime(Date.now());
+        setCountdownStartTime(executionStartedAt);
       };
 
       void fetchEstimatedTime();
@@ -262,7 +265,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     return () => {
       cancelled = true;
     };
-  }, [countdownModel, isLoading, isQueued]);
+  }, [activeImageJob.startedAt, countdownModel, isLoading, isQueued]);
 
   // Effect to update countdown every second
   React.useEffect(() => {

@@ -62,7 +62,9 @@ const ImageJobsBanner: React.FC = () => {
         : <Clock3 className="h-4 w-4 shrink-0" aria-hidden="true" />;
 
   const statusText = job.status === 'completed'
-    ? `Illustration ready after ${formatDuration(job.durationSeconds ?? elapsedSeconds)}`
+    ? job.durationSeconds === undefined
+      ? 'Illustration ready'
+      : `Illustration ready after ${formatDuration(job.durationSeconds)}`
     : job.status === 'failed'
       ? `Illustration failed: ${job.error || 'provider error'}`
       : job.status === 'interrupted'

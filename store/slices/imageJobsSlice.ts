@@ -280,7 +280,9 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
         ...current,
         status: 'completed' as const,
         executedModel: executedModel || current.taskModel || current.requestedModel,
-        durationSeconds: durationSeconds ?? (completedAt - current.startedAt) / 1000,
+        durationSeconds: durationSeconds ?? (current.status === 'running'
+          ? (completedAt - current.startedAt) / 1000
+          : undefined),
         completedAt,
         updatedAt: completedAt,
       },

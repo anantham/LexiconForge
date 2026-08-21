@@ -234,6 +234,22 @@ describe('imageJobsSlice', () => {
     expect(slice.imageJobs[id].durationSeconds).toBe(12);
   });
 
+  it('leaves duration unknown when recovered work is terminal before execution is observed', () => {
+    const slice = createSlice();
+    const id = slice.startImageJob({
+      chapterId: 'chapter-terminal-first',
+      placementMarker: '[ILLUSTRATION-1]',
+      model: 'Qubico/flux1-dev',
+      version: 1,
+    });
+
+    slice.markImageJobSubmitted(id, 'pi-already-complete', 'piapi');
+    slice.completeImageJob(id, 'Qubico/flux1-dev');
+
+    expect(slice.imageJobs[id]).toMatchObject({ status: 'completed' });
+    expect(slice.imageJobs[id].durationSeconds).toBeUndefined();
+  });
+
   it('starts the execution clock when a queued job actually begins', () => {
     const now = vi.spyOn(Date, 'now').mockReturnValue(1_000);
     try {

@@ -397,6 +397,7 @@ describe('imageSlice — durable task recovery', () => {
     expect(slice.generatedImages['chapter-1:[ILLUSTRATION-1]']?.data).toBe('recovered-image');
     expect(slice.imageVersions['chapter-1:[ILLUSTRATION-1]']).toBe(2);
     expect(slice.imageJobs['saved-job'].status).toBe('completed');
+    expect(slice.imageJobs['saved-job'].durationSeconds).toBeUndefined();
     expect(slice.showNotification).toHaveBeenCalledWith(
       'A previously submitted illustration is ready in its originating chapter.',
       'success',

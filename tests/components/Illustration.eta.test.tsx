@@ -100,6 +100,34 @@ describe('Illustration empirical ETA', () => {
     expect(await screen.findByText(/~187s remaining \(3 prior runs\)/i)).toBeInTheDocument();
   });
 
+  it('anchors inline ETA to the active job clock when the chapter opens late', async () => {
+    const now = vi.spyOn(Date, 'now').mockReturnValue(50_000);
+    try {
+      getAverageImageGenerationTime.mockResolvedValue({
+        avgTimeSeconds: 30,
+        sampleCount: 4,
+        minTimeSeconds: 20,
+        maxTimeSeconds: 45,
+      });
+      storeState.imageJobs = {
+        'job-1': {
+          id: 'job-1',
+          chapterId: 'chapter-1',
+          placementMarker: '[ILLUSTRATION-1]',
+          requestedModel: 'indrasnet/gen_anime',
+          status: 'running',
+          startedAt: 30_000,
+        },
+      };
+
+      render(<Illustration marker="[ILLUSTRATION-1]" />);
+
+      expect(await screen.findByText(/~10s remaining \(4 prior runs\)/i)).toBeInTheDocument();
+    } finally {
+      now.mockRestore();
+    }
+  });
+
   it('switches inline ETA to the active fallback task model and clears stale history', async () => {
     let resolveFallback!: (_value: unknown) => void;
     const fallbackEstimate = new Promise(_resolve => { resolveFallback = _resolve; });

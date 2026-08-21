@@ -163,6 +163,16 @@ describe('ImageJobsBanner', () => {
     expect(dismissImageJob).toHaveBeenCalledWith('job-1');
   });
 
+  it('does not invent a duration for terminal-first recovered work', () => {
+    storeState.imageJobs = {
+      'job-1': job({ status: 'completed', completedAt: Date.now(), durationSeconds: undefined }),
+    };
+    render(<ImageJobsBanner />);
+
+    expect(screen.getByText(/^illustration ready$/i)).toBeInTheDocument();
+    expect(screen.queryByText(/ready after/i)).not.toBeInTheDocument();
+  });
+
   it('explains why a resumable task is paused', () => {
     storeState.imageJobs = {
       'job-1': job({ status: 'interrupted', resumeKind: 'indrasnet', error: 'IndrasNet is unreachable from this device.' }),
