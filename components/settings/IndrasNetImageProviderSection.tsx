@@ -32,6 +32,10 @@ export const IndrasNetImageProviderSection: React.FC<IndrasNetImageProviderSecti
   onRefresh,
 }) => {
   const selected = isIndrasNetImageModel(selectedImageModel);
+  const normalizedFallbackModel = fallbackModel.trim() || 'none';
+  const savedCloudFallbackUnavailable = normalizedFallbackModel !== 'none'
+    && !isIndrasNetImageModel(normalizedFallbackModel)
+    && !fallbackModels.some(model => model.id === normalizedFallbackModel);
 
   return (
     <fieldset className="mt-6">
@@ -82,11 +86,16 @@ export const IndrasNetImageProviderSection: React.FC<IndrasNetImageProviderSecti
             </label>
             <select
               id="imageFallbackModel"
-              value={fallbackModel || 'none'}
+              value={normalizedFallbackModel}
               onChange={(event) => onFallbackModelChange(event.target.value)}
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
             >
               <option value="none">None — fail visibly</option>
+              {savedCloudFallbackUnavailable && (
+                <option value={normalizedFallbackModel}>
+                  Saved cloud fallback: {normalizedFallbackModel} — unavailable (still active)
+                </option>
+              )}
               {fallbackModels.map(model => (
                 <option key={model.id} value={model.id}>{model.label}</option>
               ))}

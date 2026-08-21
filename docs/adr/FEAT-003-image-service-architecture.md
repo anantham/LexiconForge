@@ -238,3 +238,14 @@ configuration errors.
 - The optional fallback is cloud-only at both UI and execution boundaries. A
   stale/imported `indrasnet/` fallback value is diagnosed and treated as
   disabled; it cannot launch a second local workflow.
+
+### Browser-safe catalogue and saved fallback visibility — 2026-08-21
+
+- Workflow discovery is a semantic capability contract. Browser state retains
+  only canonical workflow/display metadata and semantic input names with their
+  `required` flags. It never retains ComfyUI `node_id` or `input_key` graph
+  bindings, even if an older broker accidentally returns them.
+- A saved cloud fallback that disappears from the current provider catalogue is
+  shown as unavailable and still active in the controlled selector. It is not
+  silently presented as `None`, because retryable Asus failures can still send
+  work to that saved paid provider ID.

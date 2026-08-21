@@ -9,9 +9,7 @@ const IMAGE_DOWNLOAD_TIMEOUT_MS = 60_000;
 const CATALOGUE_TTL_MS = 60_000;
 const UNSTRUCTURED_GATEWAY_AVAILABILITY_STATUSES = new Set([502, 504]);
 
-export interface IndrasNetSemanticBinding {
-  node_id: string;
-  input_key: string;
+export interface IndrasNetSemanticInput {
   required?: boolean;
 }
 
@@ -21,7 +19,7 @@ export interface IndrasNetWorkflowManifest {
   description?: string;
   client_ready: boolean;
   requires_image: boolean;
-  inputs: Record<string, IndrasNetSemanticBinding>;
+  inputs: Record<string, IndrasNetSemanticInput>;
   source?: string;
 }
 
@@ -34,7 +32,7 @@ export interface IndrasNetWorkflowProfile {
 }
 
 interface WorkflowCatalogueResponse {
-  workflows?: Array<Partial<IndrasNetWorkflowProfile> & { manifest?: IndrasNetWorkflowManifest | null }>;
+  workflows?: unknown;
 }
 
 interface RunWorkflowResponse {
@@ -149,24 +147,52 @@ const invalidJsonResponseError = (context: string, cause?: unknown): IndrasNetPr
     { code: 'INDRASNET_INVALID_RESPONSE', retryable: false, cause },
   );
 
-const isClientReadyWorkflow = (entry: unknown): entry is IndrasNetWorkflowProfile => {
-  if (!isRecord(entry)) return false;
+const CLIENT_SEMANTIC_INPUTS = [
+  'prompt',
+  'negative_prompt',
+  'seed',
+  'width',
+  'height',
+  'guidance_scale',
+] as const;
+
+const toClientReadyWorkflow = (entry: unknown): IndrasNetWorkflowProfile | null => {
+  if (!isRecord(entry)) return null;
   const manifest = entry.manifest;
   if (!isRecord(manifest) || !isRecord(manifest.inputs) || !isRecord(manifest.inputs.prompt)) {
-    return false;
+    return null;
   }
-  const promptBinding = manifest.inputs.prompt;
   const canonicalName = typeof entry.name === 'string' ? entry.name.trim() : '';
-  return Boolean(
-    canonicalName && entry.name === canonicalName &&
-    entry.client_ready === true &&
-    manifest.name === canonicalName &&
-    typeof manifest.display_name === 'string' &&
-    manifest.client_ready === true &&
-    manifest.requires_image === false &&
-    typeof promptBinding.node_id === 'string' &&
-    typeof promptBinding.input_key === 'string',
-  );
+  if (
+    !canonicalName || entry.name !== canonicalName ||
+    entry.client_ready !== true ||
+    manifest.name !== canonicalName ||
+    typeof manifest.display_name !== 'string' ||
+    manifest.client_ready !== true ||
+    manifest.requires_image !== false
+  ) return null;
+
+  const inputs: Record<string, IndrasNetSemanticInput> = {};
+  for (const semanticName of CLIENT_SEMANTIC_INPUTS) {
+    const rawInput = manifest.inputs[semanticName];
+    if (rawInput === undefined) continue;
+    if (!isRecord(rawInput)) return null;
+    inputs[semanticName] = rawInput.required === true ? { required: true } : {};
+  }
+  if (!inputs.prompt) return null;
+
+  return {
+    name: canonicalName,
+    client_ready: true,
+    manifest: {
+      name: canonicalName,
+      display_name: manifest.display_name,
+      ...(typeof manifest.description === 'string' ? { description: manifest.description } : {}),
+      client_ready: true,
+      requires_image: false,
+      inputs,
+    },
+  };
 };
 
 const readJsonObjectResponse = async <T extends object>(response: Response, context: string): Promise<T> => {
@@ -264,7 +290,9 @@ export const fetchIndrasNetWorkflows = async (
     throw invalidJsonResponseError('workflow discovery');
   }
 
-  const workflows = entries.filter(isClientReadyWorkflow);
+  const workflows = entries
+    .map(toClientReadyWorkflow)
+    .filter((workflow): workflow is IndrasNetWorkflowProfile => workflow !== null);
   catalogueCache.set(baseUrl, { fetchedAt: Date.now(), workflows });
   return workflows;
 };

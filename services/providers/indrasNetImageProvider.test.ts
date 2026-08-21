@@ -21,8 +21,8 @@ const clientReadyWorkflow = {
     client_ready: true,
     requires_image: false,
     inputs: {
-      prompt: { node_id: '12', input_key: 'text', required: true },
-      seed: { node_id: '18', input_key: 'seed' },
+      prompt: { required: true },
+      seed: {},
     },
   },
 };
@@ -62,6 +62,34 @@ describe('IndrasNet image provider', () => {
     const workflows = await fetchIndrasNetWorkflows(endpoint);
 
     expect(workflows.map(workflow => workflow.name)).toEqual(['storybook']);
+    expect(workflows[0].manifest.inputs).toEqual({
+      prompt: { required: true },
+      seed: {},
+    });
+    expect(JSON.stringify(workflows)).not.toMatch(/node_id|input_key/);
+  });
+
+  it('strips legacy graph bindings from a broker catalogue before caching it', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      workflows: [{
+        ...clientReadyWorkflow,
+        manifest: {
+          ...clientReadyWorkflow.manifest,
+          inputs: {
+            prompt: { node_id: '12', input_key: 'text', required: true },
+            seed: { node_id: '18', input_key: 'seed' },
+          },
+        },
+      }],
+    }), { status: 200 }));
+
+    const workflows = await fetchIndrasNetWorkflows(endpoint);
+
+    expect(workflows[0].manifest.inputs).toEqual({
+      prompt: { required: true },
+      seed: {},
+    });
+    expect(JSON.stringify(workflows)).not.toMatch(/node_id|input_key/);
   });
 
   it('does not advertise workflows whose names are non-canonical or disagree with the manifest', async () => {

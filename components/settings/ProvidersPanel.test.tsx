@@ -655,7 +655,7 @@ describe('ProvidersPanel', () => {
           display_name: 'Anime — Illustrious',
           client_ready: true,
           requires_image: false,
-          inputs: { prompt: { node_id: '2', input_key: 'text' } },
+          inputs: { prompt: {} },
         },
       }]);
 
@@ -685,7 +685,7 @@ describe('ProvidersPanel', () => {
             display_name: 'Custom workflow',
             client_ready: true,
             requires_image: false,
-            inputs: { prompt: { node_id: '2', input_key: 'text' } },
+            inputs: { prompt: {} },
           },
         }])
         .mockResolvedValueOnce([{
@@ -696,7 +696,7 @@ describe('ProvidersPanel', () => {
             display_name: 'Default workflow',
             client_ready: true,
             requires_image: false,
-            inputs: { prompt: { node_id: '3', input_key: 'text' } },
+            inputs: { prompt: {} },
           },
         }]);
       updateMockSettings({ indrasNetBaseUrl: 'https://custom-asus.example.ts.net' });
@@ -722,6 +722,21 @@ describe('ProvidersPanel', () => {
       render(<ProvidersPanel isOpen={true} />);
 
       expect(screen.getByLabelText(/Cloud fallback when Asus is offline or busy/)).toBeInTheDocument();
+    });
+
+    it('keeps an unavailable saved cloud fallback visible as still active', () => {
+      updateMockSettings({
+        imageModel: 'indrasnet/gen_anime',
+        imageFallbackModel: 'openrouter/acme/retired-image-model',
+      });
+
+      render(<ProvidersPanel isOpen={true} />);
+
+      const fallbackSelect = screen.getByLabelText(/Cloud fallback when Asus is offline or busy/);
+      expect(fallbackSelect).toHaveValue('openrouter/acme/retired-image-model');
+      expect(screen.getByRole('option', {
+        name: 'Saved cloud fallback: openrouter/acme/retired-image-model — unavailable (still active)',
+      })).toBeInTheDocument();
     });
   });
 });
