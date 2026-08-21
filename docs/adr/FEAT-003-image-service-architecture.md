@@ -249,3 +249,6 @@ configuration errors.
   shown as unavailable and still active in the controlled selector. It is not
   silently presented as `None`, because retryable Asus failures can still send
   work to that saved paid provider ID.
+- Submission diagnostics, including the private tailnet endpoint and workflow
+  name, use the existing `image` pipeline at `full` debug level. Production
+  consoles do not receive them while debugging is disabled.

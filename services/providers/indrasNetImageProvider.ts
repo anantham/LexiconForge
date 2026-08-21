@@ -1,4 +1,5 @@
 import { blobToBase64DataUrl } from '../imageUtils';
+import { debugLog } from '../../utils/debug';
 
 export const INDRASNET_IMAGE_MODEL_PREFIX = 'indrasnet/';
 export const DEFAULT_INDRASNET_BASE_URL = 'https://asus-strix-scar.tail4741ad.ts.net:9443';
@@ -343,7 +344,7 @@ export const generateIndrasNetImage = async (
     if (value !== undefined && supportedInputs[name]) body[name] = value;
   }
 
-  console.info('[IndrasNetImageProvider] Submitting workflow', {
+  debugLog('image', 'full', '[IndrasNetImageProvider] Submitting workflow', {
     endpoint: baseUrl,
     workflow: workflowName,
     promptLength: input.prompt.length,

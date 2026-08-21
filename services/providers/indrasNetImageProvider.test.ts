@@ -136,6 +136,7 @@ describe('IndrasNet image provider', () => {
   });
 
   it('submits only semantic inputs exposed by the workflow manifest and downloads the image', async () => {
+    const productionInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined);
     const timeoutSpy = vi.spyOn(AbortSignal, 'timeout');
     const fetchMock = vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), {
@@ -172,6 +173,7 @@ describe('IndrasNet image provider', () => {
     expect(result).toMatchObject({ mimeType: 'image/png', promptId: 'prompt-7', brokerTimingMs: 4321 });
     expect(result.base64.length).toBeGreaterThan(0);
     expect(timeoutSpy.mock.calls.map(([timeoutMs]) => timeoutMs)).toEqual([10_000, 1_830_000, 60_000]);
+    expect(productionInfoSpy).not.toHaveBeenCalled();
   });
 
   it('preserves structured broker errors for explicit fallback decisions', async () => {
