@@ -46,6 +46,7 @@ describe('restored image-job ETA metrics', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -167,6 +168,71 @@ describe('restored image-job ETA metrics', () => {
       idempotencyKey: 'image:piapi:pi-task-1',
     }));
     expect(mocks.recordMetric.mock.calls[0][0]).not.toHaveProperty('duration');
+  });
+
+  it('keeps an initial PiAPI task submitted until the provider reports processing', async () => {
+    vi.useFakeTimers();
+    const onJobEvent = vi.fn();
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { task_id: 'pi-queued-1' } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: 'pending' }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: 'processing' }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        status: 'completed',
+        output: { base64: 'aW1hZ2U=' },
+      }), { status: 200 }));
+
+    const generation = generateImage(
+      'a scene',
+      { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'test-key' } as any,
+      undefined, undefined, undefined, undefined, undefined,
+      'chapter-1', undefined, undefined,
+      onJobEvent,
+    );
+
+    await vi.advanceTimersByTimeAsync(0);
+    expect(onJobEvent).toHaveBeenLastCalledWith(expect.objectContaining({
+      type: 'submitted',
+      externalTaskId: 'pi-queued-1',
+    }));
+    expect(onJobEvent).not.toHaveBeenCalledWith({ type: 'running' });
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(onJobEvent).toHaveBeenCalledWith({ type: 'running' });
+    await vi.advanceTimersByTimeAsync(1_000);
+    await generation;
+  });
+
+  it('does not mark a restored PiAPI task running before its first provider status', async () => {
+    vi.useFakeTimers();
+    const onJobEvent = vi.fn();
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: 'queued' }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        status: 'completed',
+        output: { base64: 'aW1hZ2U=' },
+      }), { status: 200 }));
+
+    const recovery = resumePiApiImageTask({
+      taskId: 'pi-restored-queued',
+      settings: { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'test-key' } as any,
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      version: 2,
+      onJobEvent,
+    });
+
+    await vi.advanceTimersByTimeAsync(0);
+    expect(onJobEvent).toHaveBeenCalledTimes(1);
+    expect(onJobEvent).toHaveBeenLastCalledWith({
+      type: 'submitted',
+      externalTaskId: 'pi-restored-queued',
+      resumeKind: 'piapi',
+    });
+    expect(onJobEvent).not.toHaveBeenCalledWith({ type: 'running' });
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    await recovery;
   });
 
   it('keeps a PiAPI task recoverable across credential errors', async () => {

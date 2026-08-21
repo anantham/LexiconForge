@@ -966,7 +966,6 @@ export const resumePiApiImageTask = async (
     if (!apiKey) throw new Error('PiAPI API key is missing. Cannot resume the existing image task.');
 
     const resumedAt = performance.now();
-    input.onJobEvent?.({ type: 'running' });
     const taskData = await pollPiApiTask(input.taskId, apiKey, input.onJobEvent);
     const base64 = await extractPiApiTaskImage(taskData);
     const resumeSeconds = (performance.now() - resumedAt) / 1000;
@@ -1061,7 +1060,15 @@ async function pollPiApiTask(
             }
             if (/succeeded|completed|success/.test(status)) return json;
             if (/failed|error/.test(status)) throw new Error(`PiAPI task failed: ${raw || JSON.stringify(json)}`);
-            onJobEvent?.({ type: 'running' });
+            if (/running|processing|in[_ -]?progress/.test(status)) {
+                onJobEvent?.({ type: 'running' });
+            } else {
+                // PiAPI queue-like states include pending/queued, and unknown
+                // non-terminal states are conservatively treated as submitted.
+                // Do not start the execution ETA until the provider explicitly
+                // reports that processing has begun.
+                onJobEvent?.({ type: 'submitted', externalTaskId: taskId, resumeKind: 'piapi' });
+            }
             await new Promise(resolve => setTimeout(resolve, delays[Math.min(tries, delays.length - 1)]));
         } catch (error: any) {
             if (error.name === 'TimeoutError' || error.name === 'AbortError') {
