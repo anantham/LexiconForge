@@ -245,6 +245,34 @@ describe('restored image-job ETA metrics', () => {
     }));
   });
 
+  it('does not treat an unknown nonterminal PiAPI envelope as confirmed queue evidence', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(performance, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(5_000)
+      .mockReturnValueOnce(17_000)
+      .mockReturnValueOnce(50_000);
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: 'warming_up' }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: 'processing' }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        status: 'completed',
+        output: { base64: 'aW1hZ2U=' },
+      }), { status: 200 }));
+
+    const recovery = resumePiApiImageTask({
+      taskId: 'pi-unknown-state-task',
+      settings: { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'test-key' } as any,
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      version: 2,
+    });
+    await vi.advanceTimersByTimeAsync(2_000);
+    await recovery;
+
+    expect(mocks.recordMetric.mock.calls[0][0]).not.toHaveProperty('executionDuration');
+  });
+
   it('keeps an initial PiAPI task submitted until the provider reports processing', async () => {
     vi.useFakeTimers();
     const onJobEvent = vi.fn();

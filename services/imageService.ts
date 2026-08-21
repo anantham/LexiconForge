@@ -1091,11 +1091,12 @@ async function pollPiApiTask(
                 if (executionStartedAt === undefined) executionStartedAt = performance.now();
                 onJobEvent?.({ type: 'running' });
             } else {
-                queuedObserved = true;
+                const confirmedQueued = /pending|queued|queueing|in[_ -]?queue/.test(status);
+                if (confirmedQueued && executionStartedAt === undefined) queuedObserved = true;
                 // PiAPI queue-like states include pending/queued, and unknown
                 // non-terminal states are conservatively treated as submitted.
-                // Do not start the execution ETA until the provider explicitly
-                // reports that processing has begun.
+                // Unknown states do not prove that recovery observed the full
+                // queue-to-running boundary, so they cannot qualify ETA data.
                 onJobEvent?.({ type: 'submitted', externalTaskId: taskId, resumeKind: 'piapi' });
             }
             await new Promise(resolve => setTimeout(resolve, delays[Math.min(tries, delays.length - 1)]));
