@@ -190,7 +190,36 @@ describe('imageSlice — handleGenerateImages cleans up isLoading on service thr
 });
 
 describe('imageSlice — durable task recovery', () => {
-  beforeEach(() => resumeImageJobMock.mockReset());
+  beforeEach(() => {
+    resumeImageJobMock.mockReset();
+    retryImageMock.mockReset();
+  });
+
+  it('does not submit a paid retry while an interrupted durable task still owns the marker', async () => {
+    const slice = createSlice();
+    slice.imageJobs['saved-job'] = {
+      id: 'saved-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'indrasnet/gen_anime',
+      requestedProvider: 'Asus / IndrasNet',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'broker-task-123',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+
+    await slice.handleRetryImage('chapter-1', '[ILLUSTRATION-1]');
+
+    expect(retryImageMock).not.toHaveBeenCalled();
+    expect(slice.imageJobs['saved-job']).toMatchObject({
+      status: 'interrupted',
+      externalTaskId: 'broker-task-123',
+    });
+  });
 
   it('reattaches to an interrupted provider task and applies it to the originating marker', async () => {
     const slice = createSlice();

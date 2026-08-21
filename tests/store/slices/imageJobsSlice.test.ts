@@ -118,6 +118,25 @@ describe('imageJobsSlice', () => {
 
     const slice = createSlice();
     expect(slice.imageJobs['saved-job']).toMatchObject({ status: 'interrupted', externalTaskId: 'task-123' });
+    // Recovery is paused, so it should not trigger the browser's generic
+    // in-progress guard even though it still blocks a duplicate submission.
     expect(slice.hasActiveImageJobs()).toBe(false);
+
+    const duplicate = slice.startImageJob({
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      model: 'Qubico/flux1-dev',
+      version: 2,
+    });
+    expect(duplicate).toBe('saved-job');
+
+    slice.dismissImageJob('saved-job');
+    const replacement = slice.startImageJob({
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      model: 'Qubico/flux1-dev',
+      version: 2,
+    });
+    expect(replacement).not.toBe('saved-job');
   });
 });

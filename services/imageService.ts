@@ -849,7 +849,6 @@ export interface ResumeIndrasNetTaskInput {
     chapterId: string;
     placementMarker: string;
     version: number;
-    elapsedBeforeResumeSeconds?: number;
     onJobEvent?: ImageJobLifecycleListener;
 }
 
@@ -866,19 +865,29 @@ export const resumeIndrasNetTask = async (
         workflowName: workflowNameFromImageModel(input.settings.imageModel),
         onJobEvent: input.onJobEvent,
     });
-    const requestTime = (input.elapsedBeforeResumeSeconds || 0) + (performance.now() - resumedAt) / 1000;
+    const resumeObservationSeconds = (performance.now() - resumedAt) / 1000;
+    const brokerDurationSeconds = typeof output.brokerTimingMs === 'number' && Number.isFinite(output.brokerTimingMs)
+        ? Math.max(0, output.brokerTimingMs / 1000)
+        : undefined;
+    const requestTime = brokerDurationSeconds ?? resumeObservationSeconds;
     const imageData = `data:${output.mimeType};base64,${output.base64}`;
 
-    await apiMetricsService.recordMetric({
-        apiType: 'image',
-        provider: 'Asus / IndrasNet',
-        model: input.settings.imageModel,
-        costUsd: 0,
-        duration: requestTime,
-        imageCount: 1,
-        chapterId: input.chapterId,
-        success: true,
-    });
+    // A restored job may have spent hours waiting while the tab was closed.
+    // Only the broker's own end-to-end timing is a valid empirical ETA sample;
+    // the browser's post-reload observation is still useful for this job's UI
+    // but must not contaminate the model history.
+    if (brokerDurationSeconds !== undefined) {
+        await apiMetricsService.recordMetric({
+            apiType: 'image',
+            provider: 'Asus / IndrasNet',
+            model: input.settings.imageModel,
+            costUsd: 0,
+            duration: brokerDurationSeconds,
+            imageCount: 1,
+            chapterId: input.chapterId,
+            success: true,
+        });
+    }
 
     try {
         const { ImageCacheStore } = await import('./imageCacheService');
@@ -915,7 +924,6 @@ export interface ResumePiApiImageTaskInput {
     chapterId: string;
     placementMarker: string;
     version: number;
-    elapsedBeforeResumeSeconds?: number;
     onJobEvent?: ImageJobLifecycleListener;
 }
 
@@ -938,20 +946,13 @@ export const resumePiApiImageTask = async (
     const taskData = await pollPiApiTask(input.taskId, apiKey, input.onJobEvent);
     const base64 = await extractPiApiTaskImage(taskData);
     const resumeSeconds = (performance.now() - resumedAt) / 1000;
-    const requestTime = (input.elapsedBeforeResumeSeconds || 0) + resumeSeconds;
+    const requestTime = resumeSeconds;
     const cost = calculateImageCost(model);
     const imageData = `data:image/png;base64,${base64}`;
 
-    await apiMetricsService.recordMetric({
-        apiType: 'image',
-        provider: 'PiAPI',
-        model,
-        costUsd: cost,
-        duration: requestTime,
-        imageCount: 1,
-        chapterId: input.chapterId,
-        success: true,
-    });
+    // PiAPI does not return provider-side generation timing for a restored
+    // task. The post-reload polling interval is only a partial observation,
+    // so deliberately omit it from empirical ETA history.
 
     try {
         const { ImageCacheStore } = await import('./imageCacheService');

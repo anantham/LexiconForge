@@ -585,7 +585,6 @@ export class ImageGenerationService {
       chapterId: job.chapterId,
       placementMarker: job.placementMarker,
       version: job.version,
-      elapsedBeforeResumeSeconds: Math.max(0, (Date.now() - job.startedAt) / 1000),
       onJobEvent: (event: ImageJobLifecycleEvent) => context.onJobEvent?.(job.placementMarker, event),
     };
     const result = job.resumeKind === 'piapi'

@@ -29,6 +29,14 @@ export interface ImageJob {
 const STORAGE_KEY = 'LF_RESUMABLE_IMAGE_JOBS_V1';
 const ACTIVE_STATUSES = new Set<ImageJobStatus>(['queued', 'submitted', 'running']);
 
+const blocksDuplicateSubmission = (job: ImageJob): boolean =>
+  ACTIVE_STATUSES.has(job.status)
+  || (
+    job.status === 'interrupted'
+    && (job.resumeKind === 'piapi' || job.resumeKind === 'indrasnet')
+    && Boolean(job.externalTaskId)
+  );
+
 const newId = (): string => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
@@ -218,7 +226,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
     return Object.values(get().imageJobs).find(job =>
       job.chapterId === chapterId
       && job.placementMarker === placementMarker
-      && ACTIVE_STATUSES.has(job.status)
+      && blocksDuplicateSubmission(job)
     ) || null;
   },
 

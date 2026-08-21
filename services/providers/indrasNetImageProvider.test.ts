@@ -378,7 +378,25 @@ describe('IndrasNet image provider', () => {
       prompt: 'A lighthouse',
     }).catch(cause => cause);
 
-    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_504', retryable: false, status: 504 });
+    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_504', retryable: true, status: 504 });
+  });
+
+  it('treats a missing completed artifact as terminal', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=missing.png'] }), {
+        status: 200,
+      }))
+      .mockResolvedValueOnce(new Response('artifact not found', { status: 404 }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_404', retryable: false, status: 404 });
   });
 
   it('keeps artifact body-read failures out of cloud fallback', async () => {
@@ -398,7 +416,7 @@ describe('IndrasNet image provider', () => {
       prompt: 'A lighthouse',
     }).catch(cause => cause);
 
-    expect(error).toMatchObject({ code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: false });
+    expect(error).toMatchObject({ code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: true });
   });
 
   it('rejects an HTML artifact body returned with HTTP 200', async () => {

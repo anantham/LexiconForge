@@ -12,6 +12,7 @@ const JOB_POLL_TIMEOUT_MS = 10_000;
 const IMAGE_DOWNLOAD_TIMEOUT_MS = 60_000;
 const CATALOGUE_TTL_MS = 60_000;
 const UNSTRUCTURED_GATEWAY_AVAILABILITY_STATUSES = new Set([502, 504]);
+const RETRYABLE_ARTIFACT_HTTP_STATUSES = new Set([408, 425, 429]);
 
 export interface IndrasNetSemanticInput {
   required?: boolean;
@@ -504,7 +505,7 @@ const downloadIndrasNetResult = async (
     { method: 'GET', headers: { Accept: 'image/*' } },
     IMAGE_DOWNLOAD_TIMEOUT_MS,
     {
-      retryable: false,
+      retryable: true,
       timeoutCode: 'INDRASNET_IMAGE_DOWNLOAD_TIMEOUT',
       unreachableCode: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
       timeoutMessage: 'IndrasNet completed the workflow, but the image download did not finish within 60 seconds.',
@@ -512,7 +513,9 @@ const downloadIndrasNetResult = async (
     },
   );
   if (!imageResponse.ok) {
-    throw await requestError(imageResponse, 'IndrasNet image download', { retryable: false });
+    const retryable = RETRYABLE_ARTIFACT_HTTP_STATUSES.has(imageResponse.status)
+      || imageResponse.status >= 500;
+    throw await requestError(imageResponse, 'IndrasNet image download', { retryable });
   }
 
   const mimeType = imageResponse.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() || '';
@@ -522,7 +525,7 @@ const downloadIndrasNetResult = async (
   } catch (cause) {
     throw new IndrasNetProviderError(
       'IndrasNet completed the workflow, but reading the downloaded image failed.',
-      { code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: false, cause },
+      { code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: true, cause },
     );
   }
   if (!mimeType.startsWith('image/') || imageBlob.size === 0) {
