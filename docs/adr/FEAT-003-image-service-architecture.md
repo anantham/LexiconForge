@@ -183,3 +183,11 @@ configuration errors.
   with no image is also a workflow/output defect, not an availability failure.
 - Endpoint normalization trims before applying the default, keeping discovery
   and execution consistent for empty or whitespace-only saved values.
+
+### Environment and payload validation — 2026-08-21
+
+- An HTTPS LexiconForge page rejects a configured HTTP broker endpoint before
+  network dispatch with non-retryable `INDRASNET_MIXED_CONTENT`; local HTTP
+  development remains allowed from an HTTP page.
+- Successful HTTP responses with invalid catalogue or workflow-result JSON are
+  reported as descriptive, non-retryable `INDRASNET_INVALID_RESPONSE` errors.

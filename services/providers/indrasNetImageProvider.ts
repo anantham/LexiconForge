@@ -116,6 +116,12 @@ export const normalizeIndrasNetBaseUrl = (rawBaseUrl?: string): string => {
       retryable: false,
     });
   }
+  if (parsed.protocol === 'http:' && typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    throw new IndrasNetProviderError(
+      'An HTTP IndrasNet endpoint cannot be used from this HTTPS page. Configure the Tailscale Serve HTTPS endpoint instead.',
+      { code: 'INDRASNET_MIXED_CONTENT', retryable: false },
+    );
+  }
   return value;
 };
 
@@ -124,6 +130,17 @@ const readErrorPayload = async (response: Response): Promise<ErrorPayload> => {
     return await response.json() as ErrorPayload;
   } catch {
     return {};
+  }
+};
+
+const readJsonResponse = async <T>(response: Response, context: string): Promise<T> => {
+  try {
+    return await response.json() as T;
+  } catch (cause) {
+    throw new IndrasNetProviderError(
+      `IndrasNet returned invalid JSON for ${context}; expected a JSON response from the broker API.`,
+      { code: 'INDRASNET_INVALID_RESPONSE', retryable: false, cause },
+    );
   }
 };
 
@@ -196,7 +213,7 @@ export const fetchIndrasNetWorkflows = async (
   );
   if (!response.ok) throw await requestError(response, 'IndrasNet workflow discovery');
 
-  const payload = await response.json() as WorkflowCatalogueResponse;
+  const payload = await readJsonResponse<WorkflowCatalogueResponse>(response, 'workflow discovery');
   if (!Array.isArray(payload.workflows)) {
     throw new IndrasNetProviderError('IndrasNet returned a malformed workflow catalogue.', {
       code: 'INDRASNET_INVALID_RESPONSE',
@@ -281,7 +298,7 @@ export const generateIndrasNetImage = async (
   );
   if (!response.ok) throw await requestError(response, `IndrasNet workflow "${workflowName}"`);
 
-  const result = await response.json() as RunWorkflowResponse;
+  const result = await readJsonResponse<RunWorkflowResponse>(response, `workflow "${workflowName}"`);
   const imagePath = result.images?.[0];
   if (!imagePath) {
     throw new IndrasNetProviderError('IndrasNet completed the workflow but returned no image.', {

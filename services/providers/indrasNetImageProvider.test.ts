@@ -33,10 +33,21 @@ describe('IndrasNet image provider', () => {
     vi.restoreAllMocks();
   });
 
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
 
   it('uses the default endpoint when the saved endpoint contains only whitespace', () => {
     expect(normalizeIndrasNetBaseUrl('  \n  ')).toBe(DEFAULT_INDRASNET_BASE_URL);
+  });
+
+  it('rejects an HTTP endpoint as configuration error when the page uses HTTPS', () => {
+    vi.stubGlobal('window', { location: { protocol: 'https:' } });
+
+    expect(() => normalizeIndrasNetBaseUrl('http://100.81.65.74:7777')).toThrowError(
+      expect.objectContaining({ code: 'INDRASNET_MIXED_CONTENT', retryable: false }),
+    );
   });
 
   it('advertises only client-ready text-to-image workflows with prompt bindings', async () => {
@@ -51,6 +62,16 @@ describe('IndrasNet image provider', () => {
     const workflows = await fetchIndrasNetWorkflows(endpoint);
 
     expect(workflows.map(workflow => workflow.name)).toEqual(['storybook']);
+  });
+
+  it('reports invalid workflow-catalogue JSON as a descriptive provider error', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<html>proxy error</html>', { status: 200 }));
+
+    const error = await fetchIndrasNetWorkflows(endpoint).catch(cause => cause);
+
+    expect(error).toBeInstanceOf(IndrasNetProviderError);
+    expect(error).toMatchObject({ code: 'INDRASNET_INVALID_RESPONSE', retryable: false });
+    expect(error.message).toContain('workflow discovery');
   });
 
   it('submits only semantic inputs exposed by the workflow manifest and downloads the image', async () => {
@@ -151,6 +172,21 @@ describe('IndrasNet image provider', () => {
     }).catch(cause => cause);
 
     expect(error).toMatchObject({ code: 'INDRASNET_NO_IMAGE', retryable: false });
+  });
+
+  it('reports invalid workflow-result JSON without authorizing fallback', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('<html>proxy error</html>', { status: 200 }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_INVALID_RESPONSE', retryable: false });
+    expect(error.message).toContain('workflow "storybook"');
   });
 
   it('keeps HTTP artifact download failures out of cloud fallback', async () => {
