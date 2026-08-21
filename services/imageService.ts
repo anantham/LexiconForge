@@ -243,15 +243,12 @@ export const generateImage = async (
 
     const startTime = performance.now();
     let durableMetricIdempotencyKey: string | undefined;
-    let executionStartedAt: number | undefined;
+    let providerExecutionDuration: number | undefined;
     const handleJobEvent: ImageJobLifecycleListener = event => {
         if (event.type === 'submitted') {
             durableMetricIdempotencyKey = `image:${event.resumeKind}:${event.externalTaskId}`;
             onJobEvent?.({ ...event, submittedModel: imageModel });
             return;
-        }
-        if (event.type === 'running' && executionStartedAt === undefined) {
-            executionStartedAt = performance.now();
         }
         onJobEvent?.(event);
     };
@@ -277,6 +274,9 @@ export const generateImage = async (
             });
             base64Data = output.base64;
             mimeTypeForReturn = output.mimeType;
+            providerExecutionDuration = output.executionDurationMs === undefined
+                ? undefined
+                : Math.max(0, output.executionDurationMs / 1000);
         }
         else if (imageModel.startsWith('imagen')) {
             ilog('[ImageService] Using Imagen model:', imageModel);
@@ -660,8 +660,9 @@ export const generateImage = async (
             }
             handleJobEvent({ type: 'submitted', externalTaskId: taskId, resumeKind: 'piapi' });
 
-            const taskData = await pollPiApiTask(taskId, apiKeyPi, handleJobEvent);
-            base64Data = await extractPiApiTaskImage(taskData);
+            const polled = await pollPiApiTask(taskId, apiKeyPi, handleJobEvent);
+            providerExecutionDuration = polled.executionDurationSeconds;
+            base64Data = await extractPiApiTaskImage(polled.taskData);
         }
         else if (imageModel === 'None') {
             // Explicit UX-friendly error when images are disabled
@@ -674,9 +675,6 @@ export const generateImage = async (
 
         const providerFinishedAt = performance.now();
         const requestTime = (providerFinishedAt - startTime) / 1000; // in seconds
-        const executionDuration = executionStartedAt === undefined
-            ? undefined
-            : Math.max(0, (providerFinishedAt - executionStartedAt) / 1000);
 
         // For OpenRouter models, fetch dynamic pricing before calculating cost
         if (imageModel.startsWith('openrouter/')) {
@@ -697,7 +695,7 @@ export const generateImage = async (
             model: imageModel,
             costUsd: cost,
             duration: requestTime,
-            ...(executionDuration !== undefined ? { executionDuration } : {}),
+            ...(providerExecutionDuration !== undefined ? { executionDuration: providerExecutionDuration } : {}),
             imageCount: 1,
             chapterId,
             success: true,
@@ -893,23 +891,17 @@ export const resumeIndrasNetTask = async (
         throw new Error(`Cannot resume IndrasNet task with model "${input.settings.imageModel}".`);
     }
     const resumedAt = performance.now();
-    let executionStartedAt: number | undefined;
     const output = await resumeIndrasNetImageTask({
         baseUrl: input.settings.indrasNetBaseUrl,
         jobId: input.taskId,
         workflowName: workflowNameFromImageModel(input.settings.imageModel),
-        onJobEvent: event => {
-            if (event.type === 'running' && executionStartedAt === undefined) {
-                executionStartedAt = performance.now();
-            }
-            input.onJobEvent?.(event);
-        },
+        onJobEvent: input.onJobEvent,
     });
     const providerFinishedAt = performance.now();
     const resumeObservationSeconds = (providerFinishedAt - resumedAt) / 1000;
-    const executionDuration = executionStartedAt === undefined
+    const executionDuration = output.executionDurationMs === undefined
         ? undefined
-        : Math.max(0, (providerFinishedAt - executionStartedAt) / 1000);
+        : Math.max(0, output.executionDurationMs / 1000);
     const brokerDurationSeconds = typeof output.brokerTimingMs === 'number' && Number.isFinite(output.brokerTimingMs)
         ? Math.max(0, output.brokerTimingMs / 1000)
         : undefined;
@@ -985,19 +977,11 @@ export const resumePiApiImageTask = async (
     if (!apiKey) throw new Error('PiAPI API key is missing. Cannot resume the existing image task.');
 
     const resumedAt = performance.now();
-    let executionStartedAt: number | undefined;
-    const taskData = await pollPiApiTask(input.taskId, apiKey, event => {
-        if (event.type === 'running' && executionStartedAt === undefined) {
-            executionStartedAt = performance.now();
-        }
-        input.onJobEvent?.(event);
-    });
-    const base64 = await extractPiApiTaskImage(taskData);
+    const polled = await pollPiApiTask(input.taskId, apiKey, input.onJobEvent);
+    const base64 = await extractPiApiTaskImage(polled.taskData);
     const providerFinishedAt = performance.now();
     const resumeSeconds = (providerFinishedAt - resumedAt) / 1000;
-    const executionDuration = executionStartedAt === undefined
-        ? undefined
-        : Math.max(0, (providerFinishedAt - executionStartedAt) / 1000);
+    const executionDuration = polled.executionDurationSeconds;
     const requestTime = resumeSeconds;
     const cost = calculateImageCost(model);
     const imageData = `data:image/png;base64,${base64}`;
@@ -1054,8 +1038,9 @@ async function pollPiApiTask(
     taskId: string,
     apiKey: string,
     onJobEvent?: ImageJobLifecycleListener,
-): Promise<unknown> {
+): Promise<{ taskData: unknown; executionDurationSeconds?: number }> {
     const delays = [1000, 1000, 2000, 3000, 5000, 8000];
+    let executionStartedAt: number | undefined;
     for (let tries = 0; tries < 60; tries++) {
         try {
             const poll = await fetch(`https://api.piapi.ai/api/v1/task/${taskId}`, {
@@ -1088,9 +1073,18 @@ async function pollPiApiTask(
                     },
                 );
             }
-            if (/succeeded|completed|success/.test(status)) return json;
+            if (/succeeded|completed|success/.test(status)) {
+                const terminalObservedAt = performance.now();
+                return {
+                    taskData: json,
+                    ...(executionStartedAt === undefined
+                        ? {}
+                        : { executionDurationSeconds: Math.max(0, (terminalObservedAt - executionStartedAt) / 1000) }),
+                };
+            }
             if (/failed|error/.test(status)) throw new Error(`PiAPI task failed: ${raw || JSON.stringify(json)}`);
             if (/running|processing|in[_ -]?progress/.test(status)) {
+                if (executionStartedAt === undefined) executionStartedAt = performance.now();
                 onJobEvent?.({ type: 'running' });
             } else {
                 // PiAPI queue-like states include pending/queued, and unknown

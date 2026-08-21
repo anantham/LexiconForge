@@ -103,6 +103,33 @@ describe('IndrasNet resumable image jobs', () => {
     expect(fetchMock.mock.calls[0][1]?.method).toBe('GET');
   });
 
+  it('stops execution timing at terminal status before artifact download', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(performance, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(6_000);
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(json({ job_id: 'timed-job', status: 'running' }))
+      .mockResolvedValueOnce(json({
+        job_id: 'timed-job',
+        status: 'completed',
+        images: ['/api/comfyui/view?filename=timed.png&type=output'],
+      }))
+      .mockResolvedValueOnce(image());
+    vi.stubGlobal('fetch', fetchMock);
+
+    const recovery = resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'timed-job',
+      workflowName: 'gen_anime',
+    });
+    await vi.advanceTimersByTimeAsync(2_000);
+    const result = await recovery;
+
+    expect(result.executionDurationMs).toBe(5_000);
+    vi.useRealTimers();
+  });
+
   it.each([401, 403, 408, 425, 429, 500, 503])(
     'preserves an accepted broker task after transient poll HTTP %s',
     async status => {

@@ -351,6 +351,12 @@ export interface GenerateIndrasNetImageOutput {
   mimeType: string;
   promptId?: string;
   brokerTimingMs?: number;
+  executionDurationMs?: number;
+}
+
+interface PolledIndrasNetJob {
+  result: RunWorkflowResponse;
+  executionDurationMs?: number;
 }
 
 export const generateIndrasNetImage = async (
@@ -403,6 +409,7 @@ export const generateIndrasNetImage = async (
     },
   );
   let result: RunWorkflowResponse;
+  let executionDurationMs: number | undefined;
   if (response.status === 404) {
     // Rollout compatibility: an older broker cannot have accepted a job at a
     // missing route, so falling back to the blocking endpoint cannot duplicate
@@ -429,9 +436,12 @@ export const generateIndrasNetImage = async (
       resumeKind: 'indrasnet',
       brokerBaseUrl: baseUrl,
     });
-    result = await pollIndrasNetJob(baseUrl, jobId, input.onJobEvent);
+    const polled = await pollIndrasNetJob(baseUrl, jobId, input.onJobEvent);
+    result = polled.result;
+    executionDurationMs = polled.executionDurationMs;
   }
-  return downloadIndrasNetResult(baseUrl, workflowName, result);
+  const output = await downloadIndrasNetResult(baseUrl, workflowName, result);
+  return executionDurationMs === undefined ? output : { ...output, executionDurationMs };
 };
 
 export interface ResumeIndrasNetImageTaskInput {
@@ -445,16 +455,20 @@ export const resumeIndrasNetImageTask = async (
   input: ResumeIndrasNetImageTaskInput,
 ): Promise<GenerateIndrasNetImageOutput> => {
   const baseUrl = normalizeIndrasNetBaseUrl(input.baseUrl);
-  const result = await pollIndrasNetJob(baseUrl, input.jobId, input.onJobEvent);
-  return downloadIndrasNetResult(baseUrl, input.workflowName, result);
+  const polled = await pollIndrasNetJob(baseUrl, input.jobId, input.onJobEvent);
+  const output = await downloadIndrasNetResult(baseUrl, input.workflowName, polled.result);
+  return polled.executionDurationMs === undefined
+    ? output
+    : { ...output, executionDurationMs: polled.executionDurationMs };
 };
 
 const pollIndrasNetJob = async (
   baseUrl: string,
   jobId: string,
   onJobEvent?: ImageJobLifecycleListener,
-): Promise<RunWorkflowResponse> => {
+): Promise<PolledIndrasNetJob> => {
   const deadline = Date.now() + GENERATION_TIMEOUT_MS;
+  let executionStartedAt: number | undefined;
   while (Date.now() < deadline) {
     const response = await fetchWithTimeout(
       `${baseUrl}/api/comfyui/jobs/${encodeURIComponent(jobId)}`,
@@ -471,7 +485,15 @@ const pollIndrasNetJob = async (
     }
     const job = await readJsonObjectResponse<JobStatusResponse>(response, `workflow job ${jobId}`);
     const status = job.status?.toLowerCase();
-    if (status === 'completed') return job;
+    if (status === 'completed') {
+      const terminalObservedAt = performance.now();
+      return {
+        result: job,
+        ...(executionStartedAt === undefined
+          ? {}
+          : { executionDurationMs: Math.max(0, terminalObservedAt - executionStartedAt) }),
+      };
+    }
     if (status === 'failed') {
       throw new IndrasNetProviderError(
         job.error?.detail || `IndrasNet workflow job ${jobId} failed.`,
@@ -488,6 +510,7 @@ const pollIndrasNetJob = async (
       throw invalidJsonResponseError(`workflow job ${jobId}`);
     }
     if (status === 'running') {
+      if (executionStartedAt === undefined) executionStartedAt = performance.now();
       onJobEvent?.({ type: 'running' });
     } else {
       // Re-emitting submitted preserves the already-accepted durable ID while

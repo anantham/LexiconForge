@@ -55,7 +55,7 @@ describe('restored image-job ETA metrics', () => {
     mocks.generateIndrasNetImage.mockImplementation(async input => {
       input.onJobEvent?.({ type: 'submitted', externalTaskId: 'broker-initial-1', resumeKind: 'indrasnet' });
       input.onJobEvent?.({ type: 'running' });
-      return { base64: 'aW1hZ2U=', mimeType: 'image/png' };
+      return { base64: 'aW1hZ2U=', mimeType: 'image/png', executionDurationMs: 12_000 };
     });
 
     await generateImage(
@@ -126,14 +126,12 @@ describe('restored image-job ETA metrics', () => {
     }));
   });
 
-  it('records a recovered IndrasNet running-phase duration separately from broker wall time', async () => {
-    vi.spyOn(performance, 'now')
-      .mockReturnValueOnce(1_000)
-      .mockReturnValueOnce(5_000)
-      .mockReturnValueOnce(17_000);
-    mocks.resumeIndrasNetImageTask.mockImplementation(async input => {
-      input.onJobEvent?.({ type: 'running' });
-      return { base64: 'aW1hZ2U=', mimeType: 'image/png', brokerTimingMs: 60_000 };
+  it('records provider-terminal execution timing separately from broker wall time', async () => {
+    mocks.resumeIndrasNetImageTask.mockResolvedValue({
+      base64: 'aW1hZ2U=',
+      mimeType: 'image/png',
+      brokerTimingMs: 60_000,
+      executionDurationMs: 12_000,
     });
 
     await resumeIndrasNetTask(input as any);
@@ -187,6 +185,35 @@ describe('restored image-job ETA metrics', () => {
       idempotencyKey: 'image:piapi:pi-task-1',
     }));
     expect(mocks.recordMetric.mock.calls[0][0]).not.toHaveProperty('duration');
+  });
+
+  it('stops recovered PiAPI execution timing at terminal status before artifact extraction', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(performance, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(5_000)
+      .mockReturnValueOnce(17_000)
+      .mockReturnValueOnce(50_000);
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: 'processing' }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        status: 'completed',
+        output: { base64: 'aW1hZ2U=' },
+      }), { status: 200 }));
+
+    const recovery = resumePiApiImageTask({
+      taskId: 'pi-timed-task',
+      settings: { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'test-key' } as any,
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      version: 2,
+    });
+    await vi.advanceTimersByTimeAsync(1_000);
+    await recovery;
+
+    expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
+      executionDuration: 12,
+    }));
   });
 
   it('keeps an initial PiAPI task submitted until the provider reports processing', async () => {
