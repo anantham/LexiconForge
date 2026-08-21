@@ -155,6 +155,22 @@ describe('IndrasNet image provider', () => {
     expect(error).toMatchObject({ code: 'INDRASNET_HTTP_500', retryable: false, status: 500 });
   });
 
+  it('treats a null error envelope as an unstructured nonretryable server error', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('null', { status: 500, statusText: 'Internal Server Error' }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toBeInstanceOf(IndrasNetProviderError);
+    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_500', retryable: false, status: 500 });
+    expect(error.message).toContain('500 Internal Server Error');
+  });
+
   it('treats an unstructured gateway timeout as an availability failure', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))

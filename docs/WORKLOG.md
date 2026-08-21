@@ -2740,3 +2740,12 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Fallback:** Revert this isolated recovery commit; no persistence migration or broker contract change.
 **Results:** Confirmed. The shared reader rejects null, arrays, and primitives before field access; workflow `images` must be an array when present. Settings uses the provider's guarded decoder and renders malformed imported IDs as an unavailable recovery option rather than throwing.
 **Verification:** Focused provider/fallback/Settings regressions 67/67; full Vitest 272 files, 9,137 passed and 347 skipped; TypeScript clean; repository ESLint 0 errors (existing warnings in the settings panel); production canary build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.
+
+### [2026-08-21 09:45 IST] [Agent: Codex]
+**Status:** Addressing exact-head Codex review on non-OK error envelopes.
+**Issue:** `readErrorPayload` trusted syntactically valid JSON `null` and malformed field types, allowing raw dereference errors or non-boolean retryability values before stable status classification.
+**Options:** (A) null check only — leaves arrays and malformed fields; (B) normalize only a non-null object's correctly typed error fields — selected; (C) require every proxy error to match the broker schema — brittle because gateway 502/504 bodies are intentionally unstructured.
+**Hypothesis:** Returning a sanitized `ErrorPayload` or `{}` preserves structured broker consent while applying the narrow unstructured status policy to every malformed shape. Prediction: a null HTTP 500 error reports `INDRASNET_HTTP_500`, status 500, and `retryable: false` without a TypeError. Confidence 0.99.
+**Fallback:** Revert this isolated parser commit; no success response, request, or persistence behavior changes.
+**Results:** Confirmed. Only correctly typed fields on non-null object envelopes reach error classification; every other body shape is unstructured. A null HTTP 500 now retains workflow/action context, status 500, `INDRASNET_HTTP_500`, and `retryable: false`.
+**Verification:** Focused provider/fallback regressions 21/21; full Vitest 272 files, 9,138 passed and 347 skipped; TypeScript clean; repository ESLint 0 errors; production canary build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.

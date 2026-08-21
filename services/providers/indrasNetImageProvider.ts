@@ -127,7 +127,14 @@ export const normalizeIndrasNetBaseUrl = (rawBaseUrl?: string): string => {
 
 const readErrorPayload = async (response: Response): Promise<ErrorPayload> => {
   try {
-    return await response.json() as ErrorPayload;
+    const decoded = await response.json() as unknown;
+    if (decoded === null || typeof decoded !== 'object' || Array.isArray(decoded)) return {};
+    const candidate = decoded as Record<string, unknown>;
+    return {
+      detail: typeof candidate.detail === 'string' ? candidate.detail : undefined,
+      code: typeof candidate.code === 'string' ? candidate.code : undefined,
+      retryable: typeof candidate.retryable === 'boolean' ? candidate.retryable : undefined,
+    };
   } catch {
     return {};
   }

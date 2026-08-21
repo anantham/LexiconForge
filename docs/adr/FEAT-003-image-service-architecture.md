@@ -207,3 +207,10 @@ configuration errors.
 - A malformed percent-encoded workflow ID from local storage or an imported
   session remains visible as an unavailable value in Settings so the user can
   select a valid model and recover without a render crash.
+
+### Error-envelope normalization — 2026-08-21
+
+- Non-OK response bodies contribute broker `detail`, `code`, and `retryable`
+  only when those fields have their declared primitive types on a non-null
+  object. Null, arrays, primitives, invalid JSON, and malformed fields are
+  treated as unstructured responses and classified by the narrow status policy.
