@@ -370,6 +370,91 @@ describe('imageSlice — durable task recovery', () => {
     });
   });
 
+  it('retires a stale durable job when its exact artifact version was already persisted', async () => {
+    const slice = createSlice();
+    const chapter = slice.chapters.get('chapter-1');
+    chapter.translationResult.suggestedIllustrations[0].generatedImage = {
+      imageData: '',
+      imageCacheKey: {
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        version: 2,
+      },
+      metadata: { version: 2, model: 'indrasnet/gen_anime' },
+    };
+    chapter.translationResult.imageVersionState = {
+      '[ILLUSTRATION-1]': {
+        latestVersion: 2,
+        activeVersion: 2,
+        versions: { 2: { version: 2, model: 'indrasnet/gen_anime' } },
+      },
+    };
+    slice.imageJobs['persisted-job'] = {
+      id: 'persisted-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'indrasnet/gen_anime',
+      requestedProvider: 'Asus / IndrasNet',
+      taskModel: 'indrasnet/gen_anime',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'expired-broker-task',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(resumeImageJobMock).not.toHaveBeenCalled();
+    expect(applyResumedImageJobArtifactMock).not.toHaveBeenCalled();
+    expect(slice.imageJobs['persisted-job']).toMatchObject({
+      status: 'completed',
+      durationSeconds: undefined,
+    });
+    expect(slice.showNotification).toHaveBeenCalledWith(
+      expect.stringContaining('already saved'),
+      'success',
+    );
+  });
+
+  it('does not trust version metadata without a concrete persisted artifact', async () => {
+    const slice = createSlice();
+    const chapter = slice.chapters.get('chapter-1');
+    chapter.translationResult.imageVersionState = {
+      '[ILLUSTRATION-1]': {
+        latestVersion: 2,
+        activeVersion: 2,
+        versions: { 2: { version: 2 } },
+      },
+    };
+    slice.imageJobs['metadata-only-job'] = {
+      id: 'metadata-only-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'indrasnet/gen_anime',
+      requestedProvider: 'Asus / IndrasNet',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'provider-task-still-required',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+    resumeImageJobMock.mockResolvedValueOnce({
+      imageState: { isLoading: false, data: 'recovered-image', error: null },
+    });
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(resumeImageJobMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'metadata-only-job' }),
+      expect.anything(),
+    );
+  });
+
   it('reattaches to an interrupted provider task and applies it to the originating marker', async () => {
     const slice = createSlice();
     slice.imageJobs['saved-job'] = {

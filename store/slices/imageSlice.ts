@@ -783,6 +783,35 @@ export const createImageSlice: StateCreator<
             { code: 'IMAGE_JOB_ORIGIN_MARKER_MISSING', retryable: false },
           );
         }
+        const persistedIllustration = originChapter.translationResult?.suggestedIllustrations?.find(
+          illustration => illustration.placementMarker === job.placementMarker
+        );
+        const persistedVersionState = originChapter.translationResult?.imageVersionState?.[
+          job.placementMarker
+        ] as ImageVersionStateEntry | undefined;
+        const persistedVersions = persistedVersionState?.versions ?? {};
+        const hasRequestedVersion = Object.prototype.hasOwnProperty.call(persistedVersions, job.version);
+        const generated = persistedIllustration?.generatedImage;
+        const concreteVersion = generated?.imageCacheKey?.version ?? generated?.metadata?.version;
+        const hasConcreteArtifact = (
+          !!generated?.imageCacheKey
+          || (typeof generated?.imageData === 'string' && generated.imageData.length > 0)
+          || (typeof persistedIllustration?.url === 'string' && persistedIllustration.url.length > 0)
+        );
+        if (
+          hasRequestedVersion
+          && hasConcreteArtifact
+          && typeof concreteVersion === 'number'
+          && concreteVersion >= job.version
+          && (persistedVersionState?.latestVersion ?? 0) >= job.version
+        ) {
+          // The artifact/version commit won the race before the tab closed,
+          // but the durable job record did not. Retire the stale task locally
+          // instead of repolling an expired provider ID or overwriting newer work.
+          get().completeImageJob(job.id, generated?.metadata?.model ?? job.taskModel, undefined);
+          get().showNotification('A previously submitted illustration was already saved in its originating chapter.', 'success');
+          return;
+        }
         const artifact = await ImageGenerationService.resumeImageJobArtifact(job, contextForJob(job));
         await applyWithinChapter(job.chapterId, async () => {
           const result = await ImageGenerationService.applyResumedImageJobArtifact(
