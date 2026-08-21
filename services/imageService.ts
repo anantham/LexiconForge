@@ -19,7 +19,10 @@ import {
   generateIndrasNetImage,
   IndrasNetProviderError,
   isIndrasNetImageModel,
+  resumeIndrasNetImageTask,
+  workflowNameFromImageModel,
 } from './providers/indrasNetImageProvider';
+import type { ImageJobLifecycleListener } from './imageJobTypes';
 
 // Image dimension constraints (provider API limits)
 const IMAGE_DIM_MIN = 256;        // Minimum accepted by Gemini/PiAPI
@@ -69,7 +72,15 @@ interface ImageGenerationError extends Error {
   originalError?: unknown;
   model?: string;
   canRetry?: boolean;
+  fallbackEligible?: boolean;
   suggestedActions?: string[];
+}
+
+interface RetryableProviderError extends Error {
+  canRetry?: boolean;
+  retryable?: boolean;
+  errorType?: string;
+  fallbackEligible?: boolean;
 }
 
 // --- CONSTANTS ---
@@ -194,7 +205,8 @@ export const generateImage = async (
   loraStrength?: number,
   chapterId?: string,  // NEW: for Cache API storage
   placementMarker?: string,  // NEW: for Cache API storage
-  version?: number  // NEW: version number for Cache API storage (defaults to 1)
+  version?: number,  // NEW: version number for Cache API storage (defaults to 1)
+  onJobEvent?: ImageJobLifecycleListener
 ): Promise<GeneratedImageResult> => {
     const imageModel = settings.imageModel || 'imagen-3.0-generate-001';
     const reqW = Math.max(IMAGE_DIM_MIN, Math.min(IMAGE_DIM_MAX, (settings.imageWidth || IMAGE_DIM_DEFAULT)));
@@ -230,6 +242,16 @@ export const generateImage = async (
     }
 
     const startTime = performance.now();
+    let durableMetricIdempotencyKey: string | undefined;
+    let providerExecutionDuration: number | undefined;
+    const handleJobEvent: ImageJobLifecycleListener = event => {
+        if (event.type === 'submitted') {
+            durableMetricIdempotencyKey = `image:${event.resumeKind}:${event.externalTaskId}`;
+            onJobEvent?.({ ...event, submittedModel: imageModel });
+            return;
+        }
+        onJobEvent?.(event);
+    };
     
     try {
         let base64Data: string;
@@ -248,9 +270,13 @@ export const generateImage = async (
                 width: reqW,
                 height: reqH,
                 guidanceScale,
+                onJobEvent: handleJobEvent,
             });
             base64Data = output.base64;
             mimeTypeForReturn = output.mimeType;
+            providerExecutionDuration = output.executionDurationMs === undefined
+                ? undefined
+                : Math.max(0, output.executionDurationMs / 1000);
         }
         else if (imageModel.startsWith('imagen')) {
             ilog('[ImageService] Using Imagen model:', imageModel);
@@ -632,66 +658,11 @@ export const generateImage = async (
                 iwarn('[PiAPI] Unexpected create response (first 500 chars):', rawCreateText.slice(0, 500));
                 throw new Error('PiAPI: missing task id in create response.');
             }
+            handleJobEvent({ type: 'submitted', externalTaskId: taskId, resumeKind: 'piapi' });
 
-            // 2) POLL TASK (with timeout and exponential backoff)
-            let taskData: any = null;
-            const delays = [1000, 1000, 2000, 3000, 5000, 8000]; // Exponential backoff in ms
-            for (let tries = 0; tries < 60; tries++) {
-                try {
-                    // Add 8-second timeout to each fetch to prevent indefinite hangs
-                    const poll = await fetch(`https://api.piapi.ai/api/v1/task/${taskId}`, {
-                        headers: {
-                            'X-API-Key': apiKeyPi,
-                            'Authorization': `Bearer ${apiKeyPi}`,
-                        },
-                        signal: AbortSignal.timeout(8000) // 8 second timeout per request
-                    });
-                    const raw = await poll.text().catch(() => '');
-                    let json: any = {};
-                    try { json = raw ? JSON.parse(raw) : {}; } catch {}
-                    if (!poll.ok) throw new Error(`PiAPI get-task failed (${poll.status}): ${raw}`);
-                    // Some envelopes put status in different places
-                    const status = String(json.status || json.state || json.data?.status || json.data?.state || '').toLowerCase();
-                    if ((json && json.error) || (typeof json.code === 'number' && json.code >= 400)) {
-                        const msg = json?.error?.message || json?.message || 'Unknown PiAPI polling error';
-                        throw new Error(`PiAPI get-task returned error: ${msg}\nBody: ${raw}`);
-                    }
-                    if (/succeeded|completed|success/.test(status)) { taskData = json; break; }
-                    if (/failed|error/.test(status)) throw new Error(`PiAPI task failed: ${raw || JSON.stringify(json)}`);
-
-                    // Exponential backoff delay
-                    const delay = delays[Math.min(tries, delays.length - 1)];
-                    await new Promise(r => setTimeout(r, delay));
-                } catch (err: any) {
-                    // Retry on timeout, but re-throw other errors
-                    if (err.name === 'TimeoutError' || err.name === 'AbortError') {
-                        console.warn(`[PiAPI] Poll timeout on attempt ${tries + 1}/60, retrying...`);
-                        continue; // Retry on timeout
-                    }
-                    throw err; // Re-throw non-timeout errors
-                }
-            }
-            if (!taskData) throw new Error('PiAPI: task did not complete in time.');
-
-            // 3) EXTRACT IMAGE
-            let b64 = extractPiAPIBase64(taskData);
-            if (!b64) {
-                // Some responses provide only a temporary image_url
-                const imgUrl = extractPiAPIImageUrl(taskData);
-                if (imgUrl) {
-                    try {
-                        b64 = await fetchImageAsBase64(imgUrl);
-                    } catch (e: any) {
-                        ierror('[ImageService/PiAPI] Failed to fetch image_url:', imgUrl, e);
-                        throw new Error(`PiAPI task returned an image_url but it could not be fetched (possible CORS or network issue). URL: ${imgUrl}`);
-                    }
-                }
-            }
-            if (!b64) {
-                ierror('[ImageService/PiAPI] Unexpected task response:', taskData);
-                throw new Error('PiAPI task completed but no image payload found.');
-            }
-            base64Data = b64;
+            const polled = await pollPiApiTask(taskId, apiKeyPi, handleJobEvent);
+            providerExecutionDuration = polled.executionDurationSeconds;
+            base64Data = await extractPiApiTaskImage(polled.taskData);
         }
         else if (imageModel === 'None') {
             // Explicit UX-friendly error when images are disabled
@@ -702,7 +673,8 @@ export const generateImage = async (
             throw new Error(`Unrecognized image model: ${imageModel}. Supported prefixes: indrasnet/, imagen, gemini, openrouter/, Qubico/.`);
         }
 
-        const requestTime = (performance.now() - startTime) / 1000; // in seconds
+        const providerFinishedAt = performance.now();
+        const requestTime = (providerFinishedAt - startTime) / 1000; // in seconds
 
         // For OpenRouter models, fetch dynamic pricing before calculating cost
         if (imageModel.startsWith('openrouter/')) {
@@ -722,10 +694,13 @@ export const generateImage = async (
             provider,
             model: imageModel,
             costUsd: cost,
+            duration: requestTime,
+            ...(providerExecutionDuration !== undefined ? { executionDuration: providerExecutionDuration } : {}),
             imageCount: 1,
             chapterId,
             success: true,
             tokens: imageTokenUsage, // Include token usage for historical cost estimation
+            idempotencyKey: durableMetricIdempotencyKey,
         });
 
         // NEW: Store in Cache API if chapter/marker provided
@@ -779,7 +754,9 @@ export const generateImage = async (
 
         // Enhanced error handling with specific detection for common issues
         let message = error.message || 'Unknown error occurred';
-        let errorType = 'GENERIC_ERROR';
+        let errorType = typeof (error as RetryableProviderError).errorType === 'string'
+            ? (error as RetryableProviderError).errorType as string
+            : 'GENERIC_ERROR';
 
         if (error instanceof IndrasNetProviderError) {
             errorType = error.code;
@@ -818,6 +795,7 @@ export const generateImage = async (
             provider,
             model: imageModel,
             costUsd: 0,
+            duration: (performance.now() - startTime) / 1000,
             imageCount: 0,
             chapterId,
             success: false,
@@ -831,7 +809,12 @@ export const generateImage = async (
           model: imageModel,
           canRetry: error instanceof IndrasNetProviderError
             ? error.retryable
-            : ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType),
+            : (error as RetryableProviderError).canRetry === true
+              || (error as RetryableProviderError).retryable === true
+              || ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType),
+          fallbackEligible: error instanceof IndrasNetProviderError
+            ? error.fallbackEligible
+            : (error as RetryableProviderError).fallbackEligible,
           suggestedActions: getSuggestedActions(errorType, imageModel),
         });
 
@@ -892,6 +875,274 @@ function getSuggestedActions(errorType: string, model: string): string[] {
 }
 
 // ---- PiAPI helpers ----
+export interface ResumeIndrasNetTaskInput {
+    taskId: string;
+    settings: AppSettings;
+    chapterId: string;
+    placementMarker: string;
+    version: number;
+    onJobEvent?: ImageJobLifecycleListener;
+}
+
+export const resumeIndrasNetTask = async (
+    input: ResumeIndrasNetTaskInput,
+): Promise<GeneratedImageResult> => {
+    if (!isIndrasNetImageModel(input.settings.imageModel)) {
+        throw new Error(`Cannot resume IndrasNet task with model "${input.settings.imageModel}".`);
+    }
+    const resumedAt = performance.now();
+    const output = await resumeIndrasNetImageTask({
+        baseUrl: input.settings.indrasNetBaseUrl,
+        jobId: input.taskId,
+        workflowName: workflowNameFromImageModel(input.settings.imageModel),
+        onJobEvent: input.onJobEvent,
+    });
+    const providerFinishedAt = performance.now();
+    const resumeObservationSeconds = (providerFinishedAt - resumedAt) / 1000;
+    const executionDuration = output.executionTimingComplete !== true || output.executionDurationMs === undefined
+        ? undefined
+        : Math.max(0, output.executionDurationMs / 1000);
+    const brokerDurationSeconds = typeof output.brokerTimingMs === 'number' && Number.isFinite(output.brokerTimingMs)
+        ? Math.max(0, output.brokerTimingMs / 1000)
+        : undefined;
+    const requestTime = brokerDurationSeconds ?? resumeObservationSeconds;
+    const imageData = `data:${output.mimeType};base64,${output.base64}`;
+
+    // A restored job may have spent hours waiting while the tab was closed.
+    // Broker/browser end-to-end timing remains useful telemetry, but the
+    // running-state ETA consumes only the observed execution-phase duration.
+    await apiMetricsService.recordMetric({
+        apiType: 'image',
+        provider: 'Asus / IndrasNet',
+        model: input.settings.imageModel,
+        costUsd: 0,
+        ...(brokerDurationSeconds !== undefined ? { duration: brokerDurationSeconds } : {}),
+        ...(executionDuration !== undefined ? { executionDuration } : {}),
+        imageCount: 1,
+        chapterId: input.chapterId,
+        success: true,
+        idempotencyKey: `image:indrasnet:${input.taskId}`,
+    });
+
+    try {
+        const { ImageCacheStore } = await import('./imageCacheService');
+        if (ImageCacheStore.isSupported()) {
+            const imageCacheKey = await ImageCacheStore.storeImage(
+                input.chapterId,
+                input.placementMarker,
+                imageData,
+                input.version,
+            );
+            return {
+                imageData: '',
+                imageCacheKey,
+                requestTime,
+                cost: 0,
+                execution: { provider: 'Asus / IndrasNet', model: input.settings.imageModel },
+            };
+        }
+    } catch (error) {
+        console.error('[ImageService/IndrasNet] Failed to cache resumed task image; keeping base64 fallback:', error);
+    }
+
+    return {
+        imageData,
+        requestTime,
+        cost: 0,
+        execution: { provider: 'Asus / IndrasNet', model: input.settings.imageModel },
+    };
+};
+
+export interface ResumePiApiImageTaskInput {
+    taskId: string;
+    settings: AppSettings;
+    chapterId: string;
+    placementMarker: string;
+    version: number;
+    onJobEvent?: ImageJobLifecycleListener;
+}
+
+/**
+ * Resume polling an already-created PiAPI task. This never creates a second
+ * paid task: the durable provider id is the sole input to the provider call.
+ */
+export const resumePiApiImageTask = async (
+    input: ResumePiApiImageTaskInput,
+): Promise<GeneratedImageResult> => {
+    const model = input.settings.imageModel;
+    if (!model.startsWith('Qubico/')) {
+        throw new Error(`Cannot resume PiAPI task with non-PiAPI model "${model}".`);
+    }
+    const apiKey = getConfiguredApiKey(input.settings, 'PiAPI');
+    if (!apiKey) throw new Error('PiAPI API key is missing. Cannot resume the existing image task.');
+
+    const resumedAt = performance.now();
+    const polled = await pollPiApiTask(input.taskId, apiKey, input.onJobEvent);
+    const base64 = await extractPiApiTaskImage(polled.taskData);
+    const providerFinishedAt = performance.now();
+    const resumeSeconds = (providerFinishedAt - resumedAt) / 1000;
+    const executionDuration = polled.executionTimingComplete
+        ? polled.executionDurationSeconds
+        : undefined;
+    const requestTime = resumeSeconds;
+    const cost = calculateImageCost(model);
+    const imageData = `data:image/png;base64,${base64}`;
+
+    // PiAPI does not return provider-side generation timing for a restored
+    // task. The post-reload polling interval is only a partial observation,
+    // so deliberately omit it from empirical ETA history. The provider task
+    // id makes spend accounting idempotent if recovery is invoked twice.
+    await apiMetricsService.recordMetric({
+        apiType: 'image',
+        provider: 'PiAPI',
+        model,
+        costUsd: cost,
+        ...(executionDuration !== undefined ? { executionDuration } : {}),
+        imageCount: 1,
+        chapterId: input.chapterId,
+        success: true,
+        idempotencyKey: `image:piapi:${input.taskId}`,
+    });
+
+    try {
+        const { ImageCacheStore } = await import('./imageCacheService');
+        if (ImageCacheStore.isSupported()) {
+            const imageCacheKey = await ImageCacheStore.storeImage(
+                input.chapterId,
+                input.placementMarker,
+                imageData,
+                input.version,
+            );
+            return {
+                imageData: '',
+                imageCacheKey,
+                requestTime,
+                cost,
+                execution: { provider: 'PiAPI', model },
+            };
+        }
+    } catch (error) {
+        console.error('[ImageService/PiAPI] Failed to cache resumed task image; keeping base64 fallback:', error);
+    }
+
+    return {
+        imageData,
+        requestTime,
+        cost,
+        execution: { provider: 'PiAPI', model },
+    };
+};
+
+const piApiTaskFailureCanRetry = (status: number): boolean =>
+    status === 401 || status === 403 || [408, 425, 429].includes(status) || status >= 500;
+
+async function pollPiApiTask(
+    taskId: string,
+    apiKey: string,
+    onJobEvent?: ImageJobLifecycleListener,
+): Promise<{ taskData: unknown; executionDurationSeconds?: number; executionTimingComplete: boolean }> {
+    const delays = [1000, 1000, 2000, 3000, 5000, 8000];
+    let executionStartedAt: number | undefined;
+    let queuedObserved = false;
+    for (let tries = 0; tries < 60; tries++) {
+        try {
+            const poll = await fetch(`https://api.piapi.ai/api/v1/task/${taskId}`, {
+                headers: {
+                    'X-API-Key': apiKey,
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                signal: AbortSignal.timeout(8000),
+            });
+            const raw = await poll.text().catch(() => '');
+            let json: any = {};
+            try { json = raw ? JSON.parse(raw) : {}; } catch {}
+            if (!poll.ok) {
+                throw Object.assign(
+                    new Error(`PiAPI get-task failed (${poll.status}): ${raw}`),
+                    { errorType: `PIAPI_HTTP_${poll.status}`, canRetry: piApiTaskFailureCanRetry(poll.status) },
+                );
+            }
+            const status = String(json.status || json.state || json.data?.status || json.data?.state || '').toLowerCase();
+            if ((json && json.error) || (typeof json.code === 'number' && json.code >= 400)) {
+                const message = json?.error?.message || json?.message || 'Unknown PiAPI polling error';
+                const envelopeCode = typeof json.code === 'number'
+                    ? json.code
+                    : typeof json?.error?.code === 'number' ? json.error.code : undefined;
+                throw Object.assign(
+                    new Error(`PiAPI get-task returned error: ${message}\nBody: ${raw}`),
+                    {
+                        errorType: envelopeCode ? `PIAPI_ENVELOPE_${envelopeCode}` : 'PIAPI_ERROR_ENVELOPE',
+                        ...(envelopeCode ? { canRetry: piApiTaskFailureCanRetry(envelopeCode) } : {}),
+                    },
+                );
+            }
+            if (/succeeded|completed|success/.test(status)) {
+                const terminalObservedAt = performance.now();
+                return {
+                    taskData: json,
+                    executionTimingComplete: queuedObserved && executionStartedAt !== undefined,
+                    ...(executionStartedAt === undefined
+                        ? {}
+                        : { executionDurationSeconds: Math.max(0, (terminalObservedAt - executionStartedAt) / 1000) }),
+                };
+            }
+            if (/failed|error/.test(status)) throw new Error(`PiAPI task failed: ${raw || JSON.stringify(json)}`);
+            if (/running|processing|in[_ -]?progress/.test(status)) {
+                if (executionStartedAt === undefined) executionStartedAt = performance.now();
+                onJobEvent?.({ type: 'running' });
+            } else {
+                const confirmedQueued = /pending|queued|queueing|in[_ -]?queue/.test(status);
+                if (confirmedQueued && executionStartedAt === undefined) queuedObserved = true;
+                // PiAPI queue-like states include pending/queued, and unknown
+                // non-terminal states are conservatively treated as submitted.
+                // Unknown states do not prove that recovery observed the full
+                // queue-to-running boundary, so they cannot qualify ETA data.
+                onJobEvent?.({ type: 'submitted', externalTaskId: taskId, resumeKind: 'piapi' });
+            }
+            await new Promise(resolve => setTimeout(resolve, delays[Math.min(tries, delays.length - 1)]));
+        } catch (error: any) {
+            if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+                console.warn(`[PiAPI] Poll timeout on attempt ${tries + 1}/60, retrying task ${taskId}.`);
+                continue;
+            }
+            if (error instanceof TypeError) {
+                throw Object.assign(
+                    new Error(`PiAPI task ${taskId} is temporarily unreachable.`, { cause: error }),
+                    { errorType: 'PIAPI_UNREACHABLE', canRetry: true },
+                );
+            }
+            throw error;
+        }
+    }
+    throw Object.assign(
+        new Error(`PiAPI task ${taskId} did not complete within the polling window.`),
+        { errorType: 'PIAPI_POLL_TIMEOUT', canRetry: true },
+    );
+}
+
+async function extractPiApiTaskImage(taskData: unknown): Promise<string> {
+    let base64 = extractPiAPIBase64(taskData);
+    if (!base64) {
+        const imageUrl = extractPiAPIImageUrl(taskData);
+        if (imageUrl) {
+            try {
+                base64 = await fetchImageAsBase64(imageUrl);
+            } catch (error) {
+                ierror('[ImageService/PiAPI] Failed to fetch image_url:', imageUrl, error);
+                throw Object.assign(
+                    new Error(`PiAPI task returned an image_url but it could not be fetched (possible CORS or network issue). URL: ${imageUrl}`, { cause: error }),
+                    { errorType: 'PIAPI_IMAGE_DOWNLOAD_FAILED', canRetry: true },
+                );
+            }
+        }
+    }
+    if (!base64) {
+        ierror('[ImageService/PiAPI] Unexpected task response:', taskData);
+        throw new Error('PiAPI task completed but no image payload found.');
+    }
+    return base64;
+}
+
 function extractTaskId(obj: any): string | null {
     if (!obj || typeof obj !== 'object') return null;
     // direct

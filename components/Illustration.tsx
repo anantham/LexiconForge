@@ -27,6 +27,8 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     chapter,
     generatedImages,
     handleRetryImage,
+    dismissImageJob,
+    resumeInterruptedImageJobs,
     updateIllustrationPrompt,
     updateIllustrationPlan,
     regenerateIllustrationPlanFromCaption,
@@ -53,6 +55,8 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     chapter: s.currentChapterId ? s.getChapter(s.currentChapterId) : null,
     generatedImages: s.generatedImages,
     handleRetryImage: s.handleRetryImage,
+    dismissImageJob: s.dismissImageJob,
+    resumeInterruptedImageJobs: s.resumeInterruptedImageJobs,
     updateIllustrationPrompt: s.updateIllustrationPrompt,
     updateIllustrationPlan: s.updateIllustrationPlan,
     regenerateIllustrationPlanFromCaption: s.regenerateIllustrationPlanFromCaption,
@@ -147,8 +151,34 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   }, [candidateKeys, generatedImages, canonicalChapterId]);
   const base64FromIllust = (illust as any)?.url as string | undefined;
   const hasIllust = !!illust;
-  const isLoading = imageState?.isLoading || false;
+  const imageStateIsLoading = imageState?.isLoading || false;
   const error = imageState?.error || null;
+  const activeImageJob = useAppStore(useShallow(state => {
+    const job = Object.values(state.imageJobs ?? {}).find(candidate =>
+      candidate.chapterId === canonicalChapterId
+      && normalizeMarker(candidate.placementMarker) === normalizedMarker
+      && (
+        ['queued', 'submitted', 'running'].includes(candidate.status)
+        || (
+          candidate.status === 'interrupted'
+          && ['piapi', 'indrasnet'].includes(candidate.resumeKind)
+          && Boolean(candidate.externalTaskId)
+        )
+      )
+    );
+    return {
+      id: job?.id ?? null,
+      status: job?.status ?? null,
+      model: job?.taskModel ?? job?.requestedModel ?? null,
+      startedAt: job?.status === 'running' ? job.startedAt : null,
+      error: job?.error ?? null,
+      recoveryPersistenceError: job?.recoveryPersistenceError ?? null,
+    };
+  }));
+  const isInterrupted = activeImageJob.status === 'interrupted';
+  const isLoading = !isInterrupted && (imageStateIsLoading || activeImageJob.status !== null);
+  const countdownModel = activeImageJob.model ?? settings?.imageModel;
+  const isQueued = isLoading && (activeImageJob.status === 'queued' || activeImageJob.status === 'submitted');
 
   // NEW: Support for Cache API with version tracking
   const baseCacheKey = illust?.generatedImage?.imageCacheKey ||
@@ -204,49 +234,57 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = React.useState<number | null>(null);
   const [countdownStartTime, setCountdownStartTime] = React.useState<number | null>(null);
   const [estimatedTotalTime, setEstimatedTotalTime] = React.useState<number | null>(null);
+  const [estimateSampleCount, setEstimateSampleCount] = React.useState(0);
+  const [estimatedModel, setEstimatedModel] = React.useState<string | null>(null);
+  const estimateMatchesModel = estimatedModel === countdownModel;
+  const displayedTimeRemaining = estimateMatchesModel ? estimatedTimeRemaining : null;
+  const displayedTotalTime = estimateMatchesModel ? estimatedTotalTime : null;
+  const displayedCountdownStart = estimateMatchesModel ? countdownStartTime : null;
 
   // Effect to manage countdown timer when loading starts/stops
   React.useEffect(() => {
-    if (isLoading) {
-      // Fetch estimated time when loading starts
-      const imageModel = settings?.imageModel;
+    let cancelled = false;
 
+    if (isLoading && !isQueued) {
       const fetchEstimatedTime = async () => {
-        let estimatedSeconds: number;
-
-        if (imageModel) {
-          // Try model-specific average first
-          const timeData = await apiMetricsService.getAverageImageGenerationTime(imageModel);
-          if (timeData?.avgTimeSeconds) {
-            estimatedSeconds = timeData.avgTimeSeconds;
-          } else {
-            // Fall back to median of all models
-            const medianTime = await apiMetricsService.getMedianImageGenerationTime();
-            estimatedSeconds = medianTime;
-          }
-        } else {
-          // No model selected, use median of all data
-          const medianTime = await apiMetricsService.getMedianImageGenerationTime();
-          estimatedSeconds = medianTime;
+        if (!countdownModel) return;
+        const timeData = await apiMetricsService.getAverageImageGenerationTime(countdownModel);
+        if (cancelled) return;
+        setEstimatedModel(countdownModel);
+        if (!timeData) {
+          setEstimatedTotalTime(null);
+          setEstimatedTimeRemaining(null);
+          setEstimateSampleCount(0);
+          setCountdownStartTime(null);
+          return;
         }
 
-        setEstimatedTotalTime(estimatedSeconds);
-        setEstimatedTimeRemaining(estimatedSeconds);
-        setCountdownStartTime(Date.now());
+        const executionStartedAt = activeImageJob.startedAt ?? Date.now();
+        const elapsedSeconds = Math.max(0, (Date.now() - executionStartedAt) / 1000);
+        setEstimatedTotalTime(timeData.avgTimeSeconds);
+        setEstimatedTimeRemaining(Math.max(0, timeData.avgTimeSeconds - elapsedSeconds));
+        setEstimateSampleCount(timeData.sampleCount);
+        setCountdownStartTime(executionStartedAt);
       };
 
-      fetchEstimatedTime();
+      void fetchEstimatedTime();
     } else {
       // Reset countdown when loading completes
       setEstimatedTimeRemaining(null);
       setCountdownStartTime(null);
       setEstimatedTotalTime(null);
+      setEstimateSampleCount(0);
+      setEstimatedModel(null);
     }
-  }, [isLoading, settings?.imageModel]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeImageJob.startedAt, countdownModel, isLoading, isQueued]);
 
   // Effect to update countdown every second
   React.useEffect(() => {
-    if (!isLoading || countdownStartTime === null || estimatedTotalTime === null) {
+    if (!isLoading || !estimateMatchesModel || countdownStartTime === null || estimatedTotalTime === null) {
       return;
     }
 
@@ -257,7 +295,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [isLoading, countdownStartTime, estimatedTotalTime]);
+  }, [isLoading, estimateMatchesModel, countdownStartTime, estimatedTotalTime]);
 
   // Advanced controls state
   const controlsKey = canonicalChapterId
@@ -419,30 +457,98 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
 
   return (
     <div className="my-6 flex justify-center flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-      {isLoading && (
+      {isInterrupted && (
+        <div className="flex min-h-48 flex-col items-center justify-center p-4 text-center">
+          <p className="font-semibold text-amber-700 dark:text-amber-300">Illustration paused</p>
+          <p className="mt-2 max-w-md text-xs text-gray-600 dark:text-gray-400">
+            {activeImageJob.error || (activeImageJob.recoveryPersistenceError
+              ? 'The provider task could not be checked in this tab.'
+              : 'The saved provider task could not be checked. It will be checked again after reload.')}
+          </p>
+          {activeImageJob.recoveryPersistenceError && (
+            <>
+              <p className="mt-2 max-w-md text-xs font-semibold text-amber-700 dark:text-amber-300" role="alert">
+                {activeImageJob.recoveryPersistenceError}
+              </p>
+              <p className="mt-2 max-w-md text-xs text-gray-500 dark:text-gray-500">
+                When the provider is reachable, resume this existing task here without reloading or starting a new generation.
+              </p>
+            </>
+          )}
+          <p className="mt-2 max-w-md text-xs text-gray-500 dark:text-gray-500">
+            Dismiss the saved task only if you want to start a new generation; the provider task may still finish.
+          </p>
+          {activeImageJob.id && (
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {activeImageJob.recoveryPersistenceError && (
+                <button
+                  type="button"
+                  className="rounded-md bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
+                  onClick={() => { void resumeInterruptedImageJobs(); }}
+                >
+                  Resume existing task
+                </button>
+              )}
+              <button
+                type="button"
+                className="rounded-md border border-amber-500 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 dark:text-amber-200 dark:hover:bg-amber-900/30"
+                onClick={() => {
+                  if (activeImageJob.id) dismissImageJob(activeImageJob.id);
+                }}
+              >
+                Dismiss paused task
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      {isQueued && (
+        <div className="flex h-48 flex-col items-center justify-center text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {activeImageJob.status === 'submitted'
+              ? 'Queued by provider…'
+              : 'Waiting for earlier illustrations to finish…'}
+          </p>
+          {activeImageJob.recoveryPersistenceError && (
+            <p className="mt-2 max-w-md text-xs font-semibold text-amber-700 dark:text-amber-300" role="alert">
+              {activeImageJob.recoveryPersistenceError}
+            </p>
+          )}
+        </div>
+      )}
+      {isLoading && !isQueued && (
         <div className="flex flex-col items-center justify-center h-48">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Generating illustration...</p>
-          {estimatedTimeRemaining !== null && (
+          {activeImageJob.recoveryPersistenceError && (
+            <p className="mt-2 max-w-md text-center text-xs font-semibold text-amber-700 dark:text-amber-300" role="alert">
+              {activeImageJob.recoveryPersistenceError}
+            </p>
+          )}
+          {displayedTimeRemaining === null ? (
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-              {estimatedTimeRemaining > 0
-                ? `~${Math.ceil(estimatedTimeRemaining)}s remaining`
+              Gathering ETA data…
+            </p>
+          ) : (
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
+              {displayedTimeRemaining > 0
+                ? `~${Math.ceil(displayedTimeRemaining)}s remaining (${estimateSampleCount} prior ${estimateSampleCount === 1 ? 'run' : 'runs'})`
                 : 'Almost done...'}
             </p>
           )}
-          {estimatedTotalTime !== null && countdownStartTime !== null && (
+          {displayedTotalTime !== null && displayedCountdownStart !== null && (
             <div className="mt-2 w-32 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-blue-500 transition-all duration-1000 ease-linear"
                 style={{
-                  width: `${Math.min(100, ((estimatedTotalTime - (estimatedTimeRemaining ?? 0)) / estimatedTotalTime) * 100)}%`
+                  width: `${Math.min(100, ((displayedTotalTime - (displayedTimeRemaining ?? 0)) / displayedTotalTime) * 100)}%`
                 }}
               />
             </div>
           )}
         </div>
       )}
-      {!isLoading && error && (
+      {!isInterrupted && !isLoading && error && (
         <div className="flex flex-col items-center justify-center min-h-48 text-center p-4">
           <p className="text-red-500 font-semibold mb-2">Image generation failed</p>
           
@@ -518,7 +624,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           </div>
         </div>
       )}
-      {!isLoading && !error && base64 && (
+      {!isInterrupted && !isLoading && !error && base64 && (
         <>
           <img
             src={base64}
@@ -695,7 +801,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
         </>
       )}
 
-      {!isLoading && !error && !base64 && hasIllust && (
+      {!isInterrupted && !isLoading && !error && !base64 && hasIllust && (
         <div className="flex flex-col items-center justify-center w-full text-center p-2">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">No image yet for {marker}.</p>
           

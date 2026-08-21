@@ -58,6 +58,7 @@ export const adaptTranslationRecordToResult = (
     proposal: record.proposal || null,
     footnotes: record.footnotes || [],
     suggestedIllustrations: record.suggestedIllustrations || [],
+    imageVersionState: record.imageVersionState,
     usageMetrics,
     id: translationId,
     version: record.version,

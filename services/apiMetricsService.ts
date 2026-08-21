@@ -16,8 +16,10 @@
 export type ApiCallType = 'translation' | 'image' | 'audio' | 'diff_analysis' | 'sutta_studio' | 'library_search';
 
 export interface ApiCallMetric {
-  id: string; // UUID
+  id: string; // UUID, or a stable key for an idempotent recovered operation
   timestamp: string; // ISO timestamp
+  /** Stable provider-operation key used to make recovered durable jobs ledger-idempotent. */
+  idempotencyKey?: string;
   apiType: ApiCallType;
   provider: string; // e.g., "OpenRouter", "Gemini", "PiAPI"
   model: string; // e.g., "google/gemini-2.5-flash", "imagen-4.0"
@@ -28,6 +30,8 @@ export interface ApiCallMetric {
     total: number;
   };
   duration?: number; // For audio - duration in seconds
+  /** Provider-running to terminal observation used by phase-specific image ETAs. */
+  executionDuration?: number;
   imageCount?: number; // For image generation
   chapterId?: string; // Associated chapter (if applicable)
   success: boolean; // Whether the API call succeeded
@@ -133,6 +137,45 @@ export function estimateTranslationTime(
   return { avgTimeSeconds: 30, sampleCount: 0, source: 'default', confidence: 'unknown' };
 }
 
+export interface ImageTimeEstimate {
+  avgTimeSeconds: number;
+  sampleCount: number;
+  minTimeSeconds: number;
+  maxTimeSeconds: number;
+}
+
+const imageEtaDuration = (metric: ApiCallMetric): number | null => {
+  if (typeof metric.executionDuration === 'number' && metric.executionDuration > 0) {
+    return metric.executionDuration;
+  }
+  const isDurableProviderTask = metric.idempotencyKey?.startsWith('image:piapi:')
+    || metric.idempotencyKey?.startsWith('image:indrasnet:');
+  if (isDurableProviderTask) return null;
+  return typeof metric.duration === 'number' && metric.duration > 0 ? metric.duration : null;
+};
+
+/** Exact-model image ETA from phase-compatible successful durations only. */
+export function estimateImageGenerationTime(
+  allMetrics: ApiCallMetric[],
+  modelId: string,
+): ImageTimeEstimate | null {
+  const durations = allMetrics
+    .filter(metric =>
+      metric.apiType === 'image'
+      && metric.model === modelId
+      && metric.success
+    )
+    .map(imageEtaDuration)
+    .filter((duration): duration is number => duration !== null);
+  if (durations.length === 0) return null;
+  return {
+    avgTimeSeconds: median(durations),
+    sampleCount: durations.length,
+    minTimeSeconds: Math.min(...durations),
+    maxTimeSeconds: Math.max(...durations),
+  };
+}
+
 class ApiMetricsService {
   private storeName = 'api_metrics';
   private sessionMetrics: ApiCallMetric[] = [];
@@ -150,9 +193,16 @@ class ApiMetricsService {
    * Record a new API call metric
    */
   async recordMetric(metric: Omit<ApiCallMetric, 'id' | 'timestamp'>): Promise<void> {
+    const id = metric.idempotencyKey
+      ? `idempotent:${metric.idempotencyKey}`
+      : this.generateUUID();
+    if (this.sessionMetrics.some(existing => existing.id === id)) {
+      console.log(`[ApiMetrics] Skipped duplicate metric for ${metric.idempotencyKey}.`);
+      return;
+    }
     const fullMetric: ApiCallMetric = {
       ...metric,
-      id: this.generateUUID(),
+      id,
       timestamp: new Date().toISOString(),
     };
 
@@ -164,15 +214,38 @@ class ApiMetricsService {
       const db = await this.openDatabase();
       const tx = db.transaction([this.storeName], 'readwrite');
       const store = tx.objectStore(this.storeName);
-      store.add(fullMetric);
+      const request = store.add(fullMetric);
 
-      await new Promise<void>((resolve, reject) => {
-        tx.oncomplete = () => resolve();
+      const outcome = await new Promise<'added' | 'duplicate'>((resolve, reject) => {
+        request.onerror = (event) => {
+          if (metric.idempotencyKey && request.error?.name === 'ConstraintError') {
+            event.preventDefault();
+            event.stopPropagation();
+            resolve('duplicate');
+            return;
+          }
+          reject(request.error);
+        };
+        tx.oncomplete = () => resolve('added');
         tx.onerror = () => reject(tx.error);
       });
 
+      if (outcome === 'duplicate') {
+        this.sessionMetrics = this.sessionMetrics.filter(existing => existing.id !== id);
+        console.log(`[ApiMetrics] Skipped already-persisted metric for ${metric.idempotencyKey}.`);
+        return;
+      }
+
       console.log(`[ApiMetrics] Recorded ${metric.apiType} call: $${metric.costUsd.toFixed(4)} (${metric.provider}/${metric.model})`);
     } catch (error) {
+      const errorName = error && typeof error === 'object' && 'name' in error
+        ? String((error as { name?: unknown }).name)
+        : '';
+      if (metric.idempotencyKey && errorName === 'ConstraintError') {
+        this.sessionMetrics = this.sessionMetrics.filter(existing => existing.id !== id);
+        console.log(`[ApiMetrics] Skipped already-persisted metric for ${metric.idempotencyKey}.`);
+        return;
+      }
       console.error('[ApiMetrics] Failed to persist metric:', error);
     }
   }
@@ -275,7 +348,7 @@ class ApiMetricsService {
       }
 
       // Generate CSV
-      const headers = ['Timestamp', 'Type', 'Provider', 'Model', 'Cost (USD)', 'Tokens', 'Success', 'Chapter ID', 'Error'];
+      const headers = ['Timestamp', 'Type', 'Provider', 'Model', 'Cost (USD)', 'Tokens', 'Duration (s)', 'Execution Duration (s)', 'Success', 'Chapter ID', 'Error'];
       const rows = filteredMetrics.map(m => [
         m.timestamp,
         m.apiType,
@@ -283,6 +356,8 @@ class ApiMetricsService {
         m.model,
         m.costUsd.toFixed(4),
         m.tokens ? m.tokens.total.toString() : 'N/A',
+        m.duration?.toString() ?? 'N/A',
+        m.executionDuration?.toString() ?? 'N/A',
         m.success ? 'Yes' : 'No',
         m.chapterId || 'N/A',
         m.errorMessage || 'N/A',
@@ -465,20 +540,18 @@ class ApiMetricsService {
       });
 
       // Filter to successful image generation calls with duration data
-      const imageMetrics = allMetrics.filter(m =>
-        m.apiType === 'image' &&
-        m.success &&
-        typeof m.duration === 'number' &&
-        m.duration > 0
-      );
+      const times = allMetrics
+        .filter(m => m.apiType === 'image' && m.success)
+        .map(imageEtaDuration)
+        .filter((duration): duration is number => duration !== null)
+        .sort((a, b) => a - b);
 
-      if (imageMetrics.length === 0) {
+      if (times.length === 0) {
         console.log('[ApiMetrics] No historical image time data available, using default 20s');
         return 20;
       }
 
       // Calculate median
-      const times = imageMetrics.map(m => m.duration!).sort((a, b) => a - b);
       const mid = Math.floor(times.length / 2);
       const median = times.length % 2 !== 0
         ? times[mid]
@@ -515,51 +588,12 @@ class ApiMetricsService {
         request.onerror = () => reject(request.error);
       });
 
-      // Filter to successful image generation calls for this model
-      // Note: We need to look at the costUsd/tokens to estimate time since duration isn't always set
-      const imageMetrics = allMetrics.filter(m =>
-        m.apiType === 'image' &&
-        m.model === modelId &&
-        m.success
-      );
-
-      if (imageMetrics.length === 0) {
+      const result = estimateImageGenerationTime(allMetrics, modelId);
+      if (!result) {
         console.log(`[ApiMetrics] No historical time data for image model: ${modelId}`);
         return null;
       }
-
-      // Calculate based on the timestamps of consecutive calls as a proxy for generation time
-      // Or use any duration field if available
-      let totalTime = 0;
-      let validSamples = 0;
-      let minTime = Infinity;
-      let maxTime = 0;
-
-      // For now, estimate ~15-30 seconds per image as a default if we don't have duration
-      // This will be refined as we collect more data
-      const defaultTimePerImage = 20; // seconds
-
-      for (const m of imageMetrics) {
-        // If duration is set (for audio/some image calls), use it
-        const timeEstimate = m.duration ?? defaultTimePerImage;
-        totalTime += timeEstimate;
-        validSamples++;
-        minTime = Math.min(minTime, timeEstimate);
-        maxTime = Math.max(maxTime, timeEstimate);
-      }
-
-      if (validSamples === 0) {
-        return null;
-      }
-
-      const result = {
-        avgTimeSeconds: totalTime / validSamples,
-        sampleCount: validSamples,
-        minTimeSeconds: minTime === Infinity ? defaultTimePerImage : minTime,
-        maxTimeSeconds: maxTime === 0 ? defaultTimePerImage : maxTime,
-      };
-
-      console.log(`[ApiMetrics] Time averages for ${modelId}:`, result);
+      console.log(`[ApiMetrics] Empirical image duration median for ${modelId}:`, result);
       return result;
     } catch (error) {
       console.error('[ApiMetrics] Failed to get average image generation time:', error);

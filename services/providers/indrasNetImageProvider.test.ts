@@ -169,6 +169,7 @@ describe('IndrasNet image provider', () => {
         status: 200,
         headers: { 'content-type': 'application/json' },
       }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
         prompt_id: 'prompt-7',
         timing_ms: 4321,
@@ -189,7 +190,7 @@ describe('IndrasNet image provider', () => {
       guidanceScale: 4.5,
     });
 
-    const runRequest = fetchMock.mock.calls[1];
+    const runRequest = fetchMock.mock.calls[2];
     expect(runRequest[0]).toBe(`${endpoint}/api/comfyui/run_workflow`);
     expect(JSON.parse(String(runRequest[1]?.body))).toEqual({
       workflow_name: 'storybook',
@@ -198,7 +199,7 @@ describe('IndrasNet image provider', () => {
     });
     expect(result).toMatchObject({ mimeType: 'image/png', promptId: 'prompt-7', brokerTimingMs: 4321 });
     expect(result.base64.length).toBeGreaterThan(0);
-    expect(timeoutSpy.mock.calls.map(([timeoutMs]) => timeoutMs)).toEqual([10_000, 1_830_000, 60_000]);
+    expect(timeoutSpy.mock.calls.map(([timeoutMs]) => timeoutMs)).toEqual([10_000, 30_000, 1_830_000, 60_000]);
     expect(productionInfoSpy).not.toHaveBeenCalled();
   });
 
@@ -219,6 +220,24 @@ describe('IndrasNet image provider', () => {
 
     expect(error).toBeInstanceOf(IndrasNetProviderError);
     expect(error).toMatchObject({ code: 'GPU_BUSY', retryable: true, status: 503 });
+  });
+
+  it('blocks cloud fallback when job submission may have reached the broker before transport failure', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockRejectedValueOnce(new DOMException('response timed out', 'TimeoutError'));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({
+      code: 'INDRASNET_TIMEOUT',
+      retryable: true,
+      fallbackEligible: false,
+    });
   });
 
   it('does not infer fallback eligibility from an unstructured internal server error', async () => {
@@ -262,12 +281,18 @@ describe('IndrasNet image provider', () => {
       prompt: 'A lighthouse',
     }).catch(cause => cause);
 
-    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_504', retryable: true, status: 504 });
+    expect(error).toMatchObject({
+      code: 'INDRASNET_HTTP_504',
+      retryable: true,
+      fallbackEligible: true,
+      status: 504,
+    });
   });
 
   it('does not fallback when a completed workflow returns no image', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ prompt_id: 'prompt-without-output' }), { status: 200 }));
 
     const error = await generateIndrasNetImage({
@@ -282,6 +307,7 @@ describe('IndrasNet image provider', () => {
   it('reports invalid workflow-result JSON without authorizing fallback', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response('<html>proxy error</html>', { status: 200 }));
 
     const error = await generateIndrasNetImage({
@@ -297,6 +323,7 @@ describe('IndrasNet image provider', () => {
   it('rejects a null workflow-result envelope without authorizing fallback', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response('null', { status: 200 }));
 
     const error = await generateIndrasNetImage({
@@ -312,6 +339,7 @@ describe('IndrasNet image provider', () => {
   it('rejects non-string workflow image entries without authorizing fallback', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ images: [{}] }), { status: 200 }));
 
     const error = await generateIndrasNetImage({
@@ -326,6 +354,7 @@ describe('IndrasNet image provider', () => {
   it('wraps malformed artifact URLs in a descriptive provider error', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['http://[invalid'] }), { status: 200 }));
 
     const error = await generateIndrasNetImage({
@@ -342,6 +371,7 @@ describe('IndrasNet image provider', () => {
   it('rejects artifact URLs outside the configured broker origin', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['https://untrusted.example/image.png'] }), {
         status: 200,
       }));
@@ -353,12 +383,13 @@ describe('IndrasNet image provider', () => {
     }).catch(cause => cause);
 
     expect(error).toMatchObject({ code: 'INDRASNET_INVALID_ARTIFACT_URL', retryable: false });
-    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(3);
   });
 
   it('keeps HTTP artifact download failures out of cloud fallback', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
         status: 200,
       }))
@@ -370,7 +401,30 @@ describe('IndrasNet image provider', () => {
       prompt: 'A lighthouse',
     }).catch(cause => cause);
 
-    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_504', retryable: false, status: 504 });
+    expect(error).toMatchObject({
+      code: 'INDRASNET_HTTP_504',
+      retryable: true,
+      fallbackEligible: false,
+      status: 504,
+    });
+  });
+
+  it('treats a missing completed artifact as terminal', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=missing.png'] }), {
+        status: 200,
+      }))
+      .mockResolvedValueOnce(new Response('artifact not found', { status: 404 }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_404', retryable: false, status: 404 });
   });
 
   it('keeps artifact body-read failures out of cloud fallback', async () => {
@@ -378,6 +432,7 @@ describe('IndrasNet image provider', () => {
     vi.spyOn(imageResponse, 'blob').mockRejectedValue(new DOMException('stream aborted', 'AbortError'));
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
         status: 200,
       }))
@@ -389,12 +444,17 @@ describe('IndrasNet image provider', () => {
       prompt: 'A lighthouse',
     }).catch(cause => cause);
 
-    expect(error).toMatchObject({ code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: false });
+    expect(error).toMatchObject({
+      code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
+      retryable: true,
+      fallbackEligible: false,
+    });
   });
 
   it('rejects an HTML artifact body returned with HTTP 200', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
         status: 200,
       }))
@@ -416,6 +476,7 @@ describe('IndrasNet image provider', () => {
   it('rejects an empty image artifact returned with HTTP 200', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
         status: 200,
       }))

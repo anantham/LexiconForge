@@ -1,6 +1,7 @@
 import type { AppSettings, GeneratedImageResult } from '../types';
 import { generateImage, imageProviderForModel } from './imageService';
 import { isIndrasNetImageModel } from './providers/indrasNetImageProvider';
+import type { ImageJobLifecycleListener } from './imageJobTypes';
 
 export interface ImageGenerationInvocation {
   prompt: string;
@@ -13,11 +14,13 @@ export interface ImageGenerationInvocation {
   chapterId?: string;
   placementMarker?: string;
   version?: number;
+  onJobEvent?: ImageJobLifecycleListener;
 }
 
 interface RetryableImageError extends Error {
   errorType?: string;
   canRetry?: boolean;
+  fallbackEligible?: boolean;
 }
 
 export class ImageFallbackError extends Error {
@@ -34,6 +37,7 @@ export class ImageFallbackError extends Error {
     attemptedModel: string;
     fallbackModel: string;
     primaryReasonCode: string;
+    fallbackTaskSubmitted: boolean;
   }) {
     const fallbackReasonCode = options.fallbackError.errorType || 'FALLBACK_PROVIDER_FAILURE';
     super(
@@ -48,7 +52,12 @@ export class ImageFallbackError extends Error {
     this.fallbackError = options.fallbackError;
     this.attemptedModel = options.attemptedModel;
     this.fallbackModel = options.fallbackModel;
-    this.canRetry = options.fallbackError.canRetry === true;
+    // Once fallback owns a durable task, only that provider can say whether
+    // its ID remains recoverable. Before fallback acceptance, retaining the
+    // primary's retryability preserves the ordinary manual-retry affordance.
+    this.canRetry = options.fallbackTaskSubmitted
+      ? options.fallbackError.canRetry === true
+      : options.primaryError.canRetry === true || options.fallbackError.canRetry === true;
   }
 }
 
@@ -64,6 +73,7 @@ const invoke = (input: ImageGenerationInvocation): Promise<GeneratedImageResult>
     input.chapterId,
     input.placementMarker,
     input.version,
+    input.onJobEvent,
   );
 
 /**
@@ -75,15 +85,25 @@ export const generateImageWithConfiguredFallback = async (
   input: ImageGenerationInvocation,
 ): Promise<GeneratedImageResult> => {
   const primaryStartedAt = performance.now();
+  let durablePrimarySubmitted = false;
   try {
-    return await invoke(input);
+    return await invoke({
+      ...input,
+      onJobEvent: event => {
+        if (event.type === 'submitted') durablePrimarySubmitted = true;
+        input.onJobEvent?.(event);
+      },
+    });
   } catch (unknownError) {
     const primaryElapsedSeconds = (performance.now() - primaryStartedAt) / 1000;
     const error = unknownError as RetryableImageError;
     const fallbackModel = input.settings.imageFallbackModel?.trim() || 'none';
     const localFallbackInvalid = isIndrasNetImageModel(fallbackModel);
     const fallbackEnabled = fallbackModel.toLowerCase() !== 'none' && !localFallbackInvalid;
-    const eligible = isIndrasNetImageModel(input.settings.imageModel) && error.canRetry === true;
+    const eligible = isIndrasNetImageModel(input.settings.imageModel)
+      && error.canRetry === true
+      && error.fallbackEligible !== false
+      && !durablePrimarySubmitted;
 
     if (localFallbackInvalid) {
       console.warn('[ImageGenerationFallback] Ignoring invalid local fallback; fallback must be a cloud model', {
@@ -97,18 +117,34 @@ export const generateImageWithConfiguredFallback = async (
     }
 
     const reasonCode = error.errorType || 'INDRASNET_RETRYABLE_FAILURE';
+    const fallback = {
+      attemptedProvider: imageProviderForModel(input.settings.imageModel),
+      attemptedModel: input.settings.imageModel,
+      reasonCode,
+      reason: error.message,
+    };
     console.warn('[ImageGenerationFallback] Using explicit cloud fallback', {
       attemptedModel: input.settings.imageModel,
       fallbackModel,
       reasonCode,
       reason: error.message,
     });
+    input.onJobEvent?.({ type: 'provider_switched', model: fallbackModel, fallback });
 
     let fallbackResult: GeneratedImageResult;
+    let durableFallbackSubmitted = false;
     try {
       fallbackResult = await invoke({
         ...input,
         settings: { ...input.settings, imageModel: fallbackModel },
+        onJobEvent: event => {
+          if (event.type === 'submitted') {
+            durableFallbackSubmitted = true;
+            input.onJobEvent?.({ ...event, fallback });
+            return;
+          }
+          input.onJobEvent?.(event);
+        },
       });
     } catch (fallbackUnknownError) {
       const fallbackError = fallbackUnknownError instanceof Error
@@ -120,6 +156,7 @@ export const generateImageWithConfiguredFallback = async (
         attemptedModel: input.settings.imageModel,
         fallbackModel,
         primaryReasonCode: reasonCode,
+        fallbackTaskSubmitted: durableFallbackSubmitted,
       });
     }
     return {
@@ -128,12 +165,7 @@ export const generateImageWithConfiguredFallback = async (
       execution: {
         provider: fallbackResult.execution?.provider || imageProviderForModel(fallbackModel),
         model: fallbackResult.execution?.model || fallbackModel,
-        fallback: {
-          attemptedProvider: imageProviderForModel(input.settings.imageModel),
-          attemptedModel: input.settings.imageModel,
-          reasonCode,
-          reason: error.message,
-        },
+        fallback,
       },
     };
   }

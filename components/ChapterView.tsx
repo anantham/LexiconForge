@@ -148,6 +148,7 @@ const ChapterView: React.FC = () => {
   const showImageMetrics = Boolean(
     viewMode === 'english' &&
       imageGenerationMetrics &&
+      imageGenerationMetrics.chapterId === currentChapterId &&
       !isLoading.fetching &&
       !translationInProgress &&
       !isHydratingCurrent

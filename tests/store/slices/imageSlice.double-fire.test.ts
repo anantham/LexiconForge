@@ -16,6 +16,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AppSettings } from '../../../types';
 import { createImageSlice, type ImageSlice } from '../../../store/slices/imageSlice';
+import { createImageJobsSlice, type ImageJobsSlice } from '../../../store/slices/imageJobsSlice';
 
 const { retryImageMock } = vi.hoisted(() => ({
   retryImageMock: vi.fn(),
@@ -45,7 +46,7 @@ const mockSettings: AppSettings = {
   temperature: 0.7,
 } as AppSettings;
 
-type TestState = ImageSlice & {
+type TestState = ImageSlice & ImageJobsSlice & {
   chapters: Map<string, unknown>;
   settings: AppSettings;
   activePromptTemplate: null;
@@ -77,6 +78,7 @@ const createSlice = (): TestState => {
   const get = () => state as TestState;
   const api = { setState: set, getState: get, subscribe: () => () => {}, destroy: () => {} } as never;
 
+  Object.assign(state, createImageJobsSlice(set as never, get as never, api));
   Object.assign(state, createImageSlice(set as never, get as never, api));
   return state as TestState;
 };
@@ -132,5 +134,47 @@ describe('imageSlice — handleRetryImage double-fire guard (P0.5)', () => {
 
     expect(retryImageMock).toHaveBeenCalledTimes(2);
     expect(slice.generatedImages[KEY]?.data).toBe('img-v1');
+  });
+
+  it('derives fallback retry duration from the reset task-owner clock', async () => {
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_000);
+    try {
+      const slice = createSlice();
+      slice.settings = { ...slice.settings, imageModel: 'indrasnet/gen_anime' };
+      retryImageMock.mockImplementationOnce(async (_chapterId, _marker, context) => {
+        now.mockReturnValue(10_000);
+        context.onJobEvent?.('[ILLUSTRATION-1]', {
+          type: 'provider_switched',
+          model: 'Qubico/flux1-dev',
+          fallback: {
+            attemptedProvider: 'Asus / IndrasNet',
+            attemptedModel: 'indrasnet/gen_anime',
+            reasonCode: 'COMFYUI_OFFLINE',
+            reason: 'broker offline',
+          },
+        });
+        now.mockReturnValue(15_000);
+        return {
+          imageState: { isLoading: false, data: 'fallback-image', error: null },
+          metrics: {
+            chapterId: 'chapter-1',
+            count: 1,
+            totalTime: 100,
+            totalCost: 0.03,
+            lastModel: 'Qubico/flux1-dev',
+          },
+        };
+      });
+
+      await slice.handleRetryImage('chapter-1', '[ILLUSTRATION-1]');
+
+      expect(Object.values(slice.imageJobs)[0]).toMatchObject({
+        status: 'completed',
+        executedModel: 'Qubico/flux1-dev',
+        durationSeconds: 5,
+      });
+    } finally {
+      now.mockRestore();
+    }
   });
 });

@@ -353,6 +353,9 @@ describe('bootstrap helpers', () => {
           showSettingsModal: true,
           sessionProvenance: { originalCreator: { name: 'Alice', versionId: 'v1', createdAt: '2024-01-01' }, contributors: [] },
           sessionVersion: { versionId: 'v1', displayName: 'v1', style: 'faithful', features: [] },
+          imageJobs: {
+            'job-1': { id: 'job-1', chapterId: 'chapter-1', placementMarker: '[ILLUSTRATION-1]' },
+          } as any,
         })
       );
 
@@ -363,6 +366,7 @@ describe('bootstrap helpers', () => {
       expect(state.showSettingsModal).toBe(false);
       expect(state.sessionProvenance).toBeNull();
       expect(state.sessionVersion).toBeNull();
+      expect(state.imageJobs).toEqual({});
       expect(state.appScreen).toBe('library');
       expect(state.activeNovelId).toBeNull();
       expect(state.viewMode).toBe('fan');
@@ -537,6 +541,24 @@ describe('bootstrap helpers', () => {
       await initializeStore();
 
       expect(state.appScreen).toBe('library');
+      expect(state.setInitialized).toHaveBeenCalledWith(true);
+    });
+
+    it('joins last-active chapter hydration before enabling recovered image jobs', async () => {
+      navigationOpsMock.getLastActiveChapter.mockResolvedValue({ id: 'last-chapter' });
+      let resolveHydration!: () => void;
+      const hydration = new Promise<void>(resolve => { resolveHydration = resolve; });
+      const loadChapterFromIDB = vi.fn().mockReturnValue(hydration);
+      const { ctx, state } = createCtx(createState({ loadChapterFromIDB }));
+      const initializeStore = createInitializeStore(ctx);
+
+      const initialization = initializeStore();
+      await vi.waitFor(() => expect(loadChapterFromIDB).toHaveBeenCalledWith('last-chapter'));
+      expect(state.setInitialized).not.toHaveBeenCalledWith(true);
+
+      resolveHydration();
+      await initialization;
+
       expect(state.setInitialized).toHaveBeenCalledWith(true);
     });
 

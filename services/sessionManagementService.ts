@@ -15,6 +15,7 @@ import type { AppSettings, PromptTemplate, DiffMarkerVisibilitySettings } from '
 import appConfig from '../config/app.json';
 import { getDefaultDiffPrompt } from './diff/promptUtils';
 import { DEFAULT_INDRASNET_BASE_URL } from './providers/indrasNetImageProvider';
+import { RESUMABLE_IMAGE_JOBS_STORAGE_KEY } from './imageJobTypes';
 
 const settingsStorageKey = 'app-settings';
 
@@ -351,6 +352,7 @@ export class SessionManagementService {
           localStorage.removeItem('LF_AI_DEBUG_FULL');
           localStorage.removeItem('LF_AI_DEBUG_LEVEL');
           localStorage.removeItem('store-debug');
+          localStorage.removeItem(RESUMABLE_IMAGE_JOBS_STORAGE_KEY);
         } catch (e) {
           console.warn('[SessionManagement] Failed to clear debug flags:', e);
         }

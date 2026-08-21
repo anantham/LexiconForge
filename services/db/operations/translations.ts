@@ -95,6 +95,10 @@ export class TranslationOps {
     return translationFacade.getActiveByStableId(stableId);
   }
 
+  static async getById(translationId: string): Promise<TranslationRecord | null> {
+    return translationFacade.getById(translationId);
+  }
+
   static async storeByStableId(
     stableId: string,
     result: TranslationResult,

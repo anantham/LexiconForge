@@ -430,12 +430,25 @@ modern furniture, happy atmosphere
 - Check browser privacy settings
 - Make sure "Clear on exit" is disabled
 
-### Slow Generation
+### Image jobs, navigation, and ETA
 
-**Takes longer than 30s:**
-- Normal for `flux-1-pro` or high-resolution images
-- Use `flux-1-schnell` for faster results
-- Check internet connection
+- You may continue reading or change chapters while an illustration runs. The
+  global image-job banner remains visible and opens the chapter where the job
+  originated.
+- Completion and failure notifications are independent of the currently loaded
+  chapter. The result is inserted by stable chapter ID and illustration marker,
+  not by whichever chapter happens to be on screen.
+- ETA is empirical: LexiconForge uses the median of measured successful runs for
+  the exact selected image model/workflow. With no measured samples it shows
+  elapsed time and “gathering ETA data” instead of inventing a number.
+- PiAPI and current IndrasNet brokers expose durable task IDs and resume polling
+  after reload. Browser-direct request/response providers survive navigation but
+  not reload and are never automatically replayed, avoiding duplicate billing.
+- A sleeping or temporarily unreachable IndrasNet keeps its task ID so the same
+  task can be checked after a later reload. Restarting the broker loses its
+  process-local registry and makes that job terminally unrecoverable. The
+  configured cloud fallback remains a direct browser request and runs only for
+  structured retryable local failures.
 
 ---
 

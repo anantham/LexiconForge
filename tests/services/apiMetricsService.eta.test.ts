@@ -20,9 +20,10 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  apiMetricsService,
   estimateTranslationTime,
+  estimateImageGenerationTime,
   median,
-  type TranslationTimeEstimate,
 } from '../../services/apiMetricsService';
 import type { ApiCallMetric } from '../../services/apiMetricsService';
 
@@ -162,5 +163,89 @@ describe('estimateTranslationTime — issue #13', () => {
     );
     expect(r.sampleCount).toBe(1);
     expect(r.avgTimeSeconds).toBe(7);
+  });
+});
+
+describe('estimateImageGenerationTime — empirical image jobs', () => {
+  it('returns null rather than inventing a default when measured durations are absent', () => {
+    expect(estimateImageGenerationTime([
+      mkMetric('image-model', 'OpenRouter', 20, { apiType: 'image', duration: undefined }),
+    ], 'image-model')).toBeNull();
+  });
+
+  it('uses the measured median and ignores failed or unrelated calls', () => {
+    const metrics = [
+      mkMetric('image-model', 'OpenRouter', 10, { apiType: 'image' }),
+      mkMetric('image-model', 'OpenRouter', 12, { apiType: 'image' }),
+      mkMetric('image-model', 'OpenRouter', 120, { apiType: 'image' }),
+      mkMetric('image-model', 'OpenRouter', 999, { apiType: 'image', success: false }),
+      mkMetric('other-image-model', 'OpenRouter', 999, { apiType: 'image' }),
+    ];
+    expect(estimateImageGenerationTime(metrics, 'image-model')).toEqual({
+      avgTimeSeconds: 12,
+      sampleCount: 3,
+      minTimeSeconds: 10,
+      maxTimeSeconds: 120,
+    });
+  });
+
+  it('uses execution-phase samples for durable providers and excludes legacy queue-inclusive samples', () => {
+    const metrics = [
+      mkMetric('indrasnet/gen_anime', 'Asus / IndrasNet', 900, {
+        apiType: 'image',
+        idempotencyKey: 'image:indrasnet:legacy-queued-job',
+      }),
+      mkMetric('indrasnet/gen_anime', 'Asus / IndrasNet', 420, {
+        apiType: 'image',
+        executionDuration: 18,
+        idempotencyKey: 'image:indrasnet:phase-measured-job',
+      }),
+      mkMetric('indrasnet/gen_anime', 'Asus / IndrasNet', 22, {
+        apiType: 'image',
+        executionDuration: 20,
+        idempotencyKey: 'image:indrasnet:second-phase-measured-job',
+      }),
+    ];
+
+    expect(estimateImageGenerationTime(metrics, 'indrasnet/gen_anime')).toEqual({
+      avgTimeSeconds: 19,
+      sampleCount: 2,
+      minTimeSeconds: 18,
+      maxTimeSeconds: 20,
+    });
+  });
+});
+
+describe('durable metric idempotency', () => {
+  it('counts a recovered provider task once in session and lifetime ledgers', async () => {
+    await apiMetricsService.clearAllMetrics();
+    const metric = {
+      apiType: 'image' as const,
+      provider: 'PiAPI',
+      model: 'Qubico/flux1-schnell',
+      costUsd: 0.002,
+      imageCount: 1,
+      chapterId: 'chapter-1',
+      success: true,
+      idempotencyKey: 'image:piapi:task-dedup-test',
+    };
+
+    await apiMetricsService.recordMetric(metric);
+    await apiMetricsService.recordMetric(metric);
+
+    const summary = await apiMetricsService.getCompleteSummary();
+    expect(summary.session.totalCalls).toBe(1);
+    expect(summary.session.totalCost).toBe(0.002);
+    expect(summary.lifetime.totalCalls).toBe(1);
+    expect(summary.lifetime.totalCost).toBe(0.002);
+
+    // Simulate a fresh browser session while retaining IndexedDB. A repeated
+    // recovery must not re-add the already-accounted provider operation.
+    (apiMetricsService as unknown as { sessionMetrics: ApiCallMetric[] }).sessionMetrics = [];
+    await apiMetricsService.recordMetric(metric);
+    const afterReload = await apiMetricsService.getCompleteSummary();
+    expect(afterReload.session.totalCalls).toBe(0);
+    expect(afterReload.lifetime.totalCalls).toBe(1);
+    expect(afterReload.lifetime.totalCost).toBe(0.002);
   });
 });

@@ -17,6 +17,7 @@ import { createSettingsSlice, type SettingsSlice } from './slices/settingsSlice'
 import { createChaptersSlice, type ChaptersSlice } from './slices/chaptersSlice';
 import { createTranslationsSlice, type TranslationsSlice } from './slices/translationsSlice';
 import { createImageSlice, type ImageSlice } from './slices/imageSlice';
+import { createImageJobsSlice, type ImageJobsSlice } from './slices/imageJobsSlice';
 import { createExportSlice, type ExportSlice } from './slices/exportSlice';
 import { createAudioSlice, type AudioSlice } from './slices/audioSlice';
 import { createOscilloscopeSlice } from './slices/oscilloscopeSlice';
@@ -35,6 +36,7 @@ export const useAppStore = create<StoreState>((set, get, store) => ({
   ...createChaptersSlice(set, get, store),
   ...createTranslationsSlice(set, get, store),
   ...createImageSlice(set, get, store),
+  ...createImageJobsSlice(set, get, store),
   ...createExportSlice(set, get, store),
   ...createAudioSlice(set, get, store),
   ...createOscilloscopeSlice(set, get, store),
@@ -68,5 +70,6 @@ export type { SettingsSlice } from './slices/settingsSlice';
 export type { ChaptersSlice } from './slices/chaptersSlice';
 export type { TranslationsSlice } from './slices/translationsSlice';
 export type { ImageSlice } from './slices/imageSlice';
+export type { ImageJobsSlice } from './slices/imageJobsSlice';
 export type { ExportSlice } from './slices/exportSlice';
 export type { OscilloscopeSlice } from '../types/oscilloscope';

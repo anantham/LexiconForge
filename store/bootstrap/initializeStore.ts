@@ -472,12 +472,9 @@ const hydratePersistedState = async (
       ctx.get().setReaderReady();
 
       if (!currentState.chapters.has(lastChapterData.id)) {
-        ctx
-          .get()
-          .loadChapterFromIDB(lastChapterData.id)
-          .catch((e) => {
-            console.error(`[Store] Failed to load chapter ${lastChapterData.id} from IDB:`, e);
-          });
+        await ctx.get().loadChapterFromIDB(lastChapterData.id).catch((e) => {
+          console.error(`[Store] Failed to load chapter ${lastChapterData.id} from IDB:`, e);
+        });
       }
       bootstrapLog('loadLastActiveChapter complete', { chapterId: lastChapterData.id });
     } else {

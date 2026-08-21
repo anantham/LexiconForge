@@ -10,6 +10,76 @@ const warn = (message: string, error: unknown) => {
   console.warn('[TranslationPersistence]', message, error);
 };
 
+type PersistableTranslation = (TranslationResult & { id?: string }) | TranslationRecord;
+
+const validMetadata = (value: unknown): value is string => (
+  typeof value === 'string' && value.length > 0 && value !== 'unknown'
+);
+
+const numberOr = (value: unknown, fallback: number): number => (
+  typeof value === 'number' && Number.isFinite(value) ? value : fallback
+);
+
+/**
+ * Hydrated translations intentionally carry only the fields needed by the
+ * reader. Reconcile their mutable content onto the complete stored record so
+ * an illustration/footnote edit cannot erase translation provenance.
+ */
+const mergeOntoStoredRecord = (
+  stored: TranslationRecord,
+  update: PersistableTranslation
+): TranslationRecord => {
+  const partialRecord = update as Partial<TranslationRecord>;
+  const usageMetrics = 'usageMetrics' in update ? update.usageMetrics : undefined;
+
+  return {
+    ...stored,
+    translatedTitle: update.translatedTitle,
+    translation: update.translation,
+    footnotes: update.footnotes,
+    suggestedIllustrations: update.suggestedIllustrations,
+    proposal: update.proposal === null ? undefined : update.proposal ?? stored.proposal,
+    customVersionLabel: update.customVersionLabel ?? stored.customVersionLabel,
+    imageVersionState: update.imageVersionState ?? stored.imageVersionState,
+    provider: validMetadata(update.provider)
+      ? update.provider
+      : validMetadata(usageMetrics?.provider)
+        ? usageMetrics.provider
+        : stored.provider,
+    model: validMetadata(update.model)
+      ? update.model
+      : validMetadata(usageMetrics?.model)
+        ? usageMetrics.model
+        : stored.model,
+    temperature: numberOr(update.temperature, stored.temperature),
+    systemPrompt: validMetadata(partialRecord.systemPrompt)
+      ? partialRecord.systemPrompt
+      : stored.systemPrompt,
+    promptId: update.promptId ?? stored.promptId,
+    promptName: update.promptName ?? stored.promptName,
+    totalTokens: numberOr(
+      partialRecord.totalTokens,
+      numberOr(usageMetrics?.totalTokens, stored.totalTokens)
+    ),
+    promptTokens: numberOr(
+      partialRecord.promptTokens,
+      numberOr(usageMetrics?.promptTokens, stored.promptTokens)
+    ),
+    completionTokens: numberOr(
+      partialRecord.completionTokens,
+      numberOr(usageMetrics?.completionTokens, stored.completionTokens)
+    ),
+    estimatedCost: numberOr(
+      partialRecord.estimatedCost,
+      numberOr(usageMetrics?.estimatedCost, stored.estimatedCost)
+    ),
+    requestTime: numberOr(
+      partialRecord.requestTime,
+      numberOr(usageMetrics?.requestTime, stored.requestTime)
+    ),
+  };
+};
+
 export type TranslationSettingsSnapshot = Pick<
   AppSettings,
   | 'provider'
@@ -36,27 +106,32 @@ export class TranslationPersistenceService {
    */
   static async persistUpdatedTranslation(
     chapterId: string,
-    translationResult: (TranslationResult & { id?: string }) | TranslationRecord,
+    translationResult: PersistableTranslation,
     settings: TranslationSettingsSnapshot
   ): Promise<TranslationRecord | null> {
-    const isTranslationRecord = (value: TranslationResult | TranslationRecord): value is TranslationRecord => {
-      return typeof (value as TranslationRecord)?.chapterUrl === 'string';
-    };
-
     try {
       console.log(`💾 [TranslationSave] Starting save for chapter: ${chapterId}`);
       console.log(`💾 [TranslationSave] Settings:`, { provider: settings.provider, model: settings.model });
 
-      if (isTranslationRecord(translationResult) && translationResult.id) {
-        console.log(`🔄 [TranslationSave] Updating EXISTING translation record:`, {
+      if (translationResult.id) {
+        const storedRecord = await TranslationOps.getById(translationResult.id);
+        if (storedRecord) {
+          const reconciledRecord = mergeOntoStoredRecord(storedRecord, translationResult);
+          console.log(`🔄 [TranslationSave] Updating EXISTING translation record:`, {
+            chapterId,
+            translationId: translationResult.id,
+            version: translationResult.version
+          });
+          await TranslationOps.update(reconciledRecord);
+          log('Updated existing translation record', { chapterId, translationId: translationResult.id });
+          console.log(`✅ [TranslationSave] Successfully updated existing translation`);
+          return reconciledRecord;
+        }
+
+        console.warn(`⚠️ [TranslationSave] Persistent ID was not found; storing a new version`, {
           chapterId,
           translationId: translationResult.id,
-          version: translationResult.version
         });
-        await TranslationOps.update(translationResult);
-        log('Updated existing translation record', { chapterId, translationId: translationResult.id });
-        console.log(`✅ [TranslationSave] Successfully updated existing translation`);
-        return translationResult;
       }
 
       console.log(`➕ [TranslationSave] Creating NEW translation for chapter: ${chapterId}`);

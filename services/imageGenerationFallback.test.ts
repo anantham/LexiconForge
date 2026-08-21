@@ -20,6 +20,7 @@ describe('configured image fallback', () => {
   afterEach(() => vi.restoreAllMocks());
 
   it('uses the explicitly selected cloud model for a retryable local failure and records provenance', async () => {
+    const onJobEvent = vi.fn();
     const now = vi.spyOn(performance, 'now')
       .mockReturnValueOnce(1_000)
       .mockReturnValueOnce(11_000);
@@ -32,7 +33,7 @@ describe('configured image fallback', () => {
         execution: { provider: 'Imagen', model: 'imagen-3.0-generate-002' },
       });
 
-    const result = await generateImageWithConfiguredFallback({ prompt: 'castle', settings });
+    const result = await generateImageWithConfiguredFallback({ prompt: 'castle', settings, onJobEvent });
 
     expect(mockGenerateImage).toHaveBeenCalledTimes(2);
     expect(mockGenerateImage.mock.calls[1][1]).toMatchObject({ imageModel: 'imagen-3.0-generate-002' });
@@ -41,6 +42,16 @@ describe('configured image fallback', () => {
       attemptedModel: 'indrasnet/gen_anime',
       reasonCode: 'GPU_BUSY',
       reason: 'GPU is busy',
+    });
+    expect(onJobEvent).toHaveBeenCalledWith({
+      type: 'provider_switched',
+      model: 'imagen-3.0-generate-002',
+      fallback: {
+        attemptedProvider: 'Asus / IndrasNet',
+        attemptedModel: 'indrasnet/gen_anime',
+        reasonCode: 'GPU_BUSY',
+        reason: 'GPU is busy',
+      },
     });
     expect(result.requestTime).toBe(12);
     now.mockRestore();
@@ -54,6 +65,36 @@ describe('configured image fallback', () => {
     mockGenerateImage.mockRejectedValueOnce(failure);
 
     await expect(generateImageWithConfiguredFallback({ prompt: 'castle', settings })).rejects.toBe(failure);
+    expect(mockGenerateImage).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a completed local artifact recoverable without starting a paid fallback', async () => {
+    const failure = Object.assign(new Error('completed artifact download timed out'), {
+      errorType: 'INDRASNET_IMAGE_DOWNLOAD_TIMEOUT',
+      canRetry: true,
+      fallbackEligible: false,
+    });
+    mockGenerateImage.mockRejectedValueOnce(failure);
+
+    await expect(generateImageWithConfiguredFallback({ prompt: 'castle', settings })).rejects.toBe(failure);
+    expect(mockGenerateImage).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not start cloud fallback after the local broker accepted a durable task', async () => {
+    const failure = Object.assign(new Error('broker poll temporarily unreachable'), {
+      errorType: 'COMFYUI_JOB_POLL_UNREACHABLE',
+      canRetry: true,
+    });
+    mockGenerateImage.mockImplementationOnce(async (...args: any[]) => {
+      args[10]?.({ type: 'submitted', externalTaskId: 'broker-task-accepted', resumeKind: 'indrasnet' });
+      throw failure;
+    });
+
+    await expect(generateImageWithConfiguredFallback({
+      prompt: 'castle',
+      settings,
+      onJobEvent: vi.fn(),
+    })).rejects.toBe(failure);
     expect(mockGenerateImage).toHaveBeenCalledTimes(1);
   });
 
@@ -113,5 +154,62 @@ describe('configured image fallback', () => {
     expect(error.message).toContain('[GPU_BUSY]: GPU lease is busy');
     expect(error.message).toContain('[RATE_LIMIT]: cloud quota exhausted');
     expect(mockGenerateImage).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps a retryable primary recoverable when the cloud fallback fails terminally', async () => {
+    mockGenerateImage
+      .mockRejectedValueOnce(Object.assign(new Error('broker temporarily offline'), {
+        errorType: 'COMFYUI_OFFLINE',
+        canRetry: true,
+      }))
+      .mockRejectedValueOnce(Object.assign(new Error('cloud key rejected'), {
+        errorType: 'INVALID_API_KEY',
+        canRetry: false,
+      }));
+
+    const error = await generateImageWithConfiguredFallback({ prompt: 'castle', settings })
+      .catch(cause => cause);
+
+    expect(error).toBeInstanceOf(ImageFallbackError);
+    expect(error.canRetry).toBe(true);
+  });
+
+  it('uses a durable fallback task failure to classify retryability and emits its provenance', async () => {
+    const onJobEvent = vi.fn();
+    mockGenerateImage
+      .mockRejectedValueOnce(Object.assign(new Error('broker temporarily offline'), {
+        errorType: 'COMFYUI_OFFLINE',
+        canRetry: true,
+      }))
+      .mockImplementationOnce(async (...args: any[]) => {
+        args[10]?.({
+          type: 'submitted',
+          externalTaskId: 'pi-terminal-task',
+          resumeKind: 'piapi',
+          submittedModel: 'imagen-3.0-generate-002',
+        });
+        throw Object.assign(new Error('cloud task missing'), {
+          errorType: 'PIAPI_TASK_NOT_FOUND',
+          canRetry: false,
+        });
+      });
+
+    const error = await generateImageWithConfiguredFallback({ prompt: 'castle', settings, onJobEvent })
+      .catch(cause => cause);
+
+    expect(error).toBeInstanceOf(ImageFallbackError);
+    expect(error.canRetry).toBe(false);
+    expect(onJobEvent).toHaveBeenCalledWith({
+      type: 'submitted',
+      externalTaskId: 'pi-terminal-task',
+      resumeKind: 'piapi',
+      submittedModel: 'imagen-3.0-generate-002',
+      fallback: {
+        attemptedProvider: 'Asus / IndrasNet',
+        attemptedModel: 'indrasnet/gen_anime',
+        reasonCode: 'COMFYUI_OFFLINE',
+        reason: 'broker temporarily offline',
+      },
+    });
   });
 });

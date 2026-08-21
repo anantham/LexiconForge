@@ -256,3 +256,52 @@ configuration errors.
   If any other current or future semantic input is marked required, the workflow
   is not advertised because its value is not guaranteed by the illustration
   request contract. Optional supported inputs continue to pass through when set.
+
+## Amendment — 2026-08-21: Capability-aware client image jobs
+
+**Status:** Implemented on `feat/codex-image-job-system`.
+
+### Decision
+
+1. Image work is represented by provider-neutral browser jobs keyed to the
+   originating chapter and illustration marker. Jobs, not mounted chapter UI,
+   own duplicate prevention and lifecycle status.
+2. Every provider survives chapter navigation while the tab remains open. A
+   compact global banner shows elapsed time, provider status, completion, and a
+   jump back to the originating chapter.
+3. Numeric ETA is shown only from successful measured durations for the exact
+   image model/workflow. Old metrics without duration do not become synthetic
+   20-second samples. Progress derived from an ETA is explicitly estimated and
+   capped below completion until the provider reports a terminal result.
+4. Reload recovery is capability-gated. PiAPI persists its task ID; IndrasNet
+   persists its broker job ID. Direct Gemini, Imagen, OpenRouter, and other
+   request/response providers remain tab-lifetime jobs and are never replayed
+   automatically after reload.
+5. Persisted jobs contain no prompt or credential. Cloud provider requests and
+   keys remain browser-direct; IndrasNet coordinates only its own ComfyUI work.
+6. A recovered task polls the existing external ID and writes into the original
+   chapter by stable chapter ID and placement marker. It never submits a second
+   paid/provider generation.
+7. Temporary reachability failures retain the durable task ID for another
+   reload. An explicit terminal provider response (including an IndrasNet job
+   missing after broker restart) retires the ID and requires a user-requested
+   new generation.
+
+### Implementation notes
+
+- `store/slices/imageJobsSlice.ts` owns lifecycle, empirical ETA metadata, and
+  the narrow durable-task registry.
+- `components/ImageJobsBanner.tsx` owns cross-chapter status/navigation UI.
+- PiAPI task creation emits its task ID before polling; IndrasNet uses additive
+  broker `POST/GET /api/comfyui/jobs` endpoints and retains a 404-only fallback
+  to the older blocking broker during rollout.
+- `store/slices/imageSlice.ts` remains responsible for applying completed image
+  results to chapter/version state and persistent translations.
+- Ambiguous HTTP-200 poll bodies preserve accepted task IDs; only explicit
+  terminal status or missing-task responses retire them. Recovery reuses an
+  exact cached `{chapter, marker, version}` artifact before repolling.
+- Durable jobs continue to omit prompts and advanced controls. When recovery
+  cannot know submission-time controls, persisted version metadata marks that
+  provenance unavailable instead of reconstructing it from post-reload state.
+- Both translation hydration adapters preserve the stored `imageVersionState`
+  so applying a recovered version extends, rather than replaces, prior history.

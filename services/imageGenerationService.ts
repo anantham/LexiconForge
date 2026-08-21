@@ -10,13 +10,15 @@
  * - Image metrics and persistence
  */
 
-import { modelConsumesSteeringImage } from './imageService';
+import { modelConsumesSteeringImage, resumeIndrasNetTask, resumePiApiImageTask } from './imageService';
 import { generateImageWithConfiguredFallback } from './imageGenerationFallback';
 import { TranslationPersistenceService } from './translationPersistenceService';
-import type { AppSettings, PromptTemplate, ImageGenerationMetadata, ImageVersionStateEntry } from '../types';
+import type { AppSettings, GeneratedImageResult, PromptTemplate, ImageGenerationMetadata, ImageVersionStateEntry } from '../types';
+import type { ImageJob } from '../store/slices/imageJobsSlice';
 import type { EnhancedChapter } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
 import { compileIllustrationPrompt, ensureIllustrationPlan } from './imagePlanService';
+import type { ImageJobLifecycleEvent } from './imageJobTypes';
 
 type ConsoleArgs = Parameters<typeof console.log>;
 const slog = (message: string, ...args: ConsoleArgs) => debugLog('image', 'summary', message, ...args);
@@ -36,6 +38,8 @@ export interface ImageGenerationContext {
   activeImageVersion: Record<string, number>;
   // Version tracking for image regeneration
   nextVersion?: number;
+  excludedPlacementMarkers?: ReadonlySet<string>;
+  onJobEvent?: (placementMarker: string, event: ImageJobLifecycleEvent) => void;
 }
 
 export interface ImageState {
@@ -47,6 +51,7 @@ export interface ImageState {
 }
 
 export interface ImageGenerationMetrics {
+  chapterId: string;
   count: number;
   totalTime: number;
   totalCost: number;
@@ -58,6 +63,20 @@ export interface ImageGenerationResult {
   metrics?: ImageGenerationMetrics;
   error?: string;
 }
+
+const recoveredOriginPersistenceError = (error: unknown): Error & {
+  errorType: string;
+  canRetry: true;
+  retryable: true;
+} => Object.assign(
+  new Error(`The generated illustration is ready, but its originating chapter could not be saved: ${error instanceof Error ? error.message : String(error)}`),
+  {
+    errorType: 'IMAGE_JOB_ORIGIN_PERSIST_FAILED',
+    canRetry: true as const,
+    retryable: true as const,
+    cause: error,
+  },
+);
 
 export class ImageGenerationService {
 
@@ -129,6 +148,7 @@ export class ImageGenerationService {
     // Initialize loading states for all illustrations
     const initialImageStates: Record<string, ImageState> = {};
     translationResult.suggestedIllustrations.forEach((illust: any) => {
+      if (illust.generatedImage || context.excludedPlacementMarkers?.has(illust.placementMarker)) return;
       const key = `${chapterId}:${illust.placementMarker}`;
       initialImageStates[key] = { isLoading: true, data: null, error: null };
     });
@@ -149,6 +169,7 @@ export class ImageGenerationService {
     const seenMarkers = new Set<string>();
     const illustrationsNeedingGeneration = translationResult.suggestedIllustrations.filter(
       (illust: any) => {
+        if (context.excludedPlacementMarkers?.has(illust.placementMarker)) return false;
         if (illust.generatedImage) return false;
         if (seenMarkers.has(illust.placementMarker)) {
           swarn(`[ImageGen] Dropping duplicate illustration for marker ${illust.placementMarker} — one image renders per marker.`);
@@ -170,7 +191,7 @@ export class ImageGenerationService {
       slog('[ImageGen] All illustrations already have generated images');
       return { 
         generatedImages: this.loadExistingImages(chapterId, chapters),
-        metrics: { count: 0, totalTime: 0, totalCost: 0, lastModel: settings.imageModel }
+        metrics: { chapterId, count: 0, totalTime: 0, totalCost: 0, lastModel: settings.imageModel }
       };
     }
 
@@ -179,9 +200,14 @@ export class ImageGenerationService {
     // Sequentially generate images to avoid overwhelming the API
     for (const illust of illustrationsNeedingGeneration) {
       const key = `${chapterId}:${illust.placementMarker}`;
+      let durableTaskSubmitted = false;
       
       try {
         slog(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
+        // Batch jobs are created together, but requests execute sequentially.
+        // Publish the execution boundary here so later jobs remain queued and
+        // their clocks do not include time spent behind earlier illustrations.
+        context.onJobEvent?.(illust.placementMarker, { type: 'running' });
         
         // Get advanced controls for this illustration
         const steeringImagePath = steeringImages[key] || null;
@@ -204,6 +230,10 @@ export class ImageGenerationService {
           chapterId,
           placementMarker: illust.placementMarker,
           version: 1,
+          onJobEvent: event => {
+            if (event.type === 'submitted') durableTaskSubmitted = true;
+            context.onJobEvent?.(illust.placementMarker, event);
+          },
         });
         const executedModel = result.execution?.model || settings.imageModel;
         lastExecutedModel = executedModel;
@@ -229,21 +259,6 @@ export class ImageGenerationService {
         totalTime += result.requestTime;
         totalCost += result.cost;
         generatedCount++;
-
-        // Update state for immediate UI updates
-        generatedImages[key] = {
-          isLoading: false,
-          data: result.imageData,
-          error: null
-        };
-
-        // Pass current metrics for real-time UI updates
-        onProgressUpdate?.(generatedImages, {
-          count: generatedCount,
-          totalTime,
-          totalCost,
-          lastModel: lastExecutedModel
-        });
 
         // Store in chapter's translationResult for persistence
         if (chapter && chapter.translationResult) {
@@ -325,9 +340,26 @@ export class ImageGenerationService {
               slog(`[ImageGen] Persisted image for ${illust.placementMarker} to IndexedDB`);
             } catch (error) {
               swarn(`[ImageGen] Failed to persist image to IndexedDB:`, error);
+              if (durableTaskSubmitted) throw recoveredOriginPersistenceError(error);
             }
           }
         }
+
+        // A durable provider ID remains the crash-safe owner until the chapter
+        // write above succeeds. Publishing non-loading success any earlier lets
+        // the store complete the job and delete that recovery ID mid-write.
+        generatedImages[key] = {
+          isLoading: false,
+          data: result.imageData,
+          error: null
+        };
+        onProgressUpdate?.(generatedImages, {
+          chapterId,
+          count: generatedCount,
+          totalTime,
+          totalCost,
+          lastModel: lastExecutedModel
+        });
         
         slog(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
         
@@ -350,6 +382,7 @@ export class ImageGenerationService {
 
         // Pass current metrics even on error for real-time updates
         onProgressUpdate?.(generatedImages, {
+          chapterId,
           count: generatedCount,
           totalTime,
           totalCost,
@@ -359,6 +392,7 @@ export class ImageGenerationService {
     }
 
     const metrics: ImageGenerationMetrics = {
+      chapterId,
       count: generatedCount,
       totalTime: totalTime,
       totalCost: totalCost,
@@ -379,7 +413,8 @@ export class ImageGenerationService {
   static async retryImage(
     chapterId: string,
     placementMarker: string,
-    context: ImageGenerationContext
+    context: ImageGenerationContext,
+    existingResult?: GeneratedImageResult,
   ): Promise<{ imageState: ImageState; metrics?: Partial<ImageGenerationMetrics> }> {
     slog(`[ImageGen] Retrying image generation for ${placementMarker} in chapter ${chapterId}`);
     const { chapters, settings, steeringImages, negativePrompts, guidanceScales, loraModels, loraStrengths } = context;
@@ -412,6 +447,7 @@ export class ImageGenerationService {
     }
 
     const key = `${chapterId}:${placementMarker}`;
+    let durableTaskSubmitted = existingResult !== undefined;
 
     try {
       // Get advanced controls for this illustration
@@ -424,7 +460,7 @@ export class ImageGenerationService {
       const preparedIllustration = ensureIllustrationPlan(illust);
       const compiled = compileIllustrationPrompt(preparedIllustration, settings);
 
-      const result = await generateImageWithConfiguredFallback({
+      const result = existingResult ?? await generateImageWithConfiguredFallback({
         prompt: compiled.compiledPrompt,
         settings,
         steeringImagePath: steeringImagePath ?? undefined,
@@ -435,9 +471,14 @@ export class ImageGenerationService {
         chapterId,
         placementMarker,
         version: context.nextVersion || 1,
+        onJobEvent: event => {
+          if (event.type === 'submitted') durableTaskSubmitted = true;
+          context.onJobEvent?.(placementMarker, event);
+        },
       });
       const executedModel = result.execution?.model || settings.imageModel;
       const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(executedModel);
+      const advancedControlsKnown = existingResult === undefined;
 
       debugLog('image', 'full', '[ImageGen] Retry prompt payload', {
         chapterId,
@@ -476,14 +517,21 @@ export class ImageGenerationService {
             imagePlan: compiled.imagePlan,
             imagePlanMode: compiled.imagePlanMode,
             imagePlanSourceCaption: compiled.imagePlanSourceCaption,
-            negativePrompt,
-            guidanceScale,
-            loraModel,
-            loraStrength,
-            // Honest provenance: a steering image the provider branch never consumed is
-            // recorded as null + steeringIgnored, not as applied (integrity item 6).
-            steeringImage: steeringIgnored ? null : steeringImagePath,
-            ...(steeringIgnored ? { steeringIgnored: true } : {}),
+            ...(advancedControlsKnown ? {
+              negativePrompt,
+              guidanceScale,
+              loraModel,
+              loraStrength,
+              // Honest provenance: a steering image the provider branch never consumed is
+              // recorded as null + steeringIgnored, not as applied (integrity item 6).
+              steeringImage: steeringIgnored ? null : steeringImagePath,
+              ...(steeringIgnored ? { steeringIgnored: true } : {}),
+            } : {
+              // Durable jobs deliberately persist neither prompts nor controls.
+              // After reload, empty in-memory maps are not evidence of what the
+              // paid submission used, so record the provenance gap explicitly.
+              advancedControlsUnavailableAfterRecovery: true,
+            }),
             provider: result.execution?.provider || null,
             model: executedModel,
             fallback: result.execution?.fallback,
@@ -534,6 +582,7 @@ export class ImageGenerationService {
             slog(`[ImageGen] Persisted retry image for ${placementMarker} to IndexedDB`);
           } catch (e) {
             swarn('[ImageGen] Failed to persist retry image to IndexedDB', e);
+            if (durableTaskSubmitted) throw recoveredOriginPersistenceError(e);
           }
         }
       }
@@ -547,6 +596,7 @@ export class ImageGenerationService {
           error: null
         },
         metrics: {
+          chapterId,
           count: 1,
           totalTime: result.requestTime,
           totalCost: result.cost,
@@ -556,15 +606,66 @@ export class ImageGenerationService {
 
     } catch (error: any) {
       console.error(`[ImageGen] Failed to retry image for ${placementMarker}:`, error);
+      const canRetry = error?.canRetry === true || error?.retryable === true;
       
       return {
         imageState: {
           isLoading: false,
           data: null,
-          error: error.message || 'Image generation failed'
+          error: error.message || 'Image generation failed',
+          errorType: typeof error?.errorType === 'string' ? error.errorType : undefined,
+          canRetry,
         }
       };
     }
+  }
+
+  /** Poll/download a durable provider task without mutating its originating chapter. */
+  static async resumeImageJobArtifact(
+    job: ImageJob,
+    context: ImageGenerationContext,
+  ): Promise<GeneratedImageResult> {
+    if (!job.externalTaskId) throw new Error(`Image job ${job.id} has no provider task id to resume.`);
+    const common = {
+      taskId: job.externalTaskId,
+      settings: { ...context.settings, imageModel: job.taskModel ?? job.requestedModel },
+      chapterId: job.chapterId,
+      placementMarker: job.placementMarker,
+      version: job.version,
+      onJobEvent: (event: ImageJobLifecycleEvent) => context.onJobEvent?.(job.placementMarker, event),
+    };
+    const result = job.resumeKind === 'piapi'
+      ? await resumePiApiImageTask(common)
+      : job.resumeKind === 'indrasnet'
+        ? await resumeIndrasNetTask(common)
+        : (() => { throw new Error(`Image job ${job.id} uses unsupported resume kind "${job.resumeKind}".`); })();
+    if (!job.fallback) return result;
+    return {
+      ...result,
+      execution: {
+        provider: result.execution?.provider ?? job.taskProvider ?? job.requestedProvider,
+        model: result.execution?.model ?? job.taskModel ?? job.requestedModel,
+        fallback: job.fallback,
+      },
+    };
+  }
+
+  /** Apply a fetched durable artifact to the current originating chapter and persist it. */
+  static async applyResumedImageJobArtifact(
+    job: ImageJob,
+    context: ImageGenerationContext,
+    result: GeneratedImageResult,
+  ): Promise<{ imageState: ImageState; metrics?: Partial<ImageGenerationMetrics> }> {
+    return this.retryImage(job.chapterId, job.placementMarker, context, result);
+  }
+
+  /** Resume a durable provider task without submitting a second paid request. */
+  static async resumeImageJob(
+    job: ImageJob,
+    context: ImageGenerationContext,
+  ): Promise<{ imageState: ImageState; metrics?: Partial<ImageGenerationMetrics> }> {
+    const artifact = await this.resumeImageJobArtifact(job, context);
+    return this.applyResumedImageJobArtifact(job, context, artifact);
   }
 
   /**
