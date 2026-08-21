@@ -361,7 +361,7 @@ export const createImageSlice: StateCreator<
       const jobId = jobIdsByMarker.get(marker);
       if (!jobId) return;
       if (event.type === 'submitted') {
-        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel);
+        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback);
       } else {
         get().markImageJobRunning(jobId);
       }
@@ -599,7 +599,7 @@ export const createImageSlice: StateCreator<
     get().markImageJobRunning(jobId);
     context.onJobEvent = (_marker, event) => {
       if (event.type === 'submitted') {
-        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel);
+        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback);
       } else {
         get().markImageJobRunning(jobId);
       }
@@ -713,7 +713,7 @@ export const createImageSlice: StateCreator<
       const state = get();
       return {
         chapters: state.chapters,
-        settings: { ...state.settings, imageModel: job.requestedModel },
+        settings: { ...state.settings, imageModel: job.taskModel ?? job.requestedModel },
         activePromptTemplate: state.activePromptTemplate ?? undefined,
         steeringImages: state.steeringImages,
         negativePrompts: state.negativePrompts,
@@ -725,7 +725,7 @@ export const createImageSlice: StateCreator<
         nextVersion: job.version,
         onJobEvent: (_marker, event) => {
           if (event.type === 'submitted') {
-            get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind, event.submittedModel);
+            get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind, event.submittedModel, event.fallback);
           } else {
             get().markImageJobRunning(job.id);
           }

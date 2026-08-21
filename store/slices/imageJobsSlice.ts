@@ -6,6 +6,7 @@ import {
   type ImageJobResumeKind,
 } from '../../services/imageJobTypes';
 import type { StoreState } from '../storeTypes';
+import type { ImageExecutionMetadata } from '../../types';
 
 export type ImageJobStatus = 'queued' | 'submitted' | 'running' | 'completed' | 'failed' | 'interrupted';
 
@@ -15,6 +16,9 @@ export interface ImageJob {
   placementMarker: string;
   requestedModel: string;
   requestedProvider: string;
+  taskModel?: string;
+  taskProvider?: string;
+  fallback?: ImageExecutionMetadata['fallback'];
   executedModel?: string;
   status: ImageJobStatus;
   resumeKind: ImageJobResumeKind;
@@ -96,6 +100,7 @@ export interface ImageJobsActions {
     externalTaskId: string,
     resumeKind: Exclude<ImageJobResumeKind, 'none'>,
     _submittedModel?: string,
+    _fallback?: ImageExecutionMetadata['fallback'],
   ) => void;
   markImageJobRunning: (jobId: string) => void;
   completeImageJob: (jobId: string, executedModel?: string, durationSeconds?: number) => void;
@@ -136,7 +141,11 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
       if (!estimate) return;
       set(state => {
         const current = state.imageJobs[id];
-        if (!current || !ACTIVE_STATUSES.has(current.status)) return {};
+        if (
+          !current
+          || !ACTIVE_STATUSES.has(current.status)
+          || (current.taskModel ?? current.requestedModel) !== model
+        ) return {};
         return {
           imageJobs: {
             ...state.imageJobs,
@@ -154,22 +163,23 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
     return id;
   },
 
-  markImageJobSubmitted: (jobId, externalTaskId, resumeKind, submittedModel) => {
+  markImageJobSubmitted: (jobId, externalTaskId, resumeKind, submittedModel, fallback) => {
     let refreshEstimateFor: string | undefined;
     set(state => {
       const current = state.imageJobs[jobId];
       if (!current) return {};
-      const ownerChanged = Boolean(submittedModel && submittedModel !== current.requestedModel);
-      if (ownerChanged) refreshEstimateFor = submittedModel;
-      const requestedModel = submittedModel || current.requestedModel;
+      const taskModel = submittedModel || current.taskModel || current.requestedModel;
+      const ownerChanged = taskModel !== (current.taskModel ?? current.requestedModel);
+      if (ownerChanged) refreshEstimateFor = taskModel;
       const imageJobs = {
         ...state.imageJobs,
         [jobId]: {
           ...current,
           externalTaskId,
           resumeKind,
-          requestedModel,
-          requestedProvider: imageProviderForModel(requestedModel),
+          taskModel,
+          taskProvider: imageProviderForModel(taskModel),
+          fallback: fallback ?? current.fallback,
           ...(ownerChanged ? { estimatedDurationSeconds: undefined, estimateSampleCount: 0 } : {}),
           status: 'submitted' as const,
           updatedAt: Date.now(),
@@ -184,7 +194,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
       if (!estimate) return;
       set(state => {
         const current = state.imageJobs[jobId];
-        if (!current || current.requestedModel !== estimateModel || !ACTIVE_STATUSES.has(current.status)) return {};
+        if (!current || current.taskModel !== estimateModel || !ACTIVE_STATUSES.has(current.status)) return {};
         return {
           imageJobs: {
             ...state.imageJobs,
@@ -224,7 +234,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
       [jobId]: {
         ...current,
         status: 'completed' as const,
-        executedModel: executedModel || current.requestedModel,
+        executedModel: executedModel || current.taskModel || current.requestedModel,
         durationSeconds: durationSeconds ?? (completedAt - current.startedAt) / 1000,
         completedAt,
         updatedAt: completedAt,

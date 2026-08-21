@@ -1,19 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createImageJobsSlice, type ImageJobsSlice } from '../../../store/slices/imageJobsSlice';
 
+const averageTimeMock = vi.hoisted(() => vi.fn());
+
 vi.mock('../../../services/apiMetricsService', () => ({
   apiMetricsService: {
-    getAverageImageGenerationTime: vi.fn().mockResolvedValue({
-      avgTimeSeconds: 42,
-      sampleCount: 3,
-      minTimeSeconds: 30,
-      maxTimeSeconds: 55,
-    }),
+    getAverageImageGenerationTime: averageTimeMock,
   },
 }));
 
 vi.mock('../../../services/imageService', () => ({
-  imageProviderForModel: (model: string) => model.startsWith('Qubico/') ? 'PiAPI' : 'OpenRouter',
+  imageProviderForModel: (model: string) => model.startsWith('Qubico/')
+    ? 'PiAPI'
+    : model.startsWith('indrasnet/') ? 'Asus / IndrasNet' : 'OpenRouter',
 }));
 
 const createSlice = (): ImageJobsSlice => {
@@ -29,7 +28,15 @@ const createSlice = (): ImageJobsSlice => {
 };
 
 describe('imageJobsSlice', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    averageTimeMock.mockReset().mockResolvedValue({
+      avgTimeSeconds: 42,
+      sampleCount: 3,
+      minTimeSeconds: 30,
+      maxTimeSeconds: 55,
+    });
+  });
 
   it('uses a job as the duplicate guard until it reaches a terminal state', () => {
     const slice = createSlice();
@@ -94,12 +101,21 @@ describe('imageJobsSlice', () => {
       version: 1,
     });
 
-    slice.markImageJobSubmitted(jobId, 'pi-fallback-task', 'piapi', 'Qubico/flux1-dev');
+    const fallback = {
+      attemptedProvider: 'Asus / IndrasNet',
+      attemptedModel: 'indrasnet/gen_anime',
+      reasonCode: 'COMFYUI_OFFLINE',
+      reason: 'broker offline',
+    };
+    slice.markImageJobSubmitted(jobId, 'pi-fallback-task', 'piapi', 'Qubico/flux1-dev', fallback);
     await vi.waitFor(() => expect(slice.imageJobs[jobId].estimateSampleCount).toBe(3));
 
     expect(slice.imageJobs[jobId]).toMatchObject({
-      requestedModel: 'Qubico/flux1-dev',
-      requestedProvider: 'PiAPI',
+      requestedModel: 'indrasnet/gen_anime',
+      requestedProvider: 'Asus / IndrasNet',
+      taskModel: 'Qubico/flux1-dev',
+      taskProvider: 'PiAPI',
+      fallback,
       externalTaskId: 'pi-fallback-task',
       resumeKind: 'piapi',
       estimatedDurationSeconds: 42,
@@ -108,10 +124,39 @@ describe('imageJobsSlice', () => {
     const persisted = JSON.parse(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1') || '[]');
     expect(persisted).toHaveLength(1);
     expect(persisted[0]).toMatchObject({
-      requestedModel: 'Qubico/flux1-dev',
-      requestedProvider: 'PiAPI',
+      requestedModel: 'indrasnet/gen_anime',
+      taskModel: 'Qubico/flux1-dev',
+      taskProvider: 'PiAPI',
+      fallback,
       externalTaskId: 'pi-fallback-task',
       resumeKind: 'piapi',
+    });
+  });
+
+  it('does not let the requested-model ETA overwrite fallback-model history', async () => {
+    let resolveRequestedEstimate!: (_value: unknown) => void;
+    const requestedEstimate = new Promise<unknown>(resolve => { resolveRequestedEstimate = resolve; });
+    averageTimeMock
+      .mockReturnValueOnce(requestedEstimate)
+      .mockResolvedValueOnce({ avgTimeSeconds: 42, sampleCount: 3 });
+    const slice = createSlice();
+    const jobId = slice.startImageJob({
+      chapterId: 'chapter-race',
+      placementMarker: '[ILLUSTRATION-4]',
+      model: 'indrasnet/gen_anime',
+      version: 1,
+    });
+
+    slice.markImageJobSubmitted(jobId, 'pi-race-task', 'piapi', 'Qubico/flux1-dev');
+    await vi.waitFor(() => expect(slice.imageJobs[jobId].estimatedDurationSeconds).toBe(42));
+    resolveRequestedEstimate({ avgTimeSeconds: 900, sampleCount: 10 });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(slice.imageJobs[jobId]).toMatchObject({
+      taskModel: 'Qubico/flux1-dev',
+      estimatedDurationSeconds: 42,
+      estimateSampleCount: 3,
     });
   });
 

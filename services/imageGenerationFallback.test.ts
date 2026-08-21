@@ -162,4 +162,43 @@ describe('configured image fallback', () => {
     expect(error).toBeInstanceOf(ImageFallbackError);
     expect(error.canRetry).toBe(true);
   });
+
+  it('uses a durable fallback task failure to classify retryability and emits its provenance', async () => {
+    const onJobEvent = vi.fn();
+    mockGenerateImage
+      .mockRejectedValueOnce(Object.assign(new Error('broker temporarily offline'), {
+        errorType: 'COMFYUI_OFFLINE',
+        canRetry: true,
+      }))
+      .mockImplementationOnce(async (...args: any[]) => {
+        args[10]?.({
+          type: 'submitted',
+          externalTaskId: 'pi-terminal-task',
+          resumeKind: 'piapi',
+          submittedModel: 'imagen-3.0-generate-002',
+        });
+        throw Object.assign(new Error('cloud task missing'), {
+          errorType: 'PIAPI_TASK_NOT_FOUND',
+          canRetry: false,
+        });
+      });
+
+    const error = await generateImageWithConfiguredFallback({ prompt: 'castle', settings, onJobEvent })
+      .catch(cause => cause);
+
+    expect(error).toBeInstanceOf(ImageFallbackError);
+    expect(error.canRetry).toBe(false);
+    expect(onJobEvent).toHaveBeenCalledWith({
+      type: 'submitted',
+      externalTaskId: 'pi-terminal-task',
+      resumeKind: 'piapi',
+      submittedModel: 'imagen-3.0-generate-002',
+      fallback: {
+        attemptedProvider: 'Asus / IndrasNet',
+        attemptedModel: 'indrasnet/gen_anime',
+        reasonCode: 'COMFYUI_OFFLINE',
+        reason: 'broker temporarily offline',
+      },
+    });
+  });
 });

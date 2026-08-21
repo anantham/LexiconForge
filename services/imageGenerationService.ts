@@ -616,17 +616,26 @@ export class ImageGenerationService {
     if (!job.externalTaskId) throw new Error(`Image job ${job.id} has no provider task id to resume.`);
     const common = {
       taskId: job.externalTaskId,
-      settings: { ...context.settings, imageModel: job.requestedModel },
+      settings: { ...context.settings, imageModel: job.taskModel ?? job.requestedModel },
       chapterId: job.chapterId,
       placementMarker: job.placementMarker,
       version: job.version,
       onJobEvent: (event: ImageJobLifecycleEvent) => context.onJobEvent?.(job.placementMarker, event),
     };
-    return job.resumeKind === 'piapi'
+    const result = job.resumeKind === 'piapi'
       ? await resumePiApiImageTask(common)
       : job.resumeKind === 'indrasnet'
         ? await resumeIndrasNetTask(common)
         : (() => { throw new Error(`Image job ${job.id} uses unsupported resume kind "${job.resumeKind}".`); })();
+    if (!job.fallback) return result;
+    return {
+      ...result,
+      execution: {
+        provider: result.execution?.provider ?? job.taskProvider ?? job.requestedProvider,
+        model: result.execution?.model ?? job.taskModel ?? job.requestedModel,
+        fallback: job.fallback,
+      },
+    };
   }
 
   /** Apply a fetched durable artifact to the current originating chapter and persist it. */
