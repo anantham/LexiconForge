@@ -147,7 +147,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
   }, [candidateKeys, generatedImages, canonicalChapterId]);
   const base64FromIllust = (illust as any)?.url as string | undefined;
   const hasIllust = !!illust;
-  const isLoading = imageState?.isLoading || false;
+  const imageStateIsLoading = imageState?.isLoading || false;
   const error = imageState?.error || null;
   const activeImageJob = useAppStore(useShallow(state => {
     const job = Object.values(state.imageJobs ?? {}).find(candidate =>
@@ -160,6 +160,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
       model: job?.taskModel ?? job?.requestedModel ?? null,
     };
   }));
+  const isLoading = imageStateIsLoading || activeImageJob.status !== null;
   const countdownModel = activeImageJob.model ?? settings?.imageModel;
   const isQueued = isLoading && (activeImageJob.status === 'queued' || activeImageJob.status === 'submitted');
 

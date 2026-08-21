@@ -801,7 +801,11 @@ export const createImageSlice: StateCreator<
             imageVersions: { ...previous.imageVersions, [key]: Math.max(previous.imageVersions[key] || 0, job.version) },
             activeImageVersion: { ...previous.activeImageVersion, [key]: job.version },
           }));
-          get().completeImageJob(job.id, result.metrics?.lastModel, result.metrics?.totalTime);
+          // Recovered PiAPI wall time includes provider queueing and must not
+          // override the execution clock started by the first running event.
+          // IndrasNet's authoritative broker timing is already recorded in
+          // API metrics; the live job duration follows the same running clock.
+          get().completeImageJob(job.id, result.metrics?.lastModel, undefined);
           get().showNotification('A previously submitted illustration is ready in its originating chapter.', 'success');
         });
       } catch (error) {

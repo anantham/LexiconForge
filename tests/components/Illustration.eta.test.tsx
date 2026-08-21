@@ -70,6 +70,9 @@ describe('Illustration empirical ETA', () => {
   beforeEach(() => {
     getAverageImageGenerationTime.mockReset();
     storeState.imageJobs = {};
+    storeState.generatedImages = {
+      'chapter-1:[ILLUSTRATION-1]': { isLoading: true, data: null, error: null },
+    };
   });
 
   it('does not invent a countdown before this exact workflow has measured history', async () => {
@@ -161,6 +164,25 @@ describe('Illustration empirical ETA', () => {
 
     expect(screen.getByText(/queued by provider/i)).toBeInTheDocument();
     expect(screen.queryByText(/generating illustration/i)).not.toBeInTheDocument();
+    expect(getAverageImageGenerationTime).not.toHaveBeenCalled();
+  });
+
+  it('derives inline loading state from a recovered durable job when transient image state is empty', () => {
+    storeState.generatedImages = {};
+    storeState.imageJobs = {
+      'job-1': {
+        id: 'job-1',
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        requestedModel: 'indrasnet/gen_anime',
+        status: 'submitted',
+      },
+    };
+
+    render(<Illustration marker="[ILLUSTRATION-1]" />);
+
+    expect(screen.getByText(/queued by provider/i)).toBeInTheDocument();
+    expect(screen.queryByText(/no image yet/i)).not.toBeInTheDocument();
     expect(getAverageImageGenerationTime).not.toHaveBeenCalled();
   });
 });

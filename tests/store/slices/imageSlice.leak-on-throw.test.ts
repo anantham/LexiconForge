@@ -403,6 +403,46 @@ describe('imageSlice — durable task recovery', () => {
     );
   });
 
+  it('uses the recovered running clock instead of aggregate PiAPI polling time', async () => {
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_000);
+    try {
+      const slice = createSlice();
+      slice.imageJobs['timed-job'] = {
+        id: 'timed-job',
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        requestedModel: 'Qubico/flux1-dev',
+        requestedProvider: 'PiAPI',
+        status: 'interrupted',
+        resumeKind: 'piapi',
+        externalTaskId: 'task-timed',
+        version: 2,
+        startedAt: 100,
+        updatedAt: 100,
+        estimateSampleCount: 0,
+      };
+      resumeImageJobMock.mockImplementation(async (job, context) => {
+        now.mockReturnValue(5_000);
+        context.onJobEvent(job.placementMarker, { type: 'running' });
+        now.mockReturnValue(8_000);
+        return {
+          imageState: { isLoading: false, data: 'recovered-image', error: null },
+          metrics: { chapterId: 'chapter-1', count: 1, totalTime: 99, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
+        };
+      });
+
+      await slice.resumeInterruptedImageJobs();
+
+      expect(slice.imageJobs['timed-job']).toMatchObject({
+        status: 'completed',
+        startedAt: 5_000,
+        durationSeconds: 3,
+      });
+    } finally {
+      now.mockRestore();
+    }
+  });
+
   it('recovers an IndrasNet task from the broker origin that accepted it', async () => {
     const slice = createSlice();
     slice.settings.indrasNetBaseUrl = 'https://new-broker.example';
