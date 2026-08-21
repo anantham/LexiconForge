@@ -229,3 +229,12 @@ configuration errors.
 - Artifact strings are parsed inside the provider error boundary and must
   resolve to the configured broker origin. Malformed or cross-origin URLs fail
   with non-retryable `INDRASNET_INVALID_ARTIFACT_URL` before any artifact fetch.
+
+### Canonical workflow and fallback identities — 2026-08-21
+
+- A client-ready catalogue name must already be trimmed and must equal its
+  manifest name. Non-canonical or disagreeing entries are not advertised, so
+  encoding, decoding, lookup, and broker submission use one identity.
+- The optional fallback is cloud-only at both UI and execution boundaries. A
+  stale/imported `indrasnet/` fallback value is diagnosed and treated as
+  disabled; it cannot launch a second local workflow.

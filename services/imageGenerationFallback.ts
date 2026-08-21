@@ -81,8 +81,16 @@ export const generateImageWithConfiguredFallback = async (
     const primaryElapsedSeconds = (performance.now() - primaryStartedAt) / 1000;
     const error = unknownError as RetryableImageError;
     const fallbackModel = input.settings.imageFallbackModel?.trim() || 'none';
-    const fallbackEnabled = fallbackModel.toLowerCase() !== 'none';
+    const localFallbackInvalid = isIndrasNetImageModel(fallbackModel);
+    const fallbackEnabled = fallbackModel.toLowerCase() !== 'none' && !localFallbackInvalid;
     const eligible = isIndrasNetImageModel(input.settings.imageModel) && error.canRetry === true;
+
+    if (localFallbackInvalid) {
+      console.warn('[ImageGenerationFallback] Ignoring invalid local fallback; fallback must be a cloud model', {
+        attemptedModel: input.settings.imageModel,
+        configuredFallbackModel: fallbackModel,
+      });
+    }
 
     if (!eligible || !fallbackEnabled || fallbackModel === input.settings.imageModel) {
       throw unknownError;

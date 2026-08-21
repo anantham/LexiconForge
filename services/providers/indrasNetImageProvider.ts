@@ -156,10 +156,11 @@ const isClientReadyWorkflow = (entry: unknown): entry is IndrasNetWorkflowProfil
     return false;
   }
   const promptBinding = manifest.inputs.prompt;
+  const canonicalName = typeof entry.name === 'string' ? entry.name.trim() : '';
   return Boolean(
-    typeof entry.name === 'string' && entry.name.trim() &&
+    canonicalName && entry.name === canonicalName &&
     entry.client_ready === true &&
-    typeof manifest.name === 'string' &&
+    manifest.name === canonicalName &&
     typeof manifest.display_name === 'string' &&
     manifest.client_ready === true &&
     manifest.requires_image === false &&

@@ -64,6 +64,19 @@ describe('IndrasNet image provider', () => {
     expect(workflows.map(workflow => workflow.name)).toEqual(['storybook']);
   });
 
+  it('does not advertise workflows whose names are non-canonical or disagree with the manifest', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      workflows: [
+        { ...clientReadyWorkflow, name: ' storybook ' },
+        { ...clientReadyWorkflow, name: 'renamed' },
+      ],
+    }), { status: 200 }));
+
+    const workflows = await fetchIndrasNetWorkflows(endpoint);
+
+    expect(workflows).toEqual([]);
+  });
+
   it('reports invalid workflow-catalogue JSON as a descriptive provider error', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<html>proxy error</html>', { status: 200 }));
 

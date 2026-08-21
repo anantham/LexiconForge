@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AppSettings } from '../types';
 
 const { mockGenerateImage } = vi.hoisted(() => ({ mockGenerateImage: vi.fn() }));
@@ -17,6 +17,7 @@ const settings = {
 
 describe('configured image fallback', () => {
   beforeEach(() => mockGenerateImage.mockReset());
+  afterEach(() => vi.restoreAllMocks());
 
   it('uses the explicitly selected cloud model for a retryable local failure and records provenance', async () => {
     const now = vi.spyOn(performance, 'now')
@@ -65,6 +66,23 @@ describe('configured image fallback', () => {
       settings: { ...settings, imageFallbackModel: 'none' },
     })).rejects.toBe(failure);
     expect(mockGenerateImage).toHaveBeenCalledTimes(1);
+  });
+
+  it('treats an imported IndrasNet fallback model as disabled', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const failure = Object.assign(new Error('GPU is busy'), { errorType: 'GPU_BUSY', canRetry: true });
+    mockGenerateImage.mockRejectedValueOnce(failure);
+
+    await expect(generateImageWithConfiguredFallback({
+      prompt: 'castle',
+      settings: { ...settings, imageFallbackModel: 'indrasnet/gen_real' },
+    })).rejects.toBe(failure);
+
+    expect(mockGenerateImage).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('fallback must be a cloud model'),
+      expect.objectContaining({ configuredFallbackModel: 'indrasnet/gen_real' }),
+    );
   });
 
   it('preserves both provider errors when the configured fallback also fails', async () => {
