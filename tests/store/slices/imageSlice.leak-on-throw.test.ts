@@ -378,6 +378,7 @@ describe('imageSlice — durable task recovery', () => {
 
   it('retires a stale durable job when its exact artifact version was already persisted', async () => {
     const slice = createSlice();
+    imageCacheHasMock.mockResolvedValueOnce(true);
     const chapter = slice.chapters.get('chapter-1');
     chapter.translationResult.suggestedIllustrations[0].generatedImage = {
       imageData: '',
@@ -422,6 +423,56 @@ describe('imageSlice — durable task recovery', () => {
     expect(slice.showNotification).toHaveBeenCalledWith(
       expect.stringContaining('already saved'),
       'success',
+    );
+  });
+
+  it('does not retire a durable job for an evicted persisted cache pointer', async () => {
+    const slice = createSlice();
+    const chapter = slice.chapters.get('chapter-1');
+    chapter.translationResult.suggestedIllustrations[0].generatedImage = {
+      imageData: '',
+      imageCacheKey: {
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        version: 2,
+      },
+      metadata: { version: 2, model: 'indrasnet/gen_anime' },
+    };
+    chapter.translationResult.imageVersionState = {
+      '[ILLUSTRATION-1]': {
+        latestVersion: 2,
+        activeVersion: 2,
+        versions: { 2: { version: 2, model: 'indrasnet/gen_anime' } },
+      },
+    };
+    slice.imageJobs['evicted-cache-job'] = {
+      id: 'evicted-cache-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'indrasnet/gen_anime',
+      requestedProvider: 'Asus / IndrasNet',
+      taskModel: 'indrasnet/gen_anime',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'still-recoverable-provider-task',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+    imageCacheHasMock.mockResolvedValue(false);
+    resumeImageJobMock.mockResolvedValueOnce({
+      imageState: { isLoading: false, data: 'recovered-image', error: null },
+    });
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(imageCacheHasMock).toHaveBeenCalledWith(
+      chapter.translationResult.suggestedIllustrations[0].generatedImage.imageCacheKey,
+    );
+    expect(resumeImageJobMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'evicted-cache-job' }),
+      expect.anything(),
     );
   });
 

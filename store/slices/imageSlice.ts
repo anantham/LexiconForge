@@ -793,8 +793,11 @@ export const createImageSlice: StateCreator<
         const hasRequestedVersion = Object.prototype.hasOwnProperty.call(persistedVersions, job.version);
         const generated = persistedIllustration?.generatedImage;
         const concreteVersion = generated?.imageCacheKey?.version ?? generated?.metadata?.version;
+        const persistedCacheArtifactExists = generated?.imageCacheKey
+          ? await ImageCacheStore.has(generated.imageCacheKey)
+          : false;
         const hasConcreteArtifact = (
-          !!generated?.imageCacheKey
+          persistedCacheArtifactExists
           || (typeof generated?.imageData === 'string' && generated.imageData.length > 0)
           || (typeof persistedIllustration?.url === 'string' && persistedIllustration.url.length > 0)
         );

@@ -3154,3 +3154,12 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Fallback:** Revert each independent branch; all additions are optional metadata or recovery behavior with no credential/provider-task migration.
 **Result:** Confirmed. Accepted IndrasNet tasks survive malformed/unknown HTTP-200 polls while explicit failed/404 states remain terminal; recovered versions explicitly mark advanced controls unavailable and omit reconstructed values; exact cache hits apply and persist without polling the provider.
 **Verification:** Pinned Node 24.19.0: focused provider/provenance/cache regressions 51/51; exact one-worker suite 278 files, 9,252 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.
+
+### [2026-08-21 23:34 IST] [Agent: Codex]
+**Status:** Addressing exact-head round-29 review on evicted persisted cache pointers.
+**Issues:** IndexedDB may retain `generatedImage.imageCacheKey` after CacheStorage eviction; treating the pointer as concrete retires the only durable provider ID while the image bytes are gone.
+**Options:** (A) verify the referenced cache entry before local completion — selected; (B) trust metadata pointer presence — rejected. Impact high, effort/risk low, reversible, confidence 0.99.
+**Hypothesis:** Cache-backed persisted artifacts are concrete only when `ImageCacheStore.has` confirms the referenced key. Prediction: confirmed pointer completes locally; evicted pointer proceeds to cache-first/provider recovery.
+**Fallback:** Revert the cache verification; no persistence or provider contract changes are introduced.
+**Result:** Confirmed. A persisted cache pointer retires the durable task only when CacheStorage confirms its bytes; an evicted pointer falls through to exact-cache/provider recovery while inline image data remains directly concrete.
+**Verification:** Pinned Node 24.19.0: focused provider/provenance/cache regressions 52/52; exact one-worker suite 278 files, 9,253 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.
