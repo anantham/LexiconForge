@@ -18,17 +18,19 @@ import type { AppSettings } from '../../../types';
 import { createImageSlice, type ImageSlice } from '../../../store/slices/imageSlice';
 import { createImageJobsSlice, type ImageJobsSlice } from '../../../store/slices/imageJobsSlice';
 
-const { retryImageMock, generateImagesMock, resumeImageJobMock } = vi.hoisted(() => ({
+const { retryImageMock, generateImagesMock, resumeImageJobMock, applyResumedImageJobArtifactMock } = vi.hoisted(() => ({
   retryImageMock: vi.fn(),
   generateImagesMock: vi.fn(),
   resumeImageJobMock: vi.fn(),
+  applyResumedImageJobArtifactMock: vi.fn(),
 }));
 
 vi.mock('../../../services/imageGenerationService', () => ({
   ImageGenerationService: {
     retryImage: retryImageMock,
     generateImages: generateImagesMock,
-    resumeImageJob: resumeImageJobMock,
+    resumeImageJobArtifact: resumeImageJobMock,
+    applyResumedImageJobArtifact: applyResumedImageJobArtifactMock,
   },
 }));
 
@@ -276,6 +278,9 @@ describe('imageSlice — chapter-owned metrics', () => {
 describe('imageSlice — durable task recovery', () => {
   beforeEach(() => {
     resumeImageJobMock.mockReset();
+    applyResumedImageJobArtifactMock.mockReset().mockImplementation(
+      async (_job, _context, artifact) => artifact,
+    );
     retryImageMock.mockReset();
   });
 
@@ -402,6 +407,48 @@ describe('imageSlice — durable task recovery', () => {
     expect(slice.imageJobs['slow-job'].status).toBe('completed');
   });
 
+  it('hydrates an evicted shared origin once and serializes result application', async () => {
+    const slice = createSlice();
+    const originalChapter = slice.chapters.get('chapter-1');
+    slice.chapters.delete('chapter-1');
+    const loadChapterFromIDB = vi.fn(async () => {
+      slice.chapters.set('chapter-1', structuredClone(originalChapter));
+    });
+    (slice as any).loadChapterFromIDB = loadChapterFromIDB;
+    slice.imageJobs['first-job'] = {
+      id: 'first-job', chapterId: 'chapter-1', placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'Qubico/flux1-dev', requestedProvider: 'PiAPI', status: 'interrupted',
+      resumeKind: 'piapi', externalTaskId: 'task-first', version: 2,
+      startedAt: Date.now() - 5000, updatedAt: Date.now(), estimateSampleCount: 0,
+    };
+    slice.imageJobs['second-job'] = {
+      id: 'second-job', chapterId: 'chapter-1', placementMarker: '[ILLUSTRATION-2]',
+      requestedModel: 'Qubico/flux1-dev', requestedProvider: 'PiAPI', status: 'interrupted',
+      resumeKind: 'piapi', externalTaskId: 'task-second', version: 2,
+      startedAt: Date.now() - 5000, updatedAt: Date.now(), estimateSampleCount: 0,
+    };
+    const artifact = (data: string) => ({
+      imageState: { isLoading: false, data, error: null },
+      metrics: { chapterId: 'chapter-1', count: 1, totalTime: 1, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
+    });
+    resumeImageJobMock.mockImplementation(job => Promise.resolve(artifact(job.id)));
+    const firstApplication = createDeferred<any>();
+    applyResumedImageJobArtifactMock
+      .mockImplementationOnce(() => firstApplication.promise)
+      .mockImplementationOnce((_job, _context, result) => Promise.resolve(result));
+
+    const recovery = slice.resumeInterruptedImageJobs();
+    await vi.waitFor(() => expect(resumeImageJobMock).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(applyResumedImageJobArtifactMock).toHaveBeenCalledTimes(1));
+    expect(loadChapterFromIDB).toHaveBeenCalledTimes(1);
+
+    firstApplication.resolve(artifact('first-image'));
+    await recovery;
+    expect(applyResumedImageJobArtifactMock).toHaveBeenCalledTimes(2);
+    expect(slice.imageJobs['first-job'].status).toBe('completed');
+    expect(slice.imageJobs['second-job'].status).toBe('completed');
+  });
+
   it('does not poll the provider until the originating translation marker hydrates', async () => {
     const slice = createSlice();
     slice.chapters.set('chapter-1', {
@@ -521,6 +568,33 @@ describe('imageSlice — durable task recovery', () => {
     await slice.resumeInterruptedImageJobs();
 
     expect(slice.imageJobs['expired-job'].status).toBe('failed');
+    expect(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1')).toBeNull();
+  });
+
+  it('retires a terminal PiAPI task reported with canRetry false', async () => {
+    const slice = createSlice();
+    slice.imageJobs['pi-expired-job'] = {
+      id: 'pi-expired-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'Qubico/flux1-dev',
+      requestedProvider: 'PiAPI',
+      status: 'interrupted',
+      resumeKind: 'piapi',
+      externalTaskId: 'pi-expired-task',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+    resumeImageJobMock.mockRejectedValueOnce(Object.assign(
+      new Error('PiAPI polling failed (404): task not found'),
+      { canRetry: false },
+    ));
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(slice.imageJobs['pi-expired-job'].status).toBe('failed');
     expect(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1')).toBeNull();
   });
 });

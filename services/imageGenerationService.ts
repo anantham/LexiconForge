@@ -64,6 +64,20 @@ export interface ImageGenerationResult {
   error?: string;
 }
 
+const recoveredOriginPersistenceError = (error: unknown): Error & {
+  errorType: string;
+  canRetry: true;
+  retryable: true;
+} => Object.assign(
+  new Error(`The generated illustration is ready, but its originating chapter could not be saved: ${error instanceof Error ? error.message : String(error)}`),
+  {
+    errorType: 'IMAGE_JOB_ORIGIN_PERSIST_FAILED',
+    canRetry: true as const,
+    retryable: true as const,
+    cause: error,
+  },
+);
+
 export class ImageGenerationService {
 
   /**
@@ -186,6 +200,7 @@ export class ImageGenerationService {
     // Sequentially generate images to avoid overwhelming the API
     for (const illust of illustrationsNeedingGeneration) {
       const key = `${chapterId}:${illust.placementMarker}`;
+      let durableTaskSubmitted = false;
       
       try {
         slog(`[ImageGen] Generating image for marker: ${illust.placementMarker}`);
@@ -211,7 +226,10 @@ export class ImageGenerationService {
           chapterId,
           placementMarker: illust.placementMarker,
           version: 1,
-          onJobEvent: event => context.onJobEvent?.(illust.placementMarker, event),
+          onJobEvent: event => {
+            if (event.type === 'submitted') durableTaskSubmitted = true;
+            context.onJobEvent?.(illust.placementMarker, event);
+          },
         });
         const executedModel = result.execution?.model || settings.imageModel;
         lastExecutedModel = executedModel;
@@ -334,6 +352,7 @@ export class ImageGenerationService {
               slog(`[ImageGen] Persisted image for ${illust.placementMarker} to IndexedDB`);
             } catch (error) {
               swarn(`[ImageGen] Failed to persist image to IndexedDB:`, error);
+              if (durableTaskSubmitted) throw recoveredOriginPersistenceError(error);
             }
           }
         }
@@ -424,6 +443,7 @@ export class ImageGenerationService {
     }
 
     const key = `${chapterId}:${placementMarker}`;
+    let durableTaskSubmitted = existingResult !== undefined;
 
     try {
       // Get advanced controls for this illustration
@@ -447,7 +467,10 @@ export class ImageGenerationService {
         chapterId,
         placementMarker,
         version: context.nextVersion || 1,
-        onJobEvent: event => context.onJobEvent?.(placementMarker, event),
+        onJobEvent: event => {
+          if (event.type === 'submitted') durableTaskSubmitted = true;
+          context.onJobEvent?.(placementMarker, event);
+        },
       });
       const executedModel = result.execution?.model || settings.imageModel;
       const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(executedModel);
@@ -547,17 +570,7 @@ export class ImageGenerationService {
             slog(`[ImageGen] Persisted retry image for ${placementMarker} to IndexedDB`);
           } catch (e) {
             swarn('[ImageGen] Failed to persist retry image to IndexedDB', e);
-            if (existingResult) {
-              throw Object.assign(
-                new Error(`The recovered illustration is ready, but its originating chapter could not be saved: ${e instanceof Error ? e.message : String(e)}`),
-                {
-                  errorType: 'IMAGE_JOB_ORIGIN_PERSIST_FAILED',
-                  canRetry: true,
-                  retryable: true,
-                  cause: e,
-                },
-              );
-            }
+            if (durableTaskSubmitted) throw recoveredOriginPersistenceError(e);
           }
         }
       }
@@ -595,11 +608,11 @@ export class ImageGenerationService {
     }
   }
 
-  /** Resume a durable provider task without submitting a second paid request. */
-  static async resumeImageJob(
+  /** Poll/download a durable provider task without mutating its originating chapter. */
+  static async resumeImageJobArtifact(
     job: ImageJob,
     context: ImageGenerationContext,
-  ): Promise<{ imageState: ImageState; metrics?: Partial<ImageGenerationMetrics> }> {
+  ): Promise<GeneratedImageResult> {
     if (!job.externalTaskId) throw new Error(`Image job ${job.id} has no provider task id to resume.`);
     const common = {
       taskId: job.externalTaskId,
@@ -609,12 +622,29 @@ export class ImageGenerationService {
       version: job.version,
       onJobEvent: (event: ImageJobLifecycleEvent) => context.onJobEvent?.(job.placementMarker, event),
     };
-    const result = job.resumeKind === 'piapi'
+    return job.resumeKind === 'piapi'
       ? await resumePiApiImageTask(common)
       : job.resumeKind === 'indrasnet'
         ? await resumeIndrasNetTask(common)
         : (() => { throw new Error(`Image job ${job.id} uses unsupported resume kind "${job.resumeKind}".`); })();
+  }
+
+  /** Apply a fetched durable artifact to the current originating chapter and persist it. */
+  static async applyResumedImageJobArtifact(
+    job: ImageJob,
+    context: ImageGenerationContext,
+    result: GeneratedImageResult,
+  ): Promise<{ imageState: ImageState; metrics?: Partial<ImageGenerationMetrics> }> {
     return this.retryImage(job.chapterId, job.placementMarker, context, result);
+  }
+
+  /** Resume a durable provider task without submitting a second paid request. */
+  static async resumeImageJob(
+    job: ImageJob,
+    context: ImageGenerationContext,
+  ): Promise<{ imageState: ImageState; metrics?: Partial<ImageGenerationMetrics> }> {
+    const artifact = await this.resumeImageJobArtifact(job, context);
+    return this.applyResumedImageJobArtifact(job, context, artifact);
   }
 
   /**

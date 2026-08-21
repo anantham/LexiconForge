@@ -169,6 +169,45 @@ describe('ImageGenerationService — steering-image provenance (integrity item 6
     expect(result.metrics).toBeUndefined();
   });
 
+  it('keeps an initially submitted durable retry recoverable when origin persistence fails', async () => {
+    const { context } = makeContext('indrasnet/gen_anime', null);
+    persistUpdatedTranslationMock.mockRejectedValueOnce(new Error('IndexedDB transaction aborted'));
+    generateImageMock.mockImplementationOnce(async (...args: any[]) => {
+      args[10]?.({ type: 'submitted', externalTaskId: 'broker-initial-retry', resumeKind: 'indrasnet' });
+      return {
+        imageData: 'data:image/png;base64,AAAA', cost: 0, requestTime: 12,
+        execution: { provider: 'Asus / IndrasNet', model: 'indrasnet/gen_anime' },
+      };
+    });
+
+    const result = await ImageGenerationService.retryImage('ch-1', '[ILLUSTRATION-1]', context);
+
+    expect(result.imageState).toMatchObject({
+      errorType: 'IMAGE_JOB_ORIGIN_PERSIST_FAILED',
+      canRetry: true,
+    });
+    expect(result.metrics).toBeUndefined();
+  });
+
+  it('keeps an initially submitted durable batch item recoverable when origin persistence fails', async () => {
+    const { context } = makeContext('Qubico/flux1-dev', null);
+    persistUpdatedTranslationMock.mockRejectedValueOnce(new Error('IndexedDB transaction aborted'));
+    generateImageMock.mockImplementationOnce(async (...args: any[]) => {
+      args[10]?.({ type: 'submitted', externalTaskId: 'pi-initial-batch', resumeKind: 'piapi' });
+      return {
+        imageData: 'data:image/png;base64,AAAA', cost: 0.03, requestTime: 12,
+        execution: { provider: 'PiAPI', model: 'Qubico/flux1-dev' },
+      };
+    });
+
+    const result = await ImageGenerationService.generateImages('ch-1', context);
+
+    expect(result.generatedImages['ch-1:[ILLUSTRATION-1]']).toMatchObject({
+      errorType: 'IMAGE_JOB_ORIGIN_PERSIST_FAILED',
+      canRetry: true,
+    });
+  });
+
   it('reports the model that actually executed in batch progress and final metrics', async () => {
     const { context } = makeContext('indrasnet/gen_anime', null);
     const onProgressUpdate = vi.fn();

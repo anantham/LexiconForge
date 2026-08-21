@@ -688,15 +688,53 @@ export const createImageSlice: StateCreator<
     const interrupted = Object.values(get().imageJobs).filter(job =>
       job.status === 'interrupted' && (job.resumeKind === 'piapi' || job.resumeKind === 'indrasnet')
     );
+    const hydrationByChapter = new Map<string, Promise<void>>();
+    const applicationTailByChapter = new Map<string, Promise<void>>();
+    const ensureChapterHydrated = (chapterId: string): Promise<void> => {
+      const existing = hydrationByChapter.get(chapterId);
+      if (existing) return existing;
+      const hydration = (async () => {
+        if (!get().chapters.has(chapterId)) await get().loadChapterFromIDB(chapterId);
+      })();
+      hydrationByChapter.set(chapterId, hydration);
+      return hydration;
+    };
+    const applyWithinChapter = <T>(chapterId: string, apply: () => Promise<T>): Promise<T> => {
+      const previous = applicationTailByChapter.get(chapterId) ?? Promise.resolve();
+      const current = previous.then(apply);
+      applicationTailByChapter.set(chapterId, current.then(() => undefined, () => undefined));
+      return current;
+    };
+    const contextForJob = (job: typeof interrupted[number]): ImageGenerationContext => {
+      const state = get();
+      return {
+        chapters: state.chapters,
+        settings: { ...state.settings, imageModel: job.requestedModel },
+        activePromptTemplate: state.activePromptTemplate ?? undefined,
+        steeringImages: state.steeringImages,
+        negativePrompts: state.negativePrompts,
+        guidanceScales: state.guidanceScales,
+        loraModels: state.loraModels,
+        loraStrengths: state.loraStrengths,
+        imageVersions: state.imageVersions,
+        activeImageVersion: state.activeImageVersion,
+        nextVersion: job.version,
+        onJobEvent: (_marker, event) => {
+          if (event.type === 'submitted') {
+            get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind);
+          } else {
+            get().markImageJobRunning(job.id);
+          }
+        },
+      };
+    };
     // Claim every restored job synchronously before the first await. This
     // prevents React development StrictMode (or another boot caller) from
     // starting a second recovery pass for the same provider task.
     for (const job of interrupted) get().markImageJobRunning(job.id);
     await Promise.all(interrupted.map(async job => {
       try {
-        if (!get().chapters.has(job.chapterId)) {
-          await get().loadChapterFromIDB(job.chapterId);
-        }
+        await ensureChapterHydrated(job.chapterId);
         const state = get();
         const originChapter = state.chapters.get(job.chapterId);
         if (!originChapter) {
@@ -717,44 +755,32 @@ export const createImageSlice: StateCreator<
             { code: 'IMAGE_JOB_ORIGIN_MARKER_MISSING', retryable: false },
           );
         }
-        const context: ImageGenerationContext = {
-          chapters: state.chapters,
-          settings: { ...state.settings, imageModel: job.requestedModel },
-          activePromptTemplate: state.activePromptTemplate ?? undefined,
-          steeringImages: state.steeringImages,
-          negativePrompts: state.negativePrompts,
-          guidanceScales: state.guidanceScales,
-          loraModels: state.loraModels,
-          loraStrengths: state.loraStrengths,
-          imageVersions: state.imageVersions,
-          activeImageVersion: state.activeImageVersion,
-          nextVersion: job.version,
-          onJobEvent: (_marker, event) => {
-            if (event.type === 'submitted') {
-              get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind);
-            } else {
-              get().markImageJobRunning(job.id);
-            }
-          },
-        };
-        const result = await ImageGenerationService.resumeImageJob(job, context);
-        const key = `${job.chapterId}:${job.placementMarker}`;
-        if (result.imageState.error) {
-          settleImageJobFailure(job.id, result.imageState.error, result.imageState.canRetry);
-          state.showNotification('A resumed illustration task failed. Open its chapter to retry.', 'error');
-          return;
-        }
-        set(previous => ({
-          generatedImages: { ...previous.generatedImages, [key]: result.imageState },
-          imageVersions: { ...previous.imageVersions, [key]: Math.max(previous.imageVersions[key] || 0, job.version) },
-          activeImageVersion: { ...previous.activeImageVersion, [key]: job.version },
-        }));
-        get().completeImageJob(job.id, result.metrics?.lastModel, result.metrics?.totalTime);
-        get().showNotification('A previously submitted illustration is ready in its originating chapter.', 'success');
+        const artifact = await ImageGenerationService.resumeImageJobArtifact(job, contextForJob(job));
+        await applyWithinChapter(job.chapterId, async () => {
+          const result = await ImageGenerationService.applyResumedImageJobArtifact(
+            job,
+            contextForJob(job),
+            artifact,
+          );
+          const key = `${job.chapterId}:${job.placementMarker}`;
+          if (result.imageState.error) {
+            settleImageJobFailure(job.id, result.imageState.error, result.imageState.canRetry);
+            get().showNotification('A resumed illustration task failed. Open its chapter to retry.', 'error');
+            return;
+          }
+          set(previous => ({
+            generatedImages: { ...previous.generatedImages, [key]: result.imageState },
+            imageVersions: { ...previous.imageVersions, [key]: Math.max(previous.imageVersions[key] || 0, job.version) },
+            activeImageVersion: { ...previous.activeImageVersion, [key]: job.version },
+          }));
+          get().completeImageJob(job.id, result.metrics?.lastModel, result.metrics?.totalTime);
+          get().showNotification('A previously submitted illustration is ready in its originating chapter.', 'success');
+        });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const retryable = error instanceof Error
-          ? (error as Error & { retryable?: boolean }).retryable
+          ? (error as Error & { retryable?: boolean; canRetry?: boolean }).retryable
+            ?? (error as Error & { retryable?: boolean; canRetry?: boolean }).canRetry
           : undefined;
         console.error(`[ImageJobs] Failed to resume ${job.resumeKind} task ${job.id}:`, error);
         const explicitlyTerminal = error instanceof Error && (
