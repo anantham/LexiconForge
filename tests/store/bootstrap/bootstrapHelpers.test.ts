@@ -544,6 +544,24 @@ describe('bootstrap helpers', () => {
       expect(state.setInitialized).toHaveBeenCalledWith(true);
     });
 
+    it('joins last-active chapter hydration before enabling recovered image jobs', async () => {
+      navigationOpsMock.getLastActiveChapter.mockResolvedValue({ id: 'last-chapter' });
+      let resolveHydration!: () => void;
+      const hydration = new Promise<void>(resolve => { resolveHydration = resolve; });
+      const loadChapterFromIDB = vi.fn().mockReturnValue(hydration);
+      const { ctx, state } = createCtx(createState({ loadChapterFromIDB }));
+      const initializeStore = createInitializeStore(ctx);
+
+      const initialization = initializeStore();
+      await vi.waitFor(() => expect(loadChapterFromIDB).toHaveBeenCalledWith('last-chapter'));
+      expect(state.setInitialized).not.toHaveBeenCalledWith(true);
+
+      resolveHydration();
+      await initialization;
+
+      expect(state.setInitialized).toHaveBeenCalledWith(true);
+    });
+
     it('does not restore passive last-active state when a deep-link novel intent is present', async () => {
       setWindowLocation('?novel=orv');
       registryServiceMock.fetchNovelById.mockResolvedValue({

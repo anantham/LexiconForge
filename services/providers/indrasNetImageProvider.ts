@@ -471,7 +471,9 @@ const pollIndrasNetJob = async (
         job.error?.detail || `IndrasNet workflow job ${jobId} failed.`,
         {
           code: job.error?.code || 'INDRASNET_JOB_FAILED',
-          retryable: job.error?.retryable === true,
+          // The accepted task ID is terminal regardless of whether the
+          // broker thinks a brand-new user submission might succeed.
+          retryable: false,
           status: job.error?.http_status,
         },
       );

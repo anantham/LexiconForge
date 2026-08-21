@@ -133,6 +133,31 @@ describe('IndrasNet resumable image jobs', () => {
     expect(error).toMatchObject({ retryable: false, status: 404 });
   });
 
+  it('retires every explicit failed broker task even when a new submission may be retryable', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(json({
+      job_id: 'failed-job',
+      status: 'failed',
+      error: {
+        code: 'COMFYUI_EXECUTION_FAILED',
+        detail: 'model load failed',
+        retryable: true,
+        http_status: 503,
+      },
+    })));
+
+    const error = await resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'failed-job',
+      workflowName: 'gen_anime',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({
+      code: 'COMFYUI_EXECUTION_FAILED',
+      retryable: false,
+      status: 503,
+    });
+  });
+
   it('keeps broker-queued work submitted until the broker reports running', async () => {
     const originalSetTimeout = globalThis.setTimeout.bind(globalThis);
     vi.spyOn(globalThis, 'setTimeout').mockImplementation(((handler: TimerHandler, timeout?: number, ...args: any[]) => {
