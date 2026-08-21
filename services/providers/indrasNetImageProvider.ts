@@ -81,13 +81,21 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 export class IndrasNetProviderError extends Error {
   readonly code: string;
   readonly retryable: boolean;
+  readonly fallbackEligible: boolean;
   readonly status?: number;
 
-  constructor(message: string, options: { code: string; retryable: boolean; status?: number; cause?: unknown }) {
+  constructor(message: string, options: {
+    code: string;
+    retryable: boolean;
+    fallbackEligible?: boolean;
+    status?: number;
+    cause?: unknown;
+  }) {
     super(message, { cause: options.cause });
     this.name = 'IndrasNetProviderError';
     this.code = options.code;
     this.retryable = options.retryable;
+    this.fallbackEligible = options.fallbackEligible !== false;
     this.status = options.status;
   }
 }
@@ -237,7 +245,7 @@ const readJsonObjectResponse = async <T extends object>(response: Response, cont
 const requestError = async (
   response: Response,
   action: string,
-  options: { retryable?: boolean } = {},
+  options: { retryable?: boolean; fallbackEligible?: boolean } = {},
 ): Promise<IndrasNetProviderError> => {
   const payload = await readErrorPayload(response);
   const code = payload.code || (response.status === 401 || response.status === 403
@@ -251,12 +259,13 @@ const requestError = async (
   );
   return new IndrasNetProviderError(
     `${action} failed (${code}): ${payload.detail || `${response.status} ${response.statusText}`}`,
-    { code, retryable, status: response.status },
+    { code, retryable, fallbackEligible: options.fallbackEligible, status: response.status },
   );
 };
 
 interface FetchFailurePolicy {
   retryable?: boolean;
+  fallbackEligible?: boolean;
   timeoutCode?: string;
   unreachableCode?: string;
   timeoutMessage?: string;
@@ -280,6 +289,7 @@ const fetchWithTimeout = async (
       {
         code: timeout ? policy.timeoutCode || 'INDRASNET_TIMEOUT' : policy.unreachableCode || 'COMFYUI_OFFLINE',
         retryable: policy.retryable ?? true,
+        fallbackEligible: policy.fallbackEligible,
         cause,
       },
     );
@@ -506,6 +516,7 @@ const downloadIndrasNetResult = async (
     IMAGE_DOWNLOAD_TIMEOUT_MS,
     {
       retryable: true,
+      fallbackEligible: false,
       timeoutCode: 'INDRASNET_IMAGE_DOWNLOAD_TIMEOUT',
       unreachableCode: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
       timeoutMessage: 'IndrasNet completed the workflow, but the image download did not finish within 60 seconds.',
@@ -515,7 +526,10 @@ const downloadIndrasNetResult = async (
   if (!imageResponse.ok) {
     const retryable = RETRYABLE_ARTIFACT_HTTP_STATUSES.has(imageResponse.status)
       || imageResponse.status >= 500;
-    throw await requestError(imageResponse, 'IndrasNet image download', { retryable });
+    throw await requestError(imageResponse, 'IndrasNet image download', {
+      retryable,
+      fallbackEligible: false,
+    });
   }
 
   const mimeType = imageResponse.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() || '';
@@ -525,7 +539,12 @@ const downloadIndrasNetResult = async (
   } catch (cause) {
     throw new IndrasNetProviderError(
       'IndrasNet completed the workflow, but reading the downloaded image failed.',
-      { code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: true, cause },
+      {
+        code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
+        retryable: true,
+        fallbackEligible: false,
+        cause,
+      },
     );
   }
   if (!mimeType.startsWith('image/') || imageBlob.size === 0) {

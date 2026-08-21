@@ -1,19 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ImageJobsBanner from '../../components/ImageJobsBanner';
 import type { ImageJob } from '../../store/slices/imageJobsSlice';
 
 const setCurrentChapter = vi.fn();
+const loadChapterFromIDB = vi.fn();
+const showNotification = vi.fn();
 const dismissImageJob = vi.fn();
 const storeState: {
   imageJobs: Record<string, ImageJob>;
   chapters: Map<string, any>;
   setCurrentChapter: typeof setCurrentChapter;
+  loadChapterFromIDB: typeof loadChapterFromIDB;
+  showNotification: typeof showNotification;
   dismissImageJob: typeof dismissImageJob;
 } = {
   imageJobs: {},
   chapters: new Map(),
   setCurrentChapter,
+  loadChapterFromIDB,
+  showNotification,
   dismissImageJob,
 };
 
@@ -42,10 +48,12 @@ describe('ImageJobsBanner', () => {
     storeState.imageJobs = {};
     storeState.chapters = new Map();
     setCurrentChapter.mockReset();
+    loadChapterFromIDB.mockReset();
+    showNotification.mockReset();
     dismissImageJob.mockReset();
   });
 
-  it('shows an empirical ETA and navigates to the originating chapter', () => {
+  it('shows an empirical ETA and navigates to the loaded originating chapter', async () => {
     storeState.imageJobs = { 'job-1': job() };
     storeState.chapters = new Map([['chapter-1', { title: 'Origin Chapter' }]]);
     render(<ImageJobsBanner />);
@@ -53,7 +61,34 @@ describe('ImageJobsBanner', () => {
     expect(screen.getByText('Origin Chapter')).toBeInTheDocument();
     expect(screen.getByText(/3 prior runs/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /open origin chapter/i }));
+    await waitFor(() => expect(setCurrentChapter).toHaveBeenCalledWith('chapter-1'));
+    expect(loadChapterFromIDB).not.toHaveBeenCalled();
+  });
+
+  it('hydrates a shelved origin before opening it', async () => {
+    storeState.imageJobs = { 'job-1': job({ status: 'completed' }) };
+    loadChapterFromIDB.mockResolvedValue({ id: 'chapter-1', title: 'Hydrated Origin' });
+    render(<ImageJobsBanner />);
+
+    fireEvent.click(screen.getByRole('button', { name: /open chapter-1/i }));
+
+    await waitFor(() => expect(loadChapterFromIDB).toHaveBeenCalledWith('chapter-1'));
     expect(setCurrentChapter).toHaveBeenCalledWith('chapter-1');
+  });
+
+  it('keeps the job visible and reports a failed origin hydration', async () => {
+    storeState.imageJobs = { 'job-1': job({ status: 'completed' }) };
+    loadChapterFromIDB.mockResolvedValue(null);
+    render(<ImageJobsBanner />);
+
+    fireEvent.click(screen.getByRole('button', { name: /open chapter-1/i }));
+
+    await waitFor(() => expect(showNotification).toHaveBeenCalledWith(
+      expect.stringContaining('originating chapter could not be loaded'),
+      'error',
+    ));
+    expect(setCurrentChapter).not.toHaveBeenCalled();
+    expect(screen.getByText(/illustration ready/i)).toBeInTheDocument();
   });
 
   it('does not invent an ETA when there is no empirical history', () => {

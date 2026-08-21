@@ -17,8 +17,10 @@ const ImageJobsBanner: React.FC = () => {
   const imageJobs = useAppStore(state => state.imageJobs ?? {});
   const chapters = useAppStore(state => state.chapters);
   const setCurrentChapter = useAppStore(state => state.setCurrentChapter);
+  const loadChapterFromIDB = useAppStore(state => state.loadChapterFromIDB);
+  const showNotification = useAppStore(state => state.showNotification);
   const dismissImageJob = useAppStore(state => state.dismissImageJob);
-  const [now, setNow] = React.useState(Date.now());
+  const [now, setNow] = React.useState(() => Date.now());
 
   const visibleJobs = React.useMemo(() => Object.values(imageJobs)
     .filter(job => isActive(job) || job.status === 'interrupted' || job.status === 'completed' || job.status === 'failed')
@@ -68,6 +70,30 @@ const ImageJobsBanner: React.FC = () => {
       ? 'border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950/90 dark:text-amber-100'
       : 'border-violet-300 bg-violet-50 text-violet-950 dark:border-violet-700 dark:bg-violet-950/90 dark:text-violet-100';
 
+  const openOrigin = async (): Promise<void> => {
+    try {
+      const origin = chapters.get(job.chapterId) || await loadChapterFromIDB(job.chapterId);
+      if (!origin) {
+        console.error('[ImageJobsBanner] Origin chapter is unavailable after hydration', {
+          jobId: job.id,
+          chapterId: job.chapterId,
+          placementMarker: job.placementMarker,
+        });
+        showNotification('The originating chapter could not be loaded. The image job was preserved.', 'error');
+        return;
+      }
+      setCurrentChapter(job.chapterId);
+    } catch (error) {
+      console.error('[ImageJobsBanner] Failed to hydrate the originating chapter', {
+        jobId: job.id,
+        chapterId: job.chapterId,
+        placementMarker: job.placementMarker,
+        error,
+      });
+      showNotification('The originating chapter could not be loaded. The image job was preserved.', 'error');
+    }
+  };
+
   return (
     <div className="fixed bottom-20 right-4 z-40 w-[min(25rem,calc(100vw-2rem))]" role="status" aria-live="polite">
       <div className={`rounded-xl border shadow-lg ${tone}`}>
@@ -75,7 +101,7 @@ const ImageJobsBanner: React.FC = () => {
           <button
             type="button"
             className="flex min-w-0 flex-1 items-start gap-2 text-left"
-            onClick={() => setCurrentChapter(job.chapterId)}
+            onClick={() => { void openOrigin(); }}
             aria-label={`Open ${title}`}
             title={`Open ${title}`}
           >

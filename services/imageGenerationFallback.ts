@@ -20,6 +20,7 @@ export interface ImageGenerationInvocation {
 interface RetryableImageError extends Error {
   errorType?: string;
   canRetry?: boolean;
+  fallbackEligible?: boolean;
 }
 
 export class ImageFallbackError extends Error {
@@ -89,7 +90,9 @@ export const generateImageWithConfiguredFallback = async (
     const fallbackModel = input.settings.imageFallbackModel?.trim() || 'none';
     const localFallbackInvalid = isIndrasNetImageModel(fallbackModel);
     const fallbackEnabled = fallbackModel.toLowerCase() !== 'none' && !localFallbackInvalid;
-    const eligible = isIndrasNetImageModel(input.settings.imageModel) && error.canRetry === true;
+    const eligible = isIndrasNetImageModel(input.settings.imageModel)
+      && error.canRetry === true
+      && error.fallbackEligible !== false;
 
     if (localFallbackInvalid) {
       console.warn('[ImageGenerationFallback] Ignoring invalid local fallback; fallback must be a cloud model', {

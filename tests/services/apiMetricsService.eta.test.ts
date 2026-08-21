@@ -20,10 +20,10 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  apiMetricsService,
   estimateTranslationTime,
   estimateImageGenerationTime,
   median,
-  type TranslationTimeEstimate,
 } from '../../services/apiMetricsService';
 import type { ApiCallMetric } from '../../services/apiMetricsService';
 
@@ -187,5 +187,39 @@ describe('estimateImageGenerationTime — empirical image jobs', () => {
       minTimeSeconds: 10,
       maxTimeSeconds: 120,
     });
+  });
+});
+
+describe('durable metric idempotency', () => {
+  it('counts a recovered provider task once in session and lifetime ledgers', async () => {
+    await apiMetricsService.clearAllMetrics();
+    const metric = {
+      apiType: 'image' as const,
+      provider: 'PiAPI',
+      model: 'Qubico/flux1-schnell',
+      costUsd: 0.002,
+      imageCount: 1,
+      chapterId: 'chapter-1',
+      success: true,
+      idempotencyKey: 'image:piapi:task-dedup-test',
+    };
+
+    await apiMetricsService.recordMetric(metric);
+    await apiMetricsService.recordMetric(metric);
+
+    const summary = await apiMetricsService.getCompleteSummary();
+    expect(summary.session.totalCalls).toBe(1);
+    expect(summary.session.totalCost).toBe(0.002);
+    expect(summary.lifetime.totalCalls).toBe(1);
+    expect(summary.lifetime.totalCost).toBe(0.002);
+
+    // Simulate a fresh browser session while retaining IndexedDB. A repeated
+    // recovery must not re-add the already-accounted provider operation.
+    (apiMetricsService as unknown as { sessionMetrics: ApiCallMetric[] }).sessionMetrics = [];
+    await apiMetricsService.recordMetric(metric);
+    const afterReload = await apiMetricsService.getCompleteSummary();
+    expect(afterReload.session.totalCalls).toBe(0);
+    expect(afterReload.lifetime.totalCalls).toBe(1);
+    expect(afterReload.lifetime.totalCost).toBe(0.002);
   });
 });

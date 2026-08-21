@@ -27,7 +27,7 @@ vi.mock('../../utils/debug', () => ({
   debugWarn: vi.fn(),
 }));
 
-import { resumeIndrasNetTask } from '../../services/imageService';
+import { resumeIndrasNetTask, resumePiApiImageTask } from '../../services/imageService';
 
 const input = {
   taskId: 'broker-job-1',
@@ -69,5 +69,31 @@ describe('restored image-job ETA metrics', () => {
     await resumeIndrasNetTask(input as any);
 
     expect(mocks.recordMetric).not.toHaveBeenCalled();
+  });
+
+  it('records recovered PiAPI spend once without treating partial polling time as an ETA sample', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      status: 'completed',
+      output: { base64: 'aW1hZ2U=' },
+    }), { status: 200 }));
+
+    const result = await resumePiApiImageTask({
+      taskId: 'pi-task-1',
+      settings: { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'test-key' } as any,
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      version: 2,
+    });
+
+    expect(result.cost).toBeGreaterThan(0);
+    expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
+      apiType: 'image',
+      provider: 'PiAPI',
+      model: 'Qubico/flux1-schnell',
+      costUsd: result.cost,
+      success: true,
+      idempotencyKey: 'image:piapi:pi-task-1',
+    }));
+    expect(mocks.recordMetric.mock.calls[0][0]).not.toHaveProperty('duration');
   });
 });

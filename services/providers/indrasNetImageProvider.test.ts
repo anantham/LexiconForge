@@ -263,7 +263,12 @@ describe('IndrasNet image provider', () => {
       prompt: 'A lighthouse',
     }).catch(cause => cause);
 
-    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_504', retryable: true, status: 504 });
+    expect(error).toMatchObject({
+      code: 'INDRASNET_HTTP_504',
+      retryable: true,
+      fallbackEligible: true,
+      status: 504,
+    });
   });
 
   it('does not fallback when a completed workflow returns no image', async () => {
@@ -378,7 +383,12 @@ describe('IndrasNet image provider', () => {
       prompt: 'A lighthouse',
     }).catch(cause => cause);
 
-    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_504', retryable: true, status: 504 });
+    expect(error).toMatchObject({
+      code: 'INDRASNET_HTTP_504',
+      retryable: true,
+      fallbackEligible: false,
+      status: 504,
+    });
   });
 
   it('treats a missing completed artifact as terminal', async () => {
@@ -416,7 +426,11 @@ describe('IndrasNet image provider', () => {
       prompt: 'A lighthouse',
     }).catch(cause => cause);
 
-    expect(error).toMatchObject({ code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: true });
+    expect(error).toMatchObject({
+      code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
+      retryable: true,
+      fallbackEligible: false,
+    });
   });
 
   it('rejects an HTML artifact body returned with HTTP 200', async () => {

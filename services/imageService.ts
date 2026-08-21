@@ -72,6 +72,7 @@ interface ImageGenerationError extends Error {
   originalError?: unknown;
   model?: string;
   canRetry?: boolean;
+  fallbackEligible?: boolean;
   suggestedActions?: string[];
 }
 
@@ -79,6 +80,7 @@ interface RetryableProviderError extends Error {
   canRetry?: boolean;
   retryable?: boolean;
   errorType?: string;
+  fallbackEligible?: boolean;
 }
 
 // --- CONSTANTS ---
@@ -793,6 +795,9 @@ export const generateImage = async (
             : (error as RetryableProviderError).canRetry === true
               || (error as RetryableProviderError).retryable === true
               || ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType),
+          fallbackEligible: error instanceof IndrasNetProviderError
+            ? error.fallbackEligible
+            : (error as RetryableProviderError).fallbackEligible,
           suggestedActions: getSuggestedActions(errorType, imageModel),
         });
 
@@ -962,7 +967,18 @@ export const resumePiApiImageTask = async (
 
     // PiAPI does not return provider-side generation timing for a restored
     // task. The post-reload polling interval is only a partial observation,
-    // so deliberately omit it from empirical ETA history.
+    // so deliberately omit it from empirical ETA history. The provider task
+    // id makes spend accounting idempotent if recovery is invoked twice.
+    await apiMetricsService.recordMetric({
+        apiType: 'image',
+        provider: 'PiAPI',
+        model,
+        costUsd: cost,
+        imageCount: 1,
+        chapterId: input.chapterId,
+        success: true,
+        idempotencyKey: `image:piapi:${input.taskId}`,
+    });
 
     try {
         const { ImageCacheStore } = await import('./imageCacheService');

@@ -57,6 +57,18 @@ describe('configured image fallback', () => {
     expect(mockGenerateImage).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps a completed local artifact recoverable without starting a paid fallback', async () => {
+    const failure = Object.assign(new Error('completed artifact download timed out'), {
+      errorType: 'INDRASNET_IMAGE_DOWNLOAD_TIMEOUT',
+      canRetry: true,
+      fallbackEligible: false,
+    });
+    mockGenerateImage.mockRejectedValueOnce(failure);
+
+    await expect(generateImageWithConfiguredFallback({ prompt: 'castle', settings })).rejects.toBe(failure);
+    expect(mockGenerateImage).toHaveBeenCalledTimes(1);
+  });
+
   it('does not silently fallback when the setting is disabled', async () => {
     const failure = Object.assign(new Error('offline'), { errorType: 'COMFYUI_OFFLINE', canRetry: true });
     mockGenerateImage.mockRejectedValueOnce(failure);
