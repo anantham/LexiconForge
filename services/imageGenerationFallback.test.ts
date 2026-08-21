@@ -86,7 +86,7 @@ describe('configured image fallback', () => {
     expect(error).toBeInstanceOf(ImageFallbackError);
     expect(error).toMatchObject({
       errorType: 'IMAGE_FALLBACK_FAILED',
-      canRetry: false,
+      canRetry: true,
       primaryError: primaryFailure,
       fallbackError: fallbackFailure,
       attemptedModel: 'indrasnet/gen_anime',

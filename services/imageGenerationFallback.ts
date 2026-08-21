@@ -22,7 +22,7 @@ interface RetryableImageError extends Error {
 
 export class ImageFallbackError extends Error {
   readonly errorType = 'IMAGE_FALLBACK_FAILED';
-  readonly canRetry = false;
+  readonly canRetry: boolean;
   readonly primaryError: Error;
   readonly fallbackError: Error;
   readonly attemptedModel: string;
@@ -48,6 +48,7 @@ export class ImageFallbackError extends Error {
     this.fallbackError = options.fallbackError;
     this.attemptedModel = options.attemptedModel;
     this.fallbackModel = options.fallbackModel;
+    this.canRetry = options.fallbackError.canRetry === true;
   }
 }
 

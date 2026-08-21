@@ -98,7 +98,8 @@ export const imageModelFromWorkflowName = (workflowName: string): string =>
   `${INDRASNET_IMAGE_MODEL_PREFIX}${encodeURIComponent(workflowName)}`;
 
 export const normalizeIndrasNetBaseUrl = (rawBaseUrl?: string): string => {
-  const value = (rawBaseUrl || DEFAULT_INDRASNET_BASE_URL).trim().replace(/\/+$/, '');
+  const trimmedBaseUrl = rawBaseUrl?.trim();
+  const value = (trimmedBaseUrl || DEFAULT_INDRASNET_BASE_URL).replace(/\/+$/, '');
   let parsed: URL;
   try {
     parsed = new URL(value);
@@ -126,15 +127,21 @@ const readErrorPayload = async (response: Response): Promise<ErrorPayload> => {
   }
 };
 
-const requestError = async (response: Response, action: string): Promise<IndrasNetProviderError> => {
+const requestError = async (
+  response: Response,
+  action: string,
+  options: { retryable?: boolean } = {},
+): Promise<IndrasNetProviderError> => {
   const payload = await readErrorPayload(response);
   const code = payload.code || (response.status === 401 || response.status === 403
     ? 'INDRASNET_AUTH_REJECTED'
     : `INDRASNET_HTTP_${response.status}`);
-  const retryable = payload.retryable === true
+  const retryable = options.retryable ?? (
+    payload.retryable === true
     || (payload.retryable === undefined
       && !payload.code
-      && UNSTRUCTURED_GATEWAY_AVAILABILITY_STATUSES.has(response.status));
+      && UNSTRUCTURED_GATEWAY_AVAILABILITY_STATUSES.has(response.status))
+  );
   return new IndrasNetProviderError(
     `${action} failed (${code}): ${payload.detail || `${response.status} ${response.statusText}`}`,
     { code, retryable, status: response.status },
@@ -279,7 +286,7 @@ export const generateIndrasNetImage = async (
   if (!imagePath) {
     throw new IndrasNetProviderError('IndrasNet completed the workflow but returned no image.', {
       code: 'INDRASNET_NO_IMAGE',
-      retryable: true,
+      retryable: false,
     });
   }
 
@@ -296,10 +303,20 @@ export const generateIndrasNetImage = async (
       unreachableMessage: 'IndrasNet completed the workflow, but the image could not be downloaded from this device.',
     },
   );
-  if (!imageResponse.ok) throw await requestError(imageResponse, 'IndrasNet image download');
+  if (!imageResponse.ok) {
+    throw await requestError(imageResponse, 'IndrasNet image download', { retryable: false });
+  }
 
   const mimeType = imageResponse.headers.get('content-type') || 'image/png';
-  const dataUrl = await blobToBase64DataUrl(await imageResponse.blob());
+  let dataUrl: string;
+  try {
+    dataUrl = await blobToBase64DataUrl(await imageResponse.blob());
+  } catch (cause) {
+    throw new IndrasNetProviderError(
+      'IndrasNet completed the workflow, but reading the downloaded image failed.',
+      { code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: false, cause },
+    );
+  }
   const comma = dataUrl.indexOf(',');
   if (comma < 0) {
     throw new IndrasNetProviderError('Could not encode the IndrasNet image response.', {

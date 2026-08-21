@@ -2,10 +2,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   clearIndrasNetWorkflowCacheForTests,
+  DEFAULT_INDRASNET_BASE_URL,
   fetchIndrasNetWorkflows,
   generateIndrasNetImage,
   imageModelFromWorkflowName,
   IndrasNetProviderError,
+  normalizeIndrasNetBaseUrl,
 } from './indrasNetImageProvider';
 
 const endpoint = 'https://asus-strix-scar.example.ts.net';
@@ -32,6 +34,10 @@ describe('IndrasNet image provider', () => {
   });
 
   afterEach(() => vi.restoreAllMocks());
+
+  it('uses the default endpoint when the saved endpoint contains only whitespace', () => {
+    expect(normalizeIndrasNetBaseUrl('  \n  ')).toBe(DEFAULT_INDRASNET_BASE_URL);
+  });
 
   it('advertises only client-ready text-to-image workflows with prompt bindings', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
@@ -131,5 +137,55 @@ describe('IndrasNet image provider', () => {
     }).catch(cause => cause);
 
     expect(error).toMatchObject({ code: 'INDRASNET_HTTP_504', retryable: true, status: 504 });
+  });
+
+  it('does not fallback when a completed workflow returns no image', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ prompt_id: 'prompt-without-output' }), { status: 200 }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_NO_IMAGE', retryable: false });
+  });
+
+  it('keeps HTTP artifact download failures out of cloud fallback', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
+        status: 200,
+      }))
+      .mockResolvedValueOnce(new Response('gateway timeout', { status: 504 }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_HTTP_504', retryable: false, status: 504 });
+  });
+
+  it('keeps artifact body-read failures out of cloud fallback', async () => {
+    const imageResponse = new Response(new Blob(['image-bytes'], { type: 'image/png' }), { status: 200 });
+    vi.spyOn(imageResponse, 'blob').mockRejectedValue(new DOMException('stream aborted', 'AbortError'));
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
+        status: 200,
+      }))
+      .mockResolvedValueOnce(imageResponse);
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED', retryable: false });
   });
 });

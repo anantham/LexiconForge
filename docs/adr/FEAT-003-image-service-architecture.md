@@ -175,3 +175,11 @@ configuration errors.
   not trigger cloud generation if transfer fails.
 - If the selected fallback also fails, one descriptive error preserves both
   provider/model attempts and both failure reasons.
+
+### Review completion — 2026-08-21
+
+- The completed-artifact non-fallback rule covers fetch exceptions, HTTP status
+  failures, and response-body read failures. A successful workflow response
+  with no image is also a workflow/output defect, not an availability failure.
+- Endpoint normalization trims before applying the default, keeping discovery
+  and execution consistent for empty or whitespace-only saved values.
