@@ -13,6 +13,7 @@ const IMAGE_DOWNLOAD_TIMEOUT_MS = 60_000;
 const CATALOGUE_TTL_MS = 60_000;
 const UNSTRUCTURED_GATEWAY_AVAILABILITY_STATUSES = new Set([502, 504]);
 const RETRYABLE_ARTIFACT_HTTP_STATUSES = new Set([408, 425, 429]);
+const RETRYABLE_JOB_POLL_HTTP_STATUSES = new Set([401, 403, 408, 425, 429]);
 
 export interface IndrasNetSemanticInput {
   required?: boolean;
@@ -454,7 +455,14 @@ const pollIndrasNetJob = async (
       { method: 'GET', headers: { Accept: 'application/json' } },
       JOB_POLL_TIMEOUT_MS,
     );
-    if (!response.ok) throw await requestError(response, `IndrasNet workflow job ${jobId}`);
+    if (!response.ok) {
+      throw await requestError(response, `IndrasNet workflow job ${jobId}`, {
+        // Once a durable task has been accepted, transient/auth polling
+        // failures must preserve its ID. Explicit job failure and missing-job
+        // responses remain terminal through the normal status/404 paths.
+        retryable: RETRYABLE_JOB_POLL_HTTP_STATUSES.has(response.status) || response.status >= 500,
+      });
+    }
     const job = await readJsonObjectResponse<JobStatusResponse>(response, `workflow job ${jobId}`);
     const status = job.status?.toLowerCase();
     if (status === 'completed') return job;

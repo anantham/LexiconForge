@@ -103,6 +103,36 @@ describe('IndrasNet resumable image jobs', () => {
     expect(fetchMock.mock.calls[0][1]?.method).toBe('GET');
   });
 
+  it.each([401, 403, 408, 425, 429, 500, 503])(
+    'preserves an accepted broker task after transient poll HTTP %s',
+    async status => {
+      const fetchMock = vi.fn().mockResolvedValueOnce(json({ detail: 'temporary poll failure' }, status));
+      vi.stubGlobal('fetch', fetchMock);
+
+      const error = await resumeIndrasNetImageTask({
+        baseUrl: 'https://asus.example',
+        jobId: 'saved-transient-job',
+        workflowName: 'gen_anime',
+      }).catch(cause => cause);
+
+      expect(error).toMatchObject({ retryable: true, status });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(fetchMock.mock.calls[0][1]?.method).toBe('GET');
+    },
+  );
+
+  it('retires an accepted broker task when the poll route reports it missing', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(json({ detail: 'job not found' }, 404)));
+
+    const error = await resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'missing-job',
+      workflowName: 'gen_anime',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ retryable: false, status: 404 });
+  });
+
   it('keeps broker-queued work submitted until the broker reports running', async () => {
     const originalSetTimeout = globalThis.setTimeout.bind(globalThis);
     vi.spyOn(globalThis, 'setTimeout').mockImplementation(((handler: TimerHandler, timeout?: number, ...args: any[]) => {
