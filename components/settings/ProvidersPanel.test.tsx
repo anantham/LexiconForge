@@ -79,7 +79,7 @@ vi.mock('../../services/openrouterImageModelAdapter', () => ({
 }));
 
 vi.mock('../../services/providers/indrasNetImageProvider', () => ({
-  DEFAULT_INDRASNET_BASE_URL: 'https://asus.example.ts.net',
+  DEFAULT_INDRASNET_BASE_URL: 'https://default-asus.example.ts.net',
   fetchIndrasNetWorkflows: mockFetchIndrasNetWorkflows,
   imageModelFromWorkflowName: (name: string) => `indrasnet/${encodeURIComponent(name)}`,
   isIndrasNetImageModel: (model: string) => model.startsWith('indrasnet/'),
@@ -658,6 +658,48 @@ describe('ProvidersPanel', () => {
 
       expect(await screen.findByRole('option', { name: 'Asus: Anime — Illustrious — local' })).toHaveValue('indrasnet/gen_anime');
       expect(mockFetchIndrasNetWorkflows).toHaveBeenCalledWith('https://asus.example.ts.net', { force: true });
+    });
+
+    it('clears stale workflows and rediscovers the effective default when the endpoint is emptied', async () => {
+      mockFetchIndrasNetWorkflows
+        .mockResolvedValueOnce([{
+          name: 'custom_workflow',
+          client_ready: true,
+          manifest: {
+            name: 'custom_workflow',
+            display_name: 'Custom workflow',
+            client_ready: true,
+            requires_image: false,
+            inputs: { prompt: { node_id: '2', input_key: 'text' } },
+          },
+        }])
+        .mockResolvedValueOnce([{
+          name: 'default_workflow',
+          client_ready: true,
+          manifest: {
+            name: 'default_workflow',
+            display_name: 'Default workflow',
+            client_ready: true,
+            requires_image: false,
+            inputs: { prompt: { node_id: '3', input_key: 'text' } },
+          },
+        }]);
+      updateMockSettings({ indrasNetBaseUrl: 'https://custom-asus.example.ts.net' });
+      const { rerender } = render(<ProvidersPanel isOpen={true} />);
+
+      expect(await screen.findByRole('option', { name: 'Asus: Custom workflow — local' })).toBeInTheDocument();
+
+      updateMockSettings({ indrasNetBaseUrl: '' });
+      rerender(<ProvidersPanel isOpen={true} />);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Asus: Custom workflow — local' })).not.toBeInTheDocument();
+      });
+      expect(await screen.findByRole('option', { name: 'Asus: Default workflow — local' })).toBeInTheDocument();
+      expect(mockFetchIndrasNetWorkflows).toHaveBeenLastCalledWith(
+        'https://default-asus.example.ts.net',
+        { force: true },
+      );
     });
 
     it('shows the opt-in fallback selector only when an Asus workflow is selected', () => {

@@ -93,6 +93,14 @@ Append-only raw debt receipts discovered during implementation.
 - Follow-up: extract one result-to-metrics/provenance/persistence boundary after the provider
   integration ships; do not mix that decomposition into the fallback correctness fix.
 
+[DEBT][MONOLITH][2026-08-21] Provider settings catalogue lifecycle remains centralized
+- File: `components/settings/ProvidersPanel.tsx` (565 LOC).
+- Symptom: one component owns provider credits, capability checks, OpenRouter catalogue state,
+  IndrasNet endpoint discovery, pricing assembly, and model selection. PR #138 review found an
+  endpoint transition that left workflow state from the previous broker visible.
+- Follow-up: extract the IndrasNet discovery lifecycle and image-model assembly behind a focused
+  hook after this provider ships; keep endpoint normalization and catalogue invalidation together.
+
 [DEBT][COMPAT][2026-04-09 10:26 EDT] Temporary novel-library migration compatibility layer
 - Files:
   - `services/registryService.ts`

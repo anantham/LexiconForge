@@ -199,6 +199,7 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 | `adapters/providers/OpenAIAdapter.ts` | 886 | Split candidate | Translation/chat request construction, adaptive fallbacks, metrics, and response parsing share one adapter |
 | `services/imagePlanPlanner.ts` | 451 | Watchlist | Planner schema/prompt logic and three provider transports share one module |
 | `services/imageGenerationService.ts` | 631 | Split candidate | Initial generation and retry duplicate provenance, persistence, versioning, and metrics assembly; fallback review found behavior drift between the two paths |
+| `components/settings/ProvidersPanel.tsx` | 565 | Watchlist | Provider catalogue effects, credit state, capability checks, pricing assembly, and selection lifecycle remain coupled; PR #138 review found stale endpoint-owned workflow state |
 | `store/slices/imageSlice.ts` | 1,081 | Keep | Single domain, all parts change together |
 | `store/slices/translationsSlice.ts` | 1,059 | Keep | Single domain, complex but cohesive |
 | `store/slices/chaptersSlice.ts` | 825 | Keep | Single domain |

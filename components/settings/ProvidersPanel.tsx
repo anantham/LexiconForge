@@ -24,6 +24,7 @@ import { TranslationEngineSection } from './TranslationEngineSection';
 import { ApiKeysSection } from './ApiKeysSection';
 import { IndrasNetImageProviderSection } from './IndrasNetImageProviderSection';
 import {
+  DEFAULT_INDRASNET_BASE_URL,
   fetchIndrasNetWorkflows,
   imageModelFromWorkflowName,
   isIndrasNetImageModel,
@@ -165,12 +166,14 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
 
   // Discover semantic, client-ready ComfyUI workflows from the tailnet broker.
   useEffect(() => {
-    if (!isOpen || !currentSettings.indrasNetBaseUrl?.trim()) return;
+    if (!isOpen) return;
     let cancelled = false;
+    const endpoint = currentSettings.indrasNetBaseUrl?.trim() || DEFAULT_INDRASNET_BASE_URL;
+    setIndrasNetLoading(true);
+    setIndrasNetError(null);
+    setIndrasNetWorkflows([]);
     const timer = setTimeout(() => {
-      setIndrasNetLoading(true);
-      setIndrasNetError(null);
-      fetchIndrasNetWorkflows(currentSettings.indrasNetBaseUrl, { force: true })
+      fetchIndrasNetWorkflows(endpoint, { force: true })
         .then(workflows => {
           if (!cancelled) setIndrasNetWorkflows(workflows);
         })
