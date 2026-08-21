@@ -198,3 +198,12 @@ configuration errors.
   response must declare an `image/*` media type and contain non-empty bytes;
   HTML/auth bodies and empty files fail with non-retryable
   `INDRASNET_INVALID_IMAGE`.
+
+### Envelope and imported-state recovery — 2026-08-21
+
+- Catalogue and workflow-result JSON must decode to a non-null object envelope
+  before fields are accessed; valid JSON primitives/arrays fail with
+  `INDRASNET_INVALID_RESPONSE` rather than a raw runtime error.
+- A malformed percent-encoded workflow ID from local storage or an imported
+  session remains visible as an unavailable value in Settings so the user can
+  select a valid model and recover without a render crash.

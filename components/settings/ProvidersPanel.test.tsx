@@ -83,6 +83,11 @@ vi.mock('../../services/providers/indrasNetImageProvider', () => ({
   fetchIndrasNetWorkflows: mockFetchIndrasNetWorkflows,
   imageModelFromWorkflowName: (name: string) => `indrasnet/${encodeURIComponent(name)}`,
   isIndrasNetImageModel: (model: string) => model.startsWith('indrasnet/'),
+  workflowNameFromImageModel: (model: string) => {
+    const decoded = decodeURIComponent(model.slice('indrasnet/'.length)).trim();
+    if (!decoded) throw new Error('invalid workflow id');
+    return decoded;
+  },
 }));
 
 // Mock constants
@@ -658,6 +663,16 @@ describe('ProvidersPanel', () => {
 
       expect(await screen.findByRole('option', { name: 'Asus: Anime — Illustrious — local' })).toHaveValue('indrasnet/gen_anime');
       expect(mockFetchIndrasNetWorkflows).toHaveBeenCalledWith('https://asus.example.ts.net', { force: true });
+    });
+
+    it('keeps Settings recoverable when an imported workflow id has malformed encoding', () => {
+      updateMockSettings({ imageModel: 'indrasnet/%' });
+
+      render(<ProvidersPanel isOpen={true} />);
+
+      expect(screen.getByRole('option', {
+        name: 'Asus: Invalid saved workflow ID — unavailable',
+      })).toHaveValue('indrasnet/%');
     });
 
     it('clears stale workflows and rediscovers the effective default when the endpoint is emptied', async () => {

@@ -133,15 +133,23 @@ const readErrorPayload = async (response: Response): Promise<ErrorPayload> => {
   }
 };
 
-const readJsonResponse = async <T>(response: Response, context: string): Promise<T> => {
+const invalidJsonResponseError = (context: string, cause?: unknown): IndrasNetProviderError =>
+  new IndrasNetProviderError(
+    `IndrasNet returned an invalid response for ${context}; expected a JSON object from the broker API.`,
+    { code: 'INDRASNET_INVALID_RESPONSE', retryable: false, cause },
+  );
+
+const readJsonObjectResponse = async <T extends object>(response: Response, context: string): Promise<T> => {
+  let decoded: unknown;
   try {
-    return await response.json() as T;
+    decoded = await response.json();
   } catch (cause) {
-    throw new IndrasNetProviderError(
-      `IndrasNet returned invalid JSON for ${context}; expected a JSON response from the broker API.`,
-      { code: 'INDRASNET_INVALID_RESPONSE', retryable: false, cause },
-    );
+    throw invalidJsonResponseError(context, cause);
   }
+  if (decoded === null || typeof decoded !== 'object' || Array.isArray(decoded)) {
+    throw invalidJsonResponseError(context);
+  }
+  return decoded as T;
 };
 
 const requestError = async (
@@ -213,7 +221,7 @@ export const fetchIndrasNetWorkflows = async (
   );
   if (!response.ok) throw await requestError(response, 'IndrasNet workflow discovery');
 
-  const payload = await readJsonResponse<WorkflowCatalogueResponse>(response, 'workflow discovery');
+  const payload = await readJsonObjectResponse<WorkflowCatalogueResponse>(response, 'workflow discovery');
   if (!Array.isArray(payload.workflows)) {
     throw new IndrasNetProviderError('IndrasNet returned a malformed workflow catalogue.', {
       code: 'INDRASNET_INVALID_RESPONSE',
@@ -298,7 +306,10 @@ export const generateIndrasNetImage = async (
   );
   if (!response.ok) throw await requestError(response, `IndrasNet workflow "${workflowName}"`);
 
-  const result = await readJsonResponse<RunWorkflowResponse>(response, `workflow "${workflowName}"`);
+  const result = await readJsonObjectResponse<RunWorkflowResponse>(response, `workflow "${workflowName}"`);
+  if (result.images !== undefined && !Array.isArray(result.images)) {
+    throw invalidJsonResponseError(`workflow "${workflowName}"`);
+  }
   const imagePath = result.images?.[0];
   if (!imagePath) {
     throw new IndrasNetProviderError('IndrasNet completed the workflow but returned no image.', {

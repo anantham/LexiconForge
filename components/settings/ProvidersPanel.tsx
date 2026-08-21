@@ -28,6 +28,7 @@ import {
   fetchIndrasNetWorkflows,
   imageModelFromWorkflowName,
   isIndrasNetImageModel,
+  workflowNameFromImageModel,
   type IndrasNetWorkflowProfile,
 } from '../../services/providers/indrasNetImageProvider';
 
@@ -445,7 +446,12 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
     }));
 
     if (isIndrasNetImageModel(currentSettings.imageModel) && !indrasModels.some(model => model.id === currentSettings.imageModel)) {
-      const workflowName = decodeURIComponent(currentSettings.imageModel.slice('indrasnet/'.length));
+      let workflowName = 'Invalid saved workflow ID';
+      try {
+        workflowName = workflowNameFromImageModel(currentSettings.imageModel);
+      } catch {
+        // Keep the invalid saved value visible so the user can select a valid model to recover.
+      }
       indrasModels.push({
         id: currentSettings.imageModel,
         name: `Asus: ${workflowName}`,
