@@ -69,6 +69,9 @@ const ChapterView: React.FC = () => {
   const isTranslationActive = useAppStore(s => s.isTranslationActive);
   const shouldEnableRetranslation = useAppStore(s => s.shouldEnableRetranslation);
   const imageGenerationMetrics = useAppStore(s => s.imageGenerationMetrics);
+  const latestCompletedImageJobChapterId = useAppStore(s => Object.values(s.imageJobs ?? {})
+    .filter(job => job.status === 'completed')
+    .sort((a, b) => b.updatedAt - a.updatedAt)[0]?.chapterId);
   const hydratingMap = useAppStore(s => s.hydratingChapters);
   const chapterAudioMap = useAppStore(s => s.chapterAudioMap);
   const showNotification = useAppStore(s => s.showNotification);
@@ -148,6 +151,7 @@ const ChapterView: React.FC = () => {
   const showImageMetrics = Boolean(
     viewMode === 'english' &&
       imageGenerationMetrics &&
+      latestCompletedImageJobChapterId === currentChapterId &&
       !isLoading.fetching &&
       !translationInProgress &&
       !isHydratingCurrent

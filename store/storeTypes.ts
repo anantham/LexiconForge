@@ -3,6 +3,7 @@ import type { SettingsSlice } from './slices/settingsSlice';
 import type { ChaptersSlice } from './slices/chaptersSlice';
 import type { TranslationsSlice } from './slices/translationsSlice';
 import type { ImageSlice } from './slices/imageSlice';
+import type { ImageJobsSlice } from './slices/imageJobsSlice';
 import type { ExportSlice } from './slices/exportSlice';
 import type { AudioSlice } from './slices/audioSlice';
 import type { OscilloscopeSlice } from '../types/oscilloscope';
@@ -13,6 +14,7 @@ export type AppState = UiSlice &
   ChaptersSlice &
   TranslationsSlice &
   ImageSlice &
+  ImageJobsSlice &
   ExportSlice &
   AudioSlice &
   OscilloscopeSlice;

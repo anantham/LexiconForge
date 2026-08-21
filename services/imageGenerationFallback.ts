@@ -1,6 +1,7 @@
 import type { AppSettings, GeneratedImageResult } from '../types';
 import { generateImage, imageProviderForModel } from './imageService';
 import { isIndrasNetImageModel } from './providers/indrasNetImageProvider';
+import type { ImageJobLifecycleListener } from './imageJobTypes';
 
 export interface ImageGenerationInvocation {
   prompt: string;
@@ -13,6 +14,7 @@ export interface ImageGenerationInvocation {
   chapterId?: string;
   placementMarker?: string;
   version?: number;
+  onJobEvent?: ImageJobLifecycleListener;
 }
 
 interface RetryableImageError extends Error {
@@ -64,6 +66,7 @@ const invoke = (input: ImageGenerationInvocation): Promise<GeneratedImageResult>
     input.chapterId,
     input.placementMarker,
     input.version,
+    input.onJobEvent,
   );
 
 /**

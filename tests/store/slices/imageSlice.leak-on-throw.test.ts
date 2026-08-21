@@ -16,16 +16,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AppSettings } from '../../../types';
 import { createImageSlice, type ImageSlice } from '../../../store/slices/imageSlice';
+import { createImageJobsSlice, type ImageJobsSlice } from '../../../store/slices/imageJobsSlice';
 
-const { retryImageMock, generateImagesMock } = vi.hoisted(() => ({
+const { retryImageMock, generateImagesMock, resumeImageJobMock } = vi.hoisted(() => ({
   retryImageMock: vi.fn(),
   generateImagesMock: vi.fn(),
+  resumeImageJobMock: vi.fn(),
 }));
 
 vi.mock('../../../services/imageGenerationService', () => ({
   ImageGenerationService: {
     retryImage: retryImageMock,
     generateImages: generateImagesMock,
+    resumeImageJob: resumeImageJobMock,
   },
 }));
 
@@ -46,7 +49,7 @@ const mockSettings: AppSettings = {
   temperature: 0.7,
 } as AppSettings;
 
-type TestState = ImageSlice & {
+type TestState = ImageSlice & ImageJobsSlice & {
   chapters: Map<string, any>;
   settings: AppSettings;
   activePromptTemplate: null;
@@ -88,6 +91,7 @@ const createSlice = (): TestState => {
     destroy: () => {},
   } as any;
 
+  Object.assign(state, createImageJobsSlice(set as any, get as any, api));
   Object.assign(state, createImageSlice(set as any, get as any, api));
   return state as TestState;
 };
@@ -182,5 +186,135 @@ describe('imageSlice — handleGenerateImages cleans up isLoading on service thr
     expect(slice.imageGenerationProgress['chapter-1']).toBeUndefined();
     // Aggregate selector must report no work in progress
     expect(slice.hasImagesInProgress()).toBe(false);
+  });
+});
+
+describe('imageSlice — durable task recovery', () => {
+  beforeEach(() => resumeImageJobMock.mockReset());
+
+  it('reattaches to an interrupted provider task and applies it to the originating marker', async () => {
+    const slice = createSlice();
+    slice.imageJobs['saved-job'] = {
+      id: 'saved-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'Qubico/flux1-dev',
+      requestedProvider: 'PiAPI',
+      status: 'interrupted',
+      resumeKind: 'piapi',
+      externalTaskId: 'task-123',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+    resumeImageJobMock.mockResolvedValue({
+      imageState: { isLoading: false, data: 'recovered-image', error: null },
+      metrics: { count: 1, totalTime: 5, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
+    });
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(resumeImageJobMock).toHaveBeenCalledTimes(1);
+    expect(slice.generatedImages['chapter-1:[ILLUSTRATION-1]']?.data).toBe('recovered-image');
+    expect(slice.imageVersions['chapter-1:[ILLUSTRATION-1]']).toBe(2);
+    expect(slice.imageJobs['saved-job'].status).toBe('completed');
+    expect(slice.showNotification).toHaveBeenCalledWith(
+      'A previously submitted illustration is ready in its originating chapter.',
+      'success',
+    );
+  });
+
+  it('claims restored jobs before awaiting so duplicate boot effects cannot poll twice', async () => {
+    const slice = createSlice();
+    slice.imageJobs['saved-job'] = {
+      id: 'saved-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'Qubico/flux1-dev',
+      requestedProvider: 'PiAPI',
+      status: 'interrupted',
+      resumeKind: 'piapi',
+      externalTaskId: 'task-123',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+    const deferred = createDeferred<any>();
+    resumeImageJobMock.mockReturnValueOnce(deferred.promise);
+
+    const firstRecovery = slice.resumeInterruptedImageJobs();
+    await slice.resumeInterruptedImageJobs();
+    expect(resumeImageJobMock).toHaveBeenCalledTimes(1);
+
+    deferred.resolve({
+      imageState: { isLoading: false, data: 'recovered-image', error: null },
+      metrics: { count: 1, totalTime: 5, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
+    });
+    await firstRecovery;
+  });
+
+  it('keeps the provider task id when recovery is temporarily unreachable', async () => {
+    const slice = createSlice();
+    slice.imageJobs['saved-job'] = {
+      id: 'saved-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'indrasnet/storybook',
+      requestedProvider: 'IndrasNet',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'broker-task-123',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+    resumeImageJobMock.mockRejectedValueOnce(Object.assign(
+      new Error('IndrasNet is unreachable from this device.'),
+      { retryable: true },
+    ));
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(slice.imageJobs['saved-job']).toMatchObject({
+      status: 'interrupted',
+      externalTaskId: 'broker-task-123',
+    });
+    expect(JSON.parse(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1') || '[]')).toEqual([
+      expect.objectContaining({ id: 'saved-job', externalTaskId: 'broker-task-123', status: 'interrupted' }),
+    ]);
+    expect(slice.showNotification).toHaveBeenCalledWith(
+      'The illustration provider is unavailable. The existing task will be checked again after reload.',
+      'error',
+    );
+  });
+
+  it('retires a durable task when the provider says its record is terminally unavailable', async () => {
+    const slice = createSlice();
+    slice.imageJobs['expired-job'] = {
+      id: 'expired-job',
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'indrasnet/storybook',
+      requestedProvider: 'IndrasNet',
+      status: 'interrupted',
+      resumeKind: 'indrasnet',
+      externalTaskId: 'expired-task-123',
+      version: 2,
+      startedAt: Date.now() - 5000,
+      updatedAt: Date.now(),
+      estimateSampleCount: 0,
+    };
+    resumeImageJobMock.mockRejectedValueOnce(Object.assign(
+      new Error('ComfyUI broker job not found; the broker may have restarted.'),
+      { code: 'COMFYUI_JOB_NOT_FOUND', retryable: false },
+    ));
+
+    await slice.resumeInterruptedImageJobs();
+
+    expect(slice.imageJobs['expired-job'].status).toBe('failed');
+    expect(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1')).toBeNull();
   });
 });

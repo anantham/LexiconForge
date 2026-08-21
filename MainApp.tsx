@@ -12,6 +12,7 @@ import { LandingPage } from './components/LandingPage';
 import OscilloscopePanel from './components/oscilloscope/OscilloscopePanel';
 import NotificationToast from './components/NotificationToast';
 import BackgroundWorkBanner from './components/BackgroundWorkBanner';
+import ImageJobsBanner from './components/ImageJobsBanner';
 import { clientTelemetry } from './services/clientTelemetry';
 
 import { validateApiKey } from './services/ai/apiKeyValidation';
@@ -25,6 +26,8 @@ import './services/diff/DiffTriggerService';
 
 // Import diff colors CSS
 import './styles/diff-colors.css';
+
+const noResumableImageJobs = async (): Promise<void> => undefined;
 
 export const MainApp: React.FC = () => {
 const [dbGate, setDbGate] = React.useState<{
@@ -65,6 +68,9 @@ const hasTranslationSettingsChanged = useAppStore((s) => s.hasTranslationSetting
 const isInitialized = useAppStore((s) => s.isInitialized);
 debugLog('ui', 'full', '[App:init] isInitialized selector', { isInitialized });
 const initializeStore = useAppStore((s) => s.initializeStore);
+// Partial-store integration harnesses predate the optional job slice. Keeping
+// boot inert there avoids coupling otherwise unrelated app-shell tests to it.
+const resumeInterruptedImageJobs = useAppStore((s) => s.resumeInterruptedImageJobs ?? noResumableImageJobs);
 
 // Separate leaf selector for translation result (returns primitive/null)
 const currentChapterTranslationResult = useAppStore((state) => {
@@ -100,18 +106,17 @@ const hasCurrentChapter = useAppStore((state) => {
 // one-shot guard helpers
 const requestedRef = React.useRef(new Map<string, string>());
 
-// Memory optimization: Track previous chapter for cleanup
-const previousChapterIdRef = React.useRef<string | null>(null);
-
 // Warn user before page refresh/close if ANY translation or image generation is in flight.
 // Per CORE-012: after Phase 1, translations can be running for chapters other than the
 // current one (background work survives navigation). We watch the global pending set,
 // not just the current chapter's flag. The warning is honest: tab close kills the
 // in-tab promise, and durable-queue tab-close survival is out of scope.
 const hasImagesInProgress = useAppStore((s) => s.hasImagesInProgress);
+const activeImageJobsCount = useAppStore((s) => Object.values(s.imageJobs ?? {})
+  .filter((job) => job.status === 'queued' || job.status === 'submitted' || job.status === 'running').length);
 const pendingTranslationsCount = useAppStore((s) => s.pendingTranslations?.size ?? 0);
 useEffect(() => {
-  const isWorking = pendingTranslationsCount > 0 || hasImagesInProgress();
+  const isWorking = pendingTranslationsCount > 0 || activeImageJobsCount > 0 || hasImagesInProgress();
   if (!isWorking) return;
 
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -123,7 +128,7 @@ useEffect(() => {
 
   window.addEventListener('beforeunload', handleBeforeUnload);
   return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-}, [pendingTranslationsCount, hasImagesInProgress]);
+}, [pendingTranslationsCount, activeImageJobsCount, hasImagesInProgress]);
 
 const settingsFingerprint = React.useMemo(
   () =>
@@ -151,6 +156,11 @@ const settingsFingerprint = React.useMemo(
       };
       init();
     }, [initializeStore]);
+
+    useEffect(() => {
+      if (!isInitialized) return;
+      void resumeInterruptedImageJobs();
+    }, [isInitialized, resumeInterruptedImageJobs]);
 
     // Boot-time hydration is now handled automatically by the store initialization
 
@@ -181,18 +191,6 @@ const settingsFingerprint = React.useMemo(
       const { preloadNextChapters } = useAppStore.getState();
       preloadNextChapters();
     }, [currentChapterId, settings.preloadCount, settings.provider, settings.model, settings.temperature]);
-
-    // Memory optimization: Clean up image state when navigating away from a chapter
-    useEffect(() => {
-      // If we have a previous chapter and it's different from current, clean it up
-      if (previousChapterIdRef.current && previousChapterIdRef.current !== currentChapterId) {
-        const { clearImageState } = useAppStore.getState();
-        clearImageState(previousChapterIdRef.current);
-      }
-
-      // Update the ref to current chapter
-      previousChapterIdRef.current = currentChapterId;
-    }, [currentChapterId]);
 
     let content: React.ReactNode;
 
@@ -275,6 +273,7 @@ const settingsFingerprint = React.useMemo(
       <>
         <NotificationToast />
         <BackgroundWorkBanner />
+        <ImageJobsBanner />
         {content}
       </>
     );

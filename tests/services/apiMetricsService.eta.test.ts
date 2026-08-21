@@ -21,6 +21,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   estimateTranslationTime,
+  estimateImageGenerationTime,
   median,
   type TranslationTimeEstimate,
 } from '../../services/apiMetricsService';
@@ -162,5 +163,29 @@ describe('estimateTranslationTime — issue #13', () => {
     );
     expect(r.sampleCount).toBe(1);
     expect(r.avgTimeSeconds).toBe(7);
+  });
+});
+
+describe('estimateImageGenerationTime — empirical image jobs', () => {
+  it('returns null rather than inventing a default when measured durations are absent', () => {
+    expect(estimateImageGenerationTime([
+      mkMetric('image-model', 'OpenRouter', 20, { apiType: 'image', duration: undefined }),
+    ], 'image-model')).toBeNull();
+  });
+
+  it('uses the measured median and ignores failed or unrelated calls', () => {
+    const metrics = [
+      mkMetric('image-model', 'OpenRouter', 10, { apiType: 'image' }),
+      mkMetric('image-model', 'OpenRouter', 12, { apiType: 'image' }),
+      mkMetric('image-model', 'OpenRouter', 120, { apiType: 'image' }),
+      mkMetric('image-model', 'OpenRouter', 999, { apiType: 'image', success: false }),
+      mkMetric('other-image-model', 'OpenRouter', 999, { apiType: 'image' }),
+    ];
+    expect(estimateImageGenerationTime(metrics, 'image-model')).toEqual({
+      avgTimeSeconds: 12,
+      sampleCount: 3,
+      minTimeSeconds: 10,
+      maxTimeSeconds: 120,
+    });
   });
 });

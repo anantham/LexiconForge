@@ -133,6 +133,36 @@ export function estimateTranslationTime(
   return { avgTimeSeconds: 30, sampleCount: 0, source: 'default', confidence: 'unknown' };
 }
 
+export interface ImageTimeEstimate {
+  avgTimeSeconds: number;
+  sampleCount: number;
+  minTimeSeconds: number;
+  maxTimeSeconds: number;
+}
+
+/** Exact-model image ETA from measured successful durations only. */
+export function estimateImageGenerationTime(
+  allMetrics: ApiCallMetric[],
+  modelId: string,
+): ImageTimeEstimate | null {
+  const durations = allMetrics
+    .filter(metric =>
+      metric.apiType === 'image'
+      && metric.model === modelId
+      && metric.success
+      && typeof metric.duration === 'number'
+      && metric.duration > 0
+    )
+    .map(metric => metric.duration as number);
+  if (durations.length === 0) return null;
+  return {
+    avgTimeSeconds: median(durations),
+    sampleCount: durations.length,
+    minTimeSeconds: Math.min(...durations),
+    maxTimeSeconds: Math.max(...durations),
+  };
+}
+
 class ApiMetricsService {
   private storeName = 'api_metrics';
   private sessionMetrics: ApiCallMetric[] = [];
@@ -515,51 +545,12 @@ class ApiMetricsService {
         request.onerror = () => reject(request.error);
       });
 
-      // Filter to successful image generation calls for this model
-      // Note: We need to look at the costUsd/tokens to estimate time since duration isn't always set
-      const imageMetrics = allMetrics.filter(m =>
-        m.apiType === 'image' &&
-        m.model === modelId &&
-        m.success
-      );
-
-      if (imageMetrics.length === 0) {
+      const result = estimateImageGenerationTime(allMetrics, modelId);
+      if (!result) {
         console.log(`[ApiMetrics] No historical time data for image model: ${modelId}`);
         return null;
       }
-
-      // Calculate based on the timestamps of consecutive calls as a proxy for generation time
-      // Or use any duration field if available
-      let totalTime = 0;
-      let validSamples = 0;
-      let minTime = Infinity;
-      let maxTime = 0;
-
-      // For now, estimate ~15-30 seconds per image as a default if we don't have duration
-      // This will be refined as we collect more data
-      const defaultTimePerImage = 20; // seconds
-
-      for (const m of imageMetrics) {
-        // If duration is set (for audio/some image calls), use it
-        const timeEstimate = m.duration ?? defaultTimePerImage;
-        totalTime += timeEstimate;
-        validSamples++;
-        minTime = Math.min(minTime, timeEstimate);
-        maxTime = Math.max(maxTime, timeEstimate);
-      }
-
-      if (validSamples === 0) {
-        return null;
-      }
-
-      const result = {
-        avgTimeSeconds: totalTime / validSamples,
-        sampleCount: validSamples,
-        minTimeSeconds: minTime === Infinity ? defaultTimePerImage : minTime,
-        maxTimeSeconds: maxTime === 0 ? defaultTimePerImage : maxTime,
-      };
-
-      console.log(`[ApiMetrics] Time averages for ${modelId}:`, result);
+      console.log(`[ApiMetrics] Empirical image duration median for ${modelId}:`, result);
       return result;
     } catch (error) {
       console.error('[ApiMetrics] Failed to get average image generation time:', error);

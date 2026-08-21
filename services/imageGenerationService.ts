@@ -10,13 +10,15 @@
  * - Image metrics and persistence
  */
 
-import { modelConsumesSteeringImage } from './imageService';
+import { modelConsumesSteeringImage, resumeIndrasNetTask, resumePiApiImageTask } from './imageService';
 import { generateImageWithConfiguredFallback } from './imageGenerationFallback';
 import { TranslationPersistenceService } from './translationPersistenceService';
-import type { AppSettings, PromptTemplate, ImageGenerationMetadata, ImageVersionStateEntry } from '../types';
+import type { AppSettings, GeneratedImageResult, PromptTemplate, ImageGenerationMetadata, ImageVersionStateEntry } from '../types';
+import type { ImageJob } from '../store/slices/imageJobsSlice';
 import type { EnhancedChapter } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
 import { compileIllustrationPrompt, ensureIllustrationPlan } from './imagePlanService';
+import type { ImageJobLifecycleEvent } from './imageJobTypes';
 
 type ConsoleArgs = Parameters<typeof console.log>;
 const slog = (message: string, ...args: ConsoleArgs) => debugLog('image', 'summary', message, ...args);
@@ -36,6 +38,7 @@ export interface ImageGenerationContext {
   activeImageVersion: Record<string, number>;
   // Version tracking for image regeneration
   nextVersion?: number;
+  onJobEvent?: (placementMarker: string, event: ImageJobLifecycleEvent) => void;
 }
 
 export interface ImageState {
@@ -204,6 +207,7 @@ export class ImageGenerationService {
           chapterId,
           placementMarker: illust.placementMarker,
           version: 1,
+          onJobEvent: event => context.onJobEvent?.(illust.placementMarker, event),
         });
         const executedModel = result.execution?.model || settings.imageModel;
         lastExecutedModel = executedModel;
@@ -379,7 +383,8 @@ export class ImageGenerationService {
   static async retryImage(
     chapterId: string,
     placementMarker: string,
-    context: ImageGenerationContext
+    context: ImageGenerationContext,
+    existingResult?: GeneratedImageResult,
   ): Promise<{ imageState: ImageState; metrics?: Partial<ImageGenerationMetrics> }> {
     slog(`[ImageGen] Retrying image generation for ${placementMarker} in chapter ${chapterId}`);
     const { chapters, settings, steeringImages, negativePrompts, guidanceScales, loraModels, loraStrengths } = context;
@@ -424,7 +429,7 @@ export class ImageGenerationService {
       const preparedIllustration = ensureIllustrationPlan(illust);
       const compiled = compileIllustrationPrompt(preparedIllustration, settings);
 
-      const result = await generateImageWithConfiguredFallback({
+      const result = existingResult ?? await generateImageWithConfiguredFallback({
         prompt: compiled.compiledPrompt,
         settings,
         steeringImagePath: steeringImagePath ?? undefined,
@@ -435,6 +440,7 @@ export class ImageGenerationService {
         chapterId,
         placementMarker,
         version: context.nextVersion || 1,
+        onJobEvent: event => context.onJobEvent?.(placementMarker, event),
       });
       const executedModel = result.execution?.model || settings.imageModel;
       const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(executedModel);
@@ -565,6 +571,29 @@ export class ImageGenerationService {
         }
       };
     }
+  }
+
+  /** Resume a durable provider task without submitting a second paid request. */
+  static async resumeImageJob(
+    job: ImageJob,
+    context: ImageGenerationContext,
+  ): Promise<{ imageState: ImageState; metrics?: Partial<ImageGenerationMetrics> }> {
+    if (!job.externalTaskId) throw new Error(`Image job ${job.id} has no provider task id to resume.`);
+    const common = {
+      taskId: job.externalTaskId,
+      settings: { ...context.settings, imageModel: job.requestedModel },
+      chapterId: job.chapterId,
+      placementMarker: job.placementMarker,
+      version: job.version,
+      elapsedBeforeResumeSeconds: Math.max(0, (Date.now() - job.startedAt) / 1000),
+      onJobEvent: (event: ImageJobLifecycleEvent) => context.onJobEvent?.(job.placementMarker, event),
+    };
+    const result = job.resumeKind === 'piapi'
+      ? await resumePiApiImageTask(common)
+      : job.resumeKind === 'indrasnet'
+        ? await resumeIndrasNetTask(common)
+        : (() => { throw new Error(`Image job ${job.id} uses unsupported resume kind "${job.resumeKind}".`); })();
+    return this.retryImage(job.chapterId, job.placementMarker, context, result);
   }
 
   /**

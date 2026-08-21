@@ -1,11 +1,14 @@
 import { blobToBase64DataUrl } from '../imageUtils';
 import { debugLog } from '../../utils/debug';
+import type { ImageJobLifecycleListener } from '../imageJobTypes';
 
 export const INDRASNET_IMAGE_MODEL_PREFIX = 'indrasnet/';
 export const DEFAULT_INDRASNET_BASE_URL = 'https://asus-strix-scar.tail4741ad.ts.net:9443';
 
 const DISCOVERY_TIMEOUT_MS = 10_000;
 const GENERATION_TIMEOUT_MS = 1_830_000;
+const JOB_SUBMIT_TIMEOUT_MS = 30_000;
+const JOB_POLL_TIMEOUT_MS = 10_000;
 const IMAGE_DOWNLOAD_TIMEOUT_MS = 60_000;
 const CATALOGUE_TTL_MS = 60_000;
 const UNSTRUCTURED_GATEWAY_AVAILABILITY_STATUSES = new Set([502, 504]);
@@ -40,6 +43,22 @@ interface RunWorkflowResponse {
   prompt_id?: string;
   timing_ms?: number;
   images?: string[];
+}
+
+interface SubmitJobResponse {
+  job_id?: string;
+  status?: string;
+}
+
+interface JobStatusResponse extends RunWorkflowResponse {
+  job_id?: string;
+  status?: string;
+  error?: {
+    detail?: string;
+    code?: string;
+    retryable?: boolean;
+    http_status?: number;
+  };
 }
 
 interface ErrorPayload {
@@ -312,6 +331,7 @@ export interface GenerateIndrasNetImageInput {
   width?: number;
   height?: number;
   guidanceScale?: number;
+  onJobEvent?: ImageJobLifecycleListener;
 }
 
 export interface GenerateIndrasNetImageOutput {
@@ -355,18 +375,101 @@ export const generateIndrasNetImage = async (
     promptLength: input.prompt.length,
     semanticInputs: Object.keys(body).filter(key => key !== 'workflow_name'),
   });
-  const response = await fetchWithTimeout(
-    `${baseUrl}/api/comfyui/run_workflow`,
+  let response = await fetchWithTimeout(
+    `${baseUrl}/api/comfyui/jobs`,
     {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     },
-    GENERATION_TIMEOUT_MS,
+    JOB_SUBMIT_TIMEOUT_MS,
   );
-  if (!response.ok) throw await requestError(response, `IndrasNet workflow "${workflowName}"`);
+  let result: RunWorkflowResponse;
+  if (response.status === 404) {
+    // Rollout compatibility: an older broker cannot have accepted a job at a
+    // missing route, so falling back to the blocking endpoint cannot duplicate
+    // GPU work. This path intentionally has no reload recovery.
+    response = await fetchWithTimeout(
+      `${baseUrl}/api/comfyui/run_workflow`,
+      {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      },
+      GENERATION_TIMEOUT_MS,
+    );
+    if (!response.ok) throw await requestError(response, `IndrasNet workflow "${workflowName}"`);
+    result = await readJsonObjectResponse<RunWorkflowResponse>(response, `workflow "${workflowName}"`);
+  } else {
+    if (!response.ok) throw await requestError(response, `IndrasNet workflow job "${workflowName}"`);
+    const submitted = await readJsonObjectResponse<SubmitJobResponse>(response, `workflow job "${workflowName}"`);
+    const jobId = submitted.job_id?.trim();
+    if (!jobId) throw invalidJsonResponseError(`workflow job "${workflowName}"`);
+    input.onJobEvent?.({ type: 'submitted', externalTaskId: jobId, resumeKind: 'indrasnet' });
+    result = await pollIndrasNetJob(baseUrl, jobId, input.onJobEvent);
+  }
+  return downloadIndrasNetResult(baseUrl, workflowName, result);
+};
 
-  const result = await readJsonObjectResponse<RunWorkflowResponse>(response, `workflow "${workflowName}"`);
+export interface ResumeIndrasNetImageTaskInput {
+  baseUrl?: string;
+  jobId: string;
+  workflowName: string;
+  onJobEvent?: ImageJobLifecycleListener;
+}
+
+export const resumeIndrasNetImageTask = async (
+  input: ResumeIndrasNetImageTaskInput,
+): Promise<GenerateIndrasNetImageOutput> => {
+  const baseUrl = normalizeIndrasNetBaseUrl(input.baseUrl);
+  input.onJobEvent?.({ type: 'running' });
+  const result = await pollIndrasNetJob(baseUrl, input.jobId, input.onJobEvent);
+  return downloadIndrasNetResult(baseUrl, input.workflowName, result);
+};
+
+const pollIndrasNetJob = async (
+  baseUrl: string,
+  jobId: string,
+  onJobEvent?: ImageJobLifecycleListener,
+): Promise<RunWorkflowResponse> => {
+  const deadline = Date.now() + GENERATION_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    const response = await fetchWithTimeout(
+      `${baseUrl}/api/comfyui/jobs/${encodeURIComponent(jobId)}`,
+      { method: 'GET', headers: { Accept: 'application/json' } },
+      JOB_POLL_TIMEOUT_MS,
+    );
+    if (!response.ok) throw await requestError(response, `IndrasNet workflow job ${jobId}`);
+    const job = await readJsonObjectResponse<JobStatusResponse>(response, `workflow job ${jobId}`);
+    const status = job.status?.toLowerCase();
+    if (status === 'completed') return job;
+    if (status === 'failed') {
+      throw new IndrasNetProviderError(
+        job.error?.detail || `IndrasNet workflow job ${jobId} failed.`,
+        {
+          code: job.error?.code || 'INDRASNET_JOB_FAILED',
+          retryable: job.error?.retryable === true,
+          status: job.error?.http_status,
+        },
+      );
+    }
+    if (status !== 'queued' && status !== 'running') {
+      throw invalidJsonResponseError(`workflow job ${jobId}`);
+    }
+    onJobEvent?.({ type: 'running' });
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+  throw new IndrasNetProviderError(
+    `IndrasNet workflow job ${jobId} did not complete within ${Math.round(GENERATION_TIMEOUT_MS / 1000)} seconds.`,
+    { code: 'INDRASNET_TIMEOUT', retryable: true },
+  );
+};
+
+const downloadIndrasNetResult = async (
+  baseUrl: string,
+  workflowName: string,
+  result: RunWorkflowResponse,
+): Promise<GenerateIndrasNetImageOutput> => {
   if (result.images !== undefined && (
     !Array.isArray(result.images)
     || !result.images.every(image => typeof image === 'string')

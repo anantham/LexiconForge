@@ -16,6 +16,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AppSettings } from '../../../types';
 import { createImageSlice, type ImageSlice } from '../../../store/slices/imageSlice';
+import { createImageJobsSlice, type ImageJobsSlice } from '../../../store/slices/imageJobsSlice';
 
 const { retryImageMock } = vi.hoisted(() => ({
   retryImageMock: vi.fn(),
@@ -45,7 +46,7 @@ const mockSettings: AppSettings = {
   temperature: 0.7,
 } as AppSettings;
 
-type TestState = ImageSlice & {
+type TestState = ImageSlice & ImageJobsSlice & {
   chapters: Map<string, unknown>;
   settings: AppSettings;
   activePromptTemplate: null;
@@ -77,6 +78,7 @@ const createSlice = (): TestState => {
   const get = () => state as TestState;
   const api = { setState: set, getState: get, subscribe: () => () => {}, destroy: () => {} } as never;
 
+  Object.assign(state, createImageJobsSlice(set as never, get as never, api));
   Object.assign(state, createImageSlice(set as never, get as never, api));
   return state as TestState;
 };

@@ -252,3 +252,10 @@ Append-only raw debt receipts discovered during implementation.
 - Release gate: CI injects synthetic legacy env canaries, builds, and scans `dist/` for canaries and provider-shaped credentials.
 - Operator action completed: all provider variables were removed from Vercel, the exposed Gemini key was revoked, and the exact OpenAI/OpenRouter/DeepSeek keys were confirmed invalid. The active production aliases were redeployed without credentials; the BYOK-only application deploys when this change lands.
 - Decision record: `docs/adr/SEC-001-browser-provider-credential-boundary.md`.
+
+[DEBT][MONOLITH][2026-08-21] Image result application remains in a 1,580-line slice
+- File: `store/slices/imageSlice.ts`.
+- Symptom: provider-neutral lifecycle moved to `imageJobsSlice`, but recovered-task orchestration, result application, translation persistence, cache migration, advanced controls, and version deletion still share one slice.
+- Friction in the image-job change: generation and recovery needed parallel copies of the context/result-to-version wiring, making it easy for a provider resume path to drift from an ordinary completion path.
+- Suggested follow-up: extract one tested result-application service/action that accepts `chapterId`, marker, version, and `GeneratedImageResult`; then separate version/cache migration actions from generation orchestration.
+- Blocker status: non-blocking for the approved job system; current paths share the existing persistence implementation and focused regressions are required before merge.

@@ -48,6 +48,7 @@ export interface ImageSliceActions {
   // Image generation
   handleGenerateImages: (chapterId: string) => Promise<void>;
   handleRetryImage: (chapterId: string, placementMarker: string) => Promise<void>;
+  resumeInterruptedImageJobs: () => Promise<void>;
   loadExistingImages: (chapterId: string) => Promise<void>;
   updateIllustrationPrompt: (chapterId: string, placementMarker: string, newPrompt: string) => Promise<void>;
   updateIllustrationPlan: (chapterId: string, placementMarker: string, imagePlan: ImagePlan, mode?: ImagePlanMode) => Promise<void>;
@@ -315,6 +316,30 @@ export const createImageSlice: StateCreator<
       return;
     }
 
+    const jobIdsByMarker = new Map<string, string>();
+    chapter.translationResult.suggestedIllustrations.forEach((illustration: any) => {
+      const marker = illustration?.placementMarker;
+      if (!marker || illustration?.generatedImage) return;
+      const existingJob = get().getActiveImageJobFor(chapterId, marker);
+      const jobId = existingJob?.id ?? get().startImageJob({
+        chapterId,
+        placementMarker: marker,
+        model: imageModel,
+        version: 1,
+      });
+      if (!existingJob) get().markImageJobRunning(jobId);
+      jobIdsByMarker.set(marker, jobId);
+    });
+    context.onJobEvent = (marker, event) => {
+      const jobId = jobIdsByMarker.get(marker);
+      if (!jobId) return;
+      if (event.type === 'submitted') {
+        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind);
+      } else {
+        get().markImageJobRunning(jobId);
+      }
+    };
+
     const totalIllustrations = chapter.translationResult.suggestedIllustrations.length;
     debugLog('image', 'summary', `[ImageSlice] Starting image generation for ${chapterId}. Illustrations: ${totalIllustrations}`);
     
@@ -342,9 +367,15 @@ export const createImageSlice: StateCreator<
           return acc;
         }, {});
         debugLog('image', 'full', `[ImageSlice] Progress update for ${chapterId}`, summary);
+        for (const [marker, jobId] of jobIdsByMarker) {
+          const imageState = imageStates[`${chapterId}:${marker}`];
+          if (!imageState || imageState.isLoading) continue;
+          if (imageState.error) get().failImageJob(jobId, imageState.error);
+          else get().completeImageJob(jobId, currentMetrics?.lastModel, undefined);
+        }
         set(prevState => {
           const completed = Object.values(imageStates).filter(
-            state => !state.isLoading && (state.data || state.error)
+            state => !state.isLoading
           ).length;
 
           return {
@@ -371,6 +402,7 @@ export const createImageSlice: StateCreator<
       // beforeunload warning fires falsely.
       const message = err instanceof Error ? err.message : String(err);
       console.warn(`[ImageSlice] handleGenerateImages threw for ${chapterId}:`, err);
+      for (const jobId of jobIdsByMarker.values()) get().failImageJob(jobId, message);
       set(prevState => {
         const cleared = { ...prevState.generatedImages };
         if (chapter?.translationResult?.suggestedIllustrations) {
@@ -441,6 +473,18 @@ export const createImageSlice: StateCreator<
     });
 
     debugLog('image', 'summary', `[ImageSlice] Image generation finished for ${chapterId}`, result.metrics);
+    for (const [marker, jobId] of jobIdsByMarker) {
+      const imageState = result.generatedImages[`${chapterId}:${marker}`];
+      if (imageState?.error) get().failImageJob(jobId, imageState.error);
+      else get().completeImageJob(jobId, result.metrics?.lastModel, undefined);
+    }
+    const successfulJobs = [...jobIdsByMarker.values()].filter(id => get().imageJobs[id]?.status === 'completed').length;
+    if (successfulJobs > 0) {
+      get().showNotification(
+        `${successfulJobs === 1 ? 'Illustration is' : `${successfulJobs} illustrations are`} ready in the chapter where ${successfulJobs === 1 ? 'it was' : 'they were'} requested.`,
+        'success'
+      );
+    }
     
     // Clean up progress after a delay
     setTimeout(() => {
@@ -463,7 +507,7 @@ export const createImageSlice: StateCreator<
     // generations keyed to the same version; the second overwrote the first.
     // Everything between here and the awaited service call is synchronous,
     // so this check plus the isLoading set below closes the race.
-    if (state.generatedImages[key]?.isLoading) {
+    if (state.getActiveImageJobFor(chapterId, placementMarker) || state.generatedImages[key]?.isLoading) {
       debugLog('image', 'summary', `[ImageSlice] Retry ignored for ${key} — a generation is already in flight`);
       return;
     }
@@ -514,6 +558,21 @@ export const createImageSlice: StateCreator<
       return;
     }
 
+    const jobId = state.startImageJob({
+      chapterId,
+      placementMarker,
+      model: imageModel,
+      version: nextVersion,
+    });
+    get().markImageJobRunning(jobId);
+    context.onJobEvent = (_marker, event) => {
+      if (event.type === 'submitted') {
+        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind);
+      } else {
+        get().markImageJobRunning(jobId);
+      }
+    };
+
     // Set loading state
     set(prevState => ({
       generatedImages: {
@@ -533,6 +592,7 @@ export const createImageSlice: StateCreator<
       // returns true forever and the beforeunload warning fires falsely.
       const message = err instanceof Error ? err.message : String(err);
       console.warn(`[ImageSlice] handleRetryImage threw for ${key}:`, err);
+      get().failImageJob(jobId, message);
       set(prevState => ({
         generatedImages: {
           ...prevState.generatedImages,
@@ -547,6 +607,13 @@ export const createImageSlice: StateCreator<
     }
 
     const generationSucceeded = !result.imageState?.error;
+    if (generationSucceeded) {
+      get().completeImageJob(jobId, result.metrics?.lastModel, result.metrics?.totalTime);
+      get().showNotification('Illustration is ready in the chapter where it was requested.', 'success');
+    } else {
+      get().failImageJob(jobId, result.imageState?.error || 'Image generation failed');
+      get().showNotification('Illustration generation failed. Open the originating chapter to retry.', 'error');
+    }
 
     set(prevState => {
       const updates: Partial<ImageSliceState> = {
@@ -578,6 +645,84 @@ export const createImageSlice: StateCreator<
     // Update metrics if provided
     if (result.metrics) {
       get().updateMetrics(result.metrics);
+    }
+  },
+
+  resumeInterruptedImageJobs: async () => {
+    const interrupted = Object.values(get().imageJobs).filter(job =>
+      job.status === 'interrupted' && (job.resumeKind === 'piapi' || job.resumeKind === 'indrasnet')
+    );
+    // Claim every restored job synchronously before the first await. This
+    // prevents React development StrictMode (or another boot caller) from
+    // starting a second recovery pass for the same provider task.
+    for (const job of interrupted) get().markImageJobRunning(job.id);
+    for (const job of interrupted) {
+      try {
+        if (!get().chapters.has(job.chapterId)) {
+          await get().loadChapterFromIDB(job.chapterId);
+        }
+        const state = get();
+        if (!state.chapters.has(job.chapterId)) {
+          throw new Error(`Originating chapter ${job.chapterId} is unavailable; the provider task was not replayed.`);
+        }
+        const context: ImageGenerationContext = {
+          chapters: state.chapters,
+          settings: { ...state.settings, imageModel: job.requestedModel },
+          activePromptTemplate: state.activePromptTemplate ?? undefined,
+          steeringImages: state.steeringImages,
+          negativePrompts: state.negativePrompts,
+          guidanceScales: state.guidanceScales,
+          loraModels: state.loraModels,
+          loraStrengths: state.loraStrengths,
+          imageVersions: state.imageVersions,
+          activeImageVersion: state.activeImageVersion,
+          nextVersion: job.version,
+          onJobEvent: (_marker, event) => {
+            if (event.type === 'submitted') {
+              get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind);
+            } else {
+              get().markImageJobRunning(job.id);
+            }
+          },
+        };
+        const result = await ImageGenerationService.resumeImageJob(job, context);
+        const key = `${job.chapterId}:${job.placementMarker}`;
+        if (result.imageState.error) {
+          state.failImageJob(job.id, result.imageState.error);
+          state.showNotification('A resumed illustration task failed. Open its chapter to retry.', 'error');
+          continue;
+        }
+        set(previous => ({
+          generatedImages: { ...previous.generatedImages, [key]: result.imageState },
+          imageVersions: { ...previous.imageVersions, [key]: Math.max(previous.imageVersions[key] || 0, job.version) },
+          activeImageVersion: { ...previous.activeImageVersion, [key]: job.version },
+        }));
+        get().completeImageJob(job.id, result.metrics?.lastModel, result.metrics?.totalTime);
+        get().showNotification('A previously submitted illustration is ready in its originating chapter.', 'success');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const retryable = error instanceof Error
+          ? (error as Error & { retryable?: boolean }).retryable
+          : undefined;
+        console.error(`[ImageJobs] Failed to resume ${job.resumeKind} task ${job.id}:`, error);
+        const explicitlyTerminal = error instanceof Error && (
+          message.startsWith('PiAPI task failed:')
+          || message.includes('completed but no image payload')
+          || message.startsWith('Originating chapter ')
+          || retryable === false
+        );
+        if (explicitlyTerminal) {
+          get().failImageJob(job.id, message);
+          get().showNotification('A resumed illustration task failed. Open its chapter to retry.', 'error');
+        } else {
+          // A sleeping/off-tailnet broker or a temporary PiAPI/network outage
+          // must not discard the provider task ID. Keeping this interrupted
+          // makes the next reload retry the same task without submitting or
+          // paying for a duplicate generation.
+          get().interruptImageJob(job.id, message);
+          get().showNotification('The illustration provider is unavailable. The existing task will be checked again after reload.', 'error');
+        }
+      }
     }
   },
   
@@ -1004,7 +1149,9 @@ export const createImageSlice: StateCreator<
   },
   
   hasImagesInProgress: () => {
-    const { generatedImages } = get();
+    const state = get();
+    if (state.hasActiveImageJobs()) return true;
+    const { generatedImages } = state;
     const states = Object.values(generatedImages) as ImageState[];
     return states.some(state => state?.isLoading);
   },

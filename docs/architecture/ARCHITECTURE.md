@@ -59,7 +59,7 @@
 | `store/index.ts` | 69 | Slice composers | Bootstraps and composes all slices |
 | `translationsSlice.ts` | 1,059 | TranslationService, ExplanationService | Translation queueing, persistence, footnotes |
 | `chaptersSlice.ts` | 825 | NavigationService, stableIdService | Chapter navigation, URL mapping |
-| `imageSlice.ts` | 1,081 | ImageGenerationService, ImageCacheService | Generation jobs, image caching |
+| `imageSlice.ts` | 1,580 | ImageGenerationService, ImageCacheService, imageJobsSlice | Applying generation results, image caching, version state, durable-job recovery |
 | `exportSlice.ts` | 605 | Export utilities, imageUtils | EPUB/session export with progress tracking |
 
 ### Services & Adapters
@@ -200,7 +200,7 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 | `services/imagePlanPlanner.ts` | 451 | Watchlist | Planner schema/prompt logic and three provider transports share one module |
 | `services/imageGenerationService.ts` | 631 | Split candidate | Initial generation and retry duplicate provenance, persistence, versioning, and metrics assembly; fallback review found behavior drift between the two paths |
 | `components/settings/ProvidersPanel.tsx` | 565 | Watchlist | Provider catalogue effects, credit state, capability checks, pricing assembly, and selection lifecycle remain coupled; PR #138 review found stale endpoint-owned workflow state |
-| `store/slices/imageSlice.ts` | 1,081 | Keep | Single domain, all parts change together |
+| `store/slices/imageSlice.ts` | 1,580 | Split candidate | Job lifecycle is now separate, but result application, persistence, cache migration, controls, versioning, and recovery orchestration still give this file multiple reasons to change |
 | `store/slices/translationsSlice.ts` | 1,059 | Keep | Single domain, complex but cohesive |
 | `store/slices/chaptersSlice.ts` | 825 | Keep | Single domain |
 | `store/slices/exportSlice.ts` | 605 | Keep | Single domain |
