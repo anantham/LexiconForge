@@ -124,3 +124,44 @@ updates but creates many top-level keys in the store.
 - [Image Versioning Plan](../archive/plans/2025-10-15-image-versioning-phase3-4.md) — ✅ Implemented
 - [Gallery & Cover Selection](../archive/plans/2025-12-29-gallery-cover-selection-design.md) — ✅ Implemented
 - `docs/features/ImageGeneration.md` — User-facing guide
+
+---
+
+## Amendment — 2026-08-21: Opt-in IndrasNet workflow provider
+
+**Status:** Implemented on `feat/codex-indrasnet-image-provider`.
+
+The original no-auto-fallback decision remains the default. LexiconForge now
+supports a self-hosted Asus/IndrasNet provider with one narrow, explicit
+exception: while an IndrasNet workflow is selected, the user may separately
+select a cloud fallback model. That fallback runs only when the broker returns a
+retryable availability failure (for example `GPU_BUSY` or `COMFYUI_OFFLINE`). It
+does not run for invalid manifests, unsupported semantic inputs, or other
+configuration errors.
+
+### Decision
+
+1. The browser discovers workflows from `GET /api/comfyui/workflows`; only
+   client-ready text-to-image manifests with a semantic `prompt` binding enter
+   the image-model dropdown.
+2. Image model IDs use `indrasnet/<encoded-workflow-name>`. LexiconForge sends
+   semantic fields, never ComfyUI node IDs. IndrasNet owns the graph-specific
+   mapping.
+3. Production browsers use the Tailscale Serve HTTPS endpoint. A raw
+   `http://100.x.x.x` URL is useful for local HTTP development but is blocked as
+   mixed content when LexiconForge itself is loaded over HTTPS.
+4. Local provider spend is recorded as `$0` in the external API ledger. This is
+   not a claim that electricity or hardware is free.
+5. Every successful result records the provider and executed model. If the
+   explicit cloud fallback ran, provenance also records the attempted local
+   model and structured failure reason.
+
+### Implementation notes
+
+- `services/providers/indrasNetImageProvider.ts` owns discovery, semantic
+  requests, structured error preservation, and image download.
+- `services/imageGenerationFallback.ts` owns the opt-in fallback policy.
+- `services/imageService.ts` remains the provider dispatcher and metrics/cache
+  boundary.
+- `components/settings/IndrasNetImageProviderSection.tsx` exposes endpoint,
+  discovery state, and fallback selection.

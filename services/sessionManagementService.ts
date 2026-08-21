@@ -14,6 +14,7 @@ import { INITIAL_SYSTEM_PROMPT } from '../config/constants';
 import type { AppSettings, PromptTemplate, DiffMarkerVisibilitySettings } from '../types';
 import appConfig from '../config/app.json';
 import { getDefaultDiffPrompt } from './diff/promptUtils';
+import { DEFAULT_INDRASNET_BASE_URL } from './providers/indrasNetImageProvider';
 
 const settingsStorageKey = 'app-settings';
 
@@ -30,6 +31,8 @@ export const defaultSettings: AppSettings = {
   provider: (appConfig.defaultModels?.provider as any) || 'Gemini',
   model: appConfig.defaultModels?.textModel || 'gemini-2.5-flash',
   imageModel: appConfig.defaultModels?.imageModel || 'imagen-3.0-generate-001',
+  indrasNetBaseUrl: DEFAULT_INDRASNET_BASE_URL,
+  imageFallbackModel: 'none',
   temperature: appConfig.aiParameters.defaults.temperature,
   apiKeyGemini: '',
   apiKeyOpenAI: '',

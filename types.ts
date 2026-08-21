@@ -157,7 +157,19 @@ export interface GeneratedImageResult {
 
   requestTime: number; // in seconds
   cost: number;
+  execution?: ImageExecutionMetadata;
   metadata?: ImageGenerationMetadata;
+}
+
+export interface ImageExecutionMetadata {
+  provider: string;
+  model: string;
+  fallback?: {
+    attemptedProvider: string;
+    attemptedModel: string;
+    reasonCode: string;
+    reason: string;
+  };
 }
 
 export interface ImageGenerationMetadata {
@@ -181,6 +193,7 @@ export interface ImageGenerationMetadata {
   steeringIgnored?: boolean;
   provider?: string | null;
   model?: string | null;
+  fallback?: ImageExecutionMetadata['fallback'];
   generatedAt: string;
 }
 
@@ -330,6 +343,10 @@ export interface AppSettings {
     suttaStudioProvider?: TranslationProvider;
     suttaStudioModel?: string;
     imageModel: string; // The ID of the image model, e.g., 'imagen-4.0-ultra...'
+    /** Tailnet HTTPS base URL for the IndrasNet ComfyUI broker. */
+    indrasNetBaseUrl?: string;
+    /** Explicit cloud fallback model for retryable IndrasNet failures; "none" disables it. */
+    imageFallbackModel?: string;
     temperature: number; // 0.0 to 2.0, controls randomness/creativity
     // Expanded AI parameters (OpenAI-compatible)
     topP?: number;               // 0.0 to 1.0, nucleus sampling 

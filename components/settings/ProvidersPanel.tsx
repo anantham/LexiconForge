@@ -11,7 +11,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AVAILABLE_MODELS, AVAILABLE_IMAGE_MODELS } from '../../config/constants';
 import { MODELS, COSTS_PER_MILLION_TOKENS, IMAGE_COSTS } from '../../config/costs';
-import type { TranslationProvider } from '../../types';
 import { supportsStructuredOutputs, supportsParameters } from '../../services/capabilityService';
 import { debugLog } from '../../utils/debug';
 import { useSettingsModalContext } from './SettingsModalContext';
@@ -23,6 +22,13 @@ import {
 import { useAppStore } from '../../store';
 import { TranslationEngineSection } from './TranslationEngineSection';
 import { ApiKeysSection } from './ApiKeysSection';
+import { IndrasNetImageProviderSection } from './IndrasNetImageProviderSection';
+import {
+  fetchIndrasNetWorkflows,
+  imageModelFromWorkflowName,
+  isIndrasNetImageModel,
+  type IndrasNetWorkflowProfile,
+} from '../../services/providers/indrasNetImageProvider';
 
 const formatCurrencyValue = (value?: number | null, currency = 'USD'): string | null => {
   if (value === null || value === undefined || Number.isNaN(value)) return null;
@@ -66,6 +72,10 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
   const [lastUsedMap, setLastUsedMap] = useState<Record<string, string>>({});
   const [structuredOutputSupport, setStructuredOutputSupport] = useState<Record<string, boolean | null>>({});
   const [dynamicImageModels, setDynamicImageModels] = useState<OpenRouterImageModelProfile[]>([]);
+  const [indrasNetWorkflows, setIndrasNetWorkflows] = useState<IndrasNetWorkflowProfile[]>([]);
+  const [indrasNetLoading, setIndrasNetLoading] = useState(false);
+  const [indrasNetError, setIndrasNetError] = useState<string | null>(null);
+  const [indrasNetRefresh, setIndrasNetRefresh] = useState(0);
   const [novelSpent, setNovelSpent] = useState<number | null>(null);
 
   // Fetch spent amount when in budget mode
@@ -152,6 +162,33 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
       }
     })();
   }, [isOpen]);
+
+  // Discover semantic, client-ready ComfyUI workflows from the tailnet broker.
+  useEffect(() => {
+    if (!isOpen || !currentSettings.indrasNetBaseUrl?.trim()) return;
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      setIndrasNetLoading(true);
+      setIndrasNetError(null);
+      fetchIndrasNetWorkflows(currentSettings.indrasNetBaseUrl, { force: true })
+        .then(workflows => {
+          if (!cancelled) setIndrasNetWorkflows(workflows);
+        })
+        .catch(error => {
+          if (cancelled) return;
+          console.error('[ProvidersPanel] Failed to discover IndrasNet workflows:', error);
+          setIndrasNetError(error instanceof Error ? error.message : 'Unknown discovery error');
+          setIndrasNetWorkflows([]);
+        })
+        .finally(() => {
+          if (!cancelled) setIndrasNetLoading(false);
+        });
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [isOpen, currentSettings.indrasNetBaseUrl, indrasNetRefresh]);
 
   // Load OpenRouter catalogue and credits when provider is OpenRouter
   useEffect(() => {
@@ -394,12 +431,40 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         };
       });
 
-    return [...staticModels, ...dynamicModels].sort((a, b) => {
+    const indrasModels = indrasNetWorkflows.map(workflow => ({
+      id: imageModelFromWorkflowName(workflow.name),
+      name: `Asus: ${workflow.manifest.display_name || workflow.name}`,
+      description: workflow.manifest.description || `IndrasNet workflow ${workflow.name}`,
+      label: `Asus: ${workflow.manifest.display_name || workflow.name} — local`,
+      sortKey: 0,
+      provider: 'Asus / IndrasNet',
+      source: 'dynamic' as const,
+    }));
+
+    if (isIndrasNetImageModel(currentSettings.imageModel) && !indrasModels.some(model => model.id === currentSettings.imageModel)) {
+      const workflowName = decodeURIComponent(currentSettings.imageModel.slice('indrasnet/'.length));
+      indrasModels.push({
+        id: currentSettings.imageModel,
+        name: `Asus: ${workflowName}`,
+        description: 'Saved IndrasNet workflow; currently unavailable from the configured endpoint.',
+        label: `Asus: ${workflowName} — unavailable`,
+        sortKey: 0,
+        provider: 'Asus / IndrasNet',
+        source: 'dynamic' as const,
+      });
+    }
+
+    return [...staticModels, ...dynamicModels, ...indrasModels].sort((a, b) => {
       const providerCompare = a.provider.localeCompare(b.provider);
       if (providerCompare !== 0) return providerCompare;
       return a.sortKey - b.sortKey;
     });
-  }, [dynamicImageModels]);
+  }, [currentSettings.imageModel, dynamicImageModels, indrasNetWorkflows]);
+
+  const fallbackImageModels = useMemo(
+    () => pricedImageModels.filter(model => !isIndrasNetImageModel(model.id)),
+    [pricedImageModels],
+  );
 
   // Structured output indicator
   const structuredOutputIndicator = useMemo(() => {
@@ -463,6 +528,19 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         novelSpent={novelSpent}
         onPreloadModeChange={(m) => handleSettingChange('preloadMode' as any, m)}
         onPreloadBudgetChange={(v) => handleSettingChange('preloadBudget' as any, v)}
+      />
+
+      <IndrasNetImageProviderSection
+        endpoint={currentSettings.indrasNetBaseUrl || ''}
+        selectedImageModel={currentSettings.imageModel}
+        fallbackModel={currentSettings.imageFallbackModel || 'none'}
+        fallbackModels={fallbackImageModels}
+        loading={indrasNetLoading}
+        error={indrasNetError}
+        workflowCount={indrasNetWorkflows.length}
+        onEndpointChange={(value) => handleSettingChange('indrasNetBaseUrl', value)}
+        onFallbackModelChange={(value) => handleSettingChange('imageFallbackModel', value)}
+        onRefresh={() => setIndrasNetRefresh(value => value + 1)}
       />
 
       <ApiKeysSection

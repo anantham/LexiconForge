@@ -15,6 +15,11 @@ import {
   buildOpenRouterImageRequestConfig,
   getVerifiedOpenRouterImageModel,
 } from './openrouterImageModelAdapter';
+import {
+  generateIndrasNetImage,
+  IndrasNetProviderError,
+  isIndrasNetImageModel,
+} from './providers/indrasNetImageProvider';
 
 // Image dimension constraints (provider API limits)
 const IMAGE_DIM_MIN = 256;        // Minimum accepted by Gemini/PiAPI
@@ -98,6 +103,8 @@ export const UNPRICED_IMAGE_COST_USD = 0.25;
  * @returns Cost in USD for one image
  */
 export const calculateImageCost = (model: string): number => {
+    // IndrasNet is self-hosted. Electricity/hardware costs are outside the provider spend ledger.
+    if (isIndrasNetImageModel(model)) return 0;
     // 1. Live pricing first (OpenRouter models only; populated by fetchOpenRouterImagePrice —
     //    per-image estimates from the verified image-model catalog).
     if (model.startsWith('openrouter/')) {
@@ -160,6 +167,13 @@ export const fetchOpenRouterImagePrice = async (model: string): Promise<number |
 export const modelConsumesSteeringImage = (imageModel: string): boolean =>
     imageModel.startsWith('Qubico/');
 
+export const imageProviderForModel = (imageModel: string): string =>
+    isIndrasNetImageModel(imageModel) ? 'Asus / IndrasNet' :
+    imageModel.startsWith('imagen') ? 'Imagen' :
+    imageModel.startsWith('gemini') ? 'Gemini' :
+    imageModel.startsWith('Qubico/') ? 'PiAPI' :
+    imageModel.startsWith('openrouter/') ? 'OpenRouter' : 'Unknown';
+
 /**
  * Generates an image from a text prompt using the configured Image API.
  * Supports both text-to-image and image-to-image generation.
@@ -194,7 +208,9 @@ export const generateImage = async (
     ilog(`[ImageService] Starting image generation...`);
     ilog(`[ImageService] - Model: ${imageModel}`);
     ilog(`[ImageService] - Prompt: ${prompt.substring(0, 100)}...`);
-    const hasKey = imageModel.startsWith('Qubico/')
+    const hasKey = isIndrasNetImageModel(imageModel)
+      ? true
+      : imageModel.startsWith('Qubico/')
       ? !!getConfiguredApiKey(settings, 'PiAPI')
       : imageModel.startsWith('openrouter/')
         ? !!getConfiguredApiKey(settings, 'OpenRouter')
@@ -221,7 +237,22 @@ export const generateImage = async (
         // Token usage tracking (primarily for OpenRouter)
         let imageTokenUsage: { prompt: number; completion: number; total: number } | undefined;
 
-        if (imageModel.startsWith('imagen')) {
+        if (isIndrasNetImageModel(imageModel)) {
+            ilog('[ImageService] Using IndrasNet workflow:', imageModel);
+            const output = await generateIndrasNetImage({
+                model: imageModel,
+                baseUrl: settings.indrasNetBaseUrl,
+                prompt,
+                negativePrompt,
+                seed: settings.seed,
+                width: reqW,
+                height: reqH,
+                guidanceScale,
+            });
+            base64Data = output.base64;
+            mimeTypeForReturn = output.mimeType;
+        }
+        else if (imageModel.startsWith('imagen')) {
             ilog('[ImageService] Using Imagen model:', imageModel);
             const apiKey = getConfiguredApiKey(settings, 'Gemini'); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Imagen.');
             const ai = new GoogleGenAI({ apiKey });
@@ -668,7 +699,7 @@ export const generateImage = async (
         }
         else {
             ierror(`[ImageService] Unrecognized model: ${imageModel}`);
-            throw new Error(`Unrecognized image model: ${imageModel}. Supported prefixes: imagen, gemini, openrouter/, Qubico/.`);
+            throw new Error(`Unrecognized image model: ${imageModel}. Supported prefixes: indrasnet/, imagen, gemini, openrouter/, Qubico/.`);
         }
 
         const requestTime = (performance.now() - startTime) / 1000; // in seconds
@@ -683,10 +714,7 @@ export const generateImage = async (
         console.log(`[ImageService] Successfully received image data in ${requestTime.toFixed(2)}s. Cost: ${cost.toFixed(5)}`);
 
         // Determine provider from model name
-        const provider = imageModel.startsWith('imagen') ? 'Imagen' :
-                        imageModel.startsWith('gemini') ? 'Gemini' :
-                        imageModel.startsWith('Qubico/') ? 'PiAPI' :
-                        imageModel.startsWith('openrouter/') ? 'OpenRouter' : 'Unknown';
+        const provider = imageProviderForModel(imageModel);
 
         // Record successful image generation in metrics
         await apiMetricsService.recordMetric({
@@ -726,7 +754,8 @@ export const generateImage = async (
                         imageData: '',  // Empty - use cache key instead
                         imageCacheKey: cacheKey,
                         requestTime,
-                        cost
+                        cost,
+                        execution: { provider, model: imageModel },
                     };
                 } else {
                     iwarn('[ImageService] Cache API not supported, falling back to base64');
@@ -741,7 +770,8 @@ export const generateImage = async (
         return {
             imageData: base64DataUrl,
             requestTime,
-            cost
+            cost,
+            execution: { provider, model: imageModel },
         };
 
     } catch (error: any) {
@@ -751,7 +781,10 @@ export const generateImage = async (
         let message = error.message || 'Unknown error occurred';
         let errorType = 'GENERIC_ERROR';
 
-        if (message.includes('API key')) {
+        if (error instanceof IndrasNetProviderError) {
+            errorType = error.code;
+            message = error.message;
+        } else if (message.includes('API key')) {
             errorType = 'INVALID_API_KEY';
             if (imageModel.startsWith('Qubico/')) {
                 message = 'Invalid PiAPI API key. Please check your API key in Settings.';
@@ -777,10 +810,7 @@ export const generateImage = async (
         }
 
         // Determine provider from model name
-        const provider = imageModel.startsWith('imagen') ? 'Imagen' :
-                        imageModel.startsWith('gemini') ? 'Gemini' :
-                        imageModel.startsWith('Qubico/') ? 'PiAPI' :
-                        imageModel.startsWith('openrouter/') ? 'OpenRouter' : 'Unknown';
+        const provider = imageProviderForModel(imageModel);
 
         // Record failed image generation in metrics
         await apiMetricsService.recordMetric({
@@ -799,7 +829,9 @@ export const generateImage = async (
           errorType,
           originalError: error,
           model: imageModel,
-          canRetry: ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType),
+          canRetry: error instanceof IndrasNetProviderError
+            ? error.retryable
+            : ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType),
           suggestedActions: getSuggestedActions(errorType, imageModel),
         });
 

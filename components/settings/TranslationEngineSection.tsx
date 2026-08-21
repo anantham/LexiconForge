@@ -226,7 +226,7 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
             ))}
           </select>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Gemini and Imagen entries use your Gemini API key. OpenRouter and PiAPI entries use their own provider keys when selected.
+            Asus entries use client-ready workflows discovered from your IndrasNet tailnet broker. Gemini, OpenRouter, and PiAPI use their configured provider keys.
           </p>
           {imageModel && imageModel.toLowerCase() !== 'none' && (
             <div className="mt-2 flex items-center gap-3">

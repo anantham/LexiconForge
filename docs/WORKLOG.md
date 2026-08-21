@@ -2647,3 +2647,20 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Status:** Reconciled concurrent P2.1 commit; verification complete
 **Coordination:** Before push, `origin/worktree-opus-p2-benchmark` advanced from `fc7c2f9` to Claude's `f6e9d41` P2.1 commit. The Codex commit was rebased onto that remote head without force. Conflict resolution retained Claude's corrected ADR parity table, outer production fallback, and committed-MN10 hit-rate regression, while retaining Codex's provider-agnostic helper, per-token warning path, P2.3 contracts, and publication tests.
 **Verification after reconciliation:** Focused combined suite: 20/20 passed. Full suite: 228 files, 8,825 passed / 355 skipped. Production build passed. TypeScript remains at 17 pre-existing baseline diagnostics. Branch history is linear (`f6e9d41` -> rebased Codex commit), so PR #112 can be updated by ordinary fast-forward push.
+### [2026-08-21 07:16 IST] [Agent: Codex]
+**Status:** Starting
+**Task:** Add a workflow-aware IndrasNet/Asus image provider with dynamic manifest discovery and explicit retryable cloud fallback.
+**Worktree:** `../LexiconForge.worktrees/codex-indrasnet-image-provider/`
+**Branch:** `feat/codex-indrasnet-image-provider`
+**Files likely affected:** a new IndrasNet image-provider adapter and tests; `types.ts`; Settings provider/model assembly and tests; `services/imageService.ts` integration seam; `services/imageGenerationService.ts` provenance/fallback; image feature docs and ADR amendment.
+**Hypotheses:** H1 the absence of an `indrasnet/` dispatch branch is the direct reason Asus cannot be selected; H2 dynamic workflow manifests can enter the existing priced-image picker without coupling translation providers; H3 opt-in fallback can preserve FEAT-003 by recording both the attempted Asus workflow and chosen fallback rather than silently switching.
+**Predictions:** manifest discovery adds `Asus: <workflow>` entries; semantic prompts reach the broker without caller-owned node IDs; only `GPU_BUSY`, `GPU_MEMORY_UNAVAILABLE`, and `COMFYUI_OFFLINE` trigger an explicitly configured fallback; validation and workflow errors remain visible.
+**Confidence:** 0.89. **Fallback:** revert this scoped branch; existing Imagen/Gemini/OpenRouter/PiAPI behavior and persisted settings remain valid.
+
+### [2026-08-21 07:38 IST] [Agent: Codex]
+**Status:** Complete — source and test gates green; deployment pending PR/release.
+**Progress:** Added dynamic Asus/IndrasNet workflow discovery, semantic workflow execution, exact structured broker errors, explicit retryable-only cloud fallback, and executed-provider/fallback provenance. Added a dedicated provider settings section and the tailnet HTTPS default (`:9443`).
+**Files:** `services/providers/indrasNetImageProvider.ts` (discovery/execution), `services/imageGenerationFallback.ts` (policy), `services/imageService.ts` and `services/imageGenerationService.ts` (dispatch/persistence), `components/settings/ProvidersPanel.tsx` plus `IndrasNetImageProviderSection.tsx` (UI), `types.ts` and `sessionManagementService.ts` (settings/provenance), tests and FEAT-003/user docs.
+**Validation:** Node 24.19.0; `npm run typecheck` passed; focused 57/57 passed; full Vitest 9,120 passed and 347 skipped across 272 files; production build passed with existing chunk/dynamic-import warnings; targeted ESLint had 0 errors (existing warnings); built-client secret scan passed.
+**Operational note:** Tailscale Serve `https://asus-strix-scar.tail4741ad.ts.net:9443` was configured and verified against the current broker. Semantic-manifest/CORS deployment on Asus still follows the IndrasNet branch release.
+**Confidence:** 0.92. Fallback remains user-selected and is never used for manifest/configuration errors.

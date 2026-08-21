@@ -15,6 +15,7 @@ const {
   mockLoadProviderCreditsFromCache,
   mockGetImageCapableModels,
   mockGetLastUsedMap,
+  mockFetchIndrasNetWorkflows,
 } = vi.hoisted(() => ({
   mockHandleSettingChange: vi.fn(),
   mockSetParameterSupport: vi.fn(),
@@ -28,6 +29,7 @@ const {
     fetchedAt: '2026-04-02T00:00:00.000Z',
   }),
   mockGetLastUsedMap: vi.fn().mockResolvedValue({}),
+  mockFetchIndrasNetWorkflows: vi.fn().mockResolvedValue([]),
 }));
 
 type TestProviderName = 'Gemini' | 'DeepSeek' | 'OpenRouter' | 'Claude' | 'OpenAI';
@@ -36,6 +38,8 @@ const defaultSettings = {
   provider: 'Gemini' as TestProviderName,
   model: 'gemini-2.0-flash',
   imageModel: 'none',
+  indrasNetBaseUrl: 'https://asus.example.ts.net',
+  imageFallbackModel: 'none',
   contextDepth: 2,
   preloadCount: 10,
   sourceLanguage: 'Korean',
@@ -72,6 +76,13 @@ vi.mock('../../services/openrouterService', () => ({
 
 vi.mock('../../services/openrouterImageModelAdapter', () => ({
   getImageCapableModels: mockGetImageCapableModels,
+}));
+
+vi.mock('../../services/providers/indrasNetImageProvider', () => ({
+  DEFAULT_INDRASNET_BASE_URL: 'https://asus.example.ts.net',
+  fetchIndrasNetWorkflows: mockFetchIndrasNetWorkflows,
+  imageModelFromWorkflowName: (name: string) => `indrasnet/${encodeURIComponent(name)}`,
+  isIndrasNetImageModel: (model: string) => model.startsWith('indrasnet/'),
 }));
 
 // Mock constants
@@ -166,6 +177,7 @@ describe('ProvidersPanel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetImageCapableModels.mockResolvedValue({ data: [], fetchedAt: new Date().toISOString() });
+    mockFetchIndrasNetWorkflows.mockResolvedValue([]);
     mockGetLastUsedMap.mockResolvedValue({});
     setupDefaultMocks();
   });
@@ -627,6 +639,32 @@ describe('ProvidersPanel', () => {
 
       expect(firstOption?.textContent).toContain('None');
       expect(firstOption?.value).toBe('none');
+    });
+
+    it('discovers client-ready Asus workflows and adds them to the image model dropdown', async () => {
+      mockFetchIndrasNetWorkflows.mockResolvedValue([{
+        name: 'gen_anime',
+        client_ready: true,
+        manifest: {
+          name: 'gen_anime',
+          display_name: 'Anime — Illustrious',
+          client_ready: true,
+          requires_image: false,
+          inputs: { prompt: { node_id: '2', input_key: 'text' } },
+        },
+      }]);
+
+      render(<ProvidersPanel isOpen={true} />);
+
+      expect(await screen.findByRole('option', { name: 'Asus: Anime — Illustrious — local' })).toHaveValue('indrasnet/gen_anime');
+      expect(mockFetchIndrasNetWorkflows).toHaveBeenCalledWith('https://asus.example.ts.net', { force: true });
+    });
+
+    it('shows the opt-in fallback selector only when an Asus workflow is selected', () => {
+      updateMockSettings({ imageModel: 'indrasnet/gen_anime', imageFallbackModel: 'none' });
+      render(<ProvidersPanel isOpen={true} />);
+
+      expect(screen.getByLabelText(/Cloud fallback when Asus is offline or busy/)).toBeInTheDocument();
     });
   });
 });
