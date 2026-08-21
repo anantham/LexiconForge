@@ -258,6 +258,35 @@ describe('imageJobsSlice', () => {
     }
   });
 
+  it('starts a fresh exact-model clock when fallback takes task ownership', () => {
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_000);
+    try {
+      const slice = createSlice();
+      const id = slice.startImageJob({
+        chapterId: 'chapter-fallback-clock',
+        placementMarker: '[ILLUSTRATION-1]',
+        model: 'indrasnet/gen_anime',
+        version: 1,
+      });
+      slice.markImageJobRunning(id);
+
+      now.mockReturnValue(8_000);
+      slice.markImageJobProviderSwitched(id, 'Qubico/flux1-dev', {
+        attemptedProvider: 'Asus / IndrasNet',
+        attemptedModel: 'indrasnet/gen_anime',
+        reasonCode: 'COMFYUI_OFFLINE',
+        reason: 'broker offline',
+      });
+      expect(slice.imageJobs[id]).toMatchObject({ taskModel: 'Qubico/flux1-dev', startedAt: 8_000 });
+
+      now.mockReturnValue(9_000);
+      slice.markImageJobSubmitted(id, 'fallback-task', 'piapi', 'Qubico/flux1-dev');
+      expect(slice.imageJobs[id].startedAt).toBe(8_000);
+    } finally {
+      now.mockRestore();
+    }
+  });
+
   it('restores a durable provider task as interrupted instead of replaying a paid request', () => {
     localStorage.setItem('LF_RESUMABLE_IMAGE_JOBS_V1', JSON.stringify([{
       id: 'saved-job',

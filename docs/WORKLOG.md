@@ -1,3 +1,16 @@
+### [2026-08-21 20:37 IST] [Agent: Codex]
+**Status:** Complete - PR #139 exact-head review round 13
+**Issues:** The exact-head rereview found that provider fallback changes the exact task model/ETA but preserves time spent on the failed primary attempt in `startedAt`; and IndrasNet polling publishes `running` for both broker `queued` and `running` states, losing provider-queue truth in the UI.
+**Hypotheses:** H1 (0.99) resetting `startedAt` only when task ownership actually changes makes fallback ETA/duration exact-model observations without disturbing repeated lifecycle events. H2 (0.99) retaining the submitted lifecycle while broker status is queued and publishing running only for broker running preserves durable ownership and truthful queue status.
+**Options:** (A) focused clock reset plus status-faithful Indras lifecycle - low effort, reversible, selected; (B) add a new provider-status event/state machine - more explicit but disproportionate for the existing submitted/running states; (C) display combined primary-plus-fallback wall time - simpler but contradicts the approved exact-model ETA contract.
+**Predicted tests:** a provider switch resets the job clock and repeated events do not; a queued Indras poll emits no running event, while a subsequent running status does; the banner remains provider-queued until that transition.
+**Fallback:** revert this isolated round and leave PR #139 unmerged; no data migration or broker deployment is required.
+**Confidence:** 0.99
+**Results:** H1 confirmed: `assignTaskOwner` resets `startedAt` and exact-model ETA only when the task model changes, while the later durable submission for that same fallback model preserves the new clock. H2 confirmed: broker `queued` reasserts the accepted submitted lifecycle with its durable ID/origin, broker `running` alone emits running, and recovery no longer preemptively claims a provider running state before polling it.
+**Verification:** pinned Node 24.19.0: focused store/provider regressions 14/14; exact one-worker suite 278 files, 9,215 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors and the unchanged 1,909-warning baseline; production build passed; client-secret scan passed; `git diff --check` passed.
+**Files modified:** `store/slices/imageJobsSlice.ts`; `services/providers/indrasNetImageProvider.ts`; focused store/provider tests; this worklog. The unrelated `public/steering-images.json` newline diff remains unstaged.
+**Files likely affected:** `store/slices/imageJobsSlice.ts`; `services/providers/indrasNetImageProvider.ts`; focused store/provider tests; this worklog. The unrelated `public/steering-images.json` newline diff remains unstaged.
+
 ### [2026-08-21 20:25 IST] [Agent: Codex]
 **Status:** Complete - PR #139 exact-head review round 12
 **Issues:** The exact-head rereview found that chapter-wide generation starts every sequential job clock at batch creation, so later jobs display progress and accumulate client queue delay before execution; and the inline illustration ETA remains bound to the requested settings model after a provider fallback switches the executing task model.

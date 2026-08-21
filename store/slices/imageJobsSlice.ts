@@ -131,6 +131,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
       const current = state.imageJobs[jobId];
       if (!current) return {};
       ownerChanged = taskModel !== (current.taskModel ?? current.requestedModel);
+      const updatedAt = Date.now();
       const imageJobs = {
         ...state.imageJobs,
         [jobId]: {
@@ -138,8 +139,12 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
           taskModel,
           taskProvider: imageProviderForModel(taskModel),
           fallback: fallback ?? current.fallback,
-          ...(ownerChanged ? { estimatedDurationSeconds: undefined, estimateSampleCount: 0 } : {}),
-          updatedAt: Date.now(),
+          ...(ownerChanged ? {
+            startedAt: updatedAt,
+            estimatedDurationSeconds: undefined,
+            estimateSampleCount: 0,
+          } : {}),
+          updatedAt,
         },
       };
       persistRecoverableJobs(imageJobs);

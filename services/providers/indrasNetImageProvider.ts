@@ -438,7 +438,6 @@ export const resumeIndrasNetImageTask = async (
   input: ResumeIndrasNetImageTaskInput,
 ): Promise<GenerateIndrasNetImageOutput> => {
   const baseUrl = normalizeIndrasNetBaseUrl(input.baseUrl);
-  input.onJobEvent?.({ type: 'running' });
   const result = await pollIndrasNetJob(baseUrl, input.jobId, input.onJobEvent);
   return downloadIndrasNetResult(baseUrl, input.workflowName, result);
 };
@@ -472,7 +471,18 @@ const pollIndrasNetJob = async (
     if (status !== 'queued' && status !== 'running') {
       throw invalidJsonResponseError(`workflow job ${jobId}`);
     }
-    onJobEvent?.({ type: 'running' });
+    if (status === 'running') {
+      onJobEvent?.({ type: 'running' });
+    } else {
+      // Re-emitting submitted preserves the already-accepted durable ID while
+      // keeping the client in the honest provider-queued state.
+      onJobEvent?.({
+        type: 'submitted',
+        externalTaskId: jobId,
+        resumeKind: 'indrasnet',
+        brokerBaseUrl: baseUrl,
+      });
+    }
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
   throw new IndrasNetProviderError(

@@ -103,6 +103,39 @@ describe('IndrasNet resumable image jobs', () => {
     expect(fetchMock.mock.calls[0][1]?.method).toBe('GET');
   });
 
+  it('keeps broker-queued work submitted until the broker reports running', async () => {
+    const originalSetTimeout = globalThis.setTimeout.bind(globalThis);
+    vi.spyOn(globalThis, 'setTimeout').mockImplementation(((handler: TimerHandler, timeout?: number, ...args: any[]) => {
+      if (timeout === 2000) {
+        queueMicrotask(() => typeof handler === 'function' && handler(...args));
+        return 0 as unknown as ReturnType<typeof setTimeout>;
+      }
+      return originalSetTimeout(handler, timeout, ...args);
+    }) as typeof setTimeout);
+    const events: unknown[] = [];
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(json(catalogue))
+      .mockResolvedValueOnce(json({ job_id: 'broker-queued', status: 'queued' }, 202))
+      .mockResolvedValueOnce(json({ job_id: 'broker-queued', status: 'queued' }))
+      .mockResolvedValueOnce(json({ job_id: 'broker-queued', status: 'running' }))
+      .mockResolvedValueOnce(json({
+        job_id: 'broker-queued',
+        status: 'completed',
+        images: ['/api/comfyui/view?filename=queued.png&type=output'],
+      }))
+      .mockResolvedValueOnce(image());
+    vi.stubGlobal('fetch', fetchMock);
+
+    await generateIndrasNetImage({
+      model: 'indrasnet/gen_anime',
+      baseUrl: 'https://asus.example',
+      prompt: 'a patient dragon',
+      onJobEvent: event => events.push(event),
+    });
+
+    expect(events.map((event: any) => event.type)).toEqual(['submitted', 'submitted', 'running']);
+  });
+
   it('falls back to the old blocking route only when the jobs route is absent', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(json(catalogue))
