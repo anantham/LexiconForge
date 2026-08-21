@@ -170,6 +170,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
       model: job?.taskModel ?? job?.requestedModel ?? null,
       startedAt: job?.status === 'running' ? job.startedAt : null,
       error: job?.error ?? null,
+      recoveryPersistenceError: job?.recoveryPersistenceError ?? null,
     };
   }));
   const isInterrupted = activeImageJob.status === 'interrupted';
@@ -483,12 +484,22 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
               ? 'Queued by provider…'
               : 'Waiting for earlier illustrations to finish…'}
           </p>
+          {activeImageJob.recoveryPersistenceError && (
+            <p className="mt-2 max-w-md text-xs font-semibold text-amber-700 dark:text-amber-300" role="alert">
+              {activeImageJob.recoveryPersistenceError}
+            </p>
+          )}
         </div>
       )}
       {isLoading && !isQueued && (
         <div className="flex flex-col items-center justify-center h-48">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Generating illustration...</p>
+          {activeImageJob.recoveryPersistenceError && (
+            <p className="mt-2 max-w-md text-center text-xs font-semibold text-amber-700 dark:text-amber-300" role="alert">
+              {activeImageJob.recoveryPersistenceError}
+            </p>
+          )}
           {displayedTimeRemaining === null ? (
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
               Gathering ETA data…

@@ -32,6 +32,7 @@ export interface ImageJob {
   estimatedDurationSeconds?: number;
   estimateSampleCount: number;
   error?: string;
+  recoveryPersistenceError?: string;
 }
 
 const ACTIVE_STATUSES = new Set<ImageJobStatus>(['queued', 'submitted', 'running']);
@@ -70,19 +71,46 @@ const loadRecoverableJobs = (): Record<string, ImageJob> => {
   }
 };
 
-const persistRecoverableJobs = (jobs: Record<string, ImageJob>): void => {
-  if (typeof localStorage === 'undefined') return;
-  const recoverable = Object.values(jobs).filter(job =>
+const RECOVERY_PERSISTENCE_ERROR = 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open until the illustration finishes.';
+
+const withoutRecoveryPersistenceErrors = (jobs: Record<string, ImageJob>): Record<string, ImageJob> =>
+  Object.fromEntries(Object.entries(jobs).map(([id, job]) => {
+    if (!job.recoveryPersistenceError) return [id, job];
+    const { recoveryPersistenceError: _recoveryPersistenceError, ...persistableJob } = job;
+    return [id, persistableJob];
+  }));
+
+const persistRecoverableJobs = (
+  jobs: Record<string, ImageJob>,
+  warnJobIdOnFailure?: string,
+): Record<string, ImageJob> => {
+  const persistableJobs = withoutRecoveryPersistenceErrors(jobs);
+  const recoverable = Object.values(persistableJobs).filter(job =>
     (job.resumeKind === 'piapi' || job.resumeKind === 'indrasnet')
     && Boolean(job.externalTaskId)
     && (ACTIVE_STATUSES.has(job.status) || job.status === 'interrupted')
   );
   try {
+    if (typeof localStorage === 'undefined') {
+      if (recoverable.length === 0) return persistableJobs;
+      throw new Error('Browser localStorage is unavailable.');
+    }
     if (recoverable.length === 0) localStorage.removeItem(RESUMABLE_IMAGE_JOBS_STORAGE_KEY);
     else localStorage.setItem(RESUMABLE_IMAGE_JOBS_STORAGE_KEY, JSON.stringify(recoverable));
   } catch (error) {
     console.error('[ImageJobs] Failed to persist resumable image jobs:', error);
+    if (!warnJobIdOnFailure) return jobs;
+    const job = jobs[warnJobIdOnFailure];
+    if (!job || !recoverable.some(candidate => candidate.id === warnJobIdOnFailure)) return jobs;
+    return {
+      ...jobs,
+      [warnJobIdOnFailure]: {
+        ...job,
+        recoveryPersistenceError: RECOVERY_PERSISTENCE_ERROR,
+      },
+    };
   }
+  return persistableJobs;
 };
 
 export interface ImageJobsState {
@@ -147,8 +175,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
           updatedAt,
         },
       };
-      persistRecoverableJobs(imageJobs);
-      return { imageJobs };
+      return { imageJobs: persistRecoverableJobs(imageJobs) };
     });
     if (!ownerChanged) return;
     void apiMetricsService.getAverageImageGenerationTime(taskModel).then(estimate => {
@@ -239,8 +266,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
           updatedAt: Date.now(),
         },
       };
-      persistRecoverableJobs(imageJobs);
-      return { imageJobs };
+      return { imageJobs: persistRecoverableJobs(imageJobs, jobId) };
     });
   },
 
@@ -262,8 +288,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
         updatedAt: now,
       },
     };
-    persistRecoverableJobs(imageJobs);
-    return { imageJobs };
+    return { imageJobs: persistRecoverableJobs(imageJobs) };
   }),
 
   completeImageJob: (jobId, executedModel, durationSeconds) => set(state => {
@@ -287,8 +312,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
         updatedAt: completedAt,
       },
     };
-    persistRecoverableJobs(imageJobs);
-    return { imageJobs };
+    return { imageJobs: persistRecoverableJobs(imageJobs) };
   }),
 
   failImageJob: (jobId, error) => set(state => {
@@ -299,8 +323,7 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
       ...state.imageJobs,
       [jobId]: { ...current, status: 'failed' as const, error, completedAt: now, updatedAt: now },
     };
-    persistRecoverableJobs(imageJobs);
-    return { imageJobs };
+    return { imageJobs: persistRecoverableJobs(imageJobs) };
   }),
 
   interruptImageJob: (jobId, error) => set(state => {
@@ -310,15 +333,13 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
       ...state.imageJobs,
       [jobId]: { ...current, status: 'interrupted' as const, error, completedAt: undefined, updatedAt: Date.now() },
     };
-    persistRecoverableJobs(imageJobs);
-    return { imageJobs };
+    return { imageJobs: persistRecoverableJobs(imageJobs) };
   }),
 
   dismissImageJob: (jobId) => set(state => {
     const imageJobs = { ...state.imageJobs };
     delete imageJobs[jobId];
-    persistRecoverableJobs(imageJobs);
-    return { imageJobs };
+    return { imageJobs: persistRecoverableJobs(imageJobs) };
   }),
 
   getActiveImageJobFor: (chapterId, placementMarker) => {

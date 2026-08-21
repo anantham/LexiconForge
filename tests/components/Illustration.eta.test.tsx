@@ -197,6 +197,23 @@ describe('Illustration empirical ETA', () => {
     expect(getAverageImageGenerationTime).not.toHaveBeenCalled();
   });
 
+  it('surfaces an inline keep-open warning when reload recovery could not be saved', () => {
+    storeState.imageJobs = {
+      'job-1': {
+        id: 'job-1',
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        requestedModel: 'indrasnet/gen_anime',
+        status: 'submitted',
+        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open until the illustration finishes.',
+      },
+    };
+
+    render(<Illustration marker="[ILLUSTRATION-1]" />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/reload recovery is unavailable.*keep this tab open/i);
+  });
+
   it('derives inline loading state from a recovered durable job when transient image state is empty', () => {
     storeState.generatedImages = {};
     storeState.imageJobs = {

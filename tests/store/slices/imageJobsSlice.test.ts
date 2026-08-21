@@ -92,6 +92,44 @@ describe('imageJobsSlice', () => {
     expect(persisted[0]).toMatchObject({ id: resumable, externalTaskId: 'task-123', resumeKind: 'piapi' });
   });
 
+  it('warns when an accepted provider task id cannot be persisted', () => {
+    const setItem = vi.spyOn(Object.getPrototypeOf(localStorage), 'setItem')
+      .mockImplementation(() => { throw new DOMException('Quota exceeded', 'QuotaExceededError'); });
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const slice = createSlice();
+      const jobId = slice.startImageJob({
+        chapterId: 'chapter-storage-failure',
+        placementMarker: '[ILLUSTRATION-1]',
+        model: 'indrasnet/gen_anime',
+        version: 1,
+      });
+
+      slice.markImageJobSubmitted(jobId, 'accepted-but-unsaved', 'indrasnet');
+
+      expect(slice.imageJobs[jobId]).toMatchObject({
+        status: 'submitted',
+        externalTaskId: 'accepted-but-unsaved',
+        recoveryPersistenceError: expect.stringMatching(/reload recovery is unavailable.*keep this tab open/i),
+      });
+      expect(consoleError).toHaveBeenCalledWith(
+        '[ImageJobs] Failed to persist resumable image jobs:',
+        expect.any(DOMException),
+      );
+
+      setItem.mockRestore();
+      slice.markImageJobRunning(jobId);
+      expect(slice.imageJobs[jobId].recoveryPersistenceError).toBeUndefined();
+      expect(JSON.parse(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1') || '[]')[0]).toMatchObject({
+        externalTaskId: 'accepted-but-unsaved',
+        status: 'running',
+      });
+    } finally {
+      setItem.mockRestore();
+      consoleError.mockRestore();
+    }
+  });
+
   it('persists the normalized broker origin with a durable IndrasNet task', () => {
     const slice = createSlice();
     const jobId = slice.startImageJob({

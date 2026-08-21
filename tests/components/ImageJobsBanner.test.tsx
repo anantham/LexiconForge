@@ -156,6 +156,20 @@ describe('ImageJobsBanner', () => {
     expect(screen.queryByLabelText(/estimated .* complete/i)).not.toBeInTheDocument();
   });
 
+  it('warns when a provider task could not be saved for reload recovery', () => {
+    storeState.imageJobs = {
+      'job-1': job({
+        status: 'submitted',
+        resumeKind: 'indrasnet',
+        externalTaskId: 'accepted-but-unsaved',
+        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open until the illustration finishes.',
+      }),
+    };
+    render(<ImageJobsBanner />);
+
+    expect(screen.getByText(/reload recovery is unavailable.*keep this tab open/i)).toBeInTheDocument();
+  });
+
   it('lets a completed job be dismissed', () => {
     storeState.imageJobs = { 'job-1': job({ status: 'completed', completedAt: Date.now(), durationSeconds: 33 }) };
     render(<ImageJobsBanner />);

@@ -53,7 +53,9 @@ const ImageJobsBanner: React.FC = () => {
     setSelectedJobId(visibleJobs[nextIndex].id);
   };
 
-  const icon = job.status === 'completed'
+  const icon = job.recoveryPersistenceError
+    ? <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+    : job.status === 'completed'
     ? <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
     : job.status === 'failed' || job.status === 'interrupted'
       ? <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -61,7 +63,7 @@ const ImageJobsBanner: React.FC = () => {
         ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />
         : <Clock3 className="h-4 w-4 shrink-0" aria-hidden="true" />;
 
-  const statusText = job.status === 'completed'
+  const lifecycleStatusText = job.status === 'completed'
     ? job.durationSeconds === undefined
       ? 'Illustration ready'
       : `Illustration ready after ${formatDuration(job.durationSeconds)}`
@@ -76,8 +78,13 @@ const ImageJobsBanner: React.FC = () => {
         : remainingSeconds !== null && job.estimateSampleCount > 0
           ? `Generating · about ${formatDuration(remainingSeconds)} left (${job.estimateSampleCount} prior run${job.estimateSampleCount === 1 ? '' : 's'})`
           : `Generating · ${formatDuration(elapsedSeconds)} elapsed · gathering ETA data`;
+  const statusText = job.recoveryPersistenceError
+    ? `${lifecycleStatusText} · ${job.recoveryPersistenceError}`
+    : lifecycleStatusText;
 
-  const tone = job.status === 'completed'
+  const tone = job.recoveryPersistenceError
+    ? 'border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950/90 dark:text-amber-100'
+    : job.status === 'completed'
     ? 'border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/90 dark:text-emerald-100'
     : job.status === 'failed' || job.status === 'interrupted'
       ? 'border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950/90 dark:text-amber-100'
