@@ -3163,3 +3163,12 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Fallback:** Revert the cache verification; no persistence or provider contract changes are introduced.
 **Result:** Confirmed. A persisted cache pointer retires the durable task only when CacheStorage confirms its bytes; an evicted pointer falls through to exact-cache/provider recovery while inline image data remains directly concrete.
 **Verification:** Pinned Node 24.19.0: focused provider/provenance/cache regressions 52/52; exact one-worker suite 278 files, 9,253 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.
+
+### [2026-08-21 23:45 IST] [Agent: Codex]
+**Status:** Addressing exact-head round-30 P1 review on version-history hydration before recovery persistence.
+**Issues:** Both translation-record adapters omitted the stored `imageVersionState`; recovered version N therefore built a one-entry map that persistence used to replace all prior version metadata.
+**Options:** (A) preserve the full stored version map in both hydration adapters — selected; (B) deep-merge maps during persistence — rejected because explicit version deletion must remain authoritative. Impact high, effort/risk low, reversible, confidence 0.99.
+**Hypothesis:** The database/rendering records already carry complete version state and only the adapters lose it. Prediction: both adapter outputs retain all versions, allowing recovered application to append N without erasing history.
+**Fallback:** Revert the two pass-through fields; no database or persistence schema migration is introduced.
+**Result:** Confirmed. Both database navigation and bulk reader hydration now pass the complete stored `imageVersionState` into chapter state, so recovered image application extends the existing version map instead of replacing it with only the recovered version.
+**Verification:** Pinned Node 24.19.0: focused hydration/recovery regressions 39/39; exact one-worker suite 278 files, 9,255 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.

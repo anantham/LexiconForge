@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { loadAllIntoStore, loadNovelIntoStore } from '../../services/readerHydrationService';
 import type { ChapterRenderingRecord } from '../../services/db/operations/rendering';
+import type { TranslationRecord } from '../../services/db/types';
 
 const {
   mockSetState,
@@ -126,5 +127,51 @@ describe('readerHydrationService', () => {
     const payload = mockSetState.mock.calls[0][0];
     expect(payload.chapters.get('ephemeral-1')?.novelId).toBeNull();
     expect(payload.chapters.get('ephemeral-2')?.novelId).toBeNull();
+  });
+
+  it('preserves image version history in rendering-record hydration', async () => {
+    const renderingRecord = makeRenderingRecord('novel-a-1', {
+      novelId: 'novel-a',
+      chapterNumber: 1,
+    });
+    const imageVersionState: NonNullable<TranslationRecord['imageVersionState']> = {
+      '[ILLUSTRATION-1]': {
+        latestVersion: 2,
+        activeVersion: 1,
+        versions: {
+          1: { version: 1, prompt: 'first', generatedAt: '2026-08-20T00:00:00.000Z' },
+          2: { version: 2, prompt: 'second', generatedAt: '2026-08-21T00:00:00.000Z' },
+        },
+      },
+    };
+    renderingRecord.translationResult = {
+      id: 'translation-1',
+      chapterUrl: renderingRecord.url,
+      stableId: renderingRecord.stableId,
+      version: 1,
+      translatedTitle: 'Translated chapter',
+      translation: '<p>Translated text</p>',
+      footnotes: [],
+      suggestedIllustrations: [],
+      provider: 'OpenAI',
+      model: 'gpt-4o-mini',
+      temperature: 0.7,
+      systemPrompt: '',
+      totalTokens: 10,
+      promptTokens: 5,
+      completionTokens: 5,
+      estimatedCost: 0.01,
+      requestTime: 1,
+      createdAt: '2026-08-21T00:00:00.000Z',
+      isActive: true,
+      imageVersionState,
+    };
+    renderingRecord.data.translationResult = renderingRecord.translationResult;
+    mockFetchChaptersForNovel.mockResolvedValue([renderingRecord]);
+
+    await loadNovelIntoStore('novel-a', mockSetState);
+
+    const payload = mockSetState.mock.calls[0][0];
+    expect(payload.chapters.get('novel-a-1')?.translationResult?.imageVersionState).toEqual(imageVersionState);
   });
 });

@@ -97,4 +97,24 @@ describe('adaptTranslationRecordToResult', () => {
     const result = adaptTranslationRecordToResult('ch-1', baseRecord());
     expect(result!.proposal).toBeNull();
   });
+
+  it('preserves image version history needed by recovered artifact persistence', () => {
+    const imageVersionState = {
+      '[ILLUSTRATION-1]': {
+        latestVersion: 2,
+        activeVersion: 1,
+        versions: {
+          1: { version: 1, prompt: 'first', generatedAt: '2026-08-20T00:00:00.000Z' },
+          2: { version: 2, prompt: 'second', generatedAt: '2026-08-21T00:00:00.000Z' },
+        },
+      },
+    };
+
+    const result = adaptTranslationRecordToResult('ch-1', {
+      ...baseRecord(),
+      imageVersionState,
+    });
+
+    expect(result?.imageVersionState).toEqual(imageVersionState);
+  });
 });

@@ -303,3 +303,5 @@ configuration errors.
 - Durable jobs continue to omit prompts and advanced controls. When recovery
   cannot know submission-time controls, persisted version metadata marks that
   provenance unavailable instead of reconstructing it from post-reload state.
+- Both translation hydration adapters preserve the stored `imageVersionState`
+  so applying a recovered version extends, rather than replaces, prior history.

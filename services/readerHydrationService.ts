@@ -46,6 +46,7 @@ const adaptTranslationFromRenderingRecord = (chapter: ChapterRenderingRecord): T
     proposal: chapter.translationResult.proposal ?? null,
     footnotes: chapter.translationResult.footnotes,
     suggestedIllustrations,
+    imageVersionState: chapter.translationResult.imageVersionState,
     usageMetrics: {
       totalTokens: chapter.translationResult.totalTokens,
       promptTokens: chapter.translationResult.promptTokens,
