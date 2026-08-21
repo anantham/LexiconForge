@@ -56,6 +56,9 @@ interface CachedCatalogue {
 
 const catalogueCache = new Map<string, CachedCatalogue>();
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value);
+
 export class IndrasNetProviderError extends Error {
   readonly code: string;
   readonly retryable: boolean;
@@ -146,6 +149,25 @@ const invalidJsonResponseError = (context: string, cause?: unknown): IndrasNetPr
     { code: 'INDRASNET_INVALID_RESPONSE', retryable: false, cause },
   );
 
+const isClientReadyWorkflow = (entry: unknown): entry is IndrasNetWorkflowProfile => {
+  if (!isRecord(entry)) return false;
+  const manifest = entry.manifest;
+  if (!isRecord(manifest) || !isRecord(manifest.inputs) || !isRecord(manifest.inputs.prompt)) {
+    return false;
+  }
+  const promptBinding = manifest.inputs.prompt;
+  return Boolean(
+    typeof entry.name === 'string' && entry.name.trim() &&
+    entry.client_ready === true &&
+    typeof manifest.name === 'string' &&
+    typeof manifest.display_name === 'string' &&
+    manifest.client_ready === true &&
+    manifest.requires_image === false &&
+    typeof promptBinding.node_id === 'string' &&
+    typeof promptBinding.input_key === 'string',
+  );
+};
+
 const readJsonObjectResponse = async <T extends object>(response: Response, context: string): Promise<T> => {
   let decoded: unknown;
   try {
@@ -153,7 +175,7 @@ const readJsonObjectResponse = async <T extends object>(response: Response, cont
   } catch (cause) {
     throw invalidJsonResponseError(context, cause);
   }
-  if (decoded === null || typeof decoded !== 'object' || Array.isArray(decoded)) {
+  if (!isRecord(decoded)) {
     throw invalidJsonResponseError(context);
   }
   return decoded as T;
@@ -236,16 +258,12 @@ export const fetchIndrasNetWorkflows = async (
     });
   }
 
-  const workflows = payload.workflows.filter((entry): entry is IndrasNetWorkflowProfile => {
-    const manifest = entry.manifest;
-    return Boolean(
-      entry.name &&
-      entry.client_ready &&
-      manifest?.client_ready &&
-      !manifest.requires_image &&
-      manifest.inputs?.prompt,
-    );
-  });
+  const entries = payload.workflows as unknown[];
+  if (entries.some(entry => !isRecord(entry))) {
+    throw invalidJsonResponseError('workflow discovery');
+  }
+
+  const workflows = entries.filter(isClientReadyWorkflow);
   catalogueCache.set(baseUrl, { fetchedAt: Date.now(), workflows });
   return workflows;
 };
@@ -314,7 +332,10 @@ export const generateIndrasNetImage = async (
   if (!response.ok) throw await requestError(response, `IndrasNet workflow "${workflowName}"`);
 
   const result = await readJsonObjectResponse<RunWorkflowResponse>(response, `workflow "${workflowName}"`);
-  if (result.images !== undefined && !Array.isArray(result.images)) {
+  if (result.images !== undefined && (
+    !Array.isArray(result.images)
+    || !result.images.every(image => typeof image === 'string')
+  )) {
     throw invalidJsonResponseError(`workflow "${workflowName}"`);
   }
   const imagePath = result.images?.[0];

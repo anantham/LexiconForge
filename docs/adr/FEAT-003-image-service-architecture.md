@@ -214,3 +214,12 @@ configuration errors.
   only when those fields have their declared primitive types on a non-null
   object. Null, arrays, primitives, invalid JSON, and malformed fields are
   treated as unstructured responses and classified by the narrow status policy.
+
+### Nested response-shape validation — 2026-08-21
+
+- Every workflow-catalogue element must be a non-null object before manifest
+  inspection. Only entries with the required typed text-to-image manifest and
+  prompt binding enter the client catalogue.
+- When a workflow result includes `images`, it must be an array of strings;
+  malformed nested values fail with `INDRASNET_INVALID_RESPONSE` before URL
+  construction or artifact fetch.

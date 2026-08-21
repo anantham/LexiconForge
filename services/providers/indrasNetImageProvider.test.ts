@@ -83,6 +83,17 @@ describe('IndrasNet image provider', () => {
     expect(error.message).toContain('expected a JSON object');
   });
 
+  it('rejects null catalogue elements before inspecting their manifest', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      workflows: [null],
+    }), { status: 200 }));
+
+    const error = await fetchIndrasNetWorkflows(endpoint).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_INVALID_RESPONSE', retryable: false });
+    expect(error.message).toContain('workflow discovery');
+  });
+
   it('submits only semantic inputs exposed by the workflow manifest and downloads the image', async () => {
     const timeoutSpy = vi.spyOn(AbortSignal, 'timeout');
     const fetchMock = vi.spyOn(globalThis, 'fetch')
@@ -227,6 +238,20 @@ describe('IndrasNet image provider', () => {
 
     expect(error).toMatchObject({ code: 'INDRASNET_INVALID_RESPONSE', retryable: false });
     expect(error.message).toContain('expected a JSON object');
+  });
+
+  it('rejects non-string workflow image entries without authorizing fallback', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ images: [{}] }), { status: 200 }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_INVALID_RESPONSE', retryable: false });
   });
 
   it('keeps HTTP artifact download failures out of cloud fallback', async () => {
