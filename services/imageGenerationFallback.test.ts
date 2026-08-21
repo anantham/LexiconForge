@@ -19,6 +19,9 @@ describe('configured image fallback', () => {
   beforeEach(() => mockGenerateImage.mockReset());
 
   it('uses the explicitly selected cloud model for a retryable local failure and records provenance', async () => {
+    const now = vi.spyOn(performance, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(11_000);
     mockGenerateImage
       .mockRejectedValueOnce(Object.assign(new Error('GPU is busy'), { errorType: 'GPU_BUSY', canRetry: true }))
       .mockResolvedValueOnce({
@@ -38,6 +41,8 @@ describe('configured image fallback', () => {
       reasonCode: 'GPU_BUSY',
       reason: 'GPU is busy',
     });
+    expect(result.requestTime).toBe(12);
+    now.mockRestore();
   });
 
   it('does not fallback for a manifest or input error', async () => {

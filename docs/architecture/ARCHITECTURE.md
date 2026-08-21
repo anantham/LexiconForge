@@ -198,6 +198,7 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 | `services/db/repositories/TranslationRepository.ts` | 405 | Watchlist | Translation versioning, active-version mutation, stableId fallback, and direct IDB write paths share one module |
 | `adapters/providers/OpenAIAdapter.ts` | 886 | Split candidate | Translation/chat request construction, adaptive fallbacks, metrics, and response parsing share one adapter |
 | `services/imagePlanPlanner.ts` | 451 | Watchlist | Planner schema/prompt logic and three provider transports share one module |
+| `services/imageGenerationService.ts` | 631 | Split candidate | Initial generation and retry duplicate provenance, persistence, versioning, and metrics assembly; fallback review found behavior drift between the two paths |
 | `store/slices/imageSlice.ts` | 1,081 | Keep | Single domain, all parts change together |
 | `store/slices/translationsSlice.ts` | 1,059 | Keep | Single domain, complex but cohesive |
 | `store/slices/chaptersSlice.ts` | 825 | Keep | Single domain |

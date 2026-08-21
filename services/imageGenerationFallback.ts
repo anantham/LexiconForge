@@ -42,9 +42,11 @@ const invoke = (input: ImageGenerationInvocation): Promise<GeneratedImageResult>
 export const generateImageWithConfiguredFallback = async (
   input: ImageGenerationInvocation,
 ): Promise<GeneratedImageResult> => {
+  const primaryStartedAt = performance.now();
   try {
     return await invoke(input);
   } catch (unknownError) {
+    const primaryElapsedSeconds = (performance.now() - primaryStartedAt) / 1000;
     const error = unknownError as RetryableImageError;
     const fallbackModel = input.settings.imageFallbackModel?.trim() || 'none';
     const fallbackEnabled = fallbackModel.toLowerCase() !== 'none';
@@ -68,6 +70,7 @@ export const generateImageWithConfiguredFallback = async (
     });
     return {
       ...fallbackResult,
+      requestTime: primaryElapsedSeconds + fallbackResult.requestTime,
       execution: {
         provider: fallbackResult.execution?.provider || imageProviderForModel(fallbackModel),
         model: fallbackResult.execution?.model || fallbackModel,

@@ -138,6 +138,7 @@ export class ImageGenerationService {
     let totalTime = 0;
     let totalCost = 0;
     let generatedCount = 0;
+    let lastExecutedModel = settings.imageModel;
     const generatedImages: Record<string, ImageState> = { ...initialImageStates };
 
     // Only generate images for illustrations that don't already have generated data.
@@ -205,6 +206,7 @@ export class ImageGenerationService {
           version: 1,
         });
         const executedModel = result.execution?.model || settings.imageModel;
+        lastExecutedModel = executedModel;
         const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(executedModel);
 
         debugLog('image', 'full', '[ImageGen] Generation prompt payload', {
@@ -240,7 +242,7 @@ export class ImageGenerationService {
           count: generatedCount,
           totalTime,
           totalCost,
-          lastModel: settings.imageModel
+          lastModel: lastExecutedModel
         });
 
         // Store in chapter's translationResult for persistence
@@ -351,7 +353,7 @@ export class ImageGenerationService {
           count: generatedCount,
           totalTime,
           totalCost,
-          lastModel: settings.imageModel
+          lastModel: lastExecutedModel
         });
       }
     }
@@ -360,7 +362,7 @@ export class ImageGenerationService {
       count: generatedCount,
       totalTime: totalTime,
       totalCost: totalCost,
-      lastModel: settings.imageModel,
+      lastModel: lastExecutedModel,
     };
 
     slog(`[ImageGen] Finished generation. Total time: ${totalTime.toFixed(2)}s, Total cost: ${totalCost.toFixed(5)}`);
