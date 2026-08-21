@@ -132,6 +132,7 @@ describe('restored image-job ETA metrics', () => {
       mimeType: 'image/png',
       brokerTimingMs: 60_000,
       executionDurationMs: 12_000,
+      executionTimingComplete: true,
     });
 
     await resumeIndrasNetTask(input as any);
@@ -187,7 +188,7 @@ describe('restored image-job ETA metrics', () => {
     expect(mocks.recordMetric.mock.calls[0][0]).not.toHaveProperty('duration');
   });
 
-  it('stops recovered PiAPI execution timing at terminal status before artifact extraction', async () => {
+  it('excludes a recovered PiAPI task first observed running as a partial ETA sample', async () => {
     vi.useFakeTimers();
     vi.spyOn(performance, 'now')
       .mockReturnValueOnce(1_000)
@@ -209,6 +210,34 @@ describe('restored image-job ETA metrics', () => {
       version: 2,
     });
     await vi.advanceTimersByTimeAsync(1_000);
+    await recovery;
+
+    expect(mocks.recordMetric.mock.calls[0][0]).not.toHaveProperty('executionDuration');
+  });
+
+  it('records recovered PiAPI timing after observing queued to running to terminal', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(performance, 'now')
+      .mockReturnValueOnce(1_000)
+      .mockReturnValueOnce(5_000)
+      .mockReturnValueOnce(17_000)
+      .mockReturnValueOnce(50_000);
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: 'queued' }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ status: 'processing' }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        status: 'completed',
+        output: { base64: 'aW1hZ2U=' },
+      }), { status: 200 }));
+
+    const recovery = resumePiApiImageTask({
+      taskId: 'pi-fully-observed-task',
+      settings: { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'test-key' } as any,
+      chapterId: 'chapter-1',
+      placementMarker: '[ILLUSTRATION-1]',
+      version: 2,
+    });
+    await vi.advanceTimersByTimeAsync(2_000);
     await recovery;
 
     expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({

@@ -352,11 +352,14 @@ export interface GenerateIndrasNetImageOutput {
   promptId?: string;
   brokerTimingMs?: number;
   executionDurationMs?: number;
+  /** True only when this polling session observed queued before running. */
+  executionTimingComplete?: boolean;
 }
 
 interface PolledIndrasNetJob {
   result: RunWorkflowResponse;
   executionDurationMs?: number;
+  executionTimingComplete: boolean;
 }
 
 export const generateIndrasNetImage = async (
@@ -457,9 +460,11 @@ export const resumeIndrasNetImageTask = async (
   const baseUrl = normalizeIndrasNetBaseUrl(input.baseUrl);
   const polled = await pollIndrasNetJob(baseUrl, input.jobId, input.onJobEvent);
   const output = await downloadIndrasNetResult(baseUrl, input.workflowName, polled.result);
-  return polled.executionDurationMs === undefined
-    ? output
-    : { ...output, executionDurationMs: polled.executionDurationMs };
+  return {
+    ...output,
+    ...(polled.executionDurationMs === undefined ? {} : { executionDurationMs: polled.executionDurationMs }),
+    executionTimingComplete: polled.executionTimingComplete,
+  };
 };
 
 const pollIndrasNetJob = async (
@@ -469,6 +474,7 @@ const pollIndrasNetJob = async (
 ): Promise<PolledIndrasNetJob> => {
   const deadline = Date.now() + GENERATION_TIMEOUT_MS;
   let executionStartedAt: number | undefined;
+  let queuedObserved = false;
   while (Date.now() < deadline) {
     const response = await fetchWithTimeout(
       `${baseUrl}/api/comfyui/jobs/${encodeURIComponent(jobId)}`,
@@ -489,6 +495,7 @@ const pollIndrasNetJob = async (
       const terminalObservedAt = performance.now();
       return {
         result: job,
+        executionTimingComplete: queuedObserved && executionStartedAt !== undefined,
         ...(executionStartedAt === undefined
           ? {}
           : { executionDurationMs: Math.max(0, terminalObservedAt - executionStartedAt) }),
@@ -513,6 +520,7 @@ const pollIndrasNetJob = async (
       if (executionStartedAt === undefined) executionStartedAt = performance.now();
       onJobEvent?.({ type: 'running' });
     } else {
+      queuedObserved = true;
       // Re-emitting submitted preserves the already-accepted durable ID while
       // keeping the client in the honest provider-queued state.
       onJobEvent?.({

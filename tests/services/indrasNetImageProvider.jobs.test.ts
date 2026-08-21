@@ -127,6 +127,37 @@ describe('IndrasNet resumable image jobs', () => {
     const result = await recovery;
 
     expect(result.executionDurationMs).toBe(5_000);
+    expect(result.executionTimingComplete).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it('marks recovered execution timing complete only after queued to running to terminal', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(performance, 'now')
+      .mockReturnValueOnce(2_000)
+      .mockReturnValueOnce(9_000);
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(json({ job_id: 'fully-observed-job', status: 'queued' }))
+      .mockResolvedValueOnce(json({ job_id: 'fully-observed-job', status: 'running' }))
+      .mockResolvedValueOnce(json({
+        job_id: 'fully-observed-job',
+        status: 'completed',
+        images: ['/api/comfyui/view?filename=observed.png&type=output'],
+      }))
+      .mockResolvedValueOnce(image()));
+
+    const recovery = resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'fully-observed-job',
+      workflowName: 'gen_anime',
+    });
+    await vi.advanceTimersByTimeAsync(4_000);
+    const result = await recovery;
+
+    expect(result).toMatchObject({
+      executionDurationMs: 7_000,
+      executionTimingComplete: true,
+    });
     vi.useRealTimers();
   });
 

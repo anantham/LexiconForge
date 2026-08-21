@@ -899,7 +899,7 @@ export const resumeIndrasNetTask = async (
     });
     const providerFinishedAt = performance.now();
     const resumeObservationSeconds = (providerFinishedAt - resumedAt) / 1000;
-    const executionDuration = output.executionDurationMs === undefined
+    const executionDuration = output.executionTimingComplete !== true || output.executionDurationMs === undefined
         ? undefined
         : Math.max(0, output.executionDurationMs / 1000);
     const brokerDurationSeconds = typeof output.brokerTimingMs === 'number' && Number.isFinite(output.brokerTimingMs)
@@ -981,7 +981,9 @@ export const resumePiApiImageTask = async (
     const base64 = await extractPiApiTaskImage(polled.taskData);
     const providerFinishedAt = performance.now();
     const resumeSeconds = (providerFinishedAt - resumedAt) / 1000;
-    const executionDuration = polled.executionDurationSeconds;
+    const executionDuration = polled.executionTimingComplete
+        ? polled.executionDurationSeconds
+        : undefined;
     const requestTime = resumeSeconds;
     const cost = calculateImageCost(model);
     const imageData = `data:image/png;base64,${base64}`;
@@ -1038,9 +1040,10 @@ async function pollPiApiTask(
     taskId: string,
     apiKey: string,
     onJobEvent?: ImageJobLifecycleListener,
-): Promise<{ taskData: unknown; executionDurationSeconds?: number }> {
+): Promise<{ taskData: unknown; executionDurationSeconds?: number; executionTimingComplete: boolean }> {
     const delays = [1000, 1000, 2000, 3000, 5000, 8000];
     let executionStartedAt: number | undefined;
+    let queuedObserved = false;
     for (let tries = 0; tries < 60; tries++) {
         try {
             const poll = await fetch(`https://api.piapi.ai/api/v1/task/${taskId}`, {
@@ -1077,6 +1080,7 @@ async function pollPiApiTask(
                 const terminalObservedAt = performance.now();
                 return {
                     taskData: json,
+                    executionTimingComplete: queuedObserved && executionStartedAt !== undefined,
                     ...(executionStartedAt === undefined
                         ? {}
                         : { executionDurationSeconds: Math.max(0, (terminalObservedAt - executionStartedAt) / 1000) }),
@@ -1087,6 +1091,7 @@ async function pollPiApiTask(
                 if (executionStartedAt === undefined) executionStartedAt = performance.now();
                 onJobEvent?.({ type: 'running' });
             } else {
+                queuedObserved = true;
                 // PiAPI queue-like states include pending/queued, and unknown
                 // non-terminal states are conservatively treated as submitted.
                 // Do not start the execution ETA until the provider explicitly
