@@ -1,3 +1,16 @@
+### [2026-08-21 20:48 IST] [Agent: Codex]
+**Status:** Complete - PR #139 exact-head review round 14
+**Issue:** The exact-head rereview found that single-image retry completion passes aggregate primary-plus-fallback `metrics.totalTime`, overriding the fresh fallback `startedAt` clock and restoring the failed primary attempt to the completed banner duration.
+**Hypothesis:** H1 (0.99) using provider timing for direct retries but deriving fallback completion duration from the reset job clock preserves both exact direct telemetry and exact fallback execution time.
+**Options:** (A) conditionally omit the explicit duration only when the job has fallback provenance - minimal, reversible, selected; (B) omit explicit duration for every retry - simpler but loses provider-measured direct timing; (C) change the fallback result contract to expose per-attempt timings - cleaner long-term but broader than this release gate.
+**Predicted test:** a retry with 100 seconds aggregate provider metrics but a fallback ownership clock spanning 5 seconds completes with a 5-second job duration; a direct retry continues using explicit provider duration.
+**Fallback:** revert this isolated round and leave PR #139 unmerged; no schema, provider, or broker changes are involved.
+**Confidence:** 0.99
+**Results:** H1 confirmed: direct-provider retry completion continues passing provider-measured `totalTime`, while a job carrying fallback provenance omits the aggregate duration so completion derives five seconds from the reset task-owner clock instead of the mocked 100-second primary-plus-fallback total.
+**Verification:** pinned Node 24.19.0: focused retry/job regressions 14/14; the first concurrent full-suite run had one unrelated `SessionInfo` loading timeout with 9,215 other tests passing, then the exact failed file passed 63/63 alone and a non-concurrent exact suite passed 278 files, 9,216 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors and the unchanged 1,909-warning baseline; production build passed; client-secret scan passed; `git diff --check` passed.
+**Files modified:** `store/slices/imageSlice.ts`; focused retry-store test; this worklog. The unrelated `public/steering-images.json` newline diff remains unstaged.
+**Files likely affected:** `store/slices/imageSlice.ts`; focused retry-store test; this worklog. The unrelated `public/steering-images.json` newline diff remains unstaged.
+
 ### [2026-08-21 20:37 IST] [Agent: Codex]
 **Status:** Complete - PR #139 exact-head review round 13
 **Issues:** The exact-head rereview found that provider fallback changes the exact task model/ETA but preserves time spent on the failed primary attempt in `startedAt`; and IndrasNet polling publishes `running` for both broker `queued` and `running` states, losing provider-queue truth in the UI.

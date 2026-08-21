@@ -647,7 +647,12 @@ export const createImageSlice: StateCreator<
 
     const generationSucceeded = !result.imageState?.error;
     if (generationSucceeded) {
-      get().completeImageJob(jobId, result.metrics?.lastModel, result.metrics?.totalTime);
+      const completedJob = get().imageJobs[jobId];
+      get().completeImageJob(
+        jobId,
+        result.metrics?.lastModel,
+        completedJob?.fallback ? undefined : result.metrics?.totalTime,
+      );
       get().showNotification('Illustration is ready in the chapter where it was requested.', 'success');
     } else {
       settleImageJobFailure(
