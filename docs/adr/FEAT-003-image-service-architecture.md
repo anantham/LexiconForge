@@ -124,3 +124,135 @@ updates but creates many top-level keys in the store.
 - [Image Versioning Plan](../archive/plans/2025-10-15-image-versioning-phase3-4.md) — ✅ Implemented
 - [Gallery & Cover Selection](../archive/plans/2025-12-29-gallery-cover-selection-design.md) — ✅ Implemented
 - `docs/features/ImageGeneration.md` — User-facing guide
+
+---
+
+## Amendment — 2026-08-21: Opt-in IndrasNet workflow provider
+
+**Status:** Implemented on `feat/codex-indrasnet-image-provider`.
+
+The original no-auto-fallback decision remains the default. LexiconForge now
+supports a self-hosted Asus/IndrasNet provider with one narrow, explicit
+exception: while an IndrasNet workflow is selected, the user may separately
+select a cloud fallback model. That fallback runs only when the broker returns a
+retryable availability failure (for example `GPU_BUSY` or `COMFYUI_OFFLINE`). It
+does not run for invalid manifests, unsupported semantic inputs, or other
+configuration errors.
+
+### Decision
+
+1. The browser discovers workflows from `GET /api/comfyui/workflows`; only
+   client-ready text-to-image manifests with a semantic `prompt` binding enter
+   the image-model dropdown.
+2. Image model IDs use `indrasnet/<encoded-workflow-name>`. LexiconForge sends
+   semantic fields, never ComfyUI node IDs. IndrasNet owns the graph-specific
+   mapping.
+3. Production browsers use the Tailscale Serve HTTPS endpoint. A raw
+   `http://100.x.x.x` URL is useful for local HTTP development but is blocked as
+   mixed content when LexiconForge itself is loaded over HTTPS.
+4. Local provider spend is recorded as `$0` in the external API ledger. This is
+   not a claim that electricity or hardware is free.
+5. Every successful result records the provider and executed model. If the
+   explicit cloud fallback ran, provenance also records the attempted local
+   model and structured failure reason.
+
+### Implementation notes
+
+- `services/providers/indrasNetImageProvider.ts` owns discovery, semantic
+  requests, structured error preservation, and image download.
+- `services/imageGenerationFallback.ts` owns the opt-in fallback policy.
+- `services/imageService.ts` remains the provider dispatcher and metrics/cache
+  boundary.
+- `components/settings/IndrasNetImageProviderSection.tsx` exposes endpoint,
+  discovery state, and fallback selection.
+
+### Review hardening — 2026-08-21
+
+- Unstructured HTTP 500/503 responses are not sufficient to authorize a cloud
+  fallback. The client accepts an explicit structured `retryable: true`, while
+  unstructured 502/504 gateway failures remain availability signals.
+- Completed-workflow image downloads have a separate 60-second budget and do
+  not trigger cloud generation if transfer fails.
+- If the selected fallback also fails, one descriptive error preserves both
+  provider/model attempts and both failure reasons.
+
+### Review completion — 2026-08-21
+
+- The completed-artifact non-fallback rule covers fetch exceptions, HTTP status
+  failures, and response-body read failures. A successful workflow response
+  with no image is also a workflow/output defect, not an availability failure.
+- Endpoint normalization trims before applying the default, keeping discovery
+  and execution consistent for empty or whitespace-only saved values.
+
+### Environment and payload validation — 2026-08-21
+
+- An HTTPS LexiconForge page rejects a configured HTTP broker endpoint before
+  network dispatch with non-retryable `INDRASNET_MIXED_CONTENT`; local HTTP
+  development remains allowed from an HTTP page.
+- Successful HTTP responses with invalid catalogue or workflow-result JSON are
+  reported as descriptive, non-retryable `INDRASNET_INVALID_RESPONSE` errors.
+
+### Artifact integrity — 2026-08-21
+
+- A successful artifact HTTP status is not sufficient for persistence. The
+  response must declare an `image/*` media type and contain non-empty bytes;
+  HTML/auth bodies and empty files fail with non-retryable
+  `INDRASNET_INVALID_IMAGE`.
+
+### Envelope and imported-state recovery — 2026-08-21
+
+- Catalogue and workflow-result JSON must decode to a non-null object envelope
+  before fields are accessed; valid JSON primitives/arrays fail with
+  `INDRASNET_INVALID_RESPONSE` rather than a raw runtime error.
+- A malformed percent-encoded workflow ID from local storage or an imported
+  session remains visible as an unavailable value in Settings so the user can
+  select a valid model and recover without a render crash.
+
+### Error-envelope normalization — 2026-08-21
+
+- Non-OK response bodies contribute broker `detail`, `code`, and `retryable`
+  only when those fields have their declared primitive types on a non-null
+  object. Null, arrays, primitives, invalid JSON, and malformed fields are
+  treated as unstructured responses and classified by the narrow status policy.
+
+### Nested response-shape validation — 2026-08-21
+
+- Every workflow-catalogue element must be a non-null object before manifest
+  inspection. Only entries with the required typed text-to-image manifest and
+  prompt binding enter the client catalogue.
+- When a workflow result includes `images`, it must be an array of strings;
+  malformed nested values fail with `INDRASNET_INVALID_RESPONSE` before URL
+  construction or artifact fetch.
+
+### Artifact URL boundary — 2026-08-21
+
+- Artifact strings are parsed inside the provider error boundary and must
+  resolve to the configured broker origin. Malformed or cross-origin URLs fail
+  with non-retryable `INDRASNET_INVALID_ARTIFACT_URL` before any artifact fetch.
+
+### Canonical workflow and fallback identities — 2026-08-21
+
+- A client-ready catalogue name must already be trimmed and must equal its
+  manifest name. Non-canonical or disagreeing entries are not advertised, so
+  encoding, decoding, lookup, and broker submission use one identity.
+- The optional fallback is cloud-only at both UI and execution boundaries. A
+  stale/imported `indrasnet/` fallback value is diagnosed and treated as
+  disabled; it cannot launch a second local workflow.
+
+### Browser-safe catalogue and saved fallback visibility — 2026-08-21
+
+- Workflow discovery is a semantic capability contract. Browser state retains
+  only canonical workflow/display metadata and semantic input names with their
+  `required` flags. It never retains ComfyUI `node_id` or `input_key` graph
+  bindings, even if an older broker accidentally returns them.
+- A saved cloud fallback that disappears from the current provider catalogue is
+  shown as unavailable and still active in the controlled selector. It is not
+  silently presented as `None`, because retryable Asus failures can still send
+  work to that saved paid provider ID.
+- Submission diagnostics, including the private tailnet endpoint and workflow
+  name, use the existing `image` pipeline at `full` debug level. Production
+  consoles do not receive them while debugging is disabled.
+- A discovered workflow may require `prompt`, which LexiconForge always sends.
+  If any other current or future semantic input is marked required, the workflow
+  is not advertised because its value is not guaranteed by the illustration
+  request contract. Optional supported inputs continue to pass through when set.

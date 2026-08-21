@@ -85,6 +85,22 @@ Full scan report findings NOT fixed in the first pass, each verified with quoted
 
 Append-only raw debt receipts discovered during implementation.
 
+[DEBT][DUPLICATION][2026-08-21] Image generation initial/retry result assembly drift
+- File: `services/imageGenerationService.ts` (631 LOC).
+- Symptom: batch generation and retry independently assemble execution metrics, provenance,
+  persistence metadata, and version state. Retry already reported the executed fallback model;
+  batch generation continued reporting the configured local model until PR #138 review caught it.
+- Follow-up: extract one result-to-metrics/provenance/persistence boundary after the provider
+  integration ships; do not mix that decomposition into the fallback correctness fix.
+
+[DEBT][MONOLITH][2026-08-21] Provider settings catalogue lifecycle remains centralized
+- File: `components/settings/ProvidersPanel.tsx` (565 LOC).
+- Symptom: one component owns provider credits, capability checks, OpenRouter catalogue state,
+  IndrasNet endpoint discovery, pricing assembly, and model selection. PR #138 review found an
+  endpoint transition that left workflow state from the previous broker visible.
+- Follow-up: extract the IndrasNet discovery lifecycle and image-model assembly behind a focused
+  hook after this provider ships; keep endpoint normalization and catalogue invalidation together.
+
 [DEBT][COMPAT][2026-04-09 10:26 EDT] Temporary novel-library migration compatibility layer
 - Files:
   - `services/registryService.ts`

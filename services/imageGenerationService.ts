@@ -10,7 +10,8 @@
  * - Image metrics and persistence
  */
 
-import { generateImage, modelConsumesSteeringImage } from './imageService';
+import { modelConsumesSteeringImage } from './imageService';
+import { generateImageWithConfiguredFallback } from './imageGenerationFallback';
 import { TranslationPersistenceService } from './translationPersistenceService';
 import type { AppSettings, PromptTemplate, ImageGenerationMetadata, ImageVersionStateEntry } from '../types';
 import type { EnhancedChapter } from './stableIdService';
@@ -137,6 +138,7 @@ export class ImageGenerationService {
     let totalTime = 0;
     let totalCost = 0;
     let generatedCount = 0;
+    let lastExecutedModel = settings.imageModel;
     const generatedImages: Record<string, ImageState> = { ...initialImageStates };
 
     // Only generate images for illustrations that don't already have generated data.
@@ -183,9 +185,6 @@ export class ImageGenerationService {
         
         // Get advanced controls for this illustration
         const steeringImagePath = steeringImages[key] || null;
-        // Only the PiAPI branch consumes steering images; recording an ignored steering image
-        // as applied made the persisted provenance lie (integrity item 6).
-        const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(settings.imageModel);
         const negativePrompt = negativePrompts[key] || settings.defaultNegativePrompt || '';
         const guidanceScale = guidanceScales[key] || settings.defaultGuidanceScale || 3.5;
         const loraModel = loraModels[key] || null;
@@ -194,18 +193,21 @@ export class ImageGenerationService {
         const preparedIllustration = ensureIllustrationPlan(illust);
         const compiled = compileIllustrationPrompt(preparedIllustration, settings);
 
-        const result = await generateImage(
-          compiled.compiledPrompt,
+        const result = await generateImageWithConfiguredFallback({
+          prompt: compiled.compiledPrompt,
           settings,
-          steeringImagePath ?? undefined,
+          steeringImagePath: steeringImagePath ?? undefined,
           negativePrompt,
           guidanceScale,
           loraModel,
           loraStrength,
-          chapterId,  // NEW: for Cache API storage
-          illust.placementMarker,  // NEW: for Cache API storage
-          1  // version: initial generation is always v1
-        );
+          chapterId,
+          placementMarker: illust.placementMarker,
+          version: 1,
+        });
+        const executedModel = result.execution?.model || settings.imageModel;
+        lastExecutedModel = executedModel;
+        const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(executedModel);
 
         debugLog('image', 'full', '[ImageGen] Generation prompt payload', {
           chapterId,
@@ -219,7 +221,9 @@ export class ImageGenerationService {
           guidanceScale,
           loraModel,
           loraStrength,
-          model: settings.imageModel,
+          requestedModel: settings.imageModel,
+          executedModel,
+          fallback: result.execution?.fallback,
         });
 
         totalTime += result.requestTime;
@@ -238,7 +242,7 @@ export class ImageGenerationService {
           count: generatedCount,
           totalTime,
           totalCost,
-          lastModel: settings.imageModel
+          lastModel: lastExecutedModel
         });
 
         // Store in chapter's translationResult for persistence
@@ -270,8 +274,9 @@ export class ImageGenerationService {
               // recorded as null + steeringIgnored, not as applied (integrity item 6).
               steeringImage: steeringIgnored ? null : steeringImagePath,
               ...(steeringIgnored ? { steeringIgnored: true } : {}),
-              provider: settings.provider,
-              model: settings.imageModel,
+              provider: result.execution?.provider || null,
+              model: executedModel,
+              fallback: result.execution?.fallback,
               generatedAt: new Date().toISOString()
             };
 
@@ -348,7 +353,7 @@ export class ImageGenerationService {
           count: generatedCount,
           totalTime,
           totalCost,
-          lastModel: settings.imageModel
+          lastModel: lastExecutedModel
         });
       }
     }
@@ -357,7 +362,7 @@ export class ImageGenerationService {
       count: generatedCount,
       totalTime: totalTime,
       totalCost: totalCost,
-      lastModel: settings.imageModel,
+      lastModel: lastExecutedModel,
     };
 
     slog(`[ImageGen] Finished generation. Total time: ${totalTime.toFixed(2)}s, Total cost: ${totalCost.toFixed(5)}`);
@@ -411,8 +416,6 @@ export class ImageGenerationService {
     try {
       // Get advanced controls for this illustration
       const steeringImagePath = steeringImages[key] || null;
-      // Only the PiAPI branch consumes steering images (see generateImages above).
-      const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(settings.imageModel);
       const negativePrompt = negativePrompts[key] || settings.defaultNegativePrompt || '';
       const guidanceScale = guidanceScales[key] || settings.defaultGuidanceScale || 3.5;
       const loraModel = loraModels[key] || null;
@@ -421,18 +424,20 @@ export class ImageGenerationService {
       const preparedIllustration = ensureIllustrationPlan(illust);
       const compiled = compileIllustrationPrompt(preparedIllustration, settings);
 
-      const result = await generateImage(
-        compiled.compiledPrompt,
+      const result = await generateImageWithConfiguredFallback({
+        prompt: compiled.compiledPrompt,
         settings,
-        steeringImagePath ?? undefined,
+        steeringImagePath: steeringImagePath ?? undefined,
         negativePrompt,
         guidanceScale,
         loraModel,
         loraStrength,
-        chapterId,  // NEW: for Cache API storage
-        placementMarker,  // NEW: for Cache API storage
-        context.nextVersion || 1  // version: use context.nextVersion or default to 1
-      );
+        chapterId,
+        placementMarker,
+        version: context.nextVersion || 1,
+      });
+      const executedModel = result.execution?.model || settings.imageModel;
+      const steeringIgnored = !!steeringImagePath && !modelConsumesSteeringImage(executedModel);
 
       debugLog('image', 'full', '[ImageGen] Retry prompt payload', {
         chapterId,
@@ -446,7 +451,9 @@ export class ImageGenerationService {
         guidanceScale,
         loraModel,
         loraStrength,
-        model: settings.imageModel,
+        requestedModel: settings.imageModel,
+        executedModel,
+        fallback: result.execution?.fallback,
       });
 
       // Update chapter translation and persist
@@ -477,8 +484,9 @@ export class ImageGenerationService {
             // recorded as null + steeringIgnored, not as applied (integrity item 6).
             steeringImage: steeringIgnored ? null : steeringImagePath,
             ...(steeringIgnored ? { steeringIgnored: true } : {}),
-            provider: settings.provider,
-            model: settings.imageModel,
+            provider: result.execution?.provider || null,
+            model: executedModel,
+            fallback: result.execution?.fallback,
             generatedAt: new Date().toISOString()
           };
 
@@ -542,7 +550,7 @@ export class ImageGenerationService {
           count: 1,
           totalTime: result.requestTime,
           totalCost: result.cost,
-          lastModel: settings.imageModel
+          lastModel: executedModel
         }
       };
 

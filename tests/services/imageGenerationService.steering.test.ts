@@ -120,4 +120,25 @@ describe('ImageGenerationService — steering-image provenance (integrity item 6
     expect(metadata.steeringImage).toBeNull();
     expect(metadata.steeringIgnored).toBe(true);
   });
+
+  it('reports the model that actually executed in batch progress and final metrics', async () => {
+    const { context } = makeContext('indrasnet/gen_anime', null);
+    const onProgressUpdate = vi.fn();
+    generateImageMock.mockResolvedValueOnce({
+      imageData: 'data:image/png;base64,AAAA',
+      cost: 0.04,
+      requestTime: 12,
+      imageCacheKey: { version: 1 },
+      execution: { provider: 'Imagen', model: 'imagen-3.0-generate-002' },
+    });
+
+    const result = await ImageGenerationService.generateImages(
+      'ch-1', context, onProgressUpdate
+    );
+
+    expect(onProgressUpdate).toHaveBeenLastCalledWith(expect.any(Object), expect.objectContaining({
+      lastModel: 'imagen-3.0-generate-002',
+    }));
+    expect(result.metrics?.lastModel).toBe('imagen-3.0-generate-002');
+  });
 });
