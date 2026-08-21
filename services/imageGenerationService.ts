@@ -51,6 +51,7 @@ export interface ImageState {
 }
 
 export interface ImageGenerationMetrics {
+  chapterId: string;
   count: number;
   totalTime: number;
   totalCost: number;
@@ -176,7 +177,7 @@ export class ImageGenerationService {
       slog('[ImageGen] All illustrations already have generated images');
       return { 
         generatedImages: this.loadExistingImages(chapterId, chapters),
-        metrics: { count: 0, totalTime: 0, totalCost: 0, lastModel: settings.imageModel }
+        metrics: { chapterId, count: 0, totalTime: 0, totalCost: 0, lastModel: settings.imageModel }
       };
     }
 
@@ -246,6 +247,7 @@ export class ImageGenerationService {
 
         // Pass current metrics for real-time UI updates
         onProgressUpdate?.(generatedImages, {
+          chapterId,
           count: generatedCount,
           totalTime,
           totalCost,
@@ -357,6 +359,7 @@ export class ImageGenerationService {
 
         // Pass current metrics even on error for real-time updates
         onProgressUpdate?.(generatedImages, {
+          chapterId,
           count: generatedCount,
           totalTime,
           totalCost,
@@ -366,6 +369,7 @@ export class ImageGenerationService {
     }
 
     const metrics: ImageGenerationMetrics = {
+      chapterId,
       count: generatedCount,
       totalTime: totalTime,
       totalCost: totalCost,
@@ -543,6 +547,17 @@ export class ImageGenerationService {
             slog(`[ImageGen] Persisted retry image for ${placementMarker} to IndexedDB`);
           } catch (e) {
             swarn('[ImageGen] Failed to persist retry image to IndexedDB', e);
+            if (existingResult) {
+              throw Object.assign(
+                new Error(`The recovered illustration is ready, but its originating chapter could not be saved: ${e instanceof Error ? e.message : String(e)}`),
+                {
+                  errorType: 'IMAGE_JOB_ORIGIN_PERSIST_FAILED',
+                  canRetry: true,
+                  retryable: true,
+                  cause: e,
+                },
+              );
+            }
           }
         }
       }
@@ -556,6 +571,7 @@ export class ImageGenerationService {
           error: null
         },
         metrics: {
+          chapterId,
           count: 1,
           totalTime: result.requestTime,
           totalCost: result.cost,

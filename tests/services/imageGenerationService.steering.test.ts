@@ -11,7 +11,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // generateImage is the PAID call — mock it; keep the REAL modelConsumesSteeringImage so this
 // test exercises the actual provider-branch predicate, not a re-implementation of it.
-const generateImageMock = vi.hoisted(() => vi.fn());
+const { generateImageMock, persistUpdatedTranslationMock } = vi.hoisted(() => ({
+  generateImageMock: vi.fn(),
+  persistUpdatedTranslationMock: vi.fn(),
+}));
 vi.mock('../../services/imageService', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../services/imageService')>();
   return {
@@ -20,7 +23,7 @@ vi.mock('../../services/imageService', async (importOriginal) => {
   };
 });
 vi.mock('../../services/translationPersistenceService', () => ({
-  TranslationPersistenceService: { persistUpdatedTranslation: vi.fn().mockResolvedValue(undefined) },
+  TranslationPersistenceService: { persistUpdatedTranslation: persistUpdatedTranslationMock },
 }));
 vi.mock('../../services/imagePlanService', () => ({
   ensureIllustrationPlan: (x: any) => x,
@@ -66,6 +69,7 @@ const metadataOf = (chapter: any) =>
 describe('ImageGenerationService — steering-image provenance (integrity item 6)', () => {
   beforeEach(() => {
     generateImageMock.mockReset();
+    persistUpdatedTranslationMock.mockReset().mockResolvedValue(undefined);
     generateImageMock.mockResolvedValue({
       imageData: 'data:image/png;base64,AAAA',
       cost: 0.01,
@@ -141,6 +145,30 @@ describe('ImageGenerationService — steering-image provenance (integrity item 6
     });
   });
 
+  it('keeps a recovered durable task retryable until its originating chapter persists', async () => {
+    const { context } = makeContext('indrasnet/gen_anime', null);
+    persistUpdatedTranslationMock.mockRejectedValueOnce(new Error('IndexedDB transaction aborted'));
+
+    const result = await ImageGenerationService.retryImage(
+      'ch-1',
+      '[ILLUSTRATION-1]',
+      context,
+      {
+        imageData: 'data:image/png;base64,AAAA',
+        cost: 0,
+        requestTime: 12,
+        execution: { provider: 'Asus / IndrasNet', model: 'indrasnet/gen_anime' },
+      },
+    );
+
+    expect(result.imageState).toMatchObject({
+      error: expect.stringContaining('originating chapter could not be saved'),
+      errorType: 'IMAGE_JOB_ORIGIN_PERSIST_FAILED',
+      canRetry: true,
+    });
+    expect(result.metrics).toBeUndefined();
+  });
+
   it('reports the model that actually executed in batch progress and final metrics', async () => {
     const { context } = makeContext('indrasnet/gen_anime', null);
     const onProgressUpdate = vi.fn();
@@ -160,5 +188,6 @@ describe('ImageGenerationService — steering-image provenance (integrity item 6
       lastModel: 'imagen-3.0-generate-002',
     }));
     expect(result.metrics?.lastModel).toBe('imagen-3.0-generate-002');
+    expect(result.metrics?.chapterId).toBe('ch-1');
   });
 });

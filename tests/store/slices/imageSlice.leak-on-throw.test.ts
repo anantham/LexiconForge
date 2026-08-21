@@ -174,7 +174,7 @@ describe('imageSlice — handleRetryImage cleans up isLoading on service throw',
 
     deferred.resolve({
       imageState: { isLoading: false, data: 'image-v2', error: null },
-      metrics: { count: 1, totalTime: 2, totalCost: 0.03, lastModel: mockSettings.imageModel },
+      metrics: { chapterId: 'chapter-1', count: 1, totalTime: 2, totalCost: 0.03, lastModel: mockSettings.imageModel },
     });
     await firstRetry;
 
@@ -257,6 +257,22 @@ describe('imageSlice — handleGenerateImages cleans up isLoading on service thr
   });
 });
 
+describe('imageSlice — chapter-owned metrics', () => {
+  it('replaces rather than combines metrics when a different chapter reports', () => {
+    const slice = createSlice();
+    slice.updateMetrics({
+      chapterId: 'chapter-1', count: 2, totalTime: 10, totalCost: 0.06, lastModel: 'model-a',
+    });
+    slice.updateMetrics({
+      chapterId: 'chapter-2', count: 1, totalTime: 4, totalCost: 0.02, lastModel: 'model-b',
+    });
+
+    expect(slice.imageGenerationMetrics).toEqual({
+      chapterId: 'chapter-2', count: 1, totalTime: 4, totalCost: 0.02, lastModel: 'model-b',
+    });
+  });
+});
+
 describe('imageSlice — durable task recovery', () => {
   beforeEach(() => {
     resumeImageJobMock.mockReset();
@@ -307,7 +323,7 @@ describe('imageSlice — durable task recovery', () => {
     };
     resumeImageJobMock.mockResolvedValue({
       imageState: { isLoading: false, data: 'recovered-image', error: null },
-      metrics: { count: 1, totalTime: 5, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
+      metrics: { chapterId: 'chapter-1', count: 1, totalTime: 5, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
     });
 
     await slice.resumeInterruptedImageJobs();
@@ -347,9 +363,43 @@ describe('imageSlice — durable task recovery', () => {
 
     deferred.resolve({
       imageState: { isLoading: false, data: 'recovered-image', error: null },
-      metrics: { count: 1, totalTime: 5, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
+      metrics: { chapterId: 'chapter-1', count: 1, totalTime: 5, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
     });
     await firstRecovery;
+  });
+
+  it('resumes restored provider tasks independently without head-of-line blocking', async () => {
+    const slice = createSlice();
+    const first = createDeferred<any>();
+    slice.imageJobs['slow-job'] = {
+      id: 'slow-job', chapterId: 'chapter-1', placementMarker: '[ILLUSTRATION-1]',
+      requestedModel: 'Qubico/flux1-dev', requestedProvider: 'PiAPI', status: 'interrupted',
+      resumeKind: 'piapi', externalTaskId: 'task-slow', version: 2,
+      startedAt: Date.now() - 5000, updatedAt: Date.now(), estimateSampleCount: 0,
+    };
+    slice.imageJobs['fast-job'] = {
+      id: 'fast-job', chapterId: 'chapter-1', placementMarker: '[ILLUSTRATION-2]',
+      requestedModel: 'Qubico/flux1-dev', requestedProvider: 'PiAPI', status: 'interrupted',
+      resumeKind: 'piapi', externalTaskId: 'task-fast', version: 2,
+      startedAt: Date.now() - 5000, updatedAt: Date.now(), estimateSampleCount: 0,
+    };
+    resumeImageJobMock.mockImplementation(job => job.id === 'slow-job'
+      ? first.promise
+      : Promise.resolve({
+          imageState: { isLoading: false, data: 'fast-image', error: null },
+          metrics: { chapterId: 'chapter-1', count: 1, totalTime: 1, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
+        }));
+
+    const recovery = slice.resumeInterruptedImageJobs();
+    await vi.waitFor(() => expect(slice.imageJobs['fast-job'].status).toBe('completed'));
+    expect(slice.imageJobs['slow-job'].status).toBe('running');
+
+    first.resolve({
+      imageState: { isLoading: false, data: 'slow-image', error: null },
+      metrics: { chapterId: 'chapter-1', count: 1, totalTime: 5, totalCost: 0.03, lastModel: 'Qubico/flux1-dev' },
+    });
+    await recovery;
+    expect(slice.imageJobs['slow-job'].status).toBe('completed');
   });
 
   it('does not poll the provider until the originating translation marker hydrates', async () => {

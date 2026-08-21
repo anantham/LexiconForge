@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   recordMetric: vi.fn(),
+  generateIndrasNetImage: vi.fn(),
   resumeIndrasNetImageTask: vi.fn(),
 }));
 
@@ -16,7 +17,7 @@ vi.mock('../../services/openrouterImageModelAdapter', () => ({
 }));
 vi.mock('../../services/providers/indrasNetImageProvider', () => ({
   IndrasNetProviderError: class extends Error {},
-  generateIndrasNetImage: vi.fn(),
+  generateIndrasNetImage: mocks.generateIndrasNetImage,
   isIndrasNetImageModel: (model: string) => model.startsWith('indrasnet/'),
   resumeIndrasNetImageTask: mocks.resumeIndrasNetImageTask,
   workflowNameFromImageModel: (model: string) => model.slice('indrasnet/'.length),
@@ -27,7 +28,7 @@ vi.mock('../../utils/debug', () => ({
   debugWarn: vi.fn(),
 }));
 
-import { resumeIndrasNetTask, resumePiApiImageTask } from '../../services/imageService';
+import { generateImage, resumeIndrasNetTask, resumePiApiImageTask } from '../../services/imageService';
 
 const input = {
   taskId: 'broker-job-1',
@@ -40,7 +41,55 @@ const input = {
 describe('restored image-job ETA metrics', () => {
   beforeEach(() => {
     mocks.recordMetric.mockReset().mockResolvedValue(undefined);
+    mocks.generateIndrasNetImage.mockReset();
     mocks.resumeIndrasNetImageTask.mockReset();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('uses the submitted IndrasNet task id for the initial success metric', async () => {
+    mocks.generateIndrasNetImage.mockImplementation(async input => {
+      input.onJobEvent?.({ type: 'submitted', externalTaskId: 'broker-initial-1', resumeKind: 'indrasnet' });
+      input.onJobEvent?.({ type: 'running' });
+      return { base64: 'aW1hZ2U=', mimeType: 'image/png' };
+    });
+
+    await generateImage(
+      'a scene',
+      { imageModel: 'indrasnet/gen_anime', indrasNetBaseUrl: 'https://asus.example' } as any,
+      undefined, undefined, undefined, undefined, undefined,
+      'chapter-1', undefined, undefined,
+      vi.fn(),
+    );
+
+    expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
+      success: true,
+      idempotencyKey: 'image:indrasnet:broker-initial-1',
+    }));
+  });
+
+  it('uses the submitted PiAPI task id for the initial success metric', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { task_id: 'pi-initial-1' } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        status: 'completed',
+        output: { base64: 'aW1hZ2U=' },
+      }), { status: 200 }));
+
+    await generateImage(
+      'a scene',
+      { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'test-key' } as any,
+      undefined, undefined, undefined, undefined, undefined,
+      'chapter-1', undefined, undefined,
+      vi.fn(),
+    );
+
+    expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
+      success: true,
+      idempotencyKey: 'image:piapi:pi-initial-1',
+    }));
   });
 
   it('records exact broker timing instead of browser wall time', async () => {

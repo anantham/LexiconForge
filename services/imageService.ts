@@ -242,6 +242,13 @@ export const generateImage = async (
     }
 
     const startTime = performance.now();
+    let durableMetricIdempotencyKey: string | undefined;
+    const handleJobEvent: ImageJobLifecycleListener = event => {
+        if (event.type === 'submitted') {
+            durableMetricIdempotencyKey = `image:${event.resumeKind}:${event.externalTaskId}`;
+        }
+        onJobEvent?.(event);
+    };
     
     try {
         let base64Data: string;
@@ -260,7 +267,7 @@ export const generateImage = async (
                 width: reqW,
                 height: reqH,
                 guidanceScale,
-                onJobEvent,
+                onJobEvent: handleJobEvent,
             });
             base64Data = output.base64;
             mimeTypeForReturn = output.mimeType;
@@ -645,9 +652,9 @@ export const generateImage = async (
                 iwarn('[PiAPI] Unexpected create response (first 500 chars):', rawCreateText.slice(0, 500));
                 throw new Error('PiAPI: missing task id in create response.');
             }
-            onJobEvent?.({ type: 'submitted', externalTaskId: taskId, resumeKind: 'piapi' });
+            handleJobEvent({ type: 'submitted', externalTaskId: taskId, resumeKind: 'piapi' });
 
-            const taskData = await pollPiApiTask(taskId, apiKeyPi, onJobEvent);
+            const taskData = await pollPiApiTask(taskId, apiKeyPi, handleJobEvent);
             base64Data = await extractPiApiTaskImage(taskData);
         }
         else if (imageModel === 'None') {
@@ -684,6 +691,7 @@ export const generateImage = async (
             chapterId,
             success: true,
             tokens: imageTokenUsage, // Include token usage for historical cost estimation
+            idempotencyKey: durableMetricIdempotencyKey,
         });
 
         // NEW: Store in Cache API if chapter/marker provided

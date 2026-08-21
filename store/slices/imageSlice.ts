@@ -409,6 +409,7 @@ export const createImageSlice: StateCreator<
             },
             // Update metrics in real-time as each image completes
             imageGenerationMetrics: currentMetrics ? {
+              chapterId,
               count: currentMetrics.count ?? 0,
               totalTime: currentMetrics.totalTime ?? 0,
               totalCost: currentMetrics.totalCost ?? 0,
@@ -691,7 +692,7 @@ export const createImageSlice: StateCreator<
     // prevents React development StrictMode (or another boot caller) from
     // starting a second recovery pass for the same provider task.
     for (const job of interrupted) get().markImageJobRunning(job.id);
-    for (const job of interrupted) {
+    await Promise.all(interrupted.map(async job => {
       try {
         if (!get().chapters.has(job.chapterId)) {
           await get().loadChapterFromIDB(job.chapterId);
@@ -741,7 +742,7 @@ export const createImageSlice: StateCreator<
         if (result.imageState.error) {
           settleImageJobFailure(job.id, result.imageState.error, result.imageState.canRetry);
           state.showNotification('A resumed illustration task failed. Open its chapter to retry.', 'error');
-          continue;
+          return;
         }
         set(previous => ({
           generatedImages: { ...previous.generatedImages, [key]: result.imageState },
@@ -774,7 +775,7 @@ export const createImageSlice: StateCreator<
           get().showNotification('The illustration provider is unavailable. The existing task will be checked again after reload.', 'error');
         }
       }
-    }
+    }));
   },
   
   loadExistingImages: async (chapterId) => {
@@ -1229,6 +1230,19 @@ export const createImageSlice: StateCreator<
       if (!currentMetrics) {
         return {
           imageGenerationMetrics: {
+            chapterId: metrics.chapterId || '',
+            count: metrics.count || 0,
+            totalTime: metrics.totalTime || 0,
+            totalCost: metrics.totalCost || 0,
+            lastModel: metrics.lastModel || ''
+          }
+        };
+      }
+
+      if (metrics.chapterId && metrics.chapterId !== currentMetrics.chapterId) {
+        return {
+          imageGenerationMetrics: {
+            chapterId: metrics.chapterId,
             count: metrics.count || 0,
             totalTime: metrics.totalTime || 0,
             totalCost: metrics.totalCost || 0,
@@ -1239,6 +1253,7 @@ export const createImageSlice: StateCreator<
       
       return {
         imageGenerationMetrics: {
+          chapterId: currentMetrics.chapterId,
           count: currentMetrics.count + (metrics.count || 0),
           totalTime: currentMetrics.totalTime + (metrics.totalTime || 0),
           totalCost: currentMetrics.totalCost + (metrics.totalCost || 0),
