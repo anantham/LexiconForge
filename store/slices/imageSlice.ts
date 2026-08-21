@@ -880,7 +880,13 @@ export const createImageSlice: StateCreator<
           // makes the next reload retry the same task without submitting or
           // paying for a duplicate generation.
           get().interruptImageJob(job.id, message);
-          get().showNotification('The illustration provider is unavailable. The existing task will be checked again after reload.', 'error');
+          const interruptedJob = get().imageJobs[job.id];
+          get().showNotification(
+            interruptedJob?.recoveryPersistenceError
+              ? 'The illustration provider is unavailable. This task exists only in this tab; open its chapter and resume the existing task without reloading.'
+              : 'The illustration provider is unavailable. The existing task will be checked again after reload.',
+            'error',
+          );
         }
       }
     }));

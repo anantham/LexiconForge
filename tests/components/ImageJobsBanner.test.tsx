@@ -162,12 +162,26 @@ describe('ImageJobsBanner', () => {
         status: 'submitted',
         resumeKind: 'indrasnet',
         externalTaskId: 'accepted-but-unsaved',
-        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open until the illustration finishes.',
+        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open.',
       }),
     };
     render(<ImageJobsBanner />);
 
     expect(screen.getByText(/reload recovery is unavailable.*keep this tab open/i)).toBeInTheDocument();
+  });
+
+  it('directs an unsaved paused task to same-tab resume', () => {
+    storeState.imageJobs = {
+      'job-1': job({
+        status: 'interrupted',
+        resumeKind: 'indrasnet',
+        externalTaskId: 'accepted-but-unsaved',
+        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open.',
+      }),
+    };
+    render(<ImageJobsBanner />);
+
+    expect(screen.getByText(/open this chapter to resume the existing task/i)).toBeInTheDocument();
   });
 
   it('lets a completed job be dismissed', () => {

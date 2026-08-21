@@ -117,6 +117,13 @@ describe('imageJobsSlice', () => {
         expect.any(DOMException),
       );
 
+      slice.interruptImageJob(jobId, 'Provider temporarily unavailable');
+      expect(slice.imageJobs[jobId]).toMatchObject({
+        status: 'interrupted',
+        recoveryPersistenceError: expect.stringMatching(/reload recovery is unavailable.*keep this tab open/i),
+      });
+      expect(slice.hasActiveImageJobs()).toBe(true);
+
       setItem.mockRestore();
       slice.markImageJobRunning(jobId);
       expect(slice.imageJobs[jobId].recoveryPersistenceError).toBeUndefined();

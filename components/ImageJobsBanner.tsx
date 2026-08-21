@@ -79,7 +79,7 @@ const ImageJobsBanner: React.FC = () => {
           ? `Generating · about ${formatDuration(remainingSeconds)} left (${job.estimateSampleCount} prior run${job.estimateSampleCount === 1 ? '' : 's'})`
           : `Generating · ${formatDuration(elapsedSeconds)} elapsed · gathering ETA data`;
   const statusText = job.recoveryPersistenceError
-    ? `${lifecycleStatusText} · ${job.recoveryPersistenceError}`
+    ? `${lifecycleStatusText} · ${job.recoveryPersistenceError}${job.status === 'interrupted' ? ' Open this chapter to resume the existing task.' : ''}`
     : lifecycleStatusText;
 
   const tone = job.recoveryPersistenceError

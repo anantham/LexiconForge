@@ -20,6 +20,7 @@ const storeState: Record<string, any> = {
   },
   handleRetryImage: vi.fn(),
   dismissImageJob: vi.fn(),
+  resumeInterruptedImageJobs: vi.fn(),
   updateIllustrationPrompt: vi.fn(),
   updateIllustrationPlan: vi.fn(),
   regenerateIllustrationPlanFromCaption: vi.fn(),
@@ -72,6 +73,7 @@ describe('Illustration empirical ETA', () => {
     getAverageImageGenerationTime.mockReset();
     storeState.imageJobs = {};
     storeState.dismissImageJob.mockReset();
+    storeState.resumeInterruptedImageJobs.mockReset();
     storeState.generatedImages = {
       'chapter-1:[ILLUSTRATION-1]': { isLoading: true, data: null, error: null },
     };
@@ -205,7 +207,7 @@ describe('Illustration empirical ETA', () => {
         placementMarker: '[ILLUSTRATION-1]',
         requestedModel: 'indrasnet/gen_anime',
         status: 'submitted',
-        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open until the illustration finishes.',
+        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open.',
       },
     };
 
@@ -270,7 +272,7 @@ describe('Illustration empirical ETA', () => {
         resumeKind: 'indrasnet',
         externalTaskId: 'broker-task-unsaved',
         error: 'IndrasNet is temporarily unreachable.',
-        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open until the illustration finishes.',
+        recoveryPersistenceError: 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open.',
       },
     };
 
@@ -278,5 +280,7 @@ describe('Illustration empirical ETA', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent(/reload recovery is unavailable.*keep this tab open/i);
     expect(screen.queryByText(/checked again after reload/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /resume existing task/i }));
+    expect(storeState.resumeInterruptedImageJobs).toHaveBeenCalledTimes(1);
   });
 });

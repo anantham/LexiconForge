@@ -71,7 +71,7 @@ const loadRecoverableJobs = (): Record<string, ImageJob> => {
   }
 };
 
-const RECOVERY_PERSISTENCE_ERROR = 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open until the illustration finishes.';
+const RECOVERY_PERSISTENCE_ERROR = 'Reload recovery is unavailable because this browser could not save the provider task ID. Keep this tab open.';
 
 const withoutRecoveryPersistenceErrors = (jobs: Record<string, ImageJob>): Record<string, ImageJob> =>
   Object.fromEntries(Object.entries(jobs).map(([id, job]) => {
@@ -350,6 +350,9 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
     ) || null;
   },
 
-  hasActiveImageJobs: () => Object.values(get().imageJobs).some(job => ACTIVE_STATUSES.has(job.status)),
+  hasActiveImageJobs: () => Object.values(get().imageJobs).some(job =>
+    ACTIVE_STATUSES.has(job.status)
+    || (job.status === 'interrupted' && Boolean(job.recoveryPersistenceError))
+  ),
   };
 };

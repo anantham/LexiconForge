@@ -871,6 +871,49 @@ describe('imageSlice — durable task recovery', () => {
     );
   });
 
+  it('keeps an unsaved paused task actionable in the current tab', async () => {
+    const setItem = vi.spyOn(Object.getPrototypeOf(localStorage), 'setItem')
+      .mockImplementation(() => { throw new DOMException('Quota exceeded', 'QuotaExceededError'); });
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const slice = createSlice();
+      slice.imageJobs['unsaved-job'] = {
+        id: 'unsaved-job',
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        requestedModel: 'indrasnet/storybook',
+        requestedProvider: 'IndrasNet',
+        status: 'interrupted',
+        resumeKind: 'indrasnet',
+        externalTaskId: 'broker-task-unsaved',
+        version: 2,
+        startedAt: Date.now() - 5000,
+        updatedAt: Date.now(),
+        estimateSampleCount: 0,
+        recoveryPersistenceError: 'Reload recovery is unavailable. Keep this tab open.',
+      };
+      resumeImageJobMock.mockRejectedValueOnce(Object.assign(
+        new Error('IndrasNet is unreachable from this device.'),
+        { retryable: true },
+      ));
+
+      await slice.resumeInterruptedImageJobs();
+
+      expect(slice.imageJobs['unsaved-job']).toMatchObject({
+        status: 'interrupted',
+        externalTaskId: 'broker-task-unsaved',
+        recoveryPersistenceError: expect.stringMatching(/reload recovery is unavailable.*keep this tab open/i),
+      });
+      expect(slice.showNotification).toHaveBeenCalledWith(
+        expect.stringMatching(/exists only in this tab.*resume the existing task without reloading/i),
+        'error',
+      );
+    } finally {
+      setItem.mockRestore();
+      consoleError.mockRestore();
+    }
+  });
+
   it('retires a durable task when the provider says its record is terminally unavailable', async () => {
     const slice = createSlice();
     slice.imageJobs['expired-job'] = {

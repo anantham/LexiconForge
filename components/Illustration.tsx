@@ -28,6 +28,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     generatedImages,
     handleRetryImage,
     dismissImageJob,
+    resumeInterruptedImageJobs,
     updateIllustrationPrompt,
     updateIllustrationPlan,
     regenerateIllustrationPlanFromCaption,
@@ -55,6 +56,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     generatedImages: s.generatedImages,
     handleRetryImage: s.handleRetryImage,
     dismissImageJob: s.dismissImageJob,
+    resumeInterruptedImageJobs: s.resumeInterruptedImageJobs,
     updateIllustrationPrompt: s.updateIllustrationPrompt,
     updateIllustrationPlan: s.updateIllustrationPlan,
     regenerateIllustrationPlanFromCaption: s.regenerateIllustrationPlanFromCaption,
@@ -464,23 +466,39 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
               : 'The saved provider task could not be checked. It will be checked again after reload.')}
           </p>
           {activeImageJob.recoveryPersistenceError && (
-            <p className="mt-2 max-w-md text-xs font-semibold text-amber-700 dark:text-amber-300" role="alert">
-              {activeImageJob.recoveryPersistenceError}
-            </p>
+            <>
+              <p className="mt-2 max-w-md text-xs font-semibold text-amber-700 dark:text-amber-300" role="alert">
+                {activeImageJob.recoveryPersistenceError}
+              </p>
+              <p className="mt-2 max-w-md text-xs text-gray-500 dark:text-gray-500">
+                When the provider is reachable, resume this existing task here without reloading or starting a new generation.
+              </p>
+            </>
           )}
           <p className="mt-2 max-w-md text-xs text-gray-500 dark:text-gray-500">
             Dismiss the saved task only if you want to start a new generation; the provider task may still finish.
           </p>
           {activeImageJob.id && (
-            <button
-              type="button"
-              className="mt-4 rounded-md border border-amber-500 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 dark:text-amber-200 dark:hover:bg-amber-900/30"
-              onClick={() => {
-                if (activeImageJob.id) dismissImageJob(activeImageJob.id);
-              }}
-            >
-              Dismiss paused task
-            </button>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {activeImageJob.recoveryPersistenceError && (
+                <button
+                  type="button"
+                  className="rounded-md bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
+                  onClick={() => { void resumeInterruptedImageJobs(); }}
+                >
+                  Resume existing task
+                </button>
+              )}
+              <button
+                type="button"
+                className="rounded-md border border-amber-500 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 dark:text-amber-200 dark:hover:bg-amber-900/30"
+                onClick={() => {
+                  if (activeImageJob.id) dismissImageJob(activeImageJob.id);
+                }}
+              >
+                Dismiss paused task
+              </button>
+            </div>
           )}
         </div>
       )}
