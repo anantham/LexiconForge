@@ -237,7 +237,7 @@ export const createChaptersSlice: StateCreator<
       ) {
         const imageActions = get();
         if (typeof imageActions.loadExistingImages === 'function') {
-          void imageActions
+          await imageActions
             .loadExistingImages(chapterId)
             .catch(error => console.warn('[ChaptersSlice] Failed to hydrate images from IDB:', error));
         }

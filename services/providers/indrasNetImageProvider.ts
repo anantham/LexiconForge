@@ -395,6 +395,12 @@ export const generateIndrasNetImage = async (
       body: JSON.stringify(body),
     },
     JOB_SUBMIT_TIMEOUT_MS,
+    {
+      // Fetch cannot distinguish a request that never reached the broker from
+      // one that was accepted before the response timed out/disconnected.
+      // Starting a cloud fallback here could duplicate already-running work.
+      fallbackEligible: false,
+    },
   );
   let result: RunWorkflowResponse;
   if (response.status === 404) {

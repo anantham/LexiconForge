@@ -9,6 +9,7 @@ import { create } from 'zustand';
 import { createChaptersSlice, type ChaptersSlice } from '../../store/slices/chaptersSlice';
 import { createMockEnhancedChapter, createMockImageCacheKey, createMockTranslationResult, createMockUsageMetrics } from '../utils/test-data';
 import { ChapterOps } from '../../services/db/operations';
+import { NavigationService } from '../../services/navigationService';
 
 // Deterministic budget-path collaborators for the preload worker tests.
 vi.mock('../../services/ai/cost', () => ({
@@ -216,6 +217,43 @@ describe('chaptersSlice - getMemoryDiagnostics', () => {
     expect(diagnostics.chaptersWithImages).toBe(0);
     expect(diagnostics.imagesInRAM).toBe(0);
     expect(diagnostics.imagesInCache).toBe(0);
+  });
+});
+
+describe('chaptersSlice - chapter hydration ordering', () => {
+  it('joins legacy image hydration before publishing a loaded chapter to recovery callers', async () => {
+    const chapter = createMockEnhancedChapter({
+      id: 'legacy-image-chapter',
+      translationResult: createMockTranslationResult({
+        suggestedIllustrations: [{
+          placementMarker: 'ILL-1',
+          imagePrompt: 'A moonlit library',
+          url: 'data:image/png;base64,bGVnYWN5',
+        }],
+      }),
+    });
+    vi.spyOn(NavigationService, 'loadChapterFromIDB').mockResolvedValue(chapter);
+    let resolveImageHydration!: () => void;
+    const imageHydration = new Promise<void>(resolve => { resolveImageHydration = resolve; });
+    const loadExistingImages = vi.fn().mockReturnValue(imageHydration);
+    const store = create<any>()((set, get, api) => ({
+      ...createChaptersSlice(set, get, api),
+      loadExistingImages,
+      setHydratingState: vi.fn(),
+    }));
+
+    let settled = false;
+    const loading = store.getState().loadChapterFromIDB(chapter.id).then((result: unknown) => {
+      settled = true;
+      return result;
+    });
+
+    await vi.waitFor(() => expect(loadExistingImages).toHaveBeenCalledWith(chapter.id));
+    expect(settled).toBe(false);
+
+    resolveImageHydration();
+    await expect(loading).resolves.toBe(chapter);
+    expect(settled).toBe(true);
   });
 });
 

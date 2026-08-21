@@ -222,6 +222,24 @@ describe('IndrasNet image provider', () => {
     expect(error).toMatchObject({ code: 'GPU_BUSY', retryable: true, status: 503 });
   });
 
+  it('blocks cloud fallback when job submission may have reached the broker before transport failure', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockRejectedValueOnce(new DOMException('response timed out', 'TimeoutError'));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({
+      code: 'INDRASNET_TIMEOUT',
+      retryable: true,
+      fallbackEligible: false,
+    });
+  });
+
   it('does not infer fallback eligibility from an unstructured internal server error', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
