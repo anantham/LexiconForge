@@ -91,7 +91,12 @@ export interface ImageJobsActions {
     model: string;
     version: number;
   }) => string;
-  markImageJobSubmitted: (jobId: string, externalTaskId: string, resumeKind: Exclude<ImageJobResumeKind, 'none'>) => void;
+  markImageJobSubmitted: (
+    jobId: string,
+    externalTaskId: string,
+    resumeKind: Exclude<ImageJobResumeKind, 'none'>,
+    _submittedModel?: string,
+  ) => void;
   markImageJobRunning: (jobId: string) => void;
   completeImageJob: (jobId: string, executedModel?: string, durationSeconds?: number) => void;
   failImageJob: (jobId: string, error: string) => void;
@@ -149,16 +154,51 @@ export const createImageJobsSlice: StateCreator<StoreState, [], [], ImageJobsSli
     return id;
   },
 
-  markImageJobSubmitted: (jobId, externalTaskId, resumeKind) => set(state => {
-    const current = state.imageJobs[jobId];
-    if (!current) return {};
-    const imageJobs = {
-      ...state.imageJobs,
-      [jobId]: { ...current, externalTaskId, resumeKind, status: 'submitted' as const, updatedAt: Date.now() },
-    };
-    persistRecoverableJobs(imageJobs);
-    return { imageJobs };
-  }),
+  markImageJobSubmitted: (jobId, externalTaskId, resumeKind, submittedModel) => {
+    let refreshEstimateFor: string | undefined;
+    set(state => {
+      const current = state.imageJobs[jobId];
+      if (!current) return {};
+      const ownerChanged = Boolean(submittedModel && submittedModel !== current.requestedModel);
+      if (ownerChanged) refreshEstimateFor = submittedModel;
+      const requestedModel = submittedModel || current.requestedModel;
+      const imageJobs = {
+        ...state.imageJobs,
+        [jobId]: {
+          ...current,
+          externalTaskId,
+          resumeKind,
+          requestedModel,
+          requestedProvider: imageProviderForModel(requestedModel),
+          ...(ownerChanged ? { estimatedDurationSeconds: undefined, estimateSampleCount: 0 } : {}),
+          status: 'submitted' as const,
+          updatedAt: Date.now(),
+        },
+      };
+      persistRecoverableJobs(imageJobs);
+      return { imageJobs };
+    });
+    const estimateModel = refreshEstimateFor;
+    if (!estimateModel) return;
+    void apiMetricsService.getAverageImageGenerationTime(estimateModel).then(estimate => {
+      if (!estimate) return;
+      set(state => {
+        const current = state.imageJobs[jobId];
+        if (!current || current.requestedModel !== estimateModel || !ACTIVE_STATUSES.has(current.status)) return {};
+        return {
+          imageJobs: {
+            ...state.imageJobs,
+            [jobId]: {
+              ...current,
+              estimatedDurationSeconds: estimate.avgTimeSeconds,
+              estimateSampleCount: estimate.sampleCount,
+              updatedAt: Date.now(),
+            },
+          },
+        };
+      });
+    }).catch(error => console.warn('[ImageJobs] Failed to refresh empirical ETA after provider fallback:', error));
+  },
 
   markImageJobRunning: (jobId) => set(state => {
     const current = state.imageJobs[jobId];

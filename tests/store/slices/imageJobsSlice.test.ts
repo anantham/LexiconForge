@@ -85,6 +85,36 @@ describe('imageJobsSlice', () => {
     expect(persisted[0]).toMatchObject({ id: resumable, externalTaskId: 'task-123', resumeKind: 'piapi' });
   });
 
+  it('persists the actual fallback model that owns a durable provider task', async () => {
+    const slice = createSlice();
+    const jobId = slice.startImageJob({
+      chapterId: 'chapter-fallback',
+      placementMarker: '[ILLUSTRATION-3]',
+      model: 'indrasnet/gen_anime',
+      version: 1,
+    });
+
+    slice.markImageJobSubmitted(jobId, 'pi-fallback-task', 'piapi', 'Qubico/flux1-dev');
+    await vi.waitFor(() => expect(slice.imageJobs[jobId].estimateSampleCount).toBe(3));
+
+    expect(slice.imageJobs[jobId]).toMatchObject({
+      requestedModel: 'Qubico/flux1-dev',
+      requestedProvider: 'PiAPI',
+      externalTaskId: 'pi-fallback-task',
+      resumeKind: 'piapi',
+      estimatedDurationSeconds: 42,
+      estimateSampleCount: 3,
+    });
+    const persisted = JSON.parse(localStorage.getItem('LF_RESUMABLE_IMAGE_JOBS_V1') || '[]');
+    expect(persisted).toHaveLength(1);
+    expect(persisted[0]).toMatchObject({
+      requestedModel: 'Qubico/flux1-dev',
+      requestedProvider: 'PiAPI',
+      externalTaskId: 'pi-fallback-task',
+      resumeKind: 'piapi',
+    });
+  });
+
   it('keeps the first completion duration when a batch emits a final aggregate callback', () => {
     const slice = createSlice();
     const id = slice.startImageJob({

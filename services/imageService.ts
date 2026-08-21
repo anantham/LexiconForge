@@ -246,6 +246,8 @@ export const generateImage = async (
     const handleJobEvent: ImageJobLifecycleListener = event => {
         if (event.type === 'submitted') {
             durableMetricIdempotencyKey = `image:${event.resumeKind}:${event.externalTaskId}`;
+            onJobEvent?.({ ...event, submittedModel: imageModel });
+            return;
         }
         onJobEvent?.(event);
     };

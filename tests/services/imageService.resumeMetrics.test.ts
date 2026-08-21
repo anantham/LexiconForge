@@ -50,6 +50,7 @@ describe('restored image-job ETA metrics', () => {
   });
 
   it('uses the submitted IndrasNet task id for the initial success metric', async () => {
+    const onJobEvent = vi.fn();
     mocks.generateIndrasNetImage.mockImplementation(async input => {
       input.onJobEvent?.({ type: 'submitted', externalTaskId: 'broker-initial-1', resumeKind: 'indrasnet' });
       input.onJobEvent?.({ type: 'running' });
@@ -61,9 +62,15 @@ describe('restored image-job ETA metrics', () => {
       { imageModel: 'indrasnet/gen_anime', indrasNetBaseUrl: 'https://asus.example' } as any,
       undefined, undefined, undefined, undefined, undefined,
       'chapter-1', undefined, undefined,
-      vi.fn(),
+      onJobEvent,
     );
 
+    expect(onJobEvent).toHaveBeenCalledWith({
+      type: 'submitted',
+      externalTaskId: 'broker-initial-1',
+      resumeKind: 'indrasnet',
+      submittedModel: 'indrasnet/gen_anime',
+    });
     expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
       idempotencyKey: 'image:indrasnet:broker-initial-1',
@@ -71,6 +78,7 @@ describe('restored image-job ETA metrics', () => {
   });
 
   it('uses the submitted PiAPI task id for the initial success metric', async () => {
+    const onJobEvent = vi.fn();
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: { task_id: 'pi-initial-1' } }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
@@ -83,9 +91,15 @@ describe('restored image-job ETA metrics', () => {
       { imageModel: 'Qubico/flux1-schnell', apiKeyPiAPI: 'test-key' } as any,
       undefined, undefined, undefined, undefined, undefined,
       'chapter-1', undefined, undefined,
-      vi.fn(),
+      onJobEvent,
     );
 
+    expect(onJobEvent).toHaveBeenCalledWith({
+      type: 'submitted',
+      externalTaskId: 'pi-initial-1',
+      resumeKind: 'piapi',
+      submittedModel: 'Qubico/flux1-schnell',
+    });
     expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
       idempotencyKey: 'image:piapi:pi-initial-1',

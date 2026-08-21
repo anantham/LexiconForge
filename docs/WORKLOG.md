@@ -1,3 +1,16 @@
+### [2026-08-21 19:32 IST] [Agent: Codex]
+**Status:** Complete - PR #139 exact-head review round 8
+**Issue:** The exact-head rereview found that a durable PiAPI task created by configured cloud fallback retained the original IndrasNet `requestedModel`, so reload recovery invoked the PiAPI resume path with an incompatible model and could never reattach.
+**Hypothesis:** H1 (0.99) annotating every submitted lifecycle event at the image-service boundary with the model that actually submitted the task, then atomically switching job ownership and ETA history in the job slice, makes fallback tasks resumable without provider-specific coupling in the dispatcher.
+**Options:** (A) carry the actual submitted model in the existing lifecycle event and update job ownership - low effort, reversible, selected; (B) infer model later from `resumeKind` - ambiguous because PiAPI has multiple models and would corrupt pricing/ETA; (C) create a separate fallback job - duplicates marker ownership and complicates notifications.
+**Predicted tests:** image-service submission events identify the executing model; switching an IndrasNet job to a PiAPI task persists the PiAPI model/provider and refreshes ETA; restored recovery receives that model.
+**Fallback:** revert this isolated round and leave PR #139 unmerged; no data migration is required because only active resumable jobs use this field.
+**Confidence:** 0.99
+**Results:** H1 confirmed. The image-service boundary now annotates every durable submission with the model that actually issued it. If cloud fallback changes an IndrasNet request into a PiAPI task, the existing job atomically changes its requested model/provider before persistence, retains the PiAPI task ID and resume kind, and refreshes its ETA from the PiAPI model's empirical history. Reload recovery therefore dispatches to PiAPI with a compatible model instead of retaining the unavailable broker model.
+**Verification:** pinned Node 24.19.0: focused image-job/provider regressions 86/86; exact one-worker suite 278 files, 9,197 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors and 1,909 existing warnings; production build passed; client-secret scan passed; `git diff --check` passed.
+**Files modified:** `services/imageJobTypes.ts`; `services/imageService.ts`; `store/slices/imageJobsSlice.ts`; `store/slices/imageSlice.ts`; focused service/store tests; this worklog. The unrelated `public/steering-images.json` newline diff remains unstaged.
+**Files likely affected:** `services/imageJobTypes.ts`; `services/imageService.ts`; `store/slices/imageJobsSlice.ts`; `store/slices/imageSlice.ts`; focused tests; this worklog. The unrelated `public/steering-images.json` newline diff remains unstaged.
+
 ### [2026-08-21 19:25 IST] [Agent: Codex]
 **Status:** Complete - PR #139 exact-head review round 7
 **Issues:** The exact-head rereview found that configured cloud fallback remained eligible after IndrasNet emitted a durable task ID; batch progress completed and retired a durable job before origin persistence returned; and a duplicate marker encountered after this batch created its own job was misclassified as externally owned and excluded from generation.

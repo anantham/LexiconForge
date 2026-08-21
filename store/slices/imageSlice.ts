@@ -361,7 +361,7 @@ export const createImageSlice: StateCreator<
       const jobId = jobIdsByMarker.get(marker);
       if (!jobId) return;
       if (event.type === 'submitted') {
-        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind);
+        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel);
       } else {
         get().markImageJobRunning(jobId);
       }
@@ -599,7 +599,7 @@ export const createImageSlice: StateCreator<
     get().markImageJobRunning(jobId);
     context.onJobEvent = (_marker, event) => {
       if (event.type === 'submitted') {
-        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind);
+        get().markImageJobSubmitted(jobId, event.externalTaskId, event.resumeKind, event.submittedModel);
       } else {
         get().markImageJobRunning(jobId);
       }
@@ -725,7 +725,7 @@ export const createImageSlice: StateCreator<
         nextVersion: job.version,
         onJobEvent: (_marker, event) => {
           if (event.type === 'submitted') {
-            get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind);
+            get().markImageJobSubmitted(job.id, event.externalTaskId, event.resumeKind, event.submittedModel);
           } else {
             get().markImageJobRunning(job.id);
           }
