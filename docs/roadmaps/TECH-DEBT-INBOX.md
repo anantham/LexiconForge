@@ -259,3 +259,10 @@ Append-only raw debt receipts discovered during implementation.
 - Friction in the image-job change: generation and recovery needed parallel copies of the context/result-to-version wiring, making it easy for a provider resume path to drift from an ordinary completion path.
 - Suggested follow-up: extract one tested result-application service/action that accepts `chapterId`, marker, version, and `GeneratedImageResult`; then separate version/cache migration actions from generation orchestration.
 - Blocker status: non-blocking for the approved job system; current paths share the existing persistence implementation and focused regressions are required before merge.
+
+[DEBT][MONOLITH][2026-08-21] Illustration rendering and controls remain in an 822-line component
+- File: `components/Illustration.tsx`.
+- Symptom: marker normalization, job/ETA state, prompt and plan editing, provider controls, image rendering, generation actions, and version controls share one component.
+- Friction in the image-job change: durable `interrupted` ownership was enforced in the store and global banner but omitted from the component's separate inline status selector, exposing controls that intentionally no-op.
+- Suggested follow-up: extract a tested illustration-job status panel/selector first, then separate prompt-plan controls and version controls without changing the persisted illustration contract.
+- Blocker status: non-blocking after the inline interrupted-state regression; decomposition belongs in a focused follow-up PR.

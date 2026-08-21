@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import Illustration from '../../components/Illustration';
 
 const getAverageImageGenerationTime = vi.hoisted(() => vi.fn());
@@ -19,6 +19,7 @@ const storeState: Record<string, any> = {
     'chapter-1:[ILLUSTRATION-1]': { isLoading: true, data: null, error: null },
   },
   handleRetryImage: vi.fn(),
+  dismissImageJob: vi.fn(),
   updateIllustrationPrompt: vi.fn(),
   updateIllustrationPlan: vi.fn(),
   regenerateIllustrationPlanFromCaption: vi.fn(),
@@ -70,6 +71,7 @@ describe('Illustration empirical ETA', () => {
   beforeEach(() => {
     getAverageImageGenerationTime.mockReset();
     storeState.imageJobs = {};
+    storeState.dismissImageJob.mockReset();
     storeState.generatedImages = {
       'chapter-1:[ILLUSTRATION-1]': { isLoading: true, data: null, error: null },
     };
@@ -212,5 +214,30 @@ describe('Illustration empirical ETA', () => {
     expect(screen.getByText(/queued by provider/i)).toBeInTheDocument();
     expect(screen.queryByText(/no image yet/i)).not.toBeInTheDocument();
     expect(getAverageImageGenerationTime).not.toHaveBeenCalled();
+  });
+
+  it('surfaces an interrupted durable task instead of exposing no-op generation controls', () => {
+    storeState.generatedImages = {};
+    storeState.imageJobs = {
+      'job-1': {
+        id: 'job-1',
+        chapterId: 'chapter-1',
+        placementMarker: '[ILLUSTRATION-1]',
+        requestedModel: 'indrasnet/gen_anime',
+        status: 'interrupted',
+        resumeKind: 'indrasnet',
+        externalTaskId: 'broker-task-1',
+        error: 'IndrasNet is temporarily unreachable.',
+      },
+    };
+
+    render(<Illustration marker="[ILLUSTRATION-1]" />);
+
+    expect(screen.getByText('Illustration paused')).toBeInTheDocument();
+    expect(screen.getByText('IndrasNet is temporarily unreachable.')).toBeInTheDocument();
+    expect(screen.queryByText(/no image yet/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /generate image/i })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /dismiss paused task/i }));
+    expect(storeState.dismissImageJob).toHaveBeenCalledWith('job-1');
   });
 });

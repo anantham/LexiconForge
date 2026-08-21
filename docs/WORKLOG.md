@@ -3135,3 +3135,13 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Fallback:** Revert reconciliation and retain provider polling; no provider or persistence schema changes are introduced.
 **Result:** Confirmed. Reload recovery now retires a job locally only when its requested version entry and a concrete persisted artifact at that version or newer both exist; metadata-only state still resumes the provider task.
 **Verification:** Pinned Node 24.19.0: focused recovery/deduplication regressions 28/28; exact one-worker suite 278 files, 9,247 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.
+
+### [2026-08-21 23:10 IST] [Agent: Codex]
+**Status:** Addressing exact-head round-27 review on interrupted-task inline affordance.
+**Issues:** Durable provider tasks can pause after a temporary recovery failure. The store correctly blocks duplicate submission and the global banner offers dismissal, but `Illustration.tsx` omitted `interrupted` from its inline selector and exposed generation controls whose handler then returned without feedback.
+**Options:** (A) render a marker-local paused state with the provider error and explicit dismissal — selected; (B) implicitly dismiss/resubmit from Generate — rejected because the original paid provider task may still finish. Confidence 0.98.
+**Hypothesis:** Aligning the inline selector with durable marker ownership will replace no-op controls with an explanatory paused state while preserving the existing explicit release boundary.
+**Fallback:** Revert the inline state branch; no provider, persistence, or job-schema changes are introduced.
+**[DEBT]:** `components/Illustration.tsx` is an 822-line split candidate; recorded in `docs/roadmaps/TECH-DEBT-INBOX.md` and `docs/architecture/ARCHITECTURE.md` without expanding this blocker fix into a refactor.
+**Result:** Confirmed. Inline marker state now recognizes only interrupted resumable jobs that still own an external provider task, displays the preserved error and duplicate-risk explanation, and requires explicit dismissal before generation controls return.
+**Verification:** Pinned Node 24.19.0: focused illustration/banner/job regressions 31/31; exact one-worker suite 278 files, 9,248 passed and 347 skipped, 0 failed; TypeScript clean; repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.

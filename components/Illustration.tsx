@@ -27,6 +27,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     chapter,
     generatedImages,
     handleRetryImage,
+    dismissImageJob,
     updateIllustrationPrompt,
     updateIllustrationPlan,
     regenerateIllustrationPlanFromCaption,
@@ -53,6 +54,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     chapter: s.currentChapterId ? s.getChapter(s.currentChapterId) : null,
     generatedImages: s.generatedImages,
     handleRetryImage: s.handleRetryImage,
+    dismissImageJob: s.dismissImageJob,
     updateIllustrationPrompt: s.updateIllustrationPrompt,
     updateIllustrationPlan: s.updateIllustrationPlan,
     regenerateIllustrationPlanFromCaption: s.regenerateIllustrationPlanFromCaption,
@@ -153,15 +155,25 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
     const job = Object.values(state.imageJobs ?? {}).find(candidate =>
       candidate.chapterId === canonicalChapterId
       && normalizeMarker(candidate.placementMarker) === normalizedMarker
-      && ['queued', 'submitted', 'running'].includes(candidate.status)
+      && (
+        ['queued', 'submitted', 'running'].includes(candidate.status)
+        || (
+          candidate.status === 'interrupted'
+          && ['piapi', 'indrasnet'].includes(candidate.resumeKind)
+          && Boolean(candidate.externalTaskId)
+        )
+      )
     );
     return {
+      id: job?.id ?? null,
       status: job?.status ?? null,
       model: job?.taskModel ?? job?.requestedModel ?? null,
       startedAt: job?.status === 'running' ? job.startedAt : null,
+      error: job?.error ?? null,
     };
   }));
-  const isLoading = imageStateIsLoading || activeImageJob.status !== null;
+  const isInterrupted = activeImageJob.status === 'interrupted';
+  const isLoading = !isInterrupted && (imageStateIsLoading || activeImageJob.status !== null);
   const countdownModel = activeImageJob.model ?? settings?.imageModel;
   const isQueued = isLoading && (activeImageJob.status === 'queued' || activeImageJob.status === 'submitted');
 
@@ -442,6 +454,28 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
 
   return (
     <div className="my-6 flex justify-center flex-col items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+      {isInterrupted && (
+        <div className="flex min-h-48 flex-col items-center justify-center p-4 text-center">
+          <p className="font-semibold text-amber-700 dark:text-amber-300">Illustration paused</p>
+          <p className="mt-2 max-w-md text-xs text-gray-600 dark:text-gray-400">
+            {activeImageJob.error || 'The saved provider task could not be checked. It will be checked again after reload.'}
+          </p>
+          <p className="mt-2 max-w-md text-xs text-gray-500 dark:text-gray-500">
+            Dismiss the saved task only if you want to start a new generation; the provider task may still finish.
+          </p>
+          {activeImageJob.id && (
+            <button
+              type="button"
+              className="mt-4 rounded-md border border-amber-500 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 dark:text-amber-200 dark:hover:bg-amber-900/30"
+              onClick={() => {
+                if (activeImageJob.id) dismissImageJob(activeImageJob.id);
+              }}
+            >
+              Dismiss paused task
+            </button>
+          )}
+        </div>
+      )}
       {isQueued && (
         <div className="flex h-48 flex-col items-center justify-center text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -478,7 +512,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           )}
         </div>
       )}
-      {!isLoading && error && (
+      {!isInterrupted && !isLoading && error && (
         <div className="flex flex-col items-center justify-center min-h-48 text-center p-4">
           <p className="text-red-500 font-semibold mb-2">Image generation failed</p>
           
@@ -554,7 +588,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
           </div>
         </div>
       )}
-      {!isLoading && !error && base64 && (
+      {!isInterrupted && !isLoading && !error && base64 && (
         <>
           <img
             src={base64}
@@ -731,7 +765,7 @@ const Illustration: React.FC<IllustrationProps> = ({ marker }) => {
         </>
       )}
 
-      {!isLoading && !error && !base64 && hasIllust && (
+      {!isInterrupted && !isLoading && !error && !base64 && hasIllust && (
         <div className="flex flex-col items-center justify-center w-full text-center p-2">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">No image yet for {marker}.</p>
           
