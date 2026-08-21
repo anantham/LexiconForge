@@ -2793,3 +2793,11 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Hypothesis:** Replacing the unconditional call with `debugLog('image', 'full', ...)` preserves opt-in diagnostics and emits nothing under default production settings. Prediction: the valid generation regression remains green and observes no `console.info`. Confidence 0.99.
 **Fallback:** Revert the isolated logging change; request/execution behavior is unaffected.
 **Result:** Confirmed. The provider now uses the full-level image debug pipeline; default execution emits no unconditional info log. Pinned Node 24.19.0 TypeScript passed, focused provider/settings tests passed 71/71, targeted ESLint passed, and `git diff --check` passed.
+
+### [2026-08-21 10:58 IST] [Agent: Codex]
+**Status:** Addressing exact-head review on required semantic inputs.
+**Issue:** A client-ready broker manifest could require `seed`, dimensions, or a future semantic field whose value LexiconForge does not guarantee, so the workflow appeared selectable but deterministically failed broker validation.
+**Options:** (A) synthesize defaults for every field — risks changing custom workflow semantics; (B) advertise only workflows whose sole required input is `prompt` — selected; (C) add UI controls and validation for every possible workflow input — broader dynamic-form architecture outside this PR.
+**Hypothesis:** Rejecting any manifest with a required non-prompt input aligns discovery with the actual request contract while retaining optional supported inputs. Prediction: required-seed and required-future-field workflows are absent, while current Asus workflows and generation remain green. Confidence 0.99.
+**Fallback:** Revert this discovery-only guard; no remote manifest or saved selection is mutated.
+**Result:** Confirmed. Required non-prompt fields, including unknown future fields, keep a workflow out of the client catalogue; current prompt-only requirements and optional fields remain accepted. Pinned Node 24.19.0 TypeScript passed, focused provider/settings tests passed 72/72, targeted ESLint passed, and `git diff --check` passed.

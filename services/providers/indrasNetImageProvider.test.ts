@@ -56,6 +56,15 @@ describe('IndrasNet image provider', () => {
         clientReadyWorkflow,
         { ...clientReadyWorkflow, name: 'repaint', manifest: { ...clientReadyWorkflow.manifest, requires_image: true } },
         { ...clientReadyWorkflow, name: 'operator_only', client_ready: false },
+        {
+          ...clientReadyWorkflow,
+          name: 'required_seed',
+          manifest: {
+            ...clientReadyWorkflow.manifest,
+            name: 'required_seed',
+            inputs: { prompt: { required: true }, seed: { required: true } },
+          },
+        },
       ],
     }), { status: 200, headers: { 'content-type': 'application/json' } }));
 
@@ -67,6 +76,23 @@ describe('IndrasNet image provider', () => {
       seed: {},
     });
     expect(JSON.stringify(workflows)).not.toMatch(/node_id|input_key/);
+  });
+
+  it('does not advertise workflows with required non-prompt inputs', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      workflows: [{
+        ...clientReadyWorkflow,
+        manifest: {
+          ...clientReadyWorkflow.manifest,
+          inputs: {
+            prompt: { required: true },
+            future_required_control: { required: true },
+          },
+        },
+      }],
+    }), { status: 200 }));
+
+    await expect(fetchIndrasNetWorkflows(endpoint)).resolves.toEqual([]);
   });
 
   it('strips legacy graph bindings from a broker catalogue before caching it', async () => {

@@ -252,3 +252,7 @@ configuration errors.
 - Submission diagnostics, including the private tailnet endpoint and workflow
   name, use the existing `image` pipeline at `full` debug level. Production
   consoles do not receive them while debugging is disabled.
+- A discovered workflow may require `prompt`, which LexiconForge always sends.
+  If any other current or future semantic input is marked required, the workflow
+  is not advertised because its value is not guaranteed by the illustration
+  request contract. Optional supported inputs continue to pass through when set.

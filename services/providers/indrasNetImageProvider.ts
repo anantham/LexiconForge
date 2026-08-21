@@ -173,6 +173,11 @@ const toClientReadyWorkflow = (entry: unknown): IndrasNetWorkflowProfile | null 
     manifest.requires_image !== false
   ) return null;
 
+  for (const [semanticName, rawInput] of Object.entries(manifest.inputs)) {
+    if (!isRecord(rawInput)) return null;
+    if (rawInput.required === true && semanticName !== 'prompt') return null;
+  }
+
   const inputs: Record<string, IndrasNetSemanticInput> = {};
   for (const semanticName of CLIENT_SEMANTIC_INPUTS) {
     const rawInput = manifest.inputs[semanticName];
