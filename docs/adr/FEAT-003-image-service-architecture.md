@@ -223,3 +223,9 @@ configuration errors.
 - When a workflow result includes `images`, it must be an array of strings;
   malformed nested values fail with `INDRASNET_INVALID_RESPONSE` before URL
   construction or artifact fetch.
+
+### Artifact URL boundary — 2026-08-21
+
+- Artifact strings are parsed inside the provider error boundary and must
+  resolve to the configured broker origin. Malformed or cross-origin URLs fail
+  with non-retryable `INDRASNET_INVALID_ARTIFACT_URL` before any artifact fetch.

@@ -338,7 +338,7 @@ export const generateIndrasNetImage = async (
   )) {
     throw invalidJsonResponseError(`workflow "${workflowName}"`);
   }
-  const imagePath = result.images?.[0];
+  const imagePath = result.images?.[0]?.trim();
   if (!imagePath) {
     throw new IndrasNetProviderError('IndrasNet completed the workflow but returned no image.', {
       code: 'INDRASNET_NO_IMAGE',
@@ -346,9 +346,23 @@ export const generateIndrasNetImage = async (
     });
   }
 
-  const imageUrl = new URL(imagePath, `${baseUrl}/`).toString();
+  let imageUrl: URL;
+  try {
+    imageUrl = new URL(imagePath, `${baseUrl}/`);
+  } catch (cause) {
+    throw new IndrasNetProviderError(
+      `IndrasNet workflow "${workflowName}" returned an invalid image artifact URL.`,
+      { code: 'INDRASNET_INVALID_ARTIFACT_URL', retryable: false, cause },
+    );
+  }
+  if (imageUrl.origin !== new URL(baseUrl).origin) {
+    throw new IndrasNetProviderError(
+      `IndrasNet workflow "${workflowName}" returned an image artifact URL outside the configured broker origin.`,
+      { code: 'INDRASNET_INVALID_ARTIFACT_URL', retryable: false },
+    );
+  }
   const imageResponse = await fetchWithTimeout(
-    imageUrl,
+    imageUrl.toString(),
     { method: 'GET', headers: { Accept: 'image/*' } },
     IMAGE_DOWNLOAD_TIMEOUT_MS,
     {

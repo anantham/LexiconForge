@@ -254,6 +254,39 @@ describe('IndrasNet image provider', () => {
     expect(error).toMatchObject({ code: 'INDRASNET_INVALID_RESPONSE', retryable: false });
   });
 
+  it('wraps malformed artifact URLs in a descriptive provider error', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['http://[invalid'] }), { status: 200 }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toBeInstanceOf(IndrasNetProviderError);
+    expect(error).toMatchObject({ code: 'INDRASNET_INVALID_ARTIFACT_URL', retryable: false });
+    expect(error.message).toContain('workflow "storybook"');
+  });
+
+  it('rejects artifact URLs outside the configured broker origin', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['https://untrusted.example/image.png'] }), {
+        status: 200,
+      }));
+
+    const error = await generateIndrasNetImage({
+      model: imageModelFromWorkflowName('storybook'),
+      baseUrl: endpoint,
+      prompt: 'A lighthouse',
+    }).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_INVALID_ARTIFACT_URL', retryable: false });
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+  });
+
   it('keeps HTTP artifact download failures out of cloud fallback', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
