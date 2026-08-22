@@ -81,4 +81,19 @@ describe('MobileSelectionHint', () => {
       expect.any(DOMException),
     );
   });
+
+  it('logs descriptively when persisted dismissal cannot be read', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('Storage access denied', 'SecurityError');
+    });
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    render(<MobileSelectionHint isTouch viewMode="english" selectionActive={false} />);
+
+    expect(await screen.findByTestId('mobile-selection-hint')).toBeInTheDocument();
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('Could not read persisted dismissal'),
+      expect.any(DOMException),
+    );
+  });
 });

@@ -22,7 +22,11 @@ const persistDismissal = () => {
 const readDismissal = (): boolean => {
   try {
     return localStorage.getItem(DISMISSED_KEY) === 'true';
-  } catch {
+  } catch (error) {
+    console.warn(
+      '[MobileSelectionHint] Could not read persisted dismissal; showing the hint for this page.',
+      error,
+    );
     return false;
   }
 };
