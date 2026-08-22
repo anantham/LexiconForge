@@ -92,4 +92,22 @@ describe('rateLimitService.acquireRequestSlot', () => {
     // A normal caller is still admitted: nothing was recorded against the model
     await expect(rateLimitService.acquireRequestSlot('model-g')).resolves.toBeUndefined();
   });
+
+  it('does not consume a slot when the signal aborts during the model-limit lookup', async () => {
+    let releaseLookup!: (limits: Record<string, number> | null) => void;
+    mockGetModelLimits.mockReturnValue(
+      new Promise(resolve => { releaseLookup = resolve; })
+    );
+
+    const controller = new AbortController();
+    const acquiring = rateLimitService.acquireRequestSlot('model-h', { signal: controller.signal });
+    const assertion = expect(acquiring).rejects.toMatchObject({ name: 'AbortError' });
+
+    controller.abort();
+    releaseLookup({ requests_per_minute: 5 });
+    await assertion;
+
+    // No capacity was charged for the canceled request
+    expect(rateLimitService.getStatus('model-h')).toBeNull();
+  });
 });

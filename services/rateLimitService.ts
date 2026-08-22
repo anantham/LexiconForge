@@ -53,6 +53,13 @@ class RateLimitService {
       try {
         const modelLimits = await getModelLimits(modelId);
 
+        // The lookup is asynchronous — honor an abort that fired while it was
+        // in flight, before consuming capacity or settling either path.
+        if (signal?.aborted) {
+          reject(this.createAbortError());
+          return;
+        }
+
         // If no limits are defined, allow the request
         if (!modelLimits) {
           resolve();
