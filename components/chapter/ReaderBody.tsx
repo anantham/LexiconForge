@@ -4,6 +4,7 @@ import FootnotesPanel from './FootnotesPanel';
 import ReaderFeedbackPanel from './ReaderFeedbackPanel';
 import InlineCommentMarkers from './InlineCommentMarkers';
 import ChapterSelectionOverlay from './ChapterSelectionOverlay';
+import MobileSelectionHint from './MobileSelectionHint';
 import ComparisonPortal from './ComparisonPortal';
 import FooterNavigation from './FooterNavigation';
 import InterleavedReader from './InterleavedReader';
@@ -145,6 +146,11 @@ const ReaderBody: React.FC<ReaderBodyProps> = ({
         onDelete={onDeleteFeedback}
         onUpdate={onUpdateFeedback}
         onScrollToText={onScrollToText}
+      />
+      <MobileSelectionHint
+        isTouch={isTouch}
+        viewMode={viewMode}
+        selectionActive={Boolean(selection) || inlineEditActive}
       />
       <ChapterSelectionOverlay
         selection={selection}

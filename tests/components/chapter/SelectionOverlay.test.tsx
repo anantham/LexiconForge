@@ -44,7 +44,25 @@ describe('SelectionOverlay', () => {
         isTouch
       />
     );
-    expect(screen.getByText('Copy')).toBeInTheDocument();
+    expect(screen.getByTestId('selected-text-preview')).toHaveTextContent('Test passage');
+    expect(screen.getByRole('button', { name: /illustrate/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /compare/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
+  });
+
+  it('sends the selected passage through the labeled mobile illustration action', () => {
+    const props = createProps();
+    render(<SelectionOverlay {...props} isTouch />);
+
+    fireEvent.click(screen.getByRole('button', { name: /illustrate/i }));
+
+    expect(props.handleFeedbackSubmit).toHaveBeenCalledWith({
+      type: '🎨',
+      selection: 'Test passage',
+      comment: undefined,
+    });
   });
 
   // Issue #4 (twin) — mobile portal button must show pending state on click.
