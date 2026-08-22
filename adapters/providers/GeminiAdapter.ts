@@ -61,7 +61,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     const apiKey = requireConfiguredApiKey(settings, 'Gemini');
 
     // Check rate limits
-    await rateLimitService.acquireRequestSlot(settings.model);
+    await rateLimitService.acquireRequestSlot(settings.model, { signal: abortSignal });
 
     // Initialize client
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -134,7 +134,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
 
     const apiKey = requireConfiguredApiKey(settings, 'Gemini');
 
-    await rateLimitService.acquireRequestSlot(modelId);
+    await rateLimitService.acquireRequestSlot(modelId, { signal: input.abortSignal });
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelId });

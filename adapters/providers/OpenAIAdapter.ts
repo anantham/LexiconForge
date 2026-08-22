@@ -81,7 +81,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     });
 
     // Check rate limits
-    await rateLimitService.acquireRequestSlot(settings.model);
+    await rateLimitService.acquireRequestSlot(settings.model, { signal: abortSignal });
 
     // Build request
     const requestOptions = await this.buildRequest(settings, title, content, history, fanTranslation);
@@ -156,7 +156,7 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     });
 
     // Check rate limits
-    await rateLimitService.acquireRequestSlot(model);
+    await rateLimitService.acquireRequestSlot(model, { signal: input.abortSignal });
 
     const maxTokens = input.maxTokens ?? settings.maxOutputTokens ?? 16384;
 
