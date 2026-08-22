@@ -56,24 +56,36 @@ function extractChapterNumber(title: string): number | null {
   return null;
 }
 
-export async function backfillChapterNumbers(): Promise<void> {
+export interface ChapterNumberBackfillResult {
+  updatedCount: number;
+  skippedCount: number;
+  /** Titles with no parseable number — terminal by design (no URL fallback). Does NOT block completion. */
+  unparseableTitleCount: number;
+  /** Transient write/IndexedDB failures — retryable, blocks the done-flag. */
+  writeFailureCount: number;
+}
+
+export async function backfillChapterNumbers(): Promise<ChapterNumberBackfillResult> {
   console.log('[Migration] Starting chapter number backfill...');
+
+  const result: ChapterNumberBackfillResult = {
+    updatedCount: 0,
+    skippedCount: 0,
+    unparseableTitleCount: 0,
+    writeFailureCount: 0,
+  };
 
   try {
     // Get all chapter summaries (flat structure with title directly accessible)
     const summaries = await fetchChapterSummaries();
     console.log(`[Migration] Found ${summaries.length} chapters to process`);
 
-    let updatedCount = 0;
-    let skippedCount = 0;
-    let failedCount = 0;
-
     for (const summary of summaries as ChapterSummaryRecord[]) {
       const currentNumber = summary.chapterNumber;
 
       // Skip if already has a valid chapter number (> 0)
       if (currentNumber && currentNumber > 0) {
-        skippedCount++;
+        result.skippedCount++;
         continue;
       }
 
@@ -83,34 +95,39 @@ export async function backfillChapterNumbers(): Promise<void> {
       if (extractedNumber && extractedNumber > 0) {
         console.log(`[Migration] Updating ${summary.stableId}: "${summary.title}" → Ch #${extractedNumber}`);
 
-        try {
-          if (!summary.stableId) {
-            throw new Error('Missing stableId on summary record');
-          }
+        if (!summary.stableId) {
+          result.writeFailureCount++;
+          console.error(`[Migration] Missing stableId on summary record: "${summary.title}"`);
+          continue;
+        }
 
+        try {
           await ChapterOps.setChapterNumberByStableId(summary.stableId, extractedNumber);
           const updatedChapter = await ChapterOps.getByStableId(summary.stableId);
           if (updatedChapter) {
             await recomputeChapterSummary(updatedChapter);
           }
-          updatedCount++;
+          result.updatedCount++;
         } catch (err) {
+          // Transient (storage/quota/abort) — must remain retryable.
           console.error(`[Migration] Failed to update ${summary.stableId}:`, err);
-          failedCount++;
+          result.writeFailureCount++;
         }
       } else {
-        console.warn(`[Migration] Could not extract chapter number for: "${summary.title}" (${summary.stableId})`);
-        failedCount++;
+        // Terminal by design: titles carrying no number stay unmigrated
+        // (deliberate no-URL-fallback rule — see extractChapterNumber).
+        console.warn(`[Migration] No parseable chapter number in title: "${summary.title}" (${summary.stableId})`);
+        result.unparseableTitleCount++;
       }
     }
 
-    console.log(`[Migration] Backfill complete!`);
-    console.log(`[Migration]   Updated: ${updatedCount} chapters`);
-    console.log(`[Migration]   Skipped: ${skippedCount} chapters (already had numbers)`);
-    console.log(`[Migration]   Failed: ${failedCount} chapters`);
+    console.log(`[Migration] Backfill complete.`);
+    console.log(`[Migration]   Updated: ${result.updatedCount} chapters`);
+    console.log(`[Migration]   Skipped: ${result.skippedCount} chapters (already had numbers)`);
+    console.log(`[Migration]   Unparseable titles (terminal): ${result.unparseableTitleCount}`);
+    console.log(`[Migration]   Write failures (retryable): ${result.writeFailureCount}`);
 
-    // Suggest reload
-    console.log(`[Migration] Please reload the page to see updated chapter numbers`);
+    return result;
 
   } catch (error) {
     console.error('[Migration] Backfill failed:', error);
