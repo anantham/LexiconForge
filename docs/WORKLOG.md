@@ -3238,3 +3238,11 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Fallback:** Revert the UI/actionable-copy and active-predicate changes and leave PR #139 unmerged; no provider protocol or storage schema changes.
 **Result:** Confirmed. The paused marker UI resumes the existing in-memory task through the provider reattachment path; unsaved interrupted jobs remain in the active/unload predicate; the banner and repeated-outage toast direct the user to open the origin and resume without reloading. Persisted interrupted jobs retain the prior non-blocking behavior.
 **Verification:** Pinned Node 24.19.0: focused job/recovery/banner/inline regressions 61/61; exact one-worker suite 278 files, 9,264 passed and 347 skipped, 0 failed; TypeScript clean; targeted ESLint 0 errors and repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.
+
+### [2026-08-22 11:05 IST] [Agent: ox-alpha]
+**Status:** Complete — velocity cruft pattern ledger for this repo
+**Task:** Write docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md: 20-pattern scorecard vs TemporalCoordination origin catalogue (12 PRESENT / 6 PARTIAL / 2 ABSENT), Part I imported patterns with local evidence, Part II eight repo-native classes (LXF-A..H), Part III clean negatives, Tier-B disposition queue.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-d/
+**Branch:** docs/alpha-cruft-catalogue
+**Files modified:** docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md (new); docs/WORKLOG.md.
+**Verification:** all evidence refs carried from the verified audit + review fixes (#140/#141/#142); audit corrections recorded inline (backfill boot-wiring, claudeService regex fixed-in-code).
