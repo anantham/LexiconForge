@@ -4,7 +4,7 @@
  * - Reload recovery polls the existing broker job without submitting a new workflow.
  * - A 404 from an older broker safely falls back to the blocking endpoint because no job was accepted.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../services/imageUtils', () => ({
   blobToBase64DataUrl: vi.fn().mockResolvedValue('data:image/png;base64,aW1hZ2U='),
@@ -46,6 +46,10 @@ describe('IndrasNet resumable image jobs', () => {
   beforeEach(() => {
     clearIndrasNetWorkflowCacheForTests();
     vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('submits a broker job, exposes its durable id, then downloads completion', async () => {
@@ -101,6 +105,101 @@ describe('IndrasNet resumable image jobs', () => {
     expect(result.promptId).toBe('comfy-prompt-2');
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[0][1]?.method).toBe('GET');
+  });
+
+  it('retries two transient status timeouts before resuming the existing job', async () => {
+    vi.useFakeTimers();
+    const timeoutSpy = vi.spyOn(globalThis, 'setTimeout');
+    const fetchMock = vi.fn()
+      .mockRejectedValueOnce(new DOMException('status timeout one', 'TimeoutError'))
+      .mockRejectedValueOnce(new DOMException('status timeout two', 'TimeoutError'))
+      .mockResolvedValueOnce(json({
+        job_id: 'eventually-reachable-job',
+        status: 'completed',
+        images: ['/api/comfyui/view?filename=recovered-after-timeouts.png&type=output'],
+      }))
+      .mockResolvedValueOnce(image());
+    vi.stubGlobal('fetch', fetchMock);
+
+    const recovery = resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'eventually-reachable-job',
+      workflowName: 'gen_anime',
+    });
+    await vi.advanceTimersByTimeAsync(7_000);
+    const result = await recovery;
+
+    expect(result.base64).toBe('aW1hZ2U=');
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(fetchMock.mock.calls.slice(0, 3).every(call => call[1]?.method === 'GET')).toBe(true);
+    expect(fetchMock.mock.calls.filter(call => call[1]?.method === 'POST')).toHaveLength(0);
+    expect(timeoutSpy.mock.calls.map(call => call[1])).toEqual([2_000, 5_000]);
+  });
+
+  it('retries two aborted status body streams before resuming the existing job', async () => {
+    vi.useFakeTimers();
+    const timeoutSpy = vi.spyOn(globalThis, 'setTimeout');
+    const interruptedStatusResponse = (): Response => {
+      const response = json({ job_id: 'body-stream-job', status: 'completed' });
+      vi.spyOn(response, 'json').mockRejectedValue(new DOMException('status stream aborted', 'AbortError'));
+      return response;
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(interruptedStatusResponse())
+      .mockResolvedValueOnce(interruptedStatusResponse())
+      .mockResolvedValueOnce(json({
+        job_id: 'body-stream-job',
+        status: 'completed',
+        images: ['/api/comfyui/view?filename=recovered-after-body-aborts.png&type=output'],
+      }))
+      .mockResolvedValueOnce(image());
+    vi.stubGlobal('fetch', fetchMock);
+
+    const recovery = resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'body-stream-job',
+      workflowName: 'gen_anime',
+    });
+    await vi.advanceTimersByTimeAsync(7_000);
+    const result = await recovery;
+
+    expect(result.base64).toBe('aW1hZ2U=');
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(fetchMock.mock.calls.filter(call => call[1]?.method === 'POST')).toHaveLength(0);
+    expect(timeoutSpy.mock.calls.map(call => call[1])).toEqual([2_000, 5_000]);
+  });
+
+  it('retries completed-artifact transport and body-read failures without regenerating', async () => {
+    vi.useFakeTimers();
+    const timeoutSpy = vi.spyOn(globalThis, 'setTimeout');
+    const interruptedBody = new Response(new Uint8Array([1, 2, 3]), {
+      status: 200,
+      headers: { 'Content-Type': 'image/png' },
+    });
+    vi.spyOn(interruptedBody, 'blob').mockRejectedValue(new DOMException('stream interrupted', 'AbortError'));
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(json({
+        job_id: 'completed-download-job',
+        status: 'completed',
+        images: ['/api/comfyui/view?filename=retry-download.png&type=output'],
+      }))
+      .mockRejectedValueOnce(new DOMException('artifact timeout', 'TimeoutError'))
+      .mockResolvedValueOnce(interruptedBody)
+      .mockResolvedValueOnce(image());
+    vi.stubGlobal('fetch', fetchMock);
+
+    const recovery = resumeIndrasNetImageTask({
+      baseUrl: 'https://asus.example',
+      jobId: 'completed-download-job',
+      workflowName: 'gen_anime',
+    });
+    await vi.advanceTimersByTimeAsync(7_000);
+    const result = await recovery;
+
+    expect(result.base64).toBe('aW1hZ2U=');
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(fetchMock.mock.calls.every(call => call[1]?.method === 'GET')).toBe(true);
+    expect(timeoutSpy.mock.calls.map(call => call[1])).toEqual([2_000, 5_000]);
   });
 
   it('stops execution timing at terminal status before artifact download', async () => {
@@ -164,17 +263,22 @@ describe('IndrasNet resumable image jobs', () => {
   it.each([401, 403, 408, 425, 429, 500, 503])(
     'preserves an accepted broker task after transient poll HTTP %s',
     async status => {
-      const fetchMock = vi.fn().mockResolvedValueOnce(json({ detail: 'temporary poll failure' }, status));
+      vi.useFakeTimers();
+      const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(
+        json({ detail: 'temporary poll failure' }, status),
+      ));
       vi.stubGlobal('fetch', fetchMock);
 
-      const error = await resumeIndrasNetImageTask({
+      const recovery = resumeIndrasNetImageTask({
         baseUrl: 'https://asus.example',
         jobId: 'saved-transient-job',
         workflowName: 'gen_anime',
       }).catch(cause => cause);
+      await vi.advanceTimersByTimeAsync(7_000);
+      const error = await recovery;
 
       expect(error).toMatchObject({ retryable: true, status });
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(3);
       expect(fetchMock.mock.calls[0][1]?.method).toBe('GET');
     },
   );
@@ -195,7 +299,8 @@ describe('IndrasNet resumable image jobs', () => {
     ['malformed JSON', () => new Response('not-json', { status: 200 })],
     ['an unknown status', () => json({ job_id: 'ambiguous-job', status: 'temporarily_weird' })],
   ])('preserves an accepted broker task after %s', async (_label, response) => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(response()));
+    const fetchMock = vi.fn().mockResolvedValueOnce(response());
+    vi.stubGlobal('fetch', fetchMock);
 
     const error = await resumeIndrasNetImageTask({
       baseUrl: 'https://asus.example',
@@ -208,6 +313,7 @@ describe('IndrasNet resumable image jobs', () => {
       retryable: true,
       fallbackEligible: false,
     });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('retires every explicit failed broker task even when a new submission may be retryable', async () => {
@@ -236,25 +342,32 @@ describe('IndrasNet resumable image jobs', () => {
   });
 
   it.each([401, 403])('preserves a completed broker task after artifact HTTP %s', async status => {
-    vi.stubGlobal('fetch', vi.fn()
+    vi.useFakeTimers();
+    const fetchMock = vi.fn()
       .mockResolvedValueOnce(json({
         job_id: 'completed-auth-job',
         status: 'completed',
         images: ['/api/comfyui/view?filename=protected.png&type=output'],
       }))
-      .mockResolvedValueOnce(json({ detail: 'artifact authentication failed' }, status)));
+      .mockImplementation(() => Promise.resolve(
+        json({ detail: 'artifact authentication failed' }, status),
+      ));
+    vi.stubGlobal('fetch', fetchMock);
 
-    const error = await resumeIndrasNetImageTask({
+    const recovery = resumeIndrasNetImageTask({
       baseUrl: 'https://asus.example',
       jobId: 'completed-auth-job',
       workflowName: 'gen_anime',
     }).catch(cause => cause);
+    await vi.advanceTimersByTimeAsync(7_000);
+    const error = await recovery;
 
     expect(error).toMatchObject({
       retryable: true,
       fallbackEligible: false,
       status,
     });
+    expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 
   it('retires a completed broker task when its artifact is explicitly missing', async () => {

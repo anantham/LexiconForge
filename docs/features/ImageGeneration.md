@@ -72,6 +72,13 @@ completed local image do not start a potentially paid cloud generation. If both
 the local and explicitly selected fallback providers fail, the error reports
 both attempts.
 
+After IndrasNet accepts a durable job, transient failures while reading its
+status or downloading its completed artifact receive up to three total GET
+attempts, with 2-second and 5-second delays between attempts. LexiconForge
+never repeats the generation POST during this recovery. If all three reads
+fail, the illustration is shown as paused and retains the broker task ID for a
+later reload rather than starting duplicate GPU work.
+
 ### Flux Models (via PiAPI)
 
 **Text-to-Image:**
