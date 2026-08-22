@@ -1,3 +1,19 @@
+### [2026-08-22 15:10 IST] [Agent: Codex]
+**Status:** Complete - preserved and corrected dirty-root audit artifacts
+**Task:** Review the dirty root, preserve intentional August 16 audit work as focused documentation commits, correct findings explicitly overturned by the later rereview, and remove generated steering-manifest noise without touching other worktrees.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-dirty-root-cleanup`
+**Branch:** `docs/codex-dirty-root-cleanup`
+**Issues:** Root `main` is four commits behind `origin/main`; two untracked audit documents and one debt receipt are intentional; the raw audit/receipt contain active/dead verdicts corrected by de-sprawl revision 2.1; `public/steering-images.json` was overwritten to `[]` because the prepare script ran while `public/steering/` was absent.
+**Options:** (A) correct and preserve the audits in two commits, then restore generated noise - selected by the user; (B) commit the historical snapshots unchanged; (C) discard the artifacts and only clean the tree.
+**Hypothesis:** H1 (0.94) the two documents form separate logical commits, while the debt receipt belongs with the DB/state audit. H2 (0.99) the empty steering manifest is generated noise because the tracked manifest has 21 entries and `scripts/generate-steering-image-list.cjs` writes `[]` when its untracked source directory is absent.
+**Predicted checks:** both documents remain complete with final newlines; the corrected receipt no longer labels confirmed live entrypoints as dead; documentation-only diffs pass whitespace/path checks; the root can be fast-forwarded after the commits are safely preserved.
+**Fallback:** keep the original dirty root untouched until both documentation commits exist; if validation fails, abandon only this isolated worktree and branch.
+**Confidence:** 0.94
+**Results:** H1 confirmed: the DB/state audit and corrected debt receipt form one evidence commit, while the broader de-sprawl roadmap remains a separate proposed-plan commit. H2 confirmed from the generator source, tracked manifest, absent local steering directory, file timestamp, and prior worklog incidents; the empty manifest is not part of either commit.
+**Files modified:** added `docs/roadmaps/tech-debt-audit-db-state-migrations.md` with an explicit rereview correction; appended a corrected receipt to `docs/roadmaps/TECH-DEBT-INBOX.md`; added `docs/roadmaps/DESPRAWL-ROADMAP-2026-08-16.md` unchanged apart from preserving its final newline; updated this worklog.
+**Verification:** documentation diffs pass `git diff --check`; both new documents have final newlines and no trailing whitespace; targeted grep finds no stale live-entrypoint-as-dead verdict in the corrected receipt; the de-sprawl roadmap matches the original root artifact; no application tests were run because this is documentation-only repository hygiene.
+**Commit boundary:** commit 1 preserves the corrected DB/state audit and receipt; commit 2 preserves the proposed de-sprawl roadmap and completes the worklog. Root cleanup and fast-forward occur only after both commits exist.
+
 ### [2026-08-22 10:17 IST] [Agent: Codex]
 **Status:** Complete - mobile text-selection affordances
 **Task:** Implement user-approved Option A: retain native mobile text selection while making the action path discoverable, stable during handle/auto-scroll adjustment, responsive, and explicitly labeled.
@@ -3292,6 +3308,14 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Branch:** docs/alpha-cruft-catalogue
 **Files modified:** docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md (new); docs/WORKLOG.md.
 **Verification:** all evidence refs carried from the verified audit + review fixes (#140/#141/#142); audit corrections recorded inline (backfill boot-wiring, claudeService regex fixed-in-code).
+
+### [2026-08-22 12:45 IST] [Agent: ox-alpha]
+**Status:** Complete — stash rescue as test-only PR
+**Task:** Land the only novel content from stash@{0} (WIP on fix/fable-epub-integrity): a 22-line regression test pinning keyed image-cache-miss accounting (must record image-cache-miss, never double-count as illustration-never-generated). Production hunk of the stash was verified already present in main.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-e/
+**Branch:** test/alpha-epub-warnings
+**Files modified:** tests/services/export/exportSlice.epubWarnings.test.ts (restored from stash).
+**Verification:** vitest 4/4 locally; stash retained until merge, then dropped with receipt.
 
 ### [2026-08-22 12:48 IST] [Agent: ox-alpha]
 **Status:** Reworked after human deployment-verification review
