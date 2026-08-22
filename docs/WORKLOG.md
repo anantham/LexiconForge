@@ -1,3 +1,15 @@
+### [2026-08-22 15:10 IST] [Agent: Codex]
+**Status:** Starting - preserve and clean the dirty-root audit artifacts
+**Task:** Review the dirty root, preserve intentional August 16 audit work as focused documentation commits, correct findings explicitly overturned by the later rereview, and remove generated steering-manifest noise without touching other worktrees.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-dirty-root-cleanup`
+**Branch:** `docs/codex-dirty-root-cleanup`
+**Issues:** Root `main` is four commits behind `origin/main`; two untracked audit documents and one debt receipt are intentional; the raw audit/receipt contain active/dead verdicts corrected by de-sprawl revision 2.1; `public/steering-images.json` was overwritten to `[]` because the prepare script ran while `public/steering/` was absent.
+**Options:** (A) correct and preserve the audits in two commits, then restore generated noise - selected by the user; (B) commit the historical snapshots unchanged; (C) discard the artifacts and only clean the tree.
+**Hypothesis:** H1 (0.94) the two documents form separate logical commits, while the debt receipt belongs with the DB/state audit. H2 (0.99) the empty steering manifest is generated noise because the tracked manifest has 21 entries and `scripts/generate-steering-image-list.cjs` writes `[]` when its untracked source directory is absent.
+**Predicted checks:** both documents remain complete with final newlines; the corrected receipt no longer labels confirmed live entrypoints as dead; documentation-only diffs pass whitespace/path checks; the root can be fast-forwarded after the commits are safely preserved.
+**Fallback:** keep the original dirty root untouched until both documentation commits exist; if validation fails, abandon only this isolated worktree and branch.
+**Confidence:** 0.94
+
 ### [2026-08-22 10:17 IST] [Agent: Codex]
 **Status:** Complete - mobile text-selection affordances
 **Task:** Implement user-approved Option A: retain native mobile text selection while making the action path discoverable, stable during handle/auto-scroll adjustment, responsive, and explicitly labeled.
