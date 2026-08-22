@@ -10,6 +10,7 @@ const GENERATION_TIMEOUT_MS = 1_830_000;
 const JOB_SUBMIT_TIMEOUT_MS = 30_000;
 const JOB_POLL_TIMEOUT_MS = 10_000;
 const IMAGE_DOWNLOAD_TIMEOUT_MS = 60_000;
+const IDEMPOTENT_READ_RETRY_DELAYS_MS = [2_000, 5_000] as const;
 const CATALOGUE_TTL_MS = 60_000;
 const UNSTRUCTURED_GATEWAY_AVAILABILITY_STATUSES = new Set([502, 504]);
 const RETRYABLE_ARTIFACT_HTTP_STATUSES = new Set([401, 403, 408, 425, 429]);
@@ -254,6 +255,33 @@ const readJsonObjectResponse = async <T extends object>(response: Response, cont
   return decoded as T;
 };
 
+const readJobStatusResponse = async (
+  response: Response,
+  jobId: string,
+): Promise<JobStatusResponse> => {
+  let decoded: unknown;
+  try {
+    decoded = await response.json();
+  } catch (cause) {
+    if (cause instanceof SyntaxError) {
+      throw ambiguousJobPollResponseError(jobId, cause);
+    }
+    throw new IndrasNetProviderError(
+      `IndrasNet could not finish reading status for accepted workflow job ${jobId}; the saved task ID was preserved for a later retry.`,
+      {
+        code: 'INDRASNET_JOB_POLL_READ_FAILED',
+        retryable: true,
+        fallbackEligible: false,
+        cause,
+      },
+    );
+  }
+  if (!isRecord(decoded)) {
+    throw ambiguousJobPollResponseError(jobId);
+  }
+  return decoded as JobStatusResponse;
+};
+
 const requestError = async (
   response: Response,
   action: string,
@@ -305,6 +333,31 @@ const fetchWithTimeout = async (
         cause,
       },
     );
+  }
+};
+
+const retryIdempotentRead = async <T>(
+  operation: string,
+  read: () => Promise<T>,
+  shouldRetry: (_cause: IndrasNetProviderError) => boolean = cause => cause.retryable,
+): Promise<T> => {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await read();
+    } catch (cause) {
+      const delayMs = IDEMPOTENT_READ_RETRY_DELAYS_MS[attempt];
+      if (!(cause instanceof IndrasNetProviderError) || !shouldRetry(cause) || delayMs === undefined) {
+        throw cause;
+      }
+      debugLog('image', 'full', '[IndrasNetImageProvider] Retrying idempotent read', {
+        operation,
+        nextAttempt: attempt + 2,
+        maxAttempts: IDEMPOTENT_READ_RETRY_DELAYS_MS.length + 1,
+        delayMs,
+        code: cause.code,
+      });
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
   }
 };
 
@@ -487,21 +540,26 @@ const pollIndrasNetJob = async (
   let executionStartedAt: number | undefined;
   let queuedObserved = false;
   while (Date.now() < deadline) {
-    const response = await fetchWithTimeout(
-      `${baseUrl}/api/comfyui/jobs/${encodeURIComponent(jobId)}`,
-      { method: 'GET', headers: { Accept: 'application/json' } },
-      JOB_POLL_TIMEOUT_MS,
+    const job = await retryIdempotentRead(
+      `workflow job ${jobId} status`,
+      async () => {
+        const candidate = await fetchWithTimeout(
+          `${baseUrl}/api/comfyui/jobs/${encodeURIComponent(jobId)}`,
+          { method: 'GET', headers: { Accept: 'application/json' } },
+          JOB_POLL_TIMEOUT_MS,
+        );
+        if (!candidate.ok) {
+          throw await requestError(candidate, `IndrasNet workflow job ${jobId}`, {
+            // Once a durable task has been accepted, transient/auth polling
+            // failures must preserve its ID. Explicit job failure and missing-job
+            // responses remain terminal through the normal status/404 paths.
+            retryable: RETRYABLE_JOB_POLL_HTTP_STATUSES.has(candidate.status) || candidate.status >= 500,
+          });
+        }
+        return readJobStatusResponse(candidate, jobId);
+      },
+      cause => cause.retryable && cause.code !== 'INDRASNET_INVALID_RESPONSE',
     );
-    if (!response.ok) {
-      throw await requestError(response, `IndrasNet workflow job ${jobId}`, {
-        // Once a durable task has been accepted, transient/auth polling
-        // failures must preserve its ID. Explicit job failure and missing-job
-        // responses remain terminal through the normal status/404 paths.
-        retryable: RETRYABLE_JOB_POLL_HTTP_STATUSES.has(response.status) || response.status >= 500,
-      });
-    }
-    const job = await readJsonObjectResponse<JobStatusResponse>(response, `workflow job ${jobId}`)
-      .catch(cause => { throw ambiguousJobPollResponseError(jobId, cause); });
     const status = job.status?.toLowerCase();
     if (status === 'completed') {
       const terminalObservedAt = performance.now();
@@ -584,49 +642,55 @@ const downloadIndrasNetResult = async (
       { code: 'INDRASNET_INVALID_ARTIFACT_URL', retryable: false },
     );
   }
-  const imageResponse = await fetchWithTimeout(
-    imageUrl.toString(),
-    { method: 'GET', headers: { Accept: 'image/*' } },
-    IMAGE_DOWNLOAD_TIMEOUT_MS,
-    {
-      retryable: true,
-      fallbackEligible: false,
-      timeoutCode: 'INDRASNET_IMAGE_DOWNLOAD_TIMEOUT',
-      unreachableCode: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
-      timeoutMessage: 'IndrasNet completed the workflow, but the image download did not finish within 60 seconds.',
-      unreachableMessage: 'IndrasNet completed the workflow, but the image could not be downloaded from this device.',
+  const { imageBlob, mimeType } = await retryIdempotentRead(
+    `workflow "${workflowName}" artifact`,
+    async () => {
+      const imageResponse = await fetchWithTimeout(
+        imageUrl.toString(),
+        { method: 'GET', headers: { Accept: 'image/*' } },
+        IMAGE_DOWNLOAD_TIMEOUT_MS,
+        {
+          retryable: true,
+          fallbackEligible: false,
+          timeoutCode: 'INDRASNET_IMAGE_DOWNLOAD_TIMEOUT',
+          unreachableCode: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
+          timeoutMessage: 'IndrasNet completed the workflow, but the image download did not finish within 60 seconds.',
+          unreachableMessage: 'IndrasNet completed the workflow, but the image could not be downloaded from this device.',
+        },
+      );
+      if (!imageResponse.ok) {
+        const retryable = RETRYABLE_ARTIFACT_HTTP_STATUSES.has(imageResponse.status)
+          || imageResponse.status >= 500;
+        throw await requestError(imageResponse, 'IndrasNet image download', {
+          retryable,
+          fallbackEligible: false,
+        });
+      }
+
+      const mimeType = imageResponse.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() || '';
+      let imageBlob: Blob;
+      try {
+        imageBlob = await imageResponse.blob();
+      } catch (cause) {
+        throw new IndrasNetProviderError(
+          'IndrasNet completed the workflow, but reading the downloaded image failed.',
+          {
+            code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
+            retryable: true,
+            fallbackEligible: false,
+            cause,
+          },
+        );
+      }
+      if (!mimeType.startsWith('image/') || imageBlob.size === 0) {
+        throw new IndrasNetProviderError(
+          `IndrasNet returned an invalid image artifact (${mimeType || 'missing content type'}, ${imageBlob.size} bytes).`,
+          { code: 'INDRASNET_INVALID_IMAGE', retryable: false },
+        );
+      }
+      return { imageBlob, mimeType };
     },
   );
-  if (!imageResponse.ok) {
-    const retryable = RETRYABLE_ARTIFACT_HTTP_STATUSES.has(imageResponse.status)
-      || imageResponse.status >= 500;
-    throw await requestError(imageResponse, 'IndrasNet image download', {
-      retryable,
-      fallbackEligible: false,
-    });
-  }
-
-  const mimeType = imageResponse.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() || '';
-  let imageBlob: Blob;
-  try {
-    imageBlob = await imageResponse.blob();
-  } catch (cause) {
-    throw new IndrasNetProviderError(
-      'IndrasNet completed the workflow, but reading the downloaded image failed.',
-      {
-        code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
-        retryable: true,
-        fallbackEligible: false,
-        cause,
-      },
-    );
-  }
-  if (!mimeType.startsWith('image/') || imageBlob.size === 0) {
-    throw new IndrasNetProviderError(
-      `IndrasNet returned an invalid image artifact (${mimeType || 'missing content type'}, ${imageBlob.size} bytes).`,
-      { code: 'INDRASNET_INVALID_IMAGE', retryable: false },
-    );
-  }
 
   let dataUrl: string;
   try {
