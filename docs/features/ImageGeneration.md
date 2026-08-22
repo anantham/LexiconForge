@@ -1,6 +1,6 @@
 # Image Generation - Advanced Guide
 
-**Last Updated:** 2026-08-21
+**Last Updated:** 2026-08-22
 
 ---
 
@@ -13,12 +13,13 @@ LexiconForge features a powerful AI image generation system that brings pivotal 
 ## Table of Contents
 
 1. [Quick Start](#quick-start)
-2. [Supported Models](#supported-models)
-3. [Image Versioning](#image-versioning)
-4. [Advanced Controls](#advanced-controls)
-5. [Version Management](#version-management)
-6. [Best Practices](#best-practices)
-7. [Troubleshooting](#troubleshooting)
+2. [Mobile Selected-Passage Actions](#mobile-selected-passage-actions)
+3. [Supported Models](#supported-models)
+4. [Image Versioning](#image-versioning)
+5. [Advanced Controls](#advanced-controls)
+6. [Version Management](#version-management)
+7. [Best Practices](#best-practices)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -47,6 +48,23 @@ LexiconForge features a powerful AI image generation system that brings pivotal 
    - Adjust guidance scale
    - Select steering images
    - Use LoRA style models
+
+## Mobile Selected-Passage Actions
+
+In Fan or English view on a touch-first phone or tablet:
+
+1. Long-press the passage you want and adjust the browser's native selection handles.
+2. A bottom sheet previews the selected passage and presents labeled **Illustrate**, **Edit**, and **Compare** actions, plus reactions and **Copy**.
+3. Choose **Illustrate** to generate from that exact selected passage.
+
+A dismissible first-use hint introduces the gesture. Once a passage has been
+selected successfully, the hint stays dismissed on that browser. The fixed
+mobile action sheet remains available while native selection handles cause
+small page scrolls; desktop selection popovers continue to dismiss on scroll
+because their position depends on the original viewport geometry.
+
+Selected-passage actions remain unavailable in Original view, matching the
+existing feedback/edit contract.
 
 ---
 

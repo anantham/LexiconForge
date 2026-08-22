@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { useTextSelection } from '../../hooks/useTextSelection';
 
 function TestComponent() {
@@ -46,6 +45,11 @@ const setSelectionMock = (text: string, range: any, opts?: { collapsed?: boolean
 
 describe('useTextSelection', () => {
   beforeEach(() => {
+    vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })));
     // Ensure DOMRect exists (jsdom has it, but define if missing)
     if (!(globalThis as any).DOMRect) {
       (globalThis as any).DOMRect = class DOMRect {
@@ -53,6 +57,11 @@ describe('useTextSelection', () => {
         constructor(x=0,y=0,w=0,h=0){ this.x=x; this.y=y; this.width=w; this.height=h; this.left=x; this.top=y; this.right=x+w; this.bottom=y+h; }
       } as any;
     }
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it('captures selection inside container with union rect', async () => {
@@ -107,6 +116,38 @@ describe('useTextSelection', () => {
     // Any scroll event captured at document should clear
     await act(async () => { document.dispatchEvent(new Event('scroll', { bubbles: true })); });
     expect(screen.getByTestId('sel').textContent).toBe('none');
+  });
+
+  it('preserves an active selection during touch handle auto-scroll', () => {
+    vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })));
+    render(<TestComponent />);
+    const container = screen.getByTestId('container');
+    const textNode = container.querySelector('#p')!.firstChild as Node;
+    const range = makeRange(textNode, textNode, [], { left: 1, top: 1, right: 11, bottom: 11 });
+    setSelectionMock('Hello', range);
+    act(() => { document.dispatchEvent(new MouseEvent('mouseup')); });
+
+    act(() => { document.dispatchEvent(new Event('scroll', { bubbles: true })); });
+
+    expect(screen.getByTestId('sel').textContent).toBe('Hello|10x10');
+  });
+
+  it('captures the final native selection after touchend', async () => {
+    vi.useFakeTimers();
+    render(<TestComponent />);
+    const container = screen.getByTestId('container');
+    const textNode = container.querySelector('#p')!.firstChild as Node;
+    const range = makeRange(textNode, textNode, [], { left: 1, top: 1, right: 11, bottom: 11 });
+    setSelectionMock('Hello', range);
+
+    document.dispatchEvent(new Event('touchend', { bubbles: true }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(200); });
+
+    expect(screen.getByTestId('sel').textContent).toBe('Hello|10x10');
   });
 
   it('ignores collapsed or empty selections', () => {
