@@ -1,11 +1,15 @@
 import React from 'react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import MobileSelectionHint from '../../../components/chapter/MobileSelectionHint';
 
 describe('MobileSelectionHint', () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('introduces the long-press illustration gesture on a touch reader', async () => {
@@ -47,5 +51,34 @@ describe('MobileSelectionHint', () => {
 
     rerender(<MobileSelectionHint isTouch viewMode="english" selectionActive={false} />);
     expect(screen.queryByTestId('mobile-selection-hint')).not.toBeInTheDocument();
+  });
+
+  it('does not retire the hint for a selection in Original view', async () => {
+    const { rerender } = render(
+      <MobileSelectionHint isTouch viewMode="original" selectionActive />,
+    );
+
+    rerender(<MobileSelectionHint isTouch viewMode="english" selectionActive={false} />);
+
+    expect(await screen.findByTestId('mobile-selection-hint')).toBeInTheDocument();
+  });
+
+  it('keeps the hint dismissed for the page when storage rejects persistence', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('Storage access denied', 'SecurityError');
+    });
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { rerender } = render(
+      <MobileSelectionHint isTouch viewMode="english" selectionActive={false} />,
+    );
+
+    rerender(<MobileSelectionHint isTouch viewMode="english" selectionActive />);
+    rerender(<MobileSelectionHint isTouch viewMode="english" selectionActive={false} />);
+
+    expect(screen.queryByTestId('mobile-selection-hint')).not.toBeInTheDocument();
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('Could not persist dismissal'),
+      expect.any(DOMException),
+    );
   });
 });

@@ -11,8 +11,11 @@ interface MobileSelectionHintProps {
 const persistDismissal = () => {
   try {
     localStorage.setItem(DISMISSED_KEY, 'true');
-  } catch {
-    // The hint still dismisses for this render when storage is unavailable.
+  } catch (error) {
+    console.warn(
+      '[MobileSelectionHint] Could not persist dismissal; the hint will remain dismissed for this page only.',
+      error,
+    );
   }
 };
 
@@ -32,11 +35,12 @@ const MobileSelectionHint: React.FC<MobileSelectionHintProps> = ({
   const [dismissed, setDismissed] = useState(readDismissal);
 
   useEffect(() => {
-    if (!selectionActive) return;
+    if (!isTouch || viewMode === 'original' || !selectionActive) return;
+    setDismissed(true);
     persistDismissal();
-  }, [selectionActive]);
+  }, [isTouch, selectionActive, viewMode]);
 
-  if (!isTouch || viewMode === 'original' || selectionActive || dismissed || readDismissal()) {
+  if (!isTouch || viewMode === 'original' || selectionActive || dismissed) {
     return null;
   }
 
