@@ -3313,6 +3313,14 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Status:** Complete — stash retired
 **Task:** Dropped stash@{0} (f369b17, WIP on fix/fable-epub-integrity) after its sole novel content — tests/services/export/exportSlice.epubWarnings.test.ts — landed via #147. Production hunk was already in main (verified pre-merge). Nothing lost.
 
+### [2026-08-22 16:10 IST] [Agent: ox-alpha]
+**Status:** Complete — CI/test-contract PR 1 of 5 (ADR CORE-013 programme)
+**Task:** Define the CI contract: five stable named jobs wrapping named npm verify:* scripts; exact-base-SHA two-tree integrity check replacing merge-base assumption.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-i/
+**Branch:** ci/alpha-test-contract
+**Files modified:** docs/adr/CORE-013-ci-and-test-contract.md (new, status Accepted); .github/workflows/test.yml (rewritten: repository-integrity / static-analysis / build-security / unit-coverage / domain-invariants, parallel); scripts/ci/integrity.mjs (new gate script); package.json (+5 verify:* scripts).
+**Verification:** verify:integrity green in both modes (repo-wide; BASE_SHA=origin/main two-tree); verify:static 0 errors (1,898 pre-existing warnings baseline); verify:invariants exit 0; workflow YAML parses. unit-coverage runs plain vitest this PR — coverage enforcement is PR 2 under the SAME job name per contract. ADR stays Accepted until PR 5 rulesets make checks required.
+
 ### [2026-08-22 21:00 IST] [Agent: ox-alpha]
 **Status:** Complete — Option A safety-first packet (4 commits)
 **Task:** (1) Rewrite WORKLOG archiver as scripts/ci/cycle-worklog.mjs — block-based (### [ headers), date-gated (keep >= first of prev month), dry-run by default, refuses unparseable blocks and existing archive files; old script's date grep could never match so it tail-cut the last 100 lines while agents append newer entries at bottom = newest-work-first deletion. (2) backfillChapterNumbers completion semantics: two-tier result {unparseableTitleCount=terminal, writeFailureCount=retryable}; initializeStore sets done-flag only when writeFailureCount===0. (3) Tier-B register gains item 7 + operator-entrypoint note on item 5. (4) ARCHITECTURE §7 measured refresh (maintenance.ts 2,992 + imageService.ts 1,245 added; shim rows corrected 725/586→47/35 with resolution notes).
