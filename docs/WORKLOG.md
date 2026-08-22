@@ -3312,3 +3312,11 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 ### [2026-08-22 15:20 IST] [Agent: ox-alpha]
 **Status:** Complete — stash retired
 **Task:** Dropped stash@{0} (f369b17, WIP on fix/fable-epub-integrity) after its sole novel content — tests/services/export/exportSlice.epubWarnings.test.ts — landed via #147. Production hunk was already in main (verified pre-merge). Nothing lost.
+
+### [2026-08-22 21:00 IST] [Agent: ox-alpha]
+**Status:** Complete — Option A safety-first packet (4 commits)
+**Task:** (1) Rewrite WORKLOG archiver as scripts/ci/cycle-worklog.mjs — block-based (### [ headers), date-gated (keep >= first of prev month), dry-run by default, refuses unparseable blocks and existing archive files; old script's date grep could never match so it tail-cut the last 100 lines while agents append newer entries at bottom = newest-work-first deletion. (2) backfillChapterNumbers completion semantics: two-tier result {unparseableTitleCount=terminal, writeFailureCount=retryable}; initializeStore sets done-flag only when writeFailureCount===0. (3) Tier-B register gains item 7 + operator-entrypoint note on item 5. (4) ARCHITECTURE §7 measured refresh (maintenance.ts 2,992 + imageService.ts 1,245 added; shim rows corrected 725/586→47/35 with resolution notes).
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-j/
+**Branch:** fix/alpha-safety-packet
+**Files modified:** scripts/ci/cycle-worklog.mjs (new); scripts/cycle-worklog.sh (delegate); scripts/backfillChapterNumbers.ts; store/bootstrap/initializeStore.ts (:222-239 gate); tests/services/backfillChapterNumbers.test.ts (new, 3 cases); tests/store/bootstrap/bootstrapHelpers.test.ts (mock shape); docs/architecture/ARCHITECTURE.md §7; docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md.
+**Verification:** archiver dry-run on live file: 39 stale (<2026-07-01) entries queued / 2,017 lines, zero August content touched, no write without --apply; backfill suite 20/20 incl. quota-error classification; tsc clean.
