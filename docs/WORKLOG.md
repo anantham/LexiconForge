@@ -3363,3 +3363,7 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Files modified:** scripts/generate-steering-image-list.cjs; .gitignore (+1 line); public/steering-images.json untracked.
 **Verification:** fresh run in worktree: warns, writes [], exits 0, ls-files shows 0 tracked copies; Vercel install runs prepare before build so dist always carries a manifest.
 >>>>>>> origin/main
+
+### [2026-08-22 15:20 IST] [Agent: ox-alpha]
+**Status:** Complete — stash retired
+**Task:** Dropped stash@{0} (f369b17, WIP on fix/fable-epub-integrity) after its sole novel content — tests/services/export/exportSlice.epubWarnings.test.ts — landed via #147. Production hunk was already in main (verified pre-merge). Nothing lost.
