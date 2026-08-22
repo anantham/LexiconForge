@@ -1,3 +1,15 @@
+### [2026-08-22 08:31 IST] [Agent: Codex]
+**Status:** Complete - PR #143 Codex review status body-stream retry boundary
+**Issue:** The exact-head review found that accepted-job status headers were inside the new retry wrapper but `Response.json()` remained outside it, so an aborted body stream still paused after one GET.
+**Hypothesis:** H1 (0.96) decoding the status body inside the idempotent-read callback and distinguishing stream-read failures from syntactically malformed JSON completes the intended boundary. Prediction: two aborted JSON streams then a valid completion succeed with three status GETs and no POST; malformed JSON remains one local attempt but retains the durable ID as a globally retryable ambiguous poll.
+**Options:** (A) move the existing generic JSON decoder into the wrapper - small but retries malformed payloads or retires the durable ID depending classification; (B) add a status-specific decoder that makes stream-read failure locally retryable and malformed JSON globally recoverable but locally terminal - selected; (C) retry every parse failure - simpler but wastes the retry budget on deterministic broker/schema bugs.
+**Files likely affected:** `services/providers/indrasNetImageProvider.ts`; `tests/services/indrasNetImageProvider.jobs.test.ts`; this worklog. No submission, artifact, persistence, credential, schema, or broker changes are expected.
+**Fallback:** revert only the follow-up commit while retaining the initial bounded status-header/artifact retries.
+**Confidence:** 0.96
+**Results:** H1 confirmed. Status JSON decoding now executes inside the bounded idempotent-read boundary. Interrupted body streams receive the same three-attempt 2-second/5-second recovery budget as status transport failures, while syntactically malformed JSON and unknown status values remain one local GET and preserve the accepted task as a globally retryable interruption. No workflow POST is issued during recovery.
+**Verification:** The new body-stream regression failed before implementation and passed after it; pinned Node 24.19.0 focused provider/job tests passed 49/49; exact one-worker suite passed 278 files with 9,267 tests passed and 347 skipped, 0 failed; TypeScript clean; focused and repository-wide ESLint error gates clean; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items.
+**Files modified:** `services/providers/indrasNetImageProvider.ts` adds status-specific body classification inside the retry boundary; `tests/services/indrasNetImageProvider.jobs.test.ts` proves two aborted streams recover without POST and malformed/schema-invalid statuses remain one local attempt; this worklog records the review response and exact-head evidence.
+
 ### [2026-08-22 08:12 IST] [Agent: Codex]
 **Status:** Complete - bounded IndrasNet recovery reads
 **Task:** Implement the user-selected retry option after a physical Pixel run paused on one 10-second broker poll despite the durable Asus job already being complete.

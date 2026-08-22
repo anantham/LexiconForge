@@ -255,6 +255,33 @@ const readJsonObjectResponse = async <T extends object>(response: Response, cont
   return decoded as T;
 };
 
+const readJobStatusResponse = async (
+  response: Response,
+  jobId: string,
+): Promise<JobStatusResponse> => {
+  let decoded: unknown;
+  try {
+    decoded = await response.json();
+  } catch (cause) {
+    if (cause instanceof SyntaxError) {
+      throw ambiguousJobPollResponseError(jobId, cause);
+    }
+    throw new IndrasNetProviderError(
+      `IndrasNet could not finish reading status for accepted workflow job ${jobId}; the saved task ID was preserved for a later retry.`,
+      {
+        code: 'INDRASNET_JOB_POLL_READ_FAILED',
+        retryable: true,
+        fallbackEligible: false,
+        cause,
+      },
+    );
+  }
+  if (!isRecord(decoded)) {
+    throw ambiguousJobPollResponseError(jobId);
+  }
+  return decoded as JobStatusResponse;
+};
+
 const requestError = async (
   response: Response,
   action: string,
@@ -312,13 +339,14 @@ const fetchWithTimeout = async (
 const retryIdempotentRead = async <T>(
   operation: string,
   read: () => Promise<T>,
+  shouldRetry: (_cause: IndrasNetProviderError) => boolean = cause => cause.retryable,
 ): Promise<T> => {
   for (let attempt = 0; ; attempt += 1) {
     try {
       return await read();
     } catch (cause) {
       const delayMs = IDEMPOTENT_READ_RETRY_DELAYS_MS[attempt];
-      if (!(cause instanceof IndrasNetProviderError) || !cause.retryable || delayMs === undefined) {
+      if (!(cause instanceof IndrasNetProviderError) || !shouldRetry(cause) || delayMs === undefined) {
         throw cause;
       }
       debugLog('image', 'full', '[IndrasNetImageProvider] Retrying idempotent read', {
@@ -512,7 +540,7 @@ const pollIndrasNetJob = async (
   let executionStartedAt: number | undefined;
   let queuedObserved = false;
   while (Date.now() < deadline) {
-    const response = await retryIdempotentRead(
+    const job = await retryIdempotentRead(
       `workflow job ${jobId} status`,
       async () => {
         const candidate = await fetchWithTimeout(
@@ -528,11 +556,10 @@ const pollIndrasNetJob = async (
             retryable: RETRYABLE_JOB_POLL_HTTP_STATUSES.has(candidate.status) || candidate.status >= 500,
           });
         }
-        return candidate;
+        return readJobStatusResponse(candidate, jobId);
       },
+      cause => cause.retryable && cause.code !== 'INDRASNET_INVALID_RESPONSE',
     );
-    const job = await readJsonObjectResponse<JobStatusResponse>(response, `workflow job ${jobId}`)
-      .catch(cause => { throw ambiguousJobPollResponseError(jobId, cause); });
     const status = job.status?.toLowerCase();
     if (status === 'completed') {
       const terminalObservedAt = performance.now();
