@@ -92,7 +92,7 @@ describe('MobileSelectionHint', () => {
 
     expect(await screen.findByTestId('mobile-selection-hint')).toBeInTheDocument();
     expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining('Could not read persisted dismissal'),
+      expect.stringContaining('treating it as not dismissed'),
       expect.any(DOMException),
     );
   });

@@ -15,6 +15,7 @@
 **Files modified:** `hooks/useTextSelection.ts` adds touch-end capture and touch-scroll preservation; `components/chapter/SelectionOverlay.tsx` becomes the desktop/mobile dispatcher; new `MobileSelectionSheet.tsx` and `MobileSelectionHint.tsx` own the labeled mobile UX; `ReaderBody.tsx` mounts the eligible first-use hint; focused unit and real-layout fixtures/tests cover behavior and geometry; `docs/features/ImageGeneration.md` records the interaction contract; this worklog records evidence.
 **Live boundary:** The connected Pixel 10 Pro was reachable and the isolated preview route opened, but the device was securely locked, so no physical long-press/selection-handle gesture was performed. The implementation is not production until its PR is reviewed, merged, and Vercel deploys it.
 **Review follow-up:** PR #144 exact-head Codex review identified two hint-retirement edge cases and a missing read-failure diagnostic. The hint now retires only after a touch selection in an eligible Fan/English view, updates in-memory dismissal even when browser storage is blocked, and logs both read and write failures descriptively. Regression coverage exercises all three conditions before re-review.
+**Diagnostic wording follow-up:** The blocked-read warning describes the state fallback without claiming that the hint renders in ineligible desktop/Original views.
 
 ### [2026-08-22 08:31 IST] [Agent: Codex]
 **Status:** Complete - PR #143 Codex review status body-stream retry boundary

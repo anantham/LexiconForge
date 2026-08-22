@@ -24,7 +24,7 @@ const readDismissal = (): boolean => {
     return localStorage.getItem(DISMISSED_KEY) === 'true';
   } catch (error) {
     console.warn(
-      '[MobileSelectionHint] Could not read persisted dismissal; showing the hint for this page.',
+      '[MobileSelectionHint] Could not read persisted dismissal; treating it as not dismissed for this page.',
       error,
     );
     return false;
