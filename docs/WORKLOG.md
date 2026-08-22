@@ -3292,3 +3292,11 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Branch:** docs/alpha-cruft-catalogue
 **Files modified:** docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md (new); docs/WORKLOG.md.
 **Verification:** all evidence refs carried from the verified audit + review fixes (#140/#141/#142); audit corrections recorded inline (backfill boot-wiring, claudeService regex fixed-in-code).
+
+### [2026-08-22 12:48 IST] [Agent: ox-alpha]
+**Status:** Complete — steering manifest recurrence cure
+**Task:** Stop scripts/generate-steering-image-list.cjs (prepare hook) from clobbering the TRACKED public/steering-images.json with [] whenever gitignored public/steering/ is absent or a read error occurs; make writes idempotent so checkouts stop going dirty on every npm install.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-f/
+**Branch:** chore/alpha-steering-manifest
+**Files modified:** scripts/generate-steering-image-list.cjs only.
+**Verification:** ran generator in worktree without public/steering/ → warns and leaves manifest untouched, git status clean; writeIfChanged skips identical content. Open question flagged: main's committed manifest lists 21 images while public/steering/ is not in git — runtime availability of those paths needs a deployment receipt (CAP-009 class), logged here as follow-up.
