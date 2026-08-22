@@ -91,11 +91,13 @@ docs/
 ├── architecture/          # System design
 │   └── ARCHITECTURE.md
 │
-├── adr/                   # Architecture Decision Records
-│   ├── DB-001..DB-007     # Database layer
-│   ├── CORE-004..CORE-006 # Core architecture
-│   ├── FEAT-001..FEAT-002 # Feature design
-│   └── SUTTA-003          # Sutta Studio
+├── adr/                   # Architecture Decision Records (26 total)
+│   ├── DB-001..003, DB-007     # Database layer
+│   ├── CORE-004..007, CORE-012 # Core architecture
+│   ├── FEAT-001..003           # Feature design
+│   ├── SEC-001                 # Browser provider credential boundary
+│   ├── LITURGY-001             # Liturgy generator pipeline
+│   └── SUTTA-003..014          # Sutta Studio
 │
 ├── infrastructure/        # Testing & tooling
 │   ├── E2E-TESTING.md, TEST_MANIFEST.md

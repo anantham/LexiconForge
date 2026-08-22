@@ -53,6 +53,13 @@ Most of these are instances of four root patterns, not 55 unrelated bugs:
 
 **Fix.** Resolve withTxn (and writeTranslation) from transaction.oncomplete, capturing the operation's result in a closure, so success is only reported after durable commit and onabort rejections actually reach callers.
 
+> **Closed (verified in code 2026-08-22):** Superseded by the durable transaction kernel
+> (`services/db/core/transactionKernel.ts` `runTransaction`) shipped via #109/#110 — resolves
+> only on the terminal `complete` event, rejects with `DbError` on commit-time abort
+> (committedButFailed / never-settled F-paths), and repositories were migrated onto it in #110.
+> The budget-gate sibling of this class (cost fail-open) is also closed: `services/ai/cost.ts`
+> pre-flights `hasKnownPricing()` per TECH-DEBT P0.4 and refuses unpriceable models at the gate.
+
 ### 🟠 HIGH 3. Streaming import renumbers versions in reverse order and its setActive call targets the wrong URL, silently discarding the exported active-version selection
 
 - **File:** `services/importService.ts:695`

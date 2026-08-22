@@ -135,7 +135,7 @@ Authoritative list (never stale): `git log --oneline main..HEAD`. Highlights bel
 
 | Item | Notes |
 |---|---|
-| **P0 tech-debt merge** | **Codex COMPLETED the brief.** 4 unmerged branches: `fix/codex-txn-durability`, `fix/codex-cost-budget-safety`, `fix/codex-image-retry-guard`, `debt/codex-db-transaction-kernel`. These fix real data/money-loss bugs **still live in `main`**. Review + merge. |
+| **P0 tech-debt merge** | **DONE — all four landed.** `fix/codex-txn-durability` → #109, `debt/codex-db-transaction-kernel` → #110 (both merged), `fix/codex-cost-budget-safety` via #133 ("Store integrity: budget fail-closed"), `fix/codex-image-retry-guard` via #134 ("image lanes"). Branches deleted from remote; fixes live in `main`. |
 | P0.2/P0.3 + P1–P3 tech debt | `docs/roadmaps/TECH-DEBT-FIX-PRIORITY-2026-07-07.md` — 55 findings, prioritized |
 | Word-level threading | Hover an Italian word → its English word lights up. Needs a word-aligner (awesome-align/fast_align). |
 | Widen cognate / false-friend tables | ~100 curated entries; the kaikki dump has etymology to auto-widen |
