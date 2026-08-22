@@ -22,7 +22,6 @@ const baseSettings: AppSettings = {
   ],
   imageModel: 'none',
   showDiffHeatmap: true,
-  maxSessionSize: 10,
 };
 
 const storeState = {
