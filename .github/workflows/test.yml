@@ -17,6 +17,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Integrity gate: conflict markers must never land (they pass typecheck,
+      # tests, and deploys silently — see 2026-08-22 incident). Runs before
+      # install so it fails fast. On PRs also whitespace-checks the whole
+      # three-way diff against the base branch.
+      - name: Reject conflict markers / whitespace errors
+        run: |
+          ! git grep -nE '^(<{7}|>{7})'
+          if [ -n "${{ github.event.pull_request.base.sha }}" ]; then
+            git fetch --no-tags origin "+refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}"
+            git diff --check "refs/remotes/origin/${{ github.event.pull_request.base.ref }}...HEAD"
+          fi
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
