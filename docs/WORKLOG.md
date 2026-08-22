@@ -3308,3 +3308,11 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Branch:** docs/alpha-cruft-catalogue
 **Files modified:** docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md (new); docs/WORKLOG.md.
 **Verification:** all evidence refs carried from the verified audit + review fixes (#140/#141/#142); audit corrections recorded inline (backfill boot-wiring, claudeService regex fixed-in-code).
+
+### [2026-08-22 12:45 IST] [Agent: ox-alpha]
+**Status:** Complete — stash rescue as test-only PR
+**Task:** Land the only novel content from stash@{0} (WIP on fix/fable-epub-integrity): a 22-line regression test pinning keyed image-cache-miss accounting (must record image-cache-miss, never double-count as illustration-never-generated). Production hunk of the stash was verified already present in main.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-e/
+**Branch:** test/alpha-epub-warnings
+**Files modified:** tests/services/export/exportSlice.epubWarnings.test.ts (restored from stash).
+**Verification:** vitest 4/4 locally; stash retained until merge, then dropped with receipt.
