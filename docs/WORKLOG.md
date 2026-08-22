@@ -3316,3 +3316,12 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Branch:** test/alpha-epub-warnings
 **Files modified:** tests/services/export/exportSlice.epubWarnings.test.ts (restored from stash).
 **Verification:** vitest 4/4 locally; stash retained until merge, then dropped with receipt.
+
+### [2026-08-22 12:48 IST] [Agent: ox-alpha]
+**Status:** Reworked after human deployment-verification review
+**Task:** Cure the recurring dirty steering manifest WITHOUT regressing production. First attempt kept the tracked 21-entry manifest and stopped [] writes — reviewer measured https://read.adityaarpitha.com/steering/art.webp returns the vercel.json catch-all HTML (200), i.e. images were never deployed; production honestly serves [] today, so shipping a 21-entry manifest would offer 21 broken options. The []-on-missing behavior was a deliberate Vercel accommodation (archived WORKLOG) — Chesterton fence removed unread.
+**Final approach:** stop tracking the generated artifact (LXF-H aligned): git rm --cached public/steering-images.json + .gitignore rule; generator keeps honest []-on-missing (documented rationale in-file), idempotent writeIfChanged retained. Local dirt eliminated AND deployed manifest truthful.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-f/
+**Branch:** chore/alpha-steering-manifest
+**Files modified:** scripts/generate-steering-image-list.cjs; .gitignore (+1 line); public/steering-images.json untracked.
+**Verification:** fresh run in worktree: warns, writes [], exits 0, ls-files shows 0 tracked copies; Vercel install runs prepare before build so dist always carries a manifest.
