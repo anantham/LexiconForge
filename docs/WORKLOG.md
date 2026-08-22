@@ -3309,61 +3309,6 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Result:** Confirmed. The paused marker UI resumes the existing in-memory task through the provider reattachment path; unsaved interrupted jobs remain in the active/unload predicate; the banner and repeated-outage toast direct the user to open the origin and resume without reloading. Persisted interrupted jobs retain the prior non-blocking behavior.
 **Verification:** Pinned Node 24.19.0: focused job/recovery/banner/inline regressions 61/61; exact one-worker suite 278 files, 9,264 passed and 347 skipped, 0 failed; TypeScript clean; targeted ESLint 0 errors and repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.
 
-<<<<<<< HEAD
-=======
-### [2026-08-22 08:15 IST] [Agent: ox-alpha]
-**Status:** Complete — Tier A remediation PR 1 of 3
-**Task:** Audit (CAP-catalogue) follow-ups: settle parked rate-limit waiters + AbortSignal support (CAP-014 class); delete dead `maxSessionSize` setting (CAP-010 class).
-**Worktree:** ../LexiconForge.worktrees/alpha-tier-a/
-**Branch:** fix/alpha-ratelimit-liveness
-**Files modified:** services/rateLimitService.ts (failQueue/removeQueued helpers, signal-aware queueing, loud rejection on cleared state and processing errors); adapters/providers/OpenAIAdapter.ts (translate :84, chatJSON :159 thread abortSignal into slot acquisition); adapters/providers/GeminiAdapter.ts (:64, :137 same); tests/services/rateLimitService.test.ts (new, 7 cases); tests/contracts/provider.contract.test.ts (assertions updated to explicit options arg); types.ts (AppSettings.maxSessionSize removed); docs/guides/Settings.md; 8 panel/modal test fixtures + metadataPreamble.test.ts.
-**Hypotheses:** (1) parked callers strand because `clearLimits()` drops queues without settling and `processQueue` breaks silently when state is missing — confirmed by path-tracing; both now reject descriptively. (2) `maxSessionSize` has zero production readers — grep-confirmed across ts/tsx/md before deletion.
-**Result:** Every parked waiter now settles; user aborts propagate into slot acquisition instead of waiting minutes for a slot they no longer need. False setting deleted rather than retained as aspirational parameter.
-**Verification:** Local shell only has Node 26.0.0 (repo CI pins Node 24 via .nvmrc): new rateLimit suite 7/7, provider contracts 3/3, targeted settings/prompts suites green except 5 localStorage-environment failures that reproduce identically on pristine origin/main in this shell (known Node-26 webstorage flake class recorded in tests/setup.ts and TECH-DEBT-INBOX). tsc clean; ESLint on touched files 0 errors (2 warnings carried over verbatim from original lines).
-
-### [2026-08-22 08:20 IST] [Agent: ox-alpha]
-**Status:** Complete — Tier A remediation PR 2 of 3
-**Task:** Config/dead-file cleanup from CAP audit: phantom coverage thresholds + tsconfig excludes (CAP-006/CAP-010 class), unused oboe dep, zombie steering-list generator twin, redundant window exposure on boot-run migration script.
-**Worktree:** ../LexiconForge.worktrees/alpha-tier-b/
-**Branch:** chore/alpha-config-cleanup
-**Files modified:** vitest.config.ts (thresholds for deleted services/aiService.ts removed; HtmlSanitizer/HtmlRepairService repointed to services/translate/*; phantom archive//*.legacy/workers coverage excludes dropped); tsconfig.json (phantom excludes build/, archive/, **/*.legacy.ts, tests/novel-library-flow.test.tsx dropped); package.json + package-lock.json (oboe + orphaned transitive http-https removed); scripts/generate-steering-image-list.js (deleted zombie twin of .cjs used by prepare hook); scripts/backfillChapterNumbers.ts (window auto-exposure block removed).
-**Hypothesis corrections:** audit claimed backfillChapterNumbers was console-only cruft — FALSE: it runs once-per-user behind chapterNumbersBackfilled flag (store/bootstrap/initializeStore.ts:222-231). HALT would break unmigrated users; only the redundant window hook was removed. Exit-condition question for the flag itself logged as Tier B.
-**Verification:** tsc clean; bootstrapHelpers+HtmlSanitizer+HtmlRepairService suites 42/42; FULL suite under Node 26 = 137 failed/9121 passed/347 skipped — byte-identical failure count proven on pristine origin/main in same shell (environmental Node-26 webstorage class; CI pins Node 24 where baseline is 0 failed). Lockfile edited surgically after npm-on-26 rewrote unrelated sections; JSON validity checked; oboe/http-https zero references remaining.
-
-### [2026-08-22 08:35 IST] [Agent: ox-alpha]
-**Status:** Complete — Tier A remediation PR 3 of 3 (docs closure pass)
-**Task:** Close stale status claims (CAP-008 class): ADR index accuracy, roadmap status banners, merged-PR handover row, verified-fix audit addenda.
-**Worktree:** ../LexiconForge.worktrees/alpha-tier-c/
-**Branch:** docs/alpha-status-closure
-**Files modified:** docs/START_HERE.md (adr block now lists real 26 ADRs: DB-001..003+007, CORE-004..007+012, FEAT-001..003, SEC-001, LITURGY-001, SUTTA-003..014); docs/HANDOVER.md (P0 tech-debt row: #109/#110 confirmed MERGED via gh pr view; remaining two branches landed via #133/#134, remote branches deleted — row flipped to DONE); docs/roadmaps/README.md (REMEDIATION marked stale targeting deleted indexeddb.ts; MEMORY_OPTIMIZATION aligned with its own header; unindexed audit docs listed in pointer note); docs/roadmaps/TECH-DEBT-DEEP-AUDIT-2026-07-07.md (HIGH 2 closure addendum: transactionKernel resolves-on-complete verified at services/db/core/transactionKernel.ts + P0.4 fail-closed gate verified at services/ai/cost.ts).
-**Verification:** every claim checked against live evidence before writing (gh pr view 109/110 → MERGED; git ls-remote shows the four codex branches gone; kernel/cost code read). Docs-only change — no tests affected.
-
-### [2026-08-22 11:05 IST] [Agent: ox-alpha]
-**Status:** Complete — velocity cruft pattern ledger for this repo
-**Task:** Write docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md: 20-pattern scorecard vs TemporalCoordination origin catalogue (12 PRESENT / 6 PARTIAL / 2 ABSENT), Part I imported patterns with local evidence, Part II eight repo-native classes (LXF-A..H), Part III clean negatives, Tier-B disposition queue.
-**Worktree:** ../LexiconForge.worktrees/alpha-tier-d/
-**Branch:** docs/alpha-cruft-catalogue
-**Files modified:** docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md (new); docs/WORKLOG.md.
-**Verification:** all evidence refs carried from the verified audit + review fixes (#140/#141/#142); audit corrections recorded inline (backfill boot-wiring, claudeService regex fixed-in-code).
-
-### [2026-08-22 12:45 IST] [Agent: ox-alpha]
-**Status:** Complete — stash rescue as test-only PR
-**Task:** Land the only novel content from stash@{0} (WIP on fix/fable-epub-integrity): a 22-line regression test pinning keyed image-cache-miss accounting (must record image-cache-miss, never double-count as illustration-never-generated). Production hunk of the stash was verified already present in main.
-**Worktree:** ../LexiconForge.worktrees/alpha-tier-e/
-**Branch:** test/alpha-epub-warnings
-**Files modified:** tests/services/export/exportSlice.epubWarnings.test.ts (restored from stash).
-**Verification:** vitest 4/4 locally; stash retained until merge, then dropped with receipt.
-
-### [2026-08-22 12:48 IST] [Agent: ox-alpha]
-**Status:** Reworked after human deployment-verification review
-**Task:** Cure the recurring dirty steering manifest WITHOUT regressing production. First attempt kept the tracked 21-entry manifest and stopped [] writes — reviewer measured https://read.adityaarpitha.com/steering/art.webp returns the vercel.json catch-all HTML (200), i.e. images were never deployed; production honestly serves [] today, so shipping a 21-entry manifest would offer 21 broken options. The []-on-missing behavior was a deliberate Vercel accommodation (archived WORKLOG) — Chesterton fence removed unread.
-**Final approach:** stop tracking the generated artifact (LXF-H aligned): git rm --cached public/steering-images.json + .gitignore rule; generator keeps honest []-on-missing (documented rationale in-file), idempotent writeIfChanged retained. Local dirt eliminated AND deployed manifest truthful.
-**Worktree:** ../LexiconForge.worktrees/alpha-tier-f/
-**Branch:** chore/alpha-steering-manifest
-**Files modified:** scripts/generate-steering-image-list.cjs; .gitignore (+1 line); public/steering-images.json untracked.
-**Verification:** fresh run in worktree: warns, writes [], exits 0, ls-files shows 0 tracked copies; Vercel install runs prepare before build so dist always carries a manifest.
->>>>>>> origin/main
-
 ### [2026-08-22 15:20 IST] [Agent: ox-alpha]
 **Status:** Complete — stash retired
 **Task:** Dropped stash@{0} (f369b17, WIP on fix/fable-epub-integrity) after its sole novel content — tests/services/export/exportSlice.epubWarnings.test.ts — landed via #147. Production hunk was already in main (verified pre-merge). Nothing lost.
