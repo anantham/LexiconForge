@@ -3209,3 +3209,11 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Fallback:** Revert the UI/actionable-copy and active-predicate changes and leave PR #139 unmerged; no provider protocol or storage schema changes.
 **Result:** Confirmed. The paused marker UI resumes the existing in-memory task through the provider reattachment path; unsaved interrupted jobs remain in the active/unload predicate; the banner and repeated-outage toast direct the user to open the origin and resume without reloading. Persisted interrupted jobs retain the prior non-blocking behavior.
 **Verification:** Pinned Node 24.19.0: focused job/recovery/banner/inline regressions 61/61; exact one-worker suite 278 files, 9,264 passed and 347 skipped, 0 failed; TypeScript clean; targeted ESLint 0 errors and repository ESLint 0 errors with the unchanged 1,909-warning baseline; production build passed with existing warnings; built-client secret scan passed; Malayalam surface law passed with 275 informational native-review items; `git diff --check` passed.
+
+### [2026-08-22 08:35 IST] [Agent: ox-alpha]
+**Status:** Complete — Tier A remediation PR 3 of 3 (docs closure pass)
+**Task:** Close stale status claims (CAP-008 class): ADR index accuracy, roadmap status banners, merged-PR handover row, verified-fix audit addenda.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-c/
+**Branch:** docs/alpha-status-closure
+**Files modified:** docs/START_HERE.md (adr block now lists real 26 ADRs: DB-001..003+007, CORE-004..007+012, FEAT-001..003, SEC-001, LITURGY-001, SUTTA-003..014); docs/HANDOVER.md (P0 tech-debt row: #109/#110 confirmed MERGED via gh pr view; remaining two branches landed via #133/#134, remote branches deleted — row flipped to DONE); docs/roadmaps/README.md (REMEDIATION marked stale targeting deleted indexeddb.ts; MEMORY_OPTIMIZATION aligned with its own header; unindexed audit docs listed in pointer note); docs/roadmaps/TECH-DEBT-DEEP-AUDIT-2026-07-07.md (HIGH 2 closure addendum: transactionKernel resolves-on-complete verified at services/db/core/transactionKernel.ts + P0.4 fail-closed gate verified at services/ai/cost.ts).
+**Verification:** every claim checked against live evidence before writing (gh pr view 109/110 → MERGED; git ls-remote shows the four codex branches gone; kernel/cost code read). Docs-only change — no tests affected.
