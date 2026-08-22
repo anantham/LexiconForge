@@ -120,6 +120,28 @@ describe('exportEpub warning surfacing', () => {
     expect(done?.message).toContain('1 warning');
   });
 
+  it('a keyed cache MISS records image-cache-miss only — never-generated must not double-count (codex review)', async () => {
+    mockedGetActive.mockResolvedValue({
+      translation: 'Text with [ILLUSTRATION-1].',
+      translatedTitle: 'Chapter One (translated)',
+      footnotes: [],
+      // HAS a cache key, but the blob lookup will miss and there is no legacy url.
+      suggestedIllustrations: [
+        { placementMarker: '[ILLUSTRATION-1]', imagePrompt: 'scene', imageCacheKey: 'k1' }
+      ],
+    } as any);
+
+    const { state, progressLog } = buildHarness();
+    await state.exportEpub();
+
+    const types = captureWarning.mock.calls.map((c) => (c[2] as any)?.type);
+    expect(types).toContain('image-cache-miss');
+    expect(types).not.toContain('illustration-never-generated');
+
+    const done = progressLog.find(p => p?.phase === 'done');
+    expect(done?.message).toContain('1 warning');
+  });
+
   it('surfaces packager warnings from generateEpub via onWarning into the counter and message', async () => {
     mockedGetActive.mockResolvedValue({
       translation: 'Plain text, no illustrations.',

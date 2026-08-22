@@ -70,6 +70,8 @@ booktoki_*.json
 
 # Steering images (user content) — do not version control
 public/steering/
+# Generated manifest for the above (prepare hook writes it; keep checkouts clean)
+public/steering-images.json
 
 # Media assets - do not version control
 public/OSTs/

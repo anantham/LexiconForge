@@ -267,5 +267,17 @@ Append-only raw debt receipts discovered during implementation.
 - Suggested follow-up: extract a tested illustration-job status panel/selector first, then separate prompt-plan controls and version controls without changing the persisted illustration contract.
 - Blocker status: non-blocking after the inline interrupted-state regression; decomposition belongs in a focused follow-up PR.
 
+<<<<<<< HEAD
 - [DEBT][TOOLING][2026-08-22] scripts/cycle-worklog.sh inverted cutoff: `grep -n "^2026-07\|^2026-08"` never matches because entry headers start with `### [`, so the fallback CUTOFF_LINE = LINE_COUNT - 100 archives the TAIL of a newest-first file — i.e. every future bottom-append self-deletes on next run (nearly ate four ox-alpha entries at lines ~3261+). Fix: anchor on `^### \[`.
 - [DEBT][RATELIMIT][CAP-003][2026-08-22] adapters/providers/ClaudeAdapter.ts never calls rateLimitService.acquireRequestSlot — Claude translations bypass per-model rate limiting entirely while OpenAI/Gemini honor it (#140 made the contract explicit; this is its third provider violating it). Symptom would be OpenRouter/Gemini-style 429s surfacing raw on Claude lanes.
+=======
+---
+
+[DEBT][AUDIT][2026-08-16; corrected 2026-08-22] State, DB, migration, and de-sprawl audit
+
+- Full evidence: `docs/roadmaps/tech-debt-audit-db-state-migrations.md` and `docs/roadmaps/DESPRAWL-ROADMAP-2026-08-16.md`.
+- Confirmed themes: dual settings persistence; scattered repair flags; operations/repositories coupling; duplicate skeleton implementations; contradictory retry classification; stale ADR/index references; and missing completeness gates around some migrations, capability lookups, and e2e discovery.
+- Rereview corrections: `services/diff/`, `services/librarySearch/`, `services/import/booktoki.ts`, the providers barrel, and `services/db/index.ts` have live consumers and are not deletion candidates as a group. `migrateImagesToCacheFromDB` is a supported operator/debug command exposed on `window`, not a dead export. The translation service/router/translator chain needs a responsibility map before any duplication verdict.
+- Guardrail: re-run an entrypoint-aware import audit before deleting any candidate; side-effect imports, relative imports, barrel re-exports, aliases, and literal dynamic imports must be resolved.
+- Status: audit evidence only. The de-sprawl roadmap remains proposed, and every `DECISION NEEDED` item retains its human gate.
+>>>>>>> origin/main
