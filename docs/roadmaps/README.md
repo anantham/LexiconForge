@@ -16,8 +16,9 @@ Plans, status tracking, and tech debt management.
 
 > Additional audit/scan docs in this folder not individually indexed:
 > TECH-DEBT-INBOX, TECH-DEBT-FIX-PRIORITY-2026-07-07, TECH-DEBT-DEEP-AUDIT-2026-07-07,
-> JANE-STREET-STYLE-RECON-2026-07-19, GOLDEN-CONTRACT-REPAIR, INTEGRITY-SCAN-2026-07-26,
-> DESPRAWL-ROADMAP-2026-08-16. `TECH-DEBT-STATUS.md` is the curated overview.
+> JANE-STREET-STYLE-RECON-2026-07-19, GOLDEN-CONTRACT-REPAIR, INTEGRITY-SCAN-2026-07-26.
+> (`DESPRAWL-ROADMAP-2026-08-16.md` exists locally but is not yet committed.)
+> `TECH-DEBT-STATUS.md` is the curated overview.
 
 ## Missing Documentation
 
