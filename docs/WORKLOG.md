@@ -3284,3 +3284,11 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Branch:** docs/alpha-status-closure
 **Files modified:** docs/START_HERE.md (adr block now lists real 26 ADRs: DB-001..003+007, CORE-004..007+012, FEAT-001..003, SEC-001, LITURGY-001, SUTTA-003..014); docs/HANDOVER.md (P0 tech-debt row: #109/#110 confirmed MERGED via gh pr view; remaining two branches landed via #133/#134, remote branches deleted — row flipped to DONE); docs/roadmaps/README.md (REMEDIATION marked stale targeting deleted indexeddb.ts; MEMORY_OPTIMIZATION aligned with its own header; unindexed audit docs listed in pointer note); docs/roadmaps/TECH-DEBT-DEEP-AUDIT-2026-07-07.md (HIGH 2 closure addendum: transactionKernel resolves-on-complete verified at services/db/core/transactionKernel.ts + P0.4 fail-closed gate verified at services/ai/cost.ts).
 **Verification:** every claim checked against live evidence before writing (gh pr view 109/110 → MERGED; git ls-remote shows the four codex branches gone; kernel/cost code read). Docs-only change — no tests affected.
+
+### [2026-08-22 11:05 IST] [Agent: ox-alpha]
+**Status:** Complete — velocity cruft pattern ledger for this repo
+**Task:** Write docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md: 20-pattern scorecard vs TemporalCoordination origin catalogue (12 PRESENT / 6 PARTIAL / 2 ABSENT), Part I imported patterns with local evidence, Part II eight repo-native classes (LXF-A..H), Part III clean negatives, Tier-B disposition queue.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-d/
+**Branch:** docs/alpha-cruft-catalogue
+**Files modified:** docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md (new); docs/WORKLOG.md.
+**Verification:** all evidence refs carried from the verified audit + review fixes (#140/#141/#142); audit corrections recorded inline (backfill boot-wiring, claudeService regex fixed-in-code).
