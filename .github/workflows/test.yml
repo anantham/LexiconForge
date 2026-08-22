@@ -1,5 +1,9 @@
 name: Test
 
+# Contract: ADR docs/adr/CORE-013-ci-and-test-contract.md
+# Five stable job names; each wraps exactly one npm run verify:* script.
+# Job names are public contracts — renaming requires an ADR amendment.
+
 on:
   pull_request:
   push:
@@ -10,40 +14,46 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: quality gates
+  repository-integrity:
+    name: repository-integrity
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # exact-base two-tree diff needs full history
+      - name: verify:integrity
+        run: npm run verify:integrity
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
 
-      # Integrity gate: conflict markers must never land (they pass typecheck,
-      # tests, and deploys silently — see 2026-08-22 incident). Runs before
-      # install so it fails fast. On PRs also whitespace-checks the whole
-      # three-way diff against the base branch.
-      - name: Reject conflict markers / whitespace errors
-        run: |
-          ! git grep -nE '^(<{7}|>{7})'
-          if [ -n "${{ github.event.pull_request.base.sha }}" ]; then
-            git fetch --no-tags origin "+refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}"
-            git diff --check "refs/remotes/origin/${{ github.event.pull_request.base.ref }}...HEAD"
-          fi
-
+  static-analysis:
+    name: static-analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-
       - run: npm ci
+      - name: verify:static
+        run: npm run verify:static
 
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Build with credential canaries
-        run: npm run build
+  build-security:
+    name: build-security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+      - name: verify:build-security
+        run: npm run verify:build-security
         env:
           GEMINI_API_KEY: LF_SECRET_CANARY_GEMINI
           VITE_GEMINI_API_KEY: LF_SECRET_CANARY_VITE_GEMINI
@@ -56,23 +66,37 @@ jobs:
           OPENROUTER_API_KEY: LF_SECRET_CANARY_OPENROUTER
           VITE_OPENROUTER_API_KEY: LF_SECRET_CANARY_VITE_OPENROUTER
           PIAPI_API_KEY: LF_SECRET_CANARY_PIAPI
-          VITE_PIAPI_API_KEY: LF_SECRET_CANARY_VITE_PIAPI
+          VITE_PIAPI_API_KEY: LF_SECRET_CANARY_PIAPI
           DEFAULT_OPENROUTER_KEY: LF_SECRET_CANARY_DEFAULT_TRIAL
           VITE_DEFAULT_OPENROUTER_KEY: LF_SECRET_CANARY_TRIAL
           VITE_GOOGLE_DRIVE_API_KEY: LF_SECRET_CANARY_GOOGLE_DRIVE
 
-      - name: Reject credentials in client artifacts
-        run: npm run security:scan-client
-        env:
-          LF_CLIENT_SECRET_CANARIES: LF_SECRET_CANARY_GEMINI,LF_SECRET_CANARY_VITE_GEMINI,LF_SECRET_CANARY_OPENAI,LF_SECRET_CANARY_VITE_OPENAI,LF_SECRET_CANARY_DEEPSEEK,LF_SECRET_CANARY_VITE_DEEPSEEK,LF_SECRET_CANARY_CLAUDE,LF_SECRET_CANARY_VITE_CLAUDE,LF_SECRET_CANARY_OPENROUTER,LF_SECRET_CANARY_VITE_OPENROUTER,LF_SECRET_CANARY_PIAPI,LF_SECRET_CANARY_VITE_PIAPI,LF_SECRET_CANARY_DEFAULT_TRIAL,LF_SECRET_CANARY_TRIAL,LF_SECRET_CANARY_GOOGLE_DRIVE
-
-      - name: Run unit + integration tests
-        run: npx vitest run
+  unit-coverage:
+    name: unit-coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+      - name: verify:test
+        run: npm run verify:test
         env:
           CI: 'true'
 
-      # Surface law over the full Malayalam corpus (curated + generated):
-      # every piece must reconstruct its written surface, every sound must
-      # slice against its clusters, every alignment binding must resolve.
-      - name: Malayalam surface-law validator
-        run: npx tsx scripts/malayalam/validate-surface.ts
+  domain-invariants:
+    name: domain-invariants
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+      - name: verify:invariants
+        run: npm run verify:invariants
