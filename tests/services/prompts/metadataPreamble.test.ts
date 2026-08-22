@@ -53,7 +53,6 @@ describe('metadataPreamble', () => {
         systemPrompt: 'x',
         imageModel: 'none',
         showDiffHeatmap: false,
-        maxSessionSize: 10,
         targetLanguage: 'English',
       } as any,
       {
@@ -79,7 +78,6 @@ describe('metadataPreamble', () => {
       systemPrompt: 'x',
       imageModel: 'none',
       showDiffHeatmap: false,
-      maxSessionSize: 10,
       targetLanguage: 'English',
       glossary: [
         { source: '灵气', target: 'Essence Energy', note: 'FMoC-specific' },
@@ -105,7 +103,6 @@ describe('metadataPreamble', () => {
         systemPrompt: 'x',
         imageModel: 'none',
         showDiffHeatmap: false,
-        maxSessionSize: 10,
         targetLanguage: 'English',
         glossary: [{ source: '灵气', target: 'Essence Energy' }],
       } as any,

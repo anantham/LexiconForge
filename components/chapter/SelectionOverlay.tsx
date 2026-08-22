@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import React from 'react';
 import type { FeedbackItem } from '../../types';
 import FeedbackPopover from '../FeedbackPopover';
-import { debugLog } from '../../utils/debug';
+import { MobileSelectionSheet } from './MobileSelectionSheet';
 
 type SelectionInfo = {
   text: string;
@@ -18,195 +17,12 @@ interface SelectionOverlayProps {
   comparisonLoading: boolean;
   beginInlineEdit: () => void;
   handleCompareRequest: () => void;
-  handleFeedbackSubmit: (feedback: { type: FeedbackItem['type']; selection: string; comment?: string }) => void;
+  handleFeedbackSubmit: (_feedback: { type: FeedbackItem['type']; selection: string; comment?: string }) => void;
   clearSelection: () => void;
   viewRef: React.RefObject<HTMLDivElement>;
   onSelfInsert?: () => void | Promise<void>;
   enableSillyTavern?: boolean;
 }
-
-interface SelectionSheetProps {
-  selection: SelectionInfo;
-  onReact: (emoji: '👍' | '❤️' | '😂' | '🎨' | '✏️' | '🔍', comment?: string) => void;
-  onCopy: () => void;
-  onClose: () => void;
-  canCompare: boolean;
-  isComparing: boolean;
-  onSelfInsert?: () => void | Promise<void>;
-  enableSillyTavern?: boolean;
-}
-
-const SelectionSheet: React.FC<SelectionSheetProps> = ({
-  selection,
-  onReact,
-  onCopy,
-  onClose,
-  canCompare,
-  isComparing,
-  onSelfInsert,
-  enableSillyTavern,
-}) => {
-  const [pendingEmoji, setPendingEmoji] = useState<'👍' | '❤️' | '😂' | null>(null);
-  const [comment, setComment] = useState('');
-  // Pending state for the portal/self-insert button — issue #4 fix (mobile twin).
-  // Ref guards against synchronous re-entry; state drives visible UI.
-  const [isSelfInsertPending, setIsSelfInsertPending] = useState(false);
-  const isSelfInsertPendingRef = useRef(false);
-  // Pending state for the illustration (🎨) button — issue #5 fix (mobile twin).
-  const [isIllustrationPending, setIsIllustrationPending] = useState(false);
-  const illustrationPendingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    return () => {
-      if (illustrationPendingTimeoutRef.current) {
-        clearTimeout(illustrationPendingTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const blockContextMenu = (event: Event) => event.preventDefault();
-    document.addEventListener('contextmenu', blockContextMenu, { passive: false });
-    return () => document.removeEventListener('contextmenu', blockContextMenu as any);
-  }, []);
-
-  useEffect(() => {
-    if (pendingEmoji && inputRef.current) inputRef.current.focus();
-  }, [pendingEmoji]);
-
-  const handleEmojiClick = (emoji: '👍' | '❤️' | '😂' | '🎨' | '✏️' | '🔍') => {
-    if (emoji === '🎨') {
-      if (isIllustrationPending) return; // ignore double-clicks during pending window
-      // Issue #5 — same minimum-duration acknowledgment pattern as desktop.
-      setIsIllustrationPending(true);
-      onReact(emoji);
-      if (illustrationPendingTimeoutRef.current) {
-        clearTimeout(illustrationPendingTimeoutRef.current);
-      }
-      illustrationPendingTimeoutRef.current = setTimeout(() => {
-        setIsIllustrationPending(false);
-      }, 1200);
-      return;
-    }
-    if (emoji === '✏️' || emoji === '🔍') {
-      onReact(emoji);
-      return;
-    }
-    setPendingEmoji(emoji);
-  };
-
-  const submitWithComment = () => {
-    if (!pendingEmoji) return;
-    onReact(pendingEmoji, comment.trim() || undefined);
-    setPendingEmoji(null);
-    setComment('');
-  };
-
-  const skipComment = () => {
-    if (!pendingEmoji) return;
-    onReact(pendingEmoji);
-    setPendingEmoji(null);
-    setComment('');
-  };
-
-  return createPortal(
-    <div className="fixed inset-x-0 bottom-0 z-[70] pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto max-w-xl rounded-t-2xl bg-gray-900/95 text-white shadow-2xl p-3">
-        {pendingEmoji ? (
-          <div className="flex items-center gap-2">
-            <span className="text-xl">{pendingEmoji}</span>
-            <input
-              ref={inputRef}
-              type="text"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              onMouseDown={(e) => e.stopPropagation()}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') submitWithComment();
-              }}
-              placeholder="Add a comment..."
-              className="flex-1 bg-white/10 text-white rounded px-3 py-2 text-sm outline-none placeholder-gray-400"
-            />
-            <button onClick={submitWithComment} className="px-3 py-2 rounded bg-blue-600 text-sm">Save</button>
-            <button onClick={skipComment} className="px-3 py-2 rounded bg-white/10 text-sm">Skip</button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <button className="p-3 text-xl" onClick={() => handleEmojiClick('👍')}>👍</button>
-            <button className="p-3 text-xl" onClick={() => handleEmojiClick('❤️')}>❤️</button>
-            <button className="p-3 text-xl" onClick={() => handleEmojiClick('😂')}>😂</button>
-            <button
-              className="p-3 text-xl"
-              onClick={() => handleEmojiClick('🎨')}
-              disabled={isIllustrationPending}
-              aria-busy={isIllustrationPending}
-              data-testid="illustration-button"
-              style={{ opacity: isIllustrationPending ? 0.6 : 1, cursor: isIllustrationPending ? 'wait' : 'pointer' }}
-              title={isIllustrationPending ? 'Generating illustration…' : 'Generate illustration'}
-            >
-              {isIllustrationPending ? <span className="inline-block animate-spin">⟳</span> : '🎨'}
-            </button>
-            <button className="p-3 text-xl" onClick={() => handleEmojiClick('✏️')}>✏️</button>
-            <button
-              className={`p-3 text-xl ${canCompare && !isComparing ? '' : 'opacity-40 cursor-not-allowed'}`}
-              onClick={() => {
-                debugLog('comparison', 'summary', '[SelectionSheet] Compare button clicked', { canCompare, isComparing });
-                if (canCompare && !isComparing) {
-                  debugLog('comparison', 'summary', '[SelectionSheet] Invoking compare action');
-                  handleEmojiClick('🔍');
-                }
-              }}
-              disabled={!canCompare || isComparing}
-            >
-              🔍
-            </button>
-            {enableSillyTavern && onSelfInsert && (
-              <>
-                <div style={{width: 1, height: 28, background: '#374151'}} />
-                <button
-                  className="p-3 text-xl"
-                  onClick={async () => {
-                    if (isSelfInsertPendingRef.current) return;
-                    isSelfInsertPendingRef.current = true;
-                    setIsSelfInsertPending(true);
-                    try {
-                      await onSelfInsert();
-                    } finally {
-                      isSelfInsertPendingRef.current = false;
-                      setIsSelfInsertPending(false);
-                    }
-                  }}
-                  disabled={isSelfInsertPending}
-                  aria-busy={isSelfInsertPending}
-                  data-testid="portal-self-insert-button"
-                  style={{ opacity: isSelfInsertPending ? 0.6 : 1, cursor: isSelfInsertPending ? 'wait' : 'pointer' }}
-                  title={isSelfInsertPending ? 'Entering Story…' : 'Enter Story'}
-                >
-                  {isSelfInsertPending ? (
-                    <span className="inline-block animate-spin">⟳</span>
-                  ) : '🌀'}
-                </button>
-              </>
-            )}
-            <div className="grow" />
-            <button
-              className="px-3 py-2 rounded bg-white/10"
-              onClick={() => {
-                navigator.vibrate?.(10);
-                onCopy();
-              }}
-            >
-              Copy
-            </button>
-            <button className="px-3 py-2 rounded bg-white/10" onClick={onClose}>Done</button>
-          </div>
-        )}
-      </div>
-    </div>,
-    document.body
-  );
-};
 
 export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
   selection,
@@ -229,8 +45,8 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
 
   if (isTouch) {
     return (
-      <SelectionSheet
-        selection={selection}
+      <MobileSelectionSheet
+        selectedText={selection.text}
         canCompare={canCompare}
         isComparing={comparisonLoading}
         onSelfInsert={onSelfInsert}
@@ -248,7 +64,7 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
           try {
             await navigator.clipboard?.writeText(selection.text);
           } catch {
-            // ignore clipboard failures
+            // Clipboard permission failures should not dismiss the selection.
           }
         }}
         onClose={clearSelection}
@@ -256,27 +72,13 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
     );
   }
 
-  // Diagnostic: Track popover lifecycle
-  console.log('[SelectionOverlay] FeedbackPopover rendering', {
-    selectionText: selection.text?.slice(0, 30),
-    position: { top: selection.rect.top, left: selection.rect.left },
-    viewMode,
-    hasInlineEdit: inlineEditActive,
-  });
-
   return (
     <FeedbackPopover
       selectionText={selection.text}
       position={selection.rect}
       positioningParentRef={viewRef}
-      onFeedback={(item) => {
-        console.log('[SelectionOverlay] Feedback submitted', item);
-        handleFeedbackSubmit(item);
-      }}
-      onEdit={() => {
-        console.log('[SelectionOverlay] Edit clicked, clearing selection');
-        beginInlineEdit();
-      }}
+      onFeedback={handleFeedbackSubmit}
+      onEdit={beginInlineEdit}
       onCompare={handleCompareRequest}
       canCompare={canCompare && !comparisonLoading}
       onSelfInsert={onSelfInsert}

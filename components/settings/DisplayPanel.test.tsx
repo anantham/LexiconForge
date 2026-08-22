@@ -38,7 +38,6 @@ const baseSettings: AppSettings = {
   epubGratitudeMessage: '',
   epubProjectDescription: '',
   epubFooter: null,
-  maxSessionSize: 10,
   maxOutputTokens: 2000,
   retryMax: 2,
   retryInitialDelayMs: 1000,

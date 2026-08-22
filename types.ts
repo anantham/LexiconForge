@@ -376,7 +376,6 @@ export interface AppSettings {
     epubGratitudeMessage?: string;
     epubProjectDescription?: string;
     epubFooter?: string | null;
-    maxSessionSize?: number;
 
     // Advanced AI controls
     maxOutputTokens?: number;                 // Optional hard cap on generated tokens
