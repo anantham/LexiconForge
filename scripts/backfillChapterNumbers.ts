@@ -117,9 +117,3 @@ export async function backfillChapterNumbers(): Promise<void> {
     throw error;
   }
 }
-
-// Expose to window for easy console access
-if (typeof window !== 'undefined') {
-  (window as any).backfillChapterNumbers = backfillChapterNumbers;
-  console.log('[Migration] To run backfill, execute: backfillChapterNumbers()');
-}
