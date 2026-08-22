@@ -34,6 +34,7 @@ describe('IndrasNet image provider', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
@@ -387,19 +388,24 @@ describe('IndrasNet image provider', () => {
   });
 
   it('keeps HTTP artifact download failures out of cloud fallback', async () => {
+    vi.useFakeTimers();
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
       .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
         status: 200,
       }))
+      .mockResolvedValueOnce(new Response('gateway timeout', { status: 504 }))
+      .mockResolvedValueOnce(new Response('gateway timeout', { status: 504 }))
       .mockResolvedValueOnce(new Response('gateway timeout', { status: 504 }));
 
-    const error = await generateIndrasNetImage({
+    const generation = generateIndrasNetImage({
       model: imageModelFromWorkflowName('storybook'),
       baseUrl: endpoint,
       prompt: 'A lighthouse',
     }).catch(cause => cause);
+    await vi.advanceTimersByTimeAsync(7_000);
+    const error = await generation;
 
     expect(error).toMatchObject({
       code: 'INDRASNET_HTTP_504',
@@ -428,21 +434,29 @@ describe('IndrasNet image provider', () => {
   });
 
   it('keeps artifact body-read failures out of cloud fallback', async () => {
-    const imageResponse = new Response(new Blob(['image-bytes'], { type: 'image/png' }), { status: 200 });
-    vi.spyOn(imageResponse, 'blob').mockRejectedValue(new DOMException('stream aborted', 'AbortError'));
+    vi.useFakeTimers();
+    const interruptedImageResponse = (): Response => {
+      const response = new Response(new Blob(['image-bytes'], { type: 'image/png' }), { status: 200 });
+      vi.spyOn(response, 'blob').mockRejectedValue(new DOMException('stream aborted', 'AbortError'));
+      return response;
+    };
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response(JSON.stringify({ workflows: [clientReadyWorkflow] }), { status: 200 }))
       .mockResolvedValueOnce(new Response('job route not deployed', { status: 404 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ images: ['/api/comfyui/view?filename=result.png'] }), {
         status: 200,
       }))
-      .mockResolvedValueOnce(imageResponse);
+      .mockResolvedValueOnce(interruptedImageResponse())
+      .mockResolvedValueOnce(interruptedImageResponse())
+      .mockResolvedValueOnce(interruptedImageResponse());
 
-    const error = await generateIndrasNetImage({
+    const generation = generateIndrasNetImage({
       model: imageModelFromWorkflowName('storybook'),
       baseUrl: endpoint,
       prompt: 'A lighthouse',
     }).catch(cause => cause);
+    await vi.advanceTimersByTimeAsync(7_000);
+    const error = await generation;
 
     expect(error).toMatchObject({
       code: 'INDRASNET_IMAGE_DOWNLOAD_FAILED',
