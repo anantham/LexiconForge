@@ -3294,9 +3294,10 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Verification:** all evidence refs carried from the verified audit + review fixes (#140/#141/#142); audit corrections recorded inline (backfill boot-wiring, claudeService regex fixed-in-code).
 
 ### [2026-08-22 12:48 IST] [Agent: ox-alpha]
-**Status:** Complete — steering manifest recurrence cure
-**Task:** Stop scripts/generate-steering-image-list.cjs (prepare hook) from clobbering the TRACKED public/steering-images.json with [] whenever gitignored public/steering/ is absent or a read error occurs; make writes idempotent so checkouts stop going dirty on every npm install.
+**Status:** Reworked after human deployment-verification review
+**Task:** Cure the recurring dirty steering manifest WITHOUT regressing production. First attempt kept the tracked 21-entry manifest and stopped [] writes — reviewer measured https://read.adityaarpitha.com/steering/art.webp returns the vercel.json catch-all HTML (200), i.e. images were never deployed; production honestly serves [] today, so shipping a 21-entry manifest would offer 21 broken options. The []-on-missing behavior was a deliberate Vercel accommodation (archived WORKLOG) — Chesterton fence removed unread.
+**Final approach:** stop tracking the generated artifact (LXF-H aligned): git rm --cached public/steering-images.json + .gitignore rule; generator keeps honest []-on-missing (documented rationale in-file), idempotent writeIfChanged retained. Local dirt eliminated AND deployed manifest truthful.
 **Worktree:** ../LexiconForge.worktrees/alpha-tier-f/
 **Branch:** chore/alpha-steering-manifest
-**Files modified:** scripts/generate-steering-image-list.cjs only.
-**Verification:** ran generator in worktree without public/steering/ → warns and leaves manifest untouched, git status clean; writeIfChanged skips identical content. Open question flagged: main's committed manifest lists 21 images while public/steering/ is not in git — runtime availability of those paths needs a deployment receipt (CAP-009 class), logged here as follow-up.
+**Files modified:** scripts/generate-steering-image-list.cjs; .gitignore (+1 line); public/steering-images.json untracked.
+**Verification:** fresh run in worktree: warns, writes [], exits 0, ls-files shows 0 tracked copies; Vercel install runs prepare before build so dist always carries a manifest.

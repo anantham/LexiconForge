@@ -5,10 +5,12 @@ const steeringDir = path.join(__dirname, '..', 'public', 'steering');
 const outputFile = path.join(__dirname, '..', 'public', 'steering-images.json');
 const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
 
-// The output file is TRACKED in git. This script must therefore never clobber
-// a meaningful manifest with `[]` just because the (gitignored) source dir is
-// absent locally, and must stay idempotent so `npm install` (prepare hook)
-// does not leave every checkout dirty.
+// public/steering-images.json is a GENERATED artifact and is intentionally
+// untracked (see .gitignore). The []-on-missing-dir behavior is a deliberate
+// Vercel accommodation (archived WORKLOG: "unblocking Vercel builds without
+// checking in sensitive assets"): deployments without the gitignored source
+// images must ship an honest empty manifest, not a stale file list. Writes
+// stay idempotent so local installs do not churn the ignored file needlessly.
 function writeIfChanged(next) {
   try {
     if (fs.existsSync(outputFile) && fs.readFileSync(outputFile, 'utf8') === next) {
@@ -24,7 +26,8 @@ function writeIfChanged(next) {
 
 try {
   if (!fs.existsSync(steeringDir)) {
-    console.warn(`[SteeringImages] Directory ${steeringDir} not found. Leaving ${outputFile} untouched.`);
+    console.warn(`[SteeringImages] Directory ${steeringDir} not found; writing empty manifest (deployments have no steering assets).`);
+    writeIfChanged('[]');
     process.exit(0);
   }
 
@@ -38,10 +41,6 @@ try {
   console.log(`[SteeringImages] ${imageFiles.length} image(s):`, imageFiles);
 } catch (error) {
   console.error('[SteeringImages] Failed to generate steering image list:', error);
-  if (fs.existsSync(outputFile)) {
-    console.warn(`[SteeringImages] Keeping existing manifest at ${outputFile}; fix the error above to refresh it.`);
-    process.exit(0);
-  }
-  // Fresh checkout with no manifest at all: provide a valid empty one.
-  fs.writeFileSync(outputFile, '[]');
+  // Keep builds unblocked: an invalid/missing manifest becomes [].
+  writeIfChanged('[]');
 }
