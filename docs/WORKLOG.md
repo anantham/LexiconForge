@@ -1,5 +1,5 @@
 ### [2026-08-22 15:10 IST] [Agent: Codex]
-**Status:** Starting - preserve and clean the dirty-root audit artifacts
+**Status:** Complete - preserved and corrected dirty-root audit artifacts
 **Task:** Review the dirty root, preserve intentional August 16 audit work as focused documentation commits, correct findings explicitly overturned by the later rereview, and remove generated steering-manifest noise without touching other worktrees.
 **Worktree:** `/private/tmp/LexiconForge.worktrees/codex-dirty-root-cleanup`
 **Branch:** `docs/codex-dirty-root-cleanup`
@@ -9,6 +9,10 @@
 **Predicted checks:** both documents remain complete with final newlines; the corrected receipt no longer labels confirmed live entrypoints as dead; documentation-only diffs pass whitespace/path checks; the root can be fast-forwarded after the commits are safely preserved.
 **Fallback:** keep the original dirty root untouched until both documentation commits exist; if validation fails, abandon only this isolated worktree and branch.
 **Confidence:** 0.94
+**Results:** H1 confirmed: the DB/state audit and corrected debt receipt form one evidence commit, while the broader de-sprawl roadmap remains a separate proposed-plan commit. H2 confirmed from the generator source, tracked manifest, absent local steering directory, file timestamp, and prior worklog incidents; the empty manifest is not part of either commit.
+**Files modified:** added `docs/roadmaps/tech-debt-audit-db-state-migrations.md` with an explicit rereview correction; appended a corrected receipt to `docs/roadmaps/TECH-DEBT-INBOX.md`; added `docs/roadmaps/DESPRAWL-ROADMAP-2026-08-16.md` unchanged apart from preserving its final newline; updated this worklog.
+**Verification:** documentation diffs pass `git diff --check`; both new documents have final newlines and no trailing whitespace; targeted grep finds no stale live-entrypoint-as-dead verdict in the corrected receipt; the de-sprawl roadmap matches the original root artifact; no application tests were run because this is documentation-only repository hygiene.
+**Commit boundary:** commit 1 preserves the corrected DB/state audit and receipt; commit 2 preserves the proposed de-sprawl roadmap and completes the worklog. Root cleanup and fast-forward occur only after both commits exist.
 
 ### [2026-08-22 10:17 IST] [Agent: Codex]
 **Status:** Complete - mobile text-selection affordances
