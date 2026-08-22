@@ -266,3 +266,13 @@ Append-only raw debt receipts discovered during implementation.
 - Friction in the image-job change: durable `interrupted` ownership was enforced in the store and global banner but omitted from the component's separate inline status selector, exposing controls that intentionally no-op.
 - Suggested follow-up: extract a tested illustration-job status panel/selector first, then separate prompt-plan controls and version controls without changing the persisted illustration contract.
 - Blocker status: non-blocking after the inline interrupted-state regression; decomposition belongs in a focused follow-up PR.
+
+---
+
+[DEBT][AUDIT][2026-08-16; corrected 2026-08-22] State, DB, migration, and de-sprawl audit
+
+- Full evidence: `docs/roadmaps/tech-debt-audit-db-state-migrations.md` and `docs/roadmaps/DESPRAWL-ROADMAP-2026-08-16.md`.
+- Confirmed themes: dual settings persistence; scattered repair flags; operations/repositories coupling; duplicate skeleton implementations; contradictory retry classification; stale ADR/index references; and missing completeness gates around some migrations, capability lookups, and e2e discovery.
+- Rereview corrections: `services/diff/`, `services/librarySearch/`, `services/import/booktoki.ts`, the providers barrel, and `services/db/index.ts` have live consumers and are not deletion candidates as a group. `migrateImagesToCacheFromDB` is a supported operator/debug command exposed on `window`, not a dead export. The translation service/router/translator chain needs a responsibility map before any duplication verdict.
+- Guardrail: re-run an entrypoint-aware import audit before deleting any candidate; side-effect imports, relative imports, barrel re-exports, aliases, and literal dynamic imports must be resolved.
+- Status: audit evidence only. The de-sprawl roadmap remains proposed, and every `DECISION NEEDED` item retains its human gate.
