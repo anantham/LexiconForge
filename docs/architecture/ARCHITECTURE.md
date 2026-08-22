@@ -189,15 +189,20 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 
 | File | LOC | Verdict | Reason |
 |------|-----|---------|--------|
-| `scripts/sutta-studio/benchmark.ts` | 2,316 | Split candidate | Run orchestration, pipeline execution, artifact indexing, metrics, and progress lifecycle share one module; completion-boundary testing required a main-module guard |
-| `services/exportService.ts` | ~1,054 | Split candidate | EPUB export and session export are unrelated concerns |
-| `components/bench/SuttaStudioBenchmarkView.tsx` | 1,272 | Split candidate | Fixture loading + runner orchestration + metrics display |
-| `services/suttaStudioPassPrompts.ts` | 725 | Watchlist | Prompt builders + schemas + parsing in one file; no tests |
-| `services/suttaStudioPassRunners.ts` | 586 | Watchlist | All per-pass runners in one file; no tests |
+| `services/db/operations/maintenance.ts` | 2,992 | Split candidate | Many repair generations (scoped-id, chapter-number drift V4–V6, canonical-key repair) plus duplicate repair own direct writes to summaries/mappings — the concrete CAP-013 pressure point; boot-repair battery in `initializeStore` depends on it |
+| `scripts/sutta-studio/benchmark.ts` | 2,493 | Split candidate | Run orchestration, pipeline execution, artifact indexing, metrics, and progress lifecycle share one module; completion-boundary testing required a main-module guard |
+| `components/bench/SuttaStudioBenchmarkView.tsx` | 1,620 | Split candidate | Fixture loading + runner orchestration + metrics display |
+| `services/imageService.ts` | 1,245 | Split candidate | Generation planning, dual-generation Google SDK transports, cache/version handling in one module |
+| `services/exportService.ts` | 1,062 | Split candidate | EPUB export and session export are unrelated concerns |
+| `adapters/providers/OpenAIAdapter.ts` | 886 | Split candidate | Translation/chat request construction, adaptive fallbacks, metrics, and response parsing share one adapter |
+| `services/suttaStudioPassPrompts.ts` | 47 | Resolved | Now a thin re-export shim (was mislisted at 725); real prompt mass lives under `services/sutta-studio/prompts/` |
+| `services/suttaStudioPassRunners.ts` | 35 | Resolved | Thin re-export shim (was mislisted at 586); runners live under `services/sutta-studio/passes/` — deletion candidate tracked by CONSOLIDATION Phase-4 tail (CAP-011) |
 | `components/sutta-studio/SuttaStudioApp.tsx` | ~498 | Watchlist | Store wiring, navigation, compilation, and render gating |
 | `services/db/repositories/TranslationRepository.ts` | 405 | Watchlist | Translation versioning, active-version mutation, stableId fallback, and direct IDB write paths share one module |
-| `adapters/providers/OpenAIAdapter.ts` | 886 | Split candidate | Translation/chat request construction, adaptive fallbacks, metrics, and response parsing share one adapter |
 | `services/imagePlanPlanner.ts` | 451 | Watchlist | Planner schema/prompt logic and three provider transports share one module |
+
+> Measured 2026-08-22 (`wc -l`). The two shim rows previously claimed 725/586 LOC
+> from a stale pre-extraction snapshot.
 | `services/imageGenerationService.ts` | 631 | Split candidate | Initial generation and retry duplicate provenance, persistence, versioning, and metrics assembly; fallback review found behavior drift between the two paths |
 | `components/settings/ProvidersPanel.tsx` | 565 | Watchlist | Provider catalogue effects, credit state, capability checks, pricing assembly, and selection lifecycle remain coupled; PR #138 review found stale endpoint-owned workflow state |
 | `components/Illustration.tsx` | 822 | Split candidate | Marker lookup, durable-job status, ETA lifecycle, prompt/plan editing, advanced controls, image rendering, generation actions, and version controls share one component; interrupted-state review exposed status/render drift |

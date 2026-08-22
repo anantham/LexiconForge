@@ -223,9 +223,16 @@ const runBootRepairs = async (): Promise<void> => {
     if (!chapterNumbersBackfilled) {
       const { backfillChapterNumbers } = await import('../../scripts/backfillChapterNumbers');
       bootstrapLog('chapterNumbersBackfill start');
-      await backfillChapterNumbers();
-      await SettingsOps.set('chapterNumbersBackfilled', true);
-      bootstrapLog('chapterNumbersBackfill done');
+      const result = await backfillChapterNumbers();
+      // Completion boundary (CAP-001): unparseable titles are terminal by
+      // design and must not block the done-flag, but retryable write failures
+      // leave it unset so the next boot retries them.
+      if (result.writeFailureCount === 0) {
+        await SettingsOps.set('chapterNumbersBackfilled', true);
+        bootstrapLog('chapterNumbersBackfill done');
+      } else {
+        bootstrapLog(`chapterNumbersBackfill incomplete: ${result.writeFailureCount} write failure(s) — will retry next boot`);
+      }
     } else {
       bootstrapLog('chapterNumbersBackfill skipped');
     }

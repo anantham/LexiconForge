@@ -110,7 +110,12 @@ vi.mock('../../../utils/debug', () => ({
 }));
 
 vi.mock('../../../scripts/backfillChapterNumbers', () => ({
-  backfillChapterNumbers: vi.fn().mockResolvedValue(undefined),
+  backfillChapterNumbers: vi.fn().mockResolvedValue({
+    updatedCount: 0,
+    skippedCount: 0,
+    unparseableTitleCount: 0,
+    writeFailureCount: 0,
+  }),
 }));
 
 const registryServiceMock = vi.hoisted(() => ({

@@ -265,5 +265,6 @@ Recorded so future refactors don't regress them:
 2. Chrome extension keep-or-delete (pending since 2026-07-28)
 3. Legacy base64 dual-read endgame + migration tool trigger
 4. liturgy-generator island integrate-or-delete
-5. ~19 orphaned scripts (`debug-*`, `gemini_research.py`, …)
+5. ~19 orphaned scripts (`debug-*`, `gemini_research.py`, …) — operator-entrypoint classification pass required before any deletion verdict
 6. Legacy `LF_AI_DEBUG*` key retirement after one release
+7. `backfillChapterNumbers` exit condition — completion semantics fixed in the safety packet (unparseable=terminal, write-failures block the done-flag); remaining question is flag-coverage telemetry → eventual script+gate deletion once all users are done
