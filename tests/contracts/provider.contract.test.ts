@@ -160,7 +160,7 @@ describe('Provider Contract (VCR replay-only)', () => {
       expect(result.usageMetrics.totalTokens).toBe(cassette.expected.promptTokens + cassette.expected.completionTokens);
       expect(result.usageMetrics.estimatedCost).toBe(cassette.expected.estimatedCost);
 
-      expect(rateLimitMock).toHaveBeenCalledWith(cassette.model);
+      expect(rateLimitMock).toHaveBeenCalledWith(cassette.model, { signal: undefined });
       expect(calculateCostMock).toHaveBeenCalledWith(cassette.model, cassette.expected.promptTokens, cassette.expected.completionTokens);
       expect(recordMetricMock).toHaveBeenCalledWith(expect.objectContaining({
         apiType: 'translation',
@@ -221,7 +221,7 @@ describe('Provider Contract (VCR replay-only)', () => {
       expect(result.usageMetrics.totalTokens).toBe(cassette.expected.promptTokens + cassette.expected.completionTokens);
       expect(result.usageMetrics.estimatedCost).toBe(cassette.expected.estimatedCost);
 
-      expect(rateLimitMock).toHaveBeenCalledWith(cassette.model);
+      expect(rateLimitMock).toHaveBeenCalledWith(cassette.model, { signal: undefined });
       expect(calculateCostMock).toHaveBeenCalledWith(cassette.model, cassette.expected.promptTokens, cassette.expected.completionTokens);
 
       expect(geminiMocks.ctor).toHaveBeenCalledWith('test-gemini-key');

@@ -70,7 +70,6 @@ const mockSettings: AppSettings = {
   apiKeyOpenAI: '',
   apiKeyDeepSeek: '',
   imageModel: 'imagen-test',
-  maxSessionSize: 10,
   showDiffHeatmap: false,
 };
 

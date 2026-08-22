@@ -18,7 +18,6 @@ const baseSettings: AppSettings = {
   systemPrompt: 'prompt',
   imageModel: 'none',
   showDiffHeatmap: true,
-  maxSessionSize: 10,
 };
 
 const ctxDefaults = {
