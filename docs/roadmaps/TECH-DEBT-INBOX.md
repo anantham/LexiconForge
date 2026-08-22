@@ -266,3 +266,6 @@ Append-only raw debt receipts discovered during implementation.
 - Friction in the image-job change: durable `interrupted` ownership was enforced in the store and global banner but omitted from the component's separate inline status selector, exposing controls that intentionally no-op.
 - Suggested follow-up: extract a tested illustration-job status panel/selector first, then separate prompt-plan controls and version controls without changing the persisted illustration contract.
 - Blocker status: non-blocking after the inline interrupted-state regression; decomposition belongs in a focused follow-up PR.
+
+- [DEBT][TOOLING][2026-08-22] scripts/cycle-worklog.sh inverted cutoff: `grep -n "^2026-07\|^2026-08"` never matches because entry headers start with `### [`, so the fallback CUTOFF_LINE = LINE_COUNT - 100 archives the TAIL of a newest-first file — i.e. every future bottom-append self-deletes on next run (nearly ate four ox-alpha entries at lines ~3261+). Fix: anchor on `^### \[`.
+- [DEBT][RATELIMIT][CAP-003][2026-08-22] adapters/providers/ClaudeAdapter.ts never calls rateLimitService.acquireRequestSlot — Claude translations bypass per-model rate limiting entirely while OpenAI/Gemini honor it (#140 made the contract explicit; this is its third provider violating it). Symptom would be OpenRouter/Gemini-style 429s surfacing raw on Claude lanes.
