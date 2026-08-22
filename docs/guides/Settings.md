@@ -55,7 +55,6 @@ This page summarizes key settings and where they apply. The source of truth for 
 ## Session
 
 - `novelTitle` - optional user-provided novel title override.
-- `maxSessionSize` - max session size limit.
 
 ## API Keys
 
