@@ -9,6 +9,7 @@ import OpenAI from 'openai';
 import { calculateCost } from '../ai/cost';
 import { apiMetricsService } from '../apiMetricsService';
 import { getChatCompletionOptionalParameters } from '../ai/openaiRequestParameters';
+import type { ProviderPreferences } from '../../adapters/providers/Provider';
 
 interface SimpleLLMResponse {
   translatedText: string;
@@ -29,7 +30,10 @@ interface SimpleLLMProvider {
 /**
  * Create a SimpleLLMProvider that uses OpenAI SDK for API calls
  */
-export function createSimpleLLMAdapter(apiKey?: string): SimpleLLMProvider {
+export function createSimpleLLMAdapter(
+  apiKey?: string,
+  providerPreferences?: ProviderPreferences,
+): SimpleLLMProvider {
   return {
     async translate(options): Promise<SimpleLLMResponse> {
       console.log(`🔌 [SimpleLLMAdapter] Calling ${options.provider} with model ${options.model}`);
@@ -72,7 +76,10 @@ export function createSimpleLLMAdapter(apiKey?: string): SimpleLLMProvider {
             options.model,
             { temperature: options.temperature }
           ),
-          response_format: { type: 'json_object' }
+          response_format: { type: 'json_object' },
+          ...(options.provider === 'OpenRouter' && providerPreferences
+            ? { provider: providerPreferences }
+            : {}),
         });
 
         const responseText = response.choices[0]?.message?.content || '';

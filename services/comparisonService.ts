@@ -4,6 +4,7 @@ import { OpenAI } from 'openai';
 import { debugLog } from '../utils/debug';
 import { getConfiguredApiKey, getOpenAICompatibleConfig } from './ai/providerCredentials';
 import { getChatCompletionRequestParameters } from './ai/openaiRequestParameters';
+import { buildOpenRouterRouting } from './openrouterRouting';
 
 const clog = (...args: any[]) => debugLog('comparison', 'summary', '[ComparisonService]', ...args);
 
@@ -144,6 +145,9 @@ export class ComparisonService {
         maxOutput,
         { temperature: 0 }
       ),
+      ...(settings.provider === 'OpenRouter'
+        ? { provider: buildOpenRouterRouting(settings, 'text') }
+        : {}),
     });
 
     const content = completion.choices[0]?.message?.content ?? '';

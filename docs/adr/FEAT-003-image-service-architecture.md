@@ -305,3 +305,16 @@ configuration errors.
   provenance unavailable instead of reconstructing it from post-reload state.
 - Both translation hydration adapters preserve the stored `imageVersionState`
   so applying a recovered version extends, rather than replaces, prior history.
+
+## Amendment — 2026-08-23: Explicit OpenRouter routes and one-job overrides
+
+**Status:** Implemented on `feat/codex-provider-affordances`.
+
+OpenRouter image routing is now independent from text routing. Settings exposes
+the endpoints currently available for the exact image model, while the selected-
+passage illustration action permits a model and endpoint override for one job.
+The override is applied to a cloned settings snapshot and does not alter saved
+defaults. Exact endpoint mode disables provider fallback; all OpenRouter image
+requests require data collection denial and zero data retention. See
+[CORE-014](./CORE-014-browser-provider-routing-boundaries.md) for the shared
+text/image boundary and request invariants.

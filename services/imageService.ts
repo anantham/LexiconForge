@@ -15,6 +15,7 @@ import {
   buildOpenRouterImageRequestConfig,
   getVerifiedOpenRouterImageModel,
 } from './openrouterImageModelAdapter';
+import { buildOpenRouterRouting } from './openrouterRouting';
 import {
   generateIndrasNetImage,
   IndrasNetProviderError,
@@ -425,6 +426,7 @@ export const generateImage = async (
               model: modelSlug,
               messages: [{ role: 'user', content: prompt }],
               modalities: modelProfile.requestModalities,
+              provider: buildOpenRouterRouting(settings, 'image'),
             };
 
             const imageConfig = buildOpenRouterImageRequestConfig(modelProfile, reqW, reqH);

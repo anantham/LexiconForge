@@ -21,6 +21,7 @@ import {
   getChatCompletionTokenLimit,
 } from '../../services/ai/openaiRequestParameters';
 import { shouldRequestStructuredOutputs } from '../../services/ai/structuredOutputPolicy';
+import { mergeOpenRouterRouting } from '../../services/openrouterRouting';
 
 // Debug logging
 const dlog = (message: string, ...args: any[]) => {
@@ -206,16 +207,16 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         if (!rp) {
           dlog(`Omitting require_parameters for ${model} (learned failure this session)`);
         }
-        requestOptions.provider = {
+        requestOptions.provider = mergeOpenRouterRouting(settings, 'text', {
           ...(rp ? { require_parameters: true } : {}),
           ...input.providerPreferences,
-        };
+        });
       }
     } else {
       requestOptions = this.withJsonObjectResponse(requestOptions, input.schema);
-      // Still apply provider preferences for non-structured outputs
-      if (settings.provider === 'OpenRouter' && input.providerPreferences) {
-        requestOptions.provider = { ...input.providerPreferences };
+      // OpenRouter routing is independent of response-format support.
+      if (settings.provider === 'OpenRouter') {
+        requestOptions.provider = mergeOpenRouterRouting(settings, 'text', input.providerPreferences);
       }
     }
 
@@ -348,13 +349,16 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         // Same learned-failure gate as chatJSON (codex review).
         if (hasRecordedParameterFailure(settings.model, 'require_parameters')) {
           dlog(`Omitting require_parameters for ${settings.model} (learned failure this session)`);
-          requestOptions.provider = {};
+          requestOptions.provider = mergeOpenRouterRouting(settings, 'text');
         } else {
-          requestOptions.provider = { require_parameters: true };
+          requestOptions.provider = mergeOpenRouterRouting(settings, 'text', { require_parameters: true });
         }
       }
     } else {
       requestOptions.response_format = { type: 'json_object' };
+      if (settings.provider === 'OpenRouter') {
+        requestOptions.provider = mergeOpenRouterRouting(settings, 'text');
+      }
       const schemaInjection = this.getJsonSchemaInstruction(schema);
 
       // Avoid duplicating the injection if the user's prompt already contains it

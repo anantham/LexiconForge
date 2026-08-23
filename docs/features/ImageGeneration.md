@@ -56,6 +56,8 @@ In Fan or English view on a touch-first phone or tablet:
 1. Long-press the passage you want and adjust the browser's native selection handles.
 2. A bottom sheet previews the selected passage and presents labeled **Illustrate**, **Edit**, and **Compare** actions, plus reactions and **Copy**.
 3. Choose **Illustrate** to generate from that exact selected passage.
+4. Confirm the image model and, for OpenRouter models, choose **Auto** or an
+   exact endpoint for this job. This confirmation does not change saved defaults.
 
 A dismissible first-use hint introduces the gesture. Once a passage has been
 selected successfully, the hint stays dismissed on that browser. The fixed
@@ -117,6 +119,14 @@ All Flux models support img2img with steering images
 
 - `openai/gpt-5-image-mini` - GPT-5 image generation
 - Other compatible image models
+
+Settings keeps separate OpenRouter endpoint choices for text and images. The
+endpoint list is discovered for the selected model. **Auto** lets OpenRouter use
+any eligible endpoint; selecting an exact endpoint disables fallback to other
+hosts. LexiconForge sends data-collection denial and zero-data-retention
+requirements on every OpenRouter text and image request. If discovery is
+temporarily unavailable, a saved endpoint remains visible rather than silently
+changing to Auto.
 
 ---
 
