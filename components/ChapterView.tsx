@@ -23,6 +23,8 @@ import ReaderView from './chapter/ReaderView';
 import { deriveTranslationFailureUi } from './chapter/translationFailureUi';
 import { requestSelfInsert } from '../services/selfInsertService';
 import { useSillyTavernBridgeStatus } from '../hooks/useSillyTavernBridgeStatus';
+import IllustrationRouteDialog from './chapter/IllustrationRouteDialog';
+import type { ImageGenerationOverrides } from '../services/imageJobTypes';
 
 const ChapterView: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -45,6 +47,7 @@ const ChapterView: React.FC = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
+  const [illustrationSelection, setIllustrationSelection] = useState<string | null>(null);
 
   // <-- REFACTOR: Use new individual selectors
   const currentChapterId = useAppStore(s => s.currentChapterId);
@@ -284,8 +287,21 @@ const ChapterView: React.FC = () => {
       showNotification('Cannot generate illustration: no chapter selected', 'warning');
       return;
     }
-    useAppStore.getState().generateIllustrationForSelection(currentChapterId, selection);
+    setIllustrationSelection(selection);
   }, [currentChapterId, showNotification]);
+
+  const submitIllustration = useCallback((overrides: ImageGenerationOverrides) => {
+    if (!currentChapterId || !illustrationSelection) return;
+    const requestedChapterId = currentChapterId;
+    const requestedSelection = illustrationSelection;
+    setIllustrationSelection(null);
+    void useAppStore.getState().generateIllustrationForSelection(
+      requestedChapterId,
+      requestedSelection,
+      overrides,
+    );
+    clearSelection();
+  }, [clearSelection, currentChapterId, illustrationSelection]);
 
   const sillyTavernBridge = useSillyTavernBridgeStatus();
 
@@ -576,7 +592,19 @@ const ChapterView: React.FC = () => {
     enableSillyTavern: settings.enableSillyTavern && sillyTavernBridge.isReachable,
   };
 
-  return <ReaderView viewRef={viewRef} chapter={chapter} headerProps={headerProps} statusProps={statusProps} bodyProps={bodyProps} />;
+  return (
+    <>
+      <ReaderView viewRef={viewRef} chapter={chapter} headerProps={headerProps} statusProps={statusProps} bodyProps={bodyProps} />
+      {illustrationSelection && (
+        <IllustrationRouteDialog
+          selection={illustrationSelection}
+          settings={settings}
+          onCancel={() => setIllustrationSelection(null)}
+          onSubmit={submitIllustration}
+        />
+      )}
+    </>
+  );
 };
 
 export default ChapterView;

@@ -177,4 +177,32 @@ describe('imageSlice — handleRetryImage double-fire guard (P0.5)', () => {
       now.mockRestore();
     }
   });
+
+  it('uses a cloned one-job route without mutating saved settings', async () => {
+    const slice = createSlice();
+    slice.settings = {
+      ...slice.settings,
+      imageModel: 'indrasnet/gen_anime',
+      openRouterImageEndpoint: 'auto',
+    };
+    retryImageMock.mockResolvedValueOnce({ imageState: { isLoading: false, data: 'img', error: null } });
+
+    await slice.handleRetryImage('chapter-1', '[ILLUSTRATION-1]', {
+      imageModel: 'openrouter/black-forest-labs/flux.1-schnell',
+      openRouterImageEndpoint: 'venice',
+    });
+
+    const context = retryImageMock.mock.calls[0][2];
+    expect(context.settings).toMatchObject({
+      imageModel: 'openrouter/black-forest-labs/flux.1-schnell',
+      openRouterImageEndpoint: 'venice',
+    });
+    expect(slice.settings).toMatchObject({
+      imageModel: 'indrasnet/gen_anime',
+      openRouterImageEndpoint: 'auto',
+    });
+    expect(Object.values(slice.imageJobs)[0]).toMatchObject({
+      requestedModel: 'openrouter/black-forest-labs/flux.1-schnell',
+    });
+  });
 });
