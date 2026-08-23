@@ -3341,3 +3341,15 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 Acceptance: 9,286+ tests green; coverage exits 0; phantom-glob validation demo; uncovered file shows 0% not invisible.
 Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative); thresholds currently live inline in vitest.config.ts (repointed by #141 to services/translate/*); liturgy-generator etc. will show 0% — expected, part of baseline.
 **Files likely affected:** vitest.config.ts, new scripts/ci/validate-coverage-policy.mjs, .github/workflows/test.yml, package.json, tests/services/translate/*, docs/adr/CORE-013 (Implementation Notes only when done), WORKLOG.
+
+### [2026-08-23 00:40 IST] [Agent: ox-alpha]
+**Status:** Handing off — Tier B rulings RECEIVED; batch execution queued
+**Human rulings (2026-08-22 review + Codex second opinion @0.96):**
+1. Bookshelf dedup: DELETE consolidateBookshelfDuplicates + its 5 migration tests; PRESERVE/move the 4 chapter-count regressions (Codex evidence: maintenance.ts:1387 collapses version-scoped entries).
+2. Chrome extension: BookToki lane DEPRECATED — source site shut down 2026-04-27 (human ruling). Polyglotta lane SUPPORTED operator tooling (multilingual aligned sources). Execute: delete popup.js+content.js+manifest BookToki paths (~1k LOC), extract/promote content-polyglotta.js into a properly documented operators surface.
+3. Image dual-read: OPTION B chosen — keep lazy per-record migration (imageSlice.ts:925), add privacy-light counter of remaining legacy records to boot telemetry, delete legacy read path when counter=0 across an observation window. NO forced bulk migration (field mismatch proven: imageMigrationService targets generatedImage.imageData, lazy path handles illustration.url).
+4. liturgy-generator: KEEP as documented offline tool per LITURGY-001; add docs note, no integration.
+5. Orphan scripts: run classification pass → delete residue; move real operators to explicit surface; gemini_research.py ambient-auth must be fixed or quarantined.
+6. LF_AI_DEBUG* keys: compat-release retirement — STEP 1 NOW = canonicalize readers (claudeService.ts:13 reads legacy-only) via utils/debug.ts central parser, STOP UI dual-write (AdvancedPanel.tsx:114); deletion next release.
+7. backfill exit condition: add privacy-preserving probe counting flag=false browsers; observation window TBD by human before any deletion.
+**Next session executes as narrow PRs:** PR-a (#1+#2 BookToki removal+dedup delete w/ test moves), PR-b (#5 classification+operator surface), PR-c (#6 step1 + #3 counter + #7 probe — one telemetry PR), each with tests; update CRUFT-ACCRETION-PATTERNS Tier-B section statuses after each merge.
