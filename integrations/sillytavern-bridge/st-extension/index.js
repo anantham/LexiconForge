@@ -98,40 +98,41 @@ function updateStatus(label, detail = '') {
 
 function notify(state, detail = {}) {
     const elapsed = Number.isFinite(detail.elapsedMs) ? `${Math.round(detail.elapsedMs / 1000)}s elapsed` : '';
+    const setStatus = detail.foreground === false ? () => {} : updateStatus;
     switch (state) {
         case 'composing':
-            updateStatus('Composing scene prompt');
+            setStatus('Composing scene prompt');
             break;
         case 'queued':
-            updateStatus('Queued in IndrasNet', elapsed);
+            setStatus('Queued in IndrasNet', elapsed);
             toastr.info('Scene illustration queued in IndrasNet.', 'LexiconForge Auto-Scene');
             break;
         case 'running':
-            updateStatus(
+            setStatus(
                 detail.imageBackend === 'sillytavern' ? 'Rendering via SillyTavern' : 'Rendering via IndrasNet',
                 `${elapsed}; no provider ETA available`,
             );
             break;
         case 'attached':
-            updateStatus('Ready', detail.jobId || 'image attached');
+            setStatus('Ready', detail.jobId || 'image attached');
             toastr.success('Scene illustration is ready.', 'LexiconForge Auto-Scene');
             break;
         case 'ready_elsewhere':
-            updateStatus('Ready in another chat', 'return to that chat to attach it');
+            setStatus('Ready in another chat', 'return to that chat to attach it');
             toastr.info('Scene illustration is ready. Return to its chat to attach it.', 'LexiconForge Auto-Scene');
             break;
         case 'failed':
-            updateStatus('Failed', detail.code || 'unknown error');
+            setStatus('Failed', detail.code || 'unknown error');
             toastr.warning(`Scene illustration failed (${detail.code || 'unknown error'}). Chat was not interrupted.`, 'LexiconForge Auto-Scene');
             break;
         case 'stale':
-            updateStatus('Skipped stale result');
+            setStatus('Skipped stale result');
             break;
         case 'navigation_changed':
-            updateStatus('Skipped after chat change', 'no image was submitted');
+            setStatus('Skipped after chat change', 'no image was submitted');
             break;
         default:
-            updateStatus(state, elapsed);
+            setStatus(state, elapsed);
     }
 }
 

@@ -77,6 +77,7 @@ export function createSceneController({
                     workflowName,
                     jobId: state.job_id,
                     elapsedMs: state.elapsedMs,
+                    foreground: sameChat(context, getContext()),
                 }),
             });
             const route = {
@@ -102,10 +103,22 @@ export function createSceneController({
                     message: currentContext.chat?.[scene.index],
                 }) === fingerprint) {
                 await attachImage(attachment);
-                notify('attached', { fingerprint, route, workflowName, jobId: result.jobId });
+                notify('attached', {
+                    fingerprint,
+                    route,
+                    workflowName,
+                    jobId: result.jobId,
+                    foreground: true,
+                });
             } else {
                 rememberPending(String(context.chatId || context.groupId), { ...attachment, context });
-                notify('ready_elsewhere', { fingerprint, route, workflowName, jobId: result.jobId });
+                notify('ready_elsewhere', {
+                    fingerprint,
+                    route,
+                    workflowName,
+                    jobId: result.jobId,
+                    foreground: false,
+                });
             }
         } catch (error) {
             const code = error?.code || 'AUTO_SCENE_FAILED';
@@ -116,6 +129,7 @@ export function createSceneController({
                 workflowName,
                 code,
                 retryable: Boolean(error?.retryable),
+                foreground: sameChat(context, getContext()),
             });
         }
     }
@@ -141,6 +155,7 @@ export function createSceneController({
                 workflowName: item.workflowName,
                 route: item.route,
                 jobId: item.result.jobId,
+                foreground: true,
             });
         }
     }

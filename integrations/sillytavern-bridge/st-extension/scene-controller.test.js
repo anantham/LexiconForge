@@ -75,13 +75,14 @@ describe('createSceneController', () => {
         let resolveJob;
         const brokerJob = new Promise((resolve) => { resolveJob = resolve; });
         const attachImage = vi.fn().mockResolvedValue(undefined);
+        const notify = vi.fn();
         const controller = createSceneController({
             getContext: () => current,
             getSettings: () => ({ enabled: true, portalOnly: true, workflowName: 'gen_anime' }),
             composePrompt: vi.fn().mockResolvedValue('scene prompt'),
             createImageClient: () => ({ run: () => brokerJob }),
             attachImage,
-            notify: vi.fn(),
+            notify,
             logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
         });
 
@@ -93,9 +94,15 @@ describe('createSceneController', () => {
         await handling;
 
         expect(attachImage).not.toHaveBeenCalled();
+        expect(notify).toHaveBeenCalledWith('ready_elsewhere', expect.objectContaining({
+            foreground: false,
+        }));
         current = portal;
         await controller.flushPending();
         expect(attachImage).toHaveBeenCalledTimes(1);
+        expect(notify).toHaveBeenCalledWith('attached', expect.objectContaining({
+            foreground: true,
+        }));
     });
 
     it('skips image submission after away-and-back navigation during prompt composition', async () => {
@@ -163,6 +170,39 @@ describe('createSceneController', () => {
         await handling;
 
         expect(notify).not.toHaveBeenCalledWith('navigation_changed', expect.anything());
+    });
+
+    it('marks progress and failure from an abandoned submitted job as background-only', async () => {
+        const origin = makeContext();
+        let current = origin;
+        const controllerRef = { current: null };
+        const notify = vi.fn();
+        const run = vi.fn(async ({ onState }) => {
+            current = makeContext('another-chat');
+            controllerRef.current.markNavigation();
+            onState({ status: 'running', elapsedMs: 1000 });
+            throw Object.assign(new Error('provider failed'), { code: 'PROVIDER_FAILED' });
+        });
+        const controller = createSceneController({
+            getContext: () => current,
+            getSettings: () => ({ enabled: true, portalOnly: true, workflowName: 'gen_anime' }),
+            composePrompt: vi.fn().mockResolvedValue('stable origin prompt'),
+            createImageClient: () => ({ run }),
+            attachImage: vi.fn(),
+            notify,
+            logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+        });
+        controllerRef.current = controller;
+
+        await controller.handle('group');
+
+        expect(notify).toHaveBeenCalledWith('running', expect.objectContaining({
+            foreground: false,
+        }));
+        expect(notify).toHaveBeenCalledWith('failed', expect.objectContaining({
+            code: 'PROVIDER_FAILED',
+            foreground: false,
+        }));
     });
 
     it('uses the selected native route without mutating the saved settings', async () => {

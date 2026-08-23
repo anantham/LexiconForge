@@ -3463,3 +3463,13 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Result:** Confirmed. Intentional pre-submission skips now remove only their fingerprint from `handled`. A later event can retry exactly once. The skip notification is emitted only when the active chat identity equals the originating chat, so abandoned-chat completions cannot overwrite another chat's status.
 **Verification:** controller suite 6/6; complete extension suite 19/19 across 5 files; extension ESLint and `git diff --check` clean. The previously completed bridge/deployment suite remains 31/31 because this follow-up changes only the browser controller and its tests.
 **Confidence:** 0.98. Next gate is focused Gemini rereview, then PR/CI dependency inspection.
+
+### [2026-08-23 18:23 IST] [Agent: Codex]
+**Status:** Addressing final Gemini cross-chat status ownership findings
+**Issue:** Background polling, failures, and `ready_elsewhere` notifications share the current chat's single status DOM node and can overwrite foreground progress.
+**Options:** (A) suppress each offending state ad hoc — rejected as incomplete; (B) add a foreground flag to the notification contract, gate status text centrally, and retain background toasts — selected; (C) build per-chat persisted status — rejected as outside the tab-scoped requirement.
+**Hypothesis:** Computing foreground ownership from the originating/current chat in the controller and enforcing it once in `notify` prevents all known cross-chat status clobbering without hiding terminal background toasts. Confidence 0.96.
+**Predicted tests:** background progress/failure/ready events carry `foreground: false`; foreground attachments remain true/default; pending attachment behavior and all existing tests remain green.
+**Result:** Confirmed. The controller now labels polling, completion, and failure states by whether their originating chat is still active. The notification boundary suppresses only the shared status-node write for background states; terminal toasts remain available. Deferred attachment reports foreground ownership after the user returns to the originating chat.
+**Verification:** available Node 24.18.0 runner: controller suite 7/7 and complete extension suite 20/20 across 5 files; targeted extension ESLint clean; `git diff --check` clean. Locked Python 3.12.13 bridge/deployment suite 31/31 with one upstream Starlette/httpx deprecation warning. The exact pinned Node 24.19.0 binary used by earlier gates was unavailable for this follow-up rerun and is not claimed here.
+**Confidence:** 0.98. Next gate is focused Gemini rereview followed by current PR/CI dependency inspection.
