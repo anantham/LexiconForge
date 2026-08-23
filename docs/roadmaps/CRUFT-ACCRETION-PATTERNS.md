@@ -262,7 +262,7 @@ Recorded so future refactors don't regress them:
 ## Open Tier-B disposition decisions (deletion gates)
 
 1. ~~`consolidateBookshelfDuplicates` + exclusive suite~~ DELETED 2026-08-23 (Tier-B #1; collapse semantics conflicted with version-scoped preservation — Codex evidence maintenance.ts ex-:1387); render-side dedup remains the live defense
-2. Chrome extension: BookToki lane DEPRECATED 2026-08-23 (source site dead 2026-04-27) — content.js + host permission removed; popup/background BookToki code removal pending PR-b. Polyglotta lane = SUPPORTED operator tooling (multilingual aligned sources)
+2. Chrome extension: BookToki lane REMOVED 2026-08-23 (source site dead 2026-04-27) — content.js, host permission, popup/background handlers all excised; extension gate added to verify:integrity. Polyglotta lane = SUPPORTED operator tooling (multilingual aligned sources)
 3. Legacy base64 dual-read endgame + migration tool trigger
 4. liturgy-generator island integrate-or-delete
 5. ~19 orphaned scripts (`debug-*`, `gemini_research.py`, …) — operator-entrypoint classification pass required before any deletion verdict
