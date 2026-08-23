@@ -11,7 +11,7 @@ export function createSceneController({
     getContext,
     getSettings,
     composePrompt,
-    createBroker,
+    createImageClient,
     attachImage,
     notify = () => {},
     logger = console,
@@ -37,9 +37,10 @@ export function createSceneController({
         if (handled.has(fingerprint)) return;
         handled.add(fingerprint);
 
+        const imageBackend = settings.imageBackend === 'sillytavern' ? 'sillytavern' : 'indrasnet';
         const workflowName = settings.workflowName || 'gen_anime';
         try {
-            notify('composing', { fingerprint, workflowName });
+            notify('composing', { fingerprint, imageBackend, workflowName });
             const prompt = (await composePrompt({ context, messageIndex: scene.index })).trim();
             if (!prompt) {
                 throw Object.assign(new Error('Scene prompt composition returned no text'), {
@@ -47,8 +48,8 @@ export function createSceneController({
                 });
             }
 
-            const broker = createBroker(settings.brokerUrl);
-            const result = await broker.run({
+            const imageClient = createImageClient(settings);
+            const result = await imageClient.run({
                 workflowName,
                 prompt,
                 negativePrompt: settings.negativePrompt || DEFAULT_NEGATIVE_PROMPT,
@@ -56,11 +57,19 @@ export function createSceneController({
                 timeoutMs: settings.timeoutMs,
                 onState: (state) => notify(state.status, {
                     fingerprint,
+                    imageBackend: state.backend || imageBackend,
+                    provider: state.provider,
+                    model: state.model,
                     workflowName,
                     jobId: state.job_id,
                     elapsedMs: state.elapsedMs,
                 }),
             });
+            const route = {
+                backend: result.backend || imageBackend,
+                provider: result.provider || (imageBackend === 'indrasnet' ? 'IndrasNet' : null),
+                model: result.model || (imageBackend === 'indrasnet' ? workflowName : null),
+            };
 
             const currentContext = getContext();
             const attachment = {
@@ -68,6 +77,7 @@ export function createSceneController({
                 messageIndex: scene.index,
                 fingerprint,
                 workflowName,
+                route,
                 prompt,
                 negativePrompt: settings.negativePrompt || DEFAULT_NEGATIVE_PROMPT,
                 result,
@@ -78,15 +88,21 @@ export function createSceneController({
                     message: currentContext.chat?.[scene.index],
                 }) === fingerprint) {
                 await attachImage(attachment);
-                notify('attached', { fingerprint, workflowName, jobId: result.jobId });
+                notify('attached', { fingerprint, route, workflowName, jobId: result.jobId });
             } else {
                 rememberPending(String(context.chatId || context.groupId), { ...attachment, context });
-                notify('ready_elsewhere', { fingerprint, workflowName, jobId: result.jobId });
+                notify('ready_elsewhere', { fingerprint, route, workflowName, jobId: result.jobId });
             }
         } catch (error) {
             const code = error?.code || 'AUTO_SCENE_FAILED';
             logger.error(`[LexiconForge Portal] Auto-scene failed (${code})`, error);
-            notify('failed', { fingerprint, workflowName, code, retryable: Boolean(error?.retryable) });
+            notify('failed', {
+                fingerprint,
+                imageBackend,
+                workflowName,
+                code,
+                retryable: Boolean(error?.retryable),
+            });
         }
     }
 
@@ -109,6 +125,7 @@ export function createSceneController({
             notify('attached', {
                 fingerprint: item.fingerprint,
                 workflowName: item.workflowName,
+                route: item.route,
                 jobId: item.result.jobId,
             });
         }

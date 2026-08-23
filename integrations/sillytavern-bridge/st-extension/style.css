@@ -9,6 +9,22 @@
     margin-top: 0.25rem;
 }
 
+#lf_auto_scene_container .lf_auto_scene_route_controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#lf_auto_scene_container .lf_auto_scene_route_controls[hidden] {
+    display: none;
+}
+
+#lf_auto_scene_native_route {
+    border-left: 3px solid var(--SmartThemeQuoteColor);
+    padding: 0.4rem 0.6rem;
+    overflow-wrap: anywhere;
+}
+
 #lf_auto_scene_status {
     border-left: 3px solid var(--SmartThemeQuoteColor);
     padding: 0.4rem 0.6rem;

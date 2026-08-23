@@ -30,7 +30,7 @@ describe('createSceneController', () => {
             getContext: () => context,
             getSettings: () => ({ enabled: true, portalOnly: true, workflowName: 'gen_anime' }),
             composePrompt: vi.fn().mockResolvedValue('fortress, night sky'),
-            createBroker: () => broker,
+            createImageClient: () => broker,
             attachImage,
             notify: vi.fn(),
             logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -56,7 +56,7 @@ describe('createSceneController', () => {
             getContext: () => context,
             getSettings: () => ({ enabled: true, portalOnly: true, workflowName: 'gen_anime' }),
             composePrompt: vi.fn().mockResolvedValue('scene prompt'),
-            createBroker: () => ({ run: vi.fn().mockRejectedValue(Object.assign(new Error('offline'), { code: 'BROKER_OFFLINE' })) }),
+            createImageClient: () => ({ run: vi.fn().mockRejectedValue(Object.assign(new Error('offline'), { code: 'BROKER_OFFLINE' })) }),
             attachImage: vi.fn(),
             notify,
             logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -78,7 +78,7 @@ describe('createSceneController', () => {
             getContext: () => current,
             getSettings: () => ({ enabled: true, portalOnly: true, workflowName: 'gen_anime' }),
             composePrompt: vi.fn().mockResolvedValue('scene prompt'),
-            createBroker: () => ({ run: () => brokerJob }),
+            createImageClient: () => ({ run: () => brokerJob }),
             attachImage,
             notify: vi.fn(),
             logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -94,5 +94,50 @@ describe('createSceneController', () => {
         current = portal;
         await controller.flushPending();
         expect(attachImage).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses the selected native route without mutating the saved settings', async () => {
+        const context = makeContext();
+        const settings = {
+            enabled: true,
+            portalOnly: true,
+            imageBackend: 'sillytavern',
+            workflowName: 'gen_anime',
+            negativePrompt: 'watermark',
+        };
+        const nativeClient = { run: vi.fn().mockResolvedValue({
+            backend: 'sillytavern',
+            provider: 'openrouter',
+            model: 'image/model',
+            jobId: null,
+            imageUrl: '/user/images/native.png',
+        }) };
+        const attachImage = vi.fn().mockResolvedValue(undefined);
+        const createImageClient = vi.fn().mockReturnValue(nativeClient);
+        const controller = createSceneController({
+            getContext: () => context,
+            getSettings: () => settings,
+            composePrompt: vi.fn().mockResolvedValue('native scene prompt'),
+            createImageClient,
+            attachImage,
+            notify: vi.fn(),
+            logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+        });
+
+        await controller.handle('group');
+
+        expect(createImageClient).toHaveBeenCalledWith(settings);
+        expect(nativeClient.run).toHaveBeenCalledWith(expect.objectContaining({
+            prompt: 'native scene prompt',
+            negativePrompt: 'watermark',
+        }));
+        expect(attachImage).toHaveBeenCalledWith(expect.objectContaining({
+            route: {
+                backend: 'sillytavern',
+                provider: 'openrouter',
+                model: 'image/model',
+            },
+        }));
+        expect(settings).toEqual(expect.objectContaining({ imageBackend: 'sillytavern' }));
     });
 });

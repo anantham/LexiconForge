@@ -64,3 +64,15 @@ def test_sillytavern_configurator_preserves_forwarded_ip_and_csrf_controls() -> 
     assert "parseDocument" in configurator
     assert "whitelistNode.range" in configurator
     assert "originalText.slice(0, rangeStart)" in configurator
+
+
+def test_auto_scene_native_route_uses_direct_command_callback() -> None:
+    manifest = read("st-extension/manifest.json")
+    entrypoint = read("st-extension/index.js")
+    native_client = read("st-extension/sillytavern-image-client.js")
+
+    assert '"version": "0.3.0"' in manifest
+    assert "SlashCommandParser.commands.imagine" in entrypoint
+    assert "command.callback" in native_client
+    assert "executeSlashCommands" not in native_client
+    assert "backend: 'sillytavern'" in native_client
