@@ -132,6 +132,7 @@ describe('DiffTriggerService credential boundary', () => {
       ...defaultSettings,
       showDiffHeatmap: true,
       apiKeyOpenRouter: 'settings-openrouter-key',
+      openRouterTextEndpoint: 'deepinfra',
     });
     const analyzeSpy = vi
       .spyOn(DiffAnalysisService.prototype, 'analyzeDiff')
@@ -139,7 +140,12 @@ describe('DiffTriggerService credential boundary', () => {
 
     await handleTranslationComplete(translationCompleteEvent());
 
-    expect(mocks.createAdapter).toHaveBeenCalledWith('settings-openrouter-key');
+    expect(mocks.createAdapter).toHaveBeenCalledWith('settings-openrouter-key', {
+      only: ['deepinfra'],
+      allow_fallbacks: false,
+      data_collection: 'deny',
+      zdr: true,
+    });
     expect(analyzeSpy).toHaveBeenCalledOnce();
     expect(mocks.save).toHaveBeenCalledWith(cachedResult);
   });

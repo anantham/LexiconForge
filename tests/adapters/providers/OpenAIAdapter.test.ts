@@ -306,6 +306,28 @@ describe('OpenAIAdapter translate() parameter handling', () => {
     expect(request).not.toHaveProperty('presence_penalty');
     expect(request.seed).toBe(123);
   });
+
+  it('routes OpenRouter translation through the saved text endpoint with deny and ZDR enforced', async () => {
+    const adapter = new OpenAIAdapter('OpenRouter');
+    openAiMocks.create.mockResolvedValueOnce(successResponse);
+    const settings = createMockAppSettings({
+      ...baseSettings,
+      provider: 'OpenRouter',
+      model: 'z-ai/glm-5.2',
+      openRouterTextEndpoint: 'deepinfra',
+      openRouterImageEndpoint: 'venice',
+    } as any);
+
+    await adapter.translate({ title: 'T', content: 'Body', settings, history: [] });
+
+    expect(openAiMocks.create.mock.calls[0][0].provider).toEqual(expect.objectContaining({
+      only: ['deepinfra'],
+      allow_fallbacks: false,
+      data_collection: 'deny',
+      zdr: true,
+    }));
+    expect(openAiMocks.create.mock.calls[0][0].provider.only).not.toContain('venice');
+  });
 });
 
 describe('OpenAIAdapter adversarial scenarios', () => {

@@ -525,10 +525,14 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         orSearch={orSearch}
         onOrSearchChange={setOrSearch}
         openRouterModelsUpdatedAt={openRouterModels?.fetchedAt ? new Date(openRouterModels.fetchedAt).toLocaleString() : null}
+        openRouterTextEndpoint={currentSettings.openRouterTextEndpoint || 'auto'}
+        openRouterImageEndpoint={currentSettings.openRouterImageEndpoint || 'auto'}
         structuredOutputIndicator={structuredOutputIndicator}
         onProviderChange={(p) => handleSettingChange('provider', p)}
         onModelChange={handleModelChange}
         onImageModelChange={(m) => handleSettingChange('imageModel', m)}
+        onOpenRouterTextEndpointChange={(endpoint) => handleSettingChange('openRouterTextEndpoint', endpoint)}
+        onOpenRouterImageEndpointChange={(endpoint) => handleSettingChange('openRouterImageEndpoint', endpoint)}
         onAutoGenerateImagesChange={(v) => handleSettingChange('autoGenerateImages', v)}
         onContextDepthChange={(v) => handleSettingChange('contextDepth', v)}
         onPreloadCountChange={(v) => handleSettingChange('preloadCount', v)}
