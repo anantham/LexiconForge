@@ -86,3 +86,30 @@ Rejected: it cannot satisfy the selected production-browser-to-Asus use case.
 - `services/selfInsertService.ts`
 - `services/selfInsertPortal.ts`
 - `services/sillyTavernBridge.ts`
+
+## Security amendment — 2026-08-23
+
+The selected position reuses the existing owner-device tailnet policy; it does
+not add a LexiconForge-specific Tailscale ACL. Network reachability alone is
+not application authorization. Tailscale Serve must proxy to loopback and the
+bridge must match its spoof-protected `Tailscale-User-Login` header against an
+explicit owner login. Missing identity, a different login, or a request that
+did not arrive from the local proxy fails before service construction.
+
+Creation is bounded independently of identity: JSON bodies are capped while
+streaming before schema parsing; idempotency keys are request-hash-bound; exact
+retries coalesce/cache; conflicting reuse fails; one creation may run at a
+time; and new creations have a two-second start cooldown. The browser supplies
+one UUID per creation attempt.
+
+SillyTavern retains its own forwarded-IP whitelist because its UI is exposed on
+a separate Serve listener. The whitelist contains loopback plus explicitly
+declared owner-device Tailscale IPs. The release-specific dependency overlay
+updates the portal-reachable Multer parser from 2.1.1 to 2.2.0 without claiming
+the upstream audit is clean. Remaining advisories stay receipted, including the
+reachable `image-size` findings for which the audited release has no fix.
+
+The cutover is exact rather than global: remove only stale HTTP `:8000`, add
+HTTPS `:8444` and `:5001`, reject Funnel, and compare all unrelated Serve
+routes before/after. Startup tasks are registered disabled and are rolled back
+with newly added routes if readiness or invariants fail.

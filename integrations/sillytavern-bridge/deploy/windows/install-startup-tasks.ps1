@@ -37,6 +37,6 @@ foreach ($definition in $taskDefinitions) {
         -Settings $settings `
         -Description 'Tailnet-only LexiconForge self-insert portal runtime.' `
         -Force | Out-Null
-    Start-ScheduledTask -TaskName $definition.Name
-    Write-Host "Registered and started $($definition.Name) using $($definition.Launcher)"
+    Disable-ScheduledTask -TaskName $definition.Name | Out-Null
+    Write-Host "Registered $($definition.Name) disabled using $($definition.Launcher). The cutover gate enables it after verification."
 }

@@ -28,11 +28,21 @@ describe('requestSelfInsert', () => {
       }),
     });
 
-    const result = await requestSelfInsert('https://bridge.example.test:5001/', request);
+    const result = await requestSelfInsert(
+      'https://bridge.example.test:5001/',
+      request,
+      'portal-request-0001',
+    );
 
     expect(global.fetch).toHaveBeenCalledWith(
       'https://bridge.example.test:5001/api/self-insert',
-      expect.objectContaining({ method: 'POST' }),
+      expect.objectContaining({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': 'portal-request-0001',
+        },
+      }),
     );
     expect(result.success).toBe(true);
     expect(result.chatUrl).toContain('lfGroup=123');

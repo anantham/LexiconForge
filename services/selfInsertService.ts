@@ -39,10 +39,14 @@ const isSafePortalUrl = (value: unknown): value is string => {
 export async function requestSelfInsert(
   bridgeUrl: string,
   request: SelfInsertRequest,
+  idempotencyKey: string = crypto.randomUUID(),
 ): Promise<SelfInsertResponse> {
   const resp = await fetch(`${normalizeBridgeUrl(bridgeUrl)}/api/self-insert`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': idempotencyKey,
+    },
     body: JSON.stringify(request),
   });
 
