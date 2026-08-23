@@ -16,14 +16,30 @@ describe('pingSillyTavernBridge', () => {
   });
 
   it('returns reachable when fetch resolves', async () => {
-    // no-cors fetches resolve with opaque responses; the ping doesn't read them.
-    (global.fetch as any).mockResolvedValueOnce({ type: 'opaque' });
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ ready: true }),
+    });
 
     const result = await pingSillyTavernBridge('http://localhost:5001');
 
     expect(result.state).toBe('reachable');
-    expect((global.fetch as any).mock.calls[0][0]).toBe('http://localhost:5001');
-    expect((global.fetch as any).mock.calls[0][1].mode).toBe('no-cors');
+    expect((global.fetch as any).mock.calls[0][0]).toBe('http://localhost:5001/health');
+    expect((global.fetch as any).mock.calls[0][1].mode).toBe('cors');
+  });
+
+  it('treats a live bridge with unavailable SillyTavern as unreachable', async () => {
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ ready: false, message: 'SillyTavern unavailable' }),
+    });
+
+    const result = await pingSillyTavernBridge('https://asus.example.test:5001/');
+
+    expect(result.state).toBe('unreachable');
+    if (result.state === 'unreachable') {
+      expect(result.reason).toBe('SillyTavern unavailable');
+    }
   });
 
   it('returns unreachable when fetch rejects', async () => {

@@ -7,13 +7,20 @@
  * Issue #4 follow-on: when the bridge isn't running, hiding the button
  * entirely beats showing one that fails. This module owns the ping logic.
  *
- * CORS note: bridge.py only allows POST. A regular GET ping would be blocked
- * by CORS preflight rules. Using `mode: 'no-cors'` returns an opaque response
- * if the server is reachable; throws TypeError if not. We can't read status
- * codes that way, but we can reliably distinguish "server up" from "server down."
+ * The versioned bridge exposes a CORS-enabled `/health` contract. The portal
+ * is reachable only when both the bridge and its local SillyTavern dependency
+ * are ready, so a stale proxy cannot make the button appear functional.
  */
 
-const PING_TIMEOUT_MS = 1500;
+// Allow first-use tailnet TLS establishment without making the portal flap.
+const PING_TIMEOUT_MS = 5000;
+
+interface BridgeHealthResponse {
+  ready?: boolean;
+  message?: string;
+}
+
+const normalizeBridgeUrl = (bridgeUrl: string): string => bridgeUrl.replace(/\/+$/, '');
 
 export type BridgeStatus =
   | { state: 'unknown' }
@@ -34,11 +41,19 @@ export async function pingSillyTavernBridge(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
   try {
-    await fetch(bridgeUrl, {
+    const response = await fetch(`${normalizeBridgeUrl(bridgeUrl)}/health`, {
       method: 'GET',
-      mode: 'no-cors',
+      mode: 'cors',
+      headers: { Accept: 'application/json' },
       signal: controller.signal,
     });
+    if (!response.ok) {
+      throw new Error(`Health check returned ${response.status} ${response.statusText}`);
+    }
+    const health = await response.json() as BridgeHealthResponse;
+    if (health.ready !== true) {
+      throw new Error(health.message || 'Bridge is running but SillyTavern is not ready');
+    }
     clearTimeout(timeout);
     return { state: 'reachable', checkedAt: Date.now() };
   } catch (err) {

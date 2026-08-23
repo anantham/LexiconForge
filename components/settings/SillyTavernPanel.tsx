@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { pingSillyTavernBridge, type BridgeStatus } from '../../services/sillyTavernBridge';
 
-const BRIDGE_COMMAND = 'uvicorn bridge:app --port 5001';
+const BRIDGE_COMMAND = 'uv run uvicorn portal_bridge.app:app --host 127.0.0.1 --port 5001';
 
 const SillyTavernPanel: React.FC = () => {
   const { currentSettings, handleSettingChange } = useSettingsModalContext();
@@ -126,9 +126,8 @@ const SillyTavernPanel: React.FC = () => {
               </button>
             </div>
             <p className="mt-1">
-              The <code>start-lexiconforge.command</code> script will start the bridge automatically
-              if novel-analyzer is at <code>~/Documents/Ongoing Local/ST/novel-analyzer</code> and{' '}
-              <code>uvicorn</code> is on PATH.
+              Production readers must use the bridge's tailnet-only HTTPS URL. Plain HTTP is
+              supported only for localhost development.
             </p>
           </div>
         </div>

@@ -57,7 +57,10 @@ describe('SillyTavernPanel — Test Connection + Copy Command', () => {
   });
 
   it('shows reachable pill on successful ping', async () => {
-    (global.fetch as any).mockResolvedValueOnce({ type: 'opaque' });
+    (global.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ ready: true }),
+    });
     renderPanel();
 
     await act(async () => {
@@ -92,7 +95,9 @@ describe('SillyTavernPanel — Test Connection + Copy Command', () => {
       fireEvent.click(screen.getByTestId('bridge-copy-command'));
     });
 
-    expect(writeText).toHaveBeenCalledWith('uvicorn bridge:app --port 5001');
+    expect(writeText).toHaveBeenCalledWith(
+      'uv run uvicorn portal_bridge.app:app --host 127.0.0.1 --port 5001',
+    );
     await waitFor(() => {
       expect(screen.getByTestId('bridge-copy-command')).toHaveTextContent('Copied');
     });
