@@ -140,16 +140,17 @@ export function buildOpenRouterRouting(
   };
 }
 
-/** Request-specific capability preferences may add restrictions but cannot weaken data handling. */
+/** Request preferences may add constraints but cannot weaken an exact route or data handling. */
 export function mergeOpenRouterRouting(
   settings: AppSettings,
   scope: OpenRouterRouteScope,
   requestPreferences?: ProviderPreferences,
   override?: OpenRouterRoutingOverride,
 ): ProviderPreferences {
+  const selectedRoute = buildOpenRouterRouting(settings, scope, override);
   return {
-    ...buildOpenRouterRouting(settings, scope, override),
     ...(requestPreferences || {}),
+    ...selectedRoute,
     data_collection: 'deny',
     zdr: true,
   };

@@ -49,8 +49,10 @@ describe('OpenRouter routing', () => {
     expect(settings.openRouterImageEndpoint).toBe('venice');
   });
 
-  it('does not allow request preferences to weaken deny and ZDR controls', () => {
+  it('does not allow request preferences to weaken an exact route or data controls', () => {
     expect(mergeOpenRouterRouting(settings, 'text', {
+      only: ['venice'],
+      allow_fallbacks: true,
       data_collection: 'allow',
       zdr: false,
       require_parameters: true,
@@ -60,6 +62,20 @@ describe('OpenRouter routing', () => {
       only: ['deepinfra'],
       allow_fallbacks: false,
       require_parameters: true,
+    });
+  });
+
+  it('preserves caller routing preferences when the saved route is Auto', () => {
+    expect(mergeOpenRouterRouting(
+      { ...settings, openRouterTextEndpoint: 'auto' },
+      'text',
+      { only: ['venice'], allow_fallbacks: true, require_parameters: true },
+    )).toEqual({
+      only: ['venice'],
+      allow_fallbacks: true,
+      require_parameters: true,
+      data_collection: 'deny',
+      zdr: true,
     });
   });
 });

@@ -3371,3 +3371,17 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Files modified:** `services/openrouterRouting.ts`; OpenRouter adapter/planner/explanation/comparison/diff/image request paths; provider preference/settings types and defaults; `OpenRouterEndpointSelect.tsx`; `IllustrationRouteDialog.tsx`; `ChapterView.tsx`; translation/image store seams; focused component/service/store/request-contract tests; CORE-014, FEAT-003, ImageGeneration guide, START_HERE, and this worklog.
 **Verification:** pinned Node 24 TypeScript clean; focused provider routing, settings, dialog, store, adapter, planner, and paid image request gates pass 115 tests across 8 files. The exact one-worker suite passes 285 files with 9,304 tests passed and 347 skipped, 0 failed. Production build passes with existing chunk/directive warnings; built-client secret/canary scan passes; ESLint reports 0 errors and 1,906 existing warnings; Malayalam surface law passes with 275 informational native-review items; `git diff --check` passes.
 **Commit boundary:** provider routing/request foundation first; settings and per-job affordance second; documentation/test closure third if needed. No push, PR, merge, or deployment has occurred.
+
+### [2026-08-23 17:43 IST] [Agent: Codex]
+**Status:** Starting approved Claude-review P2 follow-up
+**Issue:** `mergeOpenRouterRouting` merges request preferences after the selected route, allowing caller-supplied `only` or `allow_fallbacks` to weaken an exact endpoint pin even though deny/ZDR are reasserted.
+**Hypothesis:** Merging additive request preferences first and the selected route second will preserve caller constraints in Auto mode while making exact-host `only` and `allow_fallbacks: false` authoritative. Confidence 0.98.
+**Predicted tests:** hostile request preferences cannot change a pinned endpoint or enable fallback; the same request preferences remain available when the saved route is Auto; existing deny/ZDR and routing tests remain green.
+**Files affected:** `services/openrouterRouting.ts`; `tests/services/openrouterRouting.test.ts`; this worklog.
+**Fallback:** Revert the single follow-up commit; the already-pushed branch remains otherwise unchanged.
+
+### [2026-08-23 17:45 IST] [Agent: Codex]
+**Status:** Claude-review P2 fixed and verified; follow-up commit/push pending
+**Result:** Confirmed the finding. `mergeOpenRouterRouting` now merges request preferences first and the selected route second. Exact-host mode therefore makes `only` and `allow_fallbacks: false` authoritative; Auto mode intentionally retains caller routing fields. Deny/ZDR remain final invariants.
+**Tests:** New hostile-preference and Auto-preservation cases pass. Pinned Node 24.19.0 routing test passes 7/7; complete affected request/UI set passes 67/67 across 7 files; TypeScript and focused ESLint are clean; `git diff --check` passes.
+**Confidence:** 0.99. Fallback remains reverting the isolated follow-up commit.
