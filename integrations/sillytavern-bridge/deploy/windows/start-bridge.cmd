@@ -9,6 +9,11 @@ set "LF_PORTAL_ST_INTERNAL_URL=http://127.0.0.1:8000"
 set "LF_PORTAL_ST_PUBLIC_URL=https://asus-strix-scar.tail4741ad.ts.net:8444"
 set "LF_PORTAL_ALLOWED_ORIGINS=https://read.adityaarpitha.com,http://localhost:5173,http://127.0.0.1:5173"
 set "LF_PORTAL_REQUEST_TIMEOUT_SECONDS=20"
+set "LF_PORTAL_OWNER_LOGINS=adityaprasadiskool@gmail.com"
+set "LF_PORTAL_MAX_REQUEST_BYTES=4194304"
+set "LF_PORTAL_IDEMPOTENCY_TTL_SECONDS=600"
+set "LF_PORTAL_IDEMPOTENCY_MAX_ENTRIES=128"
+set "LF_PORTAL_CREATION_COOLDOWN_SECONDS=2"
 
 if not exist "%LF_LOG_DIR%" mkdir "%LF_LOG_DIR%"
 call :main >>"%LF_LOG_DIR%\bridge.log" 2>&1
@@ -27,4 +32,4 @@ if not exist "%LF_PYTHON%" (
   exit /b 2
 )
 cd /d "%LF_BRIDGE_ROOT%"
-"%LF_PYTHON%" -m uvicorn portal_bridge.app:app --host 127.0.0.1 --port 5001
+"%LF_PYTHON%" -m uvicorn portal_bridge.app:app --host 127.0.0.1 --port 5001 --no-proxy-headers
