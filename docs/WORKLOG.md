@@ -661,6 +661,7 @@
 **Hypothesis:** A low-level runner that accepts an `IDBDatabase` can serve both `withTxn()` and injected repositories, eliminating divergent commit/error lifecycles without changing repository interfaces.
 **Predicted tests:** success waits for both operation fulfillment and `oncomplete`; `onerror` alone does not settle; operation rejection calls `abort()` and survives the later `onabort`; commit-time quota aborts remain typed; repository writes retain commit durability.
 **Confidence:** 0.92
+
 **Fallback:** Keep the kernel internal to `txn.ts` and defer repository migration if callers prove dependent on raw DOMException error shapes.
 
 ### [2026-07-11 09:38 IST] [Agent: Codex]
@@ -3402,6 +3403,76 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Root-cause confirmation:** Local official source and Asus runtime have byte-identical vulnerable manifest blobs (`package.json` `12c30fc061e38c0a35becca70fab9c6fb991a7f0`; `package-lock.json` `95b4dbc33c62829e2aff383f286889ebdcc15ffd`). The guard was over-specific to ancestry even though its patch target is exactly those two blobs.
 **Correction:** `apply-sillytavern-hardening.ps1:14-39` now accepts either official ancestry or both exact reviewed manifest blob hashes; it still rejects any other tree before `git apply`. README and deployment contract document/test that provenance rule. Local bridge/deployment suite remains 30/30 and the amended PowerShell parses on Asus. No live SillyTavern file, task, or route changed during the stopped attempt.
 **Attempt 2 diagnostic:** The first fallback implementation still stopped before mutation because Windows PowerShell 5 promoted Git's expected `merge-base` stderr for an unknown commit into a terminating `NativeCommandError`. A read-only Asus probe confirmed `git rev-parse --verify --quiet` returns exit 1 with no error stream, after which both exact blob hashes are readable. The script now checks quiet commit existence before invoking `merge-base`; this preserves the same decision rule and makes the blob fallback reachable. The next hardening invocation is attempt 3/3.
+### [2026-08-23 15:19 IST] [Agent: Codex]
+**Status:** Starting the user-approved brokered auto-scene extension; SillyTavern exposure remains disabled
+**Task:** Extend the existing LexiconForge SillyTavern overlay so one scene illustration is generated after each completed conversational turn through the IndrasNet resumable ComfyUI job API (approved Option 2).
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-sillytavern-asus/`
+**Branch:** `feat/codex-sillytavern-asus`
+**Issues:** The current overlay only opens an exact portal group. Native SillyTavern ComfyUI generation bypasses IndrasNet GPU admission, while the Asus broker and laptop may be offline. Group chats emit one character-rendered event per member, so that event alone would over-submit images.
+**Hypotheses:** H1 (0.94) the existing `POST /api/comfyui/jobs` plus `GET /api/comfyui/jobs/{id}` contract is sufficient without IndrasNet source changes. H2 (0.92) `GROUP_WRAPPER_FINISHED` yields one image per completed group turn, while `CHARACTER_MESSAGE_RENDERED` covers non-group chats; a chat/message fingerprint prevents duplicate event submissions. H3 (0.90) attaching the broker artifact to the triggering SillyTavern message via `extra.media` preserves the image in chat while keeping broker outages non-blocking.
+**Predicted tests:** Portal group opening remains exact and sanitized; group wrapper completion submits once for the last eligible assistant message; non-group rendered messages submit once; first/system/user/extension messages and duplicate events do not submit; queued/running/completed/failed/not-found broker states are explicit; a completed artifact becomes a SillyTavern image attachment with provenance; offline/timeout failures leave chat text untouched.
+**Files likely affected:** `integrations/sillytavern-bridge/st-extension/` (modular runtime, settings template/style, focused tests); `integrations/sillytavern-bridge/README.md`; new `docs/adr/FEAT-005-sillytavern-brokered-auto-scenes.md`; this WORKLOG. Asus deployment is limited to the isolated SillyTavern overlay and, only at eventual exposure time, an exact `INDRASNET_CORS_ORIGINS` entry.
+**Fallback:** Disable the extension toggle or remove only the LexiconForge extension overlay. No IndrasNet source, ComfyUI workflow, existing queue item, or Tailscale listener is modified.
+**Confidence:** 0.92
+
+### [2026-08-23 17:04 IST] [Agent: Codex]
+**Status:** Starting the approved independent SillyTavern image-route affordance
+**Task:** Let LexiconForge portal auto-scenes choose either the existing IndrasNet workflow route or SillyTavern's native Image Generation route, while leaving SillyTavern's text model and image provider/model configuration independent from LexiconForge reader settings.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-sillytavern-provider-affordances/`
+**Branch:** `feat/codex-sillytavern-provider-affordances`
+**Issues:** The imported auto-scene controller is hard-wired to `createBroker`; settings expose only an IndrasNet workflow; duplicating an OpenRouter key or provider catalogue in the extension would create a second secret/configuration surface; the native SillyTavern image command must not receive scene text through an injection-prone command string.
+**Hypotheses:** H1 (0.94) SillyTavern's native Image Generation extension can remain the authoritative owner of its provider, model, and server-held credentials while the LexiconForge overlay selects it as a backend. H2 (0.91) a small image-client dispatcher can preserve the existing non-blocking, origin-message, pending-chat, and provenance behavior for both backends. H3 (0.84) SillyTavern exposes a direct registered-command callback or an equivalently safe programmatic invocation seam that avoids parsing generated scene text as executable STscript.
+**Options:** (A) duplicate OpenRouter/provider clients and credentials in this extension: broadest control but high secret/configuration drift, moderate-high risk, and rejected. (B) dispatch to SillyTavern native Image Generation: high impact, moderate effort, low-moderate integration risk, reversible by selecting IndrasNet, and selected. (C) keep IndrasNet-only: lowest effort and risk but does not meet the independent cloud-provider requirement.
+**Predicted tests:** the native route calls exactly one injected image generator with the composed/negative prompts; arbitrary prompt punctuation never becomes a command string; IndrasNet behavior remains unchanged; backend-specific controls hide/show correctly; completed images attach to the originating message with backend/provider/model provenance; failures remain visible and never edit chat text; extension tests remain green.
+**Open questions/uncertainties:** The exact supported programmatic invocation API is release-coupled and must be verified against official SillyTavern source before implementation. Native source/model labels may be readable for provenance but must not become a duplicated configuration authority.
+**Fallback:** Keep the current IndrasNet client and UI as the default; if no safe native invocation exists, stop at the integration seam rather than interpolate generated text into STscript.
+**Confidence:** 0.89
+
+### [2026-08-23 17:15 IST] [Agent: Codex]
+**Status:** Source implementation complete; local commit pending final review; live Asus deployment intentionally not attempted
+**Validated hypotheses:** H1 confirmed against the exact official SillyTavern 1.18.0 source: native Image Generation owns `extension_settings.sd.source/model` and the server-held OpenRouter secret. H2 confirmed by controller tests: both backends preserve one-shot dispatch, non-blocking failure, origin-chat deferral, and attachment provenance. H3 confirmed: `SlashCommandParser.commands.imagine.callback` accepts structured arguments and prompt data directly, so no generated text is interpolated into STscript.
+**Implementation:** `st-extension/sillytavern-image-client.js` validates native configuration/results and invokes the registered callback directly; `scene-controller.js` dispatches a backend-neutral client and records route provenance; `settings-panel.js` adds the independent IndrasNet/native selector and keeps route-specific controls separate. The Image Generation source/model remains read-only in this panel and authoritative in SillyTavern. `index.js` fell from 266 pre-feature lines to 232 after extracting the settings responsibility. Manifest is 0.3.0. FEAT-005 and the bridge guide record the amended boundary.
+**Investigation signal:** The first settings-panel test rejected the assumption that prepending an `option.selected = true` custom workflow always restores the browser selection. The saved value still resolved to the first fallback entry. Explicitly assigning `select.value = selected` fixed the actual affordance; the rerun passed.
+**Privacy boundary:** Exact source review found that stock SillyTavern 1.18.0's native OpenRouter image server route sends model/messages/modalities/image_config but not `provider.data_collection` or `provider.zdr`. Documentation now states this precisely. This extension does not make a false per-request ZDR claim or add an unreviewed server patch.
+**Verification:** pinned Node 24.19.0 extension suite 5/5 files and 17/17 tests; extension ESLint clean; locked Python 3.12.13 bridge/deployment suite 31/31 with one upstream Starlette/httpx deprecation warning; `git diff --check` clean. Static deployment contract proves manifest 0.3.0, direct registered callback use, absence of `executeSlashCommands`, and native provenance marker.
+**Unproven/live boundary:** No Asus SSH, extension overlay deployment, or live native image E2E was attempted. The previously exposed Hugging Face credential must be confirmed rotated before remote work resumes, and the FEAT-004 cutover remains a separate safety gate. FEAT-005 therefore remains `Accepted`, not `Implemented`.
+**Fallback:** Select IndrasNet (the default) or disable auto-scenes. No reader setting, SillyTavern text/image model setting, provider credential, broker, workflow, or server source is mutated by this branch.
+**Confidence:** 0.94 for source behavior; 0.78 for live SillyTavern integration until one safe E2E passes.
+
+### [2026-08-23 18:12 IST] [Agent: Codex]
+**Status:** Starting user-approved chat-navigation epoch follow-up
+**Issue:** SillyTavern's `generateQuietPrompt` reads global active-chat state after asynchronous lifecycle hooks. A chat switch during scene-prompt composition can therefore mix context before the existing final attachment fingerprint check.
+**Options:** (A) compare only the chat ID after composition — smaller but misses A to B to A navigation; (B) increment a tab-local navigation epoch on every `CHAT_CHANGED` and compare it after composition — selected, low effort, low risk, fully reversible; (C) accept the race until live E2E — rejected.
+**Hypothesis:** A controller-owned monotonic epoch, captured immediately before composition and checked immediately afterward, will prevent image submission after any intervening navigation while preserving already-submitted job deferral. Confidence 0.95.
+**Predicted tests:** one or multiple navigation events during prompt composition prevent client creation/submission and surface a non-failure skip; navigation after image submission still defers and attaches on return; existing duplicate and native-route behavior remains green.
+**Files affected:** `st-extension/scene-controller.js`; its focused test; `st-extension/index.js`; this worklog.
+**Fallback:** Revert the isolated follow-up commit; existing fingerprint/pending behavior remains intact.
+
+### [2026-08-23 18:13 IST] [Agent: Codex]
+**Status:** Chat-navigation epoch implemented and locally verified; commit/push pending
+**Result:** The controller increments a tab-local epoch for every `CHAT_CHANGED`. A job captures the epoch immediately before scene-prompt composition and skips without creating an image client if it changed before composition returned. Two changes, including A to B to A, are detected. Navigation after image submission continues to defer completed artifacts and attach them on return.
+**User-visible behavior:** A composition-time navigation shows `Skipped after chat change — no image was submitted`; it is not reported as a provider failure.
+**Verification:** pinned Node 24.19.0 controller tests 5/5; complete extension suite 18/18 across 5 files; extension ESLint and `git diff --check` clean; locked bridge/deployment suite 31/31 with one upstream Starlette/httpx deprecation warning.
+**Confidence:** 0.97. Live SillyTavern E2E remains the separate acceptance gate.
+
+### [2026-08-23 18:18 IST] [Agent: Codex]
+**Status:** Addressing Gemini 3.1 Pro focused-review findings before merge
+**Findings:** P2 confirmed: a composition-time skip left the fingerprint in `handled`, preventing a later duplicate event from retrying. P3 confirmed: an abandoned chat's delayed `navigation_changed` notification could overwrite the current chat's global status.
+**Correction hypothesis:** Delete the fingerprint only on the intentional pre-submission navigation skip, and notify only when the active chat identity has returned to the originating chat. This preserves duplicate suppression for submitted/failed jobs, permits safe retry, and prevents abandoned-chat status overwrite. Confidence 0.96.
+**Predicted tests:** A to B suppresses submission and the global skip notification; A to B to A surfaces the skip; a later event for the skipped fingerprint can submit exactly once; submitted-job navigation behavior remains unchanged.
+**Result:** Confirmed. Intentional pre-submission skips now remove only their fingerprint from `handled`. A later event can retry exactly once. The skip notification is emitted only when the active chat identity equals the originating chat, so abandoned-chat completions cannot overwrite another chat's status.
+**Verification:** controller suite 6/6; complete extension suite 19/19 across 5 files; extension ESLint and `git diff --check` clean. The previously completed bridge/deployment suite remains 31/31 because this follow-up changes only the browser controller and its tests.
+**Confidence:** 0.98. Next gate is focused Gemini rereview, then PR/CI dependency inspection.
+
+### [2026-08-23 18:23 IST] [Agent: Codex]
+**Status:** Addressing final Gemini cross-chat status ownership findings
+**Issue:** Background polling, failures, and `ready_elsewhere` notifications share the current chat's single status DOM node and can overwrite foreground progress.
+**Options:** (A) suppress each offending state ad hoc — rejected as incomplete; (B) add a foreground flag to the notification contract, gate status text centrally, and retain background toasts — selected; (C) build per-chat persisted status — rejected as outside the tab-scoped requirement.
+**Hypothesis:** Computing foreground ownership from the originating/current chat in the controller and enforcing it once in `notify` prevents all known cross-chat status clobbering without hiding terminal background toasts. Confidence 0.96.
+**Predicted tests:** background progress/failure/ready events carry `foreground: false`; foreground attachments remain true/default; pending attachment behavior and all existing tests remain green.
+**Result:** Confirmed. The controller now labels polling, completion, and failure states by whether their originating chat is still active. The notification boundary suppresses only the shared status-node write for background states; terminal toasts remain available. Deferred attachment reports foreground ownership after the user returns to the originating chat.
+**Verification:** available Node 24.18.0 runner: controller suite 7/7 and complete extension suite 20/20 across 5 files; targeted extension ESLint clean; `git diff --check` clean. Locked Python 3.12.13 bridge/deployment suite 31/31 with one upstream Starlette/httpx deprecation warning. The exact pinned Node 24.19.0 binary used by earlier gates was unavailable for this follow-up rerun and is not claimed here.
+**Confidence:** 0.98. Next gate is focused Gemini rereview followed by current PR/CI dependency inspection.
 ### [2026-08-23 15:20 IST] [Agent: Codex]
 **Status:** Starting
 **Task:** Implement independently scoped OpenRouter model/endpoint affordances for LexiconForge text and image generation, plus a per-illustration route override, without coupling these choices to SillyTavern.

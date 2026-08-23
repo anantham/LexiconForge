@@ -35,6 +35,36 @@ Copy `st-extension/` to
 accepts only a 10-20 digit `lfGroup` query value, waits for `APP_READY`, opens
 that exact group, persists it as active, and removes the query parameter.
 
+The same overlay can generate one scene illustration after each completed chat
+turn. Group chats trigger after the whole group response cycle, not after each
+character. The extension uses SillyTavern's configured chat model to compose a
+visual prompt, then sends the image to one independently selected route:
+
+- **IndrasNet** uses the resumable ComfyUI job API and a registered workflow.
+- **SillyTavern Image Generation** uses the source, model, and server-held
+  credential already selected in SillyTavern's own Image Generation panel.
+
+The second route invokes SillyTavern's registered `imagine` callback directly;
+generated prompt text is never parsed as STscript. The returned image is
+attached to the triggering message with backend/provider/model provenance.
+Provider failure never blocks or edits the text conversation. Jobs are
+intentionally tab-scoped; reload/tab-closure recovery is out of scope.
+
+Controls live under SillyTavern's Extensions panel. Auto-scene is enabled by
+default only for bridge-created LexiconForge portal groups. The image route,
+broker URL/workflow, negative prompt, and scope are configurable. SillyTavern's
+API Connections panel remains authoritative for the text model; its Image
+Generation panel remains authoritative for native image source/model selection.
+These settings are deliberately separate from LexiconForge reader settings.
+The UI reports elapsed time rather than inventing a percentage or ETA; neither
+route currently supplies one to this extension.
+
+Stock SillyTavern 1.18.0 does not add OpenRouter `provider.data_collection` or
+`provider.zdr` fields to its native image request. Select a provider/account
+policy that meets the desired retention boundary; this overlay does not claim
+to strengthen that upstream request. Exact per-request OpenRouter privacy
+routing would require a separately reviewed SillyTavern server change.
+
 ## Asus runtime
 
 Run `deploy/windows/bootstrap-bridge.ps1` first. It creates a standard Python
@@ -71,3 +101,18 @@ high, and one critical findings are either outside the portal execution path or
 have no compatible published fix; `image-size` remains a reachable, no-fix risk
 when SillyTavern parses trusted character-card images. Exposure therefore stays
 owner-only and tailnet-only.
+
+The intended tailnet-only routes are additive HTTPS listeners: port `8444`
+proxies to SillyTavern and port `5001` proxies to the bridge. Do not enable
+Tailscale Funnel or replace unrelated Serve routes.
+
+When the SillyTavern HTTPS route is eventually enabled, add its exact origin to
+the IndrasNet process environment, for example:
+
+```text
+INDRASNET_CORS_ORIGINS=https://asus-strix-scar.tail4741ad.ts.net:8444
+```
+
+Do not use a wildcard. This CORS entry is not authentication; IndrasNet's owner
+and tailnet boundary still applies. The hardening and cutover preflight above
+must pass before enabling the SillyTavern listener.

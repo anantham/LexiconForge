@@ -1,14 +1,47 @@
 import {
+    appendMediaToMessage,
     eventSource,
     event_types,
+    generateQuietPrompt,
+    saveChatConditional,
     saveSettingsDebounced,
     setActiveGroup,
 } from '../../../script.js';
+import { MEDIA_DISPLAY, MEDIA_SOURCE, MEDIA_TYPE, SCROLL_BEHAVIOR } from '../../constants.js';
+import { extension_settings, getContext } from '../../extensions.js';
 import { openGroupById } from '../../group-chats.js';
+import { SlashCommandParser } from '../../slash-commands/SlashCommandParser.js';
+
+import { createBrokerClient } from './broker-client.js';
+import { createSceneController } from './scene-controller.js';
+import { createSettingsPanel } from './settings-panel.js';
+import { createSillyTavernImageClient } from './sillytavern-image-client.js';
 
 const PARAMETER = 'lfGroup';
 const MAX_ATTEMPTS = 8;
 const RETRY_DELAY_MS = 250;
+const SETTINGS_KEY = 'lexiconforge_portal';
+const DEFAULT_SETTINGS = Object.freeze({
+    enabled: true,
+    portalOnly: true,
+    imageBackend: 'indrasnet',
+    brokerUrl: 'https://asus-strix-scar.tail4741ad.ts.net:9443',
+    workflowName: 'gen_anime',
+    negativePrompt: 'low quality, worst quality, blurry, text, watermark, logo, malformed hands, extra fingers',
+    pollIntervalMs: 2000,
+    timeoutMs: 35 * 60 * 1000,
+});
+const FALLBACK_WORKFLOWS = [
+    { name: 'gen_anime', display_name: 'Anime — Illustrious' },
+    { name: 'gen_real', display_name: 'Realistic — Juggernaut' },
+    { name: 'gen_anime_ref', display_name: 'Anime + character reference' },
+    { name: 'gen_real_ref', display_name: 'Realistic + character reference' },
+    { name: 'gen_real_chroma', display_name: 'Chroma Flux (heavy)' },
+];
+const SCENE_PROMPT = `Describe the current visible scene after the latest exchange as one concise image-generation prompt.
+Use only details supported by the conversation and character context. Include setting, characters currently present,
+appearance, action, mood, lighting, composition, and camera framing. Do not narrate, explain, quote dialogue, or add
+labels. Return only the visual prompt.`;
 let handled = false;
 
 const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -48,4 +81,159 @@ async function openLexiconForgeGroup() {
     console.error(`[LexiconForge Portal] Group ${groupId} was not available after ${MAX_ATTEMPTS} attempts`);
 }
 
-eventSource.on(event_types.APP_READY, openLexiconForgeGroup);
+function settings() {
+    extension_settings[SETTINGS_KEY] = {
+        ...DEFAULT_SETTINGS,
+        ...(extension_settings[SETTINGS_KEY] || {}),
+    };
+    return extension_settings[SETTINGS_KEY];
+}
+
+function updateStatus(label, detail = '') {
+    const status = document.querySelector('#lf_auto_scene_status');
+    if (!status) return;
+    status.textContent = detail ? `${label} — ${detail}` : label;
+    status.dataset.state = label.toLowerCase().replace(/\s+/g, '-');
+}
+
+function notify(state, detail = {}) {
+    const elapsed = Number.isFinite(detail.elapsedMs) ? `${Math.round(detail.elapsedMs / 1000)}s elapsed` : '';
+    const setStatus = detail.foreground === false ? () => {} : updateStatus;
+    switch (state) {
+        case 'composing':
+            setStatus('Composing scene prompt');
+            break;
+        case 'queued':
+            setStatus('Queued in IndrasNet', elapsed);
+            toastr.info('Scene illustration queued in IndrasNet.', 'LexiconForge Auto-Scene');
+            break;
+        case 'running':
+            setStatus(
+                detail.imageBackend === 'sillytavern' ? 'Rendering via SillyTavern' : 'Rendering via IndrasNet',
+                `${elapsed}; no provider ETA available`,
+            );
+            break;
+        case 'attached':
+            setStatus('Ready', detail.jobId || 'image attached');
+            toastr.success('Scene illustration is ready.', 'LexiconForge Auto-Scene');
+            break;
+        case 'ready_elsewhere':
+            setStatus('Ready in another chat', 'return to that chat to attach it');
+            toastr.info('Scene illustration is ready. Return to its chat to attach it.', 'LexiconForge Auto-Scene');
+            break;
+        case 'failed':
+            setStatus('Failed', detail.code || 'unknown error');
+            toastr.warning(`Scene illustration failed (${detail.code || 'unknown error'}). Chat was not interrupted.`, 'LexiconForge Auto-Scene');
+            break;
+        case 'stale':
+            setStatus('Skipped stale result');
+            break;
+        case 'navigation_changed':
+            setStatus('Skipped after chat change', 'no image was submitted');
+            break;
+        default:
+            setStatus(state, elapsed);
+    }
+}
+
+async function composePrompt() {
+    const result = await generateQuietPrompt({ quietPrompt: SCENE_PROMPT });
+    return typeof result === 'string' ? result.trim() : '';
+}
+
+async function attachImage({ context, messageIndex, workflowName, route, result }) {
+    const message = context.chat?.[messageIndex];
+    if (!message) throw Object.assign(new Error('Target chat message is no longer available'), { code: 'TARGET_MESSAGE_MISSING' });
+
+    message.extra ??= {};
+    message.extra.media ??= [];
+    message.extra.media_display ??= MEDIA_DISPLAY.GALLERY;
+    message.extra.inline_image = true;
+    message.extra.media.push({
+        url: result.imageUrl,
+        type: MEDIA_TYPE.IMAGE,
+        title: `LexiconForge scene — ${route?.model || workflowName}`,
+        generation_type: 'lexiconforge_auto_scene',
+        source: MEDIA_SOURCE.GENERATED,
+    });
+    message.extra.lexiconforge_auto_scenes ??= [];
+    message.extra.lexiconforge_auto_scenes.push({
+        broker_job_id: result.jobId,
+        prompt_id: result.promptId,
+        workflow_name: workflowName,
+        image_backend: route?.backend || 'indrasnet',
+        provider: route?.provider || 'IndrasNet',
+        model: route?.model || workflowName,
+        timing_ms: result.timingMs,
+        attached_at: new Date().toISOString(),
+    });
+
+    const messageElement = $(`.mes[mesid="${messageIndex}"]`);
+    if (messageElement.length) {
+        appendMediaToMessage(message, messageElement, SCROLL_BEHAVIOR.KEEP);
+    }
+    await saveChatConditional();
+}
+
+const sceneController = createSceneController({
+    getContext,
+    getSettings: settings,
+    composePrompt,
+    createImageClient: (currentSettings) => currentSettings.imageBackend === 'sillytavern'
+        ? createSillyTavernImageClient({
+            getImagineCommand: () => SlashCommandParser.commands.imagine,
+            getRoute: () => ({
+                source: extension_settings.sd?.source,
+                model: extension_settings.sd?.model,
+            }),
+        })
+        : createBrokerClient({ baseUrl: currentSettings.brokerUrl }),
+    attachImage,
+    notify,
+    logger: console,
+});
+
+async function refreshWorkflows({ announce = false } = {}) {
+    try {
+        const workflows = await createBrokerClient({ baseUrl: settings().brokerUrl }).listWorkflows();
+        settingsPanel.populateWorkflowSelect(workflows);
+        updateStatus('Broker reachable', `${workflows.length} client-ready workflows`);
+        if (announce) toastr.success('IndrasNet workflow catalogue loaded.', 'LexiconForge Auto-Scene');
+    } catch (error) {
+        settingsPanel.populateWorkflowSelect(FALLBACK_WORKFLOWS);
+        updateStatus('Broker offline', error.code || 'connection failed');
+        if (announce) toastr.warning('IndrasNet is unavailable. Chat remains usable.', 'LexiconForge Auto-Scene');
+    }
+}
+
+const settingsPanel = createSettingsPanel({
+    getSettings: settings,
+    getNativeRoute: () => ({
+        source: String(extension_settings.sd?.source || ''),
+        model: String(extension_settings.sd?.model || ''),
+    }),
+    saveSettings: saveSettingsDebounced,
+    onRefreshWorkflows: () => refreshWorkflows({ announce: true }),
+    onBackendChanged: (backend) => {
+        if (backend === 'indrasnet') refreshWorkflows();
+    },
+    fallbackWorkflows: FALLBACK_WORKFLOWS,
+});
+
+async function initialize() {
+    settings();
+    settingsPanel.mount();
+    await openLexiconForgeGroup();
+    if (settings().imageBackend === 'indrasnet') refreshWorkflows();
+}
+
+eventSource.on(event_types.APP_READY, initialize);
+eventSource.on(event_types.GROUP_WRAPPER_FINISHED, ({ type } = {}) => sceneController.handle('group', { messageType: type }));
+eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, (messageId, type) => sceneController.handle('character', {
+    messageId: Number(messageId),
+    messageType: type,
+}));
+eventSource.on(event_types.CHAT_CHANGED, () => {
+    sceneController.markNavigation();
+    return sceneController.flushPending();
+});
