@@ -3328,3 +3328,16 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Branch:** fix/alpha-safety-packet
 **Files modified:** scripts/ci/cycle-worklog.mjs (new); scripts/cycle-worklog.sh (delegate); scripts/backfillChapterNumbers.ts; store/bootstrap/initializeStore.ts (:222-239 gate); tests/services/backfillChapterNumbers.test.ts (new, 3 cases); tests/store/bootstrap/bootstrapHelpers.test.ts (mock shape); docs/architecture/ARCHITECTURE.md §7; docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md.
 **Verification:** archiver dry-run on live file: 39 stale (<2026-07-01) entries queued / 2,017 lines, zero August content touched, no write without --apply; backfill suite 20/20 incl. quota-error classification; tsc clean.
+
+### [2026-08-23 00:10 IST] [Agent: ox-alpha]
+**Status:** Handing off — CI programme PR 2 queued (window exhausted pre-execution)
+**Task:** PR 2 of CORE-013 programme: truthful coverage. Plan agreed with human (Option B, fallback pre-approved).
+**Next session executes (branch ci/alpha-coverage-pr2 from origin/main):
+1) vitest.config.ts: coverage.include = product roots only (services/, adapters/, store/, hooks/, utils/, components/, types.ts); explicit perFile:true; exclude scripts/, data-gen, manual tools.
+2) New config/coverage-policy module: single source of thresholds + rationale + owner; validator fails if any threshold glob matches zero real files.
+3) HtmlRepairService floor earned via behavior tests — never lowered.
+4) unit-coverage job runs `vitest run --coverage` once (no double suite); upload summary + HTML on failure.
+5) Publish full-surface baseline number; enforce ONLY accepted critical-module floors initially (fallback clause).
+Acceptance: 9,286+ tests green; coverage exits 0; phantom-glob validation demo; uncovered file shows 0% not invisible.
+Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative); thresholds currently live inline in vitest.config.ts (repointed by #141 to services/translate/*); liturgy-generator etc. will show 0% — expected, part of baseline.
+**Files likely affected:** vitest.config.ts, new scripts/ci/validate-coverage-policy.mjs, .github/workflows/test.yml, package.json, tests/services/translate/*, docs/adr/CORE-013 (Implementation Notes only when done), WORKLOG.
