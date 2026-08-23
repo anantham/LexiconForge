@@ -1,0 +1,26 @@
+#lf_auto_scene_container .inline-drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#lf_auto_scene_container .lf_auto_scene_actions {
+    display: flex;
+    margin-top: 0.25rem;
+}
+
+#lf_auto_scene_status {
+    border-left: 3px solid var(--SmartThemeQuoteColor);
+    padding: 0.4rem 0.6rem;
+    overflow-wrap: anywhere;
+}
+
+#lf_auto_scene_status[data-state="ready"],
+#lf_auto_scene_status[data-state="broker-reachable"] {
+    border-left-color: #35a853;
+}
+
+#lf_auto_scene_status[data-state="failed"],
+#lf_auto_scene_status[data-state="broker-offline"] {
+    border-left-color: #d9534f;
+}
