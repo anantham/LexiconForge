@@ -18,4 +18,3 @@ if not exist "%LF_ST_ROOT%\server.js" (
 )
 cd /d "%LF_ST_ROOT%"
 node server.js --port 8000 --no-listen --no-browserLaunchEnabled
-
