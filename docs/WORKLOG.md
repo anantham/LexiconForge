@@ -3371,6 +3371,6 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 
 ### [2026-08-23 16:00 IST] [Agent: ox-alpha]
 **Status:** Complete — round-3 review corrections for PR 153
-**Task:** Codex found README still carried BookToki usage/output sections + content.js row, ledger item-2 still said "pending PR-b", and the 15:30 WORKLOG entry + PR body overclaimed those as already fixed (they were lost in the same reset cascade and my reapply script lacked asserts on those two replacements). 
+**Task:** Codex found README still carried BookToki usage/output sections + content.js row, ledger item-2 still said "pending PR-b", and the 15:30 WORKLOG entry + PR body overclaimed those as already fixed (they were lost in the same reset cascade and my reapply script lacked asserts on those two replacements).
 **Files modified:** chrome_extension/README.md (BookToki usage section, output-format block, Multi-Site feature bullet, content.js table row removed — every replacement now assert-guarded); docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md item-2 wording reconciled to REMOVED status.
 **Verification:** README booktoki grep = only the provenance deprecation line; ledger grep shows no pending-PR-b for extension; this entry supersedes the 15:30 entry's overclaim re README/ledger (gate + popup fixes in that entry were real and verified).
