@@ -4,6 +4,8 @@ import prompts from '../config/prompts.json';
 import { OpenAI } from 'openai';
 import { getConfiguredApiKey } from './ai/providerCredentials';
 import { getChatCompletionRequestParameters } from './ai/openaiRequestParameters';
+import { buildOpenRouterRouting } from './openrouterRouting';
+import type { ProviderPreferences } from '../adapters/providers/Provider';
 
 // Basic logging for the service
 const log = (message: string, ...args: any[]) => console.log(`[ExplanationService] ${message}`, ...args);
@@ -76,7 +78,7 @@ export class ExplanationService {
       const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
         { role: 'user', content: prompt },
       ];
-      const requestBody: OpenAI.Chat.Completions.ChatCompletionCreateParams = {
+      const requestBody: OpenAI.Chat.Completions.ChatCompletionCreateParams & { provider?: ProviderPreferences } = {
         model: settings.model,
         messages,
         ...getChatCompletionRequestParameters(
@@ -86,6 +88,9 @@ export class ExplanationService {
           { temperature: 0.5 }
         ),
       };
+      if (baseURL === 'https://openrouter.ai/api/v1') {
+        requestBody.provider = buildOpenRouterRouting(settings, 'text');
+      }
 
       log('Sending explanation request to:', settings.model);
       console.log('Explanation request body:', requestBody);

@@ -9,6 +9,7 @@ import { DiffAnalysisService, DiffAnalysisJsonParseError } from './DiffAnalysisS
 import type { DiffResult } from './types';
 import { debugLog } from '../../utils/debug';
 import { createSimpleLLMAdapter } from './SimpleLLMAdapter';
+import { buildOpenRouterRouting } from '../openrouterRouting';
 import { computeDiffHash } from './hash';
 import { DIFF_ALGO_VERSION, DIFF_DEFAULT_PROVIDER } from './constants';
 import { useAppStore } from '../../store';
@@ -151,7 +152,10 @@ export async function handleTranslationComplete(event: Event): Promise<void> {
     }
 
     const diffService = new DiffAnalysisService();
-    diffService.setTranslator(createSimpleLLMAdapter(openRouterApiKey));
+    diffService.setTranslator(createSimpleLLMAdapter(
+      openRouterApiKey,
+      buildOpenRouterRouting(currentSettings, 'text'),
+    ));
     const diffPrompt = currentSettings.diffAnalysisPrompt ?? null;
 
     const normalizedProvider = preferredProvider?.toLowerCase() ?? null;

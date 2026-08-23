@@ -10,10 +10,13 @@ export type ChatMessage = {
 
 /** OpenRouter provider routing preferences */
 export interface ProviderPreferences {
+  only?: string[];
   order?: string[];
+  ignore?: string[];
   allow_fallbacks?: boolean;
   require_parameters?: boolean;
   data_collection?: 'allow' | 'deny';
+  zdr?: boolean;
   quantizations?: string[];
   sort?: 'price' | 'throughput' | 'latency';
 }

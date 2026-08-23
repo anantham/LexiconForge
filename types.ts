@@ -338,6 +338,8 @@ export interface AppSettings {
     targetLanguage?: string;       // e.g., "English", "Malayalam"
     provider: TranslationProvider;
     model: string; // The ID of the model, e.g., 'gemini-2.5-pro'
+    /** OpenRouter endpoint host for LexiconForge text calls; "auto" uses OpenRouter routing. */
+    openRouterTextEndpoint?: string;
     /** Optional override for Sutta Studio compiler model. Defaults to a cheap fast
      *  model (see compiler/index.ts SUTTA_STUDIO_DEFAULT_MODEL) so that Studio runs
      *  don't accidentally use the expensive translation model. Leave undefined to
@@ -345,6 +347,8 @@ export interface AppSettings {
     suttaStudioProvider?: TranslationProvider;
     suttaStudioModel?: string;
     imageModel: string; // The ID of the image model, e.g., 'imagen-4.0-ultra...'
+    /** OpenRouter endpoint host for LexiconForge image calls; independent of text routing. */
+    openRouterImageEndpoint?: string;
     /** Tailnet HTTPS base URL for the IndrasNet ComfyUI broker. */
     indrasNetBaseUrl?: string;
     /** Explicit cloud fallback model for retryable IndrasNet failures; "none" disables it. */
