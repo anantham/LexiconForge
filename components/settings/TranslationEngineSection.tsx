@@ -7,6 +7,7 @@
 
 import React from 'react';
 import type { TranslationProvider } from '../../types';
+import { OpenRouterEndpointSelect } from './OpenRouterEndpointSelect';
 
 interface PricedModel {
   id: string;
@@ -45,6 +46,8 @@ interface TranslationEngineSectionProps {
   orSearch: string;
   onOrSearchChange: (value: string) => void;
   openRouterModelsUpdatedAt: string | null;
+  openRouterTextEndpoint: string;
+  openRouterImageEndpoint: string;
 
   // Structured output support
   structuredOutputIndicator: React.ReactNode;
@@ -53,6 +56,8 @@ interface TranslationEngineSectionProps {
   onProviderChange: (provider: TranslationProvider) => void;
   onModelChange: (model: string) => void;
   onImageModelChange: (model: string) => void;
+  onOpenRouterTextEndpointChange: (endpoint: string) => void;
+  onOpenRouterImageEndpointChange: (endpoint: string) => void;
   onAutoGenerateImagesChange: (value: boolean) => void;
   onContextDepthChange: (value: number) => void;
   onPreloadCountChange: (value: number) => void;
@@ -81,10 +86,14 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
   orSearch,
   onOrSearchChange,
   openRouterModelsUpdatedAt,
+  openRouterTextEndpoint,
+  openRouterImageEndpoint,
   structuredOutputIndicator,
   onProviderChange,
   onModelChange,
   onImageModelChange,
+  onOpenRouterTextEndpointChange,
+  onOpenRouterImageEndpointChange,
   onAutoGenerateImagesChange,
   onContextDepthChange,
   onPreloadCountChange,
@@ -194,6 +203,16 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
 
             {/* Structured output indicator */}
             {structuredOutputIndicator}
+
+            {isOpenRouter && model && (
+              <OpenRouterEndpointSelect
+                id="openRouterTextEndpoint"
+                label="Text endpoint"
+                modelId={model}
+                value={openRouterTextEndpoint}
+                onChange={onOpenRouterTextEndpointChange}
+              />
+            )}
           </div>
         </div>
 
@@ -228,6 +247,15 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Asus entries use client-ready workflows discovered from your IndrasNet tailnet broker. Gemini, OpenRouter, and PiAPI use their configured provider keys.
           </p>
+          {imageModel.startsWith('openrouter/') && (
+            <OpenRouterEndpointSelect
+              id="openRouterImageEndpoint"
+              label="Image endpoint"
+              modelId={imageModel}
+              value={openRouterImageEndpoint}
+              onChange={onOpenRouterImageEndpointChange}
+            />
+          )}
           {imageModel && imageModel.toLowerCase() !== 'none' && (
             <div className="mt-2 flex items-center gap-3">
               <input
