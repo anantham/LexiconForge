@@ -1,149 +1,7 @@
-// Background service worker for LexiconForge Scraper Extension
-// Supports: BookToki (Korean novels) and Polyglotta (Buddhist texts)
+// Background service worker for the LexiconForge Polyglotta scraper.
+// BookToki support removed 2026-08-23 (source site shut down 2026-04-27).
 
 class ScrapingSessionManager {
-    constructor() {
-        this.initializeSession();
-    }
-    
-    async initializeSession() {
-        // Initialize default session state
-        const session = await this.getSession();
-        if (!session) {
-            await this.clearSession();
-        }
-    }
-    
-    async getSession() {
-        const result = await chrome.storage.local.get(['scrapingSession']);
-        return result.scrapingSession || null;
-    }
-    
-    async setSession(sessionData) {
-        await chrome.storage.local.set({ scrapingSession: sessionData });
-    }
-    
-    async clearSession() {
-        await chrome.storage.local.set({
-            scrapingSession: {
-                isActive: false,
-                currentChapter: 0,
-                maxChapters: 10,
-                startUrl: null,
-                startTime: null
-            },
-            accumulatedChapters: []
-        });
-    }
-    
-    async getAccumulatedChapters() {
-        const result = await chrome.storage.local.get(['accumulatedChapters']);
-        return result.accumulatedChapters || [];
-    }
-    
-    async addChapter(chapterData) {
-        const chapters = await this.getAccumulatedChapters();
-        chapters.push(chapterData);
-        await chrome.storage.local.set({ accumulatedChapters: chapters });
-        return chapters.length;
-    }
-    
-    async saveCompletedScraping() {
-        const session = await this.getSession();
-        const chapters = await this.getAccumulatedChapters();
-        
-        if (chapters.length > 0) {
-            // Create download data
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const filename = `booktoki_chapters_${chapters.length}_${timestamp}.json`;
-            
-            const jsonData = {
-                metadata: {
-                    scrapeDate: new Date().toISOString(),
-                    totalChapters: chapters.length,
-                    source: 'booktoki468.com',
-                    scraper: 'BookToki Chrome Extension',
-                    version: '1.0',
-                    sessionStartTime: session?.startTime || new Date().toISOString()
-                },
-                chapters: chapters
-            };
-            
-            try {
-                // Convert JSON to data URL (Manifest V3 compatible)
-                const jsonString = JSON.stringify(jsonData, null, 2);
-                const jsonDataUrl = `data:application/json;charset=utf-8,${encodeURIComponent(jsonString)}`;
-                
-                // Trigger download
-                const downloadId = await chrome.downloads.download({
-                    url: jsonDataUrl,
-                    filename: filename
-                });
-                console.log(`[Background] Started download: ${filename} (ID: ${downloadId})`);
-                console.log(`[Background] Successfully saved ${chapters.length} chapters to downloads`);
-                
-                // Only clear session if downloads succeeded
-                await this.clearSession();
-                return { success: true, chaptersCount: chapters.length };
-                
-            } catch (error) {
-                console.error(`[Background] Error saving downloads: ${error.message}`);
-                console.error(`[Background] Full error:`, error);
-                console.error(`[Background] Downloads failed - keeping chapters for retry`);
-                // Don't clear session, return error
-                return { success: false, error: error.message, chaptersCount: chapters.length };
-            }
-        } else {
-            // No chapters to save, just clear session
-            await this.clearSession();
-            return { success: true, chaptersCount: 0 };
-        }
-    }
-    
-    async downloadAccumulatedChapters() {
-        const session = await this.getSession();
-        const chapters = await this.getAccumulatedChapters();
-
-        if (chapters.length > 0) {
-            try {
-                // Create download data
-                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                const filename = `booktoki_chapters_${chapters.length}_${timestamp}.json`;
-
-                const jsonData = {
-                    metadata: {
-                        scrapeDate: new Date().toISOString(),
-                        totalChapters: chapters.length,
-                        source: 'booktoki468.com',
-                        scraper: 'BookToki Chrome Extension',
-                        version: '1.0',
-                        sessionStartTime: session?.startTime || new Date().toISOString()
-                    },
-                    chapters: chapters
-                };
-
-                // Convert JSON to data URL (Manifest V3 compatible)
-                const jsonString = JSON.stringify(jsonData, null, 2);
-                const jsonDataUrl = `data:application/json;charset=utf-8,${encodeURIComponent(jsonString)}`;
-
-                // Trigger download
-                const downloadId = await chrome.downloads.download({
-                    url: jsonDataUrl,
-                    filename: filename
-                });
-                console.log(`[Background] Started download: ${filename} (ID: ${downloadId})`);
-                console.log(`[Background] Successfully downloaded ${chapters.length} chapters (session preserved)`);
-
-            } catch (error) {
-                console.error(`[Background] Error downloading chapters: ${error.message}`);
-                throw error;
-            }
-        }
-
-        // Don't clear session - just return count
-        return chapters.length;
-    }
-
     // ==================== POLYGLOTTA METHODS ====================
 
     async startPolyglottaSession(metadata, sectionUrls, totalSections, manifest = null) {
@@ -194,7 +52,6 @@ class ScrapingSessionManager {
         const session = await this.getPolyglottaSession();
         const sections = await this.getPolyglottaSections();
 
-        // Use provided manifest or session manifest
         const finalManifest = manifest || session?.manifest || {
             expectedSections: sections.length,
             capturedSections: sections.length,
@@ -211,7 +68,6 @@ class ScrapingSessionManager {
         }
 
         try {
-            // Flatten all paragraphs into aligned format
             const allParagraphs = [];
             let totalParagraphs = 0;
 
@@ -226,12 +82,10 @@ class ScrapingSessionManager {
                 });
             });
 
-            // Calculate integrity status
             const integrityPassed =
                 finalManifest.capturedSections === finalManifest.expectedSections &&
                 finalManifest.failedSections.length === 0;
 
-            // Create LexiconForge-compatible output with integrity report
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const safeTitle = (session?.metadata?.title || 'polyglotta').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
             const integrityTag = integrityPassed ? 'COMPLETE' : 'PARTIAL';
@@ -248,7 +102,6 @@ class ScrapingSessionManager {
                     totalParagraphs: totalParagraphs,
                     sessionStartTime: session?.startTime || new Date().toISOString()
                 },
-                // Integrity report for verification
                 integrityReport: {
                     passed: integrityPassed,
                     expectedSections: finalManifest.expectedSections,
@@ -262,7 +115,6 @@ class ScrapingSessionManager {
                         ? Math.round((new Date(finalManifest.endTime) - new Date(finalManifest.startTime)) / 1000)
                         : null
                 },
-                // Performance metrics
                 metrics: metrics ? {
                     totalDurationMs: metrics.totalDurationMs,
                     expandTimeMs: metrics.expandTimeMs,
@@ -274,9 +126,7 @@ class ScrapingSessionManager {
                     fastestSection: metrics.fastestSection,
                     slowestSection: metrics.slowestSection
                 } : null,
-                // Debug logs for troubleshooting
                 debugLogs: logs || [],
-                // For LexiconForge import: treat each section as a "chapter"
                 chapters: sections.map((section, idx) => ({
                     chapterNumber: idx + 1,
                     stableId: `polyglotta_${section.cid}`,
@@ -285,22 +135,18 @@ class ScrapingSessionManager {
                     cid: section.cid,
                     languagesFound: section.languagesFound || [],
                     extractedAt: section.extractedAt,
-                    // Store all language versions
                     polyglotContent: section.paragraphs,
-                    // For compatibility: use Sanskrit or first available as "content"
                     content: section.paragraphs.map(p => {
                         const primaryLang = p.versions.sanskrit || p.versions.tibetan ||
                             p.versions['chinese-kumarajiva'] || Object.values(p.versions)[0];
                         return primaryLang?.text || '';
                     }).join('\n\n'),
-                    // Store English translations as fanTranslation
                     fanTranslation: section.paragraphs.map(p => {
                         const eng = p.versions['english-lamotte'] || p.versions['english-thurman'] ||
                             p.versions.english;
                         return eng?.text || '';
                     }).join('\n\n')
                 })),
-                // Also include raw aligned data for advanced use
                 alignedParagraphs: allParagraphs
             };
 
@@ -316,7 +162,6 @@ class ScrapingSessionManager {
             console.log(`[Background] ${sections.length} sections, ${totalParagraphs} paragraphs`);
             console.log(`[Background] Integrity: ${integrityPassed ? 'PASSED' : 'FAILED'}`);
 
-            // Clear session
             await chrome.storage.local.set({
                 polyglottaSession: { isActive: false },
                 polyglottaSections: []
@@ -340,18 +185,24 @@ class ScrapingSessionManager {
             };
         }
     }
+
+    async clearPolyglottaData() {
+        await chrome.storage.local.set({
+            polyglottaSession: { isActive: false },
+            polyglottaSections: []
+        });
+    }
 }
 
 const sessionManager = new ScrapingSessionManager();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const { action } = message;
-    
+
     if (action === 'download') {
-        // Handle download requests from content script
         chrome.downloads.download({
             url: message.url,
-            filename: message.filename || 'booktoki_page.html'
+            filename: message.filename || 'polyglotta_page.html'
         }).then((downloadId) => {
             console.log(`Download started with ID: ${downloadId}`);
             sendResponse({success: true, downloadId});
@@ -359,106 +210,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             console.error('Download failed:', error);
             sendResponse({success: false, error: error.message});
         });
-        
+
         return true; // Keep message channel open for async response
-    }
-    
-    // Handle scraping session management
-    if (action === 'startSession') {
-        // Clear any existing accumulated chapters when starting fresh
-        chrome.storage.local.set({ accumulatedChapters: [] }).then(() => {
-            return sessionManager.setSession({
-                isActive: true,
-                currentChapter: 1,
-                maxChapters: message.maxChapters || 10,
-                startUrl: message.startUrl,
-                startTime: new Date().toISOString()
-            });
-        }).then(() => {
-            sendResponse({success: true});
-        });
-        return true;
-    }
-    
-    if (action === 'getSession') {
-        sessionManager.getSession().then((session) => {
-            sendResponse({session});
-        });
-        return true;
-    }
-    
-    if (action === 'addChapter') {
-        sessionManager.addChapter(message.chapterData).then((totalChapters) => {
-            sendResponse({success: true, totalChapters});
-        });
-        return true;
-    }
-    
-    if (action === 'updateSession') {
-        sessionManager.getSession().then((session) => {
-            const updatedSession = { ...session, ...message.updates };
-            return sessionManager.setSession(updatedSession);
-        }).then(() => {
-            sendResponse({success: true});
-        });
-        return true;
-    }
-    
-    if (action === 'completeSession') {
-        sessionManager.saveCompletedScraping().then((result) => {
-            console.log(`[Background] Complete session result:`, result);
-            if (result.success) {
-                sendResponse({success: true, chaptersCount: result.chaptersCount});
-            } else {
-                sendResponse({success: false, error: result.error, chaptersCount: result.chaptersCount});
-            }
-        }).catch((error) => {
-            console.error(`[Background] Complete session failed:`, error);
-            sendResponse({success: false, error: error.message});
-        });
-        return true;
-    }
-    
-    if (action === 'stopSession') {
-        sessionManager.saveCompletedScraping().then((result) => {
-            console.log(`[Background] Stop session result:`, result);
-            if (result.success) {
-                sendResponse({success: true, chaptersCount: result.chaptersCount});
-            } else {
-                sendResponse({success: false, error: result.error, chaptersCount: result.chaptersCount});
-            }
-        }).catch((error) => {
-            console.error(`[Background] Stop session failed:`, error);
-            sendResponse({success: false, error: error.message});
-        });
-        return true;
-    }
-    
-    if (action === 'getAccumulatedChapters') {
-        sessionManager.getAccumulatedChapters().then((chapters) => {
-            sendResponse({chapters});
-        });
-        return true;
-    }
-    
-    if (action === 'clearAllData') {
-        sessionManager.clearSession().then(() => {
-            sendResponse({success: true, message: 'All data cleared'});
-        });
-        return true;
-    }
-    
-    if (action === 'downloadAccumulated') {
-        sessionManager.downloadAccumulatedChapters().then((chaptersCount) => {
-            if (chaptersCount > 0) {
-                sendResponse({success: true, chaptersCount});
-            } else {
-                sendResponse({success: false, error: 'No chapters to download'});
-            }
-        }).catch((error) => {
-            sendResponse({success: false, error: error.message});
-        });
-        return true;
     }
 
     // ==================== POLYGLOTTA HANDLERS ====================
@@ -503,9 +256,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
         return true;
     }
+
+    if (action === 'clearAllData') {
+        sessionManager.clearPolyglottaData().then(() => {
+            sendResponse({success: true, message: 'All data cleared'});
+        });
+        return true;
+    }
 });
 
-// Handle extension installation
 chrome.runtime.onInstalled.addListener(() => {
-    console.log('BookToki Scraper Extension installed');
+    console.log('LexiconForge Polyglotta Scraper installed');
 });
