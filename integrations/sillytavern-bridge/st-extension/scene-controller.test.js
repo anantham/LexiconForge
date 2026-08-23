@@ -102,13 +102,20 @@ describe('createSceneController', () => {
         const context = makeContext();
         let resolvePrompt;
         const prompt = new Promise((resolve) => { resolvePrompt = resolve; });
-        const createImageClient = vi.fn();
+        const run = vi.fn().mockResolvedValue({
+            jobId: 'job-retry',
+            imageUrl: 'https://broker.example/retry.png',
+        });
+        const createImageClient = vi.fn().mockReturnValue({ run });
         const notify = vi.fn();
         const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+        const composePrompt = vi.fn()
+            .mockImplementationOnce(() => prompt)
+            .mockResolvedValueOnce('stable prompt after return');
         const controller = createSceneController({
             getContext: () => context,
             getSettings: () => ({ enabled: true, portalOnly: true, workflowName: 'gen_anime' }),
-            composePrompt: () => prompt,
+            composePrompt,
             createImageClient,
             attachImage: vi.fn(),
             notify,
@@ -127,6 +134,35 @@ describe('createSceneController', () => {
         }));
         expect(notify).not.toHaveBeenCalledWith('failed', expect.anything());
         expect(logger.info).toHaveBeenCalledOnce();
+
+        await controller.handle('group');
+        expect(run).toHaveBeenCalledOnce();
+        expect(composePrompt).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not let an abandoned chat overwrite the active chat status', async () => {
+        const origin = makeContext();
+        let current = origin;
+        let resolvePrompt;
+        const prompt = new Promise((resolve) => { resolvePrompt = resolve; });
+        const notify = vi.fn();
+        const controller = createSceneController({
+            getContext: () => current,
+            getSettings: () => ({ enabled: true, portalOnly: true, workflowName: 'gen_anime' }),
+            composePrompt: () => prompt,
+            createImageClient: vi.fn(),
+            attachImage: vi.fn(),
+            notify,
+            logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+        });
+
+        const handling = controller.handle('group');
+        current = makeContext('another-chat');
+        controller.markNavigation();
+        resolvePrompt('prompt from abandoned chat');
+        await handling;
+
+        expect(notify).not.toHaveBeenCalledWith('navigation_changed', expect.anything());
     });
 
     it('uses the selected native route without mutating the saved settings', async () => {

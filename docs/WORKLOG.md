@@ -3454,3 +3454,12 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **User-visible behavior:** A composition-time navigation shows `Skipped after chat change — no image was submitted`; it is not reported as a provider failure.
 **Verification:** pinned Node 24.19.0 controller tests 5/5; complete extension suite 18/18 across 5 files; extension ESLint and `git diff --check` clean; locked bridge/deployment suite 31/31 with one upstream Starlette/httpx deprecation warning.
 **Confidence:** 0.97. Live SillyTavern E2E remains the separate acceptance gate.
+
+### [2026-08-23 18:18 IST] [Agent: Codex]
+**Status:** Addressing Gemini 3.1 Pro focused-review findings before merge
+**Findings:** P2 confirmed: a composition-time skip left the fingerprint in `handled`, preventing a later duplicate event from retrying. P3 confirmed: an abandoned chat's delayed `navigation_changed` notification could overwrite the current chat's global status.
+**Correction hypothesis:** Delete the fingerprint only on the intentional pre-submission navigation skip, and notify only when the active chat identity has returned to the originating chat. This preserves duplicate suppression for submitted/failed jobs, permits safe retry, and prevents abandoned-chat status overwrite. Confidence 0.96.
+**Predicted tests:** A to B suppresses submission and the global skip notification; A to B to A surfaces the skip; a later event for the skipped fingerprint can submit exactly once; submitted-job navigation behavior remains unchanged.
+**Result:** Confirmed. Intentional pre-submission skips now remove only their fingerprint from `handled`. A later event can retry exactly once. The skip notification is emitted only when the active chat identity equals the originating chat, so abandoned-chat completions cannot overwrite another chat's status.
+**Verification:** controller suite 6/6; complete extension suite 19/19 across 5 files; extension ESLint and `git diff --check` clean. The previously completed bridge/deployment suite remains 31/31 because this follow-up changes only the browser controller and its tests.
+**Confidence:** 0.98. Next gate is focused Gemini rereview, then PR/CI dependency inspection.

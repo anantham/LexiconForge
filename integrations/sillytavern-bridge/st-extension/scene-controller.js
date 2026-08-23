@@ -49,8 +49,11 @@ export function createSceneController({
             notify('composing', { fingerprint, imageBackend, workflowName });
             const prompt = (await composePrompt({ context, messageIndex: scene.index })).trim();
             if (navigationEpoch !== compositionEpoch) {
+                handled.delete(fingerprint);
                 logger.info('[LexiconForge Portal] Skipped auto-scene after chat navigation during prompt composition');
-                notify('navigation_changed', { fingerprint, imageBackend, workflowName });
+                if (sameChat(context, getContext())) {
+                    notify('navigation_changed', { fingerprint, imageBackend, workflowName });
+                }
                 return;
             }
             if (!prompt) {
