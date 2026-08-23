@@ -41,6 +41,7 @@ def test_multer_overlay_is_version_and_integrity_pinned() -> None:
     assert '"multer": "^2.2.0"' in overlay
     assert '"version": "2.2.0"' in overlay
     assert "51ad27fb86d39a3daca3adaa970375c9670c12df" in hardening
+    assert "rev-parse --verify --quiet" in hardening
     assert "12c30fc061e38c0a35becca70fab9c6fb991a7f0" in hardening
     assert "95b4dbc33c62829e2aff383f286889ebdcc15ffd" in hardening
     assert "sha512-6rdyFg2kLrMh9Jee7/" in hardening

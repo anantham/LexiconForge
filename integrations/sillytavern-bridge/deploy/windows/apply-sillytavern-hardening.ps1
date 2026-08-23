@@ -23,8 +23,12 @@ foreach ($requiredFile in @($patchPath, $configuratorPath, (Join-Path $SillyTave
 
 Push-Location $SillyTavernRoot
 try {
-    & git merge-base --is-ancestor $expectedBaseCommit HEAD 2>$null
-    $hasExpectedAncestor = $LASTEXITCODE -eq 0
+    $resolvedBase = & git rev-parse --verify --quiet "$($expectedBaseCommit)^{commit}"
+    $hasExpectedAncestor = $false
+    if ($LASTEXITCODE -eq 0 -and $resolvedBase) {
+        & git merge-base --is-ancestor $expectedBaseCommit HEAD
+        $hasExpectedAncestor = $LASTEXITCODE -eq 0
+    }
     if (-not $hasExpectedAncestor) {
         $manifestBlobs = @(& git hash-object package.json package-lock.json)
         if ($LASTEXITCODE -ne 0 `
