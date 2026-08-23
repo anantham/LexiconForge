@@ -36,19 +36,34 @@ accepts only a 10-20 digit `lfGroup` query value, waits for `APP_READY`, opens
 that exact group, persists it as active, and removes the query parameter.
 
 The same overlay can generate one scene illustration after each completed chat
-turn through IndrasNet's resumable ComfyUI job API. Group chats trigger after
-the whole group response cycle, not after each character. The extension uses
-SillyTavern's configured chat model to compose a visual prompt, defaults to the
-registered `gen_anime` workflow, shows queued/running/terminal state, and
-attaches the resulting broker URL to the triggering message with provenance.
-Broker failure never blocks or edits the text conversation. Jobs are intentionally
-tab-scoped; reload/tab-closure recovery is out of scope.
+turn. Group chats trigger after the whole group response cycle, not after each
+character. The extension uses SillyTavern's configured chat model to compose a
+visual prompt, then sends the image to one independently selected route:
+
+- **IndrasNet** uses the resumable ComfyUI job API and a registered workflow.
+- **SillyTavern Image Generation** uses the source, model, and server-held
+  credential already selected in SillyTavern's own Image Generation panel.
+
+The second route invokes SillyTavern's registered `imagine` callback directly;
+generated prompt text is never parsed as STscript. The returned image is
+attached to the triggering message with backend/provider/model provenance.
+Provider failure never blocks or edits the text conversation. Jobs are
+intentionally tab-scoped; reload/tab-closure recovery is out of scope.
 
 Controls live under SillyTavern's Extensions panel. Auto-scene is enabled by
-default only for bridge-created LexiconForge portal groups. The broker URL,
-workflow, negative prompt, and scope are configurable. The UI reports elapsed
-time rather than inventing a percentage or ETA; the current broker job response
-does not expose either.
+default only for bridge-created LexiconForge portal groups. The image route,
+broker URL/workflow, negative prompt, and scope are configurable. SillyTavern's
+API Connections panel remains authoritative for the text model; its Image
+Generation panel remains authoritative for native image source/model selection.
+These settings are deliberately separate from LexiconForge reader settings.
+The UI reports elapsed time rather than inventing a percentage or ETA; neither
+route currently supplies one to this extension.
+
+Stock SillyTavern 1.18.0 does not add OpenRouter `provider.data_collection` or
+`provider.zdr` fields to its native image request. Select a provider/account
+policy that meets the desired retention boundary; this overlay does not claim
+to strengthen that upstream request. Exact per-request OpenRouter privacy
+routing would require a separately reviewed SillyTavern server change.
 
 ## Asus runtime
 

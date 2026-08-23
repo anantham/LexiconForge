@@ -86,3 +86,57 @@ that runs in another application and duplicates the existing broker contract.
 - `docs/adr/FEAT-003-image-service-architecture.md`
 - `docs/adr/FEAT-004-sillytavern-tailnet-portal.md`
 - `integrations/sillytavern-bridge/st-extension/`
+
+## Amendment — independent native image route (2026-08-23)
+
+### Additional issue
+
+IndrasNet remains the correct coordinator for the Asus GPU, but it should not
+coordinate cloud image providers or become a requirement when the local laptop
+is offline. LexiconForge reader model choices must also remain independent from
+the models used inside a SillyTavern conversation.
+
+### Additional positions
+
+1. Duplicating OpenRouter/provider clients and credentials in the portal
+   extension was rejected because it creates a second secret store and a second
+   provider catalogue inside SillyTavern.
+2. Reusing SillyTavern's native Image Generation extension was selected because
+   it already owns source/model selection and server-held credentials.
+3. Keeping IndrasNet as the only route was rejected because it makes cloud image
+   generation depend unnecessarily on the local GPU broker.
+
+### Amended decision
+
+1. The auto-scene panel selects either `indrasnet` or `sillytavern`; IndrasNet
+   remains the default and its workflow controls remain route-specific.
+2. The native route reads the current source/model from `extension_settings.sd`
+   at job start. It never writes those settings or copies provider credentials.
+3. The native route calls the registered `imagine` command callback with
+   structured `quiet`, `gallery`, and `negative` arguments. It does not construct
+   STscript, so scene text containing pipes, macros, or slash commands remains
+   inert data.
+4. Attachment provenance records image backend, provider/source, and model in
+   addition to the existing optional broker identifiers and timing.
+5. SillyTavern's configured chat model continues to compose the scene prompt;
+   its text-model choice is independent from its image-model choice and from
+   both LexiconForge reader choices.
+6. Stock SillyTavern 1.18.0's OpenRouter image endpoint does not send explicit
+   `provider.data_collection` or `provider.zdr` fields. This extension does not
+   represent that route as per-request ZDR; changing the SillyTavern server
+   request is a separate security decision and deployment overlay.
+
+### Implementation notes
+
+- `st-extension/sillytavern-image-client.js` owns direct, validated native image
+  invocation.
+- `st-extension/scene-controller.js` dispatches through a backend-neutral image
+  client while preserving duplicate suppression and origin-chat attachment.
+- `st-extension/settings-panel.js` owns the route selector and route-specific
+  controls without duplicating SillyTavern's provider/model UI.
+- Focused tests cover command-injection-shaped prompt text, unavailable native
+  configuration, route selection, provenance, and the existing IndrasNet flow.
+
+The ADR remains `Accepted`: source behavior is covered by mocked integration
+tests, but the native route still requires one safe live SillyTavern E2E before
+the overall auto-scene decision can be marked `Implemented`.
