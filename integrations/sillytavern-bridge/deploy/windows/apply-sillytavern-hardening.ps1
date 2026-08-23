@@ -8,6 +8,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $expectedBaseCommit = '51ad27fb86d39a3daca3adaa970375c9670c12df'
+$expectedPackageBlob = '12c30fc061e38c0a35becca70fab9c6fb991a7f0'
+$expectedLockBlob = '95b4dbc33c62829e2aff383f286889ebdcc15ffd'
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $bridgeRoot = (Resolve-Path (Join-Path $scriptDirectory '..\..')).Path
 $patchPath = Join-Path $bridgeRoot 'security\sillytavern-1.18.0-multer-2.2.0.patch'
@@ -21,9 +23,17 @@ foreach ($requiredFile in @($patchPath, $configuratorPath, (Join-Path $SillyTave
 
 Push-Location $SillyTavernRoot
 try {
-    & git merge-base --is-ancestor $expectedBaseCommit HEAD
-    if ($LASTEXITCODE -ne 0) {
-        throw "SillyTavern HEAD does not contain expected v1.18.0 base $expectedBaseCommit. Refusing version-specific overlay."
+    & git merge-base --is-ancestor $expectedBaseCommit HEAD 2>$null
+    $hasExpectedAncestor = $LASTEXITCODE -eq 0
+    if (-not $hasExpectedAncestor) {
+        $manifestBlobs = @(& git hash-object package.json package-lock.json)
+        if ($LASTEXITCODE -ne 0 `
+            -or $manifestBlobs.Count -ne 2 `
+            -or $manifestBlobs[0] -ne $expectedPackageBlob `
+            -or $manifestBlobs[1] -ne $expectedLockBlob) {
+            throw "SillyTavern lacks expected release ancestry and its manifest blobs do not match the reviewed v1.18.0 snapshot."
+        }
+        Write-Host 'Accepted history-independent v1.18.0 import by exact package manifest and lock blob hashes.'
     }
 
     $dirtyPaths = @(& git status --porcelain | ForEach-Object { $_.Substring(3) })

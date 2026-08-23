@@ -49,9 +49,10 @@ current-user logon tasks disabled. Logs are append-only under
 logged.
 
 Before cutover, run `apply-sillytavern-hardening.ps1 -AllowedDeviceIp <ip...>
--Apply`. It refuses the wrong upstream release, applies the reviewed Multer
-2.2.0 manifest/lock overlay, installs the exact lock, verifies the installed
-version and integrity, and changes only SillyTavern's whitelist block. The list
+-Apply`. It requires either the official upstream ancestry or exact reviewed
+v1.18.0 manifest/lock blob hashes, applies the Multer 2.2.0 overlay, installs
+the exact lock, verifies the installed version and integrity, and changes only
+SillyTavern's whitelist block. The list
 must contain loopback plus explicit owner-device Tailscale IPs; forwarded-IP
 checking, CSRF protection, whitelist mode, and localhost binding must remain on.
 
