@@ -25,9 +25,10 @@ export async function createAndOpenSelfInsert(
   }
 
   portalTab.opener = null;
+  const idempotencyKey = crypto.randomUUID();
 
   try {
-    const result = await requestSelfInsert(bridgeUrl, request);
+    const result = await requestSelfInsert(bridgeUrl, request, idempotencyKey);
     if (!result.success || !result.chatUrl) {
       portalTab.close();
       return result;

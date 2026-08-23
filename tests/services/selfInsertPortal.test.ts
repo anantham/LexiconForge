@@ -21,7 +21,12 @@ describe('createAndOpenSelfInsert', () => {
     vi.restoreAllMocks();
   });
 
+  const mockRandomUuid = (): void => {
+    vi.spyOn(crypto, 'randomUUID').mockReturnValue('12345678-1234-4123-8123-123456789abc');
+  };
+
   it('reserves a tab before awaiting the bridge and navigates it to the exact chat', async () => {
+    mockRandomUuid();
     let resolveFetch: ((_value: unknown) => void) | undefined;
     global.fetch = vi.fn().mockReturnValue(new Promise((resolve) => {
       resolveFetch = resolve;
@@ -39,6 +44,14 @@ describe('createAndOpenSelfInsert', () => {
 
     expect(window.open).toHaveBeenCalledWith('', '_blank');
     expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://bridge.example.test/api/self-insert',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'Idempotency-Key': '12345678-1234-4123-8123-123456789abc',
+        }),
+      }),
+    );
     expect(replace).not.toHaveBeenCalled();
 
     resolveFetch?.({
@@ -60,6 +73,7 @@ describe('createAndOpenSelfInsert', () => {
   });
 
   it('does not create bridge artifacts when the browser blocks the reserved tab', async () => {
+    mockRandomUuid();
     global.fetch = vi.fn();
     vi.spyOn(window, 'open').mockReturnValue(null);
 
@@ -69,6 +83,7 @@ describe('createAndOpenSelfInsert', () => {
   });
 
   it('closes the reserved tab when bridge creation fails', async () => {
+    mockRandomUuid();
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 422,
