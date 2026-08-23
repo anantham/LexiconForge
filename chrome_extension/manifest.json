@@ -1,9 +1,8 @@
 {
   "manifest_version": 3,
   "name": "LexiconForge Scraper",
-  "version": "2.0",
-  "description": "Multi-site scraper for LexiconForge: BookToki (Korean novels) and Polyglotta (Buddhist texts)",
-
+  "version": "2.1",
+  "description": "Polyglotta scraper for LexiconForge: multilingual aligned Buddhist texts. BookToki removed 2026-08-23.",
   "permissions": [
     "activeTab",
     "storage",
@@ -11,34 +10,27 @@
     "tabs",
     "scripting"
   ],
-
   "host_permissions": [
-    "*://booktoki468.com/*",
     "*://*.hf.uio.no/*"
   ],
-
   "action": {
     "default_popup": "popup.html",
     "default_title": "LexiconForge Scraper"
   },
-
   "content_scripts": [
     {
-      "matches": ["*://booktoki468.com/*"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": ["*://*.hf.uio.no/polyglotta/*"],
-      "js": ["content-polyglotta.js"],
+      "matches": [
+        "*://*.hf.uio.no/polyglotta/*"
+      ],
+      "js": [
+        "content-polyglotta.js"
+      ],
       "run_at": "document_idle"
     }
   ],
-
   "background": {
     "service_worker": "background.js"
   },
-
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
