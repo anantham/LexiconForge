@@ -27,7 +27,7 @@ Score: **12 PRESENT · 6 PARTIAL · 2 ABSENT**, plus **8 repo-native classes**.
 | 003 | Split-after-extraction divergence | PRESENT ★ | Debug gates copied 6× with divergent behavior per provider |
 | 004 | Ambient-target maintenance | PRESENT | `start-lexiconforge.command` hardcoded `/Users/aditya`; broken venv npm scripts |
 | 005 | Selector identity drift | PRESENT | Chapter identity via title regexes vs canonical `stableId` |
-| 006 | Exclusive tests preserve obsolete ownership | PRESENT | Suite for zero-caller `consolidateBookshelfDuplicates` |
+| 006 | Exclusive tests preserve obsolete ownership | RESOLVED (2026-08-23) | Dead dedup + suite deleted (#153); count regressions preserved in `fetchNovelChapterCounts.test.ts` |
 | 007 | Safety guards around dead paths | PARTIAL | Unguarded `migrateFromLocalStorage` armor with no tests |
 | 008 | Docs record starts > endings | PRESENT | REMEDIATION-ROADMAP "Active" while targeting deleted files |
 | 009 | Repo policy ↔ deployed reality fork | PRESENT | Extension popup PING gate no content.js answers; dev-only route shipped |
@@ -261,8 +261,8 @@ Recorded so future refactors don't regress them:
 
 ## Open Tier-B disposition decisions (deletion gates)
 
-1. `consolidateBookshelfDuplicates` + exclusive suite (dead code kept alive by tests)
-2. Chrome extension keep-or-delete (pending since 2026-07-28)
+1. ~~`consolidateBookshelfDuplicates` + exclusive suite~~ DELETED 2026-08-23 (Tier-B #1; collapse semantics conflicted with version-scoped preservation — Codex evidence maintenance.ts ex-:1387); render-side dedup remains the live defense
+2. Chrome extension: BookToki lane REMOVED 2026-08-23 (source site dead 2026-04-27) — content.js, host permission, popup/background handlers all excised; extension gate added to verify:integrity. Polyglotta lane = SUPPORTED operator tooling (multilingual aligned sources)
 3. Legacy base64 dual-read endgame + migration tool trigger
 4. liturgy-generator island integrate-or-delete
 5. ~19 orphaned scripts (`debug-*`, `gemini_research.py`, …) — operator-entrypoint classification pass required before any deletion verdict
