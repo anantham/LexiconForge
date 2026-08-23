@@ -328,14 +328,13 @@ class LexiconForgeScraperPopup {
                 if (data.downloadFailed) {
                     this.updateStatus('ready', `Complete with errors - use Download button`);
                     this.updateLog(`⚠️ Scraping completed but download failed. Use download button to retry.`);
-                } else if (data.paragraphsCount !== undefined) {
+                } else if (data.paragraphsCount !== undefined || data.sectionsCount !== undefined) {
                     // Polyglotta complete
-                    this.updateStatus('ready', `Complete! ${data.paragraphsCount} paragraphs`);
-                    this.updateLog(`🎉 Downloaded ${data.sectionsCount} sections (${data.paragraphsCount} paragraphs)!`);
+                    this.updateStatus('ready', `Complete! ${data.paragraphsCount ?? 0} paragraphs`);
+                    this.updateLog(`🎉 Downloaded ${data.sectionsCount ?? 0} sections (${data.paragraphsCount ?? 0} paragraphs)!`);
                 } else {
-                    // BookToki complete
-                    this.updateStatus('ready', `Complete! ${data.chaptersCount} chapters`);
-                    this.updateLog(`🎉 Downloaded ${data.chaptersCount} chapters!`);
+                    // Generic completion without counters
+                    this.updateStatus('ready', 'Complete');
                 }
 
                 this.resetUI();
