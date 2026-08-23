@@ -18,6 +18,11 @@ export function createSceneController({
 }) {
     const handled = new Set();
     const pending = new Map();
+    let navigationEpoch = 0;
+
+    function markNavigation() {
+        navigationEpoch += 1;
+    }
 
     function rememberPending(chatId, item) {
         const items = pending.get(chatId) || [];
@@ -40,8 +45,14 @@ export function createSceneController({
         const imageBackend = settings.imageBackend === 'sillytavern' ? 'sillytavern' : 'indrasnet';
         const workflowName = settings.workflowName || 'gen_anime';
         try {
+            const compositionEpoch = navigationEpoch;
             notify('composing', { fingerprint, imageBackend, workflowName });
             const prompt = (await composePrompt({ context, messageIndex: scene.index })).trim();
+            if (navigationEpoch !== compositionEpoch) {
+                logger.info('[LexiconForge Portal] Skipped auto-scene after chat navigation during prompt composition');
+                notify('navigation_changed', { fingerprint, imageBackend, workflowName });
+                return;
+            }
             if (!prompt) {
                 throw Object.assign(new Error('Scene prompt composition returned no text'), {
                     code: 'PROMPT_COMPOSITION_EMPTY',
@@ -131,5 +142,5 @@ export function createSceneController({
         }
     }
 
-    return { flushPending, handle };
+    return { flushPending, handle, markNavigation };
 }

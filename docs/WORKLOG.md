@@ -3438,3 +3438,19 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Unproven/live boundary:** No Asus SSH, extension overlay deployment, or live native image E2E was attempted. The previously exposed Hugging Face credential must be confirmed rotated before remote work resumes, and the FEAT-004 cutover remains a separate safety gate. FEAT-005 therefore remains `Accepted`, not `Implemented`.
 **Fallback:** Select IndrasNet (the default) or disable auto-scenes. No reader setting, SillyTavern text/image model setting, provider credential, broker, workflow, or server source is mutated by this branch.
 **Confidence:** 0.94 for source behavior; 0.78 for live SillyTavern integration until one safe E2E passes.
+
+### [2026-08-23 18:12 IST] [Agent: Codex]
+**Status:** Starting user-approved chat-navigation epoch follow-up
+**Issue:** SillyTavern's `generateQuietPrompt` reads global active-chat state after asynchronous lifecycle hooks. A chat switch during scene-prompt composition can therefore mix context before the existing final attachment fingerprint check.
+**Options:** (A) compare only the chat ID after composition — smaller but misses A to B to A navigation; (B) increment a tab-local navigation epoch on every `CHAT_CHANGED` and compare it after composition — selected, low effort, low risk, fully reversible; (C) accept the race until live E2E — rejected.
+**Hypothesis:** A controller-owned monotonic epoch, captured immediately before composition and checked immediately afterward, will prevent image submission after any intervening navigation while preserving already-submitted job deferral. Confidence 0.95.
+**Predicted tests:** one or multiple navigation events during prompt composition prevent client creation/submission and surface a non-failure skip; navigation after image submission still defers and attaches on return; existing duplicate and native-route behavior remains green.
+**Files affected:** `st-extension/scene-controller.js`; its focused test; `st-extension/index.js`; this worklog.
+**Fallback:** Revert the isolated follow-up commit; existing fingerprint/pending behavior remains intact.
+
+### [2026-08-23 18:13 IST] [Agent: Codex]
+**Status:** Chat-navigation epoch implemented and locally verified; commit/push pending
+**Result:** The controller increments a tab-local epoch for every `CHAT_CHANGED`. A job captures the epoch immediately before scene-prompt composition and skips without creating an image client if it changed before composition returned. Two changes, including A to B to A, are detected. Navigation after image submission continues to defer completed artifacts and attach them on return.
+**User-visible behavior:** A composition-time navigation shows `Skipped after chat change — no image was submitted`; it is not reported as a provider failure.
+**Verification:** pinned Node 24.19.0 controller tests 5/5; complete extension suite 18/18 across 5 files; extension ESLint and `git diff --check` clean; locked bridge/deployment suite 31/31 with one upstream Starlette/httpx deprecation warning.
+**Confidence:** 0.97. Live SillyTavern E2E remains the separate acceptance gate.

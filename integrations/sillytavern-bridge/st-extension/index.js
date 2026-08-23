@@ -127,6 +127,9 @@ function notify(state, detail = {}) {
         case 'stale':
             updateStatus('Skipped stale result');
             break;
+        case 'navigation_changed':
+            updateStatus('Skipped after chat change', 'no image was submitted');
+            break;
         default:
             updateStatus(state, elapsed);
     }
@@ -229,4 +232,7 @@ eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, (messageId, type) => scen
     messageId: Number(messageId),
     messageType: type,
 }));
-eventSource.on(event_types.CHAT_CHANGED, () => sceneController.flushPending());
+eventSource.on(event_types.CHAT_CHANGED, () => {
+    sceneController.markNavigation();
+    return sceneController.flushPending();
+});

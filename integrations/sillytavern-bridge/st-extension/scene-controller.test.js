@@ -3,6 +3,7 @@
  * - Verify the public controller submits once and attaches provenance on success.
  * - Keep broker failures non-blocking and visible.
  * - Defer attachment safely when the user changes chat while a job runs.
+ * - Suppress submission after any navigation during prompt composition.
  */
 import { describe, expect, it, vi } from 'vitest';
 
@@ -86,6 +87,7 @@ describe('createSceneController', () => {
 
         const handling = controller.handle('group');
         await Promise.resolve();
+        controller.markNavigation();
         current = makeContext('another-chat');
         resolveJob({ jobId: 'job-2', imageUrl: 'https://broker.example/two.png' });
         await handling;
@@ -94,6 +96,37 @@ describe('createSceneController', () => {
         current = portal;
         await controller.flushPending();
         expect(attachImage).toHaveBeenCalledTimes(1);
+    });
+
+    it('skips image submission after away-and-back navigation during prompt composition', async () => {
+        const context = makeContext();
+        let resolvePrompt;
+        const prompt = new Promise((resolve) => { resolvePrompt = resolve; });
+        const createImageClient = vi.fn();
+        const notify = vi.fn();
+        const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+        const controller = createSceneController({
+            getContext: () => context,
+            getSettings: () => ({ enabled: true, portalOnly: true, workflowName: 'gen_anime' }),
+            composePrompt: () => prompt,
+            createImageClient,
+            attachImage: vi.fn(),
+            notify,
+            logger,
+        });
+
+        const handling = controller.handle('group');
+        controller.markNavigation();
+        controller.markNavigation();
+        resolvePrompt('prompt from potentially changed global context');
+        await handling;
+
+        expect(createImageClient).not.toHaveBeenCalled();
+        expect(notify).toHaveBeenCalledWith('navigation_changed', expect.objectContaining({
+            imageBackend: 'indrasnet',
+        }));
+        expect(notify).not.toHaveBeenCalledWith('failed', expect.anything());
+        expect(logger.info).toHaveBeenCalledOnce();
     });
 
     it('uses the selected native route without mutating the saved settings', async () => {
