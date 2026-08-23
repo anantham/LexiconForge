@@ -13,6 +13,7 @@ import { extractBalancedJson, replacePlaceholders } from './ai/textUtils';
 import { getChatCompletionRequestParameters } from './ai/openaiRequestParameters';
 import { shouldRequestStructuredOutputs } from './ai/structuredOutputPolicy';
 import { buildImagePlanFromCaption, normalizeImagePlan } from './imagePlanService';
+import { buildOpenRouterRouting } from './openrouterRouting';
 
 export interface PlannedIllustration {
   imagePrompt: string;
@@ -264,6 +265,9 @@ const requestViaOpenAICompatible = async (
     messages: supportsSchema ? messages : schemaGuidedMessages,
     ...requestParameters,
   };
+  if (settings.provider === 'OpenRouter') {
+    requestBody.provider = buildOpenRouterRouting(settings, 'text');
+  }
 
   if (supportsSchema) {
     requestBody.response_format = {
@@ -295,6 +299,9 @@ const requestViaOpenAICompatible = async (
       model: settings.model,
       messages: schemaGuidedMessages,
       ...requestParameters,
+      ...(settings.provider === 'OpenRouter'
+        ? { provider: buildOpenRouterRouting(settings, 'text') }
+        : {}),
     });
 
     return parsePlannerJson(

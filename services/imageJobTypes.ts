@@ -1,4 +1,10 @@
-import type { ImageExecutionMetadata } from '../types';
+import type { AppSettings, ImageExecutionMetadata } from '../types';
+
+/** One-job route changes. These are applied to a settings snapshot and never persisted globally. */
+export type ImageGenerationOverrides = Partial<Pick<
+  AppSettings,
+  'imageModel' | 'openRouterImageEndpoint'
+>>;
 
 export type ImageJobResumeKind = 'none' | 'piapi' | 'indrasnet';
 

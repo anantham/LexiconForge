@@ -24,6 +24,7 @@ import { telemetryService } from '../../services/telemetryService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import type { TelemetryErrorContext, TelemetryEventType, TelemetryExtras, TelemetryFailureType, TranslationOrigin } from '../../types/telemetry';
 import { mergeGlossaryEntries } from '../../services/glossaryService';
+import type { ImageGenerationOverrides } from '../../services/imageJobTypes';
 
 export interface TranslationsState {
   // Active translations
@@ -81,7 +82,11 @@ export interface TranslationsActions {
   fetchTranslationVersions: (chapterId: string) => Promise<any[]>;
   setActiveTranslationVersion: (chapterId: string, version: number) => Promise<void>;
   deleteTranslationVersion: (chapterId: string, translationId: string) => Promise<void>;
-  generateIllustrationForSelection: (chapterId: string, selection: string) => Promise<void>;
+  generateIllustrationForSelection: (
+    chapterId: string,
+    selection: string,
+    overrides?: ImageGenerationOverrides,
+  ) => Promise<void>;
 }
 
 export type TranslationsSlice = TranslationsState & TranslationsActions;
@@ -1544,13 +1549,19 @@ export const createTranslationsSlice: StateCreator<
     }
   },
 
-  generateIllustrationForSelection: async (chapterId, selection) => {
-    debugLog('image', 'summary', '[generateIllustrationForSelection] Called with:', { chapterId, selectionLength: selection?.length });
+  generateIllustrationForSelection: async (chapterId, selection, overrides) => {
+    debugLog('image', 'summary', '[generateIllustrationForSelection] Called with:', {
+      chapterId,
+      selectionLength: selection?.length,
+      overrideModel: overrides?.imageModel,
+      overrideEndpoint: overrides?.openRouterImageEndpoint,
+    });
 
     const { IllustrationService } = await import('../../services/illustrationService');
     const state = get();
     const chapter = (state.chapters as Map<string, EnhancedChapter>).get(chapterId);
     const settings = state.settings;
+    const generationSettings = { ...settings, ...overrides };
     const showNotification = state.showNotification;
 
     // Diagnostic: log state of chapter lookup
@@ -1708,7 +1719,7 @@ export const createTranslationsSlice: StateCreator<
     });
 
     // Auto-trigger image generation for the new illustration
-    const imageModel = settings?.imageModel;
+    const imageModel = generationSettings.imageModel;
     if (imageModel && imageModel.toLowerCase() !== 'none') {
       debugLog('translation', 'summary', `[TranslationsSlice] Auto-triggering image generation for ${newMarker}`);
 
@@ -1721,7 +1732,7 @@ export const createTranslationsSlice: StateCreator<
       // Trigger image generation for the specific illustration
       const handleRetryImage = get().handleRetryImage;
       if (handleRetryImage) {
-        handleRetryImage(chapterId, newMarker);
+        void handleRetryImage(chapterId, newMarker, overrides);
       }
     } else {
       // No image model configured - just notify that marker was added

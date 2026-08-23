@@ -104,6 +104,35 @@ describe('imagePlanPlanner', () => {
     expect(capabilityMetadataMock).not.toHaveBeenCalled();
   });
 
+  it('uses the text endpoint for OpenRouter planning, never the image endpoint', async () => {
+    openAiCreateMock.mockResolvedValue({
+      choices: [{ message: { content: JSON.stringify({
+        imagePrompt: 'A moonlit tower.',
+        imagePlan: {
+          subject: 'A moonlit tower.', characters: [], scene: 'Night.', composition: 'Wide.',
+          camera: 'Eye level.', lighting: 'Moonlight.', style: 'Fantasy.', mood: 'Quiet.',
+          details: [], mustKeep: ['tower'], avoid: [], negativePrompt: [],
+        },
+      }) } }],
+    });
+
+    await generateImagePlanFromCaption('A moonlit tower.', {
+      ...mockSettings,
+      provider: 'OpenRouter',
+      model: 'z-ai/glm-5.2',
+      apiKeyOpenRouter: 'test-openrouter-key',
+      openRouterTextEndpoint: 'deepinfra',
+      openRouterImageEndpoint: 'venice',
+    } as any);
+
+    expect(openAiCreateMock.mock.calls[0][0].provider).toEqual({
+      only: ['deepinfra'],
+      allow_fallbacks: false,
+      data_collection: 'deny',
+      zdr: true,
+    });
+  });
+
   it('uses json_object locally for the known non-schema DeepSeek transport', async () => {
     openAiCreateMock.mockResolvedValue({
       choices: [{

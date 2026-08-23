@@ -19,6 +19,7 @@ import type { GeneratedImageResult, ImageGenerationMetadata, ImagePlan, ImagePla
 import { ImageOps } from '../../services/db/operations';
 import { buildImagePlanFromCaption } from '../../services/imagePlanService';
 import { generateImagePlanFromCaption } from '../../services/imagePlanPlanner';
+import type { ImageGenerationOverrides } from '../../services/imageJobTypes';
 
 export interface ImageSliceState {
   // Generated images state
@@ -47,7 +48,11 @@ export interface ImageSliceState {
 export interface ImageSliceActions {
   // Image generation
   handleGenerateImages: (chapterId: string) => Promise<void>;
-  handleRetryImage: (chapterId: string, placementMarker: string) => Promise<void>;
+  handleRetryImage: (
+    chapterId: string,
+    placementMarker: string,
+    overrides?: ImageGenerationOverrides,
+  ) => Promise<void>;
   resumeInterruptedImageJobs: () => Promise<void>;
   loadExistingImages: (chapterId: string) => Promise<void>;
   updateIllustrationPrompt: (chapterId: string, placementMarker: string, newPrompt: string) => Promise<void>;
@@ -529,7 +534,7 @@ export const createImageSlice: StateCreator<
     }, 5000);
   },
   
-  handleRetryImage: async (chapterId, placementMarker) => {
+  handleRetryImage: async (chapterId, placementMarker, overrides) => {
     const state = get();
     const key = `${chapterId}:${placementMarker}`;
 
@@ -551,7 +556,7 @@ export const createImageSlice: StateCreator<
 
     const context: ImageGenerationContext = {
       chapters: state.chapters || new Map(),
-      settings: state.settings,
+      settings: { ...state.settings, ...overrides },
       activePromptTemplate: state.activePromptTemplate ?? undefined,
       steeringImages: state.steeringImages,
       negativePrompts: state.negativePrompts,
