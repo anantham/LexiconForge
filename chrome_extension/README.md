@@ -1,13 +1,10 @@
 # LexiconForge Scraper Chrome Extension
 
-A Chrome extension for scraping content from multiple sources for use with LexiconForge.
+A Chrome extension for scraping multilingual aligned Buddhist texts (Polyglotta) for use with LexiconForge.
+
+BookToki support removed 2026-08-23 — source site shut down permanently 2026-04-27.
 
 ## Supported Sites
-
-### BookToki (Korean Novels)
-- **Domain:** `booktoki468.com`
-- **Content:** Korean web novels
-- **Output:** JSON with chapters (Korean text + navigation)
 
 ### Polyglotta (Buddhist Texts)
 - **Domain:** `www2.hf.uio.no/polyglotta`
@@ -19,7 +16,6 @@ A Chrome extension for scraping content from multiple sources for use with Lexic
 
 - 🚀 **Natural Navigation**: Mimics human browsing behavior
 - 🛡️ **CAPTCHA Support**: Manual solving when needed
-- 📚 **Multi-Site Detection**: Automatically detects which site you're on
 - 🕉️ **Polyglot Support**: Extracts parallel texts with paragraph-level alignment
 - ⏰ **Random Delays**: Realistic timing to avoid detection
 - 💾 **Session Persistence**: Resume interrupted scraping
@@ -32,15 +28,6 @@ A Chrome extension for scraping content from multiple sources for use with Lexic
 4. Select the `chrome_extension` folder
 
 ## Usage
-
-### BookToki (Korean Novels)
-
-1. Navigate to `booktoki468.com` and find a novel chapter
-2. Click the extension icon - it will show "🇰🇷 BookToki"
-3. Set max chapters to scrape
-4. Click "📚 Start Multi-Chapter Scraping"
-5. Extension navigates through chapters automatically
-6. JSON file downloads when complete
 
 ### Polyglotta (Buddhist Texts)
 
@@ -56,26 +43,7 @@ A Chrome extension for scraping content from multiple sources for use with Lexic
 
 ## Output Format
 
-### BookToki Output
-
-```json
-{
-  "metadata": {
-    "source": "booktoki468.com",
-    "totalChapters": 10
-  },
-  "chapters": [
-    {
-      "chapterNumber": 1,
-      "title": "던전 디펜스-1화",
-      "content": "Korean text...",
-      "nextUrl": "..."
-    }
-  ]
-}
-```
-
-### Polyglotta Output
+### Polyglotta
 
 ```json
 {
@@ -120,11 +88,10 @@ A Chrome extension for scraping content from multiple sources for use with Lexic
 | File | Purpose |
 |------|---------|
 | `manifest.json` | Extension configuration |
-| `content.js` | BookToki content extraction |
 | `content-polyglotta.js` | Polyglotta content extraction |
 | `popup.html` | Extension popup UI |
 | `popup.js` | Popup logic and site detection |
-| `background.js` | Session management and downloads |
+| `background.js` | Polyglotta session management and downloads |
 
 ## Troubleshooting
 

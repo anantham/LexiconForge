@@ -29,10 +29,6 @@
             margin-top: 8px;
         }
 
-        .site-indicator.booktoki {
-            background: #fef3c7;
-            color: #92400e;
-        }
 
         .site-indicator.polyglotta {
             background: #dbeafe;
@@ -178,13 +174,10 @@
             color: #5f6368;
         }
 
-        .section-booktoki, .section-polyglotta {
+        .section-polyglotta {
             display: none;
         }
 
-        body.site-booktoki .section-booktoki {
-            display: block;
-        }
 
         body.site-polyglotta .section-polyglotta {
             display: block;
@@ -208,22 +201,6 @@
     </div>
 
     <div class="controls">
-        <!-- BookToki Controls -->
-        <div class="section-booktoki">
-            <div class="input-group">
-                <label for="maxChapters">Max chapters to scrape:</label>
-                <input type="number" id="maxChapters" min="1" max="100" value="10">
-            </div>
-
-            <button id="startScraping" class="primary">
-                📚 Start Multi-Chapter Scraping
-            </button>
-
-            <button id="downloadAccumulated" class="secondary">
-                💾 Download Accumulated Chapters
-            </button>
-        </div>
-
         <!-- Polyglotta Controls -->
         <div class="section-polyglotta">
             <div class="input-group">
