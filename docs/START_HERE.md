@@ -91,7 +91,7 @@ docs/
 ├── architecture/          # System design
 │   └── ARCHITECTURE.md
 │
-├── adr/                   # Architecture Decision Records (26 total)
+├── adr/                   # Architecture Decision Records (28 total)
 │   ├── DB-001..003, DB-007     # Database layer
 │   ├── CORE-004..007, CORE-012 # Core architecture
 │   ├── FEAT-001..003           # Feature design
@@ -126,7 +126,7 @@ ADRs explain *why* we made key design decisions. They're organized by domain:
 |--------|--------|---------|
 | `DB-` | Database/IndexedDB | [DB-001](./adr/DB-001-decompose-monolithic-indexeddb.md) - Service decomposition |
 | `CORE-` | Core architecture | [CORE-005](./adr/CORE-005-agent-first-code-organization.md) - Agent-first code organization |
-| `FEAT-` | Feature design | [FEAT-001](./adr/FEAT-001-preloader-strategy.md) - Preloader strategy, [FEAT-003](./adr/FEAT-003-image-service-architecture.md) - Image service |
+| `FEAT-` | Feature design | [FEAT-001](./adr/FEAT-001-preloader-strategy.md) - Preloader strategy, [FEAT-003](./adr/FEAT-003-image-service-architecture.md) - Image service, [FEAT-004](./adr/FEAT-004-sillytavern-tailnet-portal.md) - SillyTavern tailnet portal |
 | `SUTTA-` | Sutta Studio | [SUTTA-003](./adr/SUTTA-003-sutta-studio-mvp.md) - MVP, [SUTTA-004](./adr/SUTTA-004-benchmark-development-phases.md) - Benchmarks, [SUTTA-006](./adr/SUTTA-006-pipeline-caching-architecture.md) - Caching, [SUTTA-007](./adr/SUTTA-007-pass-prompt-runner-layer.md) - Pass layer |
 
 ---

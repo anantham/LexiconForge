@@ -1,5 +1,11 @@
 # SillyTavern Self-Insert Implementation Plan
 
+> **2026-08-23 status:** Historical localhost plan. The LexiconForge UI portion
+> exists; the absent companion implementation and Asus/tailnet production path
+> are superseded by `docs/adr/FEAT-004-sillytavern-tailnet-portal.md` and the
+> versioned `integrations/sillytavern-bridge/` implementation. Unchecked boxes
+> below are not current execution status.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Let readers select a passage in the novel translation and "enter the story" via a SillyTavern group chat with all chapter characters, spoiler-controlled to the current chapter.
