@@ -1,0 +1,7 @@
+.env
+.venv/
+.venv-native/
+.runtime-requirements.txt
+__pycache__/
+.pytest_cache/
+deploy/windows/logs/

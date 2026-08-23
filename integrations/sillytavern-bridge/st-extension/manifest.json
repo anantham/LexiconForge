@@ -1,0 +1,10 @@
+{
+  "display_name": "LexiconForge Portal",
+  "loading_order": 1,
+  "requires": [],
+  "optional": [],
+  "js": "index.js",
+  "author": "LexiconForge",
+  "version": "0.1.0",
+  "homePage": "https://github.com/anantham/LexiconForge"
+}

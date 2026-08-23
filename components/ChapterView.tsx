@@ -21,7 +21,10 @@ import { useTokenizedContent } from '../hooks/useTokenizedContent';
 import { useChapterTelemetry } from '../hooks/useChapterTelemetry';
 import ReaderView from './chapter/ReaderView';
 import { deriveTranslationFailureUi } from './chapter/translationFailureUi';
-import { requestSelfInsert } from '../services/selfInsertService';
+import {
+  createAndOpenSelfInsert,
+  SelfInsertPopupBlockedError,
+} from '../services/selfInsertPortal';
 import { useSillyTavernBridgeStatus } from '../hooks/useSillyTavernBridgeStatus';
 import IllustrationRouteDialog from './chapter/IllustrationRouteDialog';
 import type { ImageGenerationOverrides } from '../services/imageJobTypes';
@@ -348,7 +351,7 @@ const ChapterView: React.FC = () => {
     showNotification('Setting up your story entry...', 'info');
 
     try {
-      const result = await requestSelfInsert(bridgeUrl, {
+      const result = await createAndOpenSelfInsert(bridgeUrl, {
         chapterNumber,
         characterNames,
         selectedPassage: selectedText,
@@ -356,16 +359,19 @@ const ChapterView: React.FC = () => {
         chapterTitle,
       });
 
-      if (result.success && result.stUrl) {
-        window.open(result.stUrl, '_blank');
+      if (result.success && result.chatUrl) {
         const loaded = result.charactersLoaded?.join(', ') ?? '';
         showNotification(`Entered story with ${loaded}`, 'success');
       } else {
         showNotification(result.message || 'Failed to set up story entry', 'error');
       }
     } catch (e) {
+      if (e instanceof SelfInsertPopupBlockedError) {
+        showNotification(e.message, 'warning');
+        return;
+      }
       showNotification(
-        'Self-insert bridge not available. Start it with `uvicorn bridge:app --port 5001` in novel-analyzer.',
+        'Self-insert bridge is unavailable. Check its HTTPS health endpoint and try again.',
         'error'
       );
     }

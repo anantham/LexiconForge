@@ -1,7 +1,7 @@
 # SillyTavern Self-Insert — Design Spec
 
 **Date:** 2026-04-05
-**Status:** Approved
+**Status:** Approved; Asus/tailnet deployment details superseded by `docs/adr/FEAT-004-sillytavern-tailnet-portal.md` (2026-08-23)
 **Scope:** LexiconForge toolbar + novel-analyzer bridge + SillyTavern REST API
 
 ## Overview
