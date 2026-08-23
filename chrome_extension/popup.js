@@ -1,11 +1,11 @@
 /**
  * LexiconForge Scraper Popup
- * Multi-site support: BookToki + Polyglotta
+ * Polyglotta-only (BookToki lane removed 2026-08-23 — source site shut down 2026-04-27)
  */
 
 class LexiconForgeScraperPopup {
     constructor() {
-        this.currentSite = null; // 'booktoki' | 'polyglotta' | null
+        this.currentSite = null; // 'polyglotta' | null
         this.isRunning = false;
 
         this.initializeElements();
@@ -22,11 +22,6 @@ class LexiconForgeScraperPopup {
         this.progressFill = document.getElementById('progressFill');
         this.progressText = document.getElementById('progressText');
 
-        // BookToki elements
-        this.maxChaptersInput = document.getElementById('maxChapters');
-        this.startBtn = document.getElementById('startScraping');
-        this.downloadBtn = document.getElementById('downloadAccumulated');
-
         // Polyglotta elements
         this.maxSectionsInput = document.getElementById('maxSections');
         this.startPolyglottaBtn = document.getElementById('startPolyglotta');
@@ -38,10 +33,6 @@ class LexiconForgeScraperPopup {
     }
 
     attachEventListeners() {
-        // BookToki handlers
-        this.startBtn?.addEventListener('click', () => this.startBookTokiScraping());
-        this.downloadBtn?.addEventListener('click', () => this.downloadBookTokiChapters());
-
         // Polyglotta handlers
         this.startPolyglottaBtn?.addEventListener('click', () => this.startPolyglottaScraping());
         this.downloadPolyglottaBtn?.addEventListener('click', () => this.downloadPolyglottaSections());
@@ -69,14 +60,7 @@ class LexiconForgeScraperPopup {
         console.log('[Popup] Site detection starting...');
         console.log('[Popup] Tab:', { id: tab?.id, url: tab?.url, status: tab?.status });
 
-        if (url.includes('booktoki')) {
-            this.currentSite = 'booktoki';
-            document.body.classList.add('site-booktoki');
-            this.siteIndicator.textContent = '🇰🇷 BookToki';
-            this.siteIndicator.className = 'site-indicator booktoki';
-            this.updateLog('📚 BookToki detected. Ready to scrape Korean novels.');
-            this.checkBookTokiSession();
-        } else if (url.includes('polyglotta') || url.includes('hf.uio.no')) {
+        if (url.includes('polyglotta') || url.includes('hf.uio.no')) {
             this.currentSite = 'polyglotta';
             document.body.classList.add('site-polyglotta');
             this.siteIndicator.textContent = '🕉️ Polyglotta';
@@ -87,7 +71,7 @@ class LexiconForgeScraperPopup {
         } else {
             this.siteIndicator.textContent = '❓ Navigate to a supported site';
             this.siteIndicator.className = 'site-indicator unknown';
-            this.updateLog('⚠️ Please navigate to BookToki or Polyglotta to begin scraping.');
+            this.updateLog('⚠️ Please navigate to Polyglotta to begin scraping.');
             this.updateStatus('ready', 'Navigate to a supported site');
         }
     }
@@ -154,8 +138,6 @@ class LexiconForgeScraperPopup {
             let scriptFile = null;
             if (tab.url?.includes('polyglotta') || tab.url?.includes('hf.uio.no')) {
                 scriptFile = 'content-polyglotta.js';
-            } else if (tab.url?.includes('booktoki')) {
-                scriptFile = 'content.js';
             }
 
             if (!scriptFile) {
@@ -203,58 +185,6 @@ class LexiconForgeScraperPopup {
                 this.updateLog(`   💡 Extension may need reload: chrome://extensions/ → refresh icon`);
                 this.updateLog(`   💡 Then refresh this page (Cmd+R)`);
             }
-        }
-    }
-
-    // ==================== BOOKTOKI METHODS ====================
-
-    async checkBookTokiSession() {
-        try {
-            const response = await chrome.runtime.sendMessage({ action: 'getSession' });
-            const session = response.session;
-
-            const chaptersResponse = await chrome.runtime.sendMessage({ action: 'getAccumulatedChapters' });
-            const chaptersCount = chaptersResponse.chapters?.length || 0;
-
-            if (session && session.isActive) {
-                this.isRunning = true;
-                this.updateStatus('working', `Scraping in progress (${chaptersCount}/${session.maxChapters} chapters)`);
-                this.updateProgress(session.currentChapter, session.maxChapters, `Chapter ${session.currentChapter}`);
-                this.startBtn.style.display = 'none';
-                this.stopBtn.style.display = 'block';
-            } else {
-                this.updateStatus('ready', chaptersCount > 0 ? `Ready (${chaptersCount} chapters stored)` : 'Ready to scrape');
-            }
-        } catch (error) {
-            this.updateStatus('ready', 'Ready to scrape');
-        }
-    }
-
-    async startBookTokiScraping() {
-        this.isRunning = true;
-        const maxChapters = parseInt(this.maxChaptersInput.value) || 10;
-
-        this.updateStatus('working', `Starting scraping (${maxChapters} chapters)...`);
-        this.updateLog(`📚 Starting multi-chapter scraping (max ${maxChapters} chapters)...`);
-
-        this.startBtn.style.display = 'none';
-        this.stopBtn.style.display = 'block';
-
-        await this.sendMessageToTab('START_SCRAPING', { maxChapters });
-    }
-
-    async downloadBookTokiChapters() {
-        try {
-            this.updateLog('💾 Downloading accumulated chapters...');
-            const response = await chrome.runtime.sendMessage({ action: 'downloadAccumulated' });
-
-            if (response?.success) {
-                this.updateLog(`✅ Downloaded ${response.chaptersCount} chapters!`);
-            } else {
-                this.updateLog(`❌ Download failed: ${response?.error || 'Unknown error'}`);
-            }
-        } catch (error) {
-            this.updateLog(`❌ Download error: ${error.message}`);
         }
     }
 
@@ -343,7 +273,6 @@ class LexiconForgeScraperPopup {
     }
 
     resetUI() {
-        this.startBtn.style.display = 'block';
         this.startPolyglottaBtn.style.display = 'block';
         this.stopBtn.style.display = 'none';
         this.progressContainer.style.display = 'none';

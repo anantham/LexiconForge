@@ -1,13 +1,10 @@
 # LexiconForge Scraper Chrome Extension
 
-A Chrome extension for scraping content from multiple sources for use with LexiconForge.
+A Chrome extension for scraping multilingual aligned Buddhist texts (Polyglotta) for use with LexiconForge.
+
+BookToki support removed 2026-08-23 — source site shut down permanently 2026-04-27.
 
 ## Supported Sites
-
-### BookToki (Korean Novels)
-- **Domain:** `booktoki468.com`
-- **Content:** Korean web novels
-- **Output:** JSON with chapters (Korean text + navigation)
 
 ### Polyglotta (Buddhist Texts)
 - **Domain:** `www2.hf.uio.no/polyglotta`

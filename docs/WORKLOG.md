@@ -3353,3 +3353,10 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 6. LF_AI_DEBUG* keys: compat-release retirement — STEP 1 NOW = canonicalize readers (claudeService.ts:13 reads legacy-only) via utils/debug.ts central parser, STOP UI dual-write (AdvancedPanel.tsx:114); deletion next release.
 7. backfill exit condition: add privacy-preserving probe counting flag=false browsers; observation window TBD by human before any deletion.
 **Next session executes as narrow PRs:** PR-a (#1+#2 BookToki removal+dedup delete w/ test moves), PR-b (#5 classification+operator surface), PR-c (#6 step1 + #3 counter + #7 probe — one telemetry PR), each with tests; update CRUFT-ACCRETION-PATTERNS Tier-B section statuses after each merge.
+
+### [2026-08-23 14:40 IST] [Agent: ox-alpha]
+**Status:** Complete — Codex-review corrections for PR 153 (Option A)
+**Task:** Finish BookToki removal coherently + semantic extension gate.
+**Files modified:** chrome_extension/popup.js|popup.html|background.js (fully Polyglotta-only; BookToki session machinery/handlers/UI removed); manifest description 142→102 chars; README rewritten; scripts/ci/extension-check.mjs (new: description ≤132, referenced files exist, code-only dead-lane grep) chained into verify:integrity; maintenance.ts unused BOOKSHELF_DEDUPED_V3 constant removed; scorecard CAP-006 row → RESOLVED.
+**Process incident (recorded per protocol):** amended already-pushed 864c0c2 then hard-reset a dirty tree → lost unstaged Option-A edits. Recovered gate script via reflog (b19ed34); all other edits reapplied from session-specified content and verified identical by checks below. Lesson: never amend pushed commits (AGENTS already said this); never reset with dirty tree — commit WIP first.
+**Verification:** node --check both extension scripts; extension-check green (manifest valid, 3 referenced files present, no code-level dead-lane refs); tsc clean; bookshelfStateService suite green earlier on same base.

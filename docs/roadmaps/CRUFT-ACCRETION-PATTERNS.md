@@ -27,7 +27,7 @@ Score: **12 PRESENT · 6 PARTIAL · 2 ABSENT**, plus **8 repo-native classes**.
 | 003 | Split-after-extraction divergence | PRESENT ★ | Debug gates copied 6× with divergent behavior per provider |
 | 004 | Ambient-target maintenance | PRESENT | `start-lexiconforge.command` hardcoded `/Users/aditya`; broken venv npm scripts |
 | 005 | Selector identity drift | PRESENT | Chapter identity via title regexes vs canonical `stableId` |
-| 006 | Exclusive tests preserve obsolete ownership | PRESENT | Suite for zero-caller `consolidateBookshelfDuplicates` |
+| 006 | Exclusive tests preserve obsolete ownership | RESOLVED (2026-08-23) | Dead dedup + suite deleted (#153); count regressions preserved in `fetchNovelChapterCounts.test.ts` |
 | 007 | Safety guards around dead paths | PARTIAL | Unguarded `migrateFromLocalStorage` armor with no tests |
 | 008 | Docs record starts > endings | PRESENT | REMEDIATION-ROADMAP "Active" while targeting deleted files |
 | 009 | Repo policy ↔ deployed reality fork | PRESENT | Extension popup PING gate no content.js answers; dev-only route shipped |

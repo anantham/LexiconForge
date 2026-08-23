@@ -41,7 +41,6 @@ const SETTINGS = {
   SUMMARY_NOVEL_ID_BACKFILLED: 'summaryNovelIdBackfilled-v2',
   SCOPED_IDENTITY_REPAIRED_V2: 'scopedStableIdRepairV2',
   SUMMARIES_SYNCED: 'summariesSyncedV2',
-  BOOKSHELF_DEDUPED_V3: 'bookshelfDedupedV3',
   CHAPTER_IDS_UNWRAPPED_V4: 'chapterIdsUnwrappedV4',
   CHAPTER_NUMBER_CORRECTED_V5: 'chapterNumberCorrectedV5',
   MANGLED_CANONICAL_REPAIRED_V6: 'mangledCanonicalKeysRepairedV6',
