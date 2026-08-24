@@ -6,7 +6,7 @@
  * and expand/collapse toggle.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useAppStore } from '../../store';
 import OscilloscopeGraph from './OscilloscopeGraph';
 import ThreadLegend from './ThreadLegend';
@@ -120,24 +120,25 @@ const OscilloscopePanel: React.FC = () => {
   const isLoaded = useAppStore((s) => s.isLoaded);
   const isExpanded = useAppStore((s) => s.isExpanded);
   const setExpanded = useAppStore((s) => s.setExpanded);
+  const activeNovelId = useAppStore((s) => s.activeNovelId);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const loadingRef = useRef(false);
 
   // Auto-load oscilloscope data from public directory
   useEffect(() => {
-    if (isLoaded || isLoading) return;
-    setIsLoading(true);
+    if (isLoaded || loadingRef.current || activeNovelId !== 'forty-millenniums-of-cultivation') return;
+    loadingRef.current = true;
     loadOscilloscopeData(
       '/oscilloscope-data/_all_meta.json',
       '/oscilloscope-data/_character_threads.json',
-      3457, // FMoC total chapters — will be dynamic later
+      3457,
     )
-      .then(() => setIsLoading(false))
+      .then(() => { loadingRef.current = false; })
       .catch((err) => {
         setLoadError(err?.message || 'Failed to load oscilloscope data');
-        setIsLoading(false);
+        loadingRef.current = false;
       });
-  }, [isLoaded, isLoading]);
+  }, [activeNovelId, isLoaded]);
 
   if (loadError) return null; // silently hide if no data available
   if (!isLoaded) return null;

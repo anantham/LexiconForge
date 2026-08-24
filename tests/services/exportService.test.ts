@@ -24,7 +24,10 @@ describe('ExportService', () => {
     useAppStore.setState({
       chapters: new Map(),
       sessionProvenance: null,
-      sessionVersion: null
+      sessionVersion: null,
+      threads: new Map(),
+      activeThreadIds: new Set(),
+      corpusIdentity: null,
     });
 
     // Reset all mocks
@@ -96,9 +99,33 @@ describe('ExportService', () => {
     expect(exportData.chapters).toHaveLength(1);
     expect(exportData.chapters[0].title).toBe('Chapter 1');
     expect(exportData.provenance).toBeUndefined();
+    expect(exportData.oscilloscope?.corpus.chapterCount).toBe(1);
 
     // Verify IndexedDB was called
     expect(chapterOpsMock.getAll).toHaveBeenCalled();
+  });
+
+  it('freezes precomputed scalar tracks into a portable quick export', async () => {
+    useAppStore.setState({
+      threads: new Map([['tone:romance', {
+        threadId: 'tone:romance',
+        category: 'tone',
+        label: 'romance',
+        color: '#ef4444',
+        values: [0.42],
+        totalChapters: 1,
+        provenance: { origin: 'precomputed', method: 'semantic-v1' },
+      }]]),
+      activeThreadIds: new Set(['tone:romance']),
+    });
+
+    const exportData = await ExportService.generateQuickExport();
+
+    expect(exportData.oscilloscope?.threads[0]).toMatchObject({
+      threadId: 'tone:romance',
+      values: [0.42],
+    });
+    expect(JSON.stringify(exportData.oscilloscope)).not.toMatch(/baseUrl|endpoint|asus/i);
   });
 
   it('should generate publish export with metadata and provenance', async () => {

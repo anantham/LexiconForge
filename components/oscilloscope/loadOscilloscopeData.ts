@@ -46,13 +46,6 @@ export async function loadOscilloscopeData(
   (window as any).__oscilloscopeChapterTitles = titlesResp;
 
   // Add additional thread categories
-  const categoryColors: Record<string, string> = {
-    location: '#22c55e',
-    faction: '#f97316',
-    entity: '#8b5cf6',
-    tone: '#ef4444',
-  };
-
   const addThreads = (
     data: Record<string, Record<string, number>>,
     category: 'location' | 'faction' | 'entity' | 'tone',
@@ -79,6 +72,7 @@ export async function loadOscilloscopeData(
         color: palette[colorIdx % palette.length],
         values,
         totalChapters,
+        provenance: { origin: 'precomputed', method: 'legacy-oscilloscope-analysis-v1' },
       });
       colorIdx++;
     }

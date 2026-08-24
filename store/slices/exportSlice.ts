@@ -9,6 +9,7 @@ import type { ImageGenerationMetadata } from '../../types';
 import { SessionExportOps, SettingsOps, TranslationOps } from '../../services/db/operations';
 import { fetchChaptersForReactRendering } from '../../services/db/operations/rendering';
 import type { CoverImageRef } from '../../components/settings/types';
+import { attachOscilloscopeToFullExport } from '../../services/semanticOscilloscopeExport';
 
 // Export progress tracking
 export interface ExportProgress {
@@ -238,6 +239,12 @@ export const createExportSlice: StateCreator<
       };
 
       ensureChaptersFromMemory();
+      await attachOscilloscopeToFullExport(
+        jsonObj,
+        storeState.corpusIdentity,
+        storeState.threads,
+        storeState.activeThreadIds,
+      );
 
       const json = JSON.stringify(jsonObj, null, 2);
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '');

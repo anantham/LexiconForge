@@ -156,11 +156,14 @@ export const createUiSlice: StateCreator<
     activeVersionId: versionId,
   }),
 
-  openNovel: (novelId, versionId = null) => set({
-    appScreen: 'reader-loading',
-    activeNovelId: novelId,
-    activeVersionId: versionId,
-  }),
+  openNovel: (novelId, versionId = null) => {
+    get().resetOscilloscope();
+    set({
+      appScreen: 'reader-loading',
+      activeNovelId: novelId,
+      activeVersionId: versionId,
+    });
+  },
 
   setReaderReady: () => set({
     appScreen: 'reader',
@@ -185,6 +188,7 @@ export const createUiSlice: StateCreator<
       });
     }
 
+    get().resetOscilloscope();
     set({
       appScreen: 'library',
       activeNovelId: null,

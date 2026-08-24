@@ -5,6 +5,7 @@ import { createInitializeStore } from '../../../store/bootstrap/initializeStore'
 import type { BootstrapContext } from '../../../store/bootstrap';
 import type { StoreState } from '../../../store/storeTypes';
 import type { AppSettings } from '../../../types';
+import { computeSemanticCorpusIdentity, createSessionOscilloscope } from '../../../services/semanticOscilloscopeSession';
 
 const maintenanceOpsMock = vi.hoisted(() => ({
   backfillUrlMappingsFromChapters: vi.fn().mockResolvedValue(undefined),
@@ -225,6 +226,9 @@ const createState = (overrides: Partial<StoreState> = {}): StoreState => {
     pendingTranslations: new Set<string>(),
     sessionProvenance: null,
     sessionVersion: null,
+    initializeOscilloscope: vi.fn(),
+    loadSessionOscilloscope: vi.fn(),
+    resetOscilloscope: vi.fn(),
     ...overrides,
   };
   return state as StoreState;
@@ -479,6 +483,38 @@ describe('bootstrap helpers', () => {
       expect(importedPayload.novels[0].id).toBe('test-novel');
       expect(importedPayload.urlMappings).toHaveLength(1);
       expect(importedPayload.urlMappings[0].url).toBe('https://example.com/ch1');
+      expect(ctx.get().initializeOscilloscope).toHaveBeenCalledWith(expect.objectContaining({
+        corpusId: 'test-novel',
+        versionId: 'v1',
+        chapterCount: 1,
+      }));
+    });
+
+    it('hydrates portable scalar tracks only after recomputing the session corpus', async () => {
+      settingsOpsMock.getKey.mockResolvedValue(null);
+      const payload = {
+        metadata: { format: 'lexiconforge-session' as const, version: '2.0' as const, exportedAt: '2026-08-24T00:00:00Z' },
+        novel: { id: 'test-novel', title: 'Test Novel' },
+        version: { versionId: 'v1', displayName: 'V1', style: 'other' as const, features: [] },
+        chapters: [{ chapterNumber: 1, title: 'Chapter 1', content: 'Content' }],
+        settings: {},
+      };
+      const corpus = await computeSemanticCorpusIdentity(payload);
+      const oscilloscope = createSessionOscilloscope(corpus, new Map([['tone:romance', {
+        threadId: 'tone:romance',
+        category: 'tone' as const,
+        label: 'romance',
+        color: '#ef4444',
+        values: [0.42],
+        totalChapters: 1,
+        provenance: { origin: 'precomputed' as const, method: 'semantic-v1' },
+      }]]), new Set(['tone:romance']));
+      const { ctx } = createCtx(createState());
+
+      await createImportSessionData(ctx)({ ...payload, oscilloscope });
+
+      expect(ctx.get().loadSessionOscilloscope).toHaveBeenCalledWith(oscilloscope);
+      expect(ctx.get().initializeOscilloscope).not.toHaveBeenCalled();
     });
   });
 

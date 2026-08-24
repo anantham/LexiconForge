@@ -2,6 +2,10 @@ import type { SessionActions } from '../storeTypes';
 import type { BootstrapContext } from './index';
 import { ImportOps, SettingsOps } from '../../services/db/operations';
 import { loadAllIntoStore, loadNovelIntoStore } from '../../services/readerHydrationService';
+import {
+  computeSemanticCorpusIdentity,
+  parseSessionOscilloscope,
+} from '../../services/semanticOscilloscopeSession';
 
 /**
  * Convert a `lexiconforge-session` payload (the publish/quick-export format)
@@ -80,6 +84,31 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
             error: null,
           };
         });
+
+        const hasCorpusContract = obj?.novel?.id && obj?.version?.versionId && Array.isArray(obj?.chapters);
+        if (hasCorpusContract) {
+          const corpus = await computeSemanticCorpusIdentity(obj);
+          if (obj.oscilloscope) {
+            try {
+              ctx.get().loadSessionOscilloscope(parseSessionOscilloscope(obj.oscilloscope, corpus));
+            } catch (error) {
+              console.error('[Store] Ignoring invalid session oscilloscope data:', error);
+              ctx.get().initializeOscilloscope(corpus);
+            }
+          } else {
+            ctx.get().initializeOscilloscope(corpus);
+          }
+          if (typeof window !== 'undefined') {
+            (window as any).__oscilloscopeChapterTitles = Object.fromEntries(
+              obj.chapters.map((chapter: any, index: number) => [
+                String(chapter.chapterNumber ?? index + 1),
+                chapter.title || `Chapter ${index + 1}`,
+              ]),
+            );
+          }
+        } else {
+          ctx.get().resetOscilloscope();
+        }
 
         return;
       }
