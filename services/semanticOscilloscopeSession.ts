@@ -18,8 +18,10 @@ const normalizeText = (value: unknown): string => (
 );
 
 const chapterNumber = (chapter: Record<string, unknown>, fallback: number): number => {
+  if (!Object.prototype.hasOwnProperty.call(chapter, 'chapterNumber')) return fallback;
   const value = chapter.chapterNumber;
-  return typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : fallback;
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value;
+  throw new Error('chapterNumber must be a positive integer when provided');
 };
 
 const selectedChapterText = (chapter: Record<string, unknown>): string => {
@@ -71,11 +73,17 @@ export const computeSemanticCorpusIdentity = async (
       throw new Error(`session.chapters[${index}] must be an object`);
     }
     const chapter = raw as Record<string, unknown>;
-    return {
-      chapterNumber: chapterNumber(chapter, index + 1),
-      title: normalizeText(chapter.title),
-      text: selectedChapterText(chapter),
-    };
+    try {
+      return {
+        chapterNumber: chapterNumber(chapter, index + 1),
+        title: normalizeText(chapter.title),
+        text: selectedChapterText(chapter),
+      };
+    } catch (error) {
+      throw new Error(
+        `session.chapters[${index}].chapterNumber is invalid: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }).sort((left, right) => left.chapterNumber - right.chapterNumber);
 
   const actual = chapters.map((chapter) => chapter.chapterNumber);
@@ -99,31 +107,85 @@ export const sameCorpus = (left: SemanticCorpusIdentity, right: SemanticCorpusId
   && left.chapterCount === right.chapterCount
 );
 
-const cloneProvenance = (value: ThreadProvenance | undefined): ThreadProvenance | undefined => {
-  if (!value) return undefined;
-  if (value.origin === 'precomputed') {
-    return { origin: value.origin, method: value.method, ...(value.generatedAt ? { generatedAt: value.generatedAt } : {}) };
+const cloneProvenance = (value: unknown): ThreadProvenance | undefined => {
+  if (value === undefined) return undefined;
+  if (!value || typeof value !== 'object') throw new Error('oscilloscope thread provenance must be an object');
+  const provenance = value as Record<string, unknown>;
+  if (provenance.origin === 'precomputed') {
+    if (typeof provenance.method !== 'string' || !provenance.method.trim()) {
+      throw new Error('precomputed oscilloscope provenance requires a method');
+    }
+    if (provenance.generatedAt !== undefined && typeof provenance.generatedAt !== 'string') {
+      throw new Error('precomputed oscilloscope provenance generatedAt must be a string');
+    }
+    return {
+      origin: 'precomputed',
+      method: provenance.method,
+      ...(provenance.generatedAt ? { generatedAt: provenance.generatedAt } : {}),
+    };
   }
+  if (provenance.origin !== 'private-semantic-scan') {
+    throw new Error('oscilloscope thread provenance origin is invalid');
+  }
+  const scoring = provenance.scoring;
+  const corpus = provenance.corpus;
+  if (!scoring || typeof scoring !== 'object' || !corpus || typeof corpus !== 'object') {
+    throw new Error('private semantic provenance requires scoring and corpus objects');
+  }
+  const rawRange = (scoring as Record<string, unknown>).range;
+  if (
+    !Array.isArray(rawRange)
+    || rawRange.length !== 2
+    || rawRange.some((bound) => typeof bound !== 'number' || !Number.isFinite(bound))
+    || rawRange[0] > rawRange[1]
+  ) {
+    throw new Error('private semantic provenance requires a finite ordered scoring range');
+  }
+  const requiredStrings = ['query', 'generatedAt', 'protocol', 'scoreSemantics', 'vectorSpace'] as const;
+  if (requiredStrings.some((key) => typeof provenance[key] !== 'string' || !(provenance[key] as string).trim())) {
+    throw new Error('private semantic provenance string fields are invalid');
+  }
+  if (!Number.isInteger(provenance.dimensions) || (provenance.dimensions as number) <= 0) {
+    throw new Error('private semantic provenance dimensions must be a positive integer');
+  }
+  const typedCorpus = corpus as unknown as SemanticCorpusIdentity;
   return {
-    origin: value.origin,
-    query: value.query,
-    generatedAt: value.generatedAt,
-    protocol: value.protocol,
-    scoreSemantics: value.scoreSemantics,
-    vectorSpace: value.vectorSpace,
-    dimensions: value.dimensions,
-    scoring: { algorithm: value.scoring.algorithm, range: [...value.scoring.range] },
-    corpus: { ...value.corpus },
+    origin: 'private-semantic-scan',
+    query: provenance.query as string,
+    generatedAt: provenance.generatedAt as string,
+    protocol: provenance.protocol as string,
+    scoreSemantics: provenance.scoreSemantics as string,
+    vectorSpace: provenance.vectorSpace as string,
+    dimensions: provenance.dimensions as number,
+    scoring: {
+      algorithm: (scoring as Record<string, unknown>).algorithm as string,
+      range: [rawRange[0], rawRange[1]],
+    },
+    corpus: {
+      corpusId: typedCorpus.corpusId,
+      versionId: typedCorpus.versionId,
+      contentHash: typedCorpus.contentHash,
+      chapterCount: typedCorpus.chapterCount,
+    },
   };
 };
 
 const validateThread = (value: unknown, corpus: SemanticCorpusIdentity): ThreadData => {
   if (!value || typeof value !== 'object') throw new Error('oscilloscope thread must be an object');
-  const thread = value as ThreadData;
-  if (!thread.threadId || !thread.label || !CATEGORIES.has(thread.category)) {
+  const thread = value as Record<string, unknown>;
+  if (
+    typeof thread.threadId !== 'string'
+    || !thread.threadId
+    || typeof thread.label !== 'string'
+    || !thread.label
+    || typeof thread.category !== 'string'
+    || !CATEGORIES.has(thread.category)
+  ) {
     throw new Error('oscilloscope thread identity, label, or category is invalid');
   }
-  if (!/^#[0-9a-f]{6}$/i.test(thread.color)) throw new Error(`thread ${thread.threadId} has an invalid color`);
+  if (typeof thread.color !== 'string' || !/^#[0-9a-f]{6}$/i.test(thread.color)) {
+    throw new Error(`thread ${thread.threadId} has an invalid color`);
+  }
   if (!Array.isArray(thread.values) || thread.values.length !== corpus.chapterCount) {
     throw new Error(`thread ${thread.threadId} must contain ${corpus.chapterCount} chapter values`);
   }
@@ -137,7 +199,21 @@ const validateThread = (value: unknown, corpus: SemanticCorpusIdentity): ThreadD
   if (provenance?.origin === 'private-semantic-scan' && !sameCorpus(provenance.corpus, corpus)) {
     throw new Error(`thread ${thread.threadId} semantic provenance references a different corpus`);
   }
-  return { ...thread, values: [...thread.values], ...(provenance ? { provenance } : {}) };
+  if (
+    provenance?.origin === 'private-semantic-scan'
+    && thread.values.some((score) => score < provenance.scoring.range[0] || score > provenance.scoring.range[1])
+  ) {
+    throw new Error(`thread ${thread.threadId} contains a score outside its declared scoring range`);
+  }
+  return {
+    threadId: thread.threadId,
+    category: thread.category as ThreadData['category'],
+    label: thread.label,
+    color: thread.color,
+    values: [...thread.values],
+    totalChapters: thread.totalChapters as number,
+    ...(provenance ? { provenance } : {}),
+  };
 };
 
 export const parseSessionOscilloscope = (
@@ -145,11 +221,11 @@ export const parseSessionOscilloscope = (
   expectedCorpus: SemanticCorpusIdentity,
 ): SessionOscilloscopeData => {
   if (!value || typeof value !== 'object') throw new Error('session.oscilloscope must be an object');
-  const data = value as SessionOscilloscopeData;
+  const data = value as Record<string, unknown>;
   if (data.format !== 'lexiconforge-oscilloscope' || data.version !== '1.0') {
     throw new Error('unsupported session oscilloscope format');
   }
-  if (!data.corpus || !sameCorpus(data.corpus, expectedCorpus)) {
+  if (!data.corpus || typeof data.corpus !== 'object' || !sameCorpus(data.corpus as SemanticCorpusIdentity, expectedCorpus)) {
     throw new Error('session oscilloscope corpus does not match the loaded chapter text');
   }
   if (!Array.isArray(data.threads) || data.threads.length > 500) {
@@ -157,10 +233,25 @@ export const parseSessionOscilloscope = (
   }
   const threads = data.threads.map((thread) => validateThread(thread, expectedCorpus));
   const ids = new Set(threads.map((thread) => thread.threadId));
-  const activeThreadIds = Array.isArray(data.activeThreadIds)
-    ? data.activeThreadIds.filter((id): id is string => typeof id === 'string' && ids.has(id))
-    : [];
-  return { ...data, corpus: { ...expectedCorpus }, threads, activeThreadIds };
+  if (!Array.isArray(data.activeThreadIds)) {
+    throw new Error('session oscilloscope active thread IDs must be an array');
+  }
+  const activeThreadIds = data.activeThreadIds.map((id) => {
+    if (typeof id !== 'string' || !ids.has(id)) {
+      throw new Error(`session oscilloscope active thread ID is invalid or unknown: ${String(id)}`);
+    }
+    return id;
+  });
+  if (new Set(activeThreadIds).size !== activeThreadIds.length) {
+    throw new Error('session oscilloscope active thread IDs must be unique');
+  }
+  return {
+    format: 'lexiconforge-oscilloscope',
+    version: '1.0',
+    corpus: { ...expectedCorpus },
+    threads,
+    activeThreadIds,
+  };
 };
 
 export const createSessionOscilloscope = (
