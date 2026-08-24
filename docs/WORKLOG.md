@@ -3437,6 +3437,12 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Unverified deployment gates:** No full-book index was built, no live Ollama/embedding request was made, no Tailnet capability/scan latency was measured, and neither source branch is merged or deployed.
 **Assumptions/confidence:** Assumes the Asus operator will build the index from the same exported session loaded by the reader; the hash gate tests this at runtime. Confidence 0.94 in the source contract and focused behavior; fallback is to remove the capability/UI adapter while frozen tracks continue to render.
 
+### [2026-08-24 11:29 IST] [Agent: Codex]
+**Status:** PR #158 CI correction complete; propagation and rereview pending
+**Issue:** The repository-integrity gate found trailing whitespace on the two metadata lines of the newly added FEAT-006 ADR.
+**Files modified:** `docs/adr/FEAT-006-private-semantic-oscilloscope.md`, `docs/WORKLOG.md`.
+**Correction/tests:** Removed only the two trailing whitespace sequences. `npm run verify:integrity` and `git diff --check` are the predicted gates; confidence 0.99. Fallback is to revert this isolated documentation-only correction if it changes rendered intent.
+
 ### [2026-08-24 11:12 IST] [Agent: Codex]
 **Status:** PR #158 Codex review findings corrected; rereview pending
 **Findings confirmed:** Thread serialization spread unrecognized runtime/import fields into portable sessions; private semantic values were not checked against their declared range; malformed/stale active IDs were silently dropped; explicit invalid chapter numbers fell back to position; the versioned public protocol ADR was not present in this base PR.
