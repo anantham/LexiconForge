@@ -85,9 +85,17 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
           };
         });
 
-        const hasCorpusContract = obj?.novel?.id && obj?.version?.versionId && Array.isArray(obj?.chapters);
-        if (hasCorpusContract) {
-          const corpus = await computeSemanticCorpusIdentity(obj);
+        const directCorpusContract = obj?.novel?.id && obj?.version?.versionId && Array.isArray(obj?.chapters);
+        const portableCorpusHint = obj?.oscilloscope?.corpus;
+        const hintedCorpusContract = portableCorpusHint?.corpusId
+          && portableCorpusHint?.versionId
+          && Array.isArray(obj?.chapters);
+        if (directCorpusContract || hintedCorpusContract) {
+          const corpus = await computeSemanticCorpusIdentity(directCorpusContract ? obj : {
+            novel: { id: portableCorpusHint.corpusId },
+            version: { versionId: portableCorpusHint.versionId },
+            chapters: obj.chapters,
+          });
           if (obj.oscilloscope) {
             try {
               ctx.get().loadSessionOscilloscope(parseSessionOscilloscope(obj.oscilloscope, corpus));

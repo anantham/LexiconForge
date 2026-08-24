@@ -194,6 +194,7 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 | `components/bench/SuttaStudioBenchmarkView.tsx` | 1,620 | Split candidate | Fixture loading + runner orchestration + metrics display |
 | `services/imageService.ts` | 1,245 | Split candidate | Generation planning, dual-generation Google SDK transports, cache/version handling in one module |
 | `services/exportService.ts` | 1,062 | Split candidate | EPUB export and session export are unrelated concerns |
+| `services/importService.ts` | 1,152 | Split candidate | URL retry, two JSON parsers, persistence/reconciliation, reader hydration, and portable artifact hydration share one lifecycle; adding semantic graph streaming crossed every responsibility |
 | `adapters/providers/OpenAIAdapter.ts` | 886 | Split candidate | Translation/chat request construction, adaptive fallbacks, metrics, and response parsing share one adapter |
 | `services/suttaStudioPassPrompts.ts` | 47 | Resolved | Now a thin re-export shim (was mislisted at 725); real prompt mass lives under `services/sutta-studio/prompts/` |
 | `services/suttaStudioPassRunners.ts` | 35 | Resolved | Thin re-export shim (was mislisted at 586); runners live under `services/sutta-studio/passes/` — deletion candidate tracked by CONSOLIDATION Phase-4 tail (CAP-011) |

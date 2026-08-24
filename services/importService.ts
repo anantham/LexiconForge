@@ -33,6 +33,10 @@ import {
   convertBookTokiToLexiconForgeFullPayload,
   isBookTokiScrapePayload,
 } from './import/booktoki';
+import {
+  computeSemanticCorpusIdentity,
+  parseSessionOscilloscope,
+} from './semanticOscilloscopeSession';
 
 export interface ImportProgress {
   stage: 'downloading' | 'parsing' | 'importing' | 'streaming' | 'complete';
@@ -376,6 +380,10 @@ export class ImportService {
         let chaptersLoaded = 0;
         let totalChapters = 0;
         let metadata: any = null;
+        let sessionNovel: Record<string, unknown> | null = null;
+        let sessionVersion: Record<string, unknown> | null = null;
+        let sessionOscilloscope: unknown | undefined;
+        const streamedStableIds: string[] = [];
         let firstChaptersReadyCalled = false;
         // Translation accounting — a number never travels without its
         // denominator: expected (in the payload), stored (this run), and
@@ -562,6 +570,47 @@ export class ImportService {
           }
         };
 
+        const extractObjectField = (source: string, key: string): Record<string, unknown> | undefined => {
+          const fieldKey = `"${key}"`;
+          const keyIndex = source.indexOf(fieldKey);
+          if (keyIndex === -1) return undefined;
+          const colonIndex = source.indexOf(':', keyIndex + fieldKey.length);
+          if (colonIndex === -1) return undefined;
+          const objectStart = source.indexOf('{', colonIndex + 1);
+          if (objectStart === -1) return undefined;
+          const objectEnd = findMatchingBrace(source, objectStart);
+          if (objectEnd === -1) return undefined;
+          const parsed = JSON.parse(source.slice(objectStart, objectEnd + 1));
+          return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : undefined;
+        };
+
+        const captureOscilloscopeIfReady = () => {
+          if (!chaptersCompleted || sessionOscilloscope !== undefined) return;
+          const fieldKey = '"oscilloscope"';
+          const keyIndex = buffer.indexOf(fieldKey);
+          if (keyIndex === -1) {
+            buffer = buffer.slice(-Math.max(0, fieldKey.length - 1));
+            return;
+          }
+          const colonIndex = buffer.indexOf(':', keyIndex + fieldKey.length);
+          if (colonIndex === -1) {
+            buffer = buffer.slice(keyIndex);
+            return;
+          }
+          const objectStart = buffer.indexOf('{', colonIndex + 1);
+          if (objectStart === -1) {
+            buffer = buffer.slice(keyIndex);
+            return;
+          }
+          const objectEnd = findMatchingBrace(buffer, objectStart);
+          if (objectEnd === -1) {
+            buffer = buffer.slice(keyIndex);
+            return;
+          }
+          sessionOscilloscope = JSON.parse(buffer.slice(objectStart, objectEnd + 1));
+          buffer = buffer.slice(objectEnd + 1);
+        };
+
         const emitMetadataIfReady = () => {
           if (!metadataEmitted && isGitLfsPointer(buffer)) {
             throw buildGitLfsPointerError(fetchUrl);
@@ -610,6 +659,8 @@ export class ImportService {
           const arrayStart = buffer.indexOf('[', chaptersKey);
           if (arrayStart === -1) return;
 
+          sessionNovel = extractObjectField(buffer.slice(0, chaptersKey), 'novel') ?? sessionNovel;
+          sessionVersion = extractObjectField(buffer.slice(0, chaptersKey), 'version') ?? sessionVersion;
           buffer = buffer.slice(arrayStart + 1);
           chaptersStarted = true;
         };
@@ -686,6 +737,7 @@ export class ImportService {
             fanTranslation: chapter.fanTranslation ?? null,
           };
           await ChapterOps.store(chapterPayload);
+          streamedStableIds.push(identity.stableId);
           debugLog('import', 'full', `[IMPORT] Chapter #${chapter.chapterNumber} stored to CHAPTERS`);
 
           let activeVersion: number | null = null;
@@ -869,6 +921,7 @@ export class ImportService {
               if (nextChapter === null) break;
               await processChapter(nextChapter);
             }
+            captureOscilloscopeIfReady();
           }
 
           buffer += decoder.decode();
@@ -882,6 +935,7 @@ export class ImportService {
             if (nextChapter === null) break;
             await processChapter(nextChapter);
           }
+          captureOscilloscopeIfReady();
         } catch (error) {
           console.error('[StreamImport] Stream failed:', error);
           reject(new Error(`Streaming import failed: ${error instanceof Error ? error.message : String(error)}`));
@@ -998,6 +1052,49 @@ export class ImportService {
             }
           );
           useAppStore.setState({ currentChapterId: firstChapterId });
+        }
+
+        const oscilloscopeCorpus = sessionOscilloscope && typeof sessionOscilloscope === 'object'
+          ? (sessionOscilloscope as Record<string, any>).corpus
+          : null;
+        const parsedSessionNovel = sessionNovel as Record<string, unknown> | null;
+        const parsedSessionVersion = sessionVersion as Record<string, unknown> | null;
+        const corpusId = typeof oscilloscopeCorpus?.corpusId === 'string'
+          ? oscilloscopeCorpus.corpusId
+          : options.registryNovelId ?? (
+            typeof parsedSessionNovel?.id === 'string' ? parsedSessionNovel.id : null
+          );
+        const versionId = typeof oscilloscopeCorpus?.versionId === 'string'
+          ? oscilloscopeCorpus.versionId
+          : options.registryVersionId ?? (
+            typeof parsedSessionVersion?.versionId === 'string' ? parsedSessionVersion.versionId : null
+          );
+        if (corpusId && versionId) {
+          try {
+            const hydratedChapters = streamedStableIds.map((stableId) => postHydrationState.chapters.get(stableId));
+            if (hydratedChapters.some((chapter) => !chapter)) {
+              throw new Error(
+                `hydration returned ${hydratedChapters.filter(Boolean).length}/${streamedStableIds.length} streamed chapters`,
+              );
+            }
+            const corpus = await computeSemanticCorpusIdentity({
+              novel: { id: corpusId },
+              version: { versionId },
+              chapters: hydratedChapters,
+            } as any);
+            if (sessionOscilloscope !== undefined) {
+              postHydrationState.loadSessionOscilloscope(
+                parseSessionOscilloscope(sessionOscilloscope, corpus),
+              );
+            } else {
+              postHydrationState.initializeOscilloscope(corpus);
+            }
+          } catch (error) {
+            console.error('[StreamImport] Ignoring invalid session oscilloscope data:', error);
+            postHydrationState.resetOscilloscope();
+          }
+        } else {
+          postHydrationState.resetOscilloscope();
         }
 
         resolve({ metadata, chaptersLoaded });

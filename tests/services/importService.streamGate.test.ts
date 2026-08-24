@@ -1,6 +1,7 @@
 // @vitest-environment node
 import 'fake-indexeddb/auto';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { computeSemanticCorpusIdentity, createSessionOscilloscope } from '../../services/semanticOscilloscopeSession';
 
 /**
  * Regression guard for the "Opening Reader…" hang (2026-07-28).
@@ -14,15 +15,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
  * store. The fix fires the callback at stream end whenever chapters arrived.
  */
 
+const streamStoreState = vi.hoisted(() => ({
+  importSessionData: vi.fn().mockResolvedValue(undefined),
+  setSessionProvenance: vi.fn(),
+  setSessionVersion: vi.fn(),
+  loadSessionOscilloscope: vi.fn(),
+  initializeOscilloscope: vi.fn(),
+  resetOscilloscope: vi.fn(),
+  chapters: new Map<string, any>(),
+  currentChapterId: null as string | null,
+}));
+
 vi.mock('../../store', () => ({
   useAppStore: {
-    getState: vi.fn(() => ({
-      importSessionData: vi.fn().mockResolvedValue(undefined),
-      setSessionProvenance: vi.fn(),
-      setSessionVersion: vi.fn(),
-      chapters: new Map(),
-      currentChapterId: null,
-    })),
+    getState: vi.fn(() => streamStoreState),
     setState: vi.fn(),
   },
 }));
@@ -102,6 +108,11 @@ const streamResponseOf = (data: unknown) => {
 
 describe('streamImportFromUrl — first-chapters-ready gate', () => {
   beforeEach(() => {
+    streamStoreState.loadSessionOscilloscope.mockClear();
+    streamStoreState.initializeOscilloscope.mockClear();
+    streamStoreState.resetOscilloscope.mockClear();
+    streamStoreState.chapters = new Map();
+    streamStoreState.currentChapterId = null;
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(sessionWithOneChapter)));
   });
 
@@ -159,6 +170,45 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     );
 
     expect(onFirstChaptersReady).not.toHaveBeenCalled();
+  });
+
+  it('validates and hydrates frozen tracks after a streaming URL import', async () => {
+    const chapter = {
+      stableId: 'ch1',
+      url: 'https://example.com/ch1',
+      canonicalUrl: 'https://example.com/ch1',
+      chapterNumber: 1,
+      title: 'Chapter 1',
+      content: 'Raw content',
+      translations: [{ version: 1, isActive: true, translation: 'Translated content' }],
+    };
+    const corpusSeed = {
+      novel: { id: 'book-a', title: 'Book A' },
+      version: { versionId: 'v1', displayName: 'V1', style: 'other' as const, features: [] },
+      chapters: [chapter],
+    };
+    const corpus = await computeSemanticCorpusIdentity(corpusSeed);
+    const oscilloscope = createSessionOscilloscope(corpus, new Map([['tone:romance', {
+      threadId: 'tone:romance', category: 'tone' as const, label: 'romance', color: '#ef4444',
+      values: [0.6], totalChapters: 1,
+      provenance: { origin: 'precomputed' as const, method: 'semantic-v1' },
+    }]]), new Set(['tone:romance']));
+    streamStoreState.chapters = new Map([['ch1', {
+      id: 'ch1', stableId: 'ch1', chapterNumber: 1, title: 'Chapter 1', content: 'Raw content',
+      translationResult: { translation: 'Translated content' },
+    }]]);
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf({
+      metadata: {
+        format: 'lexiconforge-session', version: '2.0', exportedAt: '2026-08-24T00:00:00Z', chapterCount: 1,
+      },
+      ...corpusSeed,
+      oscilloscope,
+    })));
+
+    await ImportService.streamImportFromUrl('https://example.com/session.json');
+
+    expect(streamStoreState.loadSessionOscilloscope).toHaveBeenCalledWith(oscilloscope);
+    expect(streamStoreState.initializeOscilloscope).not.toHaveBeenCalled();
   });
 });
 

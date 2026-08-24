@@ -42,6 +42,12 @@ const selectedChapterText = (chapter: Record<string, unknown>): string => {
     }
     if (latest) return normalizeText(latest.record.translation);
   }
+  if (chapter.translationResult && typeof chapter.translationResult === 'object') {
+    const hydratedTranslation = normalizeText(
+      (chapter.translationResult as Record<string, unknown>).translation,
+    );
+    if (hydratedTranslation) return hydratedTranslation;
+  }
   return normalizeText(chapter.fanTranslation) || normalizeText(chapter.content);
 };
 

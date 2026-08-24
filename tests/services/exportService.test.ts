@@ -3,6 +3,7 @@ import { ExportService } from '../../services/exportService';
 import { useAppStore } from '../../store';
 import type { TranslationRecord } from '../../services/db/types';
 import type { SessionProvenance } from '../../types/session';
+import { computeSemanticCorpusIdentity } from '../../services/semanticOscilloscopeSession';
 
 const chapterOpsMock = vi.hoisted(() => ({
   getAll: vi.fn(),
@@ -126,6 +127,42 @@ describe('ExportService', () => {
       values: [0.42],
     });
     expect(JSON.stringify(exportData.oscilloscope)).not.toMatch(/baseUrl|endpoint|asus/i);
+  });
+
+  it('retains the loaded corpus and version for corpus-bound quick-export tracks', async () => {
+    const corpus = await computeSemanticCorpusIdentity({
+      novel: { id: 'test-novel', title: 'Test Novel' },
+      version: { versionId: 'v1', displayName: 'V1', style: 'other', features: [] },
+      chapters: [{
+        chapterNumber: 1,
+        title: 'Chapter 1',
+        content: 'Test content',
+        fanTranslation: null,
+        translations: [{ version: 1, isActive: true, translation: 'Translated content' }],
+      }],
+    });
+    useAppStore.setState({
+      corpusIdentity: corpus,
+      threads: new Map([['custom:trust', {
+        threadId: 'custom:trust', category: 'custom', label: 'trust', color: '#ec4899',
+        values: [0.7], totalChapters: 1,
+        provenance: {
+          origin: 'private-semantic-scan', query: 'trust', generatedAt: '2026-08-24T00:00:00Z',
+          protocol: 'lexiconforge-semantic-oscilloscope-v1',
+          scoreSemantics: 'cosine-similarity-clipped-0-1',
+          vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512,
+          scoring: { algorithm: 'chapter-top-2-mean-cosine-v1', range: [0, 1] }, corpus,
+        },
+      }]]),
+      activeThreadIds: new Set(['custom:trust']),
+    });
+
+    const exportData = await ExportService.generateQuickExport();
+
+    expect(exportData.novel.id).toBe('test-novel');
+    expect(exportData.version.versionId).toBe('v1');
+    expect(exportData.oscilloscope?.threads).toHaveLength(1);
+    expect(exportData.oscilloscope?.threads[0].threadId).toBe('custom:trust');
   });
 
   it('should generate publish export with metadata and provenance', async () => {

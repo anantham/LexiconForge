@@ -3428,6 +3428,15 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Fallback:** Keep the current IndrasNet client and UI as the default; if no safe native invocation exists, stop at the integration seam rather than interpolate generated text into STscript.
 **Confidence:** 0.89
 
+### [2026-08-24 11:12 IST] [Agent: Codex]
+**Status:** PR #160 Codex review findings corrected locally; rereview pending
+**Findings confirmed:** Full-export imports lacked legacy `novel/version` fields and reset frozen graphs; streaming URL/library imports discarded the top-level graph; quick exports retained only the source corpus ID and changed its version to `quick-export`, causing corpus-bound tracks to be omitted.
+**Files modified:** `services/semanticOscilloscopeExport.ts`, `semanticOscilloscopeSession.ts`, `importService.ts`; `store/bootstrap/importSessionData.ts`; focused export, full-import, and stream-import tests.
+**Correction:** Quick exports preserve both loaded corpus and version IDs. Full imports recompute identity from the graph's public corpus hint when legacy fields are absent. The streaming parser captures the graph after the chapter array without retaining intervening large assets, records streamed stable IDs, recomputes identity from exactly the hydrated streamed chapters, and loads only validated tracks; absent/invalid identity resets prior graph state descriptively.
+**Tests:** The new red tests reproduced all three paths. Cumulative semantic/export/import/UI set passes 42/42 across seven files; TypeScript, focused ESLint error gate, and `git diff --check` pass.
+**[DEBT][MONOLITH]:** `services/importService.ts` is now 1,152 LOC and combines download retry, a hand-written streaming JSON parser, persistence, translation reconciliation, hydration, and semantic artifact handling. Non-blocking for this correctness release; receipt added to `docs/roadmaps/TECH-DEBT-INBOX.md` and hotspot table.
+**Assumptions/confidence/fallback:** Published sessions preserve the existing metadata-before-chapters JSON order used by the streaming importer. Confidence 0.94. Fallback is to remove streaming graph hydration while retaining full-file imports and frozen graph rendering.
+
 ### [2026-08-24 08:01 IST] [Agent: Codex]
 **Status:** Implementation and local review complete; PR packaging in progress; not merged or deployed
 **Result:** Option A is implemented. A session-derived SHA-256 corpus identity gates the private IndrasNet capability; the client accepts only the exact protocol/vector/scoring contract and registers returned chapter scores unchanged. Portable sessions freeze scalar tracks and provenance without vectors, chunks, credentials, or private endpoints. Public/offline readers can select frozen custom tracks, but the query input is absent unless the exact private capability is ready. The legacy 3,457-chapter FMoC fallback is now scoped to its own novel ID.

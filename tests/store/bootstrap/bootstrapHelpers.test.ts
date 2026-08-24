@@ -516,6 +516,33 @@ describe('bootstrap helpers', () => {
       expect(ctx.get().loadSessionOscilloscope).toHaveBeenCalledWith(oscilloscope);
       expect(ctx.get().initializeOscilloscope).not.toHaveBeenCalled();
     });
+
+    it('hydrates portable tracks from full exports that carry identity only in oscilloscope data', async () => {
+      settingsOpsMock.getKey.mockResolvedValue(null);
+      const chapters = [{ chapterNumber: 1, title: 'Chapter 1', content: 'Content' }];
+      const corpus = await computeSemanticCorpusIdentity({
+        novel: { id: 'test-novel', title: 'Test Novel' },
+        version: { versionId: 'v1', displayName: 'V1', style: 'other', features: [] },
+        chapters,
+      });
+      const oscilloscope = createSessionOscilloscope(corpus, new Map([['tone:romance', {
+        threadId: 'tone:romance', category: 'tone' as const, label: 'romance', color: '#ef4444',
+        values: [0.42], totalChapters: 1,
+        provenance: { origin: 'precomputed' as const, method: 'semantic-v1' },
+      }]]), new Set(['tone:romance']));
+      const { ctx } = createCtx(createState());
+
+      await createImportSessionData(ctx)({
+        metadata: { format: 'lexiconforge-full-1', generatedAt: '2026-08-24T00:00:00Z' },
+        novels: [{ id: 'test-novel', title: 'Test Novel' }],
+        chapters,
+        settings: {},
+        oscilloscope,
+      });
+
+      expect(ctx.get().loadSessionOscilloscope).toHaveBeenCalledWith(oscilloscope);
+      expect(ctx.get().resetOscilloscope).not.toHaveBeenCalled();
+    });
   });
 
   describe('createInitializeStore', () => {

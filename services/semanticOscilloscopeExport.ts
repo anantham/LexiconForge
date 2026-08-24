@@ -12,9 +12,17 @@ import {
 export const attachOscilloscopeToSession = async (session: SessionData): Promise<SessionData> => {
   const { useAppStore } = await import('../store');
   const state = useAppStore.getState();
-  const corpus = await computeSemanticCorpusIdentity(session, {
-    ...(session.novel.id === 'unknown' && state.corpusIdentity ? { corpusId: state.corpusIdentity.corpusId } : {}),
-  });
+  const corpusHint = state.corpusIdentity;
+  const portableSession: SessionData = {
+    ...session,
+    novel: session.novel.id === 'unknown' && corpusHint
+      ? { ...session.novel, id: corpusHint.corpusId }
+      : session.novel,
+    version: session.version.versionId === 'quick-export' && corpusHint
+      ? { ...session.version, versionId: corpusHint.versionId }
+      : session.version,
+  };
+  const corpus = await computeSemanticCorpusIdentity(portableSession);
   let oscilloscope: SessionOscilloscopeData;
   try {
     oscilloscope = createSessionOscilloscope(corpus, state.threads, state.activeThreadIds);
@@ -23,7 +31,7 @@ export const attachOscilloscopeToSession = async (session: SessionData): Promise
     oscilloscope = createSessionOscilloscope(corpus, new Map(), new Set());
   }
   return {
-    ...session,
+    ...portableSession,
     oscilloscope,
   };
 };
