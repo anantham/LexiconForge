@@ -7,7 +7,8 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useAppStore } from '../../store';
-import type { ThreadData, ThreadMetadata } from '../../types/oscilloscope';
+import { useSemanticOscilloscopeCapability } from '../../hooks/useSemanticOscilloscopeCapability';
+import type { ThreadMetadata } from '../../types/oscilloscope';
 
 const CATEGORIES = [
   { key: 'character', label: 'Characters' },
@@ -29,13 +30,24 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<CategoryKey>('character');
   const [keyword, setKeyword] = useState('');
   const [isComputing, setIsComputing] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const availableThreads = useAppStore((s) => s.availableThreads);
   const activeThreadIds = useAppStore((s) => s.activeThreadIds);
   const threads = useAppStore((s) => s.threads);
   const toggleThread = useAppStore((s) => s.toggleThread);
-  const computeKeywordThread = useAppStore((s) => s.computeKeywordThread);
+  const addSemanticThread = useAppStore((s) => s.addSemanticThread);
+  const corpusIdentity = useAppStore((s) => s.corpusIdentity);
+  const indrasNetBaseUrl = useAppStore((s) => s.settings.indrasNetBaseUrl);
+  const semantic = useSemanticOscilloscopeCapability(indrasNetBaseUrl, corpusIdentity);
+  const hasPortableCustomTracks = availableThreads.some((thread) => thread.category === 'custom');
+  const visibleCategories = semantic.status === 'ready' || hasPortableCustomTracks
+    ? CATEGORIES
+    : CATEGORIES.filter((category) => category.key !== 'custom');
+  const visibleActiveTab = activeTab === 'custom' && semantic.status !== 'ready' && !hasPortableCustomTracks
+    ? 'character'
+    : activeTab;
 
   // Close on click outside
   useEffect(() => {
@@ -52,9 +64,9 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
   // Filter threads by active category
   const filteredThreads = useMemo(() => {
     return availableThreads
-      .filter((m) => m.category === activeTab)
+      .filter((m) => m.category === visibleActiveTab)
       .sort((a, b) => b.chaptersCovered - a.chaptersCovered);
-  }, [availableThreads, activeTab]);
+  }, [availableThreads, visibleActiveTab]);
 
   // Count threads per category for badge
   const categoryCounts = useMemo(() => {
@@ -70,15 +82,13 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
     if (!keyword.trim() || isComputing) return;
 
     setIsComputing(true);
+    setScanError(null);
     try {
-      // For now, use a stub search function. In production this would call
-      // the backend or search the loaded text corpus.
-      await computeKeywordThread(keyword.trim(), async (query) => {
-        // Stub: no real search backend yet
-        console.warn('[ThreadSelector] Keyword search not connected to backend yet:', query);
-        return [];
-      });
+      const query = keyword.trim();
+      addSemanticThread(query, await semantic.scan(query));
       setKeyword('');
+    } catch (error) {
+      setScanError(error instanceof Error ? error.message : String(error));
     } finally {
       setIsComputing(false);
     }
@@ -93,7 +103,7 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
     >
       {/* Category tabs */}
       <div className="flex overflow-x-auto border-b border-gray-700">
-        {CATEGORIES.map(({ key, label }) => {
+        {visibleCategories.map(({ key, label }) => {
           const count = categoryCounts[key] ?? 0;
           return (
             <button
@@ -101,7 +111,7 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
               onClick={() => setActiveTab(key)}
               className={`
                 flex-shrink-0 px-3 py-2 text-xs font-medium transition-colors
-                ${activeTab === key
+                ${visibleActiveTab === key
                   ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-700/50'
                   : 'text-gray-400 hover:text-gray-200'
                 }
@@ -118,14 +128,14 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
 
       {/* Thread list or custom keyword input */}
       <div className="max-h-60 overflow-y-auto p-2">
-        {activeTab === 'custom' ? (
+        {visibleActiveTab === 'custom' && semantic.status === 'ready' ? (
           <div className="space-y-2">
             <form onSubmit={handleKeywordSubmit} className="flex gap-2">
               <input
                 type="text"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder="Search keyword..."
+                placeholder="e.g. reluctant trust becoming intimacy"
                 className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-400"
               />
               <button
@@ -133,9 +143,11 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
                 disabled={!keyword.trim() || isComputing}
                 className="px-3 py-1 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isComputing ? '...' : 'Add'}
+                {isComputing ? 'Scanning…' : 'Scan'}
               </button>
             </form>
+
+            {scanError && <p className="text-xs text-red-400">{scanError}</p>}
 
             {/* Show existing custom threads */}
             {filteredThreads.map((meta) => (
@@ -150,7 +162,7 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
 
             {filteredThreads.length === 0 && (
               <p className="text-xs text-gray-500 text-center py-2">
-                Type a keyword and click Add to create a custom thread.
+                Describe a concept to create a semantic similarity track.
               </p>
             )}
           </div>
@@ -158,7 +170,7 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
           <>
             {filteredThreads.length === 0 ? (
               <p className="text-xs text-gray-500 text-center py-4">
-                No {activeTab} threads available.
+                No {visibleActiveTab} threads available.
               </p>
             ) : (
               <div className="space-y-0.5">
@@ -176,6 +188,12 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
           </>
         )}
       </div>
+      {semantic.status !== 'ready' && (
+        <div className="border-t border-gray-700 px-3 py-2 text-[11px] text-gray-500">
+          Custom semantic scans are available only when the matching private corpus index is reachable.
+          {semantic.status === 'checking' ? ' Checking…' : ''}
+        </div>
+      )}
     </div>
   );
 };
@@ -185,7 +203,7 @@ const ThreadRow: React.FC<{
   meta: ThreadMetadata;
   isActive: boolean;
   color: string;
-  onToggle: (id: string) => void;
+  onToggle: (_id: string) => void;
 }> = ({ meta, isActive, color, onToggle }) => (
   <button
     onClick={() => onToggle(meta.threadId)}
