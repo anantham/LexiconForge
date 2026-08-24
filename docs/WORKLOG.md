@@ -3428,15 +3428,6 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Fallback:** Keep the current IndrasNet client and UI as the default; if no safe native invocation exists, stop at the integration seam rather than interpolate generated text into STscript.
 **Confidence:** 0.89
 
-### [2026-08-24 11:12 IST] [Agent: Codex]
-**Status:** PR #160 Codex review findings corrected locally; rereview pending
-**Findings confirmed:** Full-export imports lacked legacy `novel/version` fields and reset frozen graphs; streaming URL/library imports discarded the top-level graph; quick exports retained only the source corpus ID and changed its version to `quick-export`, causing corpus-bound tracks to be omitted.
-**Files modified:** `services/semanticOscilloscopeExport.ts`, `semanticOscilloscopeSession.ts`, `importService.ts`; `store/bootstrap/importSessionData.ts`; focused export, full-import, and stream-import tests.
-**Correction:** Quick exports preserve both loaded corpus and version IDs. Full imports recompute identity from the graph's public corpus hint when legacy fields are absent. The streaming parser captures the graph after the chapter array without retaining intervening large assets, records streamed stable IDs, recomputes identity from exactly the hydrated streamed chapters, and loads only validated tracks; absent/invalid identity resets prior graph state descriptively.
-**Tests:** The new red tests reproduced all three paths. Cumulative semantic/export/import/UI set passes 42/42 across seven files; TypeScript, focused ESLint error gate, and `git diff --check` pass.
-**[DEBT][MONOLITH]:** `services/importService.ts` is now 1,152 LOC and combines download retry, a hand-written streaming JSON parser, persistence, translation reconciliation, hydration, and semantic artifact handling. Non-blocking for this correctness release; receipt added to `docs/roadmaps/TECH-DEBT-INBOX.md` and hotspot table.
-**Assumptions/confidence/fallback:** Published sessions preserve the existing metadata-before-chapters JSON order used by the streaming importer. Confidence 0.94. Fallback is to remove streaming graph hydration while retaining full-file imports and frozen graph rendering.
-
 ### [2026-08-24 08:01 IST] [Agent: Codex]
 **Status:** Implementation and local review complete; PR packaging in progress; not merged or deployed
 **Result:** Option A is implemented. A session-derived SHA-256 corpus identity gates the private IndrasNet capability; the client accepts only the exact protocol/vector/scoring contract and registers returned chapter scores unchanged. Portable sessions freeze scalar tracks and provenance without vectors, chunks, credentials, or private endpoints. Public/offline readers can select frozen custom tracks, but the query input is absent unless the exact private capability is ready. The legacy 3,457-chapter FMoC fallback is now scoped to its own novel ID.
@@ -3445,6 +3436,30 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Verification:** Focused feature/import/export set: 48/48 passed across 7 files. TypeScript: clean. ESLint error gate: clean (`eslint . --quiet`); full lint exits 0 with the repository's existing warning inventory. Production build and client-secret scan: passed. Full branch suite under available Node 26: 9,195 passed, 347 skipped, 144 failed across 15 files; exact clean-main comparison under the same runtime: 9,182 passed, 347 skipped, the same 144 failures across the same 15 files. Failures are the existing Node 26 `localStorage` setup problem. Repo-pinned Node 24.19.0 is not installed on this host, so the aggregate suite is not reported green.
 **Unverified deployment gates:** No full-book index was built, no live Ollama/embedding request was made, no Tailnet capability/scan latency was measured, and neither source branch is merged or deployed.
 **Assumptions/confidence:** Assumes the Asus operator will build the index from the same exported session loaded by the reader; the hash gate tests this at runtime. Confidence 0.94 in the source contract and focused behavior; fallback is to remove the capability/UI adapter while frozen tracks continue to render.
+
+### [2026-08-24 11:12 IST] [Agent: Codex]
+**Status:** PR #158 Codex review findings corrected; rereview pending
+**Findings confirmed:** Thread serialization spread unrecognized runtime/import fields into portable sessions; private semantic values were not checked against their declared range; malformed/stale active IDs were silently dropped; explicit invalid chapter numbers fell back to position; the versioned public protocol ADR was not present in this base PR.
+**Files modified:** `services/semanticOscilloscopeSession.ts`, its focused test, and new `docs/adr/FEAT-006-private-semantic-oscilloscope.md`.
+**Correction:** Corpus numbering is strict when present; thread, provenance, and session objects are rebuilt from public allowlists; finite ordered ranges bound every private-semantic value; imported active IDs must be a unique array of known strings; FEAT-006 now records compatibility, privacy, scoring, and live acceptance invariants.
+**Tests:** Seven focused contract tests pass; TypeScript, focused ESLint error gate, and `git diff --check` pass.
+**Assumptions/confidence/fallback:** Unknown fields are intentionally discarded rather than round-tripped. Confidence 0.98. Revert this isolated follow-up commit if rereview rejects the stricter v1.0 parser.
+
+### [2026-08-24 11:12 IST] [Agent: Codex]
+**Status:** PR #159 Codex review finding corrected; rereview pending
+**Finding confirmed:** Browser URL parsing reports IPv6 loopback as `[::1]`, while the HTTP loopback allowlist contained only `::1`.
+**Files modified:** `services/semanticOscilloscopeClient.ts` and its focused test.
+**Correction/tests:** Bracketed IPv6 loopback is accepted without widening remote cleartext HTTP. Client tests pass 3/3; TypeScript, focused ESLint error gate, and `git diff --check` pass.
+**Assumptions/confidence/fallback:** Browser-standard bracketed hostname behavior is pinned. Confidence 0.99. Revert this isolated follow-up commit if a target browser demonstrates different URL normalization.
+
+### [2026-08-24 11:12 IST] [Agent: Codex]
+**Status:** PR #160 Codex review findings corrected locally; rereview pending
+**Findings confirmed:** Full-export imports lacked legacy `novel/version` fields and reset frozen graphs; streaming URL/library imports discarded the top-level graph; quick exports retained only the source corpus ID and changed its version to `quick-export`, causing corpus-bound tracks to be omitted.
+**Files modified:** `services/semanticOscilloscopeExport.ts`, `semanticOscilloscopeSession.ts`, `importService.ts`; `store/bootstrap/importSessionData.ts`; focused export, full-import, and stream-import tests.
+**Correction:** Quick exports preserve both loaded corpus and version IDs. Full imports recompute identity from the graph's public corpus hint when legacy fields are absent. The streaming parser captures the graph after the chapter array without retaining intervening large assets, records streamed stable IDs, recomputes identity from exactly the hydrated streamed chapters, and loads only validated tracks; absent/invalid identity resets prior graph state descriptively.
+**Tests:** The new red tests reproduced all three paths. Cumulative semantic/export/import/UI set passes 42/42 across seven files; TypeScript, focused ESLint error gate, and `git diff --check` pass.
+**[DEBT][MONOLITH]:** `services/importService.ts` is now 1,152 LOC and combines download retry, a hand-written streaming JSON parser, persistence, translation reconciliation, hydration, and semantic artifact handling. Non-blocking for this correctness release; receipt added to `docs/roadmaps/TECH-DEBT-INBOX.md` and hotspot table.
+**Assumptions/confidence/fallback:** Published sessions preserve the existing metadata-before-chapters JSON order used by the streaming importer. Confidence 0.94. Fallback is to remove streaming graph hydration while retaining full-file imports and frozen graph rendering.
 
 
 ### [2026-08-23 17:15 IST] [Agent: Codex]

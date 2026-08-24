@@ -24,6 +24,7 @@ describe('SemanticOscilloscopeClient', () => {
   it('allows Tailnet HTTPS and loopback HTTP but rejects remote cleartext', () => {
     expect(normalizeSemanticBaseUrl('https://asus.example.ts.net:9443/')).toBe('https://asus.example.ts.net:9443');
     expect(normalizeSemanticBaseUrl('http://127.0.0.1:7777')).toBe('http://127.0.0.1:7777');
+    expect(normalizeSemanticBaseUrl('http://[::1]:7777')).toBe('http://[::1]:7777');
     expect(() => normalizeSemanticBaseUrl('http://100.81.65.74:7777')).toThrow(SemanticOscilloscopeError);
   });
 

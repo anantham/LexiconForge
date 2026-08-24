@@ -37,7 +37,8 @@ export const normalizeSemanticBaseUrl = (value: string): string => {
   } catch {
     throw new SemanticOscilloscopeError('IndrasNet semantic scan URL is invalid');
   }
-  const localHttp = url.protocol === 'http:' && ['localhost', '127.0.0.1', '::1'].includes(url.hostname);
+  const localHttp = url.protocol === 'http:'
+    && ['localhost', '127.0.0.1', '::1', '[::1]'].includes(url.hostname.toLowerCase());
   if (url.protocol !== 'https:' && !localHttp) {
     throw new SemanticOscilloscopeError('IndrasNet semantic scans require HTTPS (HTTP is allowed only on loopback)');
   }
