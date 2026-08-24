@@ -3428,6 +3428,13 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Fallback:** Keep the current IndrasNet client and UI as the default; if no safe native invocation exists, stop at the integration seam rather than interpolate generated text into STscript.
 **Confidence:** 0.89
 
+### [2026-08-24 11:12 IST] [Agent: Codex]
+**Status:** PR #159 Codex review finding corrected; rereview pending
+**Finding confirmed:** Browser URL parsing reports IPv6 loopback as `[::1]`, while the HTTP loopback allowlist contained only `::1`.
+**Files modified:** `services/semanticOscilloscopeClient.ts` and its focused test.
+**Correction/tests:** Bracketed IPv6 loopback is accepted without widening remote cleartext HTTP. Client tests pass 3/3; TypeScript, focused ESLint error gate, and `git diff --check` pass.
+**Assumptions/confidence/fallback:** Browser-standard bracketed hostname behavior is pinned. Confidence 0.99. Revert this isolated follow-up commit if a target browser demonstrates different URL normalization.
+
 
 ### [2026-08-23 17:15 IST] [Agent: Codex]
 **Status:** Source implementation complete; local commit pending final review; live Asus deployment intentionally not attempted
