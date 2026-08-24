@@ -3429,6 +3429,14 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Confidence:** 0.89
 
 ### [2026-08-24 11:12 IST] [Agent: Codex]
+**Status:** PR #158 Codex review findings corrected; rereview pending
+**Findings confirmed:** Thread serialization spread unrecognized runtime/import fields into portable sessions; private semantic values were not checked against their declared range; malformed/stale active IDs were silently dropped; explicit invalid chapter numbers fell back to position; the versioned public protocol ADR was not present in this base PR.
+**Files modified:** `services/semanticOscilloscopeSession.ts`, its focused test, and new `docs/adr/FEAT-006-private-semantic-oscilloscope.md`.
+**Correction:** Corpus numbering is strict when present; thread, provenance, and session objects are rebuilt from public allowlists; finite ordered ranges bound every private-semantic value; imported active IDs must be a unique array of known strings; FEAT-006 now records compatibility, privacy, scoring, and live acceptance invariants.
+**Tests:** Seven focused contract tests pass; TypeScript, focused ESLint error gate, and `git diff --check` pass.
+**Assumptions/confidence/fallback:** Unknown fields are intentionally discarded rather than round-tripped. Confidence 0.98. Revert this isolated follow-up commit if rereview rejects the stricter v1.0 parser.
+
+### [2026-08-24 11:12 IST] [Agent: Codex]
 **Status:** PR #159 Codex review finding corrected; rereview pending
 **Finding confirmed:** Browser URL parsing reports IPv6 loopback as `[::1]`, while the HTTP loopback allowlist contained only `::1`.
 **Files modified:** `services/semanticOscilloscopeClient.ts` and its focused test.
