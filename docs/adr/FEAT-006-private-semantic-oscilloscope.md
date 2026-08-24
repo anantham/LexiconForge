@@ -1,7 +1,7 @@
 # FEAT-006 — Private Semantic Narrative Oscilloscope
 
-**Status:** Accepted — implementation split across stacked PRs; deployment and full-book index pending  
-**Date:** 2026-08-24  
+**Status:** Accepted — implementation split across stacked PRs; deployment and full-book index pending
+**Date:** 2026-08-24
 **Group:** Integration / navigation / local AI
 
 ## Issue

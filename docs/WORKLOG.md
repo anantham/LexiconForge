@@ -3428,6 +3428,12 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Fallback:** Keep the current IndrasNet client and UI as the default; if no safe native invocation exists, stop at the integration seam rather than interpolate generated text into STscript.
 **Confidence:** 0.89
 
+### [2026-08-24 11:29 IST] [Agent: Codex]
+**Status:** PR #158 CI correction complete; propagation and rereview pending
+**Issue:** The repository-integrity gate found trailing whitespace on the two metadata lines of the newly added FEAT-006 ADR.
+**Files modified:** `docs/adr/FEAT-006-private-semantic-oscilloscope.md`, `docs/WORKLOG.md`.
+**Correction/tests:** Removed only the two trailing whitespace sequences. `npm run verify:integrity` and `git diff --check` are the predicted gates; confidence 0.99. Fallback is to revert this isolated documentation-only correction if it changes rendered intent.
+
 ### [2026-08-24 11:12 IST] [Agent: Codex]
 **Status:** PR #158 Codex review findings corrected; rereview pending
 **Findings confirmed:** Thread serialization spread unrecognized runtime/import fields into portable sessions; private semantic values were not checked against their declared range; malformed/stale active IDs were silently dropped; explicit invalid chapter numbers fell back to position; the versioned public protocol ADR was not present in this base PR.
