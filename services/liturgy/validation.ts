@@ -401,7 +401,9 @@ function checkTripleScriptSection(
 
       witness.alignTo.forEach((paliIndex, englishIndex) => {
         const explicitTarget = witness.tokenAlignTo?.[englishIndex];
-        const legacyMorphemeIndex = witness.morphemeAlignTo?.[englishIndex];
+        const legacyMorphemeIndex = witness.tokenAlignTo === undefined
+          ? witness.morphemeAlignTo?.[englishIndex]
+          : undefined;
         if (paliIndex < 0) {
           if (explicitTarget || typeof legacyMorphemeIndex === 'number') {
             diagnostics.push({

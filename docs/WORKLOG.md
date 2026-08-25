@@ -3593,7 +3593,6 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Predicted outcomes confirmed:** the synthetic two-route fixture doubles route-visible records, includes an unaligned pooled witness only in the broadest denominator, and excludes a `-1` entry only from the source-linked denominator. Existing review-group tests remain green.
 **Fallback:** revert the isolated metric-vocabulary commit; no data or traversal behavior was migrated.
 **Confidence:** 0.99.
-
 ### [2026-08-25 17:42 IST] [Agent: Codex]
 **Status:** Starting human-confirmed Option 1B repair for PR #163
 **Task:** Preserve the repaired #161/#162 stack, then prevent alternate-script morpheme spans from splitting Unicode grapheme clusters and repair every affected Morning Chants range at the smallest honest surface unit.
@@ -3616,3 +3615,12 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Predicted outcomes confirmed:** dependent-vowel, anusvāra, and virāma/conjunct negative fixtures reject; safe Latin/Devanāgarī fixtures split; unsafe renderer metadata emits one whole-word span; all five repaired records validate and render safely.
 **Fallback:** revert the isolated follow-up commit. Whole-word fallback remains the safe behavior if any future segmentation is unprovable.
 **Confidence:** 0.99 for the repaired rendering/validation boundary; 0.97 for the five minimal Morning data ranges after corpus and Chromium verification.
+### [2026-08-25 19:12 IST] [Agent: Codex]
+**Status:** Complete — Gemini exact-head REVISE follow-up for PR #161; commit and push pending
+**Review receipt:** Gemini 3.1 Pro High run `0d7595a1-f29f-4f8e-9c37-561ceade2d0f`, formal GitHub review `5018671866`, reviewed head `bac438389833bd56296c0890a8b87a77327d330e`, verdict `REVISE`.
+**Findings and disposition:** P1 claimed coarse n-to-one arrows overlap after positional fanning was removed. Rejected as a semantic misunderstanding: all coarse targets must share the one truthful source-word center, but each already has a distinct English endpoint, so the connectors visibly fan instead of overlapping. The geometry regression now asserts three distinct `(x1,x2)` paths while forbidding invented source positions. P2 confirmed: `fine_target_word_not_found` lacked a negative test; a valid source position with an empty `WordGloss` registry now proves the guard. P3 confirmed: an explicit `tokenAlignTo: [null]` fell through to stale legacy precision despite the contract. The new contract now owns the whole witness when present; null/missing fine entries resolve coarse and legacy targets are consulted only when `tokenAlignTo` is absent. Validator precedence and documentation match the resolver.
+**Predicted outcomes:** explicit null plus legacy index resolves to an unreviewed whole-word target; invalid ignored legacy entries do not create validation errors; legacy-only invalid entries still reject; missing `WordGloss` fine targets reject; coarse n-to-one lines share source center and have distinct English endpoints.
+**Verification:** focused review cases 21/21; complete affected liturgy gate 7,182 passed with 327 skipped across 10 files; TypeScript clean; focused ESLint clean. The first focused run correctly failed one legacy test whose fixture accidentally retained `tokenAlignTo`; removing the new contract restored the intended legacy-only test and the unchanged validator diagnostic.
+**Files:** `services/liturgy/alignmentTargets.ts:38-55`; `services/liturgy/validation.ts:350-356`; `tests/services/liturgy/alignmentTargets.test.ts`; `tests/services/liturgy/semanticAlignmentValidation.test.ts`; `tests/components/liturgy/alignment-geometry.test.ts`; `types/liturgy.ts`; `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md`; this worklog.
+**Fallback:** revert this isolated review-follow-up commit; existing whole-word fallback remains safe, but the explicit-null documentation mismatch would return.
+**Confidence:** 0.99 for P2/P3 repairs; 0.99 that P1's proposed source fanning would violate the approved fail-honest convention.
