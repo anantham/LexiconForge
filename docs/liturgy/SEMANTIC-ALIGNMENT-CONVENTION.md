@@ -71,8 +71,10 @@ Review status must remain visible rather than living only in metadata:
 
 The hover tooltip names the status and every layered unit carried by the
 surface slice. If an analysis unit spans several slices, its connector must end
-on one of those claimed elements, never on the empty union-box gap between
-them. Alternate-script analysis targets remain whole-word until an explicit
+on the first claimed surface slice in authored order, never on the empty
+union-box gap between them. Repeated English tokens targeting that same unit
+must share this stable source anchor; their distinct English endpoints form the
+fan. Alternate-script analysis targets remain whole-word until an explicit
 per-script mapping is authored.
 
 ## Failure behavior
