@@ -36,21 +36,26 @@ function analysisElements(wordElement: HTMLElement, unitId: string): HTMLElement
   );
 }
 
-function combinedAnchor(
+function claimedElementAnchor(
   elements: HTMLElement[],
-  containerRect: DOMRect
+  containerRect: DOMRect,
+  englishCenter: number
 ): { x: number; y: number; morphemeIndices: number[] } | null {
   if (elements.length === 0) return null;
   const rects = elements.map((element) => element.getBoundingClientRect());
-  const left = Math.min(...rects.map((rect) => rect.left));
-  const right = Math.max(...rects.map((rect) => rect.right));
-  const bottom = Math.max(...rects.map((rect) => rect.bottom));
+  const chosen = rects.reduce((best, candidate) => {
+    const bestDistance = Math.abs(best.left + best.width / 2 - englishCenter);
+    const candidateDistance = Math.abs(
+      candidate.left + candidate.width / 2 - englishCenter
+    );
+    return candidateDistance < bestDistance ? candidate : best;
+  });
   const morphemeIndices = elements
     .map((element) => Number.parseInt(element.dataset.morphemeIdx ?? '', 10))
     .filter(Number.isFinite);
   return {
-    x: left + (right - left) / 2 - containerRect.left,
-    y: bottom - containerRect.top,
+    x: chosen.left + chosen.width / 2 - containerRect.left,
+    y: chosen.bottom - containerRect.top,
     morphemeIndices,
   };
 }
@@ -78,6 +83,7 @@ export function computeAlignmentLines(
     const englishElement = englishElements[engIdx];
     if (!paliElement || !englishElement) return;
 
+    const englishRect = englishElement.getBoundingClientRect();
     const fallback = wordAnchor(paliElement.getBoundingClientRect(), containerRect);
     let source = fallback;
     let targetKind: AlignmentLine['targetKind'] = 'word';
@@ -94,9 +100,10 @@ export function computeAlignmentLines(
         surfaceMorphemeIndices = [target.morphemeIdx];
       }
     } else if (target.kind === 'analysis') {
-      const anchor = combinedAnchor(
+      const anchor = claimedElementAnchor(
         analysisElements(paliElement, target.unitId),
-        containerRect
+        containerRect,
+        englishRect.left + englishRect.width / 2
       );
       if (anchor) {
         source = { x: anchor.x, y: anchor.y };
@@ -106,7 +113,6 @@ export function computeAlignmentLines(
       }
     }
 
-    const englishRect = englishElement.getBoundingClientRect();
     lines.push({
       x1: source.x,
       y1: source.y,

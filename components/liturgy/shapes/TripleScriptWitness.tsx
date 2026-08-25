@@ -8,6 +8,7 @@ import type {
   AccentColor,
   Witness,
   ScriptVariant,
+  WordAnalysisStatus,
 } from '../../../types/liturgy';
 
 // Accent → Tailwind text-color class. 300 level reads as a hint, not a shout,
@@ -28,6 +29,10 @@ import {
   computeAlignmentLines,
   type AlignmentLine,
 } from './alignmentGeometry';
+import {
+  ANALYSIS_STATUS_CLASS,
+  presentSurfaceAnalysis,
+} from './analysisPresentation';
 
 // Per-script font stacks. Latn/IAST uses Cardo (already loaded for diacritics).
 // Other scripts use Noto Serif Web Fonts pulled in index.html.
@@ -444,6 +449,8 @@ const HoverSpan: React.FC<{
   conceptIds?: string[];
   /** Layered analysis unit IDs carried by this exact surface slice. */
   analysisUnitIds?: string[];
+  /** Most cautious review status among the layered units carried here. */
+  analysisStatus?: WordAnalysisStatus;
   /**
    * BCP-47 language tag (e.g. "sa-Latn"). When provided, the registry is
    * queried for additional conceptIds that attest this surface form, so
@@ -460,6 +467,7 @@ const HoverSpan: React.FC<{
   morphemeIdx,
   conceptIds,
   analysisUnitIds,
+  analysisStatus,
   lang,
 }) => {
   const [open, setOpen] = useState(false);
@@ -483,11 +491,16 @@ const HoverSpan: React.FC<{
       data-morpheme-idx={morphemeIdx}
       data-concept-ids={conceptAttr}
       data-analysis-unit-ids={analysisUnitIds?.join(' ') || undefined}
+      data-analysis-status={analysisStatus}
       // Each morpheme gets its own underline + tiny horizontal padding so
       // adjacent morphemes don't merge visually. mn10 pattern: the eye
       // sees per-segment breaks (kar · aṇī · yam) rather than one long
       // continuous underline under the whole word.
-      className={`relative inline-block cursor-help px-[2px] border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
+      className={`relative inline-block cursor-help px-[2px] border-b ${
+        analysisStatus
+          ? ANALYSIS_STATUS_CLASS[analysisStatus]
+          : 'border-dotted border-emerald-700/40 hover:border-emerald-300'
+      } hover:text-emerald-100 transition-colors ${
         bold ? 'font-semibold' : ''
       }`}
       onMouseEnter={() => setOpen(true)}
@@ -570,24 +583,29 @@ const HoverWord: React.FC<{
     if (split) {
       return (
         <>
-          {split.map((piece, i) => (
-            <HoverSpan
-              key={i}
-              text={piece.text}
-              tooltipText={tooltipForMorpheme(piece.morpheme, hidePron)}
-              bold={piece.morpheme.type === 'root'}
-              morphemeIdx={i}
-              conceptIds={piece.morpheme.conceptIds}
-              analysisUnitIds={
-                analysisUsesThisSegmentation
-                  ? word.analysis?.units
-                      .filter((unit) => unit.surfaceMorphemeIndices.includes(i))
-                      .map((unit) => unit.id)
-                  : undefined
-              }
-              lang={lang}
-            />
-          ))}
+          {split.map((piece, i) => {
+            const presentation = analysisUsesThisSegmentation
+              ? presentSurfaceAnalysis(word, i)
+              : null;
+            const surfaceTooltip = tooltipForMorpheme(piece.morpheme, hidePron);
+            return (
+              <HoverSpan
+                key={i}
+                text={piece.text}
+                tooltipText={
+                  presentation
+                    ? `${surfaceTooltip} · ${presentation.tooltip}`
+                    : surfaceTooltip
+                }
+                bold={piece.morpheme.type === 'root'}
+                morphemeIdx={i}
+                conceptIds={piece.morpheme.conceptIds}
+                analysisUnitIds={presentation?.unitIds}
+                analysisStatus={presentation?.status}
+                lang={lang}
+              />
+            );
+          })}
         </>
       );
     }
@@ -1123,9 +1141,6 @@ const SegmentRow: React.FC<{
   //      also attests at least one of those concepts. This is the
   //      "hover prajñā → show only the wisdom arrow, not the pāramitā
   //      arrow" behavior. Falls through if no concepts are tagged.
-  //   5. Adjust a whole-word endpoint only when the hovered element is the
-  //      whole word. Hovering a morpheme must not make a coarse word-level
-  //      alignment look like a precise morpheme claim.
   const adjustedLines: AlignmentLine[] = (() => {
     if (!hovered || !containerRef.current) return [];
     // Guard against stale hover state: if the user swapped scripts while
@@ -1139,9 +1154,6 @@ const SegmentRow: React.FC<{
       morphemeAlignTo: currentWitness?.morphemeAlignTo,
       tokenAlignTo: currentWitness?.tokenAlignTo,
     });
-    const cRect = containerRef.current.getBoundingClientRect();
-    const r = hovered.element.getBoundingClientRect();
-
     // Step 3 — idx match. When the user is hovering a specific morpheme
     // within a Pāli word (the inner HoverSpan emits `data-morpheme-idx`),
     // narrow to lines that anchor at that morpheme. Without this, every
@@ -1195,29 +1207,7 @@ const SegmentRow: React.FC<{
           return otherConcepts.some((c) => hoveredConcepts.has(c));
         });
 
-    // Step 5 — anchor endpoints at hover element
-    return conceptMatched.map((l) => {
-      if (
-        hovered.kind === 'pali' &&
-        l.paliIdx === hovered.idx &&
-        l.targetKind === 'word' &&
-        hovered.element.hasAttribute('data-pali-idx')
-      ) {
-        return {
-          ...l,
-          x1: r.left + r.width / 2 - cRect.left,
-          y1: r.bottom - cRect.top,
-        };
-      }
-      if (hovered.kind === 'en' && l.engIdx === hovered.idx) {
-        return {
-          ...l,
-          x2: r.left + r.width / 2 - cRect.left,
-          y2: r.top - cRect.top,
-        };
-      }
-      return l;
-    });
+    return conceptMatched;
   })();
 
   return (
@@ -1271,8 +1261,8 @@ const SegmentRow: React.FC<{
       )}
 
       {/* SVG alignment overlay — only renders lines for the hovered word.
-          Endpoints are adjusted to the actual hovered element so the
-          arrow anchors to the morpheme/word under the cursor. */}
+          Geometry is measured from the authored target itself; hover filters
+          visibility but never rewrites a coarse target into a precise one. */}
       <AlignmentLines
         lines={adjustedLines}
         containerWidth={containerRef.current?.offsetWidth ?? 0}
