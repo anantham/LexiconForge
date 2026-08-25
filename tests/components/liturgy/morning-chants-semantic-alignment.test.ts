@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { morningChants } from '../../../data/liturgy/morning-chants';
 import { auditLiturgyAlignments } from '../../../services/liturgy/alignmentAudit';
 import { segmentSurfaceMorphemes } from '../../../services/liturgy/surfaceSegmentation';
+import { validateLiturgyDoc } from '../../../services/liturgy/validation';
 
 describe('Morning Chants semantic alignments', () => {
   it('contains no unreviewed many-to-one morpheme alignment groups', () => {
@@ -11,6 +12,12 @@ describe('Morning Chants semantic alignments', () => {
 
     expect(result.issues, JSON.stringify(result.issues, null, 2)).toEqual([]);
     expect(result.summary.fineTargetReviewGroups).toBe(0);
+  });
+
+  it('keeps semantic-analysis explanations in the reader-facing register', () => {
+    const diagnostics = validateLiturgyDoc(morningChants)
+      .filter((diagnostic) => diagnostic.code === 'plain_register_jargon');
+    expect(diagnostics, JSON.stringify(diagnostics, null, 2)).toEqual([]);
   });
 
   it('keeps the first precept surface, lexical, and ablative layers distinct', () => {

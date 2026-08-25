@@ -589,7 +589,7 @@ export const morningChants: LiturgyDoc = {
                 ],
                 transformations: [
                   { type: 'sandhi', from: 'pāṇa + atipāta', to: 'pāṇātipāta', note: 'The two lexical members meet inside the compound; the displayed middle is not split into an independent *ti-* prefix.', citations: [dpdCitation('pāṇātipāta')] },
-                  { type: 'inflection', from: 'pāṇātipāta', to: 'pāṇātipātā', note: 'The final *-ā* is the ablative singular used with refraining: "from killing living beings."', citations: [dpdCitation('pāṇātipātā')] },
+                  { type: 'inflection', from: 'pāṇātipāta', to: 'pāṇātipātā', note: 'The final *-ā* marks the source of refraining: "from killing living beings."', citations: [dpdCitation('pāṇātipātā')] },
                 ],
               },
             },

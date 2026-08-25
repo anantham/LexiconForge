@@ -3593,6 +3593,18 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Predicted outcomes confirmed:** the synthetic two-route fixture doubles route-visible records, includes an unaligned pooled witness only in the broadest denominator, and excludes a `-1` entry only from the source-linked denominator. Existing review-group tests remain green.
 **Fallback:** revert the isolated metric-vocabulary commit; no data or traversal behavior was migrated.
 **Confidence:** 0.99.
+
+### [2026-08-25 18:59 IST] [Agent: Codex]
+**Status:** Gemini PR #163 plain-register P3 repaired; verification and rereview pending
+**Review receipt:** Gemini 3.7 Flash High run `2dc74fd6-8f68-4609-a687-1b55b6b08977`, formal GitHub review `5019473704`, reviewed head `6c86d9632d4f594e04eca0716aadaf112df98c07`, verdict `REVISE` with one P3.
+**Confirmed root cause:** The first-precept transformation note used the technical term “ablative,” triggering `plain_register_jargon`; the four parallel precept notes already explain the same grammatical contribution as “marks the source of refraining.”
+**Options:** (A) use the established plain phrasing, selected as consistent, semantics-preserving, and reversible; (B) allowlist “ablative,” rejected because it weakens the reader-facing convention; (C) remove the note, rejected because it discards useful evidence.
+**Predicted tests:** Morning Chants emits no `plain_register_jargon` diagnostic; its route audit remains at zero review groups; source, witness, semantic-target, and grapheme tests remain green.
+**Files:** `data/liturgy/morning-chants.ts`; `tests/components/liturgy/morning-chants-semantic-alignment.test.ts`; this worklog.
+**Human gate:** This wording repair is structural/plain-language work only. Qualified human sacred-text/domain approval of the semantic analysis remains mandatory.
+**Verification:** focused Morning Chants, corpus validation, grapheme, and semantic validation suites pass 46/46; the escalated audit CLI confirms 23 routes, 179 remaining groups, and no Morning Chants issue entry; TypeScript and focused test ESLint pass; `git diff --check` is clean. The chant data file is intentionally ESLint-ignored and is not claimed linted. The first audit invocation was environment-blocked because sandboxed `tsx` could not create its IPC pipe; the identical escalated rerun passed.
+**Fallback:** revert the isolated follow-up commit; the semantic target data would remain intact but the jargon warning would return.
+**Confidence:** 0.99.
 ### [2026-08-25 17:42 IST] [Agent: Codex]
 **Status:** Starting human-confirmed Option 1B repair for PR #163
 **Task:** Preserve the repaired #161/#162 stack, then prevent alternate-script morpheme spans from splitting Unicode grapheme clusters and repair every affected Morning Chants range at the smallest honest surface unit.
