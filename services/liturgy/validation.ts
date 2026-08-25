@@ -21,7 +21,12 @@
  * stream, the corpus tests consume them directly.
  */
 
-import type { LiturgyDoc, TripleScriptWitnessSection, WordGloss } from '../../types/liturgy';
+import type {
+  LiturgyDoc,
+  TripleScriptWitnessSection,
+  TripleScriptWitnessSegment,
+  WordGloss,
+} from '../../types/liturgy';
 
 // ── Canonical tokenizers ────────────────────────────────────────────────────
 // Pāli word class — MUST stay identical to the renderer's `tokenize` regex in
@@ -36,6 +41,25 @@ export function tokenizePali(text: string): string[] {
 
 export function countPaliWords(text: string): number {
   return tokenizePali(text).length;
+}
+
+/**
+ * Tokenize the source positions exactly as the renderer does for an authored
+ * Latin script variant. Sandhi spellings such as `c'assa` may be one reviewed
+ * source unit even though the generic regex sees two letter runs; in that
+ * case the variant's `tokens` list is authoritative for `alignTo` indexes.
+ */
+export function tokenizeSegmentPali(segment: TripleScriptWitnessSegment): string[] {
+  const hintedLatin = segment.scripts?.find((variant) => {
+    const parts = variant.lang.split('-');
+    const script = parts.length >= 2 ? parts[1] : 'Latn';
+    return script === 'Latn' && variant.tokens && variant.tokens.length > 0;
+  });
+  return hintedLatin?.tokens ? [...hintedLatin.tokens] : tokenizePali(segment.pali);
+}
+
+export function countSegmentPaliWords(segment: TripleScriptWitnessSegment): number {
+  return tokenizeSegmentPali(segment).length;
 }
 
 // English witness tokenizer — mirror of EnglishLine: whitespace split, drop
@@ -140,6 +164,67 @@ function checkWord(
     }
   }
 
+  if (word.analysis) {
+    const morphemeCount = word.morphemes?.length ?? 0;
+    if (morphemeCount === 0) {
+      diagnostics.push({
+        level: 'error',
+        code: 'analysis_requires_surface_morphemes',
+        message: `analysis for "${word.form}" requires exact surface morphemes to anchor its units`,
+        ...base,
+        path: `${wordPath}.analysis`,
+      });
+    }
+
+    const seenUnitIds = new Set<string>();
+    for (const [unitIndex, unit] of word.analysis.units.entries()) {
+      const unitPath = `${wordPath}.analysis.units.${unitIndex}`;
+      if (seenUnitIds.has(unit.id)) {
+        diagnostics.push({
+          level: 'error',
+          code: 'analysis_unit_id_duplicate',
+          message: `analysis for "${word.form}" declares unit id "${unit.id}" more than once`,
+          ...base,
+          path: `${unitPath}.id`,
+        });
+      }
+      seenUnitIds.add(unit.id);
+
+      if (unit.surfaceMorphemeIndices.length === 0) {
+        diagnostics.push({
+          level: 'error',
+          code: 'analysis_surface_target_missing',
+          message: `analysis unit "${unit.id}" on "${word.form}" names no surface morpheme`,
+          ...base,
+          path: `${unitPath}.surfaceMorphemeIndices`,
+        });
+      }
+      for (const surfaceIndex of unit.surfaceMorphemeIndices) {
+        if (!Number.isInteger(surfaceIndex) || surfaceIndex < 0 || surfaceIndex >= morphemeCount) {
+          diagnostics.push({
+            level: 'error',
+            code: 'analysis_surface_index_out_of_range',
+            message: `analysis unit "${unit.id}" on "${word.form}" targets surface morpheme ${surfaceIndex}, outside [0, ${morphemeCount - 1}]`,
+            ...base,
+            path: `${unitPath}.surfaceMorphemeIndices`,
+          });
+        }
+      }
+
+      checkText(diagnostics, unit.gloss, { ...base, path: `${unitPath}.gloss` }, jargonAllowlist);
+      checkText(diagnostics, unit.note, { ...base, path: `${unitPath}.note` }, jargonAllowlist);
+    }
+
+    for (const [index, transformation] of (word.analysis.transformations ?? []).entries()) {
+      checkText(
+        diagnostics,
+        transformation.note,
+        { ...base, path: `${wordPath}.analysis.transformations.${index}.note` },
+        jargonAllowlist
+      );
+    }
+  }
+
   // 1b. Per-script morpheme reconstruction (case-sensitive, separators stripped).
   for (const [lang, morphs] of Object.entries(word.scriptMorphemes ?? {})) {
     const surface = word.scriptAlts?.[lang];
@@ -169,21 +254,47 @@ function checkWord(
   }
 }
 
+function normalizeSurface(value: string): string {
+  return value.normalize('NFC').toLocaleLowerCase();
+}
+
+function wordAtPaliIndex(
+  segment: TripleScriptWitnessSegment,
+  paliIndex: number
+): WordGloss | undefined {
+  const surface = tokenizeSegmentPali(segment)[paliIndex];
+  if (!surface) return undefined;
+  const normalized = normalizeSurface(surface);
+  return segment.words?.find((word) => normalizeSurface(word.form) === normalized);
+}
+
 function checkTripleScriptSection(
   diagnostics: LiturgyDiagnostic[],
   section: TripleScriptWitnessSection,
   jargonAllowlist: readonly string[]
 ): void {
   for (const segment of section.segments) {
-    const paliWordCount = countPaliWords(segment.pali);
+    const paliWordCount = countSegmentPaliWords(segment);
 
     for (const word of segment.words ?? []) {
       checkWord(diagnostics, word, { sectionId: section.id, segmentId: segment.id }, jargonAllowlist);
     }
 
     for (const witness of segment.witnesses) {
-      if (!witness.alignTo) continue;
       const base = { sectionId: section.id, segmentId: segment.id, witnessBy: witness.by };
+
+      if (!witness.alignTo) {
+        if (witness.morphemeAlignTo || witness.tokenAlignTo) {
+          diagnostics.push({
+            level: 'error',
+            code: 'fine_alignment_without_word_alignment',
+            message: `witness "${witness.by}" declares fine-grained targets without alignTo`,
+            ...base,
+            path: 'witness',
+          });
+        }
+        continue;
+      }
 
       const englishWordCount = countEnglishWords(witness.text);
       if (witness.alignTo.length !== englishWordCount) {
@@ -218,6 +329,93 @@ function checkTripleScriptSection(
           path: 'witness.morphemeAlignTo',
         });
       }
+
+      if (witness.tokenAlignTo && witness.tokenAlignTo.length !== witness.alignTo.length) {
+        diagnostics.push({
+          level: 'error',
+          code: 'token_align_length_mismatch',
+          message: `tokenAlignTo for "${witness.by}" has ${witness.tokenAlignTo.length} entries but must be parallel to alignTo (${witness.alignTo.length})`,
+          ...base,
+          path: 'witness.tokenAlignTo',
+        });
+      }
+
+      witness.alignTo.forEach((paliIndex, englishIndex) => {
+        const explicitTarget = witness.tokenAlignTo?.[englishIndex];
+        const legacyMorphemeIndex = witness.morphemeAlignTo?.[englishIndex];
+        if (paliIndex < 0) {
+          if (explicitTarget || typeof legacyMorphemeIndex === 'number') {
+            diagnostics.push({
+              level: 'error',
+              code: 'fine_target_without_word_alignment',
+              message: `English token ${englishIndex} has a fine-grained target but alignTo[${englishIndex}]=${paliIndex}`,
+              ...base,
+              path: `witness.tokenAlignTo.${englishIndex}`,
+            });
+          }
+          return;
+        }
+
+        const word = wordAtPaliIndex(segment, paliIndex);
+        const morphemeCount = word?.morphemes?.length ?? 0;
+        if (typeof legacyMorphemeIndex === 'number') {
+          if (
+            !Number.isInteger(legacyMorphemeIndex) ||
+            legacyMorphemeIndex < 0 ||
+            legacyMorphemeIndex >= morphemeCount
+          ) {
+            diagnostics.push({
+              level: 'error',
+              code: 'legacy_morpheme_index_out_of_range',
+              message: `morphemeAlignTo[${englishIndex}]=${legacyMorphemeIndex} targets ${word?.form ?? `Pāli word ${paliIndex}`}, which has ${morphemeCount} rendered morpheme(s)`,
+              ...base,
+              path: `witness.morphemeAlignTo.${englishIndex}`,
+            });
+          }
+        }
+
+        if (!explicitTarget || explicitTarget.kind === 'word') return;
+        if (!word) {
+          diagnostics.push({
+            level: 'error',
+            code: 'fine_target_word_not_found',
+            message: `tokenAlignTo[${englishIndex}] targets Pāli word ${paliIndex}, but no matching WordGloss exists for that surface token`,
+            ...base,
+            path: `witness.tokenAlignTo.${englishIndex}`,
+          });
+          return;
+        }
+
+        if (explicitTarget.kind === 'morpheme') {
+          if (
+            !Number.isInteger(explicitTarget.index) ||
+            explicitTarget.index < 0 ||
+            explicitTarget.index >= morphemeCount
+          ) {
+            diagnostics.push({
+              level: 'error',
+              code: 'fine_morpheme_index_out_of_range',
+              message: `tokenAlignTo[${englishIndex}] targets morpheme ${explicitTarget.index} on "${word.form}", outside [0, ${morphemeCount - 1}]`,
+              ...base,
+              path: `witness.tokenAlignTo.${englishIndex}`,
+            });
+          }
+          return;
+        }
+
+        const unitExists = word.analysis?.units.some(
+          (unit) => unit.id === explicitTarget.unitId
+        );
+        if (!unitExists) {
+          diagnostics.push({
+            level: 'error',
+            code: 'analysis_unit_not_found',
+            message: `tokenAlignTo[${englishIndex}] targets analysis unit "${explicitTarget.unitId}" on "${word.form}", but that unit is not authored`,
+            ...base,
+            path: `witness.tokenAlignTo.${englishIndex}`,
+          });
+        }
+      });
     }
   }
 }
