@@ -1,5 +1,13 @@
 import { defineConfig, configDefaults } from 'vitest/config'
 import { resolve } from 'path'
+import { readFileSync } from 'node:fs'
+
+// Coverage policy is the single source of truth (ADR CORE-013, PR-2).
+// Validated by scripts/ci/validate-coverage-policy.mjs (verify:coverage-policy).
+const policy = JSON.parse(readFileSync('config/coverage-policy.json', 'utf8'))
+const perFileThresholds = Object.fromEntries(
+  (policy.entries ?? []).map(e => [e.glob, { lines: e.lines, functions: e.functions }])
+)
 
 export default defineConfig({
   test: {
@@ -16,34 +24,36 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     coverage: {
       provider: 'v8',
+      thresholds: {
+        perFile: policy.perFile === true,
+        ...(policy.global?.lines ? policy.global : {}),
+        ...perFileThresholds,
+      },
+      reportOnFailure: true, // emit reports even when tests fail (env-class failures must not hide measurement)
       reporter: ['text', 'json', 'html'],
+      include: [
+        'services/**',
+        'adapters/**',
+        'store/**',
+        'hooks/**',
+        'utils/**',
+        'components/**',
+        'types.ts',
+      ],
       exclude: [
         'node_modules/',
         'dist/',
         'tests/',
         '**/.claude/**', // agent worktrees (see test.exclude above)
         '**/*.d.ts',
+        '**/*.d.cts',
+        // tsconfig-excluded broken modules cannot be instrumented
+        'services/audio/storage/cache.ts',
+        'services/audio/storage/opfs.ts',
         '**/*.config.*',
         '**/coverage/**',
         'chrome_extension/**',
       ],
-      // Per-file thresholds: prevent regression in well-tested modules
-      // while allowing gradual improvement in others
-      thresholds: {
-        // High-quality modules (prevent regression)
-        'components/diff/**': { lines: 95, functions: 95 },
-
-        // Critical path (raise gradually)
-        'components/ChapterView.tsx': { lines: 30, functions: 15 },
-        'adapters/providers/OpenAIAdapter.ts': { lines: 50, functions: 40 },
-        'adapters/providers/GeminiAdapter.ts': { lines: 50, functions: 40 },
-        'adapters/providers/ClaudeAdapter.ts': { lines: 50, functions: 40 },
-
-        // Services with good tests (maintain)
-        'services/diff/DiffAnalysisService.ts': { lines: 70, functions: 60 },
-        'services/translate/HtmlSanitizer.ts': { lines: 80, functions: 80 },
-        'services/translate/HtmlRepairService.ts': { lines: 75, functions: 75 },
-      }
     }
   },
   resolve: {
