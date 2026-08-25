@@ -44,10 +44,8 @@ export function countPaliWords(text: string): number {
 }
 
 /**
- * Tokenize the source positions exactly as the renderer does for an authored
- * Latin script variant. Sandhi spellings such as `c'assa` may be one reviewed
- * source unit even though the generic regex sees two letter runs; in that
- * case the variant's `tokens` list is authoritative for `alignTo` indexes.
+ * Tokenize source positions exactly as the renderer does for an authored
+ * Latin-script variant. Explicit token hints are authoritative for alignTo.
  */
 export function tokenizeSegmentPali(segment: TripleScriptWitnessSegment): string[] {
   const hintedLatin = segment.scripts?.find((variant) => {
@@ -88,6 +86,7 @@ export const JARGON = /\b(gerundive|accusative|nominative|genitive|locative|abla
 // Tibetan tsek `་`. Per-script morphemes reconstruct the separator-free
 // surface (the renderer splits per token).
 const SCRIPT_SEPARATOR_RE = /[\s་]/g;
+const ANALYSIS_UNIT_ID_RE = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
 // ── Diagnostic contract ─────────────────────────────────────────────────────
 export type LiturgyDiagnosticLevel = 'error' | 'warn';
@@ -175,10 +174,28 @@ function checkWord(
         path: `${wordPath}.analysis`,
       });
     }
+    if (word.analysis.units.length === 0) {
+      diagnostics.push({
+        level: 'error',
+        code: 'analysis_units_missing',
+        message: `analysis for "${word.form}" must declare at least one lexical or grammar unit`,
+        ...base,
+        path: `${wordPath}.analysis.units`,
+      });
+    }
 
     const seenUnitIds = new Set<string>();
     for (const [unitIndex, unit] of word.analysis.units.entries()) {
       const unitPath = `${wordPath}.analysis.units.${unitIndex}`;
+      if (!ANALYSIS_UNIT_ID_RE.test(unit.id)) {
+        diagnostics.push({
+          level: 'error',
+          code: 'analysis_unit_id_invalid',
+          message: `analysis unit id "${unit.id}" on "${word.form}" must be lowercase kebab-case so DOM tokenization cannot split or reinterpret it`,
+          ...base,
+          path: `${unitPath}.id`,
+        });
+      }
       if (seenUnitIds.has(unit.id)) {
         diagnostics.push({
           level: 'error',

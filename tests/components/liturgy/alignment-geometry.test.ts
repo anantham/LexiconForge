@@ -75,6 +75,24 @@ describe('computeAlignmentLines', () => {
     });
   });
 
+  it('anchors a multi-slice analysis on a claimed element instead of the gap between them', () => {
+    const container = fixture();
+    const pali = container.querySelector<HTMLElement>('[data-pali-idx="0"]')!;
+    const morphs = pali.querySelectorAll<HTMLElement>('[data-morpheme-idx]');
+    morphs[0].dataset.analysisUnitIds = 'distributed-unit';
+    morphs[2].dataset.analysisUnitIds = 'distributed-unit';
+    const lines = computeAlignmentLines(container, {
+      alignTo: [0],
+      tokenAlignTo: [{ kind: 'analysis', unitId: 'distributed-unit' }],
+    });
+    expect(lines[0]).toMatchObject({
+      targetKind: 'analysis',
+      x1: 30,
+      surfaceMorphemeIndices: [0, 2],
+    });
+    expect(lines[0].x1).not.toBe(60);
+  });
+
   it('fails honestly to the whole word when a declared fine target is absent from the DOM', () => {
     const lines = computeAlignmentLines(fixture(), {
       alignTo: [0],
