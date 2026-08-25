@@ -109,7 +109,50 @@ Initial scaffold files:
 - `test-fixtures/liturgy-generator/ti-sarana-mini.json` — first structured
   source packet.
 
-### Implementation amendment — evidence-bounded semantic alignment (2026-08-25)
+## Amendment: reviewed semantic targets (2026-08-25)
+
+**Status:** Implemented in PR #161 follow-up
+
+The renderer now distinguishes reviewed whole-word, exact surface-morpheme,
+and layered lexical/grammar targets. This extends the generator's alignment
+boundary: `alignmentMode: preserve` is the only mode allowed to retain
+`tokenAlignTo`. `none` clears every alignment layer, while `infer` creates a new
+unreviewed word/morpheme alignment and clears any stale reviewed target array.
+
+Structural validation is part of the same contract, not a later audit add-on.
+It rejects non-parallel arrays, invalid word/morpheme indexes, missing or
+duplicate/DOM-unsafe analysis IDs, invalid surface references, and fine targets
+whose aligned word or analysis unit does not exist.
+
+Implementation files:
+
+- `services/liturgy-generator/pipeline.ts`
+- `services/liturgy/validation.ts`
+- `data/liturgy/resolve.ts`
+- `components/liturgy/shapes/analysisPresentation.ts`
+- `components/liturgy/shapes/alignmentGeometry.ts`
+- `components/liturgy/shapes/TripleScriptWitness.tsx`
+- focused resolver, validation, generator, renderer-bridge, and geometry tests
+
+## Amendment: route-visible audit denominators (2026-08-25)
+
+**Status:** Implemented
+
+The semantic-alignment audit intentionally inspects every registered reader
+route because pooled witnesses and shared documents can appear in more than one
+route context. Its summary therefore distinguishes route-visible English
+tokens, tokens in witnesses with authored `alignTo`, and tokens linked to a
+source word. This removes the earlier ambiguous “English tokens” versus
+“aligned English tokens” labels without deduplicating away affected URLs.
+
+Implementation:
+
+- `services/liturgy/alignmentAudit.ts`
+- `scripts/liturgy-generator/audit-liturgy-alignments.ts`
+- `tests/services/liturgy/alignmentAudit.test.ts`
+- `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md`
+
+### Implementation amendment — evidence-bounded Morning Chants alignment (2026-08-25)
 
 The renderer and validation boundary now implement the conservative premise in
 this ADR for hand-authored and generated content, not only draft generation.

@@ -1,7 +1,7 @@
 # Liturgy semantic-alignment convention
 
 **Adopted:** 2026-08-25
-**Status:** Implemented for rendering and auditing; Morning Chants curated
+**Status:** Implemented for rendering, structural validation, corpus audit, and Morning Chants curation
 
 ## Intent
 
@@ -37,7 +37,7 @@ displayed characters permit a cut.
 - Mark uncertain analyses `needs-review`; uncertainty must never be converted
   into an apparently exact arrow by token order.
 
-## Data contract
+## Data and presentation contract
 
 `Witness.alignTo` remains the word-level bridge. `Witness.tokenAlignTo` records
 the reviewed decision for each aligned English token:
@@ -49,11 +49,23 @@ the reviewed decision for each aligned English token:
 - `null` or absent — unresolved; render at the whole word without guessing.
 
 `WordGloss.analysis` names lexical and grammar units, their supporting surface
-slices, review status, citations, and any sandhi or inflection transformations.
-Several analysis units may share a surface slice when the spelling is fused.
-Analysis slice indexes currently apply to the base Latin segmentation. An
-alternate-script segmentation falls back to the whole word unless and until an
-explicit per-script analysis mapping is added.
+slices, review status, citations, and any transformations. Unit IDs are unique
+lowercase kebab-case tokens because the renderer serializes them into DOM
+attributes. Several analysis units may share a surface slice when spelling is
+fused. Analysis slice indexes currently apply to the base Latin segmentation;
+an alternate-script segmentation falls back to the whole word unless and until
+an explicit per-script analysis mapping is added.
+
+Review status must remain visible rather than living only in metadata:
+
+- `confirmed` uses a solid emerald underline;
+- `alternative` uses a dotted amber underline;
+- `needs-review` uses a dashed rose underline.
+
+The hover tooltip names the status and every layered unit carried by the
+surface slice. If an analysis unit spans several slices, its connector must end
+on one of those claimed elements, never on the empty union-box gap between
+them.
 
 ## Example: pāṇātipātā
 
@@ -70,6 +82,15 @@ The compound analysis and declension are grounded in the Digital Pāḷi
 Dictionary record for `pāṇātipātā`; the witness translation is linked to
 SuttaCentral Kp 2 in the chant data.
 
+## Failure behavior
+
+Foreign community witnesses lose all alignment layers because their indexes
+belong to another community's word segmentation. Generator `none` and `infer`
+modes likewise clear reviewed fine targets; only `preserve` may retain them.
+Malformed lengths, indexes, identifiers, surface references, or unknown units
+are validation errors. Missing precision falls back to the whole word rather
+than to a positional guess.
+
 ## Audit workflow
 
 Run:
@@ -84,6 +105,26 @@ English token. It reports the dangerous review class: multiple English tokens
 mapped to a multi-morpheme source word while one or more tokens still lack an
 explicit reviewed target. A route reaches zero only after each reported group
 has an authored exact, layered, or intentional whole-word decision.
+
+### Counting contract
+
+The corpus audit traverses registered **routes**, not unique document object
+identities. If the same document or a pooled witness is visible at several
+routes, its route-visible records are intentionally counted at every route.
+The summary reports three English-token populations rather than calling them
+all “aligned”:
+
+- `routeVisibleEnglishTokens` counts every witness token rendered by each
+  registered route, including pooled witnesses whose foreign indexes were
+  stripped;
+- `tokensInWitnessesWithAlignTo` counts every token belonging to a witness with
+  an authored word-alignment array, including `-1` supplied-English entries;
+- `sourceAlignedEnglishTokens` counts only tokens whose `alignTo` entry names a
+  source-word index.
+
+`explicitReviewedTargets` is a subset of `sourceAlignedEnglishTokens`. Review
+group counts remain route-addressed so every affected reader URL is visible to
+the curator, even when several routes share underlying content.
 
 Zero findings do not prove the underlying linguistic analysis true. Corpus
 validation proves structural integrity; citations and human review establish
