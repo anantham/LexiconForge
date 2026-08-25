@@ -61,6 +61,16 @@ describe('layered liturgy alignment validation', () => {
     expect(errorCodes(doc())).toEqual([]);
   });
 
+  it('accepts reviewed whole-word targets without fine WordGloss metadata', () => {
+    const value = doc();
+    const section = value.sections[0];
+    if (section.shape !== 'triple-script-witness') return;
+    const witness = section.segments[0].witnesses[0];
+    witness.tokenAlignTo = witness.alignTo!.map(() => ({ kind: 'word' }));
+    section.segments[0].words = [];
+    expect(errorCodes(value)).toEqual([]);
+  });
+
   it('rejects tokenAlignTo arrays that are not parallel to alignTo', () => {
     const value = doc();
     const section = value.sections[0];
@@ -74,7 +84,10 @@ describe('layered liturgy alignment validation', () => {
     const section = value.sections[0];
     if (section.shape !== 'triple-script-witness') return;
     section.segments[0].witnesses[0].alignTo![0] = -1;
-    expect(errorCodes(value)).toContain('fine_target_without_word_alignment');
+    expect(validateLiturgyDoc(value)).toContainEqual(expect.objectContaining({
+      code: 'fine_target_without_word_alignment',
+      path: 'witness.tokenAlignTo.0',
+    }));
   });
 
   it('rejects unknown analysis units and out-of-range morphemes', () => {

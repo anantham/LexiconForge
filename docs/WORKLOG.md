@@ -3635,3 +3635,15 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Verification:** The red regression failed exactly with source anchors `[30, 102.5]`; after the repair, focused geometry/renderer/target/validation suites pass 22/22, TypeScript and focused ESLint pass, and `git diff --check` is clean. Agy-created untracked `pr_diff.patch` and empty `val.diff` review artifacts were identified by timestamp/content and removed; no authored source was deleted.
 **Fallback:** revert the isolated follow-up commit, returning to the previous claimed-slice heuristic; this would reopen the semantic-overclaiming risk.
 **Confidence:** 0.93 in the root cause and selected deterministic anchor; fresh exact-head Gemini review remains required.
+
+### [2026-08-25 18:20 IST] [Agent: Codex]
+**Status:** Gemini Pro Low exact-head REVISE disposition complete; regression evidence pending commit
+**Review receipt:** Gemini run `460024ac-1708-4c35-8968-cfc6fc10e3e2`, formal GitHub review `5019052880`, reviewed head `e6f93c5ace33cb90fbe5da90ee04a69fa7342faa`, verdict `REVISE` with three reported findings.
+**P1 disposition:** Rejected against the exact tree. The cited `lib/validators.ts` does not exist. `services/liturgy/validation.ts` checks `paliIndex < 0` before source-word lookup and emits `fine_target_without_word_alignment`; the named regression passes. The test now also asserts the precise diagnostic object.
+**P2 disposition:** Rejected against the exact tree. The existing diagnostic path is already `witness.tokenAlignTo.${englishIndex}`. The strengthened P1 regression locks `witness.tokenAlignTo.0` explicitly.
+**P3 disposition:** Rejected as stated but coverage made more explicit. The suite already accepts a complete valid layered array, resolver tests accept `{ kind: 'word' }`, and geometry tests cover truthful coarse many-to-one anchors. A new validator case now proves reviewed whole-word targets remain valid even with no fine `WordGloss` metadata.
+**Predicted tests:** the strengthened unaligned-token case reports the correct code and exact path; reviewed whole-word targets with an empty fine-metadata registry produce no validation errors; all existing contract tests remain green.
+**Files:** `tests/services/liturgy/semanticAlignmentValidation.test.ts`; this worklog. Production code is unchanged because the reported defects were absent.
+**Verification:** focused validation/resolver/geometry suites pass 21/21; TypeScript and focused ESLint pass; `git diff --check` is clean. The remaining untracked `diff.patch` created by the earlier high-reasoning review was identified by timestamp/content and removed; no authored source was deleted.
+**Fallback:** revert the isolated evidence-only follow-up commit; production behavior would be unchanged, but the reviewer misconceptions would be easier to repeat.
+**Confidence:** 0.995 on P1/P2 source disposition; 0.98 that the added P3 acceptance case closes the only plausible coverage ambiguity.
