@@ -3578,3 +3578,14 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Verification:** focused validation/resolver/geometry suites pass 21/21; TypeScript and focused ESLint pass; `git diff --check` is clean. The remaining untracked `diff.patch` created by the earlier high-reasoning review was identified by timestamp/content and removed; no authored source was deleted.
 **Fallback:** revert the isolated evidence-only follow-up commit; production behavior would be unchanged, but the reviewer misconceptions would be easier to repeat.
 **Confidence:** 0.995 on P1/P2 source disposition; 0.98 that the added P3 acceptance case closes the only plausible coverage ambiguity.
+
+### [2026-08-25 18:28 IST] [Agent: Codex]
+**Status:** Gemini fresh-head legacy diagnostic P3 repair implemented; verification and rereview pending
+**Review receipt:** Gemini run `c341532e-b4c6-41b4-b263-4aedabf75de0`, formal GitHub review `5019130437`, reviewed head `e1159c83c7bf73e1107d7af0ac33fef61ea39b64`, verdict `REVISE` with two P3 findings.
+**Confirmed root cause:** The unaligned-token branch correctly detects both current `tokenAlignTo` and legacy `morphemeAlignTo` precision, but its diagnostic path was hardcoded to `witness.tokenAlignTo.${englishIndex}`. A legacy-only error therefore pointed to an absent field, and no legacy unaligned-token regression inspected that path.
+**Options:** (A) select the path from the active precision source, chosen as exact, small, and reversible; (B) point generically at `alignTo`, rejected as less actionable; (C) normalize both precision arrays before validation, deferred as unnecessary refactoring.
+**Predicted tests:** current explicit targets retain `witness.tokenAlignTo.0`; legacy-only targets report `witness.morphemeAlignTo.0`; all validator and resolver cases remain green.
+**Files:** `services/liturgy/validation.ts`; `tests/services/liturgy/semanticAlignmentValidation.test.ts`; this worklog.
+**Verification:** validator/resolver suites pass 16/16; TypeScript and focused ESLint pass; `git diff --check` is clean.
+**Fallback:** revert the isolated fix commit; detection would remain correct but legacy diagnostics would again misidentify the source field.
+**Confidence:** 0.99.

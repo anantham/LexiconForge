@@ -90,6 +90,21 @@ describe('layered liturgy alignment validation', () => {
     }));
   });
 
+  it('attributes an unaligned legacy target to morphemeAlignTo', () => {
+    const value = doc();
+    const section = value.sections[0];
+    if (section.shape !== 'triple-script-witness') return;
+    const witness = section.segments[0].witnesses[0];
+    witness.tokenAlignTo = undefined;
+    witness.morphemeAlignTo = [0, null, null, null];
+    witness.alignTo![0] = -1;
+
+    expect(validateLiturgyDoc(value)).toContainEqual(expect.objectContaining({
+      code: 'fine_target_without_word_alignment',
+      path: 'witness.morphemeAlignTo.0',
+    }));
+  });
+
   it('rejects unknown analysis units and out-of-range morphemes', () => {
     const value = doc();
     const section = value.sections[0];

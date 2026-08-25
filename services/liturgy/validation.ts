@@ -369,7 +369,9 @@ function checkTripleScriptSection(
               code: 'fine_target_without_word_alignment',
               message: `English token ${englishIndex} has a fine-grained target but alignTo[${englishIndex}]=${paliIndex}`,
               ...base,
-              path: `witness.tokenAlignTo.${englishIndex}`,
+              path: witness.tokenAlignTo === undefined
+                ? `witness.morphemeAlignTo.${englishIndex}`
+                : `witness.tokenAlignTo.${englishIndex}`,
             });
           }
           return;
