@@ -3524,3 +3524,12 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Task:** Codex found README still carried BookToki usage/output sections + content.js row, ledger item-2 still said "pending PR-b", and the 15:30 WORKLOG entry + PR body overclaimed those as already fixed (they were lost in the same reset cascade and my reapply script lacked asserts on those two replacements).
 **Files modified:** chrome_extension/README.md (BookToki usage section, output-format block, Multi-Site feature bullet, content.js table row removed — every replacement now assert-guarded); docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md item-2 wording reconciled to REMOVED status.
 **Verification:** README booktoki grep = only the provenance deprecation line; ledger grep shows no pending-PR-b for extension; this entry supersedes the 15:30 entry's overclaim re README/ledger (gate + popup fixes in that entry were real and verified).
+
+### [2026-08-23 17:20 IST] [Agent: ox-alpha]
+**Status:** Complete — CI programme PR 2 of 5 (truthful coverage)
+**Task:** Implement CORE-013 PR-2 per plan committed at f068e05.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-l/
+**Branch:** ci/alpha-coverage-pr2
+**Files modified:** vitest.config.ts (coverage.include product roots; thresholds from config/coverage-policy.json with explicit perFile:true; reportOnFailure:true; excludes for *.d.cts + tsconfig-excluded audio modules that crashed the v8 remapper); config/coverage-policy.json (new single source of truth w/ owners + rationale); scripts/ci/validate-coverage-policy.mjs (new phantom-glob validator, wired as verify:coverage-policy + CI step); package.json (verify:test now runs --coverage; new verify:coverage-policy); .github/workflows/test.yml (policy step + coverage artifact upload on failure in unit-coverage job); tests/services/HtmlRepairService.test.ts (+9 behavior tests); docs/infrastructure/COVERAGE-BASELINE.md (new).
+**Measured:** HtmlRepairService was 53.7%L/72.7%F vs its 75/75 floor — earned via 9 behavior tests → 88.9%L/90.9%F locally. No floors lowered. Full-surface total deferred to first CI run on Node 24 (local Node-26 webstorage class: 144 failures reproduce on pristine main; reportOnFailure keeps reports flowing).
+**Discoveries en route:** include-scoped instrumentation crashes v8 remapper on *.d.cts and tsconfig-excluded audio modules (excluded); filtered runs legitimately fail OTHER files' floors (0% when their suites aren't selected) — targeted greps used to isolate signal.
