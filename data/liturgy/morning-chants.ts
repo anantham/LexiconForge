@@ -12,7 +12,11 @@
  * MAPLE's own — MAPLE's chant sheets carry the Pāli form. None canonical.
  */
 
-import type { LiturgyDoc, WordGloss } from '../../types/liturgy';
+import type {
+  LiturgyDoc,
+  TokenAlignmentTarget,
+  WordGloss,
+} from '../../types/liturgy';
 import {
   dpdCitation,
   suttaCentralPronunciationCitation,
@@ -20,6 +24,33 @@ import {
 } from './_groundingHelpers';
 
 const pronCite = suttaCentralPronunciationCitation();
+
+const REVIEWED_WORD: TokenAlignmentTarget = { kind: 'word' };
+const morphemeTarget = (index: number): TokenAlignmentTarget => ({
+  kind: 'morpheme',
+  index,
+});
+const analysisTarget = (unitId: string): TokenAlignmentTarget => ({
+  kind: 'analysis',
+  unitId,
+});
+
+/**
+ * Mark every aligned token as manually reviewed, while allowing exact
+ * morpheme or layered-analysis targets for the places where the evidence
+ * supports a finer claim. Unaligned English helper words remain null.
+ */
+function reviewedAlignment(
+  alignTo: number[],
+  fineTargets: Partial<Record<number, TokenAlignmentTarget>> = {}
+) {
+  return {
+    alignTo,
+    tokenAlignTo: alignTo.map((paliIndex, englishIndex) =>
+      paliIndex < 0 ? null : (fineTargets[englishIndex] ?? REVIEWED_WORD)
+    ),
+  };
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Word-data registries — shared by segments that repeat the same vocabulary
@@ -170,6 +201,27 @@ const REFUGE_WORDS: WordGloss[] = [
       { text: 'dutiyam', type: 'stem', gloss: 'second, the second time', pronunciation: 'doo-TEE-yam', citations: [dpdCitation('dutiya')] },
       { text: 'pi', type: 'suffix', gloss: 'also, too — "for this time too"', pronunciation: 'pee' },
     ],
+    analysis: {
+      status: 'confirmed',
+      units: [
+        {
+          id: 'ordinal-time',
+          layer: 'lexical',
+          label: 'dutiyaṁ',
+          underlyingForm: 'dutiyaṁ',
+          gloss: 'for the second time',
+          surfaceMorphemeIndices: [0],
+          citations: [dpdCitation('dutiya')],
+        },
+        {
+          id: 'also',
+          layer: 'grammar',
+          label: 'pi',
+          gloss: 'also; again',
+          surfaceMorphemeIndices: [1],
+        },
+      ],
+    },
   },
   {
     form: 'tatiyampi', scriptAlt: 'ततियम्पि', pronunciation: 'tah-TEE-yam-pee',
@@ -180,6 +232,27 @@ const REFUGE_WORDS: WordGloss[] = [
       { text: 'tatiyam', type: 'stem', gloss: 'third, the third time', pronunciation: 'tah-TEE-yam', citations: [dpdCitation('tatiya')] },
       { text: 'pi', type: 'suffix', gloss: 'also, too', pronunciation: 'pee' },
     ],
+    analysis: {
+      status: 'confirmed',
+      units: [
+        {
+          id: 'ordinal-time',
+          layer: 'lexical',
+          label: 'tatiyaṁ',
+          underlyingForm: 'tatiyaṁ',
+          gloss: 'for the third time',
+          surfaceMorphemeIndices: [0],
+          citations: [dpdCitation('tatiya')],
+        },
+        {
+          id: 'also',
+          layer: 'grammar',
+          label: 'pi',
+          gloss: 'also; again',
+          surfaceMorphemeIndices: [1],
+        },
+      ],
+    },
   },
 ];
 
@@ -272,6 +345,28 @@ const PRECEPT_FORMULA_WORDS: WordGloss[] = [
         { text: 'मि', type: 'suffix', pronunciation: 'mee', gloss: '"I", first-person singular' },
       ],
     },
+    analysis: {
+      status: 'confirmed',
+      units: [
+        {
+          id: 'undertake',
+          layer: 'lexical',
+          label: 'samādiyā-',
+          underlyingForm: 'samādiyati',
+          gloss: 'undertake; take upon oneself',
+          surfaceMorphemeIndices: [0, 1, 2, 3],
+          citations: [dpdCitation('samādiyati')],
+        },
+        {
+          id: 'first-person',
+          layer: 'grammar',
+          label: '-mi',
+          gloss: 'I; the speaker performs the action',
+          surfaceMorphemeIndices: [4],
+          citations: [dpdCitation('samādiyāmi')],
+        },
+      ],
+    },
   },
 ];
 
@@ -310,7 +405,7 @@ export const morningChants: LiturgyDoc = {
               text: 'Homage to the Exalted, noble, and Fully Self-Enlightened One.',
               // Surface Pāli positions: 0=Namo · 1=tassa · 2=bhagavato · 3=arahato · 4=sammā · 5=sambuddhassa
               // English words:           0=Homage 1=to 2=the 3=Exalted, 4=noble, 5=and 6=Fully 7=Self-Enlightened 8=One.
-              alignTo: [0, 1, -1, 2, 3, -1, 4, 5, 5],
+              ...reviewedAlignment([0, 1, -1, 2, 3, -1, 4, 5, 5]),
             },
             {
               by: 'Sujato (SuttaCentral)',
@@ -318,7 +413,7 @@ export const morningChants: LiturgyDoc = {
               url: 'https://suttacentral.net/kp1/en/sujato',
               license: 'CC0',
               // English: 0=Homage 1=to 2=the 3=Blessed 4=One, 5=the 6=perfected 7=one, 8=the 9=fully 10=awakened 11=Buddha.
-              alignTo: [0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 5, 5],
+              ...reviewedAlignment([0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 5, 5]),
             },
             {
               by: 'Thanissaro (Access to Insight)',
@@ -326,7 +421,7 @@ export const morningChants: LiturgyDoc = {
               url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html',
               license: 'CC BY-NC',
               // English: 0=Homage 1=to 2=the 3=Blessed 4=One, 5=the 6=Worthy 7=One, 8=the 9=Rightly 10=Self-awakened 11=One.
-              alignTo: [0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 5, 5],
+              ...reviewedAlignment([0, 1, -1, 2, 2, -1, 3, 3, -1, 4, 5, 5]),
             },
           ],
           words: HOMAGE_WORDS,
@@ -389,8 +484,8 @@ export const morningChants: LiturgyDoc = {
           pali: 'Dutiyampi Buddhaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'दुतियम्पि बुद्धं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE chant text', text: 'For the second time, I take refuge in the Buddha.', alignTo: ALIGN.refuge_repeat.maple },
-            { by: 'Sujato (SuttaCentral)', text: 'For a second time, I go for refuge to the Buddha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
+            { by: 'MAPLE chant text', text: 'For the second time, I take refuge in the Buddha.', ...reviewedAlignment(ALIGN.refuge_repeat.maple, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
+            { by: 'Sujato (SuttaCentral)', text: 'For a second time, I go for refuge to the Buddha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', ...reviewedAlignment(ALIGN.refuge_repeat.sujato, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
           ],
           words: REFUGE_WORDS,
         },
@@ -399,8 +494,8 @@ export const morningChants: LiturgyDoc = {
           pali: 'Dutiyampi Dhammaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'दुतियम्पि धम्मं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE chant text', text: 'For the second time, I take refuge in the Dhamma.', alignTo: ALIGN.refuge_repeat.maple },
-            { by: 'Sujato (SuttaCentral)', text: 'For a second time, I go for refuge to the teaching.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
+            { by: 'MAPLE chant text', text: 'For the second time, I take refuge in the Dhamma.', ...reviewedAlignment(ALIGN.refuge_repeat.maple, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
+            { by: 'Sujato (SuttaCentral)', text: 'For a second time, I go for refuge to the teaching.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', ...reviewedAlignment(ALIGN.refuge_repeat.sujato, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
           ],
           words: REFUGE_WORDS,
         },
@@ -409,8 +504,8 @@ export const morningChants: LiturgyDoc = {
           pali: 'Dutiyampi Saṅghaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'दुतियम्पि सङ्घं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE chant text', text: 'For the second time, I take refuge in the Sangha.', alignTo: ALIGN.refuge_repeat.maple },
-            { by: 'Sujato (SuttaCentral)', text: 'For a second time, I go for refuge to the Saṅgha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
+            { by: 'MAPLE chant text', text: 'For the second time, I take refuge in the Sangha.', ...reviewedAlignment(ALIGN.refuge_repeat.maple, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
+            { by: 'Sujato (SuttaCentral)', text: 'For a second time, I go for refuge to the Saṅgha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', ...reviewedAlignment(ALIGN.refuge_repeat.sujato, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
           ],
           words: REFUGE_WORDS,
         },
@@ -420,8 +515,8 @@ export const morningChants: LiturgyDoc = {
           pali: 'Tatiyampi Buddhaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'ततियम्पि बुद्धं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE chant text', text: 'For the third time, I take refuge in the Buddha.', alignTo: ALIGN.refuge_repeat.maple },
-            { by: 'Sujato (SuttaCentral)', text: 'For a third time, I go for refuge to the Buddha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
+            { by: 'MAPLE chant text', text: 'For the third time, I take refuge in the Buddha.', ...reviewedAlignment(ALIGN.refuge_repeat.maple, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
+            { by: 'Sujato (SuttaCentral)', text: 'For a third time, I go for refuge to the Buddha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', ...reviewedAlignment(ALIGN.refuge_repeat.sujato, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
           ],
           words: REFUGE_WORDS,
         },
@@ -430,8 +525,8 @@ export const morningChants: LiturgyDoc = {
           pali: 'Tatiyampi Dhammaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'ततियम्पि धम्मं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE chant text', text: 'For the third time, I take refuge in the Dhamma.', alignTo: ALIGN.refuge_repeat.maple },
-            { by: 'Sujato (SuttaCentral)', text: 'For a third time, I go for refuge to the teaching.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
+            { by: 'MAPLE chant text', text: 'For the third time, I take refuge in the Dhamma.', ...reviewedAlignment(ALIGN.refuge_repeat.maple, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
+            { by: 'Sujato (SuttaCentral)', text: 'For a third time, I go for refuge to the teaching.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', ...reviewedAlignment(ALIGN.refuge_repeat.sujato, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
           ],
           words: REFUGE_WORDS,
         },
@@ -440,8 +535,8 @@ export const morningChants: LiturgyDoc = {
           pali: 'Tatiyampi Saṅghaṁ saraṇaṁ gacchāmi.',
           paliDeva: 'ततियम्पि सङ्घं सरणं गच्छामि।',
           witnesses: [
-            { by: 'MAPLE chant text', text: 'For the third time, I take refuge in the Sangha.', alignTo: ALIGN.refuge_repeat.maple },
-            { by: 'Sujato (SuttaCentral)', text: 'For a third time, I go for refuge to the Saṅgha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', alignTo: ALIGN.refuge_repeat.sujato },
+            { by: 'MAPLE chant text', text: 'For the third time, I take refuge in the Sangha.', ...reviewedAlignment(ALIGN.refuge_repeat.maple, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
+            { by: 'Sujato (SuttaCentral)', text: 'For a third time, I go for refuge to the Saṅgha.', url: 'https://suttacentral.net/kp1/en/sujato', license: 'CC0', ...reviewedAlignment(ALIGN.refuge_repeat.sujato, { 2: analysisTarget('ordinal-time'), 3: analysisTarget('ordinal-time') }) },
           ],
           words: REFUGE_WORDS,
         },
@@ -464,24 +559,42 @@ export const morningChants: LiturgyDoc = {
           witnesses: [
             // Surface: Pāṇātipātā(0) veramaṇī(1) sikkhāpadaṁ(2) samādiyāmi.(3)
             // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) killing(7) living(8) beings.(9)
-            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from killing living beings.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0, 0] },
+            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from killing living beings.', ...reviewedAlignment([3, 3, -1, 2, -1, 1, 0, 0, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 6: analysisTarget('ablative-source'), 7: analysisTarget('killing'), 8: analysisTarget('living-being'), 9: analysisTarget('living-being') }) },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) killing(8) living(9) creatures.(10)
-            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from killing living creatures.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0, 0, 0] },
+            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from killing living creatures.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', ...reviewedAlignment([3, 3, -1, 2, 2, -1, 1, 0, 0, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source'), 8: analysisTarget('killing'), 9: analysisTarget('living-being'), 10: analysisTarget('living-being') }) },
             // Thanissaro: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) taking(8) life.(9)
-            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from taking life.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0, 0] },
+            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from taking life.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', ...reviewedAlignment([3, 3, -1, 2, 2, -1, 1, 0, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source'), 8: analysisTarget('killing'), 9: analysisTarget('living-being') }) },
           ],
           words: [
             {
               form: 'pāṇātipātā', scriptAlt: 'पाणातिपाता', pronunciation: 'PAH-nah-tee-PAH-tah',
-              etymology: '*pāṇā* "living being with breath" + *atipāta* "striking down"',
+              etymology: '*pāṇa* "living being" + *atipāta* "striking down" + the ending *-ā* that marks "from"',
               gloss: 'killing living beings — deliberately ending a breathing being\'s life',
               citations: [dpdCitation('pāṇātipāta'), pronCite],
               morphemes: [
-                { text: 'pāṇā', type: 'stem', gloss: 'a living being, one that breathes', pronunciation: 'PAH-nah', citations: [dpdCitation('pāṇa')] },
-                { text: 'ti', type: 'prefix', gloss: 'across, against', pronunciation: 'tee' },
-                { text: 'pāt', type: 'root', gloss: 'falling, striking down', pronunciation: 'PAH-t' },
+                { text: 'pāṇā', type: 'stem', gloss: 'surface portion carrying *pāṇa*, a living being', pronunciation: 'PAH-nah', citations: [dpdCitation('pāṇa')] },
+                { text: 'tipāt', type: 'stem', gloss: 'surface portion carrying *atipāta*, striking down or killing', pronunciation: 'tee-PAH-t', citations: [dpdCitation('pāṇātipāta')] },
                 { text: 'ā', type: 'suffix', gloss: '"from killing" — what I refrain from', pronunciation: 'ah' },
               ],
+              scriptMorphemes: {
+                'pi-Deva': [
+                  { text: 'पाणा', type: 'stem', pronunciation: 'PAH-nah', gloss: 'surface portion carrying *pāṇa*, a living being' },
+                  { text: 'तिपात', type: 'stem', pronunciation: 'tee-PAH-t', gloss: 'surface portion carrying *atipāta*, striking down or killing' },
+                  { text: 'ा', type: 'suffix', pronunciation: 'ah', gloss: '"from killing" — what I refrain from' },
+                ],
+              },
+              analysis: {
+                status: 'confirmed',
+                units: [
+                  { id: 'living-being', layer: 'lexical', label: 'pāṇa', underlyingForm: 'pāṇa', gloss: 'a living or breathing being', surfaceMorphemeIndices: [0], citations: [dpdCitation('pāṇa')] },
+                  { id: 'killing', layer: 'lexical', label: 'atipāta', underlyingForm: 'atipāta', gloss: 'striking down; killing or destruction', surfaceMorphemeIndices: [1], citations: [dpdCitation('pāṇātipāta')] },
+                  { id: 'ablative-source', layer: 'grammar', label: '-ā', gloss: 'from; marks what one refrains from', surfaceMorphemeIndices: [2], citations: [dpdCitation('pāṇātipātā')] },
+                ],
+                transformations: [
+                  { type: 'sandhi', from: 'pāṇa + atipāta', to: 'pāṇātipāta', note: 'The two lexical members meet inside the compound; the displayed middle is not split into an independent *ti-* prefix.', citations: [dpdCitation('pāṇātipāta')] },
+                  { type: 'inflection', from: 'pāṇātipāta', to: 'pāṇātipātā', note: 'The final *-ā* is the ablative singular used with refraining: "from killing living beings."', citations: [dpdCitation('pāṇātipātā')] },
+                ],
+              },
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
@@ -494,11 +607,11 @@ export const morningChants: LiturgyDoc = {
           witnesses: [
             // Surface: Adinnādānā(0) veramaṇī(1) sikkhāpadaṁ(2) samādiyāmi.(3)
             // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) taking(7) what(8) is(9) not(10) given.(11)
-            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from taking what is not given.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0, 0, 0, 0] },
+            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from taking what is not given.', ...reviewedAlignment([3, 3, -1, 2, -1, 1, 0, 0, 0, 0, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 6: analysisTarget('ablative-source'), 7: analysisTarget('taking'), 8: analysisTarget('not-given'), 9: analysisTarget('not-given'), 10: analysisTarget('not-given'), 11: analysisTarget('not-given') }) },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) stealing.(8)
-            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from stealing.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0] },
+            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from stealing.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', ...reviewedAlignment([3, 3, -1, 2, 2, -1, 1, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source') }) },
             // Thanissaro: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) taking(8) what(9) is(10) not(11) given.(12)
-            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from taking what is not given.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0, 0, 0, 0, 0] },
+            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from taking what is not given.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', ...reviewedAlignment([3, 3, -1, 2, 2, -1, 1, 0, 0, 0, 0, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source'), 8: analysisTarget('taking'), 9: analysisTarget('not-given'), 10: analysisTarget('not-given'), 11: analysisTarget('not-given'), 12: analysisTarget('not-given') }) },
           ],
           words: [
             {
@@ -508,14 +621,28 @@ export const morningChants: LiturgyDoc = {
               citations: [dpdCitation('adinnādāna'), pronCite],
               morphemes: [
                 { text: 'a', type: 'prefix', gloss: 'not (negation)', pronunciation: 'ah' },
-                { text: 'dinnā', type: 'stem', gloss: 'given — the "X-ed" form of the verb "to give"', pronunciation: 'DEEN-nah' },
-                { text: 'dānā', type: 'stem', gloss: 'taking, grasping', pronunciation: 'DAH-nah', citations: [dpdCitation('ādāna')] },
+                { text: 'dinn', type: 'stem', gloss: 'surface portion carrying *dinna*, given', pronunciation: 'DEEN-n' },
+                { text: 'ādān', type: 'stem', gloss: 'taking, grasping', pronunciation: 'AH-dahn', citations: [dpdCitation('ādāna')] },
+                { text: 'ā', type: 'suffix', gloss: '"from taking what is not given"', pronunciation: 'ah' },
               ],
               scriptMorphemes: {
                 'pi-Deva': [
                   { text: 'अ', type: 'prefix', pronunciation: 'ah', gloss: 'not, negation' },
-                  { text: 'दिन्ना', type: 'stem', pronunciation: 'DEEN-nah', gloss: 'given — the "X-ed" form of the verb "to give"' },
-                  { text: 'दाना', type: 'stem', pronunciation: 'DAH-nah', gloss: 'taking, grasping' },
+                  { text: 'दिन्न', type: 'stem', pronunciation: 'DEEN-n', gloss: 'surface portion carrying *dinna*, given' },
+                  { text: 'ादान', type: 'stem', pronunciation: 'AH-dahn', gloss: 'taking, grasping' },
+                  { text: 'ा', type: 'suffix', pronunciation: 'ah', gloss: '"from taking what is not given"' },
+                ],
+              },
+              analysis: {
+                status: 'confirmed',
+                units: [
+                  { id: 'not-given', layer: 'lexical', label: 'a-dinna', underlyingForm: 'a-dinna', gloss: 'not given', surfaceMorphemeIndices: [0, 1], citations: [dpdCitation('adinna')] },
+                  { id: 'taking', layer: 'lexical', label: 'ādāna', underlyingForm: 'ādāna', gloss: 'taking or grasping', surfaceMorphemeIndices: [2], citations: [dpdCitation('ādāna')] },
+                  { id: 'ablative-source', layer: 'grammar', label: '-ā', gloss: 'from; marks what one refrains from', surfaceMorphemeIndices: [3], citations: [dpdCitation('adinnādānā')] },
+                ],
+                transformations: [
+                  { type: 'sandhi', from: 'a-dinna + ādāna', to: 'adinnādāna', note: 'The compound joins "not given" and "taking"; its lexical members are recorded separately from the exact displayed slices.', citations: [dpdCitation('adinnādāna')] },
+                  { type: 'inflection', from: 'adinnādāna', to: 'adinnādānā', note: 'The final *-ā* marks the source of refraining: "from taking what is not given."', citations: [dpdCitation('adinnādānā')] },
                 ],
               },
             },
@@ -530,11 +657,11 @@ export const morningChants: LiturgyDoc = {
           witnesses: [
             // Surface: Kāmesu(0) micchācārā(1) veramaṇī(2) sikkhāpadaṁ(3) samādiyāmi.(4)
             // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) sexual(7) misconduct.(8)
-            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from sexual misconduct.', alignTo: [-1, 4, -1, 3, -1, 2, -1, 0, 1] },
+            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from sexual misconduct.', ...reviewedAlignment([4, 4, -1, 3, -1, 2, 1, 0, 1], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 6: analysisTarget('ablative-source'), 8: analysisTarget('misconduct') }) },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) sexual(8) misconduct.(9)
-            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from sexual misconduct.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 4, -1, 3, 3, -1, 2, -1, 0, 1] },
+            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from sexual misconduct.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', ...reviewedAlignment([4, 4, -1, 3, 3, -1, 2, 1, 0, 1], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source'), 9: analysisTarget('misconduct') }) },
             // Thanissaro: same as Sujato
-            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from sexual misconduct.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', alignTo: [-1, 4, -1, 3, 3, -1, 2, -1, 0, 1] },
+            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from sexual misconduct.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', ...reviewedAlignment([4, 4, -1, 3, 3, -1, 2, 1, 0, 1], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source'), 9: analysisTarget('misconduct') }) },
           ],
           words: [
             {
@@ -557,6 +684,16 @@ export const morningChants: LiturgyDoc = {
                 { text: 'cār', type: 'root', gloss: 'conduct, behavior, the way of walking', pronunciation: 'CHAH-r', citations: [dpdCitation('cāra')] },
                 { text: 'ā', type: 'suffix', gloss: '"from wrong-conduct" — what I refrain from', pronunciation: 'ah' },
               ],
+              analysis: {
+                status: 'confirmed',
+                units: [
+                  { id: 'misconduct', layer: 'lexical', label: 'micchācāra', underlyingForm: 'micchācāra', gloss: 'wrong conduct or misconduct', surfaceMorphemeIndices: [0, 1], citations: [dpdCitation('micchācāra')] },
+                  { id: 'ablative-source', layer: 'grammar', label: '-ā', gloss: 'from; marks what one refrains from', surfaceMorphemeIndices: [2], citations: [dpdCitation('micchācārā')] },
+                ],
+                transformations: [
+                  { type: 'inflection', from: 'micchācāra', to: 'micchācārā', note: 'The final *-ā* marks the source of refraining: "from misconduct."', citations: [dpdCitation('micchācārā')] },
+                ],
+              },
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
@@ -569,11 +706,11 @@ export const morningChants: LiturgyDoc = {
           witnesses: [
             // Surface: Musāvādā(0) veramaṇī(1) sikkhāpadaṁ(2) samādiyāmi.(3)
             // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) false(7) speech.(8)
-            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from false speech.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0] },
+            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from false speech.', ...reviewedAlignment([3, 3, -1, 2, -1, 1, 0, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 6: analysisTarget('ablative-source'), 7: morphemeTarget(0), 8: morphemeTarget(1) }) },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) lying.(8)
-            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from lying.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0] },
+            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from lying.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', ...reviewedAlignment([3, 3, -1, 2, 2, -1, 1, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source') }) },
             // Thanissaro: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) false(8) speech.(9)
-            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from false speech.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0, 0] },
+            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from false speech.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', ...reviewedAlignment([3, 3, -1, 2, 2, -1, 1, 0, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source'), 8: morphemeTarget(0), 9: morphemeTarget(1) }) },
           ],
           words: [
             {
@@ -593,6 +730,16 @@ export const morningChants: LiturgyDoc = {
                   { text: 'ा', type: 'suffix', pronunciation: 'ah', gloss: '"from false speech"' },
                 ],
               },
+              analysis: {
+                status: 'confirmed',
+                units: [
+                  { id: 'false-speech', layer: 'lexical', label: 'musāvāda', underlyingForm: 'musāvāda', gloss: 'false speech or lying', surfaceMorphemeIndices: [0, 1], citations: [dpdCitation('musāvāda')] },
+                  { id: 'ablative-source', layer: 'grammar', label: '-ā', gloss: 'from; marks what one refrains from', surfaceMorphemeIndices: [2], citations: [dpdCitation('musāvādā')] },
+                ],
+                transformations: [
+                  { type: 'inflection', from: 'musāvāda', to: 'musāvādā', note: 'The final *-ā* marks the source of refraining: "from false speech."', citations: [dpdCitation('musāvādā')] },
+                ],
+              },
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
@@ -606,11 +753,11 @@ export const morningChants: LiturgyDoc = {
             // Surface: Surāmerayamajjapamādaṭṭhānā(0) veramaṇī(1) sikkhāpadaṁ(2) samādiyāmi.(3)
             // The long compound (0) packs "fermented liquor + distilled liquor + intoxicants + heedlessness + cause".
             // AI: I(0) undertake(1) the(2) practice(3) to(4) refrain(5) from(6) taking(7) intoxicants(8) which(9) cloud(10) the(11) mind(12) and(13) cause(14) heedlessness.(15)
-            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from taking intoxicants which cloud the mind and cause heedlessness.', alignTo: [-1, 3, -1, 2, -1, 1, -1, 0, 0, -1, 0, -1, 0, -1, 0, 0] },
+            { by: 'MAPLE chant text', text: 'I undertake the practice to refrain from taking intoxicants which cloud the mind and cause heedlessness.', ...reviewedAlignment([3, 3, -1, 2, -1, 1, 0, 0, 0, -1, 0, -1, 0, -1, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 6: analysisTarget('ablative-source'), 8: analysisTarget('intoxicants'), 14: analysisTarget('basis-cause'), 15: analysisTarget('heedlessness') }) },
             // Sujato: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) alcoholic(8) drinks(9) that(10) cause(11) negligence.(12)
-            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from alcoholic drinks that cause negligence.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0, 0, -1, 0, 0] },
+            { by: 'Sujato (SuttaCentral)', text: 'I undertake the training rule to refrain from alcoholic drinks that cause negligence.', url: 'https://suttacentral.net/kp2/en/sujato', license: 'CC0', ...reviewedAlignment([3, 3, -1, 2, 2, -1, 1, 0, 0, 0, -1, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source'), 8: analysisTarget('intoxicants'), 9: analysisTarget('intoxicants'), 11: analysisTarget('basis-cause'), 12: analysisTarget('heedlessness') }) },
             // Thanissaro: I(0) undertake(1) the(2) training(3) rule(4) to(5) refrain(6) from(7) fermented(8) drinks(9) that(10) cause(11) heedlessness.(12)
-            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from fermented drinks that cause heedlessness.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', alignTo: [-1, 3, -1, 2, 2, -1, 1, -1, 0, 0, -1, 0, 0] },
+            { by: 'Thanissaro (Access to Insight)', text: 'I undertake the training rule to refrain from fermented drinks that cause heedlessness.', url: 'https://www.accesstoinsight.org/lib/authors/thanissaro/index.html', license: 'CC BY-NC', ...reviewedAlignment([3, 3, -1, 2, 2, -1, 1, 0, 0, 0, -1, 0, 0], { 0: analysisTarget('first-person'), 1: analysisTarget('undertake'), 3: morphemeTarget(0), 4: morphemeTarget(1), 7: analysisTarget('ablative-source'), 8: analysisTarget('intoxicants'), 9: analysisTarget('intoxicants'), 11: analysisTarget('basis-cause'), 12: analysisTarget('heedlessness') }) },
           ],
           words: [
             {
@@ -623,8 +770,23 @@ export const morningChants: LiturgyDoc = {
                 { text: 'meraya', type: 'stem', gloss: 'distilled liquor, spirits', pronunciation: 'may-rah-yah', citations: [dpdCitation('meraya')] },
                 { text: 'majja', type: 'stem', gloss: 'intoxicants — anything that intoxicates', pronunciation: 'MUH-jah', citations: [dpdCitation('majja')] },
                 { text: 'pamāda', type: 'stem', gloss: 'heedlessness — the opposite of attention; the Buddha\'s last word warned against this', pronunciation: 'pah-MAH-dah', citations: [dpdCitation('pamāda')] },
-                { text: 'ṭṭhānā', type: 'suffix', gloss: 'basis, cause — what produces [heedlessness]', pronunciation: 'TTAH-nah', citations: [dpdCitation('ṭhāna')] },
+                { text: 'ṭṭhān', type: 'stem', gloss: 'basis, cause — what produces [heedlessness]', pronunciation: 'TTAH-n', citations: [dpdCitation('ṭhāna')] },
+                { text: 'ā', type: 'suffix', gloss: '"from the basis of heedlessness"', pronunciation: 'ah' },
               ],
+              analysis: {
+                status: 'confirmed',
+                units: [
+                  { id: 'fermented-liquor', layer: 'lexical', label: 'surā', gloss: 'fermented liquor', surfaceMorphemeIndices: [0], citations: [dpdCitation('surā')] },
+                  { id: 'distilled-liquor', layer: 'lexical', label: 'meraya', gloss: 'distilled liquor or spirits', surfaceMorphemeIndices: [1], citations: [dpdCitation('meraya')] },
+                  { id: 'intoxicants', layer: 'lexical', label: 'surā-meraya-majja', gloss: 'intoxicating drinks and intoxicants', surfaceMorphemeIndices: [0, 1, 2], citations: [dpdCitation('majja')] },
+                  { id: 'heedlessness', layer: 'lexical', label: 'pamāda', gloss: 'heedlessness or negligence', surfaceMorphemeIndices: [3], citations: [dpdCitation('pamāda')] },
+                  { id: 'basis-cause', layer: 'lexical', label: 'ṭhāna', underlyingForm: 'ṭhāna', gloss: 'basis, ground, or cause', surfaceMorphemeIndices: [4], citations: [dpdCitation('ṭhāna')] },
+                  { id: 'ablative-source', layer: 'grammar', label: '-ā', gloss: 'from; marks what one refrains from', surfaceMorphemeIndices: [5], citations: [dpdCitation('surāmerayamajjapamādaṭṭhānā')] },
+                ],
+                transformations: [
+                  { type: 'inflection', from: 'surāmerayamajjapamādaṭṭhāna', to: 'surāmerayamajjapamādaṭṭhānā', note: 'The final *-ā* marks the source of refraining: "from intoxicants that are a basis for heedlessness."', citations: [dpdCitation('surāmerayamajjapamādaṭṭhānā')] },
+                ],
+              },
             },
             ...PRECEPT_FORMULA_WORDS,
           ],
@@ -648,9 +810,9 @@ export const morningChants: LiturgyDoc = {
           witnesses: [
             // Surface: Sabba(0) pāpassa(1) akaraṇaṁ,(2)
             // AI: To(0) do(1) no(2) evil,(3)
-            { by: 'MAPLE chant text', text: 'To do no evil,', alignTo: [-1, 2, 2, 1] },
+            { by: 'MAPLE chant text', text: 'To do no evil,', ...reviewedAlignment([-1, 2, 2, 1], { 1: morphemeTarget(1), 2: morphemeTarget(0) }) },
             // Sujato: Not(0) to(1) do(2) any(3) evil;(4)
-            { by: 'Sujato (SuttaCentral)', text: 'Not to do any evil;', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [2, -1, 2, 0, 1] },
+            { by: 'Sujato (SuttaCentral)', text: 'Not to do any evil;', url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', ...reviewedAlignment([2, -1, 2, 0, 1], { 0: morphemeTarget(0), 2: morphemeTarget(1) }) },
             // Buddharakkhita: To(0) avoid(1) all(2) evil,(3)
             { by: 'Buddharakkhita (BPS)', text: 'To avoid all evil,', url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', alignTo: [-1, 2, 0, 1] },
           ],
@@ -732,11 +894,11 @@ export const morningChants: LiturgyDoc = {
           witnesses: [
             // Surface: sacittapariyodapanaṁ,(0)  — one big compound word
             // AI: and(0) to(1) purify(2) one's(3) own(4) mind;(5)
-            { by: 'MAPLE chant text', text: "and to purify one's own mind;", alignTo: [-1, -1, 0, 0, 0, 0] },
+            { by: 'MAPLE chant text', text: "and to purify one's own mind;", ...reviewedAlignment([-1, -1, 0, 0, 0, 0], { 2: analysisTarget('purification'), 3: analysisTarget('own'), 4: analysisTarget('own'), 5: analysisTarget('mind') }) },
             // Sujato: to(0) purify(1) one's(2) mind:(3)
-            { by: 'Sujato (SuttaCentral)', text: "to purify one's mind:", url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', alignTo: [-1, 0, 0, 0] },
+            { by: 'Sujato (SuttaCentral)', text: "to purify one's mind:", url: 'https://suttacentral.net/dhp183/en/sujato', license: 'CC0', ...reviewedAlignment([-1, 0, 0, 0], { 1: analysisTarget('purification'), 2: analysisTarget('own'), 3: analysisTarget('mind') }) },
             // Buddharakkhita: and(0) to(1) cleanse(2) one's(3) mind(4) —(5)
-            { by: 'Buddharakkhita (BPS)', text: "and to cleanse one's mind —", url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', alignTo: [-1, -1, 0, 0, 0, -1] },
+            { by: 'Buddharakkhita (BPS)', text: "and to cleanse one's mind —", url: 'https://www.accesstoinsight.org/tipitaka/kn/dhp/dhp.14.budd.html', ...reviewedAlignment([-1, -1, 0, 0, 0, -1], { 2: analysisTarget('purification'), 3: analysisTarget('own'), 4: analysisTarget('mind') }) },
           ],
           words: [
             {
@@ -752,6 +914,14 @@ export const morningChants: LiturgyDoc = {
                 { text: 'pan', type: 'root', root: '√dā', gloss: 'cleansing, purifying', pronunciation: 'PAH-n' },
                 { text: 'aṁ', type: 'suffix', gloss: '"the cleansing" — the noun form', pronunciation: 'ang' },
               ],
+              analysis: {
+                status: 'confirmed',
+                units: [
+                  { id: 'own', layer: 'grammar', label: 'sa-', gloss: 'one\'s own', surfaceMorphemeIndices: [0] },
+                  { id: 'mind', layer: 'lexical', label: 'citta', gloss: 'mind, heart, or awareness', surfaceMorphemeIndices: [1], citations: [dpdCitation('citta')] },
+                  { id: 'purification', layer: 'lexical', label: 'pariyodapana', underlyingForm: 'pariyodapana', gloss: 'thorough purification or cleansing', surfaceMorphemeIndices: [2, 3, 4, 5], citations: [dpdCitation('pariyodapana')] },
+                ],
+              },
             },
           ],
         },
