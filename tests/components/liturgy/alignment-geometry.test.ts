@@ -48,6 +48,8 @@ describe('computeAlignmentLines', () => {
       ['word', 60],
       ['word', 60],
     ]);
+    expect(lines.map((line) => line.x2)).toEqual([40, 100, 160]);
+    expect(new Set(lines.map((line) => `${line.x1}:${line.x2}`)).size).toBe(3);
   });
 
   it('measures explicit surface-morpheme targets', () => {

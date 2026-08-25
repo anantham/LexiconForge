@@ -117,7 +117,27 @@ describe('layered liturgy alignment validation', () => {
     const value = doc();
     const section = value.sections[0];
     if (section.shape !== 'triple-script-witness') return;
-    section.segments[0].witnesses[0].morphemeAlignTo = [99, null, null, null];
+    const witness = section.segments[0].witnesses[0];
+    witness.tokenAlignTo = undefined;
+    witness.morphemeAlignTo = [99, null, null, null];
     expect(errorCodes(value)).toContain('legacy_morpheme_index_out_of_range');
+  });
+
+  it('rejects a fine target whose valid source position has no WordGloss', () => {
+    const value = doc();
+    const section = value.sections[0];
+    if (section.shape !== 'triple-script-witness') return;
+    section.segments[0].words = [];
+    expect(errorCodes(value)).toContain('fine_target_word_not_found');
+  });
+
+  it('does not validate ignored legacy precision when tokenAlignTo is present', () => {
+    const value = doc();
+    const section = value.sections[0];
+    if (section.shape !== 'triple-script-witness') return;
+    const witness = section.segments[0].witnesses[0];
+    witness.morphemeAlignTo = [99, 99, 99, 99];
+    witness.tokenAlignTo = [null, null, null, null];
+    expect(errorCodes(value)).not.toContain('legacy_morpheme_index_out_of_range');
   });
 });

@@ -44,8 +44,11 @@ export function resolveAlignmentTargets({
   return alignTo.map((paliIdx, englishIndex) => {
     if (paliIdx < 0) return null;
 
-    const explicit = tokenAlignTo?.[englishIndex];
-    if (explicit) return resolveExplicitTarget(paliIdx, explicit);
+    if (tokenAlignTo !== undefined) {
+      const explicit = tokenAlignTo[englishIndex];
+      if (explicit) return resolveExplicitTarget(paliIdx, explicit);
+      return { kind: 'word', paliIdx, reviewed: false };
+    }
 
     const legacyMorphemeIndex = morphemeAlignTo?.[englishIndex];
     if (typeof legacyMorphemeIndex === 'number') {

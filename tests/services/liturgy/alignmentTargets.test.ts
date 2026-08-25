@@ -54,4 +54,14 @@ describe('resolveAlignmentTargets', () => {
       })
     ).toEqual([{ kind: 'analysis', paliIdx: 0, unitId: 'lexeme' }]);
   });
+
+  it('lets an explicit null suppress stale legacy precision', () => {
+    expect(
+      resolveAlignmentTargets({
+        alignTo: [0],
+        morphemeAlignTo: [2],
+        tokenAlignTo: [null],
+      })
+    ).toEqual([{ kind: 'word', paliIdx: 0, reviewed: false }]);
+  });
 });
