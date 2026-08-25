@@ -56,6 +56,15 @@ fused. Analysis slice indexes currently apply to the base Latin segmentation;
 an alternate-script segmentation falls back to the whole word unless and until
 an explicit per-script analysis mapping is added.
 
+Every rendered surface boundary must also fall between Unicode extended
+grapheme clusters. “Fine-grained” means the smallest honest **renderable**
+surface unit, not the smallest code-point or code-unit range. A Devanāgarī
+vowel sign, anusvāra, or virāma conjunct stays in the same DOM span as its base
+grapheme. When that forces a lexical stem and grammatical ending to share one
+alternate-script span, the tooltip says so and the separate underlying analysis
+remains available on the Latin evidence layer. Invalid client-side metadata
+falls back to one whole-word span; corpus validation rejects the same boundary.
+
 Review status must remain visible rather than living only in metadata:
 
 - `confirmed` uses a solid emerald underline;
@@ -81,6 +90,11 @@ slice is not presented as an independent `ti-` prefix. The analysis records:
 The compound analysis and declension are grounded in the Digital Pāḷi
 Dictionary record for `pāṇātipātā`; the witness translation is linked to
 SuttaCentral Kp 2 in the chant data.
+
+The Devanāgarī surface is safely divided as `पाणा | तिपाता`, not
+`पाणा | तिपात | ा`: the final vowel sign cannot be shaped independently from
+its base grapheme. This is intentionally coarser than the Latin surface while
+the grammar unit remains explicit in the layered analysis.
 
 ## Failure behavior
 

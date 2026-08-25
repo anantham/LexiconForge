@@ -319,8 +319,7 @@ const PRECEPT_FORMULA_WORDS: WordGloss[] = [
     scriptMorphemes: {
       'pi-Deva': [
         { text: 'सिक्खा', type: 'stem', pronunciation: 'sik-KHAH', gloss: 'training, learning, practice' },
-        { text: 'पद', type: 'stem', pronunciation: 'pah-dah', gloss: 'step, a step in the training' },
-        { text: 'ं', type: 'suffix', pronunciation: 'ng', gloss: 'the case marker, "the training rule"' },
+        { text: 'पदं', type: 'stem', pronunciation: 'pah-dang', gloss: 'step in training together with its dependent final marker; Devanāgarī cannot separate the anusvāra from its base grapheme' },
       ],
     },
   },
@@ -338,8 +337,7 @@ const PRECEPT_FORMULA_WORDS: WordGloss[] = [
     ],
     scriptMorphemes: {
       'pi-Deva': [
-        { text: 'सम', type: 'prefix', pronunciation: 'sah-m', gloss: 'fully, completely' },
-        { text: 'ा', type: 'prefix', pronunciation: 'ah', gloss: 'toward myself' },
+        { text: 'समा', type: 'prefix', pronunciation: 'sah-MAH', gloss: 'fully and toward oneself; the dependent long-vowel sign cannot form a separate Devanāgarī span' },
         { text: 'दि', type: 'root', pronunciation: 'dee', gloss: '√dā, to take, to accept' },
         { text: 'या', type: 'stem', pronunciation: 'yah', gloss: 'present-tense marker' },
         { text: 'मि', type: 'suffix', pronunciation: 'mee', gloss: '"I", first-person singular' },
@@ -579,8 +577,7 @@ export const morningChants: LiturgyDoc = {
               scriptMorphemes: {
                 'pi-Deva': [
                   { text: 'पाणा', type: 'stem', pronunciation: 'PAH-nah', gloss: 'surface portion carrying *pāṇa*, a living being' },
-                  { text: 'तिपात', type: 'stem', pronunciation: 'tee-PAH-t', gloss: 'surface portion carrying *atipāta*, striking down or killing' },
-                  { text: 'ा', type: 'suffix', pronunciation: 'ah', gloss: '"from killing" — what I refrain from' },
+                  { text: 'तिपाता', type: 'stem', pronunciation: 'tee-PAH-tah', gloss: 'surface portion carrying *atipāta* together with the dependent final “from” vowel; Devanāgarī cannot split that sign from its base grapheme' },
                 ],
               },
               analysis: {
@@ -628,9 +625,8 @@ export const morningChants: LiturgyDoc = {
               scriptMorphemes: {
                 'pi-Deva': [
                   { text: 'अ', type: 'prefix', pronunciation: 'ah', gloss: 'not, negation' },
-                  { text: 'दिन्न', type: 'stem', pronunciation: 'DEEN-n', gloss: 'surface portion carrying *dinna*, given' },
-                  { text: 'ादान', type: 'stem', pronunciation: 'AH-dahn', gloss: 'taking, grasping' },
-                  { text: 'ा', type: 'suffix', pronunciation: 'ah', gloss: '"from taking what is not given"' },
+                  { text: 'दिन्ना', type: 'stem', pronunciation: 'DEEN-nah', gloss: 'surface portion carrying *dinna*, with the fused long-vowel boundary kept on its Devanāgarī base grapheme' },
+                  { text: 'दाना', type: 'stem', pronunciation: 'DAH-nah', gloss: 'surface portion carrying taking together with the dependent final “from” vowel' },
                 ],
               },
               analysis: {
@@ -726,8 +722,7 @@ export const morningChants: LiturgyDoc = {
               scriptMorphemes: {
                 'pi-Deva': [
                   { text: 'मुसा', type: 'prefix', pronunciation: 'moo-SAH', gloss: 'false, untrue' },
-                  { text: 'वाद', type: 'root', pronunciation: 'VAH-d', gloss: 'to speak, to say' },
-                  { text: 'ा', type: 'suffix', pronunciation: 'ah', gloss: '"from false speech"' },
+                  { text: 'वादा', type: 'root', pronunciation: 'VAH-dah', gloss: 'speech together with the dependent final “from” vowel; Devanāgarī cannot split that sign from its base grapheme' },
                 ],
               },
               analysis: {

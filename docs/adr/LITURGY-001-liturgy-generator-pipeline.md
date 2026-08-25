@@ -181,3 +181,27 @@ Implemented files:
 The remaining audit findings on other routes are deliberately not auto-cleared.
 The renderer is safe immediately; each sacred-text target still requires
 evidence and human review before it becomes fine-grained.
+
+## Amendment: grapheme-safe surface evidence (2026-08-25)
+
+**Status:** Implemented in PR #163 follow-up
+
+Morpheme reconstruction alone is insufficient for Brahmic and combining-mark
+scripts: adjacent strings can concatenate to the source while still placing a
+DOM boundary inside one shaped grapheme. Renderer and validator now share one
+Unicode extended-grapheme segmentation contract. Unsupported environments and
+unsafe metadata fail closed to whole-word rendering; the corpus validator emits
+a descriptive error so authored boundaries can be repaired.
+
+Morning Chants keeps the finest safe Devanāgarī surface ranges for five affected
+records. Dependent vowel signs and anusvāra are merged with their base grapheme;
+Latin lexical/grammar analysis remains separate where the Devanāgarī surface
+cannot honestly express the same boundary.
+
+Implementation:
+
+- `services/liturgy/surfaceSegmentation.ts`
+- `components/liturgy/shapes/TripleScriptWitness.tsx`
+- `services/liturgy/validation.ts`
+- `data/liturgy/morning-chants.ts`
+- focused service, validator, renderer, and Morning Chants tests

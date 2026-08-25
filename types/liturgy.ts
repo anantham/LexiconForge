@@ -96,9 +96,11 @@ export type Witness = {
  * The renderer splits the surface form by morpheme `text`, emits one hover
  * span per morpheme, each with its own tooltip.
  *
- * Morphemes must be listed in order and their concatenation must reproduce
- * the surface form (case-insensitive). If they don't, the whole word falls
- * back to the word-level tooltip.
+ * Morphemes must be listed in order, their concatenation must reproduce the
+ * surface form (case-insensitive), and every boundary must fall between
+ * Unicode grapheme clusters. A dependent vowel sign, virāma conjunct, or
+ * combining mark must never be isolated in its own DOM span. Invalid metadata
+ * falls back to the whole-word tooltip and fails corpus validation.
  */
 export type WordMorpheme = {
   /** The literal surface fragment, matching a substring of WordGloss.form (case-insensitive). */

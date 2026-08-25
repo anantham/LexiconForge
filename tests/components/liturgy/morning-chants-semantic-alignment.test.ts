@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { morningChants } from '../../../data/liturgy/morning-chants';
 import { auditLiturgyAlignments } from '../../../services/liturgy/alignmentAudit';
+import { segmentSurfaceMorphemes } from '../../../services/liturgy/surfaceSegmentation';
 
 describe('Morning Chants semantic alignments', () => {
   it('contains no unreviewed many-to-one morpheme alignment groups', () => {
@@ -38,5 +39,30 @@ describe('Morning Chants semantic alignments', () => {
       { kind: 'analysis', unitId: 'living-being' },
       { kind: 'analysis', unitId: 'living-being' },
     ]);
+  });
+
+  it('keeps every affected Devanagari range on complete grapheme clusters', () => {
+    const section = morningChants.sections.find((item) => item.id === 'five-precepts');
+    expect(section?.shape).toBe('triple-script-witness');
+    if (section?.shape !== 'triple-script-witness') return;
+
+    const expected: Record<string, string[]> = {
+      'pāṇātipātā': ['पाणा', 'तिपाता'],
+      'sikkhāpadaṁ': ['सिक्खा', 'पदं'],
+      'samādiyāmi': ['समा', 'दि', 'या', 'मि'],
+      'adinnādānā': ['अ', 'दिन्ना', 'दाना'],
+      'musāvādā': ['मुसा', 'वादा'],
+    };
+    const words = section.segments.flatMap((segment) => segment.words ?? []);
+
+    for (const [form, ranges] of Object.entries(expected)) {
+      const word = words.find((candidate) => candidate.form === form)!;
+      const morphemes = word.scriptMorphemes?.['pi-Deva'] ?? [];
+      expect(morphemes.map((morpheme) => morpheme.text), form).toEqual(ranges);
+      expect(
+        segmentSurfaceMorphemes(word.scriptAlt!, morphemes, { caseSensitive: true }),
+        form
+      ).toMatchObject({ ok: true });
+    }
   });
 });
