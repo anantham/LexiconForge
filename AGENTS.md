@@ -391,10 +391,31 @@ Required when multiple agents are active or when changes are non-trivial. Single
    gh pr create --title "[TYPE]: Brief description" --body "..."
    ```
 
-4. **Wait for Codex review** before any merge
-   - Address all review comments
-   - Add follow-up commits for fixes
-   - DO NOT force-push after review starts
+4. **Declare AI authorship and obtain an independent cross-family review**
+   - Every PR must be reviewed at its exact current head SHA by an AI family
+     that did not author or materially repair that head.
+   - Different sessions or agents from the same model family do not count as
+     independent. Normalize Codex/GPT to `openai`, Claude/Opus/Sonnet/Haiku to
+     `anthropic`, Gemini to `google`, and Grok to `xai`.
+   - Branch prefixes declare the usual single author family. If the branch does
+     not identify one, or several families materially contributed, add
+     `<!-- ai-author-families: human|openai|anthropic|google|xai -->` to the PR
+     body with the complete comma-separated set.
+   - The reviewer must submit the structured formal-PR-review receipt specified
+     in `docs/guides/CROSS_FAMILY_PR_REVIEWS.md`.
+   - `REVISE`, missing or stale evidence, same-family evidence, malformed
+     receipts, reviewer refusal, quota exhaustion, timeout, or tool failure all
+     block merge. They are never interpreted as approval.
+
+5. **Require the exact-head gate before merge**
+   - The Check Run `cross-family-adversarial-review`, source-pinned to the
+     repository's GitHub Actions App in the ruleset, must be successful on the
+     current PR head. Any subsequent commit invalidates the prior review.
+   - Address blocking findings in follow-up commits, rerun relevant tests, and
+     obtain a fresh independent review of the new head.
+   - Sacred-text, security, identity, privacy, and deployment changes retain
+     all applicable human/domain gates; AI review does not replace them.
+   - DO NOT force-push after review starts.
 
 ### PR Size Guidelines
 
@@ -435,6 +456,8 @@ Required when multiple agents are active or when changes are non-trivial. Single
 3. **Include PR number in commits** after creation: `fix(db): Split indexeddb service (#123)`
 4. **Tech debt PRs:** Include metrics (before/after LOC, complexity reduction)
 5. **If PR blocked by review:** Create follow-up PR rather than force-pushing
+6. **Self-authored evidence does not count:** A model family that authored or
+   materially repaired the reviewed head cannot satisfy its review gate
 
 ---
 
