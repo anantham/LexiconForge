@@ -34,7 +34,8 @@ function mergeByName(into: Witness[], incoming: Witness[]): Witness[] {
 }
 
 /**
- * Drop word-level alignment from a witness. `alignTo` / `morphemeAlignTo`
+ * Drop every alignment layer from a witness. `alignTo`, `morphemeAlignTo`,
+ * and `tokenAlignTo`
  * index into the `words[]` of the segment the witness was AUTHORED on; when a
  * witness is pooled onto another community's segment (whose word segmentation
  * may differ — e.g. MAPLE splits `Bup·pō` where Bodhi groups `bup-pō`), those
@@ -42,8 +43,17 @@ function mergeByName(into: Witness[], incoming: Witness[]): Witness[] {
  * alignment — the witness keeps its arrows on its own community's page.
  */
 function stripAlignment(w: Witness): Witness {
-  if (w.alignTo === undefined && w.morphemeAlignTo === undefined) return w;
-  const { alignTo: _alignTo, morphemeAlignTo: _morphemeAlignTo, ...rest } = w;
+  if (
+    w.alignTo === undefined &&
+    w.morphemeAlignTo === undefined &&
+    w.tokenAlignTo === undefined
+  ) return w;
+  const {
+    alignTo: _alignTo,
+    morphemeAlignTo: _morphemeAlignTo,
+    tokenAlignTo: _tokenAlignTo,
+    ...rest
+  } = w;
   return rest;
 }
 
