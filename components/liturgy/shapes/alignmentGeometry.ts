@@ -38,18 +38,14 @@ function analysisElements(wordElement: HTMLElement, unitId: string): HTMLElement
 
 function claimedElementAnchor(
   elements: HTMLElement[],
-  containerRect: DOMRect,
-  englishCenter: number
+  containerRect: DOMRect
 ): { x: number; y: number; morphemeIndices: number[] } | null {
   if (elements.length === 0) return null;
   const rects = elements.map((element) => element.getBoundingClientRect());
-  const chosen = rects.reduce((best, candidate) => {
-    const bestDistance = Math.abs(best.left + best.width / 2 - englishCenter);
-    const candidateDistance = Math.abs(
-      candidate.left + candidate.width / 2 - englishCenter
-    );
-    return candidateDistance < bestDistance ? candidate : best;
-  });
+  // DOM order follows the authored surface order. A stable claimed element is
+  // essential: every English token targeting this analysis unit must share the
+  // same source point rather than appearing to claim different surface slices.
+  const chosen = rects[0];
   const morphemeIndices = elements
     .map((element) => Number.parseInt(element.dataset.morphemeIdx ?? '', 10))
     .filter(Number.isFinite);
@@ -102,8 +98,7 @@ export function computeAlignmentLines(
     } else if (target.kind === 'analysis') {
       const anchor = claimedElementAnchor(
         analysisElements(paliElement, target.unitId),
-        containerRect,
-        englishRect.left + englishRect.width / 2
+        containerRect
       );
       if (anchor) {
         source = { x: anchor.x, y: anchor.y };

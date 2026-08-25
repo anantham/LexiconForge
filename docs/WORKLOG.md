@@ -3555,3 +3555,14 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Files:** `services/liturgy/alignmentTargets.ts:38-55`; `services/liturgy/validation.ts:350-356`; `tests/services/liturgy/alignmentTargets.test.ts`; `tests/services/liturgy/semanticAlignmentValidation.test.ts`; `tests/components/liturgy/alignment-geometry.test.ts`; `types/liturgy.ts`; `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md`; this worklog.
 **Fallback:** revert this isolated review-follow-up commit; existing whole-word fallback remains safe, but the explicit-null documentation mismatch would return.
 **Confidence:** 0.99 for P2/P3 repairs; 0.99 that P1's proposed source fanning would violate the approved fail-honest convention.
+
+### [2026-08-25 17:58 IST] [Agent: Codex]
+**Status:** Gemini fresh-head P1 reproduced and repaired; verification and rereview pending
+**Review run:** Gemini 3.1 Pro High run `c3c78d35-fa3c-4c4e-9662-252c1d37ff5a` examined head `14a90969623e96c44483ae794ad05fe24dffc57b` and returned a substantive `REVISE` response before agy ended with an invalid-path tool error. Because the run status is `ERROR`, it is evidence for repair but will not be posted as a completed review receipt.
+**Confirmed root cause:** `claimedElementAnchor` selected one slice of a multi-slice analysis unit by proximity to each English endpoint. Two English tokens targeting the identical unit therefore originated at different source positions (`30` and `102.5`), visually implying a distributive mapping that was not authored.
+**Options:** (A) union midpoint, rejected because it can target an empty gap; (B) first claimed surface element in authored DOM order, selected because it is stable, claimed, small, and reversible; (C) branched multi-endpoint connector, deferred as a larger interaction redesign.
+**Predicted test:** distant English tokens targeting the same multi-slice analysis unit share source x=`30` while retaining distinct English endpoints x=`40` and x=`160`. The red test failed exactly as predicted before implementation.
+**Files:** `components/liturgy/shapes/alignmentGeometry.ts`; `tests/components/liturgy/alignment-geometry.test.ts`; `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md`; this worklog.
+**Verification:** The red regression failed exactly with source anchors `[30, 102.5]`; after the repair, focused geometry/renderer/target/validation suites pass 22/22, TypeScript and focused ESLint pass, and `git diff --check` is clean. Agy-created untracked `pr_diff.patch` and empty `val.diff` review artifacts were identified by timestamp/content and removed; no authored source was deleted.
+**Fallback:** revert the isolated follow-up commit, returning to the previous claimed-slice heuristic; this would reopen the semantic-overclaiming risk.
+**Confidence:** 0.93 in the root cause and selected deterministic anchor; fresh exact-head Gemini review remains required.
