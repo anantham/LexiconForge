@@ -33,8 +33,9 @@ export type AlignmentAuditSummary = {
   layeredAnalysisWordRecords: number;
   witnesses: number;
   alignedWitnesses: number;
-  englishTokens: number;
-  alignedEnglishTokens: number;
+  routeVisibleEnglishTokens: number;
+  tokensInWitnessesWithAlignTo: number;
+  sourceAlignedEnglishTokens: number;
   explicitReviewedTargets: number;
   fineTargetReviewGroups: number;
 };
@@ -55,8 +56,9 @@ function createSummary(): AlignmentAuditSummary {
     layeredAnalysisWordRecords: 0,
     witnesses: 0,
     alignedWitnesses: 0,
-    englishTokens: 0,
-    alignedEnglishTokens: 0,
+    routeVisibleEnglishTokens: 0,
+    tokensInWitnessesWithAlignTo: 0,
+    sourceAlignedEnglishTokens: 0,
     explicitReviewedTargets: 0,
     fineTargetReviewGroups: 0,
   };
@@ -103,10 +105,11 @@ export function auditLiturgyAlignments(routes: readonly LiturgyRouteDoc[]): Alig
         for (const witness of segment.witnesses) {
           summary.witnesses += 1;
           const englishTokens = tokenizeEnglish(witness.text);
-          summary.englishTokens += englishTokens.length;
+          summary.routeVisibleEnglishTokens += englishTokens.length;
           if (!witness.alignTo) continue;
 
           summary.alignedWitnesses += 1;
+          summary.tokensInWitnessesWithAlignTo += englishTokens.length;
           const resolved = resolveAlignmentTargets({
             alignTo: witness.alignTo,
             morphemeAlignTo: witness.morphemeAlignTo,
@@ -116,7 +119,7 @@ export function auditLiturgyAlignments(routes: readonly LiturgyRouteDoc[]): Alig
 
           witness.alignTo.forEach((paliIndex, englishIndex) => {
             if (paliIndex < 0) return;
-            summary.alignedEnglishTokens += 1;
+            summary.sourceAlignedEnglishTokens += 1;
             const target = resolved[englishIndex];
             if (target && (target.kind !== 'word' || target.reviewed)) {
               summary.explicitReviewedTargets += 1;

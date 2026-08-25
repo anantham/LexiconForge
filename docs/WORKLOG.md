@@ -3545,3 +3545,24 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Predicted outcomes confirmed:** all start-entry predictions passed. Source chant strings and witness wording are byte-unchanged.
 **Fallback:** revert the two isolated follow-up commits. The prior whole-word renderer remains the safe fallback.
 **Confidence:** 0.98.
+
+### [2026-08-25 17:16 IST] [Agent: Codex]
+**Status:** Starting human-confirmed Option 1B repair for PR #162
+**Task:** Preserve the repaired PR #161 contract in the stacked audit and remove the denominator ambiguity identified by exact-head adversarial review.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-liturgy-alignment-audit`
+**Branch:** `feat/codex-liturgy-alignment-audit`
+**Stack result:** ordinary merge commit `98ccb13` carries PR #161; the two expected overlapping validator/test conflicts were resolved byte-identically to PR #161's stricter versions. Inherited semantic/renderer and audit gates pass 1,272 with 327 skipped.
+**Hypothesis:** the traversal is intentionally route-visible, but `englishTokens` and `alignedEnglishTokens` collapse three distinct populations: all rendered witness tokens, tokens belonging to witnesses with authored `alignTo`, and tokens actually linked to a source word. Naming and reporting all three populations will make duplication and coverage denominators explicit without changing which review groups the audit finds. Confidence 0.98.
+**Predicted tests:** a synthetic document with an unaligned pooled witness reports that witness only in route-visible tokens; an authored-alignment witness contributes to the second denominator; `-1` entries are excluded only from source-linked tokens; submitting the same document under two routes doubles every route-visible record count; existing review-group behavior remains unchanged.
+**Files likely affected:** `services/liturgy/alignmentAudit.ts`; `scripts/liturgy-generator/audit-liturgy-alignments.ts`; `tests/services/liturgy/alignmentAudit.test.ts`; `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md`; `docs/adr/LITURGY-001-liturgy-generator-pipeline.md`; this worklog.
+**Fallback:** revert the isolated metric-vocabulary commit; the audit's issue traversal is unchanged.
+**Confidence:** 0.98.
+
+### [2026-08-25 17:28 IST] [Agent: Codex]
+**Status:** Complete — Option 1B repairs for PR #162 verified; commit and push pending
+**Result:** The audit traversal and review-group detector are unchanged, but its public summary now names three non-interchangeable populations: every route-visible witness token, every token in a witness with authored `alignTo`, and only tokens linked to a source word. The CLI explains pooled/unmapped inclusion, and the convention records that shared documents and pooled witnesses are intentionally counted once per registered route so affected URLs are not deduplicated away.
+**Files and relevant lines:** `services/liturgy/alignmentAudit.ts:27-41,49-64,103-123`; `scripts/liturgy-generator/audit-liturgy-alignments.ts:21-33`; `tests/services/liturgy/alignmentAudit.test.ts:47-112`; `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md:3,76-95`; `docs/adr/LITURGY-001-liturgy-generator-pipeline.md:137-154`; this worklog.
+**Verification:** focused inherited/audit suite 1,273 passed with 327 skipped across 4 files; TypeScript clean; focused ESLint clean; live corpus CLI passes and reports 23 routes, 1,011 route-visible source-word records, 7,693 route-visible English tokens, 4,469 tokens in witnesses with authored `alignTo`, 2,535 tokens linked to a source word, 137 explicit reviewed targets, and 223 review groups. The first CLI attempt was environment-blocked because sandboxed `tsx` could not create its IPC socket; the same command passed with the required filesystem permission and is not recorded as a source failure.
+**Predicted outcomes confirmed:** the synthetic two-route fixture doubles route-visible records, includes an unaligned pooled witness only in the broadest denominator, and excludes a `-1` entry only from the source-linked denominator. Existing review-group tests remain green.
+**Fallback:** revert the isolated metric-vocabulary commit; no data or traversal behavior was migrated.
+**Confidence:** 0.99.

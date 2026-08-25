@@ -1,7 +1,7 @@
 # Liturgy semantic-alignment convention
 
 **Adopted:** 2026-08-25
-**Status:** Implemented for rendering and structural validation; corpus audit staged separately
+**Status:** Implemented for rendering, structural validation, and corpus audit
 
 ## Intent
 
@@ -72,3 +72,23 @@ modes likewise clear reviewed fine targets; only `preserve` may retain them.
 Malformed lengths, indexes, identifiers, surface references, or unknown units
 are validation errors. Missing precision falls back to the whole word rather
 than to a positional guess.
+
+## Audit counting contract
+
+The corpus audit traverses registered **routes**, not unique document object
+identities. If the same document or a pooled witness is visible at several
+routes, its route-visible records are intentionally counted at every route.
+The summary reports three English-token populations rather than calling them
+all “aligned”:
+
+- `routeVisibleEnglishTokens` counts every witness token rendered by each
+  registered route, including pooled witnesses whose foreign indexes were
+  stripped;
+- `tokensInWitnessesWithAlignTo` counts every token belonging to a witness with
+  an authored word-alignment array, including `-1` supplied-English entries;
+- `sourceAlignedEnglishTokens` counts only tokens whose `alignTo` entry names a
+  source-word index.
+
+`explicitReviewedTargets` is a subset of `sourceAlignedEnglishTokens`. Review
+group counts remain route-addressed so every affected reader URL is visible to
+the curator, even when several routes share underlying content.

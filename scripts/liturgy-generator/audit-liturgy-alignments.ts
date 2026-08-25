@@ -21,9 +21,14 @@ function printHumanReadable(): void {
   console.log('Liturgy semantic-alignment audit');
   console.log(`Routes: ${summary.routes}`);
   console.log(`Segments: ${summary.segments}`);
-  console.log(`Source-word records inspected: ${summary.sourceWordRecords}`);
-  console.log(`English tokens inspected: ${summary.englishTokens}`);
-  console.log(`Aligned English tokens: ${summary.alignedEnglishTokens}`);
+  console.log(`Route-visible source-word records inspected: ${summary.sourceWordRecords}`);
+  console.log(
+    `Route-visible English tokens (includes pooled/unmapped witnesses): ${summary.routeVisibleEnglishTokens}`
+  );
+  console.log(
+    `English tokens in witnesses with authored alignTo: ${summary.tokensInWitnessesWithAlignTo}`
+  );
+  console.log(`English tokens linked to a source word: ${summary.sourceAlignedEnglishTokens}`);
   console.log(`Explicit reviewed targets: ${summary.explicitReviewedTargets}`);
   console.log(`Fine-target review groups: ${summary.fineTargetReviewGroups}`);
   console.log('');

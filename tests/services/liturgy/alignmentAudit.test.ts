@@ -47,7 +47,9 @@ describe('auditLiturgyAlignments', () => {
   it('reports an unauthored many-to-one multi-morpheme group', () => {
     const result = auditLiturgyAlignments([{ route: 'test/audit-test', doc: doc(false) }]);
     expect(result.summary.sourceWordRecords).toBe(1);
-    expect(result.summary.englishTokens).toBe(2);
+    expect(result.summary.routeVisibleEnglishTokens).toBe(2);
+    expect(result.summary.tokensInWitnessesWithAlignTo).toBe(2);
+    expect(result.summary.sourceAlignedEnglishTokens).toBe(2);
     expect(result.summary.fineTargetReviewGroups).toBe(1);
     expect(result.issues[0]).toMatchObject({
       paliForm: 'Dutiyampi',
@@ -81,5 +83,31 @@ describe('auditLiturgyAlignments', () => {
     ]);
     expect(partial.summary.fineTargetReviewGroups).toBe(1);
     expect(partial.issues[0].unreviewedEnglishTokens).toEqual(['time']);
+  });
+
+  it('reports route-visible, authored-witness, and source-linked denominators separately', () => {
+    const value = doc(false);
+    const section = value.sections[0];
+    if (section.shape !== 'triple-script-witness') return;
+    section.segments[0].witnesses[0].alignTo = [0, -1];
+    section.segments[0].witnesses.push({
+      by: 'Pooled without local alignment',
+      text: 'a second time',
+    });
+
+    const result = auditLiturgyAlignments([
+      { route: 'first/audit-test', doc: value },
+      { route: 'second/audit-test', doc: value },
+    ]);
+
+    expect(result.summary).toMatchObject({
+      routes: 2,
+      sourceWordRecords: 2,
+      witnesses: 4,
+      alignedWitnesses: 2,
+      routeVisibleEnglishTokens: 10,
+      tokensInWitnessesWithAlignTo: 4,
+      sourceAlignedEnglishTokens: 2,
+    });
   });
 });

@@ -133,3 +133,21 @@ Implementation files:
 - `components/liturgy/shapes/alignmentGeometry.ts`
 - `components/liturgy/shapes/TripleScriptWitness.tsx`
 - focused resolver, validation, generator, renderer-bridge, and geometry tests
+
+## Amendment: route-visible audit denominators (2026-08-25)
+
+**Status:** Implemented
+
+The semantic-alignment audit intentionally inspects every registered reader
+route because pooled witnesses and shared documents can appear in more than one
+route context. Its summary therefore distinguishes route-visible English
+tokens, tokens in witnesses with authored `alignTo`, and tokens linked to a
+source word. This removes the earlier ambiguous “English tokens” versus
+“aligned English tokens” labels without deduplicating away affected URLs.
+
+Implementation:
+
+- `services/liturgy/alignmentAudit.ts`
+- `scripts/liturgy-generator/audit-liturgy-alignments.ts`
+- `tests/services/liturgy/alignmentAudit.test.ts`
+- `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md`
