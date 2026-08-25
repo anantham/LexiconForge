@@ -38,7 +38,7 @@
     "verify:integrity": "node scripts/ci/integrity.mjs && node scripts/ci/extension-check.mjs",
     "verify:static": "npm run typecheck && npm run lint",
     "verify:build-security": "npm run build && npm run security:scan-client",
-    "verify:test": "vitest run --coverage",
+    "verify:test": "npm run verify:coverage-policy && vitest run --coverage",
     "verify:invariants": "tsx scripts/malayalam/validate-surface.ts",
     "verify:coverage-policy": "node scripts/ci/validate-coverage-policy.mjs"
   },

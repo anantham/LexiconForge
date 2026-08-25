@@ -85,8 +85,6 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
       - run: npm ci
-      - name: verify:coverage-policy
-        run: npm run verify:coverage-policy
       - name: verify:test
         run: npm run verify:test
         env:
