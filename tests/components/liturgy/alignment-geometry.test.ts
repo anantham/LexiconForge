@@ -95,6 +95,27 @@ describe('computeAlignmentLines', () => {
     expect(lines[0].x1).not.toBe(60);
   });
 
+  it('uses one truthful source anchor for repeated targets to the same multi-slice unit', () => {
+    const container = fixture();
+    const pali = container.querySelector<HTMLElement>('[data-pali-idx="0"]')!;
+    const morphs = pali.querySelectorAll<HTMLElement>('[data-morpheme-idx]');
+    morphs[0].dataset.analysisUnitIds = 'distributed-unit';
+    morphs[2].dataset.analysisUnitIds = 'distributed-unit';
+
+    const lines = computeAlignmentLines(container, {
+      alignTo: [0, 0, 0],
+      tokenAlignTo: [
+        { kind: 'analysis', unitId: 'distributed-unit' },
+        null,
+        { kind: 'analysis', unitId: 'distributed-unit' },
+      ],
+    });
+
+    const analysisLines = lines.filter((line) => line.targetKind === 'analysis');
+    expect(analysisLines.map((line) => line.x1)).toEqual([30, 30]);
+    expect(analysisLines.map((line) => line.x2)).toEqual([40, 160]);
+  });
+
   it('fails honestly to the whole word when a declared fine target is absent from the DOM', () => {
     const lines = computeAlignmentLines(fixture(), {
       alignTo: [0],
