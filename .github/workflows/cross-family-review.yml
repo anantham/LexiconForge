@@ -1,0 +1,33 @@
+name: Cross-family review gate
+
+# Security boundary: both events execute the workflow and gate implementation
+# from the trusted default branch. No pull-request code is checked out or run.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  cross-family-review-controller:
+    name: cross-family-review-controller
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out trusted gate implementation
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: Evaluate exact-head review receipts
+        run: npm run verify:cross-family-review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
