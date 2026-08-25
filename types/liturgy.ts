@@ -75,10 +75,12 @@ export type Witness = {
    * - `{ kind: 'morpheme', index }` targets an exact rendered surface slice.
    * - `{ kind: 'analysis', unitId }` targets a layered lexical or grammatical
    *   unit declared on the aligned `WordGloss.analysis` record.
-   * - `null`/absent degrades honestly to the whole aligned word.
+   * - `null` degrades honestly to the whole aligned word and suppresses any
+   *   legacy morpheme target at that index.
    *
-   * This field takes precedence over the legacy `morphemeAlignTo` entry at
-   * the same token index.
+   * When this field exists it takes precedence over the complete legacy
+   * `morphemeAlignTo` array. Only a witness with no `tokenAlignTo` field uses
+   * legacy targets.
    */
   tokenAlignTo?: (TokenAlignmentTarget | null)[];
 };

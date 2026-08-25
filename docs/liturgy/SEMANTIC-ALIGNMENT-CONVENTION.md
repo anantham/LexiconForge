@@ -45,7 +45,18 @@ the reviewed decision for each aligned English token:
 - `{ kind: 'morpheme', index }` — exact rendered surface slice.
 - `{ kind: 'analysis', unitId }` — lexical or grammar unit declared in the
   aligned `WordGloss.analysis`.
-- `null` or absent — unresolved; render at the whole word without guessing.
+- `null` entry — unresolved; render at the whole word without guessing and
+  suppress any legacy target at that index.
+
+When `tokenAlignTo` exists, it is the complete target contract for that witness
+and the legacy `morphemeAlignTo` array is ignored. Legacy targets are consulted
+only when `tokenAlignTo` is absent from the witness.
+
+Several coarse English tokens aligned to one source word intentionally share
+that word's truthful center while retaining distinct English endpoints. The
+result is a visible fan from one source point, not overlapping lines. Spreading
+their source endpoints across unreviewed character positions would fabricate
+precision and is prohibited.
 
 `WordGloss.analysis` names lexical and grammar units, their supporting surface
 slices, review status, citations, and any transformations. Unit IDs are unique
