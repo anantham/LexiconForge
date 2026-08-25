@@ -408,8 +408,9 @@ Required when multiple agents are active or when changes are non-trivial. Single
      block merge. They are never interpreted as approval.
 
 5. **Require the exact-head gate before merge**
-   - The commit status `cross-family-adversarial-review` must be successful on
-     the current PR head. Any subsequent commit invalidates the prior review.
+   - The Check Run `cross-family-adversarial-review`, source-pinned to the
+     repository's GitHub Actions App in the ruleset, must be successful on the
+     current PR head. Any subsequent commit invalidates the prior review.
    - Address blocking findings in follow-up commits, rerun relevant tests, and
      obtain a fresh independent review of the new head.
    - Sacred-text, security, identity, privacy, and deployment changes retain

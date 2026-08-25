@@ -2,7 +2,7 @@
 
 **Contract:** CORE-015
 
-**Required status:** `cross-family-adversarial-review`
+**Required Check Run:** `cross-family-adversarial-review`
 
 Every pull request must receive an adversarial review of its exact current head
 from an AI family that did not author or materially repair that head. The gate
@@ -105,21 +105,27 @@ must contain at least 200 characters of adversarial evidence and a final
 The trusted-default-branch workflow runs on PR-head changes and formal review
 changes. It performs this sequence:
 
-1. Post `pending` to the exact PR head before fetching evidence.
+1. Create an `in_progress` Check Run on the exact PR head before fetching
+   evidence. Its details URL and external ID identify the Actions run/attempt.
 2. Read formal PR reviews through the GitHub API.
 3. Infer and validate every author family.
 4. Select the newest structurally valid, trusted, current-head, cross-family
-   receipt.
-5. Post `success` only for completed `APPROVE` with zero blocking findings;
-   otherwise post `failure` or `error`.
+   receipt, breaking equal submission timestamps by numeric GitHub review ID.
+5. Complete the same Check Run with `success` only for completed `APPROVE` with
+   zero blocking findings; every negative or internal-error path completes
+   `failure` when the Check Run was created.
 
 The workflow uses `pull_request_target` but checks out only the repository's
 default branch. It never checks out or executes PR code. Its token has only
-`contents: read`, `pull-requests: read`, and `statuses: write` permissions.
+`contents: read`, `pull-requests: read`, and `checks: write` permissions.
 
-Repository rulesets must require `cross-family-adversarial-review`. Until that
-ruleset is enabled, the status is advisory and the human merge gate remains
-mandatory.
+After this workflow is merged and has emitted a real Check Run, inspect its
+`app` identity and configure the repository ruleset to require
+`cross-family-adversarial-review` **from the observed GitHub Actions App source**.
+Do not create an unbound name-only requirement: another integration capable of
+publishing checks could otherwise imitate the name. Until that source-pinned
+ruleset is enabled and negatively tested, the check is advisory and the human
+merge gate remains mandatory.
 
 ## 5. Fix and re-review
 

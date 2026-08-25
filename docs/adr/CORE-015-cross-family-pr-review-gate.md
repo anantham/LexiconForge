@@ -129,3 +129,35 @@ Adopt position C with these invariants:
    `cross-family-adversarial-review`.
 4. Revisit after one month: count blocked stale/self reviews, reviewer outages,
    false blocks, average review latency/cost, and any provenance disputes.
+
+## Amendment — source-bound Check Run transport (2026-08-25)
+
+**Status:** Accepted and implemented in the PR follow-up; ruleset activation remains pending
+
+Exact-head receipt evaluation remains unchanged, but the legacy commit-status
+transport described above is superseded. A name-only status context cannot be
+constrained to the GitHub Actions App that owns this trusted workflow, leaving
+the required name open to another collaborator-capable publisher.
+
+The controller now creates and completes a Check Run named
+`cross-family-adversarial-review` through the workflow's GitHub App installation
+token (`GITHUB_TOKEN`). Its `head_sha` is the event's exact PR head; its details
+URL and external ID identify the Actions run and attempt. The workflow receives
+`checks: write` instead of `statuses: write`. Negative evaluations and caught
+internal errors conclude `failure`; inability to create or complete the named
+check cannot produce success and therefore remains fail-closed.
+
+Candidate precedence is also made total: sort by GitHub `submitted_at`, then by
+numeric review ID. The later ID controls when timestamps are equal, independent
+of API response order.
+
+Activation sequence:
+
+1. Merge this implementation after independent exact-head review.
+2. Observe a real emitted Check Run and record its `app.id`/slug.
+3. Configure the required-check ruleset for the exact name **and that observed
+   GitHub Actions App source**.
+4. Prove missing evidence and a same-name result from another source do not
+   satisfy the rule before calling the gate enforced.
+
+No ruleset mutation is part of this implementation PR.

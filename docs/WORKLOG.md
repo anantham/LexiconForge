@@ -3504,6 +3504,28 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Result:** Confirmed the finding. `mergeOpenRouterRouting` now merges request preferences first and the selected route second. Exact-host mode therefore makes `only` and `allow_fallbacks: false` authoritative; Auto mode intentionally retains caller routing fields. Deny/ZDR remain final invariants.
 **Tests:** New hostile-preference and Auto-preservation cases pass. Pinned Node 24.19.0 routing test passes 7/7; complete affected request/UI set passes 67/67 across 7 files; TypeScript and focused ESLint are clean; `git diff --check` passes.
 **Confidence:** 0.99. Fallback remains reverting the isolated follow-up commit.
+
+### [2026-08-25 18:34 IST] [Agent: Codex]
+**Status:** Starting human-confirmed Option 1B repair for PR #164
+**Task:** Close every exact-head adversarial-review finding on the standing cross-family gate without activating repository rules or merging the PR.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-cross-family-review-gate`
+**Branch:** `feat/codex-cross-family-review-gate`
+**Confirmed root causes:** legacy `/statuses/{sha}` results expose a context string but cannot be constrained to the GitHub Actions App as an expected source; therefore a collaborator-capable publisher could spoof the named context. Candidate sorting uses only `submitted_at`, so equal timestamps inherit API order instead of a deterministic GitHub review-ID tie-break.
+**Selected repair:** publish an exact-head Check Run named `cross-family-adversarial-review` with the workflow's GitHub App installation token, complete it success/failure with descriptive output, document that activation must pin the observed GitHub Actions App source after merge, and sort admissible receipts by submission time then numeric review ID. No ruleset write is authorized in this task.
+**Predicted tests:** Check Run creation uses the exact PR head, Actions run URL, and run-scoped external ID; completion uses `status: completed` with only `success` or `failure`; API errors are descriptive; a larger review ID wins when two admissible reviews have the same timestamp regardless of API order; all existing stale/same-family/malformed/failure paths remain red.
+**Files likely affected:** `scripts/ci/cross-family-review-gate.mjs`; focused gate tests; `.github/workflows/cross-family-review.yml`; `AGENTS.md`; `docs/guides/CROSS_FAMILY_PR_REVIEWS.md`; append-only CORE-015 amendment; this worklog.
+**Fallback:** revert the isolated follow-up commit. Do not activate a ruleset until a merged workflow has produced a real Check Run whose GitHub Actions App source can be inspected and pinned.
+**Confidence:** 0.98.
+
+### [2026-08-25 18:52 IST] [Agent: Codex]
+**Status:** Complete — Option 1B repairs for PR #164 verified; commit and push pending
+**Result:** The evaluator now totally orders admissible reviews by submission timestamp and then arbitrary-precision numeric GitHub review ID, so API response order cannot decide equal-time receipts. The trusted controller no longer calls the legacy Statuses API. It creates an exact-head `cross-family-adversarial-review` Check Run with the Actions run URL and run/attempt external ID, then completes that same ID with `success` or `failure`. A caught error attempts a descriptive failure completion; create/complete failures cannot produce success. Workflow permission is `checks: write`, and the guide/standing instruction require the eventual repository rule to pin the observed GitHub Actions App source rather than trust the name alone.
+**Files and relevant lines:** `scripts/ci/cross-family-review-gate.mjs:13,38-53,120,178,236-297,319-354`; `tests/scripts/ci/crossFamilyReviewGate.test.mjs:147-163,215-283`; `.github/workflows/cross-family-review.yml:10-15`; `AGENTS.md:405-420`; `docs/guides/CROSS_FAMILY_PR_REVIEWS.md:5,104-130`; append-only `docs/adr/CORE-015-cross-family-pr-review-gate.md:133-168`; this worklog.
+**Verification:** focused gate suite 27/27; exact POST/PATCH URL and payload assertions; descriptive 403 path; same-timestamp large-ID negative path; workflow permission regression; TypeScript clean; focused ESLint clean; integrity/extension gates pass; workflow YAML parses. No repository ruleset was created or edited, and no claim of active enforcement is made.
+**Assumptions:** `GITHUB_TOKEN` represents the GitHub Actions App installation for the repository; a source-bound ruleset can be configured only after the merged workflow emits a real check whose app identity can be observed; absence or failure of the required named/source-bound check blocks once that rule is active.
+**Predicted outcomes confirmed:** all start-entry predictions pass. Existing stale, dismissed, untrusted, same-family, malformed, failed, inconclusive, and revise paths remain red.
+**Fallback:** revert the isolated follow-up commit. Keep the human merge gate until post-merge negative testing proves the source-bound repository rule.
+**Confidence:** 0.99 for code/test transport and tie-break behavior; activation confidence intentionally deferred until a live post-merge Check Run exists.
 ### [2026-08-23 14:40 IST] [Agent: ox-alpha]
 **Status:** Complete — Codex-review corrections for PR 153 (Option A)
 **Task:** Finish BookToki removal coherently + semantic extension gate.

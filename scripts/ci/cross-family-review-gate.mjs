@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 export const REVIEW_MARKER = 'cross-family-review:v1';
-export const STATUS_CONTEXT = 'cross-family-adversarial-review';
+export const CHECK_NAME = 'cross-family-adversarial-review';
 
 const FAMILY_ALIASES = new Map([
   ['human', 'human'],
@@ -34,6 +34,22 @@ const RECEIPT_PATTERN = /<!--\s*cross-family-review:v1\s*([\s\S]*?)-->/gi;
 
 const uniqueSorted = (values) => [...new Set(values)].sort();
 const sameValues = (a, b) => JSON.stringify(uniqueSorted(a)) === JSON.stringify(uniqueSorted(b));
+
+function numericReviewId(value) {
+  const text = String(value ?? '');
+  return /^\d+$/.test(text) ? BigInt(text) : null;
+}
+
+export function compareReviewCandidates(a, b) {
+  const timestampDelta = Date.parse(a.review.submitted_at) - Date.parse(b.review.submitted_at);
+  if (timestampDelta !== 0) return timestampDelta;
+  const aId = numericReviewId(a.review.id);
+  const bId = numericReviewId(b.review.id);
+  if (aId === bId) return 0;
+  if (aId === null) return -1;
+  if (bId === null) return 1;
+  return aId < bId ? -1 : 1;
+}
 
 export function normalizeFamily(value) {
   return FAMILY_ALIASES.get(String(value ?? '').trim().toLowerCase()) ?? null;
@@ -101,6 +117,7 @@ function validateCandidate(entry, headSha, authorFamilies) {
   if (!['COMMENTED', 'APPROVED', 'CHANGES_REQUESTED'].includes(reviewState)) {
     problems.push('GitHub review state is not submitted');
   }
+  if (numericReviewId(review.id) === null) problems.push('GitHub review has no valid numeric id');
   if (!Number.isFinite(Date.parse(review.submitted_at))) problems.push('GitHub review has no valid submission time');
   if (receipt?.headSha !== headSha) problems.push('receipt headSha is stale');
   if (review.commit_id !== headSha) problems.push('GitHub review is attached to a stale commit');
@@ -158,7 +175,7 @@ export function evaluateReviewGate({ pr, reviews }) {
     .filter((entry) => entry.receipt.headSha === headSha || entry.review.commit_id === headSha)
     .map((entry) => ({ ...entry, ...validateCandidate(entry, headSha, authorFamilies) }))
     .filter((entry) => entry.problems.length === 0)
-    .sort((a, b) => Date.parse(a.review.submitted_at) - Date.parse(b.review.submitted_at));
+    .sort(compareReviewCandidates);
 
   if (!candidates.length) {
     failures.push('No trusted, structurally valid cross-family receipt exists for the current head.');
@@ -216,16 +233,63 @@ async function fetchAllReviews(repository, prNumber, token) {
   throw new Error('Review pagination exceeded 1,000 entries; refusing a partial gate decision.');
 }
 
-async function postStatus(repository, headSha, token, state, description) {
-  const runUrl = `${process.env.GITHUB_SERVER_URL}/${repository}/actions/runs/${process.env.GITHUB_RUN_ID}`;
-  await githubRequest(`/repos/${repository}/statuses/${headSha}`, token, {
+function actionsRunMetadata(repository, overrides = {}) {
+  const serverUrl = overrides.serverUrl ?? process.env.GITHUB_SERVER_URL ?? 'https://github.com';
+  const runId = String(overrides.runId ?? process.env.GITHUB_RUN_ID ?? '').trim();
+  const runAttempt = String(overrides.runAttempt ?? process.env.GITHUB_RUN_ATTEMPT ?? '1').trim();
+  if (!runId) throw new Error('GITHUB_RUN_ID is required to bind the Check Run to its Actions run.');
+  return {
+    detailsUrl: `${serverUrl}/${repository}/actions/runs/${runId}`,
+    externalId: `${CHECK_NAME}:${runId}:${runAttempt}`,
+  };
+}
+
+export async function createReviewCheckRun(repository, headSha, token, overrides = {}) {
+  const metadata = actionsRunMetadata(repository, overrides);
+  const created = await githubRequest(`/repos/${repository}/check-runs`, token, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      state,
-      context: STATUS_CONTEXT,
-      description: description.slice(0, 140),
-      target_url: runUrl,
+      name: CHECK_NAME,
+      head_sha: headSha,
+      status: 'in_progress',
+      details_url: metadata.detailsUrl,
+      external_id: metadata.externalId,
+      output: {
+        title: 'Cross-family review pending',
+        summary: 'Checking exact-head, trusted, cross-family adversarial-review evidence.',
+      },
+    }),
+  });
+  if (numericReviewId(created?.id) === null) {
+    throw new Error('GitHub created a Check Run without a valid numeric id; refusing an untrackable result.');
+  }
+  return created.id;
+}
+
+export async function completeReviewCheckRun(
+  repository,
+  checkRunId,
+  token,
+  conclusion,
+  title,
+  summary,
+  overrides = {}
+) {
+  if (!['success', 'failure'].includes(conclusion)) {
+    throw new Error(`Unsupported Check Run conclusion: ${conclusion}`);
+  }
+  await githubRequest(`/repos/${repository}/check-runs/${checkRunId}`, token, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      status: 'completed',
+      conclusion,
+      completed_at: overrides.completedAt ?? new Date().toISOString(),
+      output: {
+        title: String(title).slice(0, 255),
+        summary: String(summary).slice(0, 6000),
+      },
     }),
   });
 }
@@ -252,22 +316,39 @@ async function runCli() {
   }
 
   const headSha = pr.head.sha.toLowerCase();
-  await postStatus(repository, headSha, token, 'pending', 'Checking exact-head cross-family review evidence');
+  let checkRunId = null;
   try {
+    checkRunId = await createReviewCheckRun(repository, headSha, token);
     const reviews = await fetchAllReviews(repository, pr.number, token);
     const result = evaluateReviewGate({ pr, reviews });
     console.log(JSON.stringify(result, null, 2));
-    await postStatus(
+    await completeReviewCheckRun(
       repository,
-      headSha,
+      checkRunId,
       token,
       result.ok ? 'success' : 'failure',
-      result.ok ? 'Independent cross-family review approved current head' : result.failures[0],
+      result.ok ? 'Independent cross-family review approved' : 'Cross-family review blocked',
+      result.ok
+        ? `A trusted independent reviewer approved exact head ${headSha}.`
+        : result.failures.join('\n'),
     );
     process.exitCode = result.ok ? 0 : 1;
   } catch (error) {
     console.error(`cross-family review gate failed: ${error.stack ?? error.message}`);
-    await postStatus(repository, headSha, token, 'error', 'Review gate errored; merge remains blocked');
+    if (checkRunId !== null) {
+      try {
+        await completeReviewCheckRun(
+          repository,
+          checkRunId,
+          token,
+          'failure',
+          'Cross-family review gate errored',
+          `The gate failed before it could establish approval: ${error.message}`,
+        );
+      } catch (completionError) {
+        console.error(`could not complete failed Check Run ${checkRunId}: ${completionError.stack ?? completionError.message}`);
+      }
+    }
     process.exitCode = 1;
   }
 }

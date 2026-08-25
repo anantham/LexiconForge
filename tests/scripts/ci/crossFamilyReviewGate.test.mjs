@@ -1,10 +1,17 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import {
+  completeReviewCheckRun,
+  createReviewCheckRun,
   evaluateReviewGate,
   inferBranchFamily,
   parseReviewReceipts,
   resolveAuthorFamilies,
 } from '../../../scripts/ci/cross-family-review-gate.mjs';
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 const HEAD = 'a'.repeat(40);
 const OLD_HEAD = 'b'.repeat(40);
@@ -137,6 +144,22 @@ describe('cross-family review gate', () => {
     expect(result.failures).toContain('Latest review verdict is REVISE, not APPROVE.');
   });
 
+  it('uses numeric review ID as the deterministic same-timestamp tie-breaker', () => {
+    const submittedAt = '2026-08-25T06:40:00.000Z';
+    const approve = review(receipt(), {
+      id: '9007199254740993',
+      submitted_at: submittedAt,
+    });
+    const revise = review(receipt({ verdict: 'REVISE', blockingFindings: 1 }), {
+      id: '9007199254740994',
+      submitted_at: submittedAt,
+    });
+
+    const result = evaluateReviewGate({ pr: pr(), reviews: [revise, approve] });
+    expect(result.ok).toBe(false);
+    expect(result.failures).toContain('Latest review verdict is REVISE, not APPROVE.');
+  });
+
   it('fails loudly on malformed trusted receipt JSON', () => {
     const malformed = review(receipt(), {
       body: '<!-- cross-family-review:v1\n{"schemaVersion":\n-->',
@@ -187,5 +210,74 @@ describe('cross-family review gate', () => {
     expect(inferBranchFamily('fix/gemini-parser')).toBe('google');
     expect(inferBranchFamily('feat/grok-audit')).toBe('xai');
     expect(parseReviewReceipts([review()])).toHaveLength(1);
+  });
+
+  it('creates and completes an exact-head GitHub Actions Check Run', async () => {
+    const requests = [];
+    vi.stubGlobal('fetch', vi.fn(async (url, options) => {
+      requests.push({ url, options, body: JSON.parse(options.body) });
+      return {
+        ok: true,
+        status: requests.length === 1 ? 201 : 200,
+        json: async () => (requests.length === 1 ? { id: 321 } : {}),
+      };
+    }));
+
+    const checkRunId = await createReviewCheckRun('owner/repo', HEAD, 'token', {
+      serverUrl: 'https://github.example',
+      runId: '456',
+      runAttempt: '2',
+    });
+    await completeReviewCheckRun(
+      'owner/repo',
+      checkRunId,
+      'token',
+      'success',
+      'Independent review approved',
+      `Approved exact head ${HEAD}.`,
+      { completedAt: '2026-08-25T07:00:00.000Z' }
+    );
+
+    expect(checkRunId).toBe(321);
+    expect(requests[0]).toMatchObject({
+      url: 'https://api.github.com/repos/owner/repo/check-runs',
+      options: { method: 'POST' },
+      body: {
+        name: 'cross-family-adversarial-review',
+        head_sha: HEAD,
+        status: 'in_progress',
+        details_url: 'https://github.example/owner/repo/actions/runs/456',
+        external_id: 'cross-family-adversarial-review:456:2',
+      },
+    });
+    expect(requests[1]).toMatchObject({
+      url: 'https://api.github.com/repos/owner/repo/check-runs/321',
+      options: { method: 'PATCH' },
+      body: {
+        status: 'completed',
+        conclusion: 'success',
+        completed_at: '2026-08-25T07:00:00.000Z',
+      },
+    });
+  });
+
+  it('reports a descriptive Check Run API failure', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: false,
+      status: 403,
+      text: async () => 'GitHub App lacks checks permission',
+    })));
+
+    await expect(
+      createReviewCheckRun('owner/repo', HEAD, 'token', { runId: '456' })
+    ).rejects.toThrow(
+      'GitHub POST /repos/owner/repo/check-runs failed: 403 GitHub App lacks checks permission'
+    );
+  });
+
+  it('grants Check Run permission without retaining legacy status permission', () => {
+    const workflow = readFileSync('.github/workflows/cross-family-review.yml', 'utf8');
+    expect(workflow).toContain('checks: write');
+    expect(workflow).not.toContain('statuses: write');
   });
 });
