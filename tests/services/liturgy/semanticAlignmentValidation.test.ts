@@ -133,6 +133,45 @@ describe('layered liturgy alignment validation', () => {
     );
   });
 
+  it('rejects analysis without surface anchors, units, or unit targets', () => {
+    const withoutSurface = doc();
+    const withoutUnits = doc();
+    const withoutTarget = doc();
+    const surfaceSection = withoutSurface.sections[0];
+    const unitsSection = withoutUnits.sections[0];
+    const targetSection = withoutTarget.sections[0];
+    if (
+      surfaceSection.shape !== 'triple-script-witness' ||
+      unitsSection.shape !== 'triple-script-witness' ||
+      targetSection.shape !== 'triple-script-witness'
+    ) return;
+
+    const surfaceWord = surfaceSection.segments[0].words![0];
+    surfaceWord.morphemes = undefined;
+    const unitsWord = unitsSection.segments[0].words![0];
+    unitsWord.analysis!.units = [];
+    const targetWord = targetSection.segments[0].words![0];
+    targetWord.analysis!.units[0].surfaceMorphemeIndices = [];
+
+    expect(errorCodes(withoutSurface)).toContain('analysis_requires_surface_morphemes');
+    expect(errorCodes(withoutUnits)).toContain('analysis_units_missing');
+    expect(errorCodes(withoutTarget)).toContain('analysis_surface_target_missing');
+  });
+
+  it('attributes each invalid surface reference to its array position', () => {
+    const value = doc();
+    const section = value.sections[0];
+    if (section.shape !== 'triple-script-witness') return;
+    section.segments[0].words![0].analysis!.units[0].surfaceMorphemeIndices = [98, 99];
+
+    expect(validateLiturgyDoc(value)
+      .filter((diagnostic) => diagnostic.code === 'analysis_surface_index_out_of_range')
+      .map((diagnostic) => diagnostic.path)).toEqual([
+      'line.words.pāṇātipātā.analysis.units.0.surfaceMorphemeIndices.0',
+      'line.words.pāṇātipātā.analysis.units.0.surfaceMorphemeIndices.1',
+    ]);
+  });
+
   it('rejects fine alignment metadata when alignTo is absent', () => {
     const value = doc();
     const section = value.sections[0];

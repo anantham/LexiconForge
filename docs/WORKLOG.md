@@ -3589,3 +3589,14 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Verification:** validator/resolver suites pass 16/16; TypeScript and focused ESLint pass; `git diff --check` is clean.
 **Fallback:** revert the isolated fix commit; detection would remain correct but legacy diagnostics would again misidentify the source field.
 **Confidence:** 0.99.
+
+### [2026-08-25 18:37 IST] [Agent: Codex]
+**Status:** Gemini inconsistent-approval P3 repairs implemented; verification and fresh consistent review pending
+**Review receipt:** Gemini run `c9c74cab-becd-44d2-ab40-288c52ea1890`, formal GitHub review `5019228319`, reviewed head `5b42370df135e2e8b041360286a0d54b2e6c37f5`. The response ended `APPROVE` while listing two actionable P3s, so the faithfully inconsistent receipt is not treated as gate-eligible.
+**Confirmed root causes:** Three analysis invariants had production guards but no direct negative regression. Separately, the validator iterated surface-index values without their array positions, so multiple invalid entries emitted indistinguishable collection paths.
+**Options:** (A) add direct invariant tests and index each diagnostic path, selected as precise and reversible; (B) coalesce invalid indices into one diagnostic, rejected because it hides exact edit locations; (C) replace paths with JSON Pointer globally, deferred as unrelated migration.
+**Predicted tests:** each of `analysis_requires_surface_morphemes`, `analysis_units_missing`, and `analysis_surface_target_missing` is directly observed; invalid entries `[98, 99]` report suffixes `.0` and `.1`; existing validation remains green.
+**Files:** `services/liturgy/validation.ts`; `tests/services/liturgy/semanticAlignmentValidation.test.ts`; this worklog.
+**Verification:** semantic validator suite passes 13/13; TypeScript and focused ESLint pass; `git diff --check` is clean. The first typecheck correctly rejected a test loop that did not preserve discriminated-union narrowing; binding and narrowing each section explicitly fixed the test without production changes.
+**Fallback:** revert the isolated follow-up commit; validation would still reject malformed data but diagnostics would lose per-entry precision and the three invariant branches would again lack direct tests.
+**Confidence:** 0.99.

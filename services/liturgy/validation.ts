@@ -216,14 +216,14 @@ function checkWord(
           path: `${unitPath}.surfaceMorphemeIndices`,
         });
       }
-      for (const surfaceIndex of unit.surfaceMorphemeIndices) {
+      for (const [surfacePosition, surfaceIndex] of unit.surfaceMorphemeIndices.entries()) {
         if (!Number.isInteger(surfaceIndex) || surfaceIndex < 0 || surfaceIndex >= morphemeCount) {
           diagnostics.push({
             level: 'error',
             code: 'analysis_surface_index_out_of_range',
             message: `analysis unit "${unit.id}" on "${word.form}" targets surface morpheme ${surfaceIndex}, outside [0, ${morphemeCount - 1}]`,
             ...base,
-            path: `${unitPath}.surfaceMorphemeIndices`,
+            path: `${unitPath}.surfaceMorphemeIndices.${surfacePosition}`,
           });
         }
       }
