@@ -3428,6 +3428,21 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Fallback:** Keep the current IndrasNet client and UI as the default; if no safe native invocation exists, stop at the integration seam rather than interpolate generated text into STscript.
 **Confidence:** 0.89
 
+### [2026-08-24 11:29 IST] [Agent: Codex]
+**Status:** PR #158 CI correction complete; propagation and rereview pending
+**Issue:** The repository-integrity gate found trailing whitespace on the two metadata lines of the newly added FEAT-006 ADR.
+**Files modified:** `docs/adr/FEAT-006-private-semantic-oscilloscope.md`, `docs/WORKLOG.md`.
+**Correction/tests:** Removed only the two trailing whitespace sequences. `npm run verify:integrity` and `git diff --check` are the predicted gates; confidence 0.99. Fallback is to revert this isolated documentation-only correction if it changes rendered intent.
+
+### [2026-08-24 11:12 IST] [Agent: Codex]
+**Status:** PR #158 Codex review findings corrected; rereview pending
+**Findings confirmed:** Thread serialization spread unrecognized runtime/import fields into portable sessions; private semantic values were not checked against their declared range; malformed/stale active IDs were silently dropped; explicit invalid chapter numbers fell back to position; the versioned public protocol ADR was not present in this base PR.
+**Files modified:** `services/semanticOscilloscopeSession.ts`, its focused test, and new `docs/adr/FEAT-006-private-semantic-oscilloscope.md`.
+**Correction:** Corpus numbering is strict when present; thread, provenance, and session objects are rebuilt from public allowlists; finite ordered ranges bound every private-semantic value; imported active IDs must be a unique array of known strings; FEAT-006 now records compatibility, privacy, scoring, and live acceptance invariants.
+**Tests:** Seven focused contract tests pass; TypeScript, focused ESLint error gate, and `git diff --check` pass.
+**Assumptions/confidence/fallback:** Unknown fields are intentionally discarded rather than round-tripped. Confidence 0.98. Revert this isolated follow-up commit if rereview rejects the stricter v1.0 parser.
+
+
 ### [2026-08-23 17:15 IST] [Agent: Codex]
 **Status:** Source implementation complete; local commit pending final review; live Asus deployment intentionally not attempted
 **Validated hypotheses:** H1 confirmed against the exact official SillyTavern 1.18.0 source: native Image Generation owns `extension_settings.sd.source/model` and the server-held OpenRouter secret. H2 confirmed by controller tests: both backends preserve one-shot dispatch, non-blocking failure, origin-chat deferral, and attachment provenance. H3 confirmed: `SlashCommandParser.commands.imagine.callback` accepts structured arguments and prompt data directly, so no generated text is interpolated into STscript.
@@ -3524,3 +3539,15 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Task:** Codex found README still carried BookToki usage/output sections + content.js row, ledger item-2 still said "pending PR-b", and the 15:30 WORKLOG entry + PR body overclaimed those as already fixed (they were lost in the same reset cascade and my reapply script lacked asserts on those two replacements).
 **Files modified:** chrome_extension/README.md (BookToki usage section, output-format block, Multi-Site feature bullet, content.js table row removed — every replacement now assert-guarded); docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md item-2 wording reconciled to REMOVED status.
 **Verification:** README booktoki grep = only the provenance deprecation line; ledger grep shows no pending-PR-b for extension; this entry supersedes the 15:30 entry's overclaim re README/ledger (gate + popup fixes in that entry were real and verified).
+
+### [2026-08-24 06:59 IST] [Agent: Codex]
+**Status:** Starting approved private semantic oscilloscope implementation
+**Task:** Implement selected Option A: Tailnet-only IndrasNet/Asus semantic scans return final per-chapter graph scores to the static LexiconForge client, while exported sessions carry frozen scalar tracks for readers without private compute.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-semantic-oscilloscope/`
+**Branch:** `feat/codex-semantic-oscilloscope`
+**Issues:** The Custom oscilloscope tab currently calls a stub returning no results; its store contract aggregates lexical counts and max-normalizes them. A boolean health check alone cannot prove the requested book/version exists or matches the browser's active text. Public sessions must remain useful without exposing private compute or bulky passage vectors.
+**Hypotheses:** H1 (0.86) the existing SillyTavern reachability hook and IndrasNet resumable-job client patterns can support a narrow semantic capability adapter without making LexiconForge a backend application. H2 (0.91) a content-derived book/version identity plus capability response can fail closed on stale Asus indexes. H3 (0.90) final scalar thread values plus model/query/chunker/aggregation provenance fit the existing session-export boundary and need no browser vector store.
+**Predicted tests:** unavailable or incompatible capability keeps Custom scan disabled with a descriptive state; a matching ready capability enables one scan submission; accepted jobs poll without duplicate submission; book-hash mismatch and malformed/non-finite scores reject; valid chapter scores register a custom thread without per-query max normalization; frozen semantic tracks survive session export/import with provenance and no vectors or private endpoint.
+**Files likely affected:** oscilloscope types/store/components and focused tests; a new modular IndrasNet semantic-scan service/hook; existing session import/export mapping only if the current artifact drops thread provenance; a new FEAT ADR; this WORKLOG. Existing SillyTavern/provider integration files are out of scope because active worktrees own them.
+**Fallback:** Keep all new behavior behind the semantic capability adapter and remove that adapter/UI wiring if the existing IndrasNet contract cannot express book identity safely. Static oscilloscope tracks and session loading remain unchanged.
+**Confidence:** 0.89
