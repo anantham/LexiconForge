@@ -164,6 +164,14 @@
 **Verification:** Corrected red gate 2 failed/7 passed; focused green gate 19/19; complete navigation-branch affected gate 90/90 across 10 files; TypeScript clean; focused ESLint 0 errors with 16 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
 **Confidence:** 0.99. Next gate is commit/push, exact-head rereview, and clean CI before merge.
 
+### [2026-08-30 21:51 IST] [Agent: Codex]
+**Status:** Fifth exact-head review finding corrected and locally verified; commit/push pending
+**Finding:** P2 a legacy numberless row was counted by stable ID beside its numbered replacement, so the duplicate could satisfy a known package denominator while another numbered chapter remained absent.
+**Hypothesis/result:** Confirmed by a red regression (`chapterCount` was 2 instead of 1). Scoped completeness evidence now counts only distinct positive safe-integer chapter numbers. Legacy numberless rows remain hydrated/readable but cannot prove a packaged session complete. Confidence 0.99.
+**Files affected:** `services/readerHydrationService.ts`; `tests/services/readerHydrationService.test.ts`; this worklog.
+**Verification:** Red focused gate 1 failed/6 passed; focused green gate 18/18 across service and UI; complete affected gate 93/93 across 10 files when run with the repository's documented Node 26 `--localstorage-file` requirement; TypeScript clean; focused ESLint 0 errors with 1 pre-existing warning; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean. The first affected run without the Node option failed 28 navigation assertions at setup because `window.localStorage` was undefined; the exact file then passed 32/32 with the option, isolating that result from this source change.
+**Fallback:** Revert this isolated follow-up commit; PR #166 remains unmerged.
+
 ### [2026-08-30 21:40 IST] [Agent: Codex]
 **Status:** Validating fourth exact-head Codex review for PR #166
 **Findings:** P2 an unknown expected package count is currently treated as complete whenever any cache row exists, so an available session URL is never retried. P2 scoped cache completeness uses raw durable row count, allowing stale/current rows for the same chapter number to satisfy the denominator while another chapter is absent.

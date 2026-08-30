@@ -14,7 +14,7 @@ export interface ReaderHydrationOptions {
 
 export interface NovelCacheHydrationResult {
   firstChapterId: string | null;
-  /** Distinct scoped chapter count before an optional in-memory hydration limit. */
+  /** Distinct positive chapter-number count before an optional in-memory hydration limit. */
   chapterCount: number;
 }
 
@@ -139,19 +139,17 @@ const hydrateIntoStore = (
   return hydratedState.firstChapterId;
 };
 
-const countDistinctChapterIdentities = (
+const countDistinctNumberedChapters = (
   chapters: ChapterRenderingRecord[]
 ): number => {
-  const identities = new Set<string>();
+  const chapterNumbers = new Set<number>();
   for (const chapter of chapters) {
     const chapterNumber = chapter.chapterNumber;
     if (Number.isSafeInteger(chapterNumber) && chapterNumber > 0) {
-      identities.add(`number:${chapterNumber}`);
-    } else {
-      identities.add(`stable:${chapter.stableId}`);
+      chapterNumbers.add(chapterNumber);
     }
   }
-  return identities.size;
+  return chapterNumbers.size;
 };
 
 export async function loadNovelIntoStore(
@@ -164,7 +162,9 @@ export async function loadNovelIntoStore(
 }
 
 /**
- * Hydrate a scoped novel cache and report how many durable chapter rows exist.
+ * Hydrate a scoped novel cache and report how many distinct positive chapter
+ * numbers exist. Legacy numberless rows remain readable but cannot prove that
+ * a packaged session is complete.
  * A caller deciding whether a packaged session is complete must not infer that
  * from a truthy first chapter id.
  */
@@ -180,7 +180,7 @@ export async function loadNovelCacheIntoStore(
 
   return {
     firstChapterId: hydrateIntoStore(chapters, setState, options),
-    chapterCount: countDistinctChapterIdentities(chapters),
+    chapterCount: countDistinctNumberedChapters(chapters),
   };
 }
 
