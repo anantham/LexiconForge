@@ -513,6 +513,21 @@ export class ImportService {
           );
         };
 
+        const consumeExactPackagedTranslation = (
+          available: TranslationRecord[],
+          imported: ReturnType<typeof buildTranslationInputs>[number],
+          expectedVersion: number | undefined = imported.exportedVersion
+        ): TranslationRecord | undefined => {
+          const matchIndex = available.findIndex((record) =>
+            (expectedVersion === undefined || record.version === expectedVersion) &&
+            isExactPackagedTranslation(record, imported)
+          );
+          if (matchIndex === -1) {
+            return undefined;
+          }
+          return available.splice(matchIndex, 1)[0];
+        };
+
         const response = await fetch(fetchUrl, {
           headers: {
             Accept: 'application/json',
@@ -711,15 +726,20 @@ export class ImportService {
 
           let activeVersion: number | null = null;
           let chapterTranslationsStored = 0;
-          const newlyStoredInputs: ReturnType<typeof buildTranslationInputs> = [];
+          const newlyStoredTranslations: Array<{
+            input: ReturnType<typeof buildTranslationInputs>[number];
+            version: number;
+          }> = [];
           const existingTranslations = translationInputs.length > 0
             ? await TranslationOps.getVersionsByStableId(identity.stableId)
             : [];
+          const reusableTranslations = [...existingTranslations];
 
           for (const translation of translationInputs) {
             translationsExpected++;
-            const exactExisting = existingTranslations.find((record) =>
-              isExactPackagedTranslation(record, translation)
+            const exactExisting = consumeExactPackagedTranslation(
+              reusableTranslations,
+              translation
             );
             if (exactExisting) {
               translationsReused++;
@@ -747,7 +767,10 @@ export class ImportService {
                 settings: translation.settings,
               });
               chapterTranslationsStored++;
-              newlyStoredInputs.push(translation);
+              newlyStoredTranslations.push({
+                input: translation,
+                version: stored.version,
+              });
 
               if (
                 translation.isActive ||
@@ -784,8 +807,9 @@ export class ImportService {
           if (chapterTranslationsStored > 0) {
             try {
               const persisted = await TranslationOps.getVersionsByStableId(identity.stableId);
-              const verifiedNewCount = newlyStoredInputs.filter((input) =>
-                persisted.some((record) => isExactPackagedTranslation(record, input))
+              const unverifiedPersisted = [...persisted];
+              const verifiedNewCount = newlyStoredTranslations.filter(({ input, version }) =>
+                Boolean(consumeExactPackagedTranslation(unverifiedPersisted, input, version))
               ).length;
               translationsVerified += verifiedNewCount;
               if (verifiedNewCount < chapterTranslationsStored) {

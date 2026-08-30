@@ -78,7 +78,12 @@ export class NavigationService {
 
       let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
 
-      if (internalTarget) {
+      // A manually imported session has no registry scope: its rows keep
+      // novelId=null even when the session's exact URL uses our internal
+      // scheme. In that mode the URL indexes are the authoritative identity.
+      // Scoped library sessions still resolve by novel/version/number so an
+      // index entry can never cross the active library boundary.
+      if (internalTarget && (scope?.novelId || !chapterId)) {
         const activeNovelId = scope?.novelId ?? null;
         if (activeNovelId && activeNovelId !== internalTarget.novelId) {
           const errorMessage =

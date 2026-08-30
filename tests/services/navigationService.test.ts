@@ -433,6 +433,30 @@ describe('NavigationService', () => {
       expect(result).toMatchObject({ chapterId: 'dd-42', chapter });
     });
 
+    it('preserves an exact internal URL mapping for an unscoped manual import', async () => {
+      const { ChapterOps } = await import('../../services/db/operations');
+      const chapter = createMockEnhancedChapter({
+        id: 'manual-64',
+        novelId: null,
+        libraryVersionId: null,
+        chapterNumber: 64,
+        canonicalUrl: 'lexiconforge://aithihyamala/chapter/64',
+      });
+
+      const result = await NavigationService.handleNavigate(
+        chapter.canonicalUrl,
+        createNavigationContext({
+          chapters: new Map([[chapter.id, chapter]]),
+          urlIndex: new Map([['aithihyamala/chapter/64', chapter.id]]),
+          rawUrlIndex: new Map([[chapter.canonicalUrl, chapter.id]]),
+        }),
+        vi.fn()
+      );
+
+      expect(result).toMatchObject({ chapterId: chapter.id, chapter });
+      expect(ChapterOps.findByNumber).not.toHaveBeenCalled();
+    });
+
     it('rejects a malformed internal URL before a normalized memory mapping can resolve it', async () => {
       const { ChapterOps } = await import('../../services/db/operations');
       const chapter = createMockEnhancedChapter({

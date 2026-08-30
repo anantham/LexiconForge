@@ -259,4 +259,60 @@ describe('streamImportFromUrl — idempotent resume', () => {
       1
     );
   });
+
+  it('consumes reused translations one-to-one when packaged versions have identical content', async () => {
+    const identicalVersionsSession = {
+      ...sessionWithOneChapter,
+      chapters: [
+        {
+          ...sessionWithOneChapter.chapters[0],
+          translations: [
+            {
+              ...sessionWithOneChapter.chapters[0].translations[0],
+              version: 1,
+              isActive: false,
+            },
+            {
+              ...sessionWithOneChapter.chapters[0].translations[0],
+              version: 2,
+              isActive: true,
+            },
+          ],
+        },
+      ],
+    };
+    const existingVersion = {
+      id: 'existing-v1',
+      version: 1,
+      isActive: true,
+      translatedTitle: 'The Ammathiruvadi of Urakam',
+      translation: '<p>How a goddess rode a palm-leaf umbrella…</p>',
+      provider: 'Claude',
+      model: 'claude-opus-4-8',
+      footnotes: [],
+      suggestedIllustrations: [],
+      proposal: null,
+    };
+    const storedVersion = { ...existingVersion, id: 'new-v2', version: 2, isActive: false };
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(identicalVersionsSession)));
+    translationOpsMock.store.mockResolvedValue({ id: 'new-v2', version: 2 });
+    translationOpsMock.getVersionsByStableId
+      .mockReset()
+      .mockResolvedValueOnce([existingVersion])
+      .mockResolvedValueOnce([existingVersion, storedVersion]);
+
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      undefined,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    expect(translationOpsMock.store).toHaveBeenCalledTimes(1);
+    expect(translationOpsMock.setActiveByUrl).toHaveBeenCalledWith(
+      expect.stringContaining('lf-library:'),
+      2
+    );
+  });
 });

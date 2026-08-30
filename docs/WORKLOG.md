@@ -132,6 +132,22 @@
 **Fallback:** revert this isolated round and leave PR #139 unmerged; no persisted schema, broker, or provider API change is involved.
 **Confidence:** 0.98
 
+### [2026-08-30 21:15 IST] [Agent: Codex]
+**Status:** Validating second exact-head Codex review for PR #166
+**Findings:** P1 unscoped/manual sessions can resolve an exact internal URL in `urlIndex`, but the new scoped chapter-number branch rejects the mapped row because manually imported chapters intentionally carry `novelId=null`. P2 replay matching treats stored translations as a reusable set rather than a consumable multiset, so one identical row can satisfy multiple packaged versions and select the wrong active version.
+**Options:** (A) preserve exact mapped internal navigation only when no library scope is active, and consume exact translation matches one-to-one — selected as the narrow contract repair; (B) assign registry scope retroactively to manual imports and redesign translation identity — rejected as a migration/architecture change; (C) merge with known regressions — rejected.
+**Hypotheses:** H1 (0.99) bypassing chapter-number scope resolution only when an unscoped exact mapping already exists will restore manual navigation without weakening strict parsing or active-library isolation. H2 (0.99) consuming matching stored rows once, with exported-version preference, will store every missing packaged version and preserve active selection. The same multiset rule must govern read-back verification to avoid false success.
+**Predicted tests:** an unscoped mapped `lexiconforge://` chapter navigates without `findByNumber`; two identical packaged versions with only stored version 1 cause exactly one store for version 2 and activate version 2. Existing strict scoped/malformed navigation and single-version idempotent replay remain green.
+**Files affected:** `services/navigation/index.ts`; `services/importService.ts`; their two focused test files; this worklog.
+**Fallback:** Revert this isolated follow-up commit; PR #166 remains unmerged at its prior reviewed head.
+**Confidence:** 0.99
+
+### [2026-08-30 21:18 IST] [Agent: Codex]
+**Status:** Second exact-head review findings corrected and locally verified; commit/push pending
+**Result:** Both findings were confirmed by red tests (2 failures while 37 existing assertions passed). Unscoped internal navigation now keeps an already-resolved exact URL mapping authoritative; scoped library navigation still resolves strictly by active novel/version/number. Replay now consumes stored translations as a version-aware multiset, and read-back verification consumes the newly stored versions one-to-one as well.
+**Verification:** Red gate 2 failed/37 passed; focused green gate 39/39; complete navigation-branch affected gate 88/88 across 10 files; TypeScript clean; focused ESLint 0 errors with 32 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
+**Confidence:** 0.99. Next gate is commit/push followed by another exact-head Codex rereview and clean CI before merge.
+
 ### [2026-08-30 21:05 IST] [Agent: Codex]
 **Status:** Option 1 review corrections complete locally; commit and push pending
 **Results:** H1-H4 confirmed. A reader opened from cached or first-ready content now retains ownership if the remaining stream fails and receives a retry-oriented warning; failures before any reader opens still reach the original hard-failure path. Any `lexiconforge:` input rejected by the canonical parser now fails before normalized or raw mappings. Null/undefined version chapter-number lookups use the `novelId` index and explicit version filter, while versioned lookups retain the compound index. Stored chapter numbers now outrank title inference; legacy numberless summaries still use the title fallback.
