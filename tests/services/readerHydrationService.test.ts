@@ -129,9 +129,62 @@ describe('readerHydrationService', () => {
       versionId: 'alice-v1',
     });
 
-    expect(result).toEqual({ firstChapterId: 'novel-a-1', chapterCount: 3 });
+    expect(result).toEqual({
+      firstChapterId: 'novel-a-1',
+      chapterCount: 3,
+      chapterNumbers: [1, 2, 3],
+    });
     const payload = mockSetState.mock.calls[0][0];
     expect(Array.from(payload.chapters.keys())).toEqual(['novel-a-1', 'novel-a-2']);
+  });
+
+  it('counts distinct chapter numbers when stale scoped rows share an identity', async () => {
+    mockFetchChaptersForNovel.mockResolvedValue([
+      makeRenderingRecord('novel-a-1-old', {
+        novelId: 'novel-a',
+        chapterNumber: 1,
+        libraryVersionId: 'alice-v1',
+      }),
+      makeRenderingRecord('novel-a-1-current', {
+        novelId: 'novel-a',
+        chapterNumber: 1,
+        libraryVersionId: 'alice-v1',
+      }),
+      makeRenderingRecord('novel-a-2', {
+        novelId: 'novel-a',
+        chapterNumber: 2,
+        libraryVersionId: 'alice-v1',
+      }),
+    ]);
+
+    const result = await loadNovelCacheIntoStore('novel-a', mockSetState, {
+      versionId: 'alice-v1',
+    });
+
+    expect(result.chapterCount).toBe(2);
+    expect(result.chapterNumbers).toEqual([1, 2]);
+  });
+
+  it('does not let legacy numberless rows satisfy packaged chapter completeness', async () => {
+    mockFetchChaptersForNovel.mockResolvedValue([
+      makeRenderingRecord('novel-a-1-legacy', {
+        novelId: 'novel-a',
+        chapterNumber: 0,
+        libraryVersionId: 'alice-v1',
+      }),
+      makeRenderingRecord('novel-a-1-current', {
+        novelId: 'novel-a',
+        chapterNumber: 1,
+        libraryVersionId: 'alice-v1',
+      }),
+    ]);
+
+    const result = await loadNovelCacheIntoStore('novel-a', mockSetState, {
+      versionId: 'alice-v1',
+    });
+
+    expect(result.chapterCount).toBe(1);
+    expect(result.chapterNumbers).toEqual([1]);
   });
 
   it('loadAllIntoStore supports full-session imports and preserves null novelId', async () => {

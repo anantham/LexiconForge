@@ -191,6 +191,34 @@ describe('useChapterDropdownOptions — virtual catalog merge', () => {
     expect(result.current.options.find((option) => option.displayNumber === 2)?.stableId).toBe('real-ch2-id');
   });
 
+  it('does not let a translated title override a stored number and hide another catalog chapter', async () => {
+    storeState.activeNovelId = 'fmc';
+    fetchNovelByIdMock.mockResolvedValue({
+      id: 'fmc',
+      metadata: { chapterCount: 3 },
+      versions: [],
+    });
+    getChapterSummariesByScopeMock.mockResolvedValue([
+      realSummary('real-ch1-id', 1, {
+        translatedTitle: 'Chapter 2 appears in the title',
+      }),
+    ]);
+
+    const { result } = renderHook(() => useChapterDropdownOptions());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.options).toHaveLength(3);
+    expect(result.current.options.find((option) => option.stableId === 'real-ch1-id')).toMatchObject({
+      chapterNumber: 1,
+      displayNumber: 1,
+      availability: 'ready',
+    });
+    expect(result.current.options.find((option) => option.chapterNumber === 2)).toMatchObject({
+      displayNumber: 2,
+      availability: 'not-cached',
+    });
+  });
+
   it('overlays in-memory data on top of both virtual and real summaries', async () => {
     storeState.activeNovelId = 'fmc';
     storeState.chapters = new Map([

@@ -18,6 +18,7 @@ import type { TranslationSettingsSnapshot } from '../../types';
 import { ChapterOps, TranslationOps, SettingsOps, NavigationOps } from '../db/operations';
 import { telemetryService } from '../telemetryService';
 import { parseInternalChapterUrl } from '../chapterCatalog';
+import { selectLatestChapterRevision } from '../chapterRevisionService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { adaptTranslationRecordToResult } from './converters';
 import { validateNavigation } from './validation';
@@ -63,10 +64,27 @@ export class NavigationService {
         }
       );
 
-      let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
       const internalTarget = parseInternalChapterUrl(url);
+      const usesInternalScheme = /^lexiconforge:/i.test(url);
 
-      if (internalTarget) {
+      if (usesInternalScheme && !internalTarget) {
+        const errorMessage =
+          'Malformed internal chapter URL. Expected ' +
+          'lexiconforge://<novel-id>/chapter/<positive-number> without query parameters or fragments.';
+        console.error(`[Navigate] ${errorMessage}`, { url });
+        telemetryMeta.outcome = 'invalid_internal_url';
+        telemetryMeta.reason = 'strict_internal_parser_rejected';
+        return { error: errorMessage, errorCode: 'invalid_internal_url' };
+      }
+
+      let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
+
+      // A manually imported session has no registry scope: its rows keep
+      // novelId=null even when the session's exact URL uses our internal
+      // scheme. In that mode the URL indexes are the authoritative identity.
+      // Scoped library sessions still resolve by novel/version/number so an
+      // index entry can never cross the active library boundary.
+      if (internalTarget && (scope?.novelId || !chapterId)) {
         const activeNovelId = scope?.novelId ?? null;
         if (activeNovelId && activeNovelId !== internalTarget.novelId) {
           const errorMessage =
@@ -84,16 +102,19 @@ export class NavigationService {
 
         const lookupNovelId = activeNovelId ?? internalTarget.novelId;
         const lookupVersionId = activeNovelId ? scope?.versionId ?? null : null;
-        const inMemoryMatch = Array.from(chapters.entries()).find(([, chapter]) => {
+        const inMemoryMatch = selectLatestChapterRevision(Array.from(chapters.entries()).filter(([, chapter]) => {
           return (
             chapter.chapterNumber === internalTarget.chapterNumber &&
             (chapter.novelId ?? null) === lookupNovelId &&
             (chapter.libraryVersionId ?? null) === lookupVersionId
           );
-        });
+        }).map(([chapterId, chapter]) => ({
+          ...chapter,
+          id: chapterId,
+        })));
 
         if (inMemoryMatch) {
-          chapterId = inMemoryMatch[0];
+          chapterId = inMemoryMatch.id;
         } else {
           const found = await ChapterOps.findByNumber(
             internalTarget.chapterNumber,

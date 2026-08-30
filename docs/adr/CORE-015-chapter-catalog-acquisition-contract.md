@@ -33,10 +33,12 @@ could be hidden by translation-specific inline error rules.
 3. Internal links fail closed on novel-scope mismatch. Malformed paths, query
    variants, zero chapters, and ambiguous targets are rejected rather than
    repaired silently.
-4. Cache completeness is measured against the selected package. The preferred
-   denominator is `version.stats.content.totalRawChapters`, followed by the
-   version chapter range, then novel-level chapter count when version evidence
-   is absent. A truthy first chapter identifier is not a completeness signal.
+4. Cache completeness is measured against the selected package's chapter
+   identities, not row cardinality alone. A version range is exact only when
+   its inclusive size agrees with `version.stats.content.totalRawChapters`;
+   otherwise completeness fails closed and the session is replayed. Legacy
+   novel-level packages use `1..chapterCount`. A truthy first chapter identifier
+   is not a completeness signal.
 5. An incomplete cache remains immediately readable at its saved position while
    the version session resumes in the background. A completed cache does not
    re-fetch.
@@ -47,6 +49,17 @@ could be hidden by translation-specific inline error rules.
 7. Navigation acquisition failures produce a typed result and a visible toast.
    They may also remain in global diagnostic state, but translation rendering
    is not responsible for surfacing them.
+8. When replay retains multiple scoped rows for one chapter number, the most
+   recently stored/replayed row is authoritative for hydration and navigation.
+   Stable ID provides a deterministic tie break. Older rows and their
+   translations are not deleted by navigation.
+9. Registry package metadata is immutable input to acquisition decisions.
+   Cached/translated counts may be shown through explicit display props, but
+   must never overwrite the published denominator on a `NovelEntry`.
+10. Final replay hydration preserves the reader's scoped chapter number, not a
+    possibly obsolete revision ID. If authoritative hydration replaces the open
+    row, the reader and its bookshelf resume entry are remapped to the current
+    scoped ID before the completed import is exposed.
 
 ## Positions considered
 
@@ -67,6 +80,9 @@ could be hidden by translation-specific inline error rules.
   the dropdown with a clear `not cached yet` label.
 - Reopening an interrupted version may download and parse the session again,
   but exact packaged translations are not duplicated.
+- Non-contiguous/grouped packages whose metadata exposes only broad endpoints
+  cannot prove exact cache completeness yet, so they replay safely on reopen.
+  A future exact package-manifest contract can remove that extra work.
 - The version metadata's raw-chapter count is now a load-bearing publication
   invariant. A session that completes below that count produces a warning
   instead of claiming the cache is complete.
@@ -76,15 +92,23 @@ could be hidden by translation-specific inline error rules.
 ## Implementation notes
 
 - `services/chapterCatalog.ts` owns strict internal URL parsing, virtual
-  identity, and expected packaged-chapter counts.
+  identity, expected packaged-chapter counts, and exact contiguous ranges.
+- `services/chapterRevisionService.ts` owns deterministic non-destructive
+  selection when stale/current rows share a scoped chapter number.
 - `services/navigation/index.ts` resolves internal targets through scoped
   chapter-number lookup and returns typed acquisition errors.
 - `services/readerHydrationService.ts` reports durable scoped cache count
   separately from the optional in-memory hydration limit.
 - `components/NovelLibrary.tsx` distinguishes complete, partial, and empty
-  caches and resumes partial streams without discarding the saved chapter.
+  caches, preserves registry denominators, and resumes partial streams without
+  discarding the saved chapter. When final replay hydration changes that
+  chapter's revision ID, it persists the authoritative replacement to the
+  bookshelf. `NovelCard.tsx` accepts a display-only cached count for Continue
+  Reading cards.
 - `services/importService.ts` reuses exact packaged translations during replay
-  and verifies newly stored translations by content identity.
+  and verifies newly stored translations by content identity. It captures the
+  open scoped chapter number before final hydration and resolves that number
+  against the authoritative hydrated map afterward.
 - `hooks/useChapterDropdownOptions.ts`,
   `components/session-info/ChapterDropdown.tsx`, and
   `store/slices/chaptersSlice.ts` expose availability and visible errors. The

@@ -289,3 +289,10 @@ Append-only raw debt receipts discovered during implementation.
 - Friction: the same number is being asked to mean published novel size, packaged artifact size, and current local cache size. Its global `Processing N summaries` log is also non-causal for a selected version.
 - Suggested follow-up: keep immutable registry/package denominators separate from scoped local cache progress; pass both explicitly to the card/detail components; make logs include novel and version scope; add partial-cache coverage regressions.
 - Blocker status: non-blocking for CORE-015 because cache completeness now reads selected-version stats before novel metadata, but the library coverage display remains misleading.
+
+[DEBT][INDEXEDDB][2026-08-30] Unversioned source-URL lookup still constructs a null compound key
+- File: `services/db/operations/chapters.ts` (`findChapterModernBySourceUrl`).
+- Symptom: the `novelVersion` lookup receives `[novelId, null]`; IndexedDB compound keys cannot contain null, so an unversioned scoped source lookup can throw `DataError` before reaching its existing `novelId` scan/filter fallback.
+- Scope decision: PR #166 corrects the reviewed chapter-number path only. Expanding the follow-up to source-URL lookup would add an unreviewed behavioral contract.
+- Suggested follow-up: share one null-safe scoped-candidate helper between source-URL and chapter-number lookup, with real fake-IndexedDB tests for versioned and unversioned rows.
+- Blocker status: non-blocking for canonical `lexiconforge://` number navigation; remains a risk for unversioned external source-URL hydration.

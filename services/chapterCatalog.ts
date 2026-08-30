@@ -164,6 +164,51 @@ export const resolveExpectedChapterCount = (
 };
 
 /**
+ * Exact numeric identities that must exist before a cache can be called
+ * complete. A broad range is usable only when its cardinality agrees with the
+ * packaged raw count; grouped/non-contiguous packages fail closed and replay
+ * their session rather than substituting an equal-sized stale set.
+ */
+export const resolveExpectedChapterNumbers = (
+  novel: NovelEntry,
+  versionId: string | null
+): number[] | null => {
+  const resolution = RegistryService.resolveCompatibleVersion(novel, versionId);
+  const version = resolution.version;
+  const range = version?.chapterRange;
+
+  if (
+    Number.isSafeInteger(range?.from) &&
+    Number.isSafeInteger(range?.to) &&
+    (range?.from ?? 0) > 0 &&
+    (range?.to ?? 0) >= (range?.from ?? 0)
+  ) {
+    const from = range!.from;
+    const to = range!.to;
+    const rangeCount = to - from + 1;
+    const packagedCount = version?.stats?.content?.totalRawChapters;
+    if (
+      typeof packagedCount === 'number' &&
+      Number.isSafeInteger(packagedCount) &&
+      packagedCount > 0 &&
+      packagedCount !== rangeCount
+    ) {
+      return null;
+    }
+    return Array.from({ length: rangeCount }, (_, index) => from + index);
+  }
+
+  if (!version) {
+    const novelCount = novel.metadata?.chapterCount;
+    if (typeof novelCount === 'number' && Number.isSafeInteger(novelCount) && novelCount > 0) {
+      return Array.from({ length: novelCount }, (_, index) => index + 1);
+    }
+  }
+
+  return null;
+};
+
+/**
  * Project a virtual catalog: one ChapterSummary placeholder per chapter
  * number in the novel's declared range. Returns [] if the registry has
  * no usable range (caller falls back to IDB-only dropdown behavior).

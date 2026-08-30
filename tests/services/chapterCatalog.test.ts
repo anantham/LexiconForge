@@ -13,6 +13,7 @@ import {
   isVirtualStableId,
   parseInternalChapterUrl,
   resolveExpectedChapterCount,
+  resolveExpectedChapterNumbers,
   clearCatalogCache,
   VIRTUAL_STABLE_ID_PREFIX,
 } from '../../services/chapterCatalog';
@@ -97,6 +98,32 @@ describe('chapterCatalog — utility helpers', () => {
     });
 
     expect(resolveExpectedChapterCount(novel as any, 'v1-primary')).toBe(509);
+  });
+
+  it('returns the exact contiguous package range for completeness checks', () => {
+    const novel = withVersion('shifted-novel', 'v2', 2, 5, 100);
+    (novel.versions[0] as any).stats = { content: { totalRawChapters: 4 } };
+    resolveCompatibleVersionMock.mockReturnValueOnce({
+      version: novel.versions[0],
+      requestedVersionId: 'v2',
+      resolvedVersionId: 'v2',
+      warning: null,
+    });
+
+    expect(resolveExpectedChapterNumbers(novel as any, 'v2')).toEqual([2, 3, 4, 5]);
+  });
+
+  it('fails closed when range endpoints do not describe the packaged identities', () => {
+    const novel = withVersion('grouped-book', 'v1', 1001, 18078, 700);
+    (novel.versions[0] as any).stats = { content: { totalRawChapters: 700 } };
+    resolveCompatibleVersionMock.mockReturnValueOnce({
+      version: novel.versions[0],
+      requestedVersionId: 'v1',
+      resolvedVersionId: 'v1',
+      warning: null,
+    });
+
+    expect(resolveExpectedChapterNumbers(novel as any, 'v1')).toBeNull();
   });
 });
 
