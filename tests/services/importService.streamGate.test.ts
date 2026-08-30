@@ -2,7 +2,10 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { translationOpsMock } = vi.hoisted(() => ({
+const { chapterOpsMock, translationOpsMock } = vi.hoisted(() => ({
+  chapterOpsMock: {
+    store: vi.fn(),
+  },
   translationOpsMock: {
     store: vi.fn(),
     setActiveByUrl: vi.fn(),
@@ -36,7 +39,7 @@ vi.mock('../../store', () => ({
 }));
 
 vi.mock('../../services/db/operations/chapters', () => ({
-  ChapterOps: { store: vi.fn().mockResolvedValue(undefined) },
+  ChapterOps: chapterOpsMock,
 }));
 
 vi.mock('../../services/db/operations/translations', () => ({
@@ -104,6 +107,10 @@ const streamResponseOf = (data: unknown) => {
   } as unknown as Response;
 };
 
+beforeEach(() => {
+  chapterOpsMock.store.mockReset().mockResolvedValue(undefined);
+});
+
 describe('streamImportFromUrl — first-chapters-ready gate', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(sessionWithOneChapter)));
@@ -166,6 +173,49 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     );
 
     expect(onFirstChaptersReady).not.toHaveBeenCalled();
+  });
+
+  it('awaits the first-ready callback before processing later chapters', async () => {
+    const fiveChapterSession = {
+      ...sessionWithOneChapter,
+      metadata: { ...sessionWithOneChapter.metadata, chapterCount: 5 },
+      chapters: Array.from({ length: 5 }, (_, index) => ({
+        ...sessionWithOneChapter.chapters[0],
+        url: `lexiconforge://aithihyamala/chapter/${index + 1}`,
+        canonicalUrl: `lexiconforge://aithihyamala/chapter/${index + 1}`,
+        chapterNumber: index + 1,
+        translations: [],
+      })),
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(fiveChapterSession)));
+
+    let releaseReady!: () => void;
+    const readyGate = new Promise<void>((resolve) => {
+      releaseReady = resolve;
+    });
+    let signalReadyStarted!: () => void;
+    const readyStarted = new Promise<void>((resolve) => {
+      signalReadyStarted = resolve;
+    });
+    const onFirstChaptersReady = vi.fn(() => {
+      signalReadyStarted();
+      return readyGate;
+    });
+
+    const importPromise = ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      onFirstChaptersReady,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    await readyStarted;
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    expect(chapterOpsMock.store).toHaveBeenCalledTimes(4);
+
+    releaseReady();
+    await importPromise;
+    expect(chapterOpsMock.store).toHaveBeenCalledTimes(5);
   });
 });
 
@@ -310,6 +360,52 @@ describe('streamImportFromUrl — idempotent resume', () => {
     );
 
     expect(translationOpsMock.store).toHaveBeenCalledTimes(1);
+    expect(translationOpsMock.setActiveByUrl).toHaveBeenCalledWith(
+      expect.stringContaining('lf-library:'),
+      2
+    );
+  });
+
+  it('falls back to an unused exact-content row when local version numbers diverge', async () => {
+    const versionedSession = {
+      ...sessionWithOneChapter,
+      chapters: [
+        {
+          ...sessionWithOneChapter.chapters[0],
+          translations: [
+            {
+              ...sessionWithOneChapter.chapters[0].translations[0],
+              version: 1,
+              isActive: true,
+            },
+          ],
+        },
+      ],
+    };
+    const divergedExactVersion = {
+      id: 'existing-local-v2',
+      version: 2,
+      isActive: false,
+      translatedTitle: 'The Ammathiruvadi of Urakam',
+      translation: '<p>How a goddess rode a palm-leaf umbrella…</p>',
+      provider: 'Claude',
+      model: 'claude-opus-4-8',
+      footnotes: [],
+      suggestedIllustrations: [],
+      proposal: null,
+    };
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(versionedSession)));
+    translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([divergedExactVersion]);
+
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      undefined,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    expect(translationOpsMock.store).not.toHaveBeenCalled();
     expect(translationOpsMock.setActiveByUrl).toHaveBeenCalledWith(
       expect.stringContaining('lf-library:'),
       2

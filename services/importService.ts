@@ -347,7 +347,7 @@ export class ImportService {
   static async streamImportFromUrl(
     url: string,
     onProgress?: (progress: ImportProgress) => void,
-    onFirstChaptersReady?: () => void,
+    onFirstChaptersReady?: () => void | Promise<void>,
     options: ImportOptions = {}
   ): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -516,12 +516,20 @@ export class ImportService {
         const consumeExactPackagedTranslation = (
           available: TranslationRecord[],
           imported: ReturnType<typeof buildTranslationInputs>[number],
-          expectedVersion: number | undefined = imported.exportedVersion
+          expectedVersion: number | undefined = imported.exportedVersion,
+          allowVersionFallback = true
         ): TranslationRecord | undefined => {
-          const matchIndex = available.findIndex((record) =>
-            (expectedVersion === undefined || record.version === expectedVersion) &&
-            isExactPackagedTranslation(record, imported)
-          );
+          let matchIndex = expectedVersion === undefined
+            ? -1
+            : available.findIndex((record) =>
+                record.version === expectedVersion &&
+                isExactPackagedTranslation(record, imported)
+              );
+          if (matchIndex === -1 && (expectedVersion === undefined || allowVersionFallback)) {
+            matchIndex = available.findIndex((record) =>
+              isExactPackagedTranslation(record, imported)
+            );
+          }
           if (matchIndex === -1) {
             return undefined;
           }
@@ -809,7 +817,7 @@ export class ImportService {
               const persisted = await TranslationOps.getVersionsByStableId(identity.stableId);
               const unverifiedPersisted = [...persisted];
               const verifiedNewCount = newlyStoredTranslations.filter(({ input, version }) =>
-                Boolean(consumeExactPackagedTranslation(unverifiedPersisted, input, version))
+                Boolean(consumeExactPackagedTranslation(unverifiedPersisted, input, version, false))
               ).length;
               translationsVerified += verifiedNewCount;
               if (verifiedNewCount < chapterTranslationsStored) {
@@ -916,7 +924,7 @@ export class ImportService {
               firstBatchTelemetrySent = true;
             }
             debugLog('import', 'summary', '[StreamImport] First batch of chapters ready - user can start reading');
-            onFirstChaptersReady?.();
+            await onFirstChaptersReady?.();
           }
 
           if (chaptersLoaded % 50 === 0) {
@@ -994,7 +1002,7 @@ export class ImportService {
             });
             firstBatchTelemetrySent = true;
           }
-          onFirstChaptersReady?.();
+          await onFirstChaptersReady?.();
         }
 
         onProgress?.({

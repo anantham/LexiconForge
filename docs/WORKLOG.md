@@ -148,6 +148,22 @@
 **Verification:** Red gate 2 failed/37 passed; focused green gate 39/39; complete navigation-branch affected gate 88/88 across 10 files; TypeScript clean; focused ESLint 0 errors with 32 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
 **Confidence:** 0.99. Next gate is commit/push followed by another exact-head Codex rereview and clean CI before merge.
 
+### [2026-08-30 21:28 IST] [Agent: Codex]
+**Status:** Validating third exact-head Codex review for PR #166
+**Findings:** P2 strict exported-version reuse loses idempotence when local-only rows shift the durable version numbers; an exact-content local row must remain eligible once the preferred exported-number match misses. P2 the streaming importer invokes the asynchronous first-ready callback without awaiting it, so later stream failure can reach the library catch before the callback marks the durable first batch readable.
+**Options:** (A) prefer exported-version matches, then consume an unused exact-content fallback; await the first-ready callback at both threshold and stream-end sites — selected as the narrow causal repair. (B) persist exported version IDs/schema and introduce an explicit acquisition state machine — higher assurance but a schema/architectural change outside this PR. (C) infer readiness from raw chapter count in the component — rejected because it duplicates importer lifecycle ownership.
+**Hypotheses:** H1 (0.99) preferred-then-fallback one-to-one matching preserves correct version identity when aligned and idempotence when local numbering diverges, while strict stored-version read-back remains necessary. H2 (0.99) awaiting the callback will apply stream backpressure until initial hydration finishes, eliminating the reader-state race without changing the four-chapter threshold.
+**Predicted tests:** packaged v1 reuses an unused exact local v2 instead of writing v3; when the first-ready callback is held pending at four chapters, chapter five is not processed until the callback resolves. Existing duplicate-version multiset, loss telemetry, and reader gates remain green.
+**Files affected:** `services/importService.ts`; `tests/services/importService.streamGate.test.ts`; this worklog.
+**Fallback:** Revert this isolated follow-up commit; the PR remains unmerged and its earlier commits remain available.
+**Confidence:** 0.99
+
+### [2026-08-30 21:30 IST] [Agent: Codex]
+**Status:** Third exact-head review findings corrected and locally verified; commit/push pending
+**Result:** Both findings were confirmed after the callback test explicitly yielded one event-loop turn (2 failures while 7 existing assertions passed). Translation reuse now prefers an exact exported-version match and then consumes one unused exact-content fallback; newly stored read-back remains strict to the actual version returned by storage. Both first-ready callback sites now await `void | Promise<void>`, so the importer cannot process later chapters or report a later stream failure while initial reader hydration is still pending.
+**Verification:** Corrected red gate 2 failed/7 passed; focused green gate 19/19; complete navigation-branch affected gate 90/90 across 10 files; TypeScript clean; focused ESLint 0 errors with 16 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
+**Confidence:** 0.99. Next gate is commit/push, exact-head rereview, and clean CI before merge.
+
 ### [2026-08-30 21:05 IST] [Agent: Codex]
 **Status:** Option 1 review corrections complete locally; commit and push pending
 **Results:** H1-H4 confirmed. A reader opened from cached or first-ready content now retains ownership if the remaining stream fails and receives a retry-oriented warning; failures before any reader opens still reach the original hard-failure path. Any `lexiconforge:` input rejected by the canonical parser now fails before normalized or raw mappings. Null/undefined version chapter-number lookups use the `novelId` index and explicit version filter, while versioned lookups retain the compound index. Stored chapter numbers now outrank title inference; legacy numberless summaries still use the title fallback.
