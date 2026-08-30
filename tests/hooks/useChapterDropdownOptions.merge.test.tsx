@@ -136,6 +136,7 @@ describe('useChapterDropdownOptions — virtual catalog merge', () => {
     expect(numbers).toEqual([1, 2, 3, 4, 5]);
     // All should be virtual (no real data loaded)
     expect(result.current.options.every((o) => o.stableId.startsWith('virtual:'))).toBe(true);
+    expect(result.current.options.every((o) => o.availability === 'not-cached')).toBe(true);
   });
 
   it('overlays real IDB summary on top of virtual placeholder for the same chapterNumber', async () => {
@@ -158,11 +159,36 @@ describe('useChapterDropdownOptions — virtual catalog merge', () => {
     expect(ch2?.stableId).toBe('real-ch2-id');
     expect(ch2?.translatedTitle).toBe('The Crucible');
     expect(ch2?.hasTranslation).toBe(true);
+    expect(ch2?.availability).toBe('ready');
     // Chapter 1 and 3: virtual placeholders
     const ch1 = result.current.options.find((o) => o.chapterNumber === 1);
     const ch3 = result.current.options.find((o) => o.chapterNumber === 3);
     expect(ch1?.stableId.startsWith('virtual:')).toBe(true);
     expect(ch3?.stableId.startsWith('virtual:')).toBe(true);
+    expect(ch1?.availability).toBe('not-cached');
+    expect(ch3?.availability).toBe('not-cached');
+  });
+
+  it('drops a virtual placeholder when a legacy real summary only exposes its number in the title', async () => {
+    storeState.activeNovelId = 'fmc';
+    fetchNovelByIdMock.mockResolvedValue({
+      id: 'fmc',
+      metadata: { chapterCount: 3 },
+      versions: [],
+    });
+    getChapterSummariesByScopeMock.mockResolvedValue([
+      realSummary('real-ch2-id', 2, {
+        chapterNumber: undefined,
+        translatedTitle: 'Chapter 2 — The Crucible',
+      }),
+    ]);
+
+    const { result } = renderHook(() => useChapterDropdownOptions());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.options).toHaveLength(3);
+    expect(result.current.options.filter((option) => option.displayNumber === 2)).toHaveLength(1);
+    expect(result.current.options.find((option) => option.displayNumber === 2)?.stableId).toBe('real-ch2-id');
   });
 
   it('overlays in-memory data on top of both virtual and real summaries', async () => {

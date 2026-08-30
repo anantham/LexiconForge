@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { loadAllIntoStore, loadNovelIntoStore } from '../../services/readerHydrationService';
+import {
+  loadAllIntoStore,
+  loadNovelCacheIntoStore,
+  loadNovelIntoStore,
+} from '../../services/readerHydrationService';
 import type { ChapterRenderingRecord } from '../../services/db/operations/rendering';
 import type { TranslationRecord } from '../../services/db/types';
 
@@ -109,6 +113,23 @@ describe('readerHydrationService', () => {
     });
 
     expect(firstChapterId).toBe('novel-a-1');
+    const payload = mockSetState.mock.calls[0][0];
+    expect(Array.from(payload.chapters.keys())).toEqual(['novel-a-1', 'novel-a-2']);
+  });
+
+  it('loadNovelCacheIntoStore reports the full scoped cache count independently of hydration limits', async () => {
+    mockFetchChaptersForNovel.mockResolvedValue([
+      makeRenderingRecord('novel-a-3', { novelId: 'novel-a', chapterNumber: 3, libraryVersionId: 'alice-v1' }),
+      makeRenderingRecord('novel-a-1', { novelId: 'novel-a', chapterNumber: 1, libraryVersionId: 'alice-v1' }),
+      makeRenderingRecord('novel-a-2', { novelId: 'novel-a', chapterNumber: 2, libraryVersionId: 'alice-v1' }),
+    ]);
+
+    const result = await loadNovelCacheIntoStore('novel-a', mockSetState, {
+      limit: 2,
+      versionId: 'alice-v1',
+    });
+
+    expect(result).toEqual({ firstChapterId: 'novel-a-1', chapterCount: 3 });
     const payload = mockSetState.mock.calls[0][0];
     expect(Array.from(payload.chapters.keys())).toEqual(['novel-a-1', 'novel-a-2']);
   });

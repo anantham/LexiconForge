@@ -8,12 +8,13 @@
  *   dropdown only ever showed "chapters ever visited" — not "chapters in
  *   this novel." For a 3500-chapter novel where you've read 13, the
  *   dropdown showed 13 entries, which defeats the purpose. Likewise the
- *   oscilloscope graph couldn't navigate to unloaded chapters.
+ *   oscilloscope graph couldn't identify unloaded chapters.
  *
  *   This service projects the full novel range from the registry, so the
  *   dropdown / graph / "jump to chapter N" surfaces always know about
- *   every chapter, with virtual placeholders for unloaded ones. Click a
- *   virtual entry → handleNavigate(canonicalUrl) → existing fetch path.
+ *   every chapter, with virtual placeholders for unloaded ones. A virtual
+ *   entry remains visibly unavailable until the scoped chapter row exists;
+ *   internal URLs are resolved by chapter number, never sent to a scraper.
  *
  * Design notes:
  *   - Virtual entries match the ChapterSummary shape with a synthetic
@@ -60,6 +61,29 @@ export const buildVirtualStableId = (novelId: string, chapterNumber: number): st
 export const buildCanonicalUrl = (novelId: string, chapterNumber: number): string =>
   `lexiconforge://${novelId}/chapter/${chapterNumber}`;
 
+export interface InternalChapterTarget {
+  novelId: string;
+  chapterNumber: number;
+}
+
+/**
+ * Parse only the canonical internal chapter form emitted by
+ * buildCanonicalUrl(). Query strings, fragments, zero/negative chapters, and
+ * alternate paths are rejected rather than repaired into a different target.
+ */
+export const parseInternalChapterUrl = (url: string): InternalChapterTarget | null => {
+  const match = /^lexiconforge:\/\/([a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)\/chapter\/([1-9]\d*)$/i.exec(url);
+  if (!match) return null;
+
+  const chapterNumber = Number(match[2]);
+  if (!Number.isSafeInteger(chapterNumber)) return null;
+
+  return {
+    novelId: match[1].toLowerCase(),
+    chapterNumber,
+  };
+};
+
 /**
  * Inputs that determine the catalog. We cache on these.
  */
@@ -104,6 +128,39 @@ const resolveRange = (
   }
 
   return null;
+};
+
+/**
+ * Number of raw chapters expected in the selected packaged version.
+ *
+ * Version stats describe what the session actually carries and therefore win
+ * over the novel-level published count. This distinction matters for curated
+ * partial packages (for example, a one-chapter study edition of a larger work).
+ */
+export const resolveExpectedChapterCount = (
+  novel: NovelEntry,
+  versionId: string | null
+): number | null => {
+  const resolution = RegistryService.resolveCompatibleVersion(novel, versionId);
+  const version = resolution.version;
+  const packagedCount = version?.stats?.content?.totalRawChapters;
+  if (typeof packagedCount === 'number' && Number.isSafeInteger(packagedCount) && packagedCount > 0) {
+    return packagedCount;
+  }
+
+  if (
+    typeof version?.chapterRange?.from === 'number' &&
+    typeof version.chapterRange.to === 'number' &&
+    version.chapterRange.from > 0 &&
+    version.chapterRange.to >= version.chapterRange.from
+  ) {
+    return version.chapterRange.to - version.chapterRange.from + 1;
+  }
+
+  const novelCount = novel.metadata?.chapterCount;
+  return typeof novelCount === 'number' && Number.isSafeInteger(novelCount) && novelCount > 0
+    ? novelCount
+    : null;
 };
 
 /**

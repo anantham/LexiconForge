@@ -2,6 +2,14 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+const { translationOpsMock } = vi.hoisted(() => ({
+  translationOpsMock: {
+    store: vi.fn(),
+    setActiveByUrl: vi.fn(),
+    getVersionsByStableId: vi.fn(),
+  },
+}));
+
 /**
  * Regression guard for the "Opening Reader…" hang (2026-07-28).
  *
@@ -32,11 +40,7 @@ vi.mock('../../services/db/operations/chapters', () => ({
 }));
 
 vi.mock('../../services/db/operations/translations', () => ({
-  TranslationOps: {
-    store: vi.fn().mockResolvedValue({ id: 't1', version: 1 }),
-    setActiveByUrl: vi.fn().mockResolvedValue(undefined),
-    getVersionsByStableId: vi.fn().mockResolvedValue([{ id: 't1', version: 1 }]),
-  },
+  TranslationOps: translationOpsMock,
 }));
 
 vi.mock('../../services/db/operations', () => ({
@@ -103,6 +107,9 @@ const streamResponseOf = (data: unknown) => {
 describe('streamImportFromUrl — first-chapters-ready gate', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(sessionWithOneChapter)));
+    translationOpsMock.store.mockReset().mockResolvedValue({ id: 't1', version: 1 });
+    translationOpsMock.setActiveByUrl.mockReset().mockResolvedValue(undefined);
+    translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([]);
   });
 
   it('fires onFirstChaptersReady for a session SMALLER than the first-batch threshold', async () => {
@@ -163,6 +170,12 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
 });
 
 describe('streamImportFromUrl — translation-loss telemetry (2026-07-28 race)', () => {
+  beforeEach(() => {
+    translationOpsMock.store.mockReset().mockResolvedValue({ id: 't1', version: 1 });
+    translationOpsMock.setActiveByUrl.mockReset().mockResolvedValue(undefined);
+    translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([]);
+  });
+
   it('a failed translation store does NOT abort the import and is loudly accounted', async () => {
     const { TranslationOps } = await import('../../services/db/operations/translations');
     const { telemetryService } = await import('../../services/telemetryService');
@@ -208,5 +221,42 @@ describe('streamImportFromUrl — translation-loss telemetry (2026-07-28 race)',
     const events = (telemetryService.capturePerformance as ReturnType<typeof vi.fn>).mock.calls.map(c => c[0]);
     expect(events).toContain('import:stream:translationVerifyMissing');
     consoleError.mockRestore();
+  });
+});
+
+describe('streamImportFromUrl — idempotent resume', () => {
+  beforeEach(() => {
+    translationOpsMock.store.mockReset().mockResolvedValue({ id: 'new', version: 2 });
+    translationOpsMock.setActiveByUrl.mockReset().mockResolvedValue(undefined);
+    translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([
+      {
+        id: 'existing',
+        version: 1,
+        isActive: true,
+        translatedTitle: 'The Ammathiruvadi of Urakam',
+        translation: '<p>How a goddess rode a palm-leaf umbrella…</p>',
+        provider: 'Claude',
+        model: 'claude-opus-4-8',
+        footnotes: [],
+        suggestedIllustrations: [],
+        proposal: null,
+      },
+    ]);
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(sessionWithOneChapter)));
+  });
+
+  it('reuses an exact packaged translation instead of creating a duplicate version', async () => {
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      undefined,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    expect(translationOpsMock.store).not.toHaveBeenCalled();
+    expect(translationOpsMock.setActiveByUrl).toHaveBeenCalledWith(
+      expect.stringContaining('lf-library:'),
+      1
+    );
   });
 });

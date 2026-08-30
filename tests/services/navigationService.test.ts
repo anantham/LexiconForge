@@ -167,6 +167,7 @@ vi.mock('../../services/db/operations', () => ({
   ChapterOps: {
     getByStableId: vi.fn(),
     findBySourceUrl: vi.fn(),
+    findByNumber: vi.fn(),
   },
   TranslationOps: {
     getActiveByStableId: vi.fn(),
@@ -403,6 +404,68 @@ describe('NavigationService', () => {
   // handleNavigate - no mapping path
   // --------------------------------------------------------------------------
   describe('handleNavigate - no mapping', () => {
+    it('resolves a canonical internal URL by scoped chapter number', async () => {
+      const { ChapterOps } = await import('../../services/db/operations');
+      const chapter = createMockEnhancedChapter({
+        id: 'dd-42',
+        novelId: 'dungeon-defense-wn',
+        libraryVersionId: 'v1-primary',
+        chapterNumber: 42,
+        canonicalUrl: 'lexiconforge://dungeon-defense-wn/chapter/42',
+      });
+      (ChapterOps.findByNumber as Mock).mockResolvedValue({ stableId: chapter.id });
+      const loadFromIDB = vi.fn().mockResolvedValue(chapter);
+
+      const result = await NavigationService.handleNavigate(
+        chapter.canonicalUrl,
+        createNavigationContext({
+          scope: { novelId: 'dungeon-defense-wn', versionId: 'v1-primary' },
+        }),
+        loadFromIDB
+      );
+
+      expect(ChapterOps.findByNumber).toHaveBeenCalledWith(
+        42,
+        'dungeon-defense-wn',
+        'v1-primary'
+      );
+      expect(loadFromIDB).toHaveBeenCalledWith('dd-42');
+      expect(result).toMatchObject({ chapterId: 'dd-42', chapter });
+    });
+
+    it('returns a typed acquisition error when an internal chapter is not cached', async () => {
+      const { ChapterOps } = await import('../../services/db/operations');
+      (ChapterOps.findByNumber as Mock).mockResolvedValue(null);
+
+      const result = await NavigationService.handleNavigate(
+        'lexiconforge://dungeon-defense-wn/chapter/509',
+        createNavigationContext({
+          scope: { novelId: 'dungeon-defense-wn', versionId: 'v1-primary' },
+        }),
+        vi.fn()
+      );
+
+      expect(result.errorCode).toBe('chapter_not_cached');
+      expect(result.error).toContain('Chapter 509');
+      expect(result.error).toContain('not cached yet');
+    });
+
+    it('strictly rejects an internal link for a different active novel', async () => {
+      const { ChapterOps } = await import('../../services/db/operations');
+      const result = await NavigationService.handleNavigate(
+        'lexiconforge://other-novel/chapter/12',
+        createNavigationContext({
+          scope: { novelId: 'dungeon-defense-wn', versionId: 'v1-primary' },
+        }),
+        vi.fn()
+      );
+
+      expect(ChapterOps.findByNumber).not.toHaveBeenCalled();
+      expect(result.errorCode).toBe('scope_mismatch');
+      expect(result.error).toContain('other-novel');
+      expect(result.error).toContain('dungeon-defense-wn');
+    });
+
     it('signals fetch needed for supported URL with no mapping', async () => {
       const url = 'https://kakuyomu.jp/works/new/episodes/new';
 

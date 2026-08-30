@@ -17,6 +17,7 @@ import type { EnhancedChapter } from '../stableIdService';
 import type { TranslationSettingsSnapshot } from '../../types';
 import { ChapterOps, TranslationOps, SettingsOps, NavigationOps } from '../db/operations';
 import { telemetryService } from '../telemetryService';
+import { parseInternalChapterUrl } from '../chapterCatalog';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { adaptTranslationRecordToResult } from './converters';
 import { validateNavigation } from './validation';
@@ -63,6 +64,78 @@ export class NavigationService {
       );
 
       let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
+      const internalTarget = parseInternalChapterUrl(url);
+
+      if (internalTarget) {
+        const activeNovelId = scope?.novelId ?? null;
+        if (activeNovelId && activeNovelId !== internalTarget.novelId) {
+          const errorMessage =
+            `Navigation blocked: chapter link belongs to "${internalTarget.novelId}", ` +
+            `but the active novel is "${activeNovelId}".`;
+          console.error(`[Navigate] ${errorMessage}`, {
+            url,
+            activeNovelId,
+            targetNovelId: internalTarget.novelId,
+          });
+          telemetryMeta.outcome = 'scope_mismatch';
+          telemetryMeta.reason = 'internal_novel_mismatch';
+          return { error: errorMessage, errorCode: 'scope_mismatch' };
+        }
+
+        const lookupNovelId = activeNovelId ?? internalTarget.novelId;
+        const lookupVersionId = activeNovelId ? scope?.versionId ?? null : null;
+        const inMemoryMatch = Array.from(chapters.entries()).find(([, chapter]) => {
+          return (
+            chapter.chapterNumber === internalTarget.chapterNumber &&
+            (chapter.novelId ?? null) === lookupNovelId &&
+            (chapter.libraryVersionId ?? null) === lookupVersionId
+          );
+        });
+
+        if (inMemoryMatch) {
+          chapterId = inMemoryMatch[0];
+        } else {
+          const found = await ChapterOps.findByNumber(
+            internalTarget.chapterNumber,
+            lookupNovelId,
+            lookupVersionId
+          );
+          if (found?.stableId) {
+            const loaded = await loadChapterFromIDBCallback(found.stableId);
+            if (loaded) {
+              const newHistory = [...new Set(navigationHistory.concat(found.stableId))];
+              NavigationOps.persistHistory({ stableIds: newHistory });
+              NavigationOps.persistLastActiveChapter({
+                id: found.stableId,
+                url: loaded.canonicalUrl,
+              });
+              telemetryMeta.outcome = 'idb_hydrated_via_chapter_number';
+              telemetryMeta.chapterId = found.stableId;
+              telemetryMeta.hydratedTranslation = Boolean(loaded.translationResult);
+              return {
+                chapterId: found.stableId,
+                chapter: loaded,
+                shouldUpdateBrowserHistory: true,
+                navigationHistory: newHistory,
+              };
+            }
+          }
+
+          const versionLabel = lookupVersionId ? ` version "${lookupVersionId}"` : ' this version';
+          const errorMessage =
+            `Chapter ${internalTarget.chapterNumber} is listed for ${lookupNovelId}, but it is not cached yet for${versionLabel}. ` +
+            'Return to the Library and reopen this version to resume importing its chapters.';
+          console.warn(`[Navigate] ${errorMessage}`, {
+            url,
+            novelId: lookupNovelId,
+            versionId: lookupVersionId,
+            chapterNumber: internalTarget.chapterNumber,
+          });
+          telemetryMeta.outcome = 'chapter_not_cached';
+          telemetryMeta.reason = 'internal_chapter_number_miss';
+          return { error: errorMessage, errorCode: 'chapter_not_cached' };
+        }
+      }
 
       const tryScopedLookup = async (): Promise<NavigationResult | null> => {
         if (!scope?.novelId) {

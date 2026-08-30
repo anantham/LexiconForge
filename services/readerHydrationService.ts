@@ -12,6 +12,12 @@ export interface ReaderHydrationOptions {
   versionId?: string | null;
 }
 
+export interface NovelCacheHydrationResult {
+  firstChapterId: string | null;
+  /** Full scoped cache size before an optional in-memory hydration limit. */
+  chapterCount: number;
+}
+
 type ReaderHydrationPatch = Pick<StoreState, 'chapters' | 'urlIndex' | 'rawUrlIndex'>;
 type ReaderHydrationSetter = (patch: ReaderHydrationPatch) => void;
 
@@ -138,12 +144,29 @@ export async function loadNovelIntoStore(
   setState: ReaderHydrationSetter,
   options: ReaderHydrationOptions = {}
 ): Promise<string | null> {
+  const result = await loadNovelCacheIntoStore(novelId, setState, options);
+  return result.firstChapterId;
+}
+
+/**
+ * Hydrate a scoped novel cache and report how many durable chapter rows exist.
+ * A caller deciding whether a packaged session is complete must not infer that
+ * from a truthy first chapter id.
+ */
+export async function loadNovelCacheIntoStore(
+  novelId: string,
+  setState: ReaderHydrationSetter,
+  options: ReaderHydrationOptions = {}
+): Promise<NovelCacheHydrationResult> {
   const chapters = await fetchChaptersForNovel(novelId, options.versionId ?? null);
   if (chapters.length === 0) {
-    return null;
+    return { firstChapterId: null, chapterCount: 0 };
   }
 
-  return hydrateIntoStore(chapters, setState, options);
+  return {
+    firstChapterId: hydrateIntoStore(chapters, setState, options),
+    chapterCount: chapters.length,
+  };
 }
 
 export async function loadAllIntoStore(

@@ -11,6 +11,8 @@ import {
   buildCanonicalUrl,
   buildVirtualStableId,
   isVirtualStableId,
+  parseInternalChapterUrl,
+  resolveExpectedChapterCount,
   clearCatalogCache,
   VIRTUAL_STABLE_ID_PREFIX,
 } from '../../services/chapterCatalog';
@@ -71,6 +73,30 @@ describe('chapterCatalog — utility helpers', () => {
     expect(isVirtualStableId('chapter-uuid-xyz')).toBe(false);
     expect(isVirtualStableId('virtual-not-prefixed')).toBe(false);
     expect(isVirtualStableId('')).toBe(false);
+  });
+
+  it('strictly parses canonical internal chapter URLs', () => {
+    expect(parseInternalChapterUrl('lexiconforge://dungeon-defense-wn/chapter/509')).toEqual({
+      novelId: 'dungeon-defense-wn',
+      chapterNumber: 509,
+    });
+    expect(parseInternalChapterUrl('lexiconforge://dungeon-defense-wn/chapter/0')).toBeNull();
+    expect(parseInternalChapterUrl('lexiconforge://dungeon-defense-wn/chapter/12?version=v1')).toBeNull();
+    expect(parseInternalChapterUrl('lexiconforge://dungeon-defense-wn/chapters/12')).toBeNull();
+    expect(parseInternalChapterUrl('https://example.com/chapter/12')).toBeNull();
+  });
+
+  it('uses packaged raw-chapter stats for cache completeness before broader metadata', () => {
+    const novel = withVersion('dungeon-defense-wn', 'v1-primary', 1, 509, 600);
+    (novel.versions[0] as any).stats = { content: { totalRawChapters: 509 } };
+    resolveCompatibleVersionMock.mockReturnValueOnce({
+      version: novel.versions[0],
+      requestedVersionId: 'v1-primary',
+      resolvedVersionId: 'v1-primary',
+      warning: null,
+    });
+
+    expect(resolveExpectedChapterCount(novel as any, 'v1-primary')).toBe(509);
   });
 });
 

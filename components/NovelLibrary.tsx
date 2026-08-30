@@ -16,7 +16,11 @@ import { useAppStore } from '../store';
 import type { NovelEntry, NovelVersion } from '../types/novel';
 import { debugLog } from '../utils/debug';
 import { SettingsOps } from '../services/db/operations';
-import { loadNovelIntoStore } from '../services/readerHydrationService';
+import {
+  loadNovelCacheIntoStore,
+  loadNovelIntoStore,
+} from '../services/readerHydrationService';
+import { resolveExpectedChapterCount } from '../services/chapterCatalog';
 import { fetchAndMergeGlossary, mergeGlossaryEntries } from '../services/glossaryService';
 import { fetchNovelChapterCounts } from '../services/db/operations/summaries';
 import { fetchAndParseUrl } from '../services/scraping/fetcher';
@@ -184,14 +188,22 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
       try {
       const bookshelfEntry = await BookshelfStateService.getEntry(novel.id, requestedVersionId);
-      const firstCachedChapterId = await loadNovelIntoStore(novel.id, useAppStore.setState, {
+      const cacheState = await loadNovelCacheIntoStore(novel.id, useAppStore.setState, {
         versionId: requestedVersionId,
       });
+      const firstCachedChapterId = cacheState.firstChapterId;
+      const expectedChapterCount = resolveExpectedChapterCount(novel, requestedVersionId);
+      const cacheIsComplete = Boolean(
+        firstCachedChapterId &&
+        (expectedChapterCount === null || cacheState.chapterCount >= expectedChapterCount)
+      );
 
-      if (firstCachedChapterId) {
+      if (firstCachedChapterId && (cacheIsComplete || !sessionJsonUrl)) {
         setImportProgress({ stage: 'importing', progress: 50, message: 'Loading from cache...' });
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
-        // Cached path: every chapter is loaded, so a picked verse resolves here.
+        // Verified cache path: the selected package's expected raw chapters are
+        // present. If there is no acquisition URL, retain the readable partial
+        // cache but describe that limitation instead of pretending it is whole.
         // If it genuinely isn't in this book, surface it rather than silently
         // opening chapter 1.
         const cachedPickedId = resolvePickedChapterId();
@@ -217,16 +229,57 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         const hydratedCount = useAppStore.getState().chapters.size;
         debugLog('navigation', 'summary', `Loaded ${novel.title}${versionLabel} from cache - ${hydratedCount} chapters`);
 
+        if (!cacheIsComplete && expectedChapterCount !== null) {
+          showNotification(
+            `${novel.title}${versionLabel} has ${cacheState.chapterCount}/${expectedChapterCount} packaged chapters cached, and this version has no session URL to acquire the rest.`,
+            'warning'
+          );
+        }
+
         // Close the detail sheet
         setSelectedNovel(null);
 
         // Notify parent that session is loaded
         onSessionLoaded?.();
       } else if (sessionJsonUrl) {
-        // No cached data — stream from session URL
+        // Empty or partial cache — stream from the version session. Replaying
+        // the stream is idempotent: exact packaged translations are reused.
         let hasNavigatedToFirstChapter = false;
 
-        await ImportService.streamImportFromUrl(
+        if (firstCachedChapterId) {
+          const cachedPickedId = resolvePickedChapterId();
+          const resumeChapterId = cachedPickedId ??
+            (hasPickedVerse
+              ? null
+              : BookshelfStateService.resolveResumeChapterId(
+                  bookshelfEntry,
+                  useAppStore.getState().chapters,
+                  firstCachedChapterId
+                ));
+          const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
+
+          useAppStore.setState(state => ({
+            navigationHistory: nav?.stableIds || state.navigationHistory,
+            currentChapterId: resumeChapterId,
+            appScreen: resumeChapterId ? 'reader' : state.appScreen,
+          }));
+
+          if (resumeChapterId) {
+            hasNavigatedToFirstChapter = true;
+            setReaderReady();
+            await persistResumeEntry(novel.id, resumeChapterId, requestedVersionId);
+            setSelectedNovel(null);
+            onSessionLoaded?.();
+          }
+
+          const expectedLabel = expectedChapterCount ?? 'unknown';
+          showNotification(
+            `${cacheState.chapterCount}/${expectedLabel} chapters cached for ${novel.title}${versionLabel}. Resuming the session import in the background…`,
+            'info'
+          );
+        }
+
+        const importResult = await ImportService.streamImportFromUrl(
           sessionJsonUrl,
           (progress) => {
             setImportProgress(progress);
@@ -351,7 +404,22 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           }
         }
 
-        showNotification(`All chapters are now cached and ready to read.${versionLabel}`, 'info');
+        const finalScopedCount = Array.from(useAppStore.getState().chapters.values()).filter(
+          (chapter) =>
+            (chapter.novelId ?? null) === novel.id &&
+            (chapter.libraryVersionId ?? null) === requestedVersionId
+        ).length;
+        if (expectedChapterCount !== null && finalScopedCount < expectedChapterCount) {
+          showNotification(
+            `Session import finished, but only ${finalScopedCount}/${expectedChapterCount} packaged chapters are available for ${novel.title}${versionLabel}.`,
+            'warning'
+          );
+        } else {
+          const loadedCount = typeof importResult?.chaptersLoaded === 'number'
+            ? importResult.chaptersLoaded
+            : finalScopedCount;
+          showNotification(`${loadedCount} packaged chapters are cached and ready to read.${versionLabel}`, 'info');
+        }
       } else {
         // No cache and no session URL — nothing to load
         openLibrary();

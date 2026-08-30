@@ -17,6 +17,7 @@ import type {
 import { ChapterOps } from './db/operations/chapters';
 import { TranslationOps } from './db/operations/translations';
 import { SettingsOps } from './db/operations';
+import type { TranslationRecord } from './db/types';
 import { debugLog, debugWarn } from '../utils/debug';
 import { withRetry, isNetworkError } from '../utils/retry';
 import { telemetryService } from './telemetryService';
@@ -383,6 +384,7 @@ export class ImportService {
         let translationsExpected = 0;
         let translationsFailed = 0;
         let translationsVerified = 0;
+        let translationsReused = 0;
 
         const normalizeUsageMetrics = (
           metrics: Partial<UsageMetrics> | undefined,
@@ -490,6 +492,25 @@ export class ImportService {
               return a.index - b.index;
             })
             .map(({ input }) => input);
+        };
+
+        const jsonEqual = (left: unknown, right: unknown): boolean =>
+          JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
+
+        const isExactPackagedTranslation = (
+          existing: TranslationRecord,
+          imported: ReturnType<typeof buildTranslationInputs>[number]
+        ): boolean => {
+          return (
+            existing.translatedTitle === imported.result.translatedTitle &&
+            existing.translation === imported.result.translation &&
+            existing.provider === imported.settings.provider &&
+            existing.model === imported.settings.model &&
+            (existing.customVersionLabel ?? null) === (imported.result.customVersionLabel ?? null) &&
+            jsonEqual(existing.footnotes, imported.result.footnotes) &&
+            jsonEqual(existing.suggestedIllustrations, imported.result.suggestedIllustrations) &&
+            jsonEqual(existing.proposal, imported.result.proposal)
+          );
         };
 
         const response = await fetch(fetchUrl, {
@@ -690,9 +711,30 @@ export class ImportService {
 
           let activeVersion: number | null = null;
           let chapterTranslationsStored = 0;
+          const newlyStoredInputs: ReturnType<typeof buildTranslationInputs> = [];
+          const existingTranslations = translationInputs.length > 0
+            ? await TranslationOps.getVersionsByStableId(identity.stableId)
+            : [];
 
           for (const translation of translationInputs) {
             translationsExpected++;
+            const exactExisting = existingTranslations.find((record) =>
+              isExactPackagedTranslation(record, translation)
+            );
+            if (exactExisting) {
+              translationsReused++;
+              translationsVerified++;
+              if (translation.isActive && typeof exactExisting.version === 'number') {
+                activeVersion = exactExisting.version;
+              }
+              debugLog(
+                'import',
+                'full',
+                `[StreamImport] Reused exact translation for chapter #${chapter.chapterNumber} (version ${exactExisting.version ?? 'unknown'})`
+              );
+              continue;
+            }
+
             // A failed translation store must not abort the whole import —
             // but it MUST be loud. A packaged translation that silently
             // vanishes here re-bills the user downstream: the auto-translate
@@ -705,6 +747,7 @@ export class ImportService {
                 settings: translation.settings,
               });
               chapterTranslationsStored++;
+              newlyStoredInputs.push(translation);
 
               if (
                 translation.isActive ||
@@ -741,16 +784,19 @@ export class ImportService {
           if (chapterTranslationsStored > 0) {
             try {
               const persisted = await TranslationOps.getVersionsByStableId(identity.stableId);
-              translationsVerified += Math.min(persisted.length, chapterTranslationsStored);
-              if (persisted.length < chapterTranslationsStored) {
+              const verifiedNewCount = newlyStoredInputs.filter((input) =>
+                persisted.some((record) => isExactPackagedTranslation(record, input))
+              ).length;
+              translationsVerified += verifiedNewCount;
+              if (verifiedNewCount < chapterTranslationsStored) {
                 console.error(
-                  `[StreamImport] ❌ Translation VERIFY mismatch for chapter #${chapter.chapterNumber} (${identity.stableId}): stored ${chapterTranslationsStored}, database holds ${persisted.length}`
+                  `[StreamImport] ❌ Translation VERIFY mismatch for chapter #${chapter.chapterNumber} (${identity.stableId}): stored ${chapterTranslationsStored}, verified ${verifiedNewCount}`
                 );
                 telemetryService.capturePerformance('import:stream:translationVerifyMissing', now() - streamStart, {
                   stableId: identity.stableId,
                   chapterNumber: chapter.chapterNumber ?? null,
                   storedCount: chapterTranslationsStored,
-                  persistedCount: persisted.length,
+                  verifiedCount: verifiedNewCount,
                 });
               }
             } catch (verifyError) {
@@ -765,11 +811,12 @@ export class ImportService {
             }
           }
 
-          if (activeVersion !== null && translationInputs.length > 1) {
+          if (activeVersion !== null) {
             // P0.3: translations were stored under identity.storageUrl (which
             // library imports SCOPE), but set-active used the exported
             // chapterUrl — a different keyspace, so the exported active
-            // selection was silently discarded.
+            // selection was silently discarded. Apply this for single-version
+            // resumes too: the exact reusable row may no longer be active.
             await TranslationOps.setActiveByUrl(identity.storageUrl, activeVersion);
           }
 
@@ -949,6 +996,7 @@ export class ImportService {
           translationsExpected,
           translationsFailed,
           translationsVerified,
+          translationsReused,
         });
 
         debugLog(
