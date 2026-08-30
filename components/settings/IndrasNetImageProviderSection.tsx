@@ -1,5 +1,8 @@
 import React from 'react';
-import { isIndrasNetImageModel } from '../../services/providers/indrasNetImageProvider';
+import {
+  DEFAULT_INDRASNET_BASE_URL,
+  isIndrasNetImageModel,
+} from '../../services/providers/indrasNetImageProvider';
 
 interface FallbackModelOption {
   id: string;
@@ -8,35 +11,28 @@ interface FallbackModelOption {
 
 interface IndrasNetImageProviderSectionProps {
   endpoint: string;
-  selectedImageModel: string;
-  fallbackModel: string;
-  fallbackModels: FallbackModelOption[];
   loading: boolean;
   error: string | null;
   workflowCount: number;
   onEndpointChange: (_value: string) => void;
-  onFallbackModelChange: (_value: string) => void;
   onRefresh: () => void;
+}
+
+interface IndrasNetImageFallbackSectionProps {
+  selectedImageModel: string;
+  fallbackModel: string;
+  fallbackModels: FallbackModelOption[];
+  onFallbackModelChange: (_value: string) => void;
 }
 
 export const IndrasNetImageProviderSection: React.FC<IndrasNetImageProviderSectionProps> = ({
   endpoint,
-  selectedImageModel,
-  fallbackModel,
-  fallbackModels,
   loading,
   error,
   workflowCount,
   onEndpointChange,
-  onFallbackModelChange,
   onRefresh,
 }) => {
-  const selected = isIndrasNetImageModel(selectedImageModel);
-  const normalizedFallbackModel = fallbackModel.trim() || 'none';
-  const savedCloudFallbackUnavailable = normalizedFallbackModel !== 'none'
-    && !isIndrasNetImageModel(normalizedFallbackModel)
-    && !fallbackModels.some(model => model.id === normalizedFallbackModel);
-
   return (
     <fieldset className="mt-6">
       <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
@@ -53,7 +49,7 @@ export const IndrasNetImageProviderSection: React.FC<IndrasNetImageProviderSecti
               type="url"
               value={endpoint}
               onChange={(event) => onEndpointChange(event.target.value)}
-              placeholder="https://asus-strix-scar.your-tailnet.ts.net"
+              placeholder={DEFAULT_INDRASNET_BASE_URL}
               className="block min-w-0 flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-800 dark:text-gray-200"
             />
             <button
@@ -66,7 +62,7 @@ export const IndrasNetImageProviderSection: React.FC<IndrasNetImageProviderSecti
             </button>
           </div>
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Use the Tailscale Serve HTTPS address on iPhone/iPad. Workflow prompts stay on your tailnet and run through IndrasNet's GPU broker.
+            SillyTavern is served separately on port 8444. Image workflows use the IndrasNet broker on port 9443; prompts stay on your tailnet.
           </p>
           {error ? (
             <p role="status" className="mt-1 text-xs text-amber-600 dark:text-amber-400">
@@ -78,33 +74,52 @@ export const IndrasNetImageProviderSection: React.FC<IndrasNetImageProviderSecti
             </p>
           )}
         </div>
+      </div>
+    </fieldset>
+  );
+};
 
-        {selected && (
-          <div>
-            <label htmlFor="imageFallbackModel" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Cloud fallback when Asus is offline or busy
-            </label>
-            <select
-              id="imageFallbackModel"
-              value={normalizedFallbackModel}
-              onChange={(event) => onFallbackModelChange(event.target.value)}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-            >
-              <option value="none">None — fail visibly</option>
-              {savedCloudFallbackUnavailable && (
-                <option value={normalizedFallbackModel}>
-                  Saved cloud fallback: {normalizedFallbackModel} — unavailable (still active)
-                </option>
-              )}
-              {fallbackModels.map(model => (
-                <option key={model.id} value={model.id}>{model.label}</option>
-              ))}
-            </select>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Opt-in only. A fallback is used only for retryable local failures and is recorded in the illustration provenance.
-            </p>
-          </div>
-        )}
+export const IndrasNetImageFallbackSection: React.FC<IndrasNetImageFallbackSectionProps> = ({
+  selectedImageModel,
+  fallbackModel,
+  fallbackModels,
+  onFallbackModelChange,
+}) => {
+  if (!isIndrasNetImageModel(selectedImageModel)) return null;
+
+  const normalizedFallbackModel = fallbackModel.trim() || 'none';
+  const savedCloudFallbackUnavailable = normalizedFallbackModel !== 'none'
+    && !isIndrasNetImageModel(normalizedFallbackModel)
+    && !fallbackModels.some(model => model.id === normalizedFallbackModel);
+
+  return (
+    <fieldset className="mt-6">
+      <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+        Local image fallback
+      </legend>
+      <div>
+        <label htmlFor="imageFallbackModel" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Cloud fallback when Asus is offline or busy
+        </label>
+        <select
+          id="imageFallbackModel"
+          value={normalizedFallbackModel}
+          onChange={(event) => onFallbackModelChange(event.target.value)}
+          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+        >
+          <option value="none">None — fail visibly</option>
+          {savedCloudFallbackUnavailable && (
+            <option value={normalizedFallbackModel}>
+              Saved cloud fallback: {normalizedFallbackModel} — unavailable (still active)
+            </option>
+          )}
+          {fallbackModels.map(model => (
+            <option key={model.id} value={model.id}>{model.label}</option>
+          ))}
+        </select>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Opt-in only. A fallback is used only for retryable local failures and is recorded in the illustration provenance.
+        </p>
       </div>
     </fieldset>
   );

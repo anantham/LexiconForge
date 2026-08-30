@@ -318,3 +318,17 @@ defaults. Exact endpoint mode disables provider fallback; all OpenRouter image
 requests require data collection denial and zero data retention. See
 [CORE-014](./CORE-014-browser-provider-routing-boundaries.md) for the shared
 text/image boundary and request invariants.
+
+## Amendment — 2026-08-30: Local broker settings placement
+
+**Status:** Implemented locally on `codex/features-indrasnet-panel`.
+
+The Asus/IndrasNet endpoint and workflow-health controls belong to the local
+feature workflow, so they now render in **Features -> SillyTavern** instead of
+above provider API keys. The image-model picker remains in Providers, and its
+model-dependent opt-in cloud fallback remains adjacent to that picker.
+
+The two Tailnet services stay separate: port `8444` serves the SillyTavern web
+UI, while port `9443` serves the IndrasNet image broker. Entering the known Asus
+`:8444` URL in the broker field fails locally with that exact distinction and
+does not send a workflow-discovery request to the wrong application.

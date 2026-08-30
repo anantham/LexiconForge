@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { pingSillyTavernBridge, type BridgeStatus } from '../../services/sillyTavernBridge';
+import {
+  DEFAULT_INDRASNET_BASE_URL,
+  fetchIndrasNetWorkflows,
+  getIndrasNetEndpointConfigurationError,
+  type IndrasNetWorkflowProfile,
+} from '../../services/providers/indrasNetImageProvider';
+import { IndrasNetImageProviderSection } from './IndrasNetImageProviderSection';
 
 const BRIDGE_COMMAND = 'uv run uvicorn portal_bridge.app:app --host 127.0.0.1 --port 5001';
 
@@ -9,6 +16,42 @@ const SillyTavernPanel: React.FC = () => {
   const [bridgeStatus, setBridgeStatus] = useState<BridgeStatus>({ state: 'unknown' });
   const [isChecking, setIsChecking] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [indrasNetWorkflows, setIndrasNetWorkflows] = useState<IndrasNetWorkflowProfile[]>([]);
+  const [indrasNetLoading, setIndrasNetLoading] = useState(false);
+  const [indrasNetError, setIndrasNetError] = useState<string | null>(null);
+  const [indrasNetRefresh, setIndrasNetRefresh] = useState(0);
+  const indrasNetEndpoint = currentSettings.indrasNetBaseUrl?.trim() || DEFAULT_INDRASNET_BASE_URL;
+  const indrasNetConfigurationError = getIndrasNetEndpointConfigurationError(indrasNetEndpoint);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (indrasNetConfigurationError) return () => { cancelled = true; };
+
+    const timer = setTimeout(() => {
+      if (cancelled) return;
+      setIndrasNetWorkflows([]);
+      setIndrasNetError(null);
+      setIndrasNetLoading(true);
+      fetchIndrasNetWorkflows(indrasNetEndpoint, { force: true })
+        .then(workflows => {
+          if (!cancelled) setIndrasNetWorkflows(workflows);
+        })
+        .catch(error => {
+          if (cancelled) return;
+          console.error('[SillyTavernPanel] Failed to discover IndrasNet workflows:', error);
+          setIndrasNetError(error instanceof Error ? error.message : 'Unknown discovery error');
+          setIndrasNetWorkflows([]);
+        })
+        .finally(() => {
+          if (!cancelled) setIndrasNetLoading(false);
+        });
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [indrasNetConfigurationError, indrasNetEndpoint, indrasNetRefresh]);
 
   const handleTestConnection = async () => {
     setIsChecking(true);
@@ -132,6 +175,15 @@ const SillyTavernPanel: React.FC = () => {
           </div>
         </div>
       )}
+
+      <IndrasNetImageProviderSection
+        endpoint={currentSettings.indrasNetBaseUrl || ''}
+        loading={indrasNetConfigurationError ? false : indrasNetLoading}
+        error={indrasNetConfigurationError || indrasNetError}
+        workflowCount={indrasNetWorkflows.length}
+        onEndpointChange={(value) => handleSettingChange('indrasNetBaseUrl', value)}
+        onRefresh={() => setIndrasNetRefresh(value => value + 1)}
+      />
     </div>
   );
 };
