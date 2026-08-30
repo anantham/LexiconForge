@@ -134,6 +134,32 @@ describe('readerHydrationService', () => {
     expect(Array.from(payload.chapters.keys())).toEqual(['novel-a-1', 'novel-a-2']);
   });
 
+  it('counts distinct chapter numbers when stale scoped rows share an identity', async () => {
+    mockFetchChaptersForNovel.mockResolvedValue([
+      makeRenderingRecord('novel-a-1-old', {
+        novelId: 'novel-a',
+        chapterNumber: 1,
+        libraryVersionId: 'alice-v1',
+      }),
+      makeRenderingRecord('novel-a-1-current', {
+        novelId: 'novel-a',
+        chapterNumber: 1,
+        libraryVersionId: 'alice-v1',
+      }),
+      makeRenderingRecord('novel-a-2', {
+        novelId: 'novel-a',
+        chapterNumber: 2,
+        libraryVersionId: 'alice-v1',
+      }),
+    ]);
+
+    const result = await loadNovelCacheIntoStore('novel-a', mockSetState, {
+      versionId: 'alice-v1',
+    });
+
+    expect(result.chapterCount).toBe(2);
+  });
+
   it('loadAllIntoStore supports full-session imports and preserves null novelId', async () => {
     mockFetchChaptersForReactRendering.mockResolvedValue([
       makeRenderingRecord('ephemeral-2', { novelId: null, chapterNumber: 2 }),

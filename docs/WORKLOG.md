@@ -164,6 +164,22 @@
 **Verification:** Corrected red gate 2 failed/7 passed; focused green gate 19/19; complete navigation-branch affected gate 90/90 across 10 files; TypeScript clean; focused ESLint 0 errors with 16 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
 **Confidence:** 0.99. Next gate is commit/push, exact-head rereview, and clean CI before merge.
 
+### [2026-08-30 21:40 IST] [Agent: Codex]
+**Status:** Validating fourth exact-head Codex review for PR #166
+**Findings:** P2 an unknown expected package count is currently treated as complete whenever any cache row exists, so an available session URL is never retried. P2 scoped cache completeness uses raw durable row count, allowing stale/current rows for the same chapter number to satisfy the denominator while another chapter is absent.
+**Options:** (A) require a known positive denominator before declaring a cache complete and count distinct positive chapter numbers with stable-ID fallback — selected as the narrow completeness-contract repair. (B) garbage-collect stale rows during open — rejected as destructive and outside navigation scope. (C) derive completeness from stable IDs — rejected because content-derived IDs change across package revisions.
+**Hypotheses:** H1 (0.99) treating unknown size as incomplete only when an acquisition URL exists will resume safely; versions without a URL remain readable through the existing no-session branch. H2 (0.98) distinct chapter-number identity will prevent stale duplicates from hiding gaps, while stable-ID fallback preserves legacy numberless rows.
+**Predicted tests:** a one-row unknown-size cache with a session URL enters streaming and reports `1/unknown`; two durable rows for chapter 1 plus chapter 2 report a completeness count of 2, not 3. Existing known-size, limited-hydration, and no-cache behavior remains green.
+**Files affected:** `components/NovelLibrary.tsx`; `services/readerHydrationService.ts`; their focused tests; this worklog.
+**Fallback:** Revert the isolated follow-up commit; PR #166 remains unmerged.
+**Confidence:** 0.99
+
+### [2026-08-30 21:42 IST] [Agent: Codex]
+**Status:** Fourth exact-head review findings corrected and locally verified; commit/push pending
+**Result:** Both findings were confirmed by red tests (2 failures while 15 existing assertions passed). Cache completeness now requires a known expected count; a session-backed unknown-size cache therefore resumes acquisition, while no-session caches remain readable through the existing fallback. Durable cache count now deduplicates positive chapter numbers and uses stable IDs only for legacy numberless rows.
+**Verification:** Red gate 2 failed/15 passed; focused green gate 17/17; complete navigation-branch affected gate 92/92 across 10 files; TypeScript clean; focused ESLint 0 errors with 14 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
+**Confidence:** 0.99. Next gate is commit/push, exact-head rereview, and clean CI before merge.
+
 ### [2026-08-30 21:05 IST] [Agent: Codex]
 **Status:** Option 1 review corrections complete locally; commit and push pending
 **Results:** H1-H4 confirmed. A reader opened from cached or first-ready content now retains ownership if the remaining stream fails and receives a retry-oriented warning; failures before any reader opens still reach the original hard-failure path. Any `lexiconforge:` input rejected by the canonical parser now fails before normalized or raw mappings. Null/undefined version chapter-number lookups use the `novelId` index and explicit version filter, while versioned lookups retain the compound index. Stored chapter numbers now outrank title inference; legacy numberless summaries still use the title fallback.

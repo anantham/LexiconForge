@@ -195,7 +195,8 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       const expectedChapterCount = resolveExpectedChapterCount(novel, requestedVersionId);
       const cacheIsComplete = Boolean(
         firstCachedChapterId &&
-        (expectedChapterCount === null || cacheState.chapterCount >= expectedChapterCount)
+        expectedChapterCount !== null &&
+        cacheState.chapterCount >= expectedChapterCount
       );
 
       if (firstCachedChapterId && (cacheIsComplete || !sessionJsonUrl)) {

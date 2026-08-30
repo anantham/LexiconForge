@@ -14,7 +14,7 @@ export interface ReaderHydrationOptions {
 
 export interface NovelCacheHydrationResult {
   firstChapterId: string | null;
-  /** Full scoped cache size before an optional in-memory hydration limit. */
+  /** Distinct scoped chapter count before an optional in-memory hydration limit. */
   chapterCount: number;
 }
 
@@ -139,6 +139,21 @@ const hydrateIntoStore = (
   return hydratedState.firstChapterId;
 };
 
+const countDistinctChapterIdentities = (
+  chapters: ChapterRenderingRecord[]
+): number => {
+  const identities = new Set<string>();
+  for (const chapter of chapters) {
+    const chapterNumber = chapter.chapterNumber;
+    if (Number.isSafeInteger(chapterNumber) && chapterNumber > 0) {
+      identities.add(`number:${chapterNumber}`);
+    } else {
+      identities.add(`stable:${chapter.stableId}`);
+    }
+  }
+  return identities.size;
+};
+
 export async function loadNovelIntoStore(
   novelId: string,
   setState: ReaderHydrationSetter,
@@ -165,7 +180,7 @@ export async function loadNovelCacheIntoStore(
 
   return {
     firstChapterId: hydrateIntoStore(chapters, setState, options),
-    chapterCount: chapters.length,
+    chapterCount: countDistinctChapterIdentities(chapters),
   };
 }
 

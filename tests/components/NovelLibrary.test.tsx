@@ -452,6 +452,45 @@ describe('NovelLibrary', () => {
     expect(storeState.openLibrary).not.toHaveBeenCalled();
   });
 
+  it('resumes acquisition when a non-empty cache has an unknown expected size', async () => {
+    const unknownSizeNovel = {
+      id: 'unknown-size-novel',
+      title: 'Unknown Size Novel',
+      sessionJsonUrl: 'https://example.com/unknown-size.json',
+      metadata: {
+        originalLanguage: 'Korean',
+        targetLanguage: 'English',
+        chapterCount: 0,
+        genres: ['Fantasy'],
+        description: 'Legacy metadata without a usable chapter denominator.',
+      },
+    };
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([unknownSizeNovel] as any);
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 1,
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({ chaptersLoaded: 1 } as any);
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => expect(screen.getByText('Unknown Size Novel')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Unknown Size Novel'));
+
+    await waitFor(() => {
+      expect(ImportService.streamImportFromUrl).toHaveBeenCalledWith(
+        'https://example.com/unknown-size.json',
+        expect.any(Function),
+        expect.any(Function),
+        { registryNovelId: 'unknown-size-novel', registryVersionId: null }
+      );
+    });
+    expect(storeState.showNotification).toHaveBeenCalledWith(
+      expect.stringContaining('1/unknown chapters cached'),
+      'info'
+    );
+  });
+
   // P1 red-proof: a grouped novel opened at a verse OUTSIDE the first streamed
   // batch (e.g. Gītā 2.47 when only the first chapter has streamed) must still
   // open — and PERSIST — the picked verse after the full import completes, never
