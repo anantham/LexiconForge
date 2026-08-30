@@ -1,7 +1,76 @@
 # Tech Debt Status
 
-**Last Updated:** August 13, 2026 (credential-boundary item only; scan metrics below remain the March 29 snapshot)
+**Last Updated:** August 31, 2026 (attentional policy added; scan metrics below remain the March 29 snapshot)
 **Last Surface Scan:** March 29, 2026 (v1.1.0, post-review corrected)
+
+## Attentional Policy
+
+This policy decides when a technical-debt observation deserves active engineering attention. It does not authorize a fix: architectural choices, solution selection, and scope expansion still require the human gates in `AGENTS.md`.
+
+### Registers and scope
+
+| Surface | Purpose | Attention rule |
+|---------|---------|----------------|
+| `docs/WORKLOG.md` | Chronological coordination and investigation context | Check for ownership and conflicts; do not use it as the debt backlog. |
+| `docs/roadmaps/TECH-DEBT-INBOX.md` | Append-only raw receipts discovered during other work | A receipt records evidence, not a commitment to implement. |
+| This document | Curated, current debt register | Only evidence-backed, triaged items are eligible for planned debt work. |
+| `docs/architecture/ARCHITECTURE.md` §7 | Structural hotspots and recurring design friction | A hotspot earns priority only when current evidence shows harm or repeated cost. |
+
+### Attention classes
+
+| Class | Trigger | Default action |
+|-------|---------|----------------|
+| **Attend now** | Confirmed security/privacy exposure, data loss or corruption, unbounded spend, critical-path outage, or a release-blocking correctness failure | Pause lower-priority work, run the smallest confirmation check, present containment/remediation options, and obtain the required human decision. |
+| **Plan next** | Repeated core-flow failure, measured performance-budget breach, reachable dependency risk, missing safety coverage on a critical path, or recurring engineering friction across tasks | Curate the item here with evidence and compete it against other `Plan next` work at the next planning decision. |
+| **When touched** | Localized duplication, type weakness, test gap, or maintainability friction adjacent to already-approved work | Include it only when it is within the approved scope, remains a focused change, and has proportionate regression evidence; otherwise leave a receipt. |
+| **Observe** | Speculative cleanup, style preference, one-off friction, stale evidence, or a theoretical performance concern without a baseline | Keep it in the inbox until new evidence changes its class. |
+
+An item's class describes urgency, not implementation size. A cheap cleanup does not outrank a higher-impact item merely because it is easy.
+
+The `Critical`/`High Priority`/`Medium Priority` sections below are the March 29 scan snapshot and predate these attention classes. Treat their entries as candidates, not current classifications; re-triage an item before selecting it for work.
+
+### Admission evidence
+
+Promotion from the inbox into this register requires:
+
+- a concrete symptom and affected user, operator, or engineering path;
+- reproducible evidence or the smallest useful falsification check;
+- frequency, blast radius, and cost-of-delay estimates, with uncertainty stated;
+- the suspected code or documentation boundary, without assuming the solution;
+- a verification target that would prove improvement or safe removal; and
+- an owner or an explicit `DECISION NEEDED` marker.
+
+Performance debt additionally requires a representative workload, environment, metric, and baseline. A theoretical optimization may be investigated, but it cannot be reported as a performance improvement without comparable before/after measurements and a regression guard where practical.
+
+### Selection rule
+
+Compare eligible items in this order:
+
+1. Confirmed user harm, security/privacy impact, data integrity, and critical-path availability.
+2. Strength and freshness of evidence.
+3. Frequency, blast radius, and cost of delay.
+4. Leverage: whether the item repeatedly taxes multiple features or prevents reliable testing and diagnosis.
+5. Change risk, reversibility, effort, and the availability of a bounded validation plan.
+
+When candidates remain tied, prefer the more reversible item with the clearer test oracle. Do not add the dimensions into a numeric score: false precision must not hide a weak premise or stale evidence.
+
+### Attention budget and work in progress
+
+- No fixed debt-capacity percentage is assumed. At each planning point, the human explicitly chooses feature work, debt work, or a bounded mix.
+- Limit deliberate debt work to one active item per worktree/branch and one logical concern per pull request.
+- During feature or bug work, capture adjacent non-blocking debt instead of expanding scope. Escalate it only when continuing would be unsafe or incorrect, or when the human approves the expansion after seeing options.
+- For a debt-review session, surface at most the three strongest eligible candidates, with impact, effort, risk, reversibility, time, confidence, open questions, and uncertainties. Select one before implementation.
+- Do not start bulk cleanup from counts alone (`as any`, file size, warnings, dependency totals). First identify the harmed path and the smallest coherent boundary.
+
+### Lifecycle and review cadence
+
+1. **Capture:** append a raw, grep-friendly receipt to the inbox and link it from the WORKLOG when discovered during other work.
+2. **Triage:** confirm or falsify the receipt, assign an attention class, and promote only actionable items into this register.
+3. **Select:** present solution options and obtain the required human decision before architectural or scope-changing work.
+4. **Execute:** use a focused branch/worktree, record assumptions and predicted validation, and preserve unrelated work.
+5. **Close or demote:** mark an item resolved only with validation evidence and a date. Return stale, disproved, or no-longer-actionable items to observation rather than carrying inherited priority indefinitely.
+
+Review this register before starting a dedicated debt initiative, after a security/data-integrity incident, and at least once per monthly planning cycle. Ordinary feature sessions need only check current ownership and capture new receipts; they do not need to re-triage the whole backlog.
 
 ## Completed Milestones ✅
 
