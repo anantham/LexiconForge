@@ -433,6 +433,33 @@ describe('NavigationService', () => {
       expect(result).toMatchObject({ chapterId: 'dd-42', chapter });
     });
 
+    it('rejects a malformed internal URL before a normalized memory mapping can resolve it', async () => {
+      const { ChapterOps } = await import('../../services/db/operations');
+      const chapter = createMockEnhancedChapter({
+        id: 'dd-12',
+        novelId: 'dungeon-defense-wn',
+        libraryVersionId: 'v1-primary',
+        chapterNumber: 12,
+        canonicalUrl: 'lexiconforge://dungeon-defense-wn/chapter/12',
+      });
+      const malformedUrl = `${chapter.canonicalUrl}?version=v1-primary`;
+
+      const result = await NavigationService.handleNavigate(
+        malformedUrl,
+        createNavigationContext({
+          chapters: new Map([[chapter.id, chapter]]),
+          urlIndex: new Map([['dungeon-defense-wn/chapter/12', chapter.id]]),
+          scope: { novelId: 'dungeon-defense-wn', versionId: 'v1-primary' },
+        }),
+        vi.fn()
+      );
+
+      expect(result.errorCode).toBe('invalid_internal_url');
+      expect(result.error).toContain('Malformed internal chapter URL');
+      expect(result.chapterId).toBeUndefined();
+      expect(ChapterOps.findByNumber).not.toHaveBeenCalled();
+    });
+
     it('returns a typed acquisition error when an internal chapter is not cached', async () => {
       const { ChapterOps } = await import('../../services/db/operations');
       (ChapterOps.findByNumber as Mock).mockResolvedValue(null);

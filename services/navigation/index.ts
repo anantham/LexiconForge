@@ -63,8 +63,20 @@ export class NavigationService {
         }
       );
 
-      let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
       const internalTarget = parseInternalChapterUrl(url);
+      const usesInternalScheme = /^lexiconforge:/i.test(url);
+
+      if (usesInternalScheme && !internalTarget) {
+        const errorMessage =
+          'Malformed internal chapter URL. Expected ' +
+          'lexiconforge://<novel-id>/chapter/<positive-number> without query parameters or fragments.';
+        console.error(`[Navigate] ${errorMessage}`, { url });
+        telemetryMeta.outcome = 'invalid_internal_url';
+        telemetryMeta.reason = 'strict_internal_parser_rejected';
+        return { error: errorMessage, errorCode: 'invalid_internal_url' };
+      }
+
+      let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
 
       if (internalTarget) {
         const activeNovelId = scope?.novelId ?? null;

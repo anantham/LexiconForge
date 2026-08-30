@@ -294,7 +294,9 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
         const mappedList = Array.from(byId.values()).map((summary): ChapterDropdownOption => {
           const titleNum = numberFromTitle(summary.translatedTitle);
           const dbNum = summary.chapterNumber as number | undefined;
-          const displayNumber = titleNum ?? dbNum ?? null;
+          // Persisted chapter identity wins. Title inference is only a legacy
+          // fallback for summaries that genuinely lack chapterNumber.
+          const displayNumber = dbNum ?? titleNum ?? null;
 
           const title = summary.translatedTitle || summary.title || 'Untitled Chapter';
           const displayLabel = buildChapterDisplayLabel(title, displayNumber);

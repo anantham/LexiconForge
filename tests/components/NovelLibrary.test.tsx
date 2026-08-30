@@ -407,6 +407,51 @@ describe('NovelLibrary', () => {
     );
   });
 
+  it('keeps a cached chapter open when background resume acquisition fails', async () => {
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([mockNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-03-29T18:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-03-29T18:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 12,
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockRejectedValue(
+      new Error('offline while resuming')
+    );
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => {
+      expect(storeState.showNotification).toHaveBeenCalledWith(
+        expect.stringContaining('loading the remaining chapters failed'),
+        'warning'
+      );
+    });
+    expect(storeState.currentChapterId).toBe('ch-12');
+    expect(storeState.appScreen).toBe('reader');
+    expect(storeState.setReaderReady).toHaveBeenCalled();
+    expect(storeState.openLibrary).not.toHaveBeenCalled();
+  });
+
   // P1 red-proof: a grouped novel opened at a verse OUTSIDE the first streamed
   // batch (e.g. Gītā 2.47 when only the first chapter has streamed) must still
   // open — and PERSIST — the picked verse after the full import completes, never

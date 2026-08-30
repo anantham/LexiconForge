@@ -205,6 +205,7 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 > from a stale pre-extraction snapshot.
 | `services/imageGenerationService.ts` | 631 | Split candidate | Initial generation and retry duplicate provenance, persistence, versioning, and metrics assembly; fallback review found behavior drift between the two paths |
 | `components/settings/ProvidersPanel.tsx` | 565 | Watchlist | Provider catalogue effects, credit state, capability checks, pricing assembly, and selection lifecycle remain coupled; PR #138 review found stale endpoint-owned workflow state |
+| `components/NovelLibrary.tsx` | 727 | Split candidate | Registry display, bookshelf persistence, cache hydration, stream acquisition, glossary loading, source search, reader routing, and progress UI share one component; PR #166 review exposed failure-state coupling between acquisition and reader ownership |
 | `components/Illustration.tsx` | 822 | Split candidate | Marker lookup, durable-job status, ETA lifecycle, prompt/plan editing, advanced controls, image rendering, generation actions, and version controls share one component; interrupted-state review exposed status/render drift |
 | `store/slices/imageSlice.ts` | 1,580 | Split candidate | Job lifecycle is now separate, but result application, persistence, cache migration, controls, versioning, and recovery orchestration still give this file multiple reasons to change |
 | `store/slices/translationsSlice.ts` | 1,059 | Keep | Single domain, complex but cohesive |

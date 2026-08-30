@@ -245,6 +245,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         // Empty or partial cache — stream from the version session. Replaying
         // the stream is idempotent: exact packaged translations are reused.
         let hasNavigatedToFirstChapter = false;
+        let readerIsOpen = false;
 
         if (firstCachedChapterId) {
           const cachedPickedId = resolvePickedChapterId();
@@ -267,6 +268,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           if (resumeChapterId) {
             hasNavigatedToFirstChapter = true;
             setReaderReady();
+            readerIsOpen = true;
             await persistResumeEntry(novel.id, resumeChapterId, requestedVersionId);
             setSelectedNovel(null);
             onSessionLoaded?.();
@@ -335,6 +337,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
               });
               if (resumeChapterId) {
                 setReaderReady();
+                readerIsOpen = true;
                 // Persist now ONLY when we're on the intended target: no verse
                 // was picked, or the picked verse resolved in this batch. When a
                 // verse was picked but isn't loaded yet, do NOT persist chapter 1
@@ -380,7 +383,42 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
             registryNovelId: novel.id,
             registryVersionId: requestedVersionId,
           }
-        );
+        ).catch((error: unknown) => {
+          if (!readerIsOpen) {
+            throw error;
+          }
+
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          console.error(
+            '[NovelLibrary] Background session import failed; keeping the readable chapter open:',
+            {
+              novelId: novel.id,
+              versionId: requestedVersionId,
+              currentChapterId: useAppStore.getState().currentChapterId,
+              error: errorMessage,
+            }
+          );
+          debugLog(
+            'import',
+            'summary',
+            '[NovelLibrary] Background resume failed after reader opened',
+            {
+              novelId: novel.id,
+              versionId: requestedVersionId,
+              currentChapterId: useAppStore.getState().currentChapterId,
+              error: errorMessage,
+            }
+          );
+          showNotification(
+            `${novel.title}${versionLabel} remains readable from the chapters already available, but loading the remaining chapters failed: ${errorMessage}. Reopen this title from the Library when connectivity returns to retry.`,
+            'warning'
+          );
+          return null;
+        });
+
+        if (importResult === null && readerIsOpen) {
+          return;
+        }
 
         // Reconcile an explicitly-picked verse that lay outside the first
         // streamed batch. The stream has now fully completed, so load the whole

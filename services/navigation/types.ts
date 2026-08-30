@@ -38,7 +38,7 @@ export interface NavigationResult {
   // load-bearing sentinel meaning "no error message, caller should fetch"
   // (see chaptersSlice handleNavigate: `result.error === null` → handleFetch).
   error?: string | null;
-  errorCode?: 'chapter_not_cached' | 'scope_mismatch' | 'unsupported_url';
+  errorCode?: 'chapter_not_cached' | 'scope_mismatch' | 'unsupported_url' | 'invalid_internal_url';
   shouldUpdateBrowserHistory?: boolean;
   navigationHistory?: string[];
 }
