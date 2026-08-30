@@ -541,14 +541,10 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         }
       };
 
-      // Ensure the metadata chapter count reflects what we actually have in IndexedDB if available
-      if (chapterCounts[novel.id]) {
-        novel.metadata.chapterCount = chapterCounts[novel.id].totalCount;
-      }
-
       return {
         entry,
         novel,
+        cachedChapterCount: chapterCounts[novel.id]?.totalCount,
         translatedCount: chapterCounts[novel.id]?.translatedCount || 0,
         version: registryNovel ? resolveSavedVersion(registryNovel, entry.versionId).version ?? null : null,
       };
@@ -585,7 +581,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 md:gap-6 lg:gap-8">
-            {continueReadingEntries.map(({ entry, novel, version, translatedCount }) => (
+            {continueReadingEntries.map(({ entry, novel, version, translatedCount, cachedChapterCount }) => (
               <NovelCard
                 key={`continue-${novel.id}-${entry.versionId ?? 'default'}`}
                 novel={novel}
@@ -594,13 +590,14 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                   void handleResumeFromShelf(novel, entry);
                 }}
                 badgeLabel="In Progress"
+                chapterCount={cachedChapterCount}
                 progressLabel={
                   [
                     version?.displayName ?? null,
                     typeof entry.lastChapterNumber === 'number'
                       ? `Chapter ${entry.lastChapterNumber}`
                       : 'Resume reading',
-                    `${translatedCount}/${novel.metadata.chapterCount} translated`,
+                    `${translatedCount}/${cachedChapterCount ?? novel.metadata.chapterCount} translated`,
                   ]
                     .filter(Boolean)
                     .join(' • ')

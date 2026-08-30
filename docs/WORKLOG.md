@@ -164,6 +164,14 @@
 **Verification:** Corrected red gate 2 failed/7 passed; focused green gate 19/19; complete navigation-branch affected gate 90/90 across 10 files; TypeScript clean; focused ESLint 0 errors with 16 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
 **Confidence:** 0.99. Next gate is commit/push, exact-head rereview, and clean CI before merge.
 
+### [2026-08-30 22:17 IST] [Agent: Codex]
+**Status:** Seventh exact-head review finding corrected; final verification in progress
+**Finding:** P2 the Continue Reading projection mutated the registry novel's published `metadata.chapterCount` to the current IndexedDB count. A legacy top-level session with 12/100 cached chapters therefore compared `1..12` against a mutated expected `1..12` and permanently skipped acquisition.
+**Hypothesis/result:** Confirmed by a red component regression (12 cached rows, published count 100, no stream call). Registry entries now remain immutable; the cached count is passed separately to `NovelCard` and the progress label for display only. The corrected focused component gate passes 13/13. Confidence 0.99.
+**Files affected:** `components/NovelLibrary.tsx`; `components/NovelCard.tsx`; `tests/components/NovelLibrary.test.tsx`; CORE-015; this worklog.
+**Verification:** Focused component gate 13/13; complete affected gate 126/126 across 11 files; TypeScript clean; focused ESLint 0 errors with 15 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
+**Fallback:** Revert this isolated follow-up; PR #166 remains unmerged.
+
 ### [2026-08-30 22:08 IST] [Agent: Codex]
 **Status:** Sixth exact-head review findings corrected; final verification in progress
 **Findings:** P2 canonical internal navigation could select an older row when a package replay retained multiple scoped stable IDs for one chapter number. P2 completeness compared only distinct-row cardinality, so an obsolete same-sized number set could hide a missing number from the selected package.

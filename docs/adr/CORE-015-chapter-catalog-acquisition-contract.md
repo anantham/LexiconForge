@@ -53,6 +53,9 @@ could be hidden by translation-specific inline error rules.
    recently stored/replayed row is authoritative for hydration and navigation.
    Stable ID provides a deterministic tie break. Older rows and their
    translations are not deleted by navigation.
+9. Registry package metadata is immutable input to acquisition decisions.
+   Cached/translated counts may be shown through explicit display props, but
+   must never overwrite the published denominator on a `NovelEntry`.
 
 ## Positions considered
 
@@ -93,7 +96,9 @@ could be hidden by translation-specific inline error rules.
 - `services/readerHydrationService.ts` reports durable scoped cache count
   separately from the optional in-memory hydration limit.
 - `components/NovelLibrary.tsx` distinguishes complete, partial, and empty
-  caches and resumes partial streams without discarding the saved chapter.
+  caches, preserves registry denominators, and resumes partial streams without
+  discarding the saved chapter. `NovelCard.tsx` accepts a display-only cached
+  count for Continue Reading cards.
 - `services/importService.ts` reuses exact packaged translations during replay
   and verifies newly stored translations by content identity.
 - `hooks/useChapterDropdownOptions.ts`,

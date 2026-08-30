@@ -10,6 +10,7 @@ interface NovelCardProps {
   progressLabel?: string;
   badgeLabel?: string;
   translatedCount?: number;
+  chapterCount?: number;
 }
 
 export const NovelCard: React.FC<NovelCardProps> = ({
@@ -19,6 +20,7 @@ export const NovelCard: React.FC<NovelCardProps> = ({
   progressLabel,
   badgeLabel,
   translatedCount,
+  chapterCount,
 }) => {
   const genres = novel.metadata.genres.slice(0, 2);
 
@@ -70,7 +72,7 @@ export const NovelCard: React.FC<NovelCardProps> = ({
           <BookOpen className="h-3.5 w-3.5 mr-1" />
           <span>
             {typeof translatedCount === 'number' && translatedCount > 0 ? `${translatedCount} / ` : ''}
-            {novel.metadata.chapterCount} chapters
+            {chapterCount ?? novel.metadata.chapterCount} chapters
           </span>
         </div>
 
