@@ -433,6 +433,47 @@ describe('NavigationService', () => {
       expect(result).toMatchObject({ chapterId: 'dd-42', chapter });
     });
 
+    it('uses the latest in-memory revision when scoped rows share a chapter number', async () => {
+      const stale = createMockEnhancedChapter({
+        id: 'dd-42-stale',
+        stableId: 'dd-42-stale',
+        novelId: 'dungeon-defense-wn',
+        libraryVersionId: 'v1-primary',
+        chapterNumber: 42,
+        importSource: {
+          originalUrl: 'https://example.test/dd/42-stale',
+          importDate: new Date('2026-08-29T00:00:00.000Z'),
+          sourceFormat: 'json',
+        },
+      });
+      const current = createMockEnhancedChapter({
+        id: 'dd-42-current',
+        stableId: 'dd-42-current',
+        novelId: 'dungeon-defense-wn',
+        libraryVersionId: 'v1-primary',
+        chapterNumber: 42,
+        importSource: {
+          originalUrl: 'https://example.test/dd/42-current',
+          importDate: new Date('2026-08-30T00:00:00.000Z'),
+          sourceFormat: 'json',
+        },
+      });
+
+      const result = await NavigationService.handleNavigate(
+        'lexiconforge://dungeon-defense-wn/chapter/42',
+        createNavigationContext({
+          chapters: new Map([
+            [stale.id, stale],
+            [current.id, current],
+          ]),
+          scope: { novelId: 'dungeon-defense-wn', versionId: 'v1-primary' },
+        }),
+        vi.fn()
+      );
+
+      expect(result).toMatchObject({ chapterId: current.id, chapter: current });
+    });
+
     it('preserves an exact internal URL mapping for an unscoped manual import', async () => {
       const { ChapterOps } = await import('../../services/db/operations');
       const chapter = createMockEnhancedChapter({

@@ -18,6 +18,7 @@ import type { TranslationSettingsSnapshot } from '../../types';
 import { ChapterOps, TranslationOps, SettingsOps, NavigationOps } from '../db/operations';
 import { telemetryService } from '../telemetryService';
 import { parseInternalChapterUrl } from '../chapterCatalog';
+import { selectLatestChapterRevision } from '../chapterRevisionService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { adaptTranslationRecordToResult } from './converters';
 import { validateNavigation } from './validation';
@@ -101,16 +102,19 @@ export class NavigationService {
 
         const lookupNovelId = activeNovelId ?? internalTarget.novelId;
         const lookupVersionId = activeNovelId ? scope?.versionId ?? null : null;
-        const inMemoryMatch = Array.from(chapters.entries()).find(([, chapter]) => {
+        const inMemoryMatch = selectLatestChapterRevision(Array.from(chapters.entries()).filter(([, chapter]) => {
           return (
             chapter.chapterNumber === internalTarget.chapterNumber &&
             (chapter.novelId ?? null) === lookupNovelId &&
             (chapter.libraryVersionId ?? null) === lookupVersionId
           );
-        });
+        }).map(([chapterId, chapter]) => ({
+          ...chapter,
+          id: chapterId,
+        })));
 
         if (inMemoryMatch) {
-          chapterId = inMemoryMatch[0];
+          chapterId = inMemoryMatch.id;
         } else {
           const found = await ChapterOps.findByNumber(
             internalTarget.chapterNumber,

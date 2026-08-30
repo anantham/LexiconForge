@@ -164,6 +164,15 @@
 **Verification:** Corrected red gate 2 failed/7 passed; focused green gate 19/19; complete navigation-branch affected gate 90/90 across 10 files; TypeScript clean; focused ESLint 0 errors with 16 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
 **Confidence:** 0.99. Next gate is commit/push, exact-head rereview, and clean CI before merge.
 
+### [2026-08-30 22:08 IST] [Agent: Codex]
+**Status:** Sixth exact-head review findings corrected; final verification in progress
+**Findings:** P2 canonical internal navigation could select an older row when a package replay retained multiple scoped stable IDs for one chapter number. P2 completeness compared only distinct-row cardinality, so an obsolete same-sized number set could hide a missing number from the selected package.
+**Options:** (A) validate an exact contiguous registry range and select the latest stored revision without deletion — selected; low state risk and reversible, with safe replay for non-contiguous packages. (B) persist a new exact package manifest — deferred because it adds durable state/invalidation/migration policy. (C) delete stale rows during replay — rejected because it can destroy translations/history.
+**Hypotheses/results:** Confirmed. The memory regression selected the older revision; the non-unique IndexedDB index returned a lexicographically earlier stale row; and cached `1..100` incorrectly satisfied selected `2..101`. The corrected paths select by latest stored/replayed timestamp with stable-ID tie break and require every exact expected number. Registry validation confirmed Dungeon Defense is contiguous `1..509`; Gītā's broad `1001..18078` endpoints describe 700 non-contiguous verses, so that package deliberately fails closed and replays. Confidence 0.96.
+**Files affected:** `services/chapterRevisionService.ts`; chapter DB/rendering/hydration/navigation/catalog services; `components/NovelLibrary.tsx`; focused tests; CORE-015; this worklog.
+**Verification:** Complete affected gate 125/125 across 11 files; TypeScript clean; focused ESLint 0 errors with 43 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean. The first IndexedDB red-test harness used fake timers and timed out because IndexedDB completion depends on timers; it was corrected to real time before using its stale-row result as evidence.
+**Fallback:** Revert this isolated follow-up commit; no stale rows are deleted and PR #166 remains unmerged.
+
 ### [2026-08-30 21:51 IST] [Agent: Codex]
 **Status:** Fifth exact-head review finding corrected and locally verified; commit/push pending
 **Finding:** P2 a legacy numberless row was counted by stable ID beside its numbered replacement, so the duplicate could satisfy a known package denominator while another numbered chapter remained absent.

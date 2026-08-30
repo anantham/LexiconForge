@@ -5,6 +5,7 @@ import { STORE_NAMES } from '../core/schema';
 import { withReadTxn, withWriteTxn, promisifyRequest } from '../core/txn';
 import { generateStableChapterId, normalizeUrlAggressively } from '../../stableIdService';
 import { buildScopedStorageUrl } from '../../libraryScope';
+import { selectLatestChapterRevision } from '../../chapterRevisionService';
 import { debugLog, debugWarn } from '../../../utils/debug';
 
 const CHAPTER_DOMAIN = 'chapters';
@@ -335,10 +336,10 @@ const findChapterModernByNumber = async (
         store.indexNames.contains('novelVersionChapter')
       ) {
         const index = store.index('novelVersionChapter');
-        const result = (await promisifyRequest(
-          index.get([novelId, libraryVersionId, chapterNumber])
-        )) as ChapterRecord | undefined;
-        return result || null;
+        const rows = (await promisifyRequest(
+          index.getAll([novelId, libraryVersionId, chapterNumber])
+        )) as ChapterRecord[];
+        return selectLatestChapterRevision(rows);
       }
 
       // IndexedDB compound keys cannot contain null. Unversioned rows are not
@@ -347,31 +348,31 @@ const findChapterModernByNumber = async (
       if (novelId && store.indexNames.contains('novelId')) {
         const index = store.index('novelId');
         const rows = (await promisifyRequest(index.getAll(novelId))) as ChapterRecord[];
-        return (
-          rows.find(ch => {
+        return selectLatestChapterRevision(
+          rows.filter(ch => {
             return (
               ch.chapterNumber === chapterNumber &&
               (ch.libraryVersionId ?? null) === (libraryVersionId ?? null)
             );
-          }) || null
+          })
         );
       }
 
       if (!novelId && store.indexNames.contains('chapterNumber')) {
         const index = store.index('chapterNumber');
-        const result = (await promisifyRequest(index.get(chapterNumber))) as ChapterRecord | undefined;
-        return result || null;
+        const rows = (await promisifyRequest(index.getAll(chapterNumber))) as ChapterRecord[];
+        return selectLatestChapterRevision(rows);
       }
 
       const chapters = (await promisifyRequest(store.getAll())) as ChapterRecord[];
-      return chapters.find(
+      return selectLatestChapterRevision(chapters.filter(
         ch =>
           ch.chapterNumber === chapterNumber &&
           (typeof novelId === 'undefined' ? true : (ch.novelId ?? null) === novelId) &&
           (typeof novelId === 'undefined'
             ? true
             : (ch.libraryVersionId ?? null) === (libraryVersionId ?? null))
-      ) || null;
+      ));
     },
     CHAPTER_DOMAIN,
     'operations',

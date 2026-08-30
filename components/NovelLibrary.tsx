@@ -20,7 +20,10 @@ import {
   loadNovelCacheIntoStore,
   loadNovelIntoStore,
 } from '../services/readerHydrationService';
-import { resolveExpectedChapterCount } from '../services/chapterCatalog';
+import {
+  resolveExpectedChapterCount,
+  resolveExpectedChapterNumbers,
+} from '../services/chapterCatalog';
 import { fetchAndMergeGlossary, mergeGlossaryEntries } from '../services/glossaryService';
 import { fetchNovelChapterCounts } from '../services/db/operations/summaries';
 import { fetchAndParseUrl } from '../services/scraping/fetcher';
@@ -193,10 +196,12 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       });
       const firstCachedChapterId = cacheState.firstChapterId;
       const expectedChapterCount = resolveExpectedChapterCount(novel, requestedVersionId);
+      const expectedChapterNumbers = resolveExpectedChapterNumbers(novel, requestedVersionId);
+      const cachedChapterNumbers = new Set(cacheState.chapterNumbers);
       const cacheIsComplete = Boolean(
         firstCachedChapterId &&
-        expectedChapterCount !== null &&
-        cacheState.chapterCount >= expectedChapterCount
+        expectedChapterNumbers &&
+        expectedChapterNumbers.every((chapterNumber) => cachedChapterNumbers.has(chapterNumber))
       );
 
       if (firstCachedChapterId && (cacheIsComplete || !sessionJsonUrl)) {

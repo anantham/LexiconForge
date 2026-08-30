@@ -170,6 +170,7 @@ describe('NovelLibrary', () => {
     vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
       firstChapterId: null,
       chapterCount: 0,
+      chapterNumbers: [],
     });
     vi.mocked(loadNovelIntoStore).mockResolvedValue(null);
     settingsOpsMock.getKey.mockReset();
@@ -273,6 +274,7 @@ describe('NovelLibrary', () => {
     vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
       firstChapterId: 'ch-12',
       chapterCount: 100,
+      chapterNumbers: Array.from({ length: 100 }, (_, index) => index + 1),
     });
     settingsOpsMock.getKey.mockResolvedValue({ stableIds: ['ch-12'] } as any);
 
@@ -335,6 +337,7 @@ describe('NovelLibrary', () => {
     vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
       firstChapterId: 'ch-12',
       chapterCount: 100,
+      chapterNumbers: Array.from({ length: 100 }, (_, index) => index + 1),
     });
     settingsOpsMock.getKey.mockResolvedValue({ stableIds: ['ch-12'] } as any);
 
@@ -380,6 +383,7 @@ describe('NovelLibrary', () => {
     vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
       firstChapterId: 'ch-12',
       chapterCount: 12,
+      chapterNumbers: Array.from({ length: 12 }, (_, index) => index + 1),
     });
     vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({
       chaptersLoaded: 100,
@@ -407,6 +411,50 @@ describe('NovelLibrary', () => {
     );
   });
 
+  it('does not treat a same-sized stale chapter range as the selected package', async () => {
+    const shiftedRangeNovel = {
+      ...mockNovel,
+      versions: [
+        {
+          ...mockNovel.versions[0],
+          chapterRange: { from: 2, to: 101 },
+        },
+      ],
+    };
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([shiftedRangeNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-08-30T00:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-08-30T00:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 100,
+      chapterNumbers: Array.from({ length: 100 }, (_, index) => index + 1),
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({ chaptersLoaded: 100 } as any);
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => expect(ImportService.streamImportFromUrl).toHaveBeenCalled());
+  });
+
   it('keeps a cached chapter open when background resume acquisition fails', async () => {
     vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([mockNovel] as any);
     vi.mocked(BookshelfStateService.getState).mockResolvedValue({
@@ -428,6 +476,7 @@ describe('NovelLibrary', () => {
     vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
       firstChapterId: 'ch-12',
       chapterCount: 12,
+      chapterNumbers: Array.from({ length: 12 }, (_, index) => index + 1),
     });
     vi.mocked(ImportService.streamImportFromUrl).mockRejectedValue(
       new Error('offline while resuming')
@@ -469,6 +518,7 @@ describe('NovelLibrary', () => {
     vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
       firstChapterId: 'ch-12',
       chapterCount: 1,
+      chapterNumbers: [12],
     });
     vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({ chaptersLoaded: 1 } as any);
 
@@ -548,6 +598,7 @@ describe('NovelLibrary', () => {
     vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
       firstChapterId: null,
       chapterCount: 0,
+      chapterNumbers: [],
     });
     let loadCall = 0;
     vi.mocked(loadNovelIntoStore).mockImplementation(async (_novelId, setState, options) => {

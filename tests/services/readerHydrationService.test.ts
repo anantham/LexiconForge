@@ -129,7 +129,11 @@ describe('readerHydrationService', () => {
       versionId: 'alice-v1',
     });
 
-    expect(result).toEqual({ firstChapterId: 'novel-a-1', chapterCount: 3 });
+    expect(result).toEqual({
+      firstChapterId: 'novel-a-1',
+      chapterCount: 3,
+      chapterNumbers: [1, 2, 3],
+    });
     const payload = mockSetState.mock.calls[0][0];
     expect(Array.from(payload.chapters.keys())).toEqual(['novel-a-1', 'novel-a-2']);
   });
@@ -158,6 +162,7 @@ describe('readerHydrationService', () => {
     });
 
     expect(result.chapterCount).toBe(2);
+    expect(result.chapterNumbers).toEqual([1, 2]);
   });
 
   it('does not let legacy numberless rows satisfy packaged chapter completeness', async () => {
@@ -179,6 +184,7 @@ describe('readerHydrationService', () => {
     });
 
     expect(result.chapterCount).toBe(1);
+    expect(result.chapterNumbers).toEqual([1]);
   });
 
   it('loadAllIntoStore supports full-session imports and preserves null novelId', async () => {

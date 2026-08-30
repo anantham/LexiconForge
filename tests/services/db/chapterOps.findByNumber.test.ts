@@ -56,4 +56,31 @@ describe('ChapterOps.findByNumber', () => {
     expect(found?.stableId).toBe('version-two-chapter-12');
     expect(found?.libraryVersionId).toBe('v2');
   });
+
+  it('selects the latest stored revision when scoped rows share a chapter number', async () => {
+    await ChapterOps.store({
+      stableId: 'chapter-12-a-stale',
+      novelId: 'versioned-novel',
+      libraryVersionId: 'v2',
+      originalUrl: 'https://example.test/version-two/12-stale',
+      title: 'Old chapter 12',
+      content: 'Old package content.',
+      chapterNumber: 12,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    await ChapterOps.store({
+      stableId: 'chapter-12-z-current',
+      novelId: 'versioned-novel',
+      libraryVersionId: 'v2',
+      originalUrl: 'https://example.test/version-two/12-current',
+      title: 'Current chapter 12',
+      content: 'Current package content.',
+      chapterNumber: 12,
+    });
+
+    const found = await ChapterOps.findByNumber(12, 'versioned-novel', 'v2');
+
+    expect(found?.stableId).toBe('chapter-12-z-current');
+  });
 });
