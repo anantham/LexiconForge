@@ -47,6 +47,7 @@ const makeOption = (overrides: Partial<ChapterDropdownOption>): ChapterDropdownO
   lastTranslatedAt: undefined,
   displayLabel: 'Ch 1: Stub',
   displayNumber: 1,
+  availability: 'ready',
   ...overrides,
 });
 

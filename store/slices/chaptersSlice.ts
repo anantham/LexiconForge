@@ -400,6 +400,12 @@ export const createChaptersSlice: StateCreator<
       if (uiActions.setError) {
         uiActions.setError(result.error);
       }
+      if (typeof result.error === 'string' && uiActions.showNotification) {
+        uiActions.showNotification(
+          result.error,
+          result.errorCode === 'chapter_not_cached' ? 'warning' : 'error'
+        );
+      }
       
       // Handle fetch if needed
       if (result.error === null && NavigationService.isValidUrl(url)) {
