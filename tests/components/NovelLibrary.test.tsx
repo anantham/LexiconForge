@@ -416,6 +416,65 @@ describe('NovelLibrary', () => {
     );
   });
 
+  it('persists the authoritative chapter id after replay remaps the open revision', async () => {
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([mockNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-03-29T18:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-03-29T18:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 12,
+      chapterNumbers: Array.from({ length: 12 }, (_, index) => index + 1),
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockImplementation(async () => {
+      storeState.chapters = new Map([
+        [
+          'ch-12-current',
+          createMockEnhancedChapter({
+            id: 'ch-12-current',
+            novelId: 'novel-1',
+            libraryVersionId: 'alice-v1',
+            chapterNumber: 12,
+          }),
+        ],
+      ]);
+      storeState.currentChapterId = 'ch-12-current';
+      return { chaptersLoaded: 100 } as any;
+    });
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => {
+      expect(BookshelfStateService.upsertEntry).toHaveBeenCalledWith(
+        expect.objectContaining({
+          novelId: 'novel-1',
+          versionId: 'alice-v1',
+          lastChapterId: 'ch-12-current',
+          lastChapterNumber: 12,
+        })
+      );
+    });
+    expect(storeState.currentChapterId).toBe('ch-12-current');
+  });
+
   it('does not treat a same-sized stale chapter range as the selected package', async () => {
     const shiftedRangeNovel = {
       ...mockNovel,

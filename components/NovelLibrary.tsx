@@ -252,6 +252,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         // the stream is idempotent: exact packaged translations are reused.
         let hasNavigatedToFirstChapter = false;
         let readerIsOpen = false;
+        let readerChapterIdBeforeReplay: string | null = null;
 
         if (firstCachedChapterId) {
           const cachedPickedId = resolvePickedChapterId();
@@ -275,6 +276,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
             hasNavigatedToFirstChapter = true;
             setReaderReady();
             readerIsOpen = true;
+            readerChapterIdBeforeReplay = resumeChapterId;
             await persistResumeEntry(novel.id, resumeChapterId, requestedVersionId);
             setSelectedNovel(null);
             onSessionLoaded?.();
@@ -344,6 +346,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
               if (resumeChapterId) {
                 setReaderReady();
                 readerIsOpen = true;
+                readerChapterIdBeforeReplay = resumeChapterId;
                 // Persist now ONLY when we're on the intended target: no verse
                 // was picked, or the picked verse resolved in this batch. When a
                 // verse was picked but isn't loaded yet, do NOT persist chapter 1
@@ -424,6 +427,13 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
         if (importResult === null && readerIsOpen) {
           return;
+        }
+
+        if (readerIsOpen && !hasPickedVerse) {
+          const remappedChapterId = useAppStore.getState().currentChapterId;
+          if (remappedChapterId && remappedChapterId !== readerChapterIdBeforeReplay) {
+            await persistResumeEntry(novel.id, remappedChapterId, requestedVersionId);
+          }
         }
 
         // Reconcile an explicitly-picked verse that lay outside the first

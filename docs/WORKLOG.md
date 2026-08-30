@@ -172,6 +172,16 @@
 **Verification:** Focused component gate 13/13; complete affected gate 126/126 across 11 files; TypeScript clean; focused ESLint 0 errors with 15 pre-existing warnings; production build passed with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean.
 **Fallback:** Revert this isolated follow-up; PR #166 remains unmerged.
 
+### [2026-08-30 22:30 IST] [Agent: Codex]
+**Status:** Eighth exact-head review finding corrected and locally verified; commit/push pending
+**Finding:** P2 final replay hydration can replace the currently open scoped chapter revision, but import completion preserved the old truthy ID even after that row disappeared from the hydrated map. The reader then rendered blank and its bookshelf entry retained the obsolete ID.
+**Options:** (A) preserve the open scoped chapter number across final hydration, re-resolve it in the authoritative map, and persist an ID change — selected; narrow, reversible, and aligned with the existing non-destructive revision policy. (B) keep every stale revision in the in-memory map — rejected because navigation could again select obsolete rows. (C) delete old durable rows — rejected as destructive and outside this reader handoff.
+**Hypothesis/result:** Confirmed by a red importer regression: expected `chapter-64-current`, received removed `chapter-64-stale`. The importer now remaps the scoped number after authoritative hydration, falls back only to a current ID that still exists, and logs the identity handoff. `NovelLibrary` persists a changed open ID after successful replay. Confidence 0.99.
+**Predicted/observed tests:** The importer regression failed 1/10 before the repair and passes afterward. A component regression proves a cached `ch-12` reader remains on and persists `ch-12-current` after replay. Focused importer/library gate passes 24/24.
+**Verification:** Complete affected gate passes 128/128 across 11 files; TypeScript clean; focused ESLint 0 errors with 29 pre-existing warnings; production build passes with existing Browserslist/module-directive/dynamic-import/chunk-size warnings; `git diff --check` clean. The explicit numeric guard added after the first typecheck resolved its sole narrowing error without changing runtime behavior.
+**Files affected:** `services/importService.ts`; `components/NovelLibrary.tsx`; their focused tests; CORE-015; this worklog.
+**Fallback:** Revert this isolated follow-up commit; PR #166 remains unmerged at its previously pushed head.
+
 ### [2026-08-30 22:08 IST] [Agent: Codex]
 **Status:** Sixth exact-head review findings corrected; final verification in progress
 **Findings:** P2 canonical internal navigation could select an older row when a package replay retained multiple scoped stable IDs for one chapter number. P2 completeness compared only distinct-row cardinality, so an obsolete same-sized number set could hide a missing number from the selected package.

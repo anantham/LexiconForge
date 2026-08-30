@@ -56,6 +56,10 @@ could be hidden by translation-specific inline error rules.
 9. Registry package metadata is immutable input to acquisition decisions.
    Cached/translated counts may be shown through explicit display props, but
    must never overwrite the published denominator on a `NovelEntry`.
+10. Final replay hydration preserves the reader's scoped chapter number, not a
+    possibly obsolete revision ID. If authoritative hydration replaces the open
+    row, the reader and its bookshelf resume entry are remapped to the current
+    scoped ID before the completed import is exposed.
 
 ## Positions considered
 
@@ -97,10 +101,14 @@ could be hidden by translation-specific inline error rules.
   separately from the optional in-memory hydration limit.
 - `components/NovelLibrary.tsx` distinguishes complete, partial, and empty
   caches, preserves registry denominators, and resumes partial streams without
-  discarding the saved chapter. `NovelCard.tsx` accepts a display-only cached
-  count for Continue Reading cards.
+  discarding the saved chapter. When final replay hydration changes that
+  chapter's revision ID, it persists the authoritative replacement to the
+  bookshelf. `NovelCard.tsx` accepts a display-only cached count for Continue
+  Reading cards.
 - `services/importService.ts` reuses exact packaged translations during replay
-  and verifies newly stored translations by content identity.
+  and verifies newly stored translations by content identity. It captures the
+  open scoped chapter number before final hydration and resolves that number
+  against the authoritative hydrated map afterward.
 - `hooks/useChapterDropdownOptions.ts`,
   `components/session-info/ChapterDropdown.tsx`, and
   `store/slices/chaptersSlice.ts` expose availability and visible errors. The

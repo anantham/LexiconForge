@@ -13,6 +13,21 @@ const { chapterOpsMock, translationOpsMock } = vi.hoisted(() => ({
   },
 }));
 
+const importStoreState = vi.hoisted(() => ({
+  importSessionData: vi.fn().mockResolvedValue(undefined),
+  setSessionProvenance: vi.fn(),
+  setSessionVersion: vi.fn(),
+  chapters: new Map<string, any>(),
+  currentChapterId: null as string | null,
+  navigationHistory: [] as string[],
+  error: null as string | null,
+}));
+
+const hydrationMocks = vi.hoisted(() => ({
+  loadNovelIntoStore: vi.fn().mockResolvedValue('lf-library:test:ch1'),
+  loadAllIntoStore: vi.fn().mockResolvedValue('lf-library:test:ch1'),
+}));
+
 /**
  * Regression guard for the "Opening Reader…" hang (2026-07-28).
  *
@@ -27,14 +42,11 @@ const { chapterOpsMock, translationOpsMock } = vi.hoisted(() => ({
 
 vi.mock('../../store', () => ({
   useAppStore: {
-    getState: vi.fn(() => ({
-      importSessionData: vi.fn().mockResolvedValue(undefined),
-      setSessionProvenance: vi.fn(),
-      setSessionVersion: vi.fn(),
-      chapters: new Map(),
-      currentChapterId: null,
-    })),
-    setState: vi.fn(),
+    getState: vi.fn(() => importStoreState),
+    setState: vi.fn((update: any) => {
+      const patch = typeof update === 'function' ? update(importStoreState) : update;
+      Object.assign(importStoreState, patch);
+    }),
   },
 }));
 
@@ -54,8 +66,8 @@ vi.mock('../../services/db/operations', () => ({
 }));
 
 vi.mock('../../services/readerHydrationService', () => ({
-  loadNovelIntoStore: vi.fn().mockResolvedValue('lf-library:test:ch1'),
-  loadAllIntoStore: vi.fn().mockResolvedValue('lf-library:test:ch1'),
+  loadNovelIntoStore: hydrationMocks.loadNovelIntoStore,
+  loadAllIntoStore: hydrationMocks.loadAllIntoStore,
 }));
 
 vi.mock('../../services/telemetryService', () => ({
@@ -109,6 +121,12 @@ const streamResponseOf = (data: unknown) => {
 
 beforeEach(() => {
   chapterOpsMock.store.mockReset().mockResolvedValue(undefined);
+  importStoreState.chapters = new Map();
+  importStoreState.currentChapterId = null;
+  importStoreState.navigationHistory = [];
+  importStoreState.error = null;
+  hydrationMocks.loadNovelIntoStore.mockReset().mockResolvedValue('lf-library:test:ch1');
+  hydrationMocks.loadAllIntoStore.mockReset().mockResolvedValue('lf-library:test:ch1');
 });
 
 describe('streamImportFromUrl — first-chapters-ready gate', () => {
@@ -216,6 +234,42 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     releaseReady();
     await importPromise;
     expect(chapterOpsMock.store).toHaveBeenCalledTimes(5);
+  });
+
+  it('remaps an open scoped chapter to its authoritative revision after final hydration', async () => {
+    importStoreState.currentChapterId = 'chapter-64-stale';
+    importStoreState.chapters = new Map([
+      ['chapter-64-stale', {
+        id: 'chapter-64-stale',
+        novelId: 'aithihyamala',
+        libraryVersionId: 'v1-opus-draft',
+        chapterNumber: 64,
+      }],
+    ]);
+    hydrationMocks.loadNovelIntoStore.mockImplementationOnce(async (_novelId, setState) => {
+      setState({
+        chapters: new Map([
+          ['chapter-64-current', {
+            id: 'chapter-64-current',
+            novelId: 'aithihyamala',
+            libraryVersionId: 'v1-opus-draft',
+            chapterNumber: 64,
+          }],
+        ]),
+        urlIndex: new Map(),
+        rawUrlIndex: new Map(),
+      });
+      return 'chapter-64-current';
+    });
+
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      undefined,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    expect(importStoreState.currentChapterId).toBe('chapter-64-current');
   });
 });
 

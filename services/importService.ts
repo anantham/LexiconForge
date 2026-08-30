@@ -1041,17 +1041,65 @@ export class ImportService {
           }
         );
 
+        const preHydrationState = useAppStore.getState();
+        const openChapterBeforeHydration = preHydrationState.currentChapterId
+          ? preHydrationState.chapters.get(preHydrationState.currentChapterId)
+          : null;
+        const openScopedChapterNumber =
+          options.registryNovelId &&
+          openChapterBeforeHydration &&
+          (openChapterBeforeHydration.novelId ?? null) === options.registryNovelId &&
+          (openChapterBeforeHydration.libraryVersionId ?? null) ===
+            (options.registryVersionId ?? null) &&
+          typeof openChapterBeforeHydration.chapterNumber === 'number' &&
+          Number.isSafeInteger(openChapterBeforeHydration.chapterNumber) &&
+          openChapterBeforeHydration.chapterNumber > 0
+            ? openChapterBeforeHydration.chapterNumber
+            : null;
+
         const firstChapterId = options.registryNovelId
           ? await loadNovelIntoStore(options.registryNovelId, useAppStore.setState, {
               versionId: options.registryVersionId ?? null,
             })
           : await loadAllIntoStore(useAppStore.setState);
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
+        const hydratedState = useAppStore.getState();
+        const remappedOpenChapterId = openScopedChapterNumber === null
+          ? null
+          : Array.from(hydratedState.chapters.entries()).find(([, chapter]) =>
+              (chapter.novelId ?? null) === options.registryNovelId &&
+              (chapter.libraryVersionId ?? null) === (options.registryVersionId ?? null) &&
+              chapter.chapterNumber === openScopedChapterNumber
+            )?.[0] ?? null;
+
+        if (
+          preHydrationState.currentChapterId &&
+          remappedOpenChapterId &&
+          remappedOpenChapterId !== preHydrationState.currentChapterId
+        ) {
+          debugLog(
+            'import',
+            'summary',
+            '[StreamImport] Remapping open chapter after authoritative hydration',
+            {
+              previousChapterId: preHydrationState.currentChapterId,
+              chapterNumber: openScopedChapterNumber,
+              remappedChapterId: remappedOpenChapterId,
+              novelId: options.registryNovelId,
+              versionId: options.registryVersionId ?? null,
+            }
+          );
+        }
 
         useAppStore.setState(state => {
+          const preservedCurrentChapterId =
+            state.currentChapterId && state.chapters.has(state.currentChapterId)
+              ? state.currentChapterId
+              : null;
           return {
             navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
-            currentChapterId: state.currentChapterId || firstChapterId,
+            currentChapterId:
+              remappedOpenChapterId ?? preservedCurrentChapterId ?? firstChapterId,
             error: null,
           };
         });
