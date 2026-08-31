@@ -24,6 +24,7 @@ const {
   storeState,
   fetchNovelByIdMock,
   resolveCompatibleVersionMock,
+  fetchChapterManifestMock,
   getChapterSummariesByScopeMock,
   capturePerformanceMock,
 } = vi.hoisted(() => {
@@ -36,6 +37,7 @@ const {
     storeState,
     fetchNovelByIdMock: vi.fn(),
     resolveCompatibleVersionMock: vi.fn(),
+    fetchChapterManifestMock: vi.fn(),
     getChapterSummariesByScopeMock: vi.fn(),
     capturePerformanceMock: vi.fn(),
   };
@@ -50,6 +52,10 @@ vi.mock('../../services/registryService', () => ({
     fetchNovelById: fetchNovelByIdMock,
     resolveCompatibleVersion: resolveCompatibleVersionMock,
   },
+}));
+
+vi.mock('../../services/library/chapterManifestService', () => ({
+  fetchChapterManifest: fetchChapterManifestMock,
 }));
 
 vi.mock('../../services/importTransformationService', () => ({
@@ -89,6 +95,7 @@ const resetState = () => {
   storeState.activeVersionId = null;
   fetchNovelByIdMock.mockReset();
   resolveCompatibleVersionMock.mockReset();
+  fetchChapterManifestMock.mockReset();
   resolveCompatibleVersionMock.mockReturnValue({
     version: null,
     requestedVersionId: null,
@@ -137,6 +144,49 @@ describe('useChapterDropdownOptions — virtual catalog merge', () => {
     // All should be virtual (no real data loaded)
     expect(result.current.options.every((o) => o.stableId.startsWith('virtual:'))).toBe(true);
     expect(result.current.options.every((o) => o.availability === 'not-cached')).toBe(true);
+  });
+
+  it('marks only artifact-backed manifest rows as remotely selectable', async () => {
+    storeState.activeNovelId = 'manifested';
+    storeState.activeVersionId = 'v1';
+    const version = {
+      versionId: 'v1',
+      chapterManifestUrl: 'https://example.com/chapter-manifest.json',
+      sessionJsonUrl: 'https://example.com/session.json',
+      chapterRange: { from: 1, to: 2 },
+      completionStatus: 'In Progress',
+      stats: { content: { totalRawChapters: 2 } },
+    };
+    fetchNovelByIdMock.mockResolvedValue({
+      id: 'manifested',
+      metadata: { chapterCount: 2 },
+      versions: [version],
+    });
+    resolveCompatibleVersionMock.mockReturnValue({
+      version,
+      requestedVersionId: 'v1',
+      resolvedVersionId: 'v1',
+      warning: null,
+    });
+    fetchChapterManifestMock.mockResolvedValue({
+      chapters: [
+        {
+          chapterNumber: 1,
+          stableId: 'ch1',
+          canonicalUrl: 'lexiconforge://manifested/chapter/1',
+          artifact: { url: 'https://example.com/1.json', sha256: 'a'.repeat(64), byteLength: 10 },
+        },
+        { chapterNumber: 2, stableId: 'ch2', canonicalUrl: 'lexiconforge://manifested/chapter/2' },
+      ],
+    });
+
+    const { result } = renderHook(() => useChapterDropdownOptions());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.options.map((option) => option.availability)).toEqual([
+      'remote',
+      'not-cached',
+    ]);
   });
 
   it('overlays real IDB summary on top of virtual placeholder for the same chapterNumber', async () => {

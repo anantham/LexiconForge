@@ -19,6 +19,10 @@ import { ChapterOps, TranslationOps, SettingsOps, NavigationOps } from '../db/op
 import { telemetryService } from '../telemetryService';
 import { parseInternalChapterUrl } from '../chapterCatalog';
 import { selectLatestChapterRevision } from '../chapterRevisionService';
+import {
+  acquirePublishedChapter,
+  TargetedChapterAcquisitionError,
+} from '../library/targetedChapterAcquisitionService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { adaptTranslationRecordToResult } from './converters';
 import { validateNavigation } from './validation';
@@ -139,6 +143,50 @@ export class NavigationService {
                 shouldUpdateBrowserHistory: true,
                 navigationHistory: newHistory,
               };
+            }
+          }
+
+          if (activeNovelId && lookupVersionId) {
+            try {
+              const acquired = await acquirePublishedChapter({
+                novelId: activeNovelId,
+                versionId: lookupVersionId,
+                chapterNumber: internalTarget.chapterNumber,
+                loadChapterFromIDB: loadChapterFromIDBCallback,
+              });
+              const newHistory = [...new Set(navigationHistory.concat(acquired.chapterId))];
+              NavigationOps.persistHistory({ stableIds: newHistory });
+              NavigationOps.persistLastActiveChapter({
+                id: acquired.chapterId,
+                url: acquired.chapter.canonicalUrl,
+              });
+              telemetryMeta.outcome = 'targeted_chapter_acquired';
+              telemetryMeta.chapterId = acquired.chapterId;
+              return {
+                chapterId: acquired.chapterId,
+                chapter: acquired.chapter,
+                shouldUpdateBrowserHistory: true,
+                navigationHistory: newHistory,
+              };
+            } catch (error) {
+              if (
+                error instanceof TargetedChapterAcquisitionError &&
+                error.code === 'artifact_acquisition_failed'
+              ) {
+                console.error('[Navigate] Targeted chapter acquisition failed', {
+                  url,
+                  novelId: activeNovelId,
+                  versionId: lookupVersionId,
+                  chapterNumber: internalTarget.chapterNumber,
+                  error,
+                });
+                telemetryMeta.outcome = 'chapter_acquisition_failed';
+                telemetryMeta.reason = error.message;
+                return { error: error.message, errorCode: 'chapter_acquisition_failed' };
+              }
+              if (!(error instanceof TargetedChapterAcquisitionError)) {
+                throw error;
+              }
             }
           }
 
