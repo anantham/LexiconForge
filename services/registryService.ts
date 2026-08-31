@@ -94,6 +94,12 @@ const normalizeNovelMetadataUrls = (metadata: NovelEntry, metadataUrl: string): 
             ...version,
             sessionJsonUrl:
               normalizeSessionArtifactUrl(version.sessionJsonUrl, metadataUrl) ?? version.sessionJsonUrl,
+            ...(version.chapterManifestUrl
+              ? {
+                  chapterManifestUrl:
+                    resolveMetadataAssetUrl(version.chapterManifestUrl, metadataUrl) ?? version.chapterManifestUrl,
+                }
+              : {}),
             ...(version.glossaryLayers
               ? {
                   glossaryLayers: version.glossaryLayers.map((layer) => ({

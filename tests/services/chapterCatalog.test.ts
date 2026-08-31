@@ -23,11 +23,19 @@ const { fetchNovelByIdMock, resolveCompatibleVersionMock } = vi.hoisted(() => ({
   resolveCompatibleVersionMock: vi.fn(),
 }));
 
+const { fetchChapterManifestMock } = vi.hoisted(() => ({
+  fetchChapterManifestMock: vi.fn(),
+}));
+
 vi.mock('../../services/registryService', () => ({
   RegistryService: {
     fetchNovelById: fetchNovelByIdMock,
     resolveCompatibleVersion: resolveCompatibleVersionMock,
   },
+}));
+
+vi.mock('../../services/library/chapterManifestService', () => ({
+  fetchChapterManifest: fetchChapterManifestMock,
 }));
 
 const noVersion = (novelId: string, chapterCount: number) => ({
@@ -132,6 +140,7 @@ describe('buildVirtualCatalog', () => {
     clearCatalogCache();
     fetchNovelByIdMock.mockReset();
     resolveCompatibleVersionMock.mockReset();
+    fetchChapterManifestMock.mockReset();
     // Default: no version match
     resolveCompatibleVersionMock.mockReturnValue({
       version: null,
@@ -174,6 +183,52 @@ describe('buildVirtualCatalog', () => {
     expect(entries[0].chapterNumber).toBe(100);
     expect(entries[100].chapterNumber).toBe(200);
     expect(entries[0].canonicalUrl).toBe('lexiconforge://fmc/chapter/100');
+  });
+
+  it('projects only exact manifest-backed chapter identities when a version declares a manifest', async () => {
+    const novel = withVersion('manifested', 'v1', 1, 5, 5);
+    (novel.versions[0] as any).chapterManifestUrl = 'https://example.com/manifested/chapter-manifest.json';
+    fetchNovelByIdMock.mockResolvedValueOnce(novel);
+    resolveCompatibleVersionMock.mockReturnValueOnce({
+      version: novel.versions[0],
+      requestedVersionId: 'v1',
+      resolvedVersionId: 'v1',
+      warning: null,
+    });
+    fetchChapterManifestMock.mockResolvedValueOnce({
+      novelId: 'manifested',
+      versionId: 'v1',
+      expectedChapterCount: 5,
+      publishedChapterCount: 3,
+      chapters: [
+        { chapterNumber: 1, stableId: 'one', canonicalUrl: 'https://source/1' },
+        { chapterNumber: 2, stableId: 'two', canonicalUrl: 'https://source/2' },
+        { chapterNumber: 4, stableId: 'four', canonicalUrl: 'https://source/4' },
+      ],
+    });
+
+    const entries = await buildVirtualCatalog('manifested', 'v1');
+
+    expect(entries.map((entry) => entry.chapterNumber)).toEqual([1, 2, 4]);
+    expect(fetchChapterManifestMock).toHaveBeenCalledWith(
+      'https://example.com/manifested/chapter-manifest.json',
+      expect.objectContaining({ novelId: 'manifested', versionId: 'v1' })
+    );
+  });
+
+  it('fails closed instead of projecting metadata ranges when a declared manifest is invalid', async () => {
+    const novel = withVersion('invalid-manifest', 'v1', 1, 509, 509);
+    (novel.versions[0] as any).chapterManifestUrl = 'https://example.com/invalid/chapter-manifest.json';
+    fetchNovelByIdMock.mockResolvedValueOnce(novel);
+    resolveCompatibleVersionMock.mockReturnValueOnce({
+      version: novel.versions[0],
+      requestedVersionId: 'v1',
+      resolvedVersionId: 'v1',
+      warning: null,
+    });
+    fetchChapterManifestMock.mockRejectedValueOnce(new Error('manifest integrity mismatch'));
+
+    await expect(buildVirtualCatalog('invalid-manifest', 'v1')).resolves.toEqual([]);
   });
 
   it('returns [] when the registry novel cannot be fetched', async () => {

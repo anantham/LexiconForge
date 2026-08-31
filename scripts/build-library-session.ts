@@ -15,6 +15,7 @@ import {
   updateRegistryJson,
   type LibraryBuildManifest,
 } from './lib/library-session-builder';
+import { validateLibraryPublication } from './lib/library-publication-integrity';
 
 function printUsage(): void {
   console.log(`
@@ -49,18 +50,22 @@ async function main(): Promise<void> {
   const novelDir = path.join(outputRoot, manifest.novel.id);
   const metadataFileName = manifest.output.metadataFileName || 'metadata.json';
   const sessionFileName = manifest.output.sessionFileName || 'session.json';
+  const chapterManifestFileName = manifest.output.manifestFileName || 'chapter-manifest.json';
   const reportFileName = manifest.output.reportFileName || 'build-report.json';
 
   console.log(`\n🏗️ Building hosted library artifact for ${manifest.novel.title}`);
   console.log(`   Output: ${novelDir}`);
 
-  const { metadata, session, report } = await buildHostedLibraryArtifacts(manifest);
+  const { metadata, session, chapterManifest, report } = await buildHostedLibraryArtifacts(manifest);
+
+  const sessionJson = JSON.stringify(session, null, 2);
+  validateLibraryPublication({ metadata, session, sessionJson, manifest: chapterManifest });
 
   fs.mkdirSync(novelDir, { recursive: true });
 
   const sessionPath = path.join(novelDir, sessionFileName);
-  fs.writeFileSync(sessionPath, JSON.stringify(session, null, 2));
-  const sessionSizeBytes = fs.statSync(sessionPath).size;
+  fs.writeFileSync(sessionPath, sessionJson);
+  const sessionSizeBytes = Buffer.byteLength(sessionJson, 'utf8');
 
   if (metadata.versions?.[0]) {
     metadata.versions[0].stats.fileSize = `${(sessionSizeBytes / 1024 / 1024).toFixed(2)}MB`;
@@ -68,6 +73,9 @@ async function main(): Promise<void> {
 
   const metadataPath = path.join(novelDir, metadataFileName);
   fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+
+  const chapterManifestPath = path.join(novelDir, chapterManifestFileName);
+  fs.writeFileSync(chapterManifestPath, JSON.stringify(chapterManifest, null, 2));
 
   const reportPath = path.join(novelDir, reportFileName);
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
@@ -82,6 +90,7 @@ async function main(): Promise<void> {
   console.log('\n✅ Build complete');
   console.log(`   Session: ${sessionPath}`);
   console.log(`   Metadata: ${metadataPath}`);
+  console.log(`   Chapter manifest: ${chapterManifestPath}`);
   console.log(`   Report: ${reportPath}`);
   console.log(`   Chapters: ${report.sessionChapterCount}`);
   console.log(`   Fan translations attached: ${report.translatedChapterCount}`);

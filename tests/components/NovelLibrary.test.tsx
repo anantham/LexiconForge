@@ -185,6 +185,7 @@ describe('NovelLibrary', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('should show loading state initially', () => {
@@ -517,6 +518,136 @@ describe('NovelLibrary', () => {
     fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
 
     await waitFor(() => expect(ImportService.streamImportFromUrl).toHaveBeenCalled());
+  });
+
+  it('uses exact manifest identities to recognize a complete cache', async () => {
+    const manifestedNovel = {
+      ...mockNovel,
+      versions: [{
+        ...mockNovel.versions[0],
+        chapterManifestUrl: 'https://example.com/chapter-manifest.json',
+        chapterRange: { from: 1, to: 4 },
+        completionStatus: 'In Progress',
+        stats: {
+          ...mockNovel.versions[0].stats,
+          content: { ...mockNovel.versions[0].stats.content, totalRawChapters: 3 },
+        },
+      }],
+    };
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([manifestedNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-08-31T00:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-08-31T00:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 3,
+      chapterNumbers: [1, 2, 4],
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        format: 'lexiconforge-chapter-manifest',
+        version: '1.0',
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        generatedAt: '2026-08-31T00:00:00.000Z',
+        expectedChapterCount: 100,
+        publishedChapterCount: 3,
+        session: {
+          url: 'https://example.com/alice.json',
+          sha256: 'a'.repeat(64),
+          byteLength: 100,
+        },
+        chapters: [
+          { chapterNumber: 1, stableId: 'one', canonicalUrl: 'https://source/1' },
+          { chapterNumber: 2, stableId: 'two', canonicalUrl: 'https://source/2' },
+          { chapterNumber: 4, stableId: 'four', canonicalUrl: 'https://source/4' },
+        ],
+      }),
+    }));
+
+    render(<NovelLibrary />);
+    await waitFor(() => expect(
+      screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')
+    ).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => expect(storeState.setReaderReady).toHaveBeenCalled());
+    expect(ImportService.streamImportFromUrl).not.toHaveBeenCalled();
+  });
+
+  it('blocks session import when a declared manifest fails integrity validation', async () => {
+    const manifestedNovel = {
+      ...mockNovel,
+      versions: [{
+        ...mockNovel.versions[0],
+        chapterManifestUrl: 'https://example.com/chapter-manifest.json',
+      }],
+    };
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([manifestedNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-08-31T00:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-08-31T00:00:00.000Z',
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        format: 'lexiconforge-chapter-manifest',
+        version: '1.0',
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        generatedAt: '2026-08-31T00:00:00.000Z',
+        expectedChapterCount: 100,
+        publishedChapterCount: 2,
+        session: {
+          url: 'https://example.com/alice.json',
+          sha256: 'a'.repeat(64),
+          byteLength: 100,
+        },
+        chapters: [
+          { chapterNumber: 1, stableId: 'duplicate', canonicalUrl: 'https://source/1' },
+          { chapterNumber: 1, stableId: 'duplicate', canonicalUrl: 'https://source/1-copy' },
+        ],
+      }),
+    }));
+
+    render(<NovelLibrary />);
+    await waitFor(() => expect(
+      screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')
+    ).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => expect(storeState.openLibrary).toHaveBeenCalled());
+    expect(ImportService.streamImportFromUrl).not.toHaveBeenCalled();
+    expect(storeState.showNotification).toHaveBeenCalledWith(
+      expect.stringContaining('Chapter publication manifest integrity error'),
+      'error'
+    );
   });
 
   it('preserves a legacy registry denominator when cached display counts are partial', async () => {

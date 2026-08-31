@@ -35,7 +35,14 @@
 
 import type { ChapterSummary } from '../types';
 import type { NovelEntry } from '../types/novel';
+import { fetchVersionChapterManifest } from './library/chapterPublicationResolver';
 import { RegistryService } from './registryService';
+
+export {
+  resolveExpectedChapterCount,
+  resolveExpectedChapterNumbers,
+  resolveExpectedChapterPublication,
+} from './library/chapterPublicationResolver';
 
 export const VIRTUAL_STABLE_ID_PREFIX = 'virtual:';
 
@@ -106,14 +113,10 @@ const cacheKey = (key: CatalogKey): string =>
  * and an optional resolved version. Prefers the version's chapterRange
  * (specific to the translation); falls back to the novel-level chapterCount.
  */
-const resolveRange = (
+const resolveRangeForVersion = (
   novel: NovelEntry,
-  versionId: string | null
+  version: ReturnType<typeof RegistryService.resolveCompatibleVersion>['version']
 ): { from: number; to: number } | null => {
-  // Resolve the version (handles legacy aliases + single-version fallback)
-  const resolution = RegistryService.resolveCompatibleVersion(novel, versionId);
-  const version = resolution.version;
-
   if (version?.chapterRange?.from && version?.chapterRange?.to) {
     return {
       from: version.chapterRange.from,
@@ -125,84 +128,6 @@ const resolveRange = (
   const count = novel.metadata?.chapterCount;
   if (typeof count === 'number' && count > 0) {
     return { from: 1, to: count };
-  }
-
-  return null;
-};
-
-/**
- * Number of raw chapters expected in the selected packaged version.
- *
- * Version stats describe what the session actually carries and therefore win
- * over the novel-level published count. This distinction matters for curated
- * partial packages (for example, a one-chapter study edition of a larger work).
- */
-export const resolveExpectedChapterCount = (
-  novel: NovelEntry,
-  versionId: string | null
-): number | null => {
-  const resolution = RegistryService.resolveCompatibleVersion(novel, versionId);
-  const version = resolution.version;
-  const packagedCount = version?.stats?.content?.totalRawChapters;
-  if (typeof packagedCount === 'number' && Number.isSafeInteger(packagedCount) && packagedCount > 0) {
-    return packagedCount;
-  }
-
-  if (
-    typeof version?.chapterRange?.from === 'number' &&
-    typeof version.chapterRange.to === 'number' &&
-    version.chapterRange.from > 0 &&
-    version.chapterRange.to >= version.chapterRange.from
-  ) {
-    return version.chapterRange.to - version.chapterRange.from + 1;
-  }
-
-  const novelCount = novel.metadata?.chapterCount;
-  return typeof novelCount === 'number' && Number.isSafeInteger(novelCount) && novelCount > 0
-    ? novelCount
-    : null;
-};
-
-/**
- * Exact numeric identities that must exist before a cache can be called
- * complete. A broad range is usable only when its cardinality agrees with the
- * packaged raw count; grouped/non-contiguous packages fail closed and replay
- * their session rather than substituting an equal-sized stale set.
- */
-export const resolveExpectedChapterNumbers = (
-  novel: NovelEntry,
-  versionId: string | null
-): number[] | null => {
-  const resolution = RegistryService.resolveCompatibleVersion(novel, versionId);
-  const version = resolution.version;
-  const range = version?.chapterRange;
-
-  if (
-    Number.isSafeInteger(range?.from) &&
-    Number.isSafeInteger(range?.to) &&
-    (range?.from ?? 0) > 0 &&
-    (range?.to ?? 0) >= (range?.from ?? 0)
-  ) {
-    const from = range!.from;
-    const to = range!.to;
-    const rangeCount = to - from + 1;
-    const packagedCount = version?.stats?.content?.totalRawChapters;
-    if (
-      typeof packagedCount === 'number' &&
-      Number.isSafeInteger(packagedCount) &&
-      packagedCount > 0 &&
-      packagedCount !== rangeCount
-    ) {
-      return null;
-    }
-    return Array.from({ length: rangeCount }, (_, index) => from + index);
-  }
-
-  if (!version) {
-    const novelCount = novel.metadata?.chapterCount;
-    if (typeof novelCount === 'number' && Number.isSafeInteger(novelCount) && novelCount > 0) {
-      return Array.from({ length: novelCount }, (_, index) => index + 1);
-    }
   }
 
   return null;
@@ -233,14 +158,34 @@ export const buildVirtualCatalog = async (
     return [];
   }
 
-  const range = resolveRange(novel, versionId);
-  if (!range) {
-    cache.set(key, []);
-    return [];
+  const version = RegistryService.resolveCompatibleVersion(novel, versionId).version;
+  let chapterNumbers: number[];
+  if (version?.chapterManifestUrl) {
+    try {
+      const manifest = await fetchVersionChapterManifest(novel, version);
+      chapterNumbers = manifest.chapters.map((chapter) => chapter.chapterNumber);
+    } catch (error) {
+      console.error(
+        '[chapterCatalog] Declared chapter manifest rejected; refusing metadata-range fallback',
+        { novelId, versionId: version.versionId, manifestUrl: version.chapterManifestUrl, error }
+      );
+      cache.set(key, []);
+      return [];
+    }
+  } else {
+    const range = resolveRangeForVersion(novel, version);
+    if (!range) {
+      cache.set(key, []);
+      return [];
+    }
+    chapterNumbers = Array.from(
+      { length: range.to - range.from + 1 },
+      (_, index) => range.from + index
+    );
   }
 
   const entries: ChapterSummary[] = [];
-  for (let n = range.from; n <= range.to; n++) {
+  for (const n of chapterNumbers) {
     entries.push({
       stableId: buildVirtualStableId(novelId, n),
       canonicalUrl: buildCanonicalUrl(novelId, n),
