@@ -5,6 +5,24 @@ export interface ChapterArtifactReference {
   byteLength: number;
 }
 
+/** One independently downloadable chapter, including packaged translations. */
+export interface PublishedChapterArtifactPayload {
+  chapterNumber: number;
+  stableId: string;
+  canonicalUrl: string;
+  title: string;
+  content: string;
+  [field: string]: unknown;
+}
+
+export interface ChapterArtifactDocument {
+  format: 'lexiconforge-chapter-artifact';
+  version: '1.0';
+  novelId: string;
+  versionId: string;
+  chapter: PublishedChapterArtifactPayload;
+}
+
 export interface PublishedChapterIdentity {
   chapterNumber: number;
   stableId: string;

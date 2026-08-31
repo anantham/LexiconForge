@@ -180,6 +180,18 @@ describe('library-session-builder', () => {
       session: { url: 'https://example.com/novels/test-novel/session.json' },
     });
     expect(result.chapterManifest.chapters.map((chapter) => chapter.chapterNumber)).toEqual([1, 2, 3, 4]);
+    expect(result.chapterArtifacts).toHaveLength(4);
+    expect(result.chapterArtifacts[0]).toMatchObject({
+      fileName: 'chapter-000001.json',
+      document: {
+        novelId: 'test-novel',
+        versionId: 'v1',
+        chapter: { chapterNumber: 1 },
+      },
+    });
+    expect(result.chapterManifest.chapters[0].artifact).toEqual(
+      result.chapterArtifacts[0].reference
+    );
   });
 
   it('uses an alignment map to attach shifted fan chapters', async () => {
