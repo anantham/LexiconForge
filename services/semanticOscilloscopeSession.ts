@@ -7,7 +7,7 @@ import type {
 } from '../types/oscilloscope';
 
 const CORPUS_SCHEMA = 'lexiconforge-semantic-corpus-v1';
-const MAX_SESSION_THREADS = 500;
+export const MAX_SESSION_THREADS = 500;
 const CATEGORIES = new Set([
   'character', 'tone', 'location', 'faction', 'entity', 'power', 'meta', 'custom',
 ]);

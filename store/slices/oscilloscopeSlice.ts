@@ -16,7 +16,10 @@ import type {
   ThreadData,
   ThreadMetadata,
 } from '../../types/oscilloscope';
-import { sameCorpus } from '../../services/semanticOscilloscopeSession';
+import {
+  MAX_SESSION_THREADS,
+  sameCorpus,
+} from '../../services/semanticOscilloscopeSession';
 import {
   CATEGORY_COLORS,
   normalizeThreadValues,
@@ -213,6 +216,9 @@ export const createOscilloscopeSlice: StateCreator<
       throw new Error('Semantic scan result contains a non-finite or out-of-range score');
     }
     const threadId = `custom:semantic:${cleanQuery}`;
+    if (!state.threads.has(threadId) && state.threads.size >= MAX_SESSION_THREADS) {
+      throw new Error(`Semantic oscilloscope sessions support at most ${MAX_SESSION_THREADS} threads`);
+    }
     const newThreads = new Map(state.threads);
     const thread: ThreadData = {
       threadId,
