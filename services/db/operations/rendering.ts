@@ -41,6 +41,8 @@ export interface ChapterRenderingRecord {
   canonicalUrl: string;
   originalUrl: string;
   sourceUrls: string[];
+  dateAdded?: string;
+  lastAccessed?: string;
   title: string;
   content: string;
   nextUrl: string | null;
@@ -117,6 +119,8 @@ const buildChapterRenderingRecords = async (
         canonicalUrl,
         originalUrl,
         sourceUrls,
+        dateAdded: chapter.dateAdded,
+        lastAccessed: chapter.lastAccessed,
         title: chapter.title,
         content: chapter.content,
         nextUrl,

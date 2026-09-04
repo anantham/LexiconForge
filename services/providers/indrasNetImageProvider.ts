@@ -4,6 +4,7 @@ import type { ImageJobLifecycleListener } from '../imageJobTypes';
 
 export const INDRASNET_IMAGE_MODEL_PREFIX = 'indrasnet/';
 export const DEFAULT_INDRASNET_BASE_URL = 'https://asus-strix-scar.tail4741ad.ts.net:9443';
+const DEFAULT_INDRASNET_HOST = new URL(DEFAULT_INDRASNET_BASE_URL).hostname;
 
 const DISCOVERY_TIMEOUT_MS = 10_000;
 const GENERATION_TIMEOUT_MS = 1_830_000;
@@ -129,6 +130,19 @@ export const workflowNameFromImageModel = (model: string): string => {
 export const imageModelFromWorkflowName = (workflowName: string): string =>
   `${INDRASNET_IMAGE_MODEL_PREFIX}${encodeURIComponent(workflowName)}`;
 
+export const getIndrasNetEndpointConfigurationError = (rawBaseUrl: string): string | null => {
+  try {
+    const parsed = new URL(rawBaseUrl.trim());
+    if (parsed.hostname === DEFAULT_INDRASNET_HOST && parsed.port === '8444') {
+      return `Port 8444 is the SillyTavern web UI, not the IndrasNet image broker. Use ${DEFAULT_INDRASNET_BASE_URL}.`;
+    }
+  } catch {
+    // General URL validation remains the responsibility of normalizeIndrasNetBaseUrl.
+  }
+
+  return null;
+};
+
 export const normalizeIndrasNetBaseUrl = (rawBaseUrl?: string): string => {
   const trimmedBaseUrl = rawBaseUrl?.trim();
   const value = (trimmedBaseUrl || DEFAULT_INDRASNET_BASE_URL).replace(/\/+$/, '');
@@ -145,6 +159,13 @@ export const normalizeIndrasNetBaseUrl = (rawBaseUrl?: string): string => {
   if (!['http:', 'https:'].includes(parsed.protocol)) {
     throw new IndrasNetProviderError('IndrasNet endpoint must use HTTP or HTTPS.', {
       code: 'INVALID_INDRASNET_ENDPOINT',
+      retryable: false,
+    });
+  }
+  const configurationError = getIndrasNetEndpointConfigurationError(value);
+  if (configurationError) {
+    throw new IndrasNetProviderError(configurationError, {
+      code: 'INDRASNET_WRONG_SERVICE',
       retryable: false,
     });
   }

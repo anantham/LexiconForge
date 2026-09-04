@@ -17,6 +17,7 @@ import type {
 import { ChapterOps } from './db/operations/chapters';
 import { TranslationOps } from './db/operations/translations';
 import { SettingsOps } from './db/operations';
+import type { TranslationRecord } from './db/types';
 import { debugLog, debugWarn } from '../utils/debug';
 import { withRetry, isNetworkError } from '../utils/retry';
 import { telemetryService } from './telemetryService';
@@ -346,7 +347,7 @@ export class ImportService {
   static async streamImportFromUrl(
     url: string,
     onProgress?: (progress: ImportProgress) => void,
-    onFirstChaptersReady?: () => void,
+    onFirstChaptersReady?: () => void | Promise<void>,
     options: ImportOptions = {}
   ): Promise<any> {
     return new Promise(async (resolve, reject) => {
@@ -383,6 +384,7 @@ export class ImportService {
         let translationsExpected = 0;
         let translationsFailed = 0;
         let translationsVerified = 0;
+        let translationsReused = 0;
 
         const normalizeUsageMetrics = (
           metrics: Partial<UsageMetrics> | undefined,
@@ -490,6 +492,48 @@ export class ImportService {
               return a.index - b.index;
             })
             .map(({ input }) => input);
+        };
+
+        const jsonEqual = (left: unknown, right: unknown): boolean =>
+          JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
+
+        const isExactPackagedTranslation = (
+          existing: TranslationRecord,
+          imported: ReturnType<typeof buildTranslationInputs>[number]
+        ): boolean => {
+          return (
+            existing.translatedTitle === imported.result.translatedTitle &&
+            existing.translation === imported.result.translation &&
+            existing.provider === imported.settings.provider &&
+            existing.model === imported.settings.model &&
+            (existing.customVersionLabel ?? null) === (imported.result.customVersionLabel ?? null) &&
+            jsonEqual(existing.footnotes, imported.result.footnotes) &&
+            jsonEqual(existing.suggestedIllustrations, imported.result.suggestedIllustrations) &&
+            jsonEqual(existing.proposal, imported.result.proposal)
+          );
+        };
+
+        const consumeExactPackagedTranslation = (
+          available: TranslationRecord[],
+          imported: ReturnType<typeof buildTranslationInputs>[number],
+          expectedVersion: number | undefined = imported.exportedVersion,
+          allowVersionFallback = true
+        ): TranslationRecord | undefined => {
+          let matchIndex = expectedVersion === undefined
+            ? -1
+            : available.findIndex((record) =>
+                record.version === expectedVersion &&
+                isExactPackagedTranslation(record, imported)
+              );
+          if (matchIndex === -1 && (expectedVersion === undefined || allowVersionFallback)) {
+            matchIndex = available.findIndex((record) =>
+              isExactPackagedTranslation(record, imported)
+            );
+          }
+          if (matchIndex === -1) {
+            return undefined;
+          }
+          return available.splice(matchIndex, 1)[0];
         };
 
         const response = await fetch(fetchUrl, {
@@ -690,9 +734,35 @@ export class ImportService {
 
           let activeVersion: number | null = null;
           let chapterTranslationsStored = 0;
+          const newlyStoredTranslations: Array<{
+            input: ReturnType<typeof buildTranslationInputs>[number];
+            version: number;
+          }> = [];
+          const existingTranslations = translationInputs.length > 0
+            ? await TranslationOps.getVersionsByStableId(identity.stableId)
+            : [];
+          const reusableTranslations = [...existingTranslations];
 
           for (const translation of translationInputs) {
             translationsExpected++;
+            const exactExisting = consumeExactPackagedTranslation(
+              reusableTranslations,
+              translation
+            );
+            if (exactExisting) {
+              translationsReused++;
+              translationsVerified++;
+              if (translation.isActive && typeof exactExisting.version === 'number') {
+                activeVersion = exactExisting.version;
+              }
+              debugLog(
+                'import',
+                'full',
+                `[StreamImport] Reused exact translation for chapter #${chapter.chapterNumber} (version ${exactExisting.version ?? 'unknown'})`
+              );
+              continue;
+            }
+
             // A failed translation store must not abort the whole import —
             // but it MUST be loud. A packaged translation that silently
             // vanishes here re-bills the user downstream: the auto-translate
@@ -705,6 +775,10 @@ export class ImportService {
                 settings: translation.settings,
               });
               chapterTranslationsStored++;
+              newlyStoredTranslations.push({
+                input: translation,
+                version: stored.version,
+              });
 
               if (
                 translation.isActive ||
@@ -741,16 +815,20 @@ export class ImportService {
           if (chapterTranslationsStored > 0) {
             try {
               const persisted = await TranslationOps.getVersionsByStableId(identity.stableId);
-              translationsVerified += Math.min(persisted.length, chapterTranslationsStored);
-              if (persisted.length < chapterTranslationsStored) {
+              const unverifiedPersisted = [...persisted];
+              const verifiedNewCount = newlyStoredTranslations.filter(({ input, version }) =>
+                Boolean(consumeExactPackagedTranslation(unverifiedPersisted, input, version, false))
+              ).length;
+              translationsVerified += verifiedNewCount;
+              if (verifiedNewCount < chapterTranslationsStored) {
                 console.error(
-                  `[StreamImport] ❌ Translation VERIFY mismatch for chapter #${chapter.chapterNumber} (${identity.stableId}): stored ${chapterTranslationsStored}, database holds ${persisted.length}`
+                  `[StreamImport] ❌ Translation VERIFY mismatch for chapter #${chapter.chapterNumber} (${identity.stableId}): stored ${chapterTranslationsStored}, verified ${verifiedNewCount}`
                 );
                 telemetryService.capturePerformance('import:stream:translationVerifyMissing', now() - streamStart, {
                   stableId: identity.stableId,
                   chapterNumber: chapter.chapterNumber ?? null,
                   storedCount: chapterTranslationsStored,
-                  persistedCount: persisted.length,
+                  verifiedCount: verifiedNewCount,
                 });
               }
             } catch (verifyError) {
@@ -765,11 +843,12 @@ export class ImportService {
             }
           }
 
-          if (activeVersion !== null && translationInputs.length > 1) {
+          if (activeVersion !== null) {
             // P0.3: translations were stored under identity.storageUrl (which
             // library imports SCOPE), but set-active used the exported
             // chapterUrl — a different keyspace, so the exported active
-            // selection was silently discarded.
+            // selection was silently discarded. Apply this for single-version
+            // resumes too: the exact reusable row may no longer be active.
             await TranslationOps.setActiveByUrl(identity.storageUrl, activeVersion);
           }
 
@@ -845,7 +924,7 @@ export class ImportService {
               firstBatchTelemetrySent = true;
             }
             debugLog('import', 'summary', '[StreamImport] First batch of chapters ready - user can start reading');
-            onFirstChaptersReady?.();
+            await onFirstChaptersReady?.();
           }
 
           if (chaptersLoaded % 50 === 0) {
@@ -923,7 +1002,7 @@ export class ImportService {
             });
             firstBatchTelemetrySent = true;
           }
-          onFirstChaptersReady?.();
+          await onFirstChaptersReady?.();
         }
 
         onProgress?.({
@@ -949,6 +1028,7 @@ export class ImportService {
           translationsExpected,
           translationsFailed,
           translationsVerified,
+          translationsReused,
         });
 
         debugLog(
@@ -961,17 +1041,65 @@ export class ImportService {
           }
         );
 
+        const preHydrationState = useAppStore.getState();
+        const openChapterBeforeHydration = preHydrationState.currentChapterId
+          ? preHydrationState.chapters.get(preHydrationState.currentChapterId)
+          : null;
+        const openScopedChapterNumber =
+          options.registryNovelId &&
+          openChapterBeforeHydration &&
+          (openChapterBeforeHydration.novelId ?? null) === options.registryNovelId &&
+          (openChapterBeforeHydration.libraryVersionId ?? null) ===
+            (options.registryVersionId ?? null) &&
+          typeof openChapterBeforeHydration.chapterNumber === 'number' &&
+          Number.isSafeInteger(openChapterBeforeHydration.chapterNumber) &&
+          openChapterBeforeHydration.chapterNumber > 0
+            ? openChapterBeforeHydration.chapterNumber
+            : null;
+
         const firstChapterId = options.registryNovelId
           ? await loadNovelIntoStore(options.registryNovelId, useAppStore.setState, {
               versionId: options.registryVersionId ?? null,
             })
           : await loadAllIntoStore(useAppStore.setState);
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
+        const hydratedState = useAppStore.getState();
+        const remappedOpenChapterId = openScopedChapterNumber === null
+          ? null
+          : Array.from(hydratedState.chapters.entries()).find(([, chapter]) =>
+              (chapter.novelId ?? null) === options.registryNovelId &&
+              (chapter.libraryVersionId ?? null) === (options.registryVersionId ?? null) &&
+              chapter.chapterNumber === openScopedChapterNumber
+            )?.[0] ?? null;
+
+        if (
+          preHydrationState.currentChapterId &&
+          remappedOpenChapterId &&
+          remappedOpenChapterId !== preHydrationState.currentChapterId
+        ) {
+          debugLog(
+            'import',
+            'summary',
+            '[StreamImport] Remapping open chapter after authoritative hydration',
+            {
+              previousChapterId: preHydrationState.currentChapterId,
+              chapterNumber: openScopedChapterNumber,
+              remappedChapterId: remappedOpenChapterId,
+              novelId: options.registryNovelId,
+              versionId: options.registryVersionId ?? null,
+            }
+          );
+        }
 
         useAppStore.setState(state => {
+          const preservedCurrentChapterId =
+            state.currentChapterId && state.chapters.has(state.currentChapterId)
+              ? state.currentChapterId
+              : null;
           return {
             navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
-            currentChapterId: state.currentChapterId || firstChapterId,
+            currentChapterId:
+              remappedOpenChapterId ?? preservedCurrentChapterId ?? firstChapterId,
             error: null,
           };
         });

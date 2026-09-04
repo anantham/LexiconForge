@@ -7,6 +7,7 @@ import type {
 } from '../types/oscilloscope';
 
 const CORPUS_SCHEMA = 'lexiconforge-semantic-corpus-v1';
+const MAX_SESSION_THREADS = 500;
 const CATEGORIES = new Set([
   'character', 'tone', 'location', 'faction', 'entity', 'power', 'meta', 'custom',
 ]);
@@ -133,6 +134,7 @@ const cloneProvenance = (value: unknown): ThreadProvenance | undefined => {
     throw new Error('private semantic provenance requires scoring and corpus objects');
   }
   const rawRange = (scoring as Record<string, unknown>).range;
+  const algorithm = (scoring as Record<string, unknown>).algorithm;
   if (
     !Array.isArray(rawRange)
     || rawRange.length !== 2
@@ -140,6 +142,9 @@ const cloneProvenance = (value: unknown): ThreadProvenance | undefined => {
     || rawRange[0] > rawRange[1]
   ) {
     throw new Error('private semantic provenance requires a finite ordered scoring range');
+  }
+  if (typeof algorithm !== 'string' || !algorithm.trim()) {
+    throw new Error('private semantic provenance requires a scoring algorithm');
   }
   const requiredStrings = ['query', 'generatedAt', 'protocol', 'scoreSemantics', 'vectorSpace'] as const;
   if (requiredStrings.some((key) => typeof provenance[key] !== 'string' || !(provenance[key] as string).trim())) {
@@ -158,7 +163,7 @@ const cloneProvenance = (value: unknown): ThreadProvenance | undefined => {
     vectorSpace: provenance.vectorSpace as string,
     dimensions: provenance.dimensions as number,
     scoring: {
-      algorithm: (scoring as Record<string, unknown>).algorithm as string,
+      algorithm,
       range: [rawRange[0], rawRange[1]],
     },
     corpus: {
@@ -228,11 +233,14 @@ export const parseSessionOscilloscope = (
   if (!data.corpus || typeof data.corpus !== 'object' || !sameCorpus(data.corpus as SemanticCorpusIdentity, expectedCorpus)) {
     throw new Error('session oscilloscope corpus does not match the loaded chapter text');
   }
-  if (!Array.isArray(data.threads) || data.threads.length > 500) {
-    throw new Error('session oscilloscope threads must be an array with at most 500 entries');
+  if (!Array.isArray(data.threads) || data.threads.length > MAX_SESSION_THREADS) {
+    throw new Error(`session oscilloscope threads must be an array with at most ${MAX_SESSION_THREADS} entries`);
   }
   const threads = data.threads.map((thread) => validateThread(thread, expectedCorpus));
   const ids = new Set(threads.map((thread) => thread.threadId));
+  if (ids.size !== threads.length) {
+    throw new Error('session oscilloscope thread IDs must be unique');
+  }
   if (!Array.isArray(data.activeThreadIds)) {
     throw new Error('session oscilloscope active thread IDs must be an array');
   }
@@ -259,6 +267,9 @@ export const createSessionOscilloscope = (
   threads: Map<string, ThreadData>,
   activeThreadIds: Set<string>,
 ): SessionOscilloscopeData => {
+  if (threads.size > MAX_SESSION_THREADS) {
+    throw new Error(`cannot serialize more than ${MAX_SESSION_THREADS} oscilloscope threads`);
+  }
   const serialized = Array.from(threads.values(), (thread) => validateThread(thread, corpus));
   const ids = new Set(serialized.map((thread) => thread.threadId));
   return {

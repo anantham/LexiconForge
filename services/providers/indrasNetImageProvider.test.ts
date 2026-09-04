@@ -51,6 +51,18 @@ describe('IndrasNet image provider', () => {
     );
   });
 
+  it('rejects the known SillyTavern UI endpoint before workflow discovery', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('must not fetch'));
+
+    const error = await fetchIndrasNetWorkflows(
+      'https://asus-strix-scar.tail4741ad.ts.net:8444',
+    ).catch(cause => cause);
+
+    expect(error).toMatchObject({ code: 'INDRASNET_WRONG_SERVICE', retryable: false });
+    expect(error.message).toContain('Port 8444 is the SillyTavern web UI');
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it('advertises only client-ready text-to-image workflows with prompt bindings', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
       workflows: [
