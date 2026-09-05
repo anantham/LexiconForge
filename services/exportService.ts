@@ -5,6 +5,7 @@ import type { ImageCacheKey, GeneratedImageResult } from '../types';
 import { ChapterOps, TranslationOps, FeedbackOps } from './db/operations';
 import { ImageCacheStore } from './imageCacheService';
 import { blobToBase64DataUrl } from './imageUtils';
+import { parseScopedStableId } from './libraryScope';
 import { attachOscilloscopeToSession } from './semanticOscilloscopeExport';
 
 /**
@@ -86,8 +87,11 @@ export class ExportService {
    * Loads full chapter data from IndexedDB
    */
   static async generateQuickExport(): Promise<SessionData> {
+    const state = useAppStore.getState();
     // Load full chapter data from IndexedDB
-    const chapters = await ChapterOps.getAll();
+    const chapters = state.activeNovelId
+      ? await ChapterOps.getByNovelAndVersion(state.activeNovelId, state.activeVersionId)
+      : (await ChapterOps.getAll()).filter(ch => !ch.novelId);
 
     // For each chapter, load its translations
     const chaptersWithTranslations = await Promise.all(
@@ -129,7 +133,7 @@ export class ExportService {
         );
 
         return {
-          stableId,
+          stableId: stableId ? parseScopedStableId(stableId)?.baseStableId ?? stableId : undefined,
           canonicalUrl,
           title: ch.title,
           content: ch.content,
@@ -153,18 +157,18 @@ export class ExportService {
         exportedAt: new Date().toISOString()
       },
       novel: {
-        id: 'unknown',
+        id: state.activeNovelId ?? 'unknown',
         title: 'Untitled Novel'
       },
       version: {
-        versionId: 'quick-export',
+        versionId: state.activeVersionId ?? 'quick-export',
         displayName: 'Quick Export',
         style: 'other',
         features: []
       },
       chapters: chaptersWithTranslations,
       settings: {}
-    });
+    }, state);
   }
 
   /**
@@ -186,8 +190,11 @@ export class ExportService {
       features: string[];
     }
   ): Promise<SessionData> {
+    const state = useAppStore.getState();
     // Load full chapter data from IndexedDB
-    const chapters = await ChapterOps.getAll();
+    const chapters = state.activeNovelId
+      ? await ChapterOps.getByNovelAndVersion(state.activeNovelId, state.activeVersionId)
+      : (await ChapterOps.getAll()).filter(ch => !ch.novelId);
 
     // For each chapter, load its translations
     const chaptersWithTranslations = await Promise.all(
@@ -229,7 +236,7 @@ export class ExportService {
         );
 
         return {
-          stableId,
+          stableId: stableId ? parseScopedStableId(stableId)?.baseStableId ?? stableId : undefined,
           canonicalUrl,
           title: ch.title,
           content: ch.content,
@@ -280,7 +287,7 @@ export class ExportService {
       },
       chapters: chaptersWithTranslations,
       settings: {}
-    });
+    }, state);
   }
 
   /**
@@ -306,7 +313,9 @@ export class ExportService {
     }
 
     // Load full chapter data from IndexedDB
-    const chapters = await ChapterOps.getAll();
+    const chapters = state.activeNovelId
+      ? await ChapterOps.getByNovelAndVersion(state.activeNovelId, state.activeVersionId)
+      : (await ChapterOps.getAll()).filter(ch => !ch.novelId);
 
     // For each chapter, load its translations
     const chaptersWithTranslations = await Promise.all(
@@ -348,7 +357,7 @@ export class ExportService {
         );
 
         return {
-          stableId,
+          stableId: stableId ? parseScopedStableId(stableId)?.baseStableId ?? stableId : undefined,
           canonicalUrl,
           title: ch.title,
           content: ch.content,
@@ -390,14 +399,14 @@ export class ExportService {
         exportedAt: now
       },
       novel: {
-        id: 'unknown', // Will inherit from parent metadata
+        id: state.activeNovelId ?? 'unknown', // Will inherit from parent metadata
         title: 'Unknown'
       },
       version: forkInfo,
       provenance: newProvenance,
       chapters: chaptersWithTranslations,
       settings: {}
-    });
+    }, state);
   }
 
   /**

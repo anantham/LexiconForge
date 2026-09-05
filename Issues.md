@@ -144,7 +144,8 @@ The durable checklist is [SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md](docs/roadmaps/SEM
 Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion open until independently evidenced.
 
 
-Semantic delivery status (2026-09-05): #160 source is repaired with fresh green CI;
+Semantic delivery status (2026-09-05): #160 has further reviewed storage/lifecycle
+corrections passing 102 focused Node 24.19.0 tests; final-head CI/review is pending;
 backend recovery is committed locally; publication and live acceptance remain pending.
 Pick up the writable-repository, independent-review, browser/CSRF, deployment and
 real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
@@ -156,3 +157,18 @@ records. Existing saved settings continue to work. The client artifact scan reje
 embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
 Historical refs/caches are a separate assessment; do not claim deletion from history
 or copy private audit findings into this issue. Cleanup is in [PR #174](https://github.com/anantham/LexiconForge/pull/174); merge/deployment evidence is pending.
+
+19) Export and chapter lifecycle follow-ups from #160 review (open; unclaimed).
+
+- `services/exportService.ts` repeats portable chapter/translation/image assembly
+  in three builders; metadata/stat helpers and EPUB still have unscoped all-book
+  reads. Consolidate only after proving selected-book counts and preserving the
+  intentional all-book backup. Do not count the graph fixes as general export QA.
+- `store/slices/chaptersSlice.ts` has separate hydration/fetch/import/preload map
+  writes. Audit graph invalidation for changes that bypass explicit chapter edits;
+  preserve image-only changes and do not add a whole-store hashing subscription.
+- `components/session-info/VersionSelector.tsx:40` sorts its input versions in place; verify
+  shared-array mutation before changing it.
+
+Receipts: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 graph review; structural
+friction belongs in `docs/architecture/ARCHITECTURE.md` section 7.

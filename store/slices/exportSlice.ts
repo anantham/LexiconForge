@@ -246,6 +246,7 @@ export const createExportSlice: StateCreator<
         storeState.corpusIdentity,
         storeState.threads,
         storeState.activeThreadIds,
+        storeState.activeVersionId,
       );
 
       const json = JSON.stringify(jsonObj, null, 2);

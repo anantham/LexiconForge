@@ -146,3 +146,24 @@ TemporalCoordination #345/#346 were closed unmerged. Their recovery, exact deplo
 versions, complete index, real scan, latency and owner-device acceptance remain
 tracked in `docs/roadmaps/SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md`. Source/fixture tests
 are not live acceptance and do not justify marking this ADR Implemented.
+
+### Review corrections — 2026-09-05
+
+- Portable session import hoists the nested novel/version scope before storage.
+  Portable builders query only the selected corpus and serialize base chapter IDs
+  so the receiving library can apply its own scope. A fork with a new version ID
+  does not inherit a graph bound to the parent identity.
+- A default library selection is nullable even when its frozen graph names a
+  concrete version. The departure cache is keyed by that reader selection; its
+  graph is accepted only after recomputing the selected chapter hash. Full backups
+  preserve all books and carry `oscilloscopeLibraryVersionId` alongside the graph
+  to retain this nullable selection. Older backups without that field use the
+  graph's version ID. The portable scalar graph protocol itself is unchanged.
+- `services/db/operations/rendering.ts` reuses the existing null-safe chapter
+  query. It no longer treats a failed scope query as an empty library.
+- Chapter insertion/deletion/clearing invalidates affected graphs. An import that
+  finishes after a new book is selected may persist its data but cannot replace
+  the current reader.
+- `tests/services/semanticOscilloscopeLifecycle.test.ts` exercises actual import,
+  IndexedDB, hydration, export and cache boundaries; synthetic rendering mocks
+  cannot supply a version scope that persistence failed to save.

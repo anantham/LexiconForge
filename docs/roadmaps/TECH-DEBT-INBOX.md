@@ -316,3 +316,19 @@ Append-only raw debt receipts discovered during implementation.
 - Finding: operator-specific configuration and live diagnostics had accumulated in public source records.
 - Current correction: explicit runtime configuration, generic examples, sanitized records, and a private-host check in the existing build scanner.
 - Follow-up: keep incident/runtime evidence outside Git; historical refs and cached artifacts require a separate owner decision. Public receipts must describe categories and acceptance, never repeat removed values.
+
+### 2026-09-05 graph review
+
+[DEBT][DUPLICATION][EXPORT] `services/exportService.ts` repeats portable chapter
+serialization across quick/publish/fork; general metadata/stat helpers and
+`store/slices/exportSlice.ts` EPUB selection still read across cached books. #160
+fixes the three portable builders only. Follow up with two-book fixtures and
+selected-corpus statistics; preserve full backup semantics. Pickup: Issues.md 19.
+
+[DEBT][LIFECYCLE] `store/slices/chaptersSlice.ts` independently updates chapter maps
+in hydration, navigation, fetch, import and preload paths. Explicit insertion,
+deletion and clear operations now invalidate their graph; audit remaining bypasses
+without introducing full-book hashing on each store update.
+
+[DEBT][MUTATION] `components/session-info/VersionSelector.tsx:40` uses in-place `versions.sort()`
+on its input. Check cross-component array reuse before a scoped correction.

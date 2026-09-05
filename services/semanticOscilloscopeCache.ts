@@ -1,4 +1,5 @@
 import { SettingsOps } from './db/operations/settings';
+import type { UiState } from '../store/slices/uiSlice';
 import type { OscilloscopeState, SessionOscilloscopeData } from '../types/oscilloscope';
 import {
   computeSemanticCorpusIdentity,
@@ -6,16 +7,16 @@ import {
   parseSessionOscilloscope,
 } from './semanticOscilloscopeSession';
 
-const cacheKey = (novelId: string, versionId: string) =>
+const cacheKey = (novelId: string, versionId: string | null) =>
   `oscilloscope:${JSON.stringify([novelId, versionId])}`;
 let pendingWrite: Promise<unknown> = Promise.resolve();
 
 // Save only on book departure, not on graph hover/zoom or every store change.
-export const cacheOscilloscope = (state: OscilloscopeState): void => {
-  if (!state.corpusIdentity || state.threads.size === 0) return;
+export const cacheOscilloscope = (state: OscilloscopeState & Pick<UiState, 'activeNovelId' | 'activeVersionId'>): void => {
+  if (!state.corpusIdentity || state.threads.size === 0 || state.activeNovelId !== state.corpusIdentity.corpusId) return;
   try {
     const data = createSessionOscilloscope(state.corpusIdentity, state.threads, state.activeThreadIds);
-    pendingWrite = SettingsOps.set(cacheKey(data.corpus.corpusId, data.corpus.versionId), data)
+    pendingWrite = pendingWrite.then(() => SettingsOps.set(cacheKey(data.corpus.corpusId, state.activeVersionId), data))
       .catch((error) => console.warn('[Oscilloscope] Could not cache frozen graph:', error));
   } catch (error) {
     console.warn('[Oscilloscope] Could not serialize frozen graph for cache:', error);
@@ -25,16 +26,16 @@ export const cacheOscilloscope = (state: OscilloscopeState): void => {
 export const restoreCachedOscilloscope = async (signal: AbortSignal): Promise<boolean> => {
   const { useAppStore } = await import('../store');
   const state = useAppStore.getState();
-  if (!state.activeNovelId || !state.activeVersionId || state.isLoaded) return false;
+  if (!state.activeNovelId || state.isLoaded) return false;
   try {
     await pendingWrite;
     const data = await SettingsOps.getKey<SessionOscilloscopeData>(cacheKey(state.activeNovelId, state.activeVersionId));
     if (!data) return false;
     const corpus = await computeSemanticCorpusIdentity({
       novel: { id: state.activeNovelId },
-      version: { versionId: state.activeVersionId },
+      version: { versionId: state.activeVersionId ?? data.corpus.versionId },
       chapters: Array.from(state.chapters.values()).filter((chapter) =>
-        chapter.novelId === state.activeNovelId && chapter.libraryVersionId === state.activeVersionId),
+        chapter.novelId === state.activeNovelId && (chapter.libraryVersionId ?? null) === state.activeVersionId),
     } as any);
     const current = useAppStore.getState();
     if (signal.aborted || current.chapters !== state.chapters || current.isLoaded

@@ -21,8 +21,6 @@ const corpus = { corpusId: 'semantic-fixture', versionId: 'v1', chapterCount: 2,
 const fixture = {
   metadata: { format: 'lexiconforge-session', version: '2.0', exportedAt: '2026-09-05T00:00:00Z' },
   novel: { id: corpus.corpusId, title: 'Semantic Fixture' },
-  novelId: corpus.corpusId,
-  libraryVersionId: corpus.versionId,
   version: { versionId: corpus.versionId, displayName: 'Fixture', style: 'other', features: [] },
   chapters,
   settings: {},

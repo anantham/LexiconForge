@@ -10,16 +10,21 @@ are separate. Private operator records are maintained outside this repository.
 - [x] Review hydrated corpus verification, streamed imports, full/quick exports,
       book/version resets, cached reopening and FMoC-only legacy fallback.
 - [x] Fix all six review findings; run 68 focused tests on Node 24.19.0.
-- [x] Verify TypeScript, build, integrity and fresh CI on repaired source.
+- [x] Verify TypeScript, build and integrity on repaired source.
+- [ ] Verify fresh CI and independent review on the final corrected head.
 - [x] Verify production offline export/reimport and cached reopening on desktop
       Chromium, Pixel 7 Chromium emulation and iPhone 13 WebKit emulation.
 - [x] Correct the PR's backend dependency claims and keep its handoff public-safe.
 
-Source repairs: `c7e3b9d`, `47f06c1`; main merge `9029313`. CI run
-`33945802280` passed all five jobs and Vercel on records head `be2bcbe`.
-Privacy cleanup from PR #174 is merged into this branch without rewriting history.
-The combined source passes the same 68 focused tests and TypeScript; current-head CI
-is linked from the PR and must pass before merge.
+Earlier source repairs: `c7e3b9d`, `47f06c1`; main merge `9029313`.
+The current correction addresses four further Codex findings with actual storage
+round trips: normal portable version scope, nullable default selection, scoped
+quick/publish/fork export and graph invalidation after chapter deletion. It also
+removes a duplicate invalid IndexedDB query and prevents delayed imports from
+replacing a newer reader selection. Node 24.19.0: 102 focused tests pass.
+The production browser fixture now uses the ordinary portable format, without
+artificial top-level scope fields. Current-head CI/review is linked from #160;
+source and emulated-device checks do not close live acceptance.
 
 ## 2. Recover the backend implementation
 

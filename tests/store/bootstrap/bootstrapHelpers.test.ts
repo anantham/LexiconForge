@@ -70,6 +70,7 @@ vi.mock('../../../services/db/operations/rendering', async () => {
   return {
     ...actual,
     fetchChaptersForReactRendering: renderingOpsMock.getChaptersForReactRendering,
+    fetchChaptersForNovel: renderingOpsMock.getChaptersForReactRendering,
   };
 });
 

@@ -1,3 +1,4 @@
+import type { StoreState } from '../store/storeTypes';
 import type { SessionData } from '../types/session';
 import type {
   SemanticCorpusIdentity,
@@ -9,9 +10,10 @@ import {
   sameCorpus,
 } from './semanticOscilloscopeSession';
 
-export const attachOscilloscopeToSession = async (session: SessionData): Promise<SessionData> => {
-  const { useAppStore } = await import('../store');
-  const state = useAppStore.getState();
+export const attachOscilloscopeToSession = async (
+  session: SessionData,
+  state: Pick<StoreState, 'corpusIdentity' | 'threads' | 'activeThreadIds'>,
+): Promise<SessionData> => {
   const corpusHint = state.corpusIdentity;
   const portableSession: SessionData = {
     ...session,
@@ -40,8 +42,10 @@ export const attachOscilloscopeToFullExport = async (
   corpusHint: SemanticCorpusIdentity | null,
   threads: Map<string, ThreadData>,
   activeThreadIds: Set<string>,
+  libraryVersionId: string | null = corpusHint?.versionId ?? null,
 ): Promise<void> => {
   delete payload.oscilloscope;
+  delete payload.oscilloscopeLibraryVersionId;
   if (!corpusHint || !Array.isArray(payload.chapters) || payload.chapters.length === 0) return;
   try {
     const corpus = await computeSemanticCorpusIdentity({
@@ -53,10 +57,11 @@ export const attachOscilloscopeToFullExport = async (
         features: [],
       },
       chapters: payload.chapters.filter((chapter: any) =>
-        chapter?.novelId === corpusHint.corpusId && chapter?.libraryVersionId === corpusHint.versionId),
+        chapter?.novelId === corpusHint.corpusId && (chapter?.libraryVersionId ?? null) === libraryVersionId),
     });
     if (!sameCorpus(corpusHint, corpus)) return;
     payload.oscilloscope = createSessionOscilloscope(corpus, threads, activeThreadIds);
+    payload.oscilloscopeLibraryVersionId = libraryVersionId;
   } catch (error) {
     console.warn('[Export] Omitted stale oscilloscope tracks from full export:', error);
   }

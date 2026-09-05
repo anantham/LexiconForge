@@ -254,6 +254,12 @@ export const createChaptersSlice: StateCreator<
   },
   
   importChapter: (chapter) => {
+    const state = get();
+    const previous = state.chapters.get(chapter.id);
+    if (state.corpusIdentity?.corpusId === chapter.novelId
+      && (chapter.libraryVersionId ?? null) === state.activeVersionId
+      && (!previous || previous.title !== chapter.title || previous.chapterNumber !== chapter.chapterNumber
+        || selectedChapterText(previous) !== selectedChapterText(chapter))) state.resetOscilloscope();
     set(state => {
       const newChapters = new Map(state.chapters);
       const existed = newChapters.has(chapter.id);
@@ -315,6 +321,10 @@ export const createChaptersSlice: StateCreator<
   },
   
   removeChapter: (chapterId) => {
+    const state = get();
+    const removed = state.chapters.get(chapterId);
+    if (removed && state.corpusIdentity?.corpusId === removed.novelId
+      && (removed.libraryVersionId ?? null) === state.activeVersionId) state.resetOscilloscope();
     set(state => {
       const newChapters = new Map(state.chapters);
       const chapter = newChapters.get(chapterId);
@@ -751,6 +761,7 @@ export const createChaptersSlice: StateCreator<
   },
   
   clearAllChapters: () => {
+    get().resetOscilloscope();
     set(state => {
       recordChapterCache('chapters.clearAll', 0, { previousSize: state.chapters.size });
       return {
