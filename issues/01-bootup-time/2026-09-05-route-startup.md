@@ -1,6 +1,6 @@
 # Route startup latency — 2026-09-05
 
-Status: implemented and verified locally on `perf/codex-startup-latency`; not merged or deployed. Base: freshly fetched `origin/main` at `8423892`. This receipt addresses eager route loading, not the remote full-session import in historical issue 1.
+Status: implemented, verified, and pushed in [draft PR #173](https://github.com/anantham/LexiconForge/pull/173) on `perf/codex-startup-latency`; not merged or deployed. Base: freshly fetched `origin/main` at `8423892`. This receipt addresses eager route loading, not the remote full-session import in historical issue 1.
 
 ## Intent and change
 

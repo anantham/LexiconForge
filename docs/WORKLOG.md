@@ -3723,3 +3723,9 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Final measurements:** 3 cold runs per version/path, alternating order, 4x CPU, 80ms latency, 10 Mbit/s, external calls/service workers blocked. Library H1 median 1813 → 1099ms; initial decoded JS 4759 → 1860KB. Gita index H1 1569 → 600ms; decoded JS 4757 → 197KB. All 12 page-error lists empty. No production or provider speedup claimed.
 **Verification:** Focused Vitest 25/25; production Chromium 3/3 (zero retries); build, current typecheck, integrity/extension checks, and scoped diff check pass. Changed TS/TSX ESLint has zero errors plus the pre-existing alias-effect warning. Routing line coverage 94.73%, no comparable prior baseline.
 **Next:** Review this isolated slice; six pickup tickets remain open. Main checkout preserved. No merge or deployment authorized. Confidence in measured startup improvement: 0.95. Fallback: revert this branch's focused changes.
+
+### [2026-09-05T06:36+04:00] [Agent: Codex]
+**Status:** Complete — pushed for draft review.
+**PR:** https://github.com/anantham/LexiconForge/pull/173
+**Publication:** Performance commit `e140230` and pickup-ticket commit `ac1d796` are pushed; remote SHA matched the local head. This documentation follow-up links the PR from LAT-01 and its evidence receipt. Root `main` remains clean at `8423892`; no merge or deployment.
+**Next:** Review PR #173 and collect a representative device/chapter fixture for the remaining latency work; six follow-up tickets remain open.

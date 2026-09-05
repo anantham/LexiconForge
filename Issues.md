@@ -146,7 +146,7 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 
 ### LAT-01 — Remove unrelated routes from cold startup
 
-- **Status:** Implemented and verified locally on `perf/codex-startup-latency`; not merged or deployed. Owner: Codex.
+- **Status:** Implemented and verified; [draft PR #173](https://github.com/anantham/LexiconForge/pull/173) on `perf/codex-startup-latency`. Not merged or deployed. Owner: Codex.
 - **Files:** `App.tsx`, `App.test.tsx`, `tests/e2e/route-loading.spec.ts`.
 - **Evidence / acceptance:** [Build measurements, limits, and reproduction](issues/01-bootup-time/2026-09-05-route-startup.md). Load only the selected feature; preserve deep links, route transitions, and visible download failures. This does **not** close the full-import delay in historical issue 1.
 
