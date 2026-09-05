@@ -63,6 +63,9 @@ const InputBar: React.FC = () => {
       setImportProgress(null);
       setError(null);
       setReaderLoading(null);
+      const { activeNovelId: importNovelId, activeVersionId: importVersionId } = useAppStore.getState();
+      const stillSelected = () => useAppStore.getState().activeNovelId === importNovelId
+        && useAppStore.getState().activeVersionId === importVersionId;
 
       try {
         let hasNavigatedToFirstChapter = false;
@@ -70,17 +73,19 @@ const InputBar: React.FC = () => {
         await ImportService.streamImportFromUrl(
           trimmedUrl,
           (progress) => {
-            setImportProgress(progress);
+            if (stillSelected()) setImportProgress(progress);
           },
           // Callback when first 10 chapters are ready
           async () => {
-            if (hasNavigatedToFirstChapter) return;
+            if (hasNavigatedToFirstChapter || !stillSelected()) return;
             hasNavigatedToFirstChapter = true;
 
             console.log('[InputBar] First 10 chapters ready, navigating...');
 
-            const { useAppStore } = await import('../store');
-            const firstChapterId = await loadAllIntoStore(useAppStore.setState, { limit: 10 });
+            const firstChapterId = await loadAllIntoStore((patch) => {
+              if (stillSelected()) useAppStore.setState(patch);
+            }, { limit: 10 });
+            if (!stillSelected()) return;
 
             useAppStore.setState({
               currentChapterId: firstChapterId,
@@ -98,6 +103,7 @@ const InputBar: React.FC = () => {
         console.log('[InputBar] All chapters loaded successfully');
       } catch (err: any) {
         console.error('[InputBar] Session import failed:', err);
+        if (!stillSelected()) return;
         openLibrary();
         setError(`Failed to import session: ${err.message}`);
       } finally {
@@ -158,20 +164,6 @@ const InputBar: React.FC = () => {
       });
 
       await ImportService.importFromFile(file);
-
-      // Navigate to first chapter
-      const { useAppStore } = await import('../store');
-      const chapters = useAppStore.getState().chapters;
-      const sortedChapters = Array.from(chapters.entries()).sort((a, b) => {
-        const numA = a[1].chapterNumber || 0;
-        const numB = b[1].chapterNumber || 0;
-        return numA - numB;
-      });
-      const firstChapterId = sortedChapters[0]?.[0];
-      if (firstChapterId) {
-        useAppStore.setState({ currentChapterId: firstChapterId, appScreen: 'reader' });
-        setReaderReady();
-      }
 
       console.log('[InputBar] File import successful');
 

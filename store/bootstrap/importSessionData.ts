@@ -86,8 +86,12 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
             currentChapterId: firstChapterId,
           });
         } else {
-          await loadAllIntoStore(applyHydration);
+          const firstChapterId = await loadAllIntoStore(applyHydration);
           if (!stillSelected()) return;
+          const current = ctx.get();
+          if (!current.currentChapterId || !current.chapters.has(current.currentChapterId)) {
+            ctx.set({ currentChapterId: firstChapterId });
+          }
         }
         const hydrated = ctx.get();
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
@@ -141,7 +145,7 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
             }
             if (typeof window !== 'undefined') {
               (window as any).__oscilloscopeChapterTitles = Object.fromEntries(
-                obj.chapters.map((chapter: any, index: number) => [
+                chapters.map((chapter, index) => [
                   String(chapter.chapterNumber ?? index + 1),
                   chapter.title || `Chapter ${index + 1}`,
                 ]),

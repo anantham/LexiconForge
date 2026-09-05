@@ -9,11 +9,13 @@ are separate. Private operator records are maintained outside this repository.
 - [x] Merge current main without rewriting history and resolve conflicts.
 - [x] Review hydrated corpus verification, streamed imports, full/quick exports,
       book/version resets, cached reopening and FMoC-only legacy fallback.
-- [x] Correct reviewed findings with storage, import-race and graph-navigation regressions; run 122 focused tests on Node 24.19.0.
+- [x] Correct reviewed findings with storage, import-race and graph-navigation regressions; run 131 focused tests on Node 24.19.0.
 - [x] Verify TypeScript, build and integrity on repaired source.
 - [ ] Verify fresh CI and independent review on the final corrected head.
-- [x] Verify production offline export/reimport and cached reopening on desktop
-      Chromium, Pixel 7 Chromium emulation and iPhone 13 WebKit emulation.
+- [x] Verify production offline exported-file upload, graph navigation and cached
+      reopening on desktop Chromium and Pixel 7 Chromium emulation.
+- [ ] Verify native offline file upload on Safari; pinned WebKit file I/O fails
+      without app code. Earlier in-memory graph restoration passed in WebKit.
 - [x] Correct the PR's backend dependency claims and keep its handoff public-safe.
 
 Earlier source repairs: `c7e3b9d`, `47f06c1`; main merge `9029313`.
@@ -23,7 +25,7 @@ quick/publish/fork export and graph invalidation after chapter deletion. It also
 removes a duplicate invalid IndexedDB query and prevents delayed imports from
 replacing a newer reader selection. Further review corrections guard streamed and
 first-batch/cache hydration and restrict graph clicks to the selected book/version.
-Node 24.19.0: 122 focused tests pass. A full backup containing three corpus scopes
+Node 24.19.0: 131 focused tests pass. A full backup containing three corpus scopes
 preserves all six chapters and navigates within the selected graph offline.
 The production browser fixture now uses the ordinary portable format, without
 artificial top-level scope fields. Current-head CI/review is linked from #160;
@@ -60,8 +62,10 @@ commit/runtime inventories and operator release prerequisites stay in private re
 - [ ] Exercise desktop behavior with the real backend, including unavailability.
 - [ ] Exercise physical mobile admission, scan, touch/scroll and offline reopening.
 
-Synthetic desktop/mobile-emulation checks pass. They do not prove a complete
-novel scan, offline cold app launch, physical-device behavior or live scan latency.
+Synthetic desktop and Pixel file-upload checks pass. WebKit in-memory restoration
+passed earlier, but native offline file I/O currently fails in the pinned browser.
+These checks do not prove a complete novel scan, offline cold app launch,
+physical-device behavior or live scan latency. See Issues.md 20.
 
 ## 5. Close the records
 

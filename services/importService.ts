@@ -201,6 +201,7 @@ export class ImportService {
     onProgress?: (progress: ImportProgress) => void,
     options: ImportOptions = {}
   ): Promise<any> {
+    const { activeNovelId, activeVersionId } = useAppStore.getState();
     // Convert GitHub URLs to raw format
     let fetchUrl = normalizeImportUrl(url);
 
@@ -303,6 +304,11 @@ export class ImportService {
             throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
           }
 
+          const current = useAppStore.getState();
+          if (current.activeNovelId !== activeNovelId || current.activeVersionId !== activeVersionId) {
+            debugLog('import', 'summary', '[Import] Reader selection changed during download; session not applied');
+            return sessionData;
+          }
           if (sessionData.provenance) {
             useAppStore.getState().setSessionProvenance(sessionData.provenance);
           }
@@ -1264,6 +1270,7 @@ export class ImportService {
    * Import from File (existing behavior)
    */
   static async importFromFile(file: File): Promise<any> {
+    const { activeNovelId, activeVersionId } = useAppStore.getState();
     try {
       const text = await file.text();
       let sessionData = JSON.parse(text);
@@ -1278,6 +1285,11 @@ export class ImportService {
         throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
       }
 
+      const current = useAppStore.getState();
+      if (current.activeNovelId !== activeNovelId || current.activeVersionId !== activeVersionId) {
+        debugLog('import', 'summary', '[Import] Reader selection changed during file read; session not applied');
+        return sessionData;
+      }
       // Extract and store provenance if present
       if (sessionData.provenance) {
         useAppStore.getState().setSessionProvenance(sessionData.provenance);

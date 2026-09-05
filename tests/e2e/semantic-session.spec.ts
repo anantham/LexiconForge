@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { writeFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
 // Real IndexedDB + production UI, with synthetic text and no private compute.
@@ -45,7 +46,8 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
     // Both have chapter 1 and sort before the selected v1 corpus.
     for (const [novelId, versionId] of [['a-other-book', 'v1'], ['semantic-fixture', 'v0']]) {
       await store.getState().importSessionData({ ...payload, oscilloscope: undefined,
-        novel: { ...payload.novel, id: novelId }, version: { ...payload.version, versionId } });
+        novel: { ...payload.novel, id: novelId }, version: { ...payload.version, versionId },
+        chapters: payload.chapters.map(chapter => ({ ...chapter, title: `${novelId}/${versionId}: ${chapter.title}` })) });
     }
     store.getState().openNovel('semantic-fixture', 'v1');
     await store.getState().importSessionData(payload);
@@ -60,17 +62,20 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
   expect(portable.chapters).toContainEqual(expect.objectContaining({ novelId: corpus.corpusId, libraryVersionId: corpus.versionId }));
   expect(JSON.stringify(portable.oscilloscope)).not.toMatch(/endpoint|baseUrl|vectors|token/i);
 
+  await page.getByRole('button', { name: 'Return to library (home)' }).click();
   await context.setOffline(true);
-  await page.evaluate(async (payload) => {
-    const store = (window as any).useAppStore;
-    store.getState().setViewMode('original');
-    store.getState().resetOscilloscope();
-    await store.getState().importSessionData(payload);
-    store.getState().setViewMode('english');
-  }, exported);
+  // Use the actual upload UI; payload order must not determine the graph's titles.
+  const backupPath = test.info().outputPath('frozen-backup.json');
+  await writeFile(backupPath, JSON.stringify({ ...portable, chapters: [...portable.chapters].reverse() }));
+  await page.locator('input[type="file"][accept=".json,application/json"]').setInputFiles(backupPath);
   await expect(page.locator('.oscilloscope-panel')).toBeVisible();
   expect(await page.evaluate(() => (window as any).useAppStore.getState().threads.get('tone:trust').values)).toEqual([0.2, 0.7]);
   await expect(page.locator('[data-translation-content]')).toContainText('Synthetic chapter 1.');
+  expect(await page.evaluate(() => {
+    const state = (window as any).useAppStore.getState();
+    const chapter = state.chapters.get(state.currentChapterId);
+    return [chapter.novelId, chapter.libraryVersionId, chapter.chapterNumber];
+  })).toEqual(['semantic-fixture', 'v1', 1]);
   await page.locator('.oscilloscope-panel canvas').click();
   await expect(page.getByRole('button', { name: 'Threads', exact: true })).toBeVisible();
   await page.evaluate(() => {
@@ -83,6 +88,7 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
   const plot = page.locator('.oscilloscope-panel .u-over');
   await plot.hover({ position: { x: 10, y: 10 } });
   await expect.poll(() => page.evaluate(() => (window as any).useAppStore.getState().hoveredChapter)).toBe(1);
+  await expect(page.locator('.oscilloscope-tooltip > div').first()).toHaveText('Chapter 1');
   await plot.click({ position: { x: 10, y: 10 } });
   expect(await page.evaluate(() => {
     const state = (window as any).useAppStore.getState();

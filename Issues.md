@@ -145,7 +145,7 @@ Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion op
 
 
 Semantic delivery status (2026-09-05): #160 has further reviewed storage/lifecycle
-corrections passing 122 focused Node 24.19.0 tests, including streamed selection races; final-head CI/review is pending;
+corrections passing 131 focused Node 24.19.0 tests, including streamed selection races; final-head CI/review is pending;
 backend recovery is committed locally; publication and live acceptance remain pending.
 Pick up the writable-repository, independent-review, browser/CSRF, deployment and
 real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
@@ -178,3 +178,12 @@ friction belongs in `docs/architecture/ARCHITECTURE.md` section 7.
 - **Status:** Open; unclaimed.
 - **Evidence:** `tests/store/slices/illustration-marker-insertion.test.ts:14` implements its own `insertMarkerIntoHtml` and all assertions exercise that copy. It cannot detect changes to `store/slices/translationsSlice.ts`'s real action.
 - **Done when:** Remove the duplicated test implementation; retain only useful cases against the real action or a justified shared production function. Check actual chapter mutation and no mutation on rejected planning; do not add a wrapper solely to satisfy test counts.
+
+20) Native Safari offline file import — physical-device verification pending.
+
+Desktop and Pixel Chromium pass actual exported-file upload, selected-corpus
+navigation and tooltip checks offline. Pinned WebKit 2215 fails offline file I/O
+even on a blank page without application code (File.text and FileReader); online
+reads pass. The browser regression remains active. Verify the downloaded backup
+using Safari Files in airplane mode on an iPhone before closing mobile acceptance.
+Receipt: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 native Safari QA.

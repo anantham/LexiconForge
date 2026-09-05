@@ -2,11 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import InputBar from '../../components/InputBar';
 import { ImportService } from '../../services/importService';
+import { loadAllIntoStore } from '../../services/readerHydrationService';
 
 const storeState = vi.hoisted(() => ({
   handleFetch: vi.fn(),
   importCustomText: vi.fn(),
   activeNovelId: 'orv' as string | null,
+  activeVersionId: null as string | null,
   openLibrary: vi.fn(),
   shelveActiveNovel: vi.fn(),
   setReaderLoading: vi.fn(),
@@ -69,6 +71,7 @@ describe('InputBar guardrails', () => {
     storeState.setReaderReady.mockReset();
     storeState.setError.mockReset();
     storeState.activeNovelId = 'orv';
+    storeState.activeVersionId = null;
     storeState.error = null;
     storeState.chapters = new Map();
     storeState.currentChapterId = null;
@@ -98,6 +101,33 @@ describe('InputBar guardrails', () => {
     expect(storeState.shelveActiveNovel.mock.invocationCallOrder[0]).toBeLessThan(
       storeState.setReaderLoading.mock.invocationCallOrder[0]
     );
+  });
+
+  it('does not overwrite a book opened during first-batch hydration', async () => {
+    const selectedChapters = new Map([['book-b-1', { chapterNumber: 1 }]]);
+    vi.mocked(loadAllIntoStore).mockImplementationOnce(async (setState) => {
+      storeState.activeNovelId = 'book-b';
+      storeState.chapters = selectedChapters;
+      storeState.currentChapterId = 'book-b-1';
+      setState({ chapters: new Map(), urlIndex: new Map(), rawUrlIndex: new Map() });
+      return 'old-chapter';
+    });
+    let complete!: () => void;
+    const finished = new Promise<void>(resolve => { complete = resolve; });
+    vi.mocked(ImportService.streamImportFromUrl).mockImplementationOnce(async (_url, _progress, firstReady) => {
+      await firstReady?.();
+      complete();
+      return {};
+    });
+    render(<InputBar />);
+    fireEvent.change(screen.getByPlaceholderText(/Paste chapter URL or session JSON file URL/i), {
+      target: { value: 'https://example.com/session.json' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /fetch/i }));
+    await finished;
+    expect(storeState.chapters).toBe(selectedChapters);
+    expect(storeState.currentChapterId).toBe('book-b-1');
+    expect(storeState.setReaderReady).not.toHaveBeenCalled();
   });
 
   it('shelves the active library novel before local file imports', async () => {

@@ -342,3 +342,12 @@ on its input. Check cross-component array reuse before a scoped correction.
 - The earlier streaming ownership receipt is partly corrected: selected book/version guards now cover streamed final hydration and the library's cache/first-batch hydration and completion.
 - `services/importService.ts` still combines the parser, storage, translation reconciliation and UI orchestration inside an async Promise executor. File/ordinary URL acquisition begins before the bootstrap import guard; independently reproduce selection changes during those reads. Same-selection overlapping imports need an explicit request-identity decision if supported.
 - Keep parser ordering, acquisition cancellation and broader import decomposition as focused follow-ups, not a new framework inside #160. Pickup: Issues.md 19.
+
+[DEBT][QA][2026-09-05] Native Safari offline file acceptance
+- `tests/e2e/semantic-session.spec.ts:65`: desktop and Pixel Chromium upload the exported multi-corpus file offline; pinned WebKit 2215 returns NotReadableError before JSON import.
+- Isolated blank-page diagnostic reproduces offline failure for native-file text(), memory-file text(), and FileReader; all three work online. Changing Playwright's buffer upload to native file paths does not repair it.
+- Keep the offline test and surface this limitation. Verify a downloaded backup through Safari Files while in airplane mode on a physical iPhone; then check graph navigation, title, translation switching and cold app reopening. Pickup: Issues.md 20.
+
+[DEBT][IMPORT][2026-09-05] Acquisition follow-up narrowed
+- File and ordinary URL acquisition now guard selected book/version before applying session metadata or invoking bootstrap; InputBar's streamed first-batch hydration is also guarded.
+- Same-selection overlapping requests, stale failure notifications, ordered stream parsing, and replacement of the global tooltip-title cache remain broader lifecycle/decomposition follow-ups. Preserve these as separate receipts rather than growing #160 into a parser rewrite.

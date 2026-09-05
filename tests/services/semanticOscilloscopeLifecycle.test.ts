@@ -137,6 +137,7 @@ it.each([null, 'v1'])('retains every book in a full backup and restores its grap
   const session = await fixture();
   await ImportOps.importFullSessionData({ ...session, novelId: 'book-a', libraryVersionId: selection });
   const other = await fixture('book-b');
+  other.chapters.forEach(chapter => { chapter.title = `Other book: ${chapter.title}`; });
   await ImportOps.importFullSessionData({ ...other, novelId: 'book-b', libraryVersionId: 'v1' });
   await loadNovelIntoStore('book-a', useAppStore.setState, { versionId: selection });
   useAppStore.setState({ activeNovelId: 'book-a', activeVersionId: selection });
@@ -150,6 +151,7 @@ it.each([null, 'v1'])('retains every book in a full backup and restores its grap
   expect(useAppStore.getState().chapters.size).toBe(4);
   expect(useAppStore.getState().activeNovelId).toBe('book-a');
   expect(useAppStore.getState().activeVersionId).toBe(selection);
+  expect((window as any).__oscilloscopeChapterTitles['1']).toBe('Chapter 1');
   expect(useAppStore.getState().threads.get('tone:trust')?.values).toEqual([0.2, 0.7]);
 });
 
@@ -175,4 +177,17 @@ it('finishes storing a delayed import without replacing a newer book selection',
   } finally {
     delayed.mockRestore();
   }
+});
+
+it('opens a readable chapter when a full backup has no frozen graph', async () => {
+  await useAppStore.getState().importSessionData(await fixture());
+  const backup = JSON.parse(await useAppStore.getState().exportSessionData({ includeImages: false, includeTelemetry: false }));
+  delete backup.oscilloscope;
+  useAppStore.getState().shelveActiveNovel();
+  useAppStore.setState({ chapters: new Map(), currentChapterId: null });
+  await useAppStore.getState().importSessionData(backup);
+  const state = useAppStore.getState();
+  expect(state.appScreen).toBe('reader');
+  expect(state.chapters.get(state.currentChapterId!)?.chapterNumber).toBe(1);
+  expect(state.corpusIdentity).toBeNull();
 });
