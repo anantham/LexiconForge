@@ -354,6 +354,12 @@ export class ImportService {
     onFirstChaptersReady?: () => void | Promise<void>,
     options: ImportOptions = {}
   ): Promise<any> {
+    const { activeNovelId, activeVersionId } = useAppStore.getState();
+    const stillSelected = () => useAppStore.getState().activeNovelId === activeNovelId
+      && useAppStore.getState().activeVersionId === activeVersionId;
+    const applyHydration: Parameters<typeof loadNovelIntoStore>[1] = (patch) => {
+      if (stillSelected()) useAppStore.setState(patch);
+    };
     return new Promise(async (resolve, reject) => {
       debugLog('import', 'summary', '[StreamImport] Starting streaming import from:', url);
 
@@ -940,7 +946,7 @@ export class ImportService {
           });
 
           const shouldTriggerFirstChapters =
-            !firstChaptersReadyCalled && chaptersLoaded >= readyThreshold;
+            !firstChaptersReadyCalled && chaptersLoaded >= readyThreshold && stillSelected();
 
           debugLog(
             'import',
@@ -1043,7 +1049,7 @@ export class ImportService {
         // single built chapter, so `1 >= min(126, 10)` never fired and the
         // user sat on "Opening Reader…" forever over a fully hydrated store.
         // Fire it at stream end whenever any chapter arrived.
-        if (!firstChaptersReadyCalled && chaptersLoaded > 0) {
+        if (!firstChaptersReadyCalled && chaptersLoaded > 0 && stillSelected()) {
           firstChaptersReadyCalled = true;
           debugLog('import', 'summary', '[StreamImport] Stream ended below first-batch threshold — firing onFirstChaptersReady now', {
             chaptersLoaded,
@@ -1096,6 +1102,11 @@ export class ImportService {
           }
         );
 
+        if (!stillSelected()) {
+          debugLog('import', 'summary', '[StreamImport] Cached completed import; reader selection changed');
+          resolve({ metadata, chaptersLoaded });
+          return;
+        }
         const preHydrationState = useAppStore.getState();
         const openChapterBeforeHydration = preHydrationState.currentChapterId
           ? preHydrationState.chapters.get(preHydrationState.currentChapterId)
@@ -1113,11 +1124,15 @@ export class ImportService {
             : null;
 
         const firstChapterId = options.registryNovelId
-          ? await loadNovelIntoStore(options.registryNovelId, useAppStore.setState, {
+          ? await loadNovelIntoStore(options.registryNovelId, applyHydration, {
               versionId: options.registryVersionId ?? null,
             })
-          : await loadAllIntoStore(useAppStore.setState);
+          : await loadAllIntoStore(applyHydration);
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
+        if (!stillSelected()) {
+          resolve({ metadata, chaptersLoaded });
+          return;
+        }
         const hydratedState = useAppStore.getState();
         const remappedOpenChapterId = openScopedChapterNumber === null
           ? null
@@ -1208,7 +1223,7 @@ export class ImportService {
               chapters: hydratedChapters,
             } as any);
             const current = useAppStore.getState();
-            if (current.chapters !== postHydrationState.chapters
+            if (!stillSelected() || current.chapters !== postHydrationState.chapters
               || current.activeNovelId !== postHydrationState.activeNovelId
               || current.activeVersionId !== postHydrationState.activeVersionId) {
               resolve({ metadata, chaptersLoaded });
@@ -1224,7 +1239,7 @@ export class ImportService {
           } catch (error) {
             console.error('[StreamImport] Ignoring invalid session oscilloscope data:', error);
             const current = useAppStore.getState();
-            if (current.chapters === postHydrationState.chapters
+            if (stillSelected() && current.chapters === postHydrationState.chapters
               && current.activeNovelId === postHydrationState.activeNovelId
               && current.activeVersionId === postHydrationState.activeVersionId) current.resetOscilloscope();
           }

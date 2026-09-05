@@ -337,3 +337,8 @@ on its input. Check cross-component array reuse before a scoped correction.
 - `tests/store/slices/illustration-marker-insertion.test.ts:14` reimplements the
   production algorithm, so the suite can stay green when the real action breaks.
 - Delete/replace with a few actual store-action cases. Pickup: Issues.md TEST-01.
+
+[DEBT][IMPORT][2026-09-05] Ownership follow-up after streamed graph correction
+- The earlier streaming ownership receipt is partly corrected: selected book/version guards now cover streamed final hydration and the library's cache/first-batch hydration and completion.
+- `services/importService.ts` still combines the parser, storage, translation reconciliation and UI orchestration inside an async Promise executor. File/ordinary URL acquisition begins before the bootstrap import guard; independently reproduce selection changes during those reads. Same-selection overlapping imports need an explicit request-identity decision if supported.
+- Keep parser ordering, acquisition cancellation and broader import decomposition as focused follow-ups, not a new framework inside #160. Pickup: Issues.md 19.

@@ -124,6 +124,7 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
   const setCurrentChapter = useAppStore((s) => s.setCurrentChapter);
   const handleNavigate = useAppStore((s) => s.handleNavigate);
   const activeNovelId = useAppStore((s) => s.activeNovelId);
+  const activeVersionId = useAppStore((s) => s.activeVersionId);
 
   // Current chapter position for "you are here" marker
   const currentChapterId = useAppStore((s) => s.currentChapterId);
@@ -189,7 +190,8 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
   // nothing (the bug the user reported on 2026-05-06).
   const navigateToChapter = useCallback((chapterNumber: number) => {
     for (const [id, ch] of chapters) {
-      if (ch.chapterNumber === chapterNumber) {
+      if (ch.chapterNumber === chapterNumber && ch.novelId === activeNovelId
+        && (ch.libraryVersionId ?? null) === activeVersionId) {
         setCurrentChapter(id);
         return;
       }
@@ -200,7 +202,7 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
       const canonicalUrl = buildCanonicalUrl(activeNovelId, chapterNumber);
       void handleNavigate(canonicalUrl);
     }
-  }, [chapters, setCurrentChapter, handleNavigate, activeNovelId]);
+  }, [chapters, setCurrentChapter, handleNavigate, activeNovelId, activeVersionId]);
 
   // Tooltip plugin using safe DOM methods
   const tooltipPlugin = useCallback((): uPlot.Plugin => {
@@ -380,20 +382,15 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
     );
   }
 
-  // Handle click on graph → navigate to hovered chapter
-  const handleClick = useCallback(() => {
-    const hoveredChapter = useAppStore.getState().hoveredChapter;
-    if (hoveredChapter != null) {
-      navigateToChapter(hoveredChapter);
-    }
-  }, [navigateToChapter]);
-
   return (
     <div
       ref={containerRef}
       className="w-full bg-gray-900 rounded cursor-pointer"
       style={{ minHeight: isExpanded ? 280 : 40 }}
-      onClick={handleClick}
+      onClick={() => {
+        const hoveredChapter = useAppStore.getState().hoveredChapter;
+        if (hoveredChapter != null) navigateToChapter(hoveredChapter);
+      }}
     />
   );
 };

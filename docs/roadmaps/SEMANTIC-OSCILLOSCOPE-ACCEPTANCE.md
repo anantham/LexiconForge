@@ -9,7 +9,7 @@ are separate. Private operator records are maintained outside this repository.
 - [x] Merge current main without rewriting history and resolve conflicts.
 - [x] Review hydrated corpus verification, streamed imports, full/quick exports,
       book/version resets, cached reopening and FMoC-only legacy fallback.
-- [x] Fix all six review findings; run 68 focused tests on Node 24.19.0.
+- [x] Correct reviewed findings with storage, import-race and graph-navigation regressions; run 122 focused tests on Node 24.19.0.
 - [x] Verify TypeScript, build and integrity on repaired source.
 - [ ] Verify fresh CI and independent review on the final corrected head.
 - [x] Verify production offline export/reimport and cached reopening on desktop
@@ -21,7 +21,10 @@ The current correction addresses four further Codex findings with actual storage
 round trips: normal portable version scope, nullable default selection, scoped
 quick/publish/fork export and graph invalidation after chapter deletion. It also
 removes a duplicate invalid IndexedDB query and prevents delayed imports from
-replacing a newer reader selection. Node 24.19.0: 102 focused tests pass.
+replacing a newer reader selection. Further review corrections guard streamed and
+first-batch/cache hydration and restrict graph clicks to the selected book/version.
+Node 24.19.0: 122 focused tests pass. A full backup containing three corpus scopes
+preserves all six chapters and navigates within the selected graph offline.
 The production browser fixture now uses the ordinary portable format, without
 artificial top-level scope fields. Current-head CI/review is linked from #160;
 source and emulated-device checks do not close live acceptance.
@@ -66,4 +69,6 @@ novel scan, offline cold app launch, physical-device behavior or live scan laten
 - [ ] Record merged source versions and public-safe acceptance evidence in WORKLOG;
       keep deployment identities, hostnames and operational evidence private.
 
-The latency work remains tracked in PR #173 and its Issues.md pickup queue.
+Startup latency is tracked in PR #173, reader subscription reduction in #175,
+and production QA setup in #176. Public configuration cleanup is #174. Their
+Issues.md pickup queues retain deferred work and acceptance limits.

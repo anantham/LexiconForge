@@ -143,7 +143,10 @@ describe('NovelLibrary', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     storeState.showNotification.mockReset();
-    storeState.openNovel.mockReset();
+    storeState.openNovel.mockReset().mockImplementation((novelId, versionId) => {
+      storeState.activeNovelId = novelId;
+      storeState.activeVersionId = versionId;
+    });
     storeState.openLibrary.mockReset();
     storeState.setReaderReady.mockReset();
     storeState.shelveActiveNovel.mockReset();
@@ -256,6 +259,44 @@ describe('NovelLibrary', () => {
 
     expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
     expect(screen.getByText('In Progress')).toBeInTheDocument();
+  });
+
+  it.each(['cache', 'first-batch'])('ignores an old %s hydration after switching books', async (phase) => {
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([
+      { ...mockNovel, sessionJsonUrl: 'https://example.com/session.json' },
+    ] as any);
+    const selectedChapters = new Map([['book-b-1', createMockEnhancedChapter({
+      id: 'book-b-1', novelId: 'book-b', chapterNumber: 1,
+    })]]);
+    const hydrateOldBook = async (_novelId: string, setState: any) => {
+      storeState.activeNovelId = 'book-b';
+      storeState.chapters = selectedChapters;
+      storeState.currentChapterId = 'book-b-1';
+      setState({ chapters: new Map([['old-chapter', createMockEnhancedChapter({ id: 'old-chapter' })]]) });
+      return 'old-chapter';
+    };
+    if (phase === 'cache') {
+      vi.mocked(loadNovelCacheIntoStore).mockImplementation(async (novelId, setState) => ({
+        firstChapterId: await hydrateOldBook(novelId, setState), chapterCount: 1, chapterNumbers: [1],
+      }));
+    } else {
+      vi.mocked(loadNovelIntoStore).mockImplementation(hydrateOldBook);
+    }
+    let finishStream!: () => void;
+    const streamFinished = new Promise<void>(resolve => { finishStream = resolve; });
+    vi.mocked(ImportService.streamImportFromUrl).mockImplementation(async (_url, _progress, firstReady) => {
+      await firstReady?.();
+      finishStream();
+      return { chaptersLoaded: 1 };
+    });
+    render(<NovelLibrary />);
+    fireEvent.click(await screen.findByText('Test Novel 1'));
+    if (phase === 'first-batch') await streamFinished;
+    await waitFor(() => expect(storeState.activeNovelId).toBe('book-b'));
+    expect(storeState.chapters).toBe(selectedChapters);
+    expect(storeState.currentChapterId).toBe('book-b-1');
+    expect(storeState.setReaderReady).not.toHaveBeenCalled();
+    expect(BookshelfStateService.upsertEntry).not.toHaveBeenCalled();
   });
 
   it('resumes the saved version directly from the shelf card', async () => {

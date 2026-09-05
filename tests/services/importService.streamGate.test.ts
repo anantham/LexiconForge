@@ -20,6 +20,8 @@ const importStoreState = vi.hoisted(() => ({
   setSessionVersion: vi.fn(),
   chapters: new Map<string, any>(),
   currentChapterId: null as string | null,
+  activeNovelId: null as string | null,
+  activeVersionId: null as string | null,
   navigationHistory: [] as string[],
   loadSessionOscilloscope: vi.fn(),
   initializeOscilloscope: vi.fn(),
@@ -128,6 +130,8 @@ beforeEach(() => {
   importStoreState.chapters = new Map();
   importStoreState.currentChapterId = null;
   importStoreState.navigationHistory = [];
+  importStoreState.activeNovelId = null;
+  importStoreState.activeVersionId = null;
   importStoreState.error = null;
   hydrationMocks.loadNovelIntoStore.mockReset().mockResolvedValue('lf-library:test:ch1');
   hydrationMocks.loadAllIntoStore.mockReset().mockResolvedValue('lf-library:test:ch1');
@@ -289,6 +293,53 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     releaseReady();
     await importPromise;
     expect(chapterOpsMock.store).toHaveBeenCalledTimes(5);
+  });
+
+  it.each([
+    ['fetch', 'book'], ['fetch', 'version'],
+    ['hydration', 'book'], ['hydration', 'version'],
+  ])('keeps a new %s-time %s selection when the old stream finishes', async (phase, switchKind) => {
+    const payload = {
+      ...sessionWithOneChapter,
+      version: { versionId: 'v1' },
+      chapters: [{ ...sessionWithOneChapter.chapters[0], chapterNumber: 1, translations: [] }],
+    };
+    const corpus = await computeSemanticCorpusIdentity(payload as any);
+    const oscilloscope = createSessionOscilloscope(corpus, new Map(), new Set());
+    importStoreState.activeNovelId = 'aithihyamala';
+    importStoreState.activeVersionId = 'v1';
+    const selectedChapters = new Map([['new-selection', { chapterNumber: 64 }]]);
+    const switchSelection = () => {
+      importStoreState.activeNovelId = switchKind === 'book' ? 'book-b' : 'aithihyamala';
+      importStoreState.activeVersionId = switchKind === 'version' ? 'v2' : 'v1';
+      importStoreState.chapters = selectedChapters;
+      importStoreState.currentChapterId = 'new-selection';
+    };
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      if (phase === 'fetch') switchSelection();
+      return streamResponseOf({ ...payload, oscilloscope });
+    }));
+    hydrationMocks.loadNovelIntoStore.mockImplementationOnce(async (_novelId, setState) => {
+      switchSelection();
+      const chapter = chapterOpsMock.store.mock.calls[0][0];
+      setState({ chapters: new Map([[chapter.stableId, { ...chapter, id: chapter.stableId }]]) });
+      return chapter.stableId;
+    });
+    const onFirstChaptersReady = vi.fn();
+
+    await ImportService.streamImportFromUrl('https://example.com/session.json', undefined,
+      onFirstChaptersReady, { registryNovelId: 'aithihyamala', registryVersionId: 'v1' });
+
+    expect(chapterOpsMock.store).toHaveBeenCalledTimes(1);
+    expect(importStoreState.chapters).toBe(selectedChapters);
+    expect(importStoreState.currentChapterId).toBe('new-selection');
+    expect(importStoreState.loadSessionOscilloscope).not.toHaveBeenCalled();
+    expect(importStoreState.initializeOscilloscope).not.toHaveBeenCalled();
+    expect(importStoreState.resetOscilloscope).not.toHaveBeenCalled();
+    if (phase === 'fetch') {
+      expect(onFirstChaptersReady).not.toHaveBeenCalled();
+      expect(hydrationMocks.loadNovelIntoStore).not.toHaveBeenCalled();
+    }
   });
 
   it('remaps an open scoped chapter to its authoritative revision after final hydration', async () => {

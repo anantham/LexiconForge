@@ -145,7 +145,7 @@ Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion op
 
 
 Semantic delivery status (2026-09-05): #160 has further reviewed storage/lifecycle
-corrections passing 102 focused Node 24.19.0 tests; final-head CI/review is pending;
+corrections passing 122 focused Node 24.19.0 tests, including streamed selection races; final-head CI/review is pending;
 backend recovery is committed locally; publication and live acceptance remain pending.
 Pick up the writable-repository, independent-review, browser/CSRF, deployment and
 real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
