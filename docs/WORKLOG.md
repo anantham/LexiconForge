@@ -3736,3 +3736,21 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 
 **Results:** Native Windows probe passes all three cutover root cases (missing, mismatched, normalized match) and all four missing-variable log cases. Its disposable hardening sentinel prevents task/service/route work. The initial stdin transport stalled; a temporary script-file transport completed and cleaned up. Bridge Python 3.12.13 suite passes 31 tests (one dependency deprecation warning).
 **Changed locations:** `deploy/windows/cutover-portal.ps1:124`, `start-bridge.cmd:22`, `start-sillytavern.cmd:14` under the bridge; `tests/windows/test-runtime-configuration.ps1:1`; bridge `README.md:81`. Runtime environment/task identity and actual process provenance remain deployment acceptance checks. No deployment performed.
+
+### [2026-09-05 12:50 MUT] [Agent: Codex]
+**Status:** Reconciled PR #174's second Codex review finding.
+**Files/lines:** `docs/adr/FEAT-003-image-service-architecture.md:336` explicitly supersedes the deployment-specific wrong-service/default-endpoint claims using the approved SEC-001 public configuration boundary. Saved settings remain untouched; a configured wrong service receives protocol/network diagnostics. No runtime code changed; prior native Windows and provider tests remain applicable.
+
+### [2026-09-05 13:07 MUT] [Agent: Codex]
+**Status:** Corrected #174's unconfigured saved-model submission path.
+**Hypothesis/prediction:** A saved local model remained selectable after clearing its endpoint, so Generate could call prompt planning before eventual image failure. Three UI regressions fail on the old source for empty, whitespace and malformed configuration; the existing endpoint validator must disable submission, explain the correction and preserve an explicit cloud alternative. Confidence 0.99.
+**Options:** A (selected): validate the chosen route at the existing dialog submit boundary; high impact, small effort/time, low risk, fully reversible. B: impose provider configuration on the generic text planner; broader effort and risk because standalone caption authoring can legitimately precede image setup. No new settings framework.
+**Files:** `components/chapter/IllustrationRouteDialog.tsx:106` and its existing test file. The actual validator is used in tests; discovery remains mocked.
+**[DEBT]:** `tests/store/slices/illustration-marker-insertion.test.ts` copies its subject instead of importing production behavior. Record TEST-01 for deletion/replacement with real store tests; do not extend the copied algorithm.
+
+**Submission correction verified:** All three regression cases pass; configured offline saved models and cloud overrides remain usable. Node 24.19.0 focused provider/dialog/settings gate passes 43 tests; TypeScript passes; changed-file lint has zero errors and one existing warning. Build/security CI and exact-head review follow publication.
+
+### [2026-09-05 14:34 MUT] [Agent: Codex]
+**Status:** Refreshing #173 against reviewed privacy parent `42732be`; GitHub reported conflicts.
+**Options:** A (selected): history-preserving parent merge, retaining both append-only pickup queues and debt receipts. Small effort/time, low risk, reversible; confidence 0.99. B: leave the reviewed branch conflicted until a later merge; less immediate work but incomplete integration.
+**Files/conflicts:** `Issues.md:151` and `docs/roadmaps/TECH-DEBT-INBOX.md:306` retained both sides. WORKLOG, FEAT-003 amendment and the already-reviewed illustration route guard merge automatically. Startup implementation is unchanged; focused combined checks and fresh CI/review follow. No main merge, deployment or benchmark claim changes.
