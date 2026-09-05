@@ -80,7 +80,8 @@ Windows junction, which is rejected as an untrusted mount in an SSH session.
 
 Set `LF_ST_ROOT`, `LF_PORTAL_VAULT_ROOT`, `LF_PORTAL_ST_PUBLIC_URL` and
 `LF_PORTAL_OWNER_LOGINS` in the runtime user's private environment before launching
-or registering tasks. The launchers reject missing configuration. The bridge root
+or registering tasks. The launchers reject missing configuration and retain the
+error in their log even when started by a headless scheduled task. The bridge root
 is resolved relative to its launcher. Existing deployed launchers are not modified
 by a source checkout; review configuration migration before deployment.
 
@@ -100,12 +101,18 @@ checking, CSRF protection, whitelist mode, and localhost binding must remain on.
 
 Run `cutover-portal.ps1 -SillyTavernRoot <directory>
 -OwnerLogin <owner-login> -AllowedDeviceIp <ip...>` first as a no-write preflight.
+The resolved directory must match `LF_ST_ROOT` in that runtime user's environment;
+missing or mismatched launcher configuration fails before hardening or task/route work.
 Re-run with `-Apply` only after it passes. The cutover removes the exact stale
 cleartext `:8000` route before starting SillyTavern, proves both localhost
 services ready, then adds HTTPS `:8444` for SillyTavern and HTTPS `:5001` for
 the bridge. It rejects Funnel and snapshots/comparisons every unrelated Serve
 route. On failure it disables both tasks and removes only newly added routes;
 it does not restore the cleartext route.
+
+Run `tests/windows/test-runtime-configuration.ps1` in a separate PowerShell process
+to check root matching and missing-variable logs using disposable launcher copies.
+The probe stops at a hardening sentinel; it does not start services or alter routes.
 
 The dependency overlay intentionally does not manufacture a zero audit. The
 2026-08-23 `npm audit --omit=dev` count moves from 44 to 43 findings by removing
