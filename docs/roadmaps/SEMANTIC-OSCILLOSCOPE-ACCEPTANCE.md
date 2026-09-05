@@ -26,6 +26,7 @@ Review follow-up `47f06c1` adds multi-book backup scoping and verified cached gr
 reopening; 68 focused tests pass. All five fresh CI jobs and Vercel pass on that
 source (run `33943265818`). Production offline flows pass on desktop Chromium,
 Pixel 7 Chromium emulation and iPhone 13 WebKit emulation. This is not a real scan or offline cold-launch test.
+Final records head `9d6021f` also passes all five CI jobs and Vercel (run `33945145999`).
 
 ## 2. Recover the backend implementation
 
@@ -34,7 +35,8 @@ Pixel 7 Chromium emulation and iPhone 13 WebKit emulation. This is not a real sc
 - [ ] Recover only missing implementation into focused replacement PRs.
 - [x] Verify cross-language corpus hashes, embedding model/dimension contracts,
       scoring, capability checks, and strict response validation.
-- [ ] Run focused backend and authorization tests; record exact reviewed heads.
+- [x] Run focused backend and authorization tests.
+- [ ] Independently review the final scoring correction and API heads.
 
 Local index recovery: `56087e8b`, branch `feat/codex-recover-semantic-index`.
 Local API recovery: `0399fc32`, branch `feat/codex-recover-semantic-api`.
@@ -43,11 +45,14 @@ independent tools-off MiMo review; its scoring correction and the API still need
 independent review. Automatic approval review rejected the follow-up packet;
 explicit task-wide review authorization is pending. No backend branch was pushed:
 GitHub reports `anantham/TemporalCoordination` archived and rejected push/PR creation.
-A writable publication target is required. Local patches: `/private/tmp/semantic-recovery/`.
+The backend's root `ISSUES.md` records a privacy incident freeze that also gates
+publication and runtime restart. No later release evidence was found; a different
+repository is not a workaround. Resolve the incident-release/publication gates
+before publishing recovery branches. Local patches: `/private/tmp/semantic-recovery/`.
 
 ## 3. Inspect and deploy on Asus
 
-- [ ] Inspect checkout SHA, dirty work, concurrent changes, services/listeners,
+- [x] Inspect checkout SHA, dirty work, concurrent changes, services/listeners,
       scheduled tasks, available embedding models, and existing indexes read-only.
 - [ ] Verify HTTPS, existing owner/Tailscale authorization, and exact-origin CORS
       for `https://read.adityaarpitha.com`; do not replace or relax access controls.
