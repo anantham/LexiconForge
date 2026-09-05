@@ -3751,3 +3751,5 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 ### [2026-09-05 12:50 MUT] [Agent: Codex]
 **Status:** Corrected QA-03 completion claim after independent review.
 **Files:** `Issues.md:186` now explicitly marks QA-03 partial. #176 implements runner/setup improvements; a scrubbed representative novel, fresh/warm cases through the session harness, and exact fixture/revision receipts still need execution. Three synthetic route checks do not close those acceptance criteria. No runtime code changed.
+
+**QA-03 review correction:** `docs/infrastructure/E2E-TESTING.md:49` now uses the current worktree's ignored `dist/`, not one shared temporary output path. Concurrent branches need distinct worktrees/output and strict preview ports; do not rebuild a worktree during its test run. This prevents one branch replacing another preview's files. Documentation-only correction; the earlier actual probes already used separate output directories.

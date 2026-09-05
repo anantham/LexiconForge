@@ -46,12 +46,16 @@ installation. Git LFS needs writable repository metadata even for some status/di
 operations; preserve media and fix access instead of disabling tracked-file checks.
 
 The default command owns a strict-port dev server and refuses to reuse an existing
-listener. To check a production build, start its preview explicitly in one terminal:
+listener. From the worktree root, build into its own ignored `dist/` directory and
+start that preview explicitly in one terminal:
 
 ```bash
-node node_modules/vite/bin/vite.js build --outDir /tmp/lf-qa-dist
-node node_modules/vite/bin/vite.js preview --outDir /tmp/lf-qa-dist --host 127.0.0.1 --port 5192 --strictPort
+node node_modules/vite/bin/vite.js build
+node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 5192 --strictPort
 ```
+
+Use a distinct port for each concurrent preview. Do not rebuild the same worktree
+while its tests are running; another branch must use its own worktree and output.
 
 In another terminal, target that preview without starting a dev server:
 
