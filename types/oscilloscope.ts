@@ -79,6 +79,7 @@ export interface OscilloscopeState {
   // Data loading
   isLoaded: boolean;
   totalChapters: number;
+  corpusIdentity: SemanticCorpusIdentity | null;
 }
 
 export interface OscilloscopeActions {
@@ -100,10 +101,10 @@ export interface OscilloscopeActions {
     totalChapters: number
   ) => void;
   addThread: (thread: ThreadData) => void;
-  computeKeywordThread: (
-    keyword: string,
-    searchFn: (query: string) => Promise<Array<{ chapter_number: string; count?: number }>>
-  ) => Promise<string>;
+  addSemanticThread: (query: string, result: SemanticScanResult) => string;
+  initializeOscilloscope: (corpus: SemanticCorpusIdentity) => void;
+  loadSessionOscilloscope: (data: SessionOscilloscopeData) => void;
+  resetOscilloscope: () => void;
 }
 
 export interface SemanticScanResult {

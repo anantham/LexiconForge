@@ -15,7 +15,6 @@ vi.mock('../../services/openrouterImageModelAdapter', () => ({
 }));
 
 vi.mock('../../services/providers/indrasNetImageProvider', () => ({
-  DEFAULT_INDRASNET_BASE_URL: 'https://asus.test',
   fetchIndrasNetWorkflows: (...args: unknown[]) => workflowsMock(...args),
   imageModelFromWorkflowName: (name: string) => `indrasnet/${encodeURIComponent(name)}`,
 }));
@@ -69,12 +68,13 @@ describe('IllustrationRouteDialog', () => {
     });
     expect(settings.imageModel).toBe('imagen-3.0-generate-002');
     expect(settings.openRouterImageEndpoint).toBe('auto');
+    expect(workflowsMock).not.toHaveBeenCalled();
   });
 
   it('keeps saved models usable when both catalogues are down', async () => {
     imageModelsMock.mockRejectedValue(new Error('offline'));
     workflowsMock.mockRejectedValue(new Error('offline'));
-    const settings = createMockAppSettings({ imageModel: 'indrasnet/gen_anime' });
+    const settings = createMockAppSettings({ imageModel: 'indrasnet/gen_anime', indrasNetBaseUrl: 'https://broker.example.com' });
 
     render(
       <IllustrationRouteDialog

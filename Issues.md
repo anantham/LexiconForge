@@ -140,6 +140,14 @@ If you want, I can turn this into a concrete investigation plan with expected me
 
 17) 
 
+18) Public configuration boundary: require local broker settings and keep operator records private.
+
+Current cleanup removes built-in endpoints, personal deployment defaults and operational
+records. Existing saved settings continue to work. The client artifact scan rejects
+embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
+Historical refs/caches are a separate assessment; do not claim deletion from history
+or copy private audit findings into this issue. Cleanup is in [PR #174](https://github.com/anantham/LexiconForge/pull/174); merge/deployment evidence is pending.
+
 ## Agent pickup queue — 2026-09-05 latency and complexity pass
 
 These are scoped follow-ups, not permission for a repository-wide rewrite. Claim a ticket with an agent/branch before changing its files. Preserve the historical observations above. Raw debt receipt: [TECH-DEBT-INBOX](docs/roadmaps/TECH-DEBT-INBOX.md#2026-09-05-latency-pass). Start with deletion, then simplify; require measured evidence for performance claims.
