@@ -138,13 +138,13 @@ If you want, I can turn this into a concrete investigation plan with expected me
 
 16) changing versions means comments should go away and then come back, its tied to that version! and the floating comment icons also have vanished with version switch!
 
-17) Semantic oscilloscope: repair #160, recover backend, verify Asus and complete live/offline acceptance.
+17) Semantic oscilloscope: repair #160, recover backend, verify private service and complete live/offline acceptance.
 
 The durable checklist is [SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md](docs/roadmaps/SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md).
 Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion open until independently evidenced.
 
 
 Semantic delivery status (2026-09-05): #160 source is repaired with fresh green CI;
-backend recovery is committed locally, but TemporalCoordination is archived/read-only.
+backend recovery is committed locally; publication and live acceptance remain pending.
 Pick up the writable-repository, independent-review, browser/CSRF, deployment and
 real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
