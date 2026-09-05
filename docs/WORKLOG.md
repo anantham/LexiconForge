@@ -3726,3 +3726,13 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Merge:** Three documentation-only conflicts preserve both the public-boundary receipts and the latency pickup queue. Production source merges automatically; main remains `655af01`.
 **Predictions:** Route isolation and download recovery remain valid after the merge; no private host appears in production output. The existing unused app-shell selectors should add store work without affecting rendered output. Confidence 0.96; measure before claiming a speedup.
 **Next files:** `App.tsx` and its existing unit/browser tests for review; `MainApp.tsx` for a separate deletion-only ticket; `playwright.config.ts` and existing QA instructions for a separate setup ticket. Keep semantic live acceptance, physical device checks and merge/deployment decisions open.
+
+### [2026-09-05] [Agent: Codex]
+**Status:** Starting LAT-02 in `perf/codex-reader-latency`, based on refreshed startup source `0d5f5ce`.
+**Files:** `MainApp.tsx` and existing app-shell/browser tests; Issues and this log.
+**Hypothesis/prediction:** Two unused derived selectors perform two chapter lookups on every irrelevant store update; unused scalar subscriptions can also cause unnecessary shell renders. Removing those subscriptions, unused imports/ref/memo and abandoned comments should reduce work without changing initialization, preloading or job warnings. Confidence 0.99 for dead code; navigation timing benefit is unmeasured.
+**Validation plan:** Compare production UI navigation and getter calls with synthetic persisted chapters and controlled network; run existing app-screen/mediator/image lifecycle tests. No new test that merely counts source hooks. Fallback: revert this isolated deletion commit.
+
+**LAT-02 result:** `MainApp.tsx:26-108` deletes nine unused subscriptions, the dead memo/ref, old selector logging and the test-only no-op fallback; 282 → 199 lines. `tests/store/appScreen.integration.test.tsx:36,80` supplies the real resume action in its existing fixture. No new runtime wrapper/cache or mirrored unit test.
+**Evidence:** 46 focused tests, TypeScript, build and scoped lint pass; six production browser contexts preserve chapter/version navigation and background-work warnings. Unrelated store updates cause 2,000 → 0 chapter lookups. Small synthetic chapter timing median 252 → 222ms; this is not a real-device claim. Reproduction/coverage/complexity limits: `issues/09-chapter-change-perf-logging/2026-09-05-app-shell.md` and its local probe.
+**Setup friction:** This existing worktree had no dependencies; matching lockfile hashes allowed reuse of the existing installation without changing packages.
