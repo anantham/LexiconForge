@@ -3533,6 +3533,13 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Tests:** Seven focused contract tests pass; TypeScript, focused ESLint error gate, and `git diff --check` pass.
 **Assumptions/confidence/fallback:** Unknown fields are intentionally discarded rather than round-tripped. Confidence 0.98. Revert this isolated follow-up commit if rereview rejects the stricter v1.0 parser.
 
+### [2026-08-24 11:12 IST] [Agent: Codex]
+**Status:** PR #159 Codex review finding corrected; rereview pending
+**Finding confirmed:** Browser URL parsing reports IPv6 loopback as `[::1]`, while the HTTP loopback allowlist contained only `::1`.
+**Files modified:** `services/semanticOscilloscopeClient.ts` and its focused test.
+**Correction/tests:** Bracketed IPv6 loopback is accepted without widening remote cleartext HTTP. Client tests pass 3/3; TypeScript, focused ESLint error gate, and `git diff --check` pass.
+**Assumptions/confidence/fallback:** Browser-standard bracketed hostname behavior is pinned. Confidence 0.99. Revert this isolated follow-up commit if a target browser demonstrates different URL normalization.
+
 
 ### [2026-08-23 17:15 IST] [Agent: Codex]
 **Status:** Source implementation complete; local commit pending final review; live Asus deployment intentionally not attempted
@@ -3700,3 +3707,17 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Scope boundary:** The parallel pre-existing null compound-key path in `findBySourceUrl` will be recorded as debt rather than changed in this four-finding follow-up. `NovelLibrary.tsx` is a multi-concern 727-line hotspot; Option 1 intentionally avoids a controller extraction and records the hotspot for later decomposition.
 **Fallback:** Revert the follow-up commit. The published base commits and PRs remain available without history rewriting.
 **Confidence:** 0.98
+
+### [2026-09-04 21:53 MUT] [Agent: Codex]
+**Status:** Starting approved PR #159 fail-closed review corrections
+**Task:** Correct stale capability readiness after endpoint changes, surface capability failure reasons, and enforce the portable 500-thread ceiling before store mutation.
+**Worktree:** `/private/tmp/lf-pr159-fix.IWzNZ3`
+**Branch:** `feat/codex-oscilloscope-private-client`
+**Hypotheses:** H1 (0.99) endpoint identity is absent from the capability cache key, so a new client temporarily inherits the old endpoint's ready state. H2 (0.99) the hook retains a descriptive failure reason that the selector replaces with generic text. H3 (0.99) the store does not consult #158's serialization ceiling before adding a new unique track.
+**Predicted tests:** Changing from a ready endpoint to a pending endpoint immediately hides compute; a wrong-corpus response renders its exact diagnostic; a valid 500-track state rejects a new unique track without mutation while replacement remains allowed.
+**Files likely affected:** `hooks/useSemanticOscilloscopeCapability.ts`; `components/oscilloscope/ThreadSelector.tsx`; `store/slices/oscilloscopeSlice.ts`; `services/semanticOscilloscopeSession.ts`; three focused test files; this worklog.
+**Fallback:** Revert the isolated follow-up commit; the published restack commit remains intact.
+**Confidence:** 0.99
+**Results:** H1-H3 confirmed by three deterministic red tests and corrected without widening the endpoint, data, or session boundary. Normalized endpoint identity now participates in readiness; the selector renders the hook's existing diagnostic; and the store rejects only a new unique track at the shared 500-thread ceiling while allowing replacement.
+**Verification:** Red gate failed 3/3 for the predicted causes. Final pinned Node 24.19.0 focused oscilloscope gate passes 22/22 across four files; TypeScript and repository integrity pass; focused ESLint exits with zero errors and the pre-existing session-parser caught-error warning. The 500-track test also proves the retained state remains serializable.
+**Publication state:** Local follow-up complete at 2026-09-04 21:58 MUT; commit, push, PR-thread resolution, and exact-head CI verification pending.
