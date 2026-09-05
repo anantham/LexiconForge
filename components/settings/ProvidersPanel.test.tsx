@@ -209,6 +209,11 @@ describe('ProvidersPanel', () => {
       expect(screen.getByText(/Your API keys are stored locally/)).toBeInTheDocument();
     });
 
+    it('keeps the IndrasNet broker endpoint out of provider credentials', () => {
+      render(<ProvidersPanel isOpen={true} />);
+      expect(screen.queryByLabelText('Tailnet broker endpoint')).not.toBeInTheDocument();
+    });
+
     it('renders source and target language as read-only text', () => {
       render(<ProvidersPanel isOpen={true} />);
       expect(screen.getByText('Source Language')).toBeInTheDocument();

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { createSessionOscilloscope } from '../../services/semanticOscilloscopeSession';
 import { useAppStore } from '../../store';
-import type { SemanticCorpusIdentity, SemanticScanResult } from '../../types/oscilloscope';
+import type { SemanticCorpusIdentity, SemanticScanResult, ThreadData } from '../../types/oscilloscope';
 
 const corpus: SemanticCorpusIdentity = {
   corpusId: 'book-a',
@@ -57,5 +58,32 @@ describe('semantic oscilloscope store', () => {
     })).toThrow(/non-finite or out-of-range/);
 
     expect(useAppStore.getState().threads.size).toBe(0);
+  });
+
+  it('rejects a new semantic track at the portable ceiling but allows replacement', () => {
+    useAppStore.getState().initializeOscilloscope(corpus);
+    const threads = new Map<string, ThreadData>();
+    for (let index = 0; index < 500; index += 1) {
+      const threadId = index === 0 ? 'custom:semantic:romantic trust' : `custom:${index}`;
+      threads.set(threadId, {
+        threadId,
+        category: 'custom',
+        label: `track ${index}`,
+        color: '#ec4899',
+        values: [0.2, 0.4],
+        totalChapters: 2,
+      });
+    }
+    useAppStore.setState({ threads });
+
+    expect(() => useAppStore.getState().addSemanticThread('new concept', {
+      ...result,
+      query: 'new concept',
+    })).toThrow(/at most 500/);
+    expect(useAppStore.getState().threads.size).toBe(500);
+    expect(() => createSessionOscilloscope(corpus, useAppStore.getState().threads, new Set())).not.toThrow();
+
+    expect(() => useAppStore.getState().addSemanticThread('romantic trust', result)).not.toThrow();
+    expect(useAppStore.getState().threads.size).toBe(500);
   });
 });

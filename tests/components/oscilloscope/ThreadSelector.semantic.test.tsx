@@ -56,6 +56,67 @@ describe('ThreadSelector private semantic scan gate', () => {
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 
+  it('surfaces the exact reason a capability check fails closed', async () => {
+    useAppStore.getState().initializeOscilloscope(corpus);
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({
+      ok: true,
+      protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
+      ready: true,
+      reason: 'ready',
+      corpus: { ...corpus, versionId: 'wrong-version' },
+      vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1',
+      dimensions: 512,
+      embeddingModel: 'qwen3-embedding:8b',
+      index: { ready: true, vectorCount: 2, createdAt: null },
+    })));
+    render(<ThreadSelector isOpen onClose={() => undefined} />);
+
+    expect(await screen.findByText(/returned data for a different corpus/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Custom' })).not.toBeInTheDocument();
+  });
+
+  it('invalidates readiness immediately when the configured endpoint changes', async () => {
+    useAppStore.getState().initializeOscilloscope(corpus);
+    let releaseSecond: (() => void) | undefined;
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).startsWith('https://asus.example.ts.net/')) {
+        return jsonResponse({
+          ok: true,
+          protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
+          ready: true,
+          reason: 'ready',
+          corpus,
+          vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1',
+          dimensions: 512,
+          embeddingModel: 'qwen3-embedding:8b',
+          index: { ready: true, vectorCount: 2, createdAt: null },
+        });
+      }
+      await new Promise<void>((resolve) => { releaseSecond = resolve; });
+      return jsonResponse({
+        ok: true,
+        protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
+        ready: true,
+        reason: 'ready',
+        corpus,
+        vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1',
+        dimensions: 512,
+        embeddingModel: 'qwen3-embedding:8b',
+        index: { ready: true, vectorCount: 2, createdAt: null },
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    render(<ThreadSelector isOpen onClose={() => undefined} />);
+    expect(await screen.findByRole('button', { name: 'Custom' })).toBeInTheDocument();
+
+    useAppStore.setState((state) => ({
+      settings: { ...state.settings, indrasNetBaseUrl: 'https://replacement.example.ts.net' },
+    }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(screen.queryByRole('button', { name: 'Custom' })).not.toBeInTheDocument();
+    releaseSecond?.();
+  });
+
   it('submits a semantic query only after exact-corpus capability is ready', async () => {
     useAppStore.getState().initializeOscilloscope(corpus);
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {

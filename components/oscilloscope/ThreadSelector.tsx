@@ -191,7 +191,7 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
       {semantic.status !== 'ready' && (
         <div className="border-t border-gray-700 px-3 py-2 text-[11px] text-gray-500">
           Custom semantic scans are available only when the matching private corpus index is reachable.
-          {semantic.status === 'checking' ? ' Checking…' : ''}
+          {semantic.status === 'checking' ? ' Checking…' : ` ${semantic.reason}`}
         </div>
       )}
     </div>

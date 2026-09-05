@@ -135,6 +135,78 @@ describe('semantic oscilloscope session contract', () => {
     }, corpus)).toThrow(/outside its declared scoring range/);
   });
 
+  it('rejects missing, blank, or non-string scoring algorithms', async () => {
+    const corpus = await computeSemanticCorpusIdentity(session());
+    const portable = createSessionOscilloscope(corpus, new Map(), new Set());
+    const provenance = {
+      origin: 'private-semantic-scan',
+      query: 'trust',
+      generatedAt: '2026-08-24T00:00:00Z',
+      protocol: 'lexiconforge-semantic-oscilloscope-v1',
+      scoreSemantics: 'cosine-similarity-clipped-0-1',
+      vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1',
+      dimensions: 512,
+      scoring: { range: [0, 1] },
+      corpus,
+    };
+
+    for (const algorithm of [undefined, '', '   ', 42]) {
+      expect(() => parseSessionOscilloscope({
+        ...portable,
+        threads: [{
+          threadId: 'custom:trust',
+          category: 'custom',
+          label: 'trust',
+          color: '#ec4899',
+          values: [0.2, 0.4],
+          totalChapters: 2,
+          provenance: {
+            ...provenance,
+            scoring: { ...provenance.scoring, algorithm },
+          },
+        }],
+      }, corpus)).toThrow(/scoring algorithm/);
+    }
+  });
+
+  it('rejects duplicate thread definitions', async () => {
+    const corpus = await computeSemanticCorpusIdentity(session());
+    const portable = createSessionOscilloscope(corpus, new Map(), new Set());
+    const thread = {
+      threadId: 'tone:romance',
+      category: 'tone',
+      label: 'romance',
+      color: '#ef4444',
+      values: [0.2, 0.4],
+      totalChapters: 2,
+    };
+
+    expect(() => parseSessionOscilloscope({
+      ...portable,
+      threads: [thread, { ...thread, values: [0.8, 0.9] }],
+      activeThreadIds: ['tone:romance'],
+    }, corpus)).toThrow(/thread IDs must be unique/);
+  });
+
+  it('refuses to serialize more threads than the parser accepts', async () => {
+    const corpus = await computeSemanticCorpusIdentity(session());
+    const threads = new Map<string, ThreadData>();
+    for (let index = 0; index <= 500; index += 1) {
+      const threadId = `custom:${index}`;
+      threads.set(threadId, {
+        threadId,
+        category: 'custom',
+        label: `thread ${index}`,
+        color: '#ec4899',
+        values: [0.2, 0.4],
+        totalChapters: 2,
+      });
+    }
+
+    expect(() => createSessionOscilloscope(corpus, threads, new Set()))
+      .toThrow(/cannot serialize more than 500/);
+  });
+
   it('rejects malformed, stale, and duplicate active thread identifiers', async () => {
     const corpus = await computeSemanticCorpusIdentity(session());
     const thread: ThreadData = {

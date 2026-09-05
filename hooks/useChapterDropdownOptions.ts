@@ -97,6 +97,9 @@ export interface ChapterDropdownOption extends ChapterSummary {
   displayLabel: string;
   // Display number for sorting
   displayNumber: number | null;
+  // Virtual registry rows stay visible for orientation, but are not actionable
+  // until an imported chapter summary or in-memory chapter replaces them.
+  availability: 'ready' | 'not-cached';
 }
 
 export interface UseChapterDropdownOptionsResult {
@@ -288,10 +291,12 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
         }
 
         // 4. Convert to array and compute display values
-        const list = Array.from(byId.values()).map((summary): ChapterDropdownOption => {
+        const mappedList = Array.from(byId.values()).map((summary): ChapterDropdownOption => {
           const titleNum = numberFromTitle(summary.translatedTitle);
           const dbNum = summary.chapterNumber as number | undefined;
-          const displayNumber = titleNum ?? dbNum ?? null;
+          // Persisted chapter identity wins. Title inference is only a legacy
+          // fallback for summaries that genuinely lack chapterNumber.
+          const displayNumber = dbNum ?? titleNum ?? null;
 
           const title = summary.translatedTitle || summary.title || 'Untitled Chapter';
           const displayLabel = buildChapterDisplayLabel(title, displayNumber);
@@ -300,8 +305,32 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
             ...summary,
             displayLabel,
             displayNumber,
+            availability: isVirtualStableId(summary.stableId) ? 'not-cached' : 'ready',
           };
         });
+
+        // Older packaged summaries can omit chapterNumber even though their
+        // title and stable id identify the chapter. Dedupe once more on the
+        // number the user actually sees so a ready "Chapter 42" never sits
+        // beside a disabled virtual "Chapter 42" placeholder.
+        const readyDisplayNumbers = new Set(
+          mappedList
+            .filter((entry) => entry.availability === 'ready' && entry.displayNumber !== null)
+            .map((entry) => entry.displayNumber as number)
+        );
+        const list = mappedList.filter((entry) =>
+          !(
+            entry.availability === 'not-cached' &&
+            entry.displayNumber !== null &&
+            readyDisplayNumbers.has(entry.displayNumber)
+          )
+        );
+        const droppedDisplayVirtuals = mappedList.length - list.length;
+        if (droppedDisplayVirtuals > 0) {
+          debugLog('ui', 'full', '[Dropdown] dedupe dropped display-number placeholders', {
+            droppedDisplayVirtuals,
+          });
+        }
 
         // 5. Sort by display number, then by title
         list.sort((a, b) => {

@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { SemanticOscilloscopeClient } from '../services/semanticOscilloscopeClient';
+import {
+  normalizeSemanticBaseUrl,
+  SemanticOscilloscopeClient,
+} from '../services/semanticOscilloscopeClient';
 import type { SemanticCapability } from '../services/semanticOscilloscopeClient';
 import type { SemanticCorpusIdentity, SemanticScanResult } from '../types/oscilloscope';
 
@@ -24,17 +27,22 @@ export const useSemanticOscilloscopeCapability = (
     capability: null,
   });
 
-  const client = useMemo(() => {
+  const endpoint = useMemo(() => {
     if (!baseUrl) return null;
     try {
-      return new SemanticOscilloscopeClient(baseUrl);
+      const normalizedBaseUrl = normalizeSemanticBaseUrl(baseUrl);
+      return {
+        key: normalizedBaseUrl,
+        client: new SemanticOscilloscopeClient(normalizedBaseUrl),
+      };
     } catch {
       return null;
     }
   }, [baseUrl]);
+  const client = endpoint?.client ?? null;
 
-  const capabilityKey = client && corpus
-    ? `${corpus.corpusId}\0${corpus.versionId}\0${corpus.contentHash}\0${corpus.chapterCount}\0${refreshToken}`
+  const capabilityKey = endpoint && corpus
+    ? `${endpoint.key}\0${corpus.corpusId}\0${corpus.versionId}\0${corpus.contentHash}\0${corpus.chapterCount}\0${refreshToken}`
     : null;
 
   useEffect(() => {

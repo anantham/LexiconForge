@@ -22,7 +22,7 @@ import {
 import { useAppStore } from '../../store';
 import { TranslationEngineSection } from './TranslationEngineSection';
 import { ApiKeysSection } from './ApiKeysSection';
-import { IndrasNetImageProviderSection } from './IndrasNetImageProviderSection';
+import { IndrasNetImageFallbackSection } from './IndrasNetImageProviderSection';
 import {
   DEFAULT_INDRASNET_BASE_URL,
   fetchIndrasNetWorkflows,
@@ -75,9 +75,6 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
   const [structuredOutputSupport, setStructuredOutputSupport] = useState<Record<string, boolean | null>>({});
   const [dynamicImageModels, setDynamicImageModels] = useState<OpenRouterImageModelProfile[]>([]);
   const [indrasNetWorkflows, setIndrasNetWorkflows] = useState<IndrasNetWorkflowProfile[]>([]);
-  const [indrasNetLoading, setIndrasNetLoading] = useState(false);
-  const [indrasNetError, setIndrasNetError] = useState<string | null>(null);
-  const [indrasNetRefresh, setIndrasNetRefresh] = useState(0);
   const [novelSpent, setNovelSpent] = useState<number | null>(null);
 
   // Fetch spent amount when in budget mode
@@ -170,8 +167,6 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
     if (!isOpen) return;
     let cancelled = false;
     const endpoint = currentSettings.indrasNetBaseUrl?.trim() || DEFAULT_INDRASNET_BASE_URL;
-    setIndrasNetLoading(true);
-    setIndrasNetError(null);
     setIndrasNetWorkflows([]);
     const timer = setTimeout(() => {
       fetchIndrasNetWorkflows(endpoint, { force: true })
@@ -181,18 +176,14 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         .catch(error => {
           if (cancelled) return;
           console.error('[ProvidersPanel] Failed to discover IndrasNet workflows:', error);
-          setIndrasNetError(error instanceof Error ? error.message : 'Unknown discovery error');
           setIndrasNetWorkflows([]);
-        })
-        .finally(() => {
-          if (!cancelled) setIndrasNetLoading(false);
         });
     }, 300);
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [isOpen, currentSettings.indrasNetBaseUrl, indrasNetRefresh]);
+  }, [isOpen, currentSettings.indrasNetBaseUrl]);
 
   // Load OpenRouter catalogue and credits when provider is OpenRouter
   useEffect(() => {
@@ -543,17 +534,11 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         onPreloadBudgetChange={(v) => handleSettingChange('preloadBudget' as any, v)}
       />
 
-      <IndrasNetImageProviderSection
-        endpoint={currentSettings.indrasNetBaseUrl || ''}
+      <IndrasNetImageFallbackSection
         selectedImageModel={currentSettings.imageModel}
         fallbackModel={currentSettings.imageFallbackModel || 'none'}
         fallbackModels={fallbackImageModels}
-        loading={indrasNetLoading}
-        error={indrasNetError}
-        workflowCount={indrasNetWorkflows.length}
-        onEndpointChange={(value) => handleSettingChange('indrasNetBaseUrl', value)}
         onFallbackModelChange={(value) => handleSettingChange('imageFallbackModel', value)}
-        onRefresh={() => setIndrasNetRefresh(value => value + 1)}
       />
 
       <ApiKeysSection

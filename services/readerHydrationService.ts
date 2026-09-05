@@ -6,10 +6,19 @@ import {
 import { normalizeUrlAggressively, buildEnhancedChapter, type EnhancedChapter } from './stableIdService';
 import type { StoreState } from '../store/storeTypes';
 import type { TranslationResult } from '../types';
+import { selectLatestChapterRevision } from './chapterRevisionService';
 
 export interface ReaderHydrationOptions {
   limit?: number;
   versionId?: string | null;
+}
+
+export interface NovelCacheHydrationResult {
+  firstChapterId: string | null;
+  /** Distinct positive chapter-number count before an optional in-memory hydration limit. */
+  chapterCount: number;
+  /** Sorted positive chapter numbers available in this scoped cache. */
+  chapterNumbers: number[];
 }
 
 type ReaderHydrationPatch = Pick<StoreState, 'chapters' | 'urlIndex' | 'rawUrlIndex'>;
@@ -87,7 +96,22 @@ const buildHydratedState = (
   rawUrlIndex: Map<string, string>;
   firstChapterId: string | null;
 } => {
-  const sortedRecords = [...renderingRecords].sort(sortByChapterNumber);
+  const scopedNumbered = new Map<string, ChapterRenderingRecord[]>();
+  const ungrouped: ChapterRenderingRecord[] = [];
+  for (const record of renderingRecords) {
+    if (record.novelId && Number.isSafeInteger(record.chapterNumber) && record.chapterNumber > 0) {
+      const key = `${record.novelId}::${record.libraryVersionId ?? 'null'}::${record.chapterNumber}`;
+      const candidates = scopedNumbered.get(key) ?? [];
+      candidates.push(record);
+      scopedNumbered.set(key, candidates);
+    } else {
+      ungrouped.push(record);
+    }
+  }
+  const authoritativeRecords = Array.from(scopedNumbered.values())
+    .map((candidates) => selectLatestChapterRevision(candidates))
+    .filter((record): record is ChapterRenderingRecord => record !== null);
+  const sortedRecords = ungrouped.concat(authoritativeRecords).sort(sortByChapterNumber);
   const limitedRecords =
     typeof options.limit === 'number' ? sortedRecords.slice(0, options.limit) : sortedRecords;
 
@@ -133,17 +157,52 @@ const hydrateIntoStore = (
   return hydratedState.firstChapterId;
 };
 
+const collectDistinctChapterNumbers = (
+  chapters: ChapterRenderingRecord[]
+): number[] => {
+  const chapterNumbers = new Set<number>();
+  for (const chapter of chapters) {
+    const chapterNumber = chapter.chapterNumber;
+    if (Number.isSafeInteger(chapterNumber) && chapterNumber > 0) {
+      chapterNumbers.add(chapterNumber);
+    }
+  }
+  return Array.from(chapterNumbers).sort((a, b) => a - b);
+};
+
 export async function loadNovelIntoStore(
   novelId: string,
   setState: ReaderHydrationSetter,
   options: ReaderHydrationOptions = {}
 ): Promise<string | null> {
+  const result = await loadNovelCacheIntoStore(novelId, setState, options);
+  return result.firstChapterId;
+}
+
+/**
+ * Hydrate a scoped novel cache and report how many distinct positive chapter
+ * numbers exist. Legacy numberless rows remain readable but cannot prove that
+ * a packaged session is complete.
+ * A caller deciding whether a packaged session is complete must not infer that
+ * from a truthy first chapter id.
+ */
+export async function loadNovelCacheIntoStore(
+  novelId: string,
+  setState: ReaderHydrationSetter,
+  options: ReaderHydrationOptions = {}
+): Promise<NovelCacheHydrationResult> {
   const chapters = await fetchChaptersForNovel(novelId, options.versionId ?? null);
   if (chapters.length === 0) {
-    return null;
+    return { firstChapterId: null, chapterCount: 0, chapterNumbers: [] };
   }
 
-  return hydrateIntoStore(chapters, setState, options);
+  const chapterNumbers = collectDistinctChapterNumbers(chapters);
+
+  return {
+    firstChapterId: hydrateIntoStore(chapters, setState, options),
+    chapterCount: chapterNumbers.length,
+    chapterNumbers,
+  };
 }
 
 export async function loadAllIntoStore(
