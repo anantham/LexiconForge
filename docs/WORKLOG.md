@@ -3776,3 +3776,15 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **[DEBT]:** Issues.md 19 and the debt inbox record remaining serializer duplication, general export/stat scope and chapter mutation bypasses; chapter/export hotspots updated. FEAT-006 remains Accepted. No backend publication, merge or deployment.
 
 **Final local acceptance:** iPhone 13 WebKit emulation passes using the matching existing browser installation; desktop Chromium and Pixel 7 Chromium passed separately. Offline scalar chart and controls inspected visually. Client artifact privacy scan, repository integrity and extension checks pass. Physical mobile behavior, cold offline app launch and a real novel scan remain unverified. Current typecheck passes; production code is unchanged by the final documentation updates.
+
+### [2026-09-05] [Agent: Codex]
+**Status:** Addressing current-head Codex findings on #174.
+**Findings/predictions:** Two independently configured installation roots could diverge; canonical path comparison must reject missing/mismatched launcher configuration before hardening or route/task work. Required-variable failures happened before log redirection; moving the same guards into the existing logged entrypoint must retain errors for headless task diagnosis while still stopping before service startup. Confidence 0.97.
+**Files:** Windows cutover and both CMD launchers; native Windows regression probe; deployment README; this log. Existing authorization and loopback controls remain. No runtime cutover. Fallback: isolated corrective commit revert; no history rewrite.
+
+**Results:** Native Windows probe passes all three cutover root cases (missing, mismatched, normalized match) and all four missing-variable log cases. Its disposable hardening sentinel prevents task/service/route work. The initial stdin transport stalled; a temporary script-file transport completed and cleaned up. Bridge Python 3.12.13 suite passes 31 tests (one dependency deprecation warning).
+**Changed locations:** `deploy/windows/cutover-portal.ps1:124`, `start-bridge.cmd:22`, `start-sillytavern.cmd:14` under the bridge; `tests/windows/test-runtime-configuration.ps1:1`; bridge `README.md:81`. Runtime environment/task identity and actual process provenance remain deployment acceptance checks. No deployment performed.
+
+### [2026-09-05 12:50 MUT] [Agent: Codex]
+**Status:** Reconciled PR #174's second Codex review finding.
+**Files/lines:** `docs/adr/FEAT-003-image-service-architecture.md:336` explicitly supersedes the deployment-specific wrong-service/default-endpoint claims using the approved SEC-001 public configuration boundary. Saved settings remain untouched; a configured wrong service receives protocol/network diagnostics. No runtime code changed; prior native Windows and provider tests remain applicable.
