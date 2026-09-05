@@ -6,7 +6,7 @@
  * and expand/collapse toggle.
  */
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useAppStore } from '../../store';
 import OscilloscopeGraph from './OscilloscopeGraph';
 import ThreadLegend from './ThreadLegend';
@@ -121,26 +121,22 @@ const OscilloscopePanel: React.FC = () => {
   const isExpanded = useAppStore((s) => s.isExpanded);
   const setExpanded = useAppStore((s) => s.setExpanded);
   const activeNovelId = useAppStore((s) => s.activeNovelId);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const loadingRef = useRef(false);
+  const activeVersionId = useAppStore((s) => s.activeVersionId);
 
-  // Auto-load oscilloscope data from public directory
   useEffect(() => {
-    if (isLoaded || loadingRef.current || activeNovelId !== 'forty-millenniums-of-cultivation') return;
-    loadingRef.current = true;
+    if (isLoaded || activeNovelId !== 'forty-millenniums-of-cultivation') return;
+    const controller = new AbortController();
     loadOscilloscopeData(
       '/oscilloscope-data/_all_meta.json',
       '/oscilloscope-data/_character_threads.json',
       3457,
-    )
-      .then(() => { loadingRef.current = false; })
-      .catch((err) => {
-        setLoadError(err?.message || 'Failed to load oscilloscope data');
-        loadingRef.current = false;
-      });
-  }, [activeNovelId, isLoaded]);
+      controller.signal,
+    ).catch((error) => {
+      if (!controller.signal.aborted) console.warn('[Oscilloscope] Legacy graph unavailable:', error);
+    });
+    return () => controller.abort();
+  }, [activeNovelId, activeVersionId, isLoaded]);
 
-  if (loadError) return null; // silently hide if no data available
   if (!isLoaded) return null;
 
   return (

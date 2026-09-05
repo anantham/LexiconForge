@@ -1,12 +1,12 @@
 import type { SessionData } from '../types/session';
 import type {
   SemanticCorpusIdentity,
-  SessionOscilloscopeData,
   ThreadData,
 } from '../types/oscilloscope';
 import {
   computeSemanticCorpusIdentity,
   createSessionOscilloscope,
+  sameCorpus,
 } from './semanticOscilloscopeSession';
 
 export const attachOscilloscopeToSession = async (session: SessionData): Promise<SessionData> => {
@@ -22,41 +22,41 @@ export const attachOscilloscopeToSession = async (session: SessionData): Promise
       ? { ...session.version, versionId: corpusHint.versionId }
       : session.version,
   };
-  const corpus = await computeSemanticCorpusIdentity(portableSession);
-  let oscilloscope: SessionOscilloscopeData;
   try {
-    oscilloscope = createSessionOscilloscope(corpus, state.threads, state.activeThreadIds);
+    const corpus = await computeSemanticCorpusIdentity(portableSession);
+    if (!corpusHint || !sameCorpus(corpusHint, corpus)) return portableSession;
+    return {
+      ...portableSession,
+      oscilloscope: createSessionOscilloscope(corpus, state.threads, state.activeThreadIds),
+    };
   } catch (error) {
-    console.warn('[Export] Omitted stale oscilloscope tracks; corpus identity was refreshed:', error);
-    oscilloscope = createSessionOscilloscope(corpus, new Map(), new Set());
+    console.warn('[Export] Omitted unverifiable oscilloscope data; book export is preserved:', error);
+    return portableSession;
   }
-  return {
-    ...portableSession,
-    oscilloscope,
-  };
 };
 
 export const attachOscilloscopeToFullExport = async (
-  payload: { chapters?: unknown[]; oscilloscope?: SessionOscilloscopeData; [key: string]: unknown },
+  payload: { chapters?: unknown[]; oscilloscope?: SessionData['oscilloscope']; [key: string]: unknown },
   corpusHint: SemanticCorpusIdentity | null,
   threads: Map<string, ThreadData>,
   activeThreadIds: Set<string>,
 ): Promise<void> => {
+  delete payload.oscilloscope;
   if (!corpusHint || !Array.isArray(payload.chapters) || payload.chapters.length === 0) return;
-  const corpus = await computeSemanticCorpusIdentity({
-    novel: { id: corpusHint.corpusId, title: corpusHint.corpusId },
-    version: {
-      versionId: corpusHint.versionId,
-      displayName: corpusHint.versionId,
-      style: 'other',
-      features: [],
-    },
-    chapters: payload.chapters,
-  });
   try {
+    const corpus = await computeSemanticCorpusIdentity({
+      novel: { id: corpusHint.corpusId, title: corpusHint.corpusId },
+      version: {
+        versionId: corpusHint.versionId,
+        displayName: corpusHint.versionId,
+        style: 'other',
+        features: [],
+      },
+      chapters: payload.chapters,
+    });
+    if (!sameCorpus(corpusHint, corpus)) return;
     payload.oscilloscope = createSessionOscilloscope(corpus, threads, activeThreadIds);
   } catch (error) {
     console.warn('[Export] Omitted stale oscilloscope tracks from full export:', error);
-    payload.oscilloscope = createSessionOscilloscope(corpus, new Map(), new Set());
   }
 };

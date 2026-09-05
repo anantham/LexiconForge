@@ -138,4 +138,7 @@ If you want, I can turn this into a concrete investigation plan with expected me
 
 16) changing versions means comments should go away and then come back, its tied to that version! and the floating comment icons also have vanished with version switch!
 
-17) 
+17) Semantic oscilloscope: repair #160, recover backend, verify Asus and complete live/offline acceptance.
+
+The durable checklist is [SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md](docs/roadmaps/SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md).
+Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion open until independently evidenced.

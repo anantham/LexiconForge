@@ -12,8 +12,8 @@
 
 import { useAppStore } from '../../store';
 
-async function fetchJSON(url: string): Promise<Record<string, any>> {
-  const r = await fetch(url);
+async function fetchJSON(url: string, signal?: AbortSignal): Promise<Record<string, any>> {
+  const r = await fetch(url, { signal });
   if (!r.ok) throw new Error(`Failed to fetch ${url}: ${r.status}`);
   return r.json();
 }
@@ -22,22 +22,26 @@ export async function loadOscilloscopeData(
   metaJsonUrl: string,
   characterThreadsUrl: string,
   totalChapters: number,
+  signal?: AbortSignal,
 ): Promise<void> {
   const store = useAppStore.getState();
+  if (store.activeNovelId !== 'forty-millenniums-of-cultivation' || store.isLoaded) return;
   const basePath = metaJsonUrl.substring(0, metaJsonUrl.lastIndexOf('/'));
 
   // Fetch all data files in parallel
-  const [metaResp, charResp, locResp, facResp, entResp, toneResp] = await Promise.all([
-    fetchJSON(metaJsonUrl),
-    fetchJSON(characterThreadsUrl),
-    fetchJSON(`${basePath}/_location_threads.json`).catch(() => ({})),
-    fetchJSON(`${basePath}/_faction_threads.json`).catch(() => ({})),
-    fetchJSON(`${basePath}/_entity_threads.json`).catch(() => ({})),
-    fetchJSON(`${basePath}/_tone_threads.json`).catch(() => ({})),
+  const [metaResp, charResp, locResp, facResp, entResp, toneResp, titlesResp] = await Promise.all([
+    fetchJSON(metaJsonUrl, signal),
+    fetchJSON(characterThreadsUrl, signal),
+    fetchJSON(`${basePath}/_location_threads.json`, signal).catch(() => ({})),
+    fetchJSON(`${basePath}/_faction_threads.json`, signal).catch(() => ({})),
+    fetchJSON(`${basePath}/_entity_threads.json`, signal).catch(() => ({})),
+    fetchJSON(`${basePath}/_tone_threads.json`, signal).catch(() => ({})),
+    fetchJSON(`${basePath}/_chapter_titles.json`, signal).catch(() => ({})),
   ]);
 
-  // Load chapter titles for tooltip display
-  const titlesResp = await fetchJSON(`${basePath}/_chapter_titles.json`).catch(() => ({}));
+  const current = useAppStore.getState();
+  if (signal?.aborted || current.activeNovelId !== store.activeNovelId
+    || current.activeVersionId !== store.activeVersionId || current.isLoaded) return;
 
   // Load base data (meta + characters)
   store.loadFromJSON(metaResp, charResp, totalChapters);

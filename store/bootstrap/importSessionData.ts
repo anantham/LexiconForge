@@ -85,37 +85,43 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
           };
         });
 
-        const directCorpusContract = obj?.novel?.id && obj?.version?.versionId && Array.isArray(obj?.chapters);
-        const portableCorpusHint = obj?.oscilloscope?.corpus;
-        const hintedCorpusContract = portableCorpusHint?.corpusId
-          && portableCorpusHint?.versionId
-          && Array.isArray(obj?.chapters);
-        if (directCorpusContract || hintedCorpusContract) {
-          const corpus = await computeSemanticCorpusIdentity(directCorpusContract ? obj : {
-            novel: { id: portableCorpusHint.corpusId },
-            version: { versionId: portableCorpusHint.versionId },
-            chapters: obj.chapters,
-          });
-          if (obj.oscilloscope) {
-            try {
+        const hydrated = ctx.get();
+        try {
+          const hint = obj?.oscilloscope?.corpus;
+          const corpusId = obj?.novelId ?? obj?.novel?.id ?? hint?.corpusId;
+          const versionId = obj?.libraryVersionId ?? obj?.version?.versionId ?? hint?.versionId;
+          if (corpusId && versionId && Array.isArray(obj?.chapters)) {
+            const chapters = Array.from(hydrated.chapters.values()).filter((chapter) =>
+              chapter.novelId === corpusId && chapter.libraryVersionId === versionId);
+            const corpus = await computeSemanticCorpusIdentity({
+              novel: { id: corpusId },
+              version: { versionId },
+              chapters,
+            } as any);
+            if (ctx.get().chapters !== hydrated.chapters
+              || ctx.get().activeNovelId !== hydrated.activeNovelId
+              || ctx.get().activeVersionId !== hydrated.activeVersionId) return;
+            if (obj.oscilloscope) {
               ctx.get().loadSessionOscilloscope(parseSessionOscilloscope(obj.oscilloscope, corpus));
-            } catch (error) {
-              console.error('[Store] Ignoring invalid session oscilloscope data:', error);
+            } else {
               ctx.get().initializeOscilloscope(corpus);
             }
+            if (typeof window !== 'undefined') {
+              (window as any).__oscilloscopeChapterTitles = Object.fromEntries(
+                obj.chapters.map((chapter: any, index: number) => [
+                  String(chapter.chapterNumber ?? index + 1),
+                  chapter.title || `Chapter ${index + 1}`,
+                ]),
+              );
+            }
           } else {
-            ctx.get().initializeOscilloscope(corpus);
+            ctx.get().resetOscilloscope();
           }
-          if (typeof window !== 'undefined') {
-            (window as any).__oscilloscopeChapterTitles = Object.fromEntries(
-              obj.chapters.map((chapter: any, index: number) => [
-                String(chapter.chapterNumber ?? index + 1),
-                chapter.title || `Chapter ${index + 1}`,
-              ]),
-            );
-          }
-        } else {
-          ctx.get().resetOscilloscope();
+        } catch (error) {
+          console.warn('[Store] Graph corpus could not be verified; imported book remains readable:', error);
+          if (ctx.get().chapters === hydrated.chapters
+            && ctx.get().activeNovelId === hydrated.activeNovelId
+            && ctx.get().activeVersionId === hydrated.activeVersionId) ctx.get().resetOscilloscope();
         }
 
         return;

@@ -22,6 +22,7 @@ import { debugLog, debugWarn } from '../../utils/debug';
 import { telemetryService } from '../../services/telemetryService';
 import { memoryCacheSnapshot } from '../../utils/memoryDiagnostics';
 import { mergeChapter } from '../../utils/mergeChapter';
+import { selectedChapterText } from '../../services/semanticOscilloscopeSession';
 
 export interface ChaptersState {
   // Core data
@@ -289,6 +290,15 @@ export const createChaptersSlice: StateCreator<
   },
   
   updateChapter: (chapterId, updates) => {
+    const state = get();
+    const previous = state.chapters.get(chapterId);
+    if (state.corpusIdentity && previous) {
+      const next = { ...previous, ...updates };
+      if (previous.title !== next.title || previous.chapterNumber !== next.chapterNumber
+        || selectedChapterText(previous) !== selectedChapterText(next)) {
+        state.resetOscilloscope();
+      }
+    }
     set(state => {
       const chapter = state.chapters.get(chapterId);
       if (!chapter) return state;

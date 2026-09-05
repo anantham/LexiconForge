@@ -1,149 +1,145 @@
 # FEAT-006 — Private Semantic Narrative Oscilloscope
 
-**Status:** Accepted — implementation in review; deployment and full-book index pending
+**Status:** Accepted — implementation split across stacked PRs; deployment and full-book index pending
 **Date:** 2026-08-24
 **Group:** Integration / navigation / local AI
 
 ## Issue
 
 The narrative oscilloscope draws scalar chapter tracks for long books, but its
-Custom tab was a disconnected lexical-search stub that always returned an empty
-track. Running embeddings in the static browser client would require shipping a
-model and a large vector index to every reader. Calling a generic private health
-endpoint would be unsafe because a reachable server might hold an index for a
-different book or version and return plausible-looking but false navigation data.
+Custom tab was a disconnected lexical-search stub. Running embeddings in the
+static browser client would ship a model and a large vector index to every
+reader. A generic private health check would also be unsafe: a reachable server
+might hold an index for a different book or version and return plausible but
+false navigation data.
 
-The product has two intended modes:
+The product has two trust modes:
 
 1. On the operator's Tailnet devices, `https://read.adityaarpitha.com` may use
-   the Asus IndrasNet service and shared owned embedding compute for new semantic
-   concepts entered at reading time.
-2. Other readers receive frozen scalar tracks inside the portable session and
-   have no custom-query input or dependency on the private service.
+   Asus-hosted IndrasNet and shared owned embedding compute for concepts entered
+   while reading.
+2. Other readers may load frozen scalar tracks from a portable session, but
+   receive no custom-query input or private-service configuration.
 
 ## Assumptions and constraints
 
-- LexiconForge remains a static client. It gains no public application backend.
-- IndrasNet's existing owner/Tailnet authorization remains authoritative; CORS
-  only permits the production browser origin and is not authentication.
-- Session artifacts may contain scores and transparent model/scoring provenance,
-  but never passage embeddings, source chunks, private endpoints, or credentials.
-- A custom scan must target the exact selected chapter text a reader has open.
-- Scores from different queries must not be independently max-normalized, because
-  that makes a weak concept look maximally present and prevents comparison.
-- The first scoring method is an inspectable baseline, not a calibrated estimator
+- LexiconForge remains a static client with no public application backend.
+- IndrasNet owner/Tailnet authorization remains authoritative; CORS is not auth.
+- Portable artifacts may contain scores and scoring provenance, never vectors,
+  chunks, private endpoints, credentials, or transport fields.
+- A custom scan must address the exact selected chapter text currently loaded.
+- Per-query max normalization is forbidden because it makes weak concepts look
+  maximally present and prevents comparisons between tracks.
+- The first scoring method is an inspectable baseline, not a calibrated measure
   of an abstract narrative category such as romance.
 
 ## Positions considered
 
 ### A. IndrasNet returns the finished graph — selected
 
-The browser sends a corpus identity and custom concept. IndrasNet embeds the
-query, searches its immutable local index, and returns one scalar per chapter.
+The browser sends a corpus identity and query. IndrasNet embeds the query,
+searches an immutable local index, and returns one scalar per chapter.
 
-- **Impact:** High; delivers live semantic navigation while preserving a static
-  public app.
-- **Effort/time:** Medium; two narrow contracts plus an operator index build.
-- **Risk:** Medium; cross-language identity drift and private-service availability
-  are the main failure modes, both fail-closed and test-pinned.
-- **Reversibility:** High; remove the adapter/UI gate and portable tracks still
-  render.
-- **Confidence:** 0.89 before implementation; 0.94 after focused contract tests.
+- **Impact:** High; live semantic navigation without turning the public app into
+  a backend deployment.
+- **Effort/time:** Medium; two narrow contracts and one operator index build.
+- **Risk:** Medium; identity drift and private-service availability fail closed.
+- **Reversibility:** High; removing the adapter leaves portable tracks usable.
+- **Confidence:** 0.89 before implementation.
 
 ### B. IndrasNet sends corpus embeddings to the browser
 
 - **Impact:** Similar visible result.
-- **Effort/time:** Medium-high; browser vector search, storage, and validation.
-- **Risk:** High; exposes reusable corpus representations and increases memory and
-  transfer cost.
-- **Reversibility:** Medium because session/runtime formats would learn vectors.
-- **Confidence:** 0.45 that any benefit justifies the boundary cost.
+- **Effort/time:** Medium-high due to browser search, storage, and validation.
+- **Risk:** High because reusable corpus representations cross the boundary.
+- **Reversibility:** Medium because runtime/session formats would learn vectors.
+- **Confidence:** 0.45 that the added exposure is justified.
 
 ### C. Browser embeds the book with WebGPU/WASM
 
-- **Impact:** Custom scans could work without the Tailnet.
-- **Effort/time:** High; model distribution, caching, device compatibility, and
-  performance UX.
-- **Risk:** High; multi-gigabyte public-device burden and inconsistent results.
+- **Impact:** Could support custom scans without the Tailnet.
+- **Effort/time:** High due to model distribution, caching, and device variance.
+- **Risk:** High multi-gigabyte public-device burden.
 - **Reversibility:** Medium.
-- **Confidence:** 0.55 as a future optional mode, not the current design.
+- **Confidence:** 0.55 as a future optional mode, not this decision.
 
 ## Decision
 
-Implement Option A with two explicit seams.
+Adopt Option A with a versioned, fail-closed session protocol.
 
-### 1. Canonical corpus identity
+### Canonical corpus identity
 
-LexiconForge and IndrasNet independently derive:
+LexiconForge and IndrasNet independently derive `corpusId`, `versionId`,
+`chapterCount`, and `contentHash`. The hash is SHA-256 over canonical contiguous
+chapters after selecting the active translation, latest translation, fan
+translation, or source content in that order. Text is NFC-normalized and line
+endings are normalized. A shared known-answer test pins both implementations.
 
-- `corpusId`
-- `versionId`
-- `chapterCount`
-- `contentHash`
+### Capability before input
 
-The hash is SHA-256 over canonical, contiguous chapters after selecting the active
-translation, then latest translation, then fan translation, then source content.
-Line endings are normalized and text is NFC-normalized. A shared known-answer test
-pins the TypeScript and Python algorithms to the same digest.
+The custom input is shown only when IndrasNet reports `ready=true` for the exact
+four-field corpus identity and supported protocol/vector space. Missing network,
+wrong index, invalid URL, unavailable model, malformed JSON, or identity mismatch
+leaves only frozen tracks visible.
 
-### 2. Capability before input
-
-The Custom category/input is not rendered unless IndrasNet reports `ready=true`
-for the exact four-field corpus identity and supported protocol. Missing network,
-wrong index, invalid URL, unavailable Ollama, malformed JSON, and version/hash
-mismatch all leave only frozen tracks visible.
-
-### 3. Finished scalar response
+### Finished scalar response
 
 The browser validates protocol, corpus identity, query echo, exact score count,
-finiteness, and `[0, 1]` bounds. It registers the returned values unchanged; it
-does not divide by that query's maximum. The thread records query, timestamp,
-vector-space version, dimensions, score semantics, and aggregation provenance.
+finiteness, and declared bounds. It registers returned values unchanged. Each
+track records query, time, vector-space version, dimensions, score semantics,
+aggregation method, range, and corpus identity.
 
-### 4. Portable session tracks
+### Portable session tracks
 
-Session v2 gains an optional `oscilloscope` object with a versioned format,
-corpus identity, scalar `ThreadData[]`, and active IDs. Import recomputes the
-corpus identity before accepting tracks. Stale or malformed graph data is logged
-and dropped while the book remains readable. Export recomputes identity from the
-current chapters and omits incompatible stale tracks.
-
-### 5. Honest book scoping
-
-The old panel unconditionally loaded a 3,457-chapter FMoC analysis whenever any
-reader lacked oscilloscope state. That could display FMoC romance/combat tracks
-while Dungeon Defense or another book was open. The legacy public fallback now
-loads only for `forty-millenniums-of-cultivation`; all session-provided graphs are
-bound to their own corpus hash.
+Session v2 gains an optional `oscilloscope` object with format/version, corpus
+identity, scalar threads, and active IDs. Serialization rebuilds every object
+from a public allowlist. Import recomputes corpus identity before accepting the
+tracks and rejects malformed active IDs, provenance, ranges, or values. Invalid
+graph data is logged and dropped while the book remains readable.
 
 ## Consequences
 
-- The private feature behaves like the SillyTavern portal in availability shape,
-  but with a stronger book/version capability check.
-- Public readers can navigate precomputed and frozen semantic tracks without ever
-  learning the private service URL or receiving vectors.
-- A changed translation invalidates the old graph and requires an index rebuild.
-- Initial scan availability depends on the Asus server, Tailnet path, exact CORS
-  origin, owner authentication, matching index, and embedding service.
-- The full-book index build and live Tailnet latency remain deployment gates; code
-  tests do not establish either.
+- Public readers can navigate frozen semantic tracks without learning the
+  private service URL or receiving vectors.
+- A changed selected translation invalidates the graph and requires a rebuild.
+- Private availability depends on Tailnet reachability, owner auth, exact CORS,
+  a matching immutable index, and the advertised embedding model.
+- Full-book index build, scan latency, export, and offline re-import remain live
+  acceptance gates; source tests alone do not establish deployment.
 
 ## Implementation notes
 
-- Portable corpus/session contract: `services/semanticOscilloscopeSession.ts`
-- Store-aware export adapter: `services/semanticOscilloscopeExport.ts`
-- Private HTTP adapter: `services/semanticOscilloscopeClient.ts`
-- Capability lifecycle: `hooks/useSemanticOscilloscopeCapability.ts`
-- Input gate: `components/oscilloscope/ThreadSelector.tsx`
-- Store and unchanged-score registration: `store/slices/oscilloscopeSlice.ts`
-- Import/export persistence: `store/bootstrap/importSessionData.ts`,
-  `store/slices/exportSlice.ts`, `services/exportService.ts`
-- Legacy fallback scoping: `components/oscilloscope/OscilloscopePanel.tsx`
-- Focused tests: `services/semanticOscilloscopeSession.test.ts`,
-  `services/semanticOscilloscopeClient.test.ts`,
-  `tests/store/oscilloscopeSemantic.test.ts`, and
-  `tests/components/oscilloscope/ThreadSelector.semantic.test.tsx`
+- Session/corpus contract: `services/semanticOscilloscopeSession.ts`
+- Portable types: `types/oscilloscope.ts`, `types/session.ts`
+- Later stacked slices add the private HTTP adapter, capability UI, store
+  registration, full import/export persistence, and legacy fallback scoping.
+- Owned-compute implementation is governed by TemporalCoordination ADR-071.
 
-The corresponding owned-compute decision is TemporalCoordination ADR-071. Mark
-this ADR `Implemented` only after the source PR is merged and a real Tailnet device
-passes capability, one full-book scan, freeze/export, and offline re-import.
+Mark this ADR `Implemented` only after both source stacks are merged and a real
+owner Tailnet device passes capability, one full-book scan, freeze/export, and
+offline re-import.
+
+
+## Implementation review amendment — 2026-09-05
+
+PR #159 is merged; PR #160 supplies the remaining portable import/export and
+book-switch integration. Status remains **Accepted**, pending live acceptance.
+
+Implementation notes:
+- `services/semanticOscilloscopeExport.ts` verifies the original graph corpus
+  against export text; optional graph failures preserve readable partial exports.
+- `store/bootstrap/importSessionData.ts` and `services/importService.ts` validate
+  portable tracks, preserve reader availability, and honor registry/session scope.
+- `services/db/operations/export.ts` and `store/slices/exportSlice.ts` preserve
+  per-chapter novel/version identity through full offline exports.
+- `store/slices/{uiSlice,chaptersSlice}.ts` reset graphs across books and selected
+  text changes. Image-only changes do not invalidate a graph.
+- `components/oscilloscope/OscilloscopePanel.tsx` and
+  `components/oscilloscope/loadOscilloscopeData.ts` restrict legacy data to FMoC and discard obsolete downloads.
+- Focused contracts plus `tests/e2e/semantic-session.spec.ts` cover synthetic
+  IndexedDB export/offline reimport, visible text, graph rendering and invalidation.
+
+TemporalCoordination #345/#346 were closed unmerged. Their recovery, exact deployed
+versions, complete index, real scan, latency and owner-device acceptance remain
+tracked in `docs/roadmaps/SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md`. Source/fixture tests
+are not live acceptance and do not justify marking this ADR Implemented.

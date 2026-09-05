@@ -446,6 +446,7 @@ describe('bootstrap helpers', () => {
       renderingOpsMock.getChaptersForReactRendering.mockResolvedValueOnce([
         {
           stableId: 'ch-1',
+          novelId: 'test-novel', libraryVersionId: 'v1',
           title: 'Chapter 1',
           content: '<p>Content</p>',
           originalUrl: 'https://example.com/ch1',
@@ -490,7 +491,23 @@ describe('bootstrap helpers', () => {
       }));
     });
 
-    it('hydrates portable scalar tracks only after recomputing the session corpus', async () => {
+    it('keeps a partial session readable when optional corpus verification cannot succeed', async () => {
+      const { ctx } = createCtx(createState());
+      await expect(createImportSessionData(ctx)({
+        metadata: { format: 'lexiconforge-session', version: '2.0' },
+        novel: { id: 'book-a' }, version: { versionId: 'v1' },
+        chapters: [{ chapterNumber: 64, title: 'Sixty four', content: 'Readable' }],
+      })).resolves.toBeUndefined();
+      expect(ctx.get().setError).not.toHaveBeenCalled();
+      expect(ctx.get().resetOscilloscope).toHaveBeenCalled();
+    });
+
+    it.each(['Content', 'Different hydrated text'])('verifies portable tracks against hydrated text: %s', async (content) => {
+      renderingOpsMock.getChaptersForReactRendering.mockResolvedValueOnce([{
+        stableId: 'ch-1', novelId: 'test-novel', libraryVersionId: 'v1',
+        chapterNumber: 1, title: 'Chapter 1', content,
+        url: 'https://example.com/ch1', sourceUrls: [],
+      }]);
       settingsOpsMock.getKey.mockResolvedValue(null);
       const payload = {
         metadata: { format: 'lexiconforge-session' as const, version: '2.0' as const, exportedAt: '2026-08-24T00:00:00Z' },
@@ -513,11 +530,22 @@ describe('bootstrap helpers', () => {
 
       await createImportSessionData(ctx)({ ...payload, oscilloscope });
 
-      expect(ctx.get().loadSessionOscilloscope).toHaveBeenCalledWith(oscilloscope);
+      if (content === 'Content') {
+        expect(ctx.get().loadSessionOscilloscope).toHaveBeenCalledWith(oscilloscope);
+      } else {
+        expect(ctx.get().loadSessionOscilloscope).not.toHaveBeenCalled();
+        expect(ctx.get().resetOscilloscope).toHaveBeenCalled();
+        expect(ctx.get().setError).not.toHaveBeenCalled();
+      }
       expect(ctx.get().initializeOscilloscope).not.toHaveBeenCalled();
     });
 
     it('hydrates portable tracks from full exports that carry identity only in oscilloscope data', async () => {
+      renderingOpsMock.getChaptersForReactRendering.mockResolvedValueOnce([{
+        stableId: 'ch-1', novelId: 'test-novel', libraryVersionId: 'v1',
+        chapterNumber: 1, title: 'Chapter 1', content: 'Content',
+        url: 'https://example.com/ch1', sourceUrls: [],
+      }]);
       settingsOpsMock.getKey.mockResolvedValue(null);
       const chapters = [{ chapterNumber: 1, title: 'Chapter 1', content: 'Content' }];
       const corpus = await computeSemanticCorpusIdentity({

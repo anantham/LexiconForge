@@ -201,6 +201,8 @@ export const createExportSlice: StateCreator<
 
           return {
             stableId: chapter.id || chapter.canonicalUrl || chapter.originalUrl,
+            novelId: chapter.novelId ?? null,
+            libraryVersionId: chapter.libraryVersionId ?? null,
             canonicalUrl: chapter.canonicalUrl || chapter.originalUrl,
             title: chapter.title,
             content: chapter.content,

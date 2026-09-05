@@ -25,7 +25,12 @@ const chapterNumber = (chapter: Record<string, unknown>, fallback: number): numb
   throw new Error('chapterNumber must be a positive integer when provided');
 };
 
-const selectedChapterText = (chapter: Record<string, unknown>): string => {
+export const selectedChapterText = (chapter: {
+  translations?: unknown;
+  translationResult?: unknown;
+  fanTranslation?: unknown;
+  content?: unknown;
+}): string => {
   if (Array.isArray(chapter.translations)) {
     const records = chapter.translations.filter(
       (item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object',

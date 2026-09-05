@@ -297,3 +297,16 @@ Append-only raw debt receipts discovered during implementation.
 - Scope decision: PR #166 corrects the reviewed chapter-number path only. Expanding the follow-up to source-URL lookup would add an unreviewed behavioral contract.
 - Suggested follow-up: share one null-safe scoped-candidate helper between source-URL and chapter-number lookup, with real fake-IndexedDB tests for versioned and unversioned rows.
 - Blocker status: non-blocking for canonical `lexiconforge://` number navigation; remains a risk for unversioned external source-URL hydration.
+
+
+[DEBT][IMPORT][2026-09-05] Streaming session metadata and hydration ownership
+- Files: `services/importService.ts:600-760,1186-1235`; `store/bootstrap/importSessionData.ts:60-126`.
+- Symptom: graph-specific completion is now guarded, but the broader import pipeline has no cancellation/ownership token. String-based header/trailer extraction also assumes metadata placement relative to the chapters array.
+- Follow-up: reproduce a book switch during DB hydration and reordered top-level metadata before selecting the smallest parser/ownership repair. Preserve readable partial imports; do not add more parser wrappers speculatively.
+- Pickup: Issues.md item 17; non-blocking for the verified complete synthetic export round-trip.
+
+[DEBT][OFFLINE][2026-09-05] Frozen graph cold-launch and legacy binding remain unproven
+- Files: `store/slices/oscilloscopeSlice.ts`; `components/oscilloscope/loadOscilloscopeData.ts`; `tests/e2e/semantic-session.spec.ts`.
+- Symptom: offline reimport in an already loaded app passes; a full browser restart/cold offline launch is not covered. Legacy FMoC tracks have no verified translation hash, so export deliberately omits them until bound to a verifiable corpus.
+- Follow-up: decide whether offline acceptance requires cold app launch, then test it with an installed/cached app. Do not label legacy tracks as portable verified data merely to satisfy export tests.
+- Pickup: Issues.md item 17 and semantic acceptance checklist; real-device acceptance still pending.

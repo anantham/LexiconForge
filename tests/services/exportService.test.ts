@@ -100,14 +100,16 @@ describe('ExportService', () => {
     expect(exportData.chapters).toHaveLength(1);
     expect(exportData.chapters[0].title).toBe('Chapter 1');
     expect(exportData.provenance).toBeUndefined();
-    expect(exportData.oscilloscope?.corpus.chapterCount).toBe(1);
+    expect(exportData.oscilloscope).toBeUndefined();
 
     // Verify IndexedDB was called
     expect(chapterOpsMock.getAll).toHaveBeenCalled();
   });
 
   it('freezes precomputed scalar tracks into a portable quick export', async () => {
+    const corpus = await computeSemanticCorpusIdentity(await ExportService.generateQuickExport());
     useAppStore.setState({
+      corpusIdentity: corpus,
       threads: new Map([['tone:romance', {
         threadId: 'tone:romance',
         category: 'tone',
@@ -163,6 +165,29 @@ describe('ExportService', () => {
     expect(exportData.version.versionId).toBe('v1');
     expect(exportData.oscilloscope?.threads).toHaveLength(1);
     expect(exportData.oscilloscope?.threads[0].threadId).toBe('custom:trust');
+  });
+
+  it('exports a readable partial book even though it has no complete graph corpus', async () => {
+    chapterOpsMock.getAll.mockResolvedValue([{ stableId: 'ch64', chapterNumber: 64, title: 'Sixty four', content: 'Readable' }]);
+    const exported = await ExportService.generateQuickExport();
+    expect(exported.chapters[0].chapterNumber).toBe(64);
+    expect(exported.oscilloscope).toBeUndefined();
+  });
+
+  it('does not rebind a frozen precomputed track to changed text of the same length', async () => {
+    const exported = await ExportService.generateQuickExport();
+    const corpus = await computeSemanticCorpusIdentity(exported);
+    useAppStore.setState({
+      corpusIdentity: corpus,
+      threads: new Map([['tone:trust', {
+        threadId: 'tone:trust', category: 'tone', label: 'trust', color: '#ef4444',
+        totalChapters: 1, values: [0.7], provenance: { origin: 'precomputed', method: 'fixture' },
+      }]]),
+    });
+    translationOpsMock.getVersionsByStableId.mockResolvedValue([{ version: 1, isActive: true, translation: 'Different text' }]);
+    const changed = await ExportService.generateQuickExport();
+    expect(changed.chapters[0].translations[0].translation).toBe('Different text');
+    expect(changed.oscilloscope?.threads ?? []).toEqual([]);
   });
 
   it('should generate publish export with metadata and provenance', async () => {

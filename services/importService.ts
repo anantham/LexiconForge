@@ -705,6 +705,7 @@ export class ImportService {
 
           sessionNovel = extractObjectField(buffer.slice(0, chaptersKey), 'novel') ?? sessionNovel;
           sessionVersion = extractObjectField(buffer.slice(0, chaptersKey), 'version') ?? sessionVersion;
+          sessionOscilloscope = extractObjectField(buffer.slice(0, chaptersKey), 'oscilloscope') ?? sessionOscilloscope;
           buffer = buffer.slice(arrayStart + 1);
           chaptersStarted = true;
         };
@@ -1187,16 +1188,12 @@ export class ImportService {
           : null;
         const parsedSessionNovel = sessionNovel as Record<string, unknown> | null;
         const parsedSessionVersion = sessionVersion as Record<string, unknown> | null;
-        const corpusId = typeof oscilloscopeCorpus?.corpusId === 'string'
-          ? oscilloscopeCorpus.corpusId
-          : options.registryNovelId ?? (
-            typeof parsedSessionNovel?.id === 'string' ? parsedSessionNovel.id : null
-          );
-        const versionId = typeof oscilloscopeCorpus?.versionId === 'string'
-          ? oscilloscopeCorpus.versionId
-          : options.registryVersionId ?? (
-            typeof parsedSessionVersion?.versionId === 'string' ? parsedSessionVersion.versionId : null
-          );
+        const corpusId = options.registryNovelId
+          ?? (typeof parsedSessionNovel?.id === 'string' ? parsedSessionNovel.id : null)
+          ?? oscilloscopeCorpus?.corpusId;
+        const versionId = options.registryVersionId
+          ?? (typeof parsedSessionVersion?.versionId === 'string' ? parsedSessionVersion.versionId : null)
+          ?? oscilloscopeCorpus?.versionId;
         if (corpusId && versionId) {
           try {
             const hydratedChapters = streamedStableIds.map((stableId) => postHydrationState.chapters.get(stableId));
@@ -1210,6 +1207,13 @@ export class ImportService {
               version: { versionId },
               chapters: hydratedChapters,
             } as any);
+            const current = useAppStore.getState();
+            if (current.chapters !== postHydrationState.chapters
+              || current.activeNovelId !== postHydrationState.activeNovelId
+              || current.activeVersionId !== postHydrationState.activeVersionId) {
+              resolve({ metadata, chaptersLoaded });
+              return;
+            }
             if (sessionOscilloscope !== undefined) {
               postHydrationState.loadSessionOscilloscope(
                 parseSessionOscilloscope(sessionOscilloscope, corpus),
@@ -1219,7 +1223,10 @@ export class ImportService {
             }
           } catch (error) {
             console.error('[StreamImport] Ignoring invalid session oscilloscope data:', error);
-            postHydrationState.resetOscilloscope();
+            const current = useAppStore.getState();
+            if (current.chapters === postHydrationState.chapters
+              && current.activeNovelId === postHydrationState.activeNovelId
+              && current.activeVersionId === postHydrationState.activeVersionId) current.resetOscilloscope();
           }
         } else {
           postHydrationState.resetOscilloscope();

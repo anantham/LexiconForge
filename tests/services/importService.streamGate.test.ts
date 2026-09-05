@@ -202,7 +202,7 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     expect(onFirstChaptersReady).not.toHaveBeenCalled();
   });
 
-  it('validates and hydrates frozen tracks after a streaming URL import', async () => {
+  it.each(['after', 'before', 'wrong-scope'])('validates streamed graph metadata (%s)', async (placement) => {
     const chapter = {
       stableId: 'ch1',
       url: 'https://example.com/ch1',
@@ -231,14 +231,21 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
       metadata: {
         format: 'lexiconforge-session', version: '2.0', exportedAt: '2026-08-24T00:00:00Z', chapterCount: 1,
       },
+      ...(placement === 'before' ? { oscilloscope } : {}),
       ...corpusSeed,
-      oscilloscope,
+      ...(placement === 'wrong-scope' ? { novel: { id: 'other-book', title: 'Other' } } : {}),
+      ...(placement !== 'before' ? { oscilloscope } : {}),
     })));
 
     await ImportService.streamImportFromUrl('https://example.com/session.json');
 
-    expect(importStoreState.loadSessionOscilloscope).toHaveBeenCalledWith(oscilloscope);
-    expect(importStoreState.initializeOscilloscope).not.toHaveBeenCalled();
+    if (placement === 'wrong-scope') {
+      expect(importStoreState.loadSessionOscilloscope).not.toHaveBeenCalled();
+      expect(importStoreState.resetOscilloscope).toHaveBeenCalled();
+    } else {
+      expect(importStoreState.loadSessionOscilloscope).toHaveBeenCalledWith(oscilloscope);
+      expect(importStoreState.initializeOscilloscope).not.toHaveBeenCalled();
+    }
   });
 
   it('awaits the first-ready callback before processing later chapters', async () => {

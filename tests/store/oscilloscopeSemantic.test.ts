@@ -87,3 +87,16 @@ describe('semantic oscilloscope store', () => {
     expect(useAppStore.getState().threads.size).toBe(500);
   });
 });
+
+it('invalidates frozen graphs when selected chapter text changes, but preserves them for image-only updates', () => {
+  const chapter = { id: 'ch1', chapterNumber: 1, title: 'One', content: 'raw', translationResult: { translation: 'selected' } };
+  useAppStore.setState({ chapters: new Map([['ch1', chapter as any]]) });
+  useAppStore.getState().initializeOscilloscope(corpus);
+  useAppStore.getState().addSemanticThread('romantic trust', result);
+  useAppStore.getState().updateChapter('ch1', { translationResult: { ...chapter.translationResult, suggestedIllustrations: [] } as any });
+  expect(useAppStore.getState().corpusIdentity).toEqual(corpus);
+  useAppStore.getState().updateChapter('ch1', { translationResult: { translation: 'a different selection' } as any });
+  expect(useAppStore.getState().corpusIdentity).toBeNull();
+  expect(useAppStore.getState().threads.size).toBe(0);
+  expect(() => useAppStore.getState().addSemanticThread('romantic trust', result)).toThrow(/does not match/);
+});
