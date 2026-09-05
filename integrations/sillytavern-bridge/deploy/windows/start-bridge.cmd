@@ -1,15 +1,24 @@
 @echo off
 setlocal
 
-set "LF_BRIDGE_ROOT=C:\Users\adity\Documents\Ongoing Local\ST\runtime\LexiconForge-SillyTavern-Bridge"
+for %%I in ("%~dp0..\..") do set "LF_BRIDGE_ROOT=%%~fI"
 set "LF_PYTHON=%LF_BRIDGE_ROOT%\.venv-native\Scripts\python.exe"
 set "LF_LOG_DIR=%~dp0logs"
-set "LF_PORTAL_VAULT_ROOT=C:\Users\adity\Documents\Ongoing Local\ST\novel-analyzer\vault\Forty Millenniums of Cultivation"
-set "LF_PORTAL_ST_INTERNAL_URL=http://127.0.0.1:8000"
-set "LF_PORTAL_ST_PUBLIC_URL=https://asus-strix-scar.tail4741ad.ts.net:8444"
+if not defined LF_PORTAL_VAULT_ROOT (
+  echo ERROR: Set LF_PORTAL_VAULT_ROOT in the runtime user's private environment.
+  exit /b 2
+)
+if not defined LF_PORTAL_ST_PUBLIC_URL (
+  echo ERROR: Set LF_PORTAL_ST_PUBLIC_URL to the approved SillyTavern HTTPS URL.
+  exit /b 2
+)
+if not defined LF_PORTAL_OWNER_LOGINS (
+  echo ERROR: Set LF_PORTAL_OWNER_LOGINS to the authorized owner login.
+  exit /b 2
+)
+if not defined LF_PORTAL_ST_INTERNAL_URL set "LF_PORTAL_ST_INTERNAL_URL=http://127.0.0.1:8000"
 set "LF_PORTAL_ALLOWED_ORIGINS=https://read.adityaarpitha.com,http://localhost:5173,http://127.0.0.1:5173"
 set "LF_PORTAL_REQUEST_TIMEOUT_SECONDS=20"
-set "LF_PORTAL_OWNER_LOGINS=adityaprasadiskool@gmail.com"
 set "LF_PORTAL_MAX_REQUEST_BYTES=4194304"
 set "LF_PORTAL_IDEMPOTENCY_TTL_SECONDS=600"
 set "LF_PORTAL_IDEMPOTENCY_MAX_ENTRIES=128"

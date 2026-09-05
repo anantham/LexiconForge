@@ -12,13 +12,19 @@ requires the Serve-injected `Tailscale-User-Login` to match
 
 ## Local development
 
+Create an ignored `.env` from `.env.example` and replace the placeholders first.
+For a POSIX shell:
+
 ```bash
-cp .env.example .env
+set -a
+. ./.env
+set +a
 uv run uvicorn portal_bridge.app:app --host 127.0.0.1 --port 5001 --no-proxy-headers
 uv run pytest
 ```
 
-Required environment variables are documented in `.env.example`. No provider
+Required environment variables are documented in `.env.example`. Export your actual
+values into the process environment; the bridge does not automatically load `.env`. No provider
 credential is needed: v1 uses the design's spoiler-safe template scenario
 fallback and never logs passage or chapter text.
 
@@ -65,12 +71,18 @@ policy that meets the desired retention boundary; this overlay does not claim
 to strengthen that upstream request. Exact per-request OpenRouter privacy
 routing would require a separately reviewed SillyTavern server change.
 
-## Asus runtime
+## Windows runtime
 
-Run `deploy/windows/bootstrap-bridge.ps1` first. It creates a standard Python
+Run `deploy/windows/bootstrap-bridge.ps1 -BasePython <python.exe>` first. It creates a standard Python
 3.12.13 environment, exports the checked-in lock with hashes, synchronizes it,
 and runs the bridge suite. The explicit base-Python path avoids uv's generated
 Windows junction, which is rejected as an untrusted mount in an SSH session.
+
+Set `LF_ST_ROOT`, `LF_PORTAL_VAULT_ROOT`, `LF_PORTAL_ST_PUBLIC_URL` and
+`LF_PORTAL_OWNER_LOGINS` in the runtime user's private environment before launching
+or registering tasks. The launchers reject missing configuration. The bridge root
+is resolved relative to its launcher. Existing deployed launchers are not modified
+by a source checkout; review configuration migration before deployment.
 
 The checked-in launchers bind SillyTavern to `127.0.0.1:8000` and the bridge to
 `127.0.0.1:5001`. `install-startup-tasks.ps1` registers two narrowly named,
@@ -78,15 +90,16 @@ current-user logon tasks disabled. Logs are append-only under
 `deploy/windows/logs/`; request content and card bodies are intentionally not
 logged.
 
-Before cutover, run `apply-sillytavern-hardening.ps1 -AllowedDeviceIp <ip...>
--Apply`. It requires either the official upstream ancestry or exact reviewed
+Before cutover, run `apply-sillytavern-hardening.ps1 -SillyTavernRoot <directory>
+-AllowedDeviceIp <ip...> -Apply`. It requires either the official upstream ancestry or exact reviewed
 v1.18.0 manifest/lock blob hashes, applies the Multer 2.2.0 overlay, installs
 the exact lock, verifies the installed version and integrity, and changes only
 SillyTavern's whitelist block. The list
 must contain loopback plus explicit owner-device Tailscale IPs; forwarded-IP
 checking, CSRF protection, whitelist mode, and localhost binding must remain on.
 
-Run `cutover-portal.ps1 -AllowedDeviceIp <ip...>` first as a no-write preflight.
+Run `cutover-portal.ps1 -SillyTavernRoot <directory>
+-OwnerLogin <owner-login> -AllowedDeviceIp <ip...>` first as a no-write preflight.
 Re-run with `-Apply` only after it passes. The cutover removes the exact stale
 cleartext `:8000` route before starting SillyTavern, proves both localhost
 services ready, then adds HTTPS `:8444` for SillyTavern and HTTPS `:5001` for
@@ -110,7 +123,7 @@ When the SillyTavern HTTPS route is eventually enabled, add its exact origin to
 the IndrasNet process environment, for example:
 
 ```text
-INDRASNET_CORS_ORIGINS=https://asus-strix-scar.tail4741ad.ts.net:8444
+INDRASNET_CORS_ORIGINS=https://sillytavern.example.com
 ```
 
 Do not use a wildcard. This CORS entry is not authentication; IndrasNet's owner

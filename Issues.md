@@ -139,3 +139,11 @@ If you want, I can turn this into a concrete investigation plan with expected me
 16) changing versions means comments should go away and then come back, its tied to that version! and the floating comment icons also have vanished with version switch!
 
 17) 
+
+18) Public configuration boundary: require local broker settings and keep operator records private.
+
+Current cleanup removes built-in endpoints, personal deployment defaults and operational
+records. Existing saved settings continue to work. The client artifact scan rejects
+embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
+Historical refs/caches are a separate assessment; do not claim deletion from history
+or copy private audit findings into this issue. Merge/deployment evidence is pending.
