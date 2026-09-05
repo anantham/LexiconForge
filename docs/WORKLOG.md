@@ -3031,14 +3031,6 @@ PR #81 (Sariputta Heart Sutra + Three Pure Precepts + Refuges/Pañcasīla) + PR 
 **Validation:** Node 24.19.0; `npm run typecheck` passed; focused 57/57 passed; full Vitest 9,120 passed and 347 skipped across 272 files; production build passed with existing chunk/dynamic-import warnings; targeted ESLint had 0 errors (existing warnings); built-client secret scan passed.
 **Confidence:** 0.92. Fallback remains user-selected and is never used for manifest/configuration errors.
 
-### [2026-08-21 07:58 IST] [Agent: Codex]
-**Status:** Frontend source remains green and pushed in PR #138; do not merge/deploy as end-to-end ready yet.
-**Confidence:** 0.99 in the current blocker; 0.85 that the isolated broker import repair will make `gen_anime` return successfully, pending a resumed live test.
-
-### [2026-08-21 08:32 IST] [Agent: Codex]
-**Evidence:** The semantic `gen_anime` request returned HTTP 200 with prompt ID `fca7e9ca-dabe-4b4c-b40b-9c82b279e85e`; the returned URL served exact-origin CORS and a valid 1,611,982-byte PNG. This proves the live server half of LexiconForge's tested discovery/execution/download contract. The previously observed cleanup `NameError` is repaired and deployed; a production browser run remains gated on PR review, merge, and deployment.
-**Remaining provider limitation:** `gen_real` progressed through broker admission and graph validation, but its configured 8,208,158,880-byte Chroma GGUF is absent after a failed/mismatched download. The workflow's stale T5 filename was corrected with a recoverable backup; no large download was started after the three-attempt hard stop. Until that asset is hash-verified, only `gen_anime` should be considered operational; the explicit cloud fallback remains available for retryable broker contention/offline responses.
-
 ### [2026-08-21 08:41 IST] [Agent: Codex]
 **Status:** Addressing exact-head Codex review on PR #138.
 **Hypotheses:** H1 the retry path is correct because it already derives `lastModel` from `result.execution.model`, while the batch path has three stale `settings.imageModel` assignments; one batch-owned `lastExecutedModel` should make progress, error snapshots, and final metrics agree. H2 capturing elapsed time only around the failed primary invocation and adding it to the fallback provider's own `requestTime` preserves the established seconds unit without double-counting the cloud call. Confidence 0.98.
@@ -3640,7 +3632,7 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 ### [2026-08-30 16:31 IST] [Agent: Codex]
 **Status:** Complete locally; local commit pending.
 **Files/lines:** `services/providers/indrasNetImageProvider.ts:133-172` rejects the known SillyTavern URL before any provider caller can dispatch; `components/settings/ProvidersPanel.tsx:165,537` retains workflow discovery/model population and only the model-dependent fallback; `components/settings/IndrasNetImageProviderSection.tsx:28-127` separates endpoint health from fallback UI; `components/settings/SillyTavernPanel.tsx:23-60,179` owns broker discovery and renders the endpoint under Features; focused provider/panel tests including `indrasNetImageProvider.test.ts:54`, `ProvidersPanel.test.tsx:212`, and `SillyTavernPanel.test.tsx:133`; append-only FEAT-003 amendment at line 322.
-**Verification:** The pre-implementation gate failed exactly the five new placement/behavior assertions. Final pinned Node 24.19.0 gate passes 95/95 tests across the provider plus four Settings files; TypeScript passes; focused changed-file ESLint is clean; production build passes with existing Browserslist/module-directive/dynamic-import/chunk-size warnings. Browser inspection on `127.0.0.1:5182` confirms Providers no longer contains the endpoint, Features -> SillyTavern does, and entering `:8444` shows the exact correction to `:9443`. Host curl, Serve inspection, listener inspection, and loopback HTTP prove the broker runtime independently.
+**Verification:** The pre-implementation gate failed exactly the five new placement/behavior assertions. Final pinned Node 24.19.0 gate passes 95/95 tests across the provider plus four Settings files; TypeScript passes; focused changed-file ESLint is clean; production build passes with existing Browserslist/module-directive/dynamic-import/chunk-size warnings. Browser inspection on `127.0.0.1:5182` confirms Providers no longer contains the endpoint, Features -> SillyTavern does, and entering `:8444` shows the exact correction to `:9443`.
 **Publication state:** Local isolated branch only; no push, PR, merge, deployment, or change to the existing `:5181` preview.
 **Confidence:** 0.97. Fallback is to revert this isolated branch; image generation and SillyTavern runtime remain unchanged.
 
@@ -3690,3 +3682,10 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Privacy checks:** New production output passes the provider-key, Tailnet-host and canary scan; repository/extension integrity passes. Private audit evidence is outside the repository. Source cleanup does not erase prior commits or cached artifacts.
 **[DEBT]:** `Issues.md` item 18 and `docs/roadmaps/TECH-DEBT-INBOX.md` record the public boundary without reproducing operational identifiers.
 **Final review:** Corrected the bootstrap parameter block placement at `integrations/sillytavern-bridge/deploy/windows/bootstrap-bridge.ps1:1`; syntax alone had not verified script parameter binding. Production Chromium acceptance passes: fresh browser makes no broker discovery request, an explicitly configured endpoint discovers workflows, and the endpoint persists after save/reload. All network responses used by this browser check were controlled fixtures.
+
+### [2026-09-05 10:44 MUT] [Agent: Codex]
+**Status:** Public configuration cleanup published for review in PR #174.
+**Source:** `1acd19a`; all five CI jobs and the preview pass (run `33950322822`). The privacy branch remains based on main `655af01`; no merge or production deployment.
+**Records:** Removed remaining historical runtime-only paragraphs from this log; private originals are retained outside Git. `Issues.md` item 18 links the review and preserves the separate historical-cleanup decision.
+**Verification limits:** Controlled browser acceptance and Windows configuration checks passed; live service migration was not exercised. Historical refs, cached artifacts and binary attachments are not erased by this source cleanup.
+**Independent review:** A tool-free MiMo review of the published source found no blocking P1/P2 defects. The initial oversized attachment was partial; four smaller packets confirmed complete receipt of the remaining UI, provider/settings/scanner, extension and Windows source. Static review does not substitute for live deployment acceptance. Macroscope skipped.
