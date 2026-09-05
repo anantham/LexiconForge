@@ -3747,3 +3747,7 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Changed locations:** `deploy/windows/cutover-portal.ps1:124`, `start-bridge.cmd:22`, `start-sillytavern.cmd:14` under the bridge; `tests/windows/test-runtime-configuration.ps1:1`; bridge `README.md:81`. Runtime environment/task identity and actual process provenance remain deployment acceptance checks. No deployment performed.
 
 **Review checkpoint:** QA-03 is published in https://github.com/anantham/LexiconForge/pull/176. The current stack includes #174 correction `d5efee7`; only documentation conflicted, both receipts retained. App behavior and measured test source are unchanged. Fresh current-head CI and independent review pending; no merge or deployment.
+
+### [2026-09-05 12:50 MUT] [Agent: Codex]
+**Status:** Corrected QA-03 completion claim after independent review.
+**Files:** `Issues.md:186` now explicitly marks QA-03 partial. #176 implements runner/setup improvements; a scrubbed representative novel, fresh/warm cases through the session harness, and exact fixture/revision receipts still need execution. Three synthetic route checks do not close those acceptance criteria. No runtime code changed.

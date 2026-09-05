@@ -184,13 +184,13 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 
 ### QA-03 — Reproducible worktree and production-browser verification
 
-- **Status:** Implemented locally; Codex on `test/codex-production-qa`. Confidence: 0.99 for observed setup friction. Effort: medium. Risk: low if opt-in and local; reversible.
+- **Status:** Partial; setup/configuration implemented in #176. Representative novel and fresh/warm-cache acceptance remain open. Confidence: 0.99 for observed setup friction. Effort: medium. Risk: low if opt-in and local; reversible.
 - **Files / evidence:** `playwright.config.ts`, `tests/e2e/helpers/sessionHarness.ts`, `package.json`, `.gitattributes`, and worktree setup instructions. Root Node is 26 while the project requires 24; this pass used an existing Node 24.19.0 binary. A broad `git diff --stat` in the temporary worktree invoked Git LFS cleaning for `media/demo.mp4` and failed writing the main repo's `.git/lfs/tmp`. Scoped diffs worked. The E2E config hardcodes port 5177/dev mode and may reuse an unrelated existing server; production QA needed a temporary preview config.
 - **Done when:** Document one persistent worktree per branch with Node 24 and an explicit LFS/dependency setup; do not prune, reset, or stash another agent's work. Reuse the existing session harness with a scrubbed representative novel, fresh/warm cache cases, a selectable production preview URL, and trace-on-failure. Record worktree path and exact source revision in receipts; never use a personal browser profile as the automated fixture. No daemon/dashboard needed.
 
 - **Current correction:** Existing config accepts `LF_E2E_BASE_URL`, refuses accidental dev-server reuse, and retains first-failure traces. The E2E guide now uses locked installation and documents worktree/preview/fixture evidence. No new runner or dependency.
 
-- **Review:** [PR #176](https://github.com/anantham/LexiconForge/pull/176); implemented and pushed, pending review/merge.
+- **Review:** [PR #176](https://github.com/anantham/LexiconForge/pull/176); setup changes pushed for review. Keep this ticket open until the fixture and receipt criteria above pass.
 
 ### COPY-01 — Remove the hardcoded sutta title from shared provenance UI
 
