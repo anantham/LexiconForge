@@ -172,3 +172,9 @@ or copy private audit findings into this issue. Cleanup is in [PR #174](https://
 
 Receipts: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 graph review; structural
 friction belongs in `docs/architecture/ARCHITECTURE.md` section 7.
+
+### TEST-01 — Replace copied illustration-marker tests with production-path coverage
+
+- **Status:** Open; unclaimed.
+- **Evidence:** `tests/store/slices/illustration-marker-insertion.test.ts:14` implements its own `insertMarkerIntoHtml` and all assertions exercise that copy. It cannot detect changes to `store/slices/translationsSlice.ts`'s real action.
+- **Done when:** Remove the duplicated test implementation; retain only useful cases against the real action or a justified shared production function. Check actual chapter mutation and no mutation on rejected planning; do not add a wrapper solely to satisfy test counts.

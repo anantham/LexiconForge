@@ -332,3 +332,8 @@ without introducing full-book hashing on each store update.
 
 [DEBT][MUTATION] `components/session-info/VersionSelector.tsx:40` uses in-place `versions.sort()`
 on its input. Check cross-component array reuse before a scoped correction.
+
+[DEBT][TEST][2026-09-05] Copied marker-insertion implementation
+- `tests/store/slices/illustration-marker-insertion.test.ts:14` reimplements the
+  production algorithm, so the suite can stay green when the real action breaks.
+- Delete/replace with a few actual store-action cases. Pickup: Issues.md TEST-01.
