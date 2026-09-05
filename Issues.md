@@ -155,4 +155,4 @@ Current cleanup removes built-in endpoints, personal deployment defaults and ope
 records. Existing saved settings continue to work. The client artifact scan rejects
 embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
 Historical refs/caches are a separate assessment; do not claim deletion from history
-or copy private audit findings into this issue. Merge/deployment evidence is pending.
+or copy private audit findings into this issue. Cleanup is in [PR #174](https://github.com/anantham/LexiconForge/pull/174); merge/deployment evidence is pending.

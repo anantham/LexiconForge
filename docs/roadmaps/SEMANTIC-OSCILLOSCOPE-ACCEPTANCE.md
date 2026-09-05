@@ -17,7 +17,9 @@ are separate. Private operator records are maintained outside this repository.
 
 Source repairs: `c7e3b9d`, `47f06c1`; main merge `9029313`. CI run
 `33945802280` passed all five jobs and Vercel on records head `be2bcbe`.
-Subsequent cleanup commits require fresh checks before merge.
+Privacy cleanup from PR #174 is merged into this branch without rewriting history.
+The combined source passes the same 68 focused tests and TypeScript; current-head CI
+is linked from the PR and must pass before merge.
 
 ## 2. Recover the backend implementation
 
