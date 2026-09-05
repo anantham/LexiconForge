@@ -3753,3 +3753,24 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Files:** `Issues.md:186` now explicitly marks QA-03 partial. #176 implements runner/setup improvements; a scrubbed representative novel, fresh/warm cases through the session harness, and exact fixture/revision receipts still need execution. Three synthetic route checks do not close those acceptance criteria. No runtime code changed.
 
 **QA-03 review correction:** `docs/infrastructure/E2E-TESTING.md:49` now uses the current worktree's ignored `dist/`, not one shared temporary output path. Concurrent branches need distinct worktrees/output and strict preview ports; do not rebuild a worktree during its test run. This prevents one branch replacing another preview's files. Documentation-only correction; the earlier actual probes already used separate output directories.
+### [2026-09-05 12:50 MUT] [Agent: Codex]
+**Status:** Reconciled PR #174's second Codex review finding.
+**Files/lines:** `docs/adr/FEAT-003-image-service-architecture.md:336` explicitly supersedes the deployment-specific wrong-service/default-endpoint claims using the approved SEC-001 public configuration boundary. Saved settings remain untouched; a configured wrong service receives protocol/network diagnostics. No runtime code changed; prior native Windows and provider tests remain applicable.
+
+### [2026-09-05 13:07 MUT] [Agent: Codex]
+**Status:** Corrected #174's unconfigured saved-model submission path.
+**Hypothesis/prediction:** A saved local model remained selectable after clearing its endpoint, so Generate could call prompt planning before eventual image failure. Three UI regressions fail on the old source for empty, whitespace and malformed configuration; the existing endpoint validator must disable submission, explain the correction and preserve an explicit cloud alternative. Confidence 0.99.
+**Options:** A (selected): validate the chosen route at the existing dialog submit boundary; high impact, small effort/time, low risk, fully reversible. B: impose provider configuration on the generic text planner; broader effort and risk because standalone caption authoring can legitimately precede image setup. No new settings framework.
+**Files:** `components/chapter/IllustrationRouteDialog.tsx:106` and its existing test file. The actual validator is used in tests; discovery remains mocked.
+**[DEBT]:** `tests/store/slices/illustration-marker-insertion.test.ts` copies its subject instead of importing production behavior. Record TEST-01 for deletion/replacement with real store tests; do not extend the copied algorithm.
+
+**Submission correction verified:** All three regression cases pass; configured offline saved models and cloud overrides remain usable. Node 24.19.0 focused provider/dialog/settings gate passes 43 tests; TypeScript passes; changed-file lint has zero errors and one existing warning. Build/security CI and exact-head review follow publication.
+
+### [2026-09-05 14:34 MUT] [Agent: Codex]
+**Status:** Refreshing #173 against reviewed privacy parent `42732be`; GitHub reported conflicts.
+**Options:** A (selected): history-preserving parent merge, retaining both append-only pickup queues and debt receipts. Small effort/time, low risk, reversible; confidence 0.99. B: leave the reviewed branch conflicted until a later merge; less immediate work but incomplete integration.
+**Files/conflicts:** `Issues.md:151` and `docs/roadmaps/TECH-DEBT-INBOX.md:306` retained both sides. WORKLOG, FEAT-003 amendment and the already-reviewed illustration route guard merge automatically. Startup implementation is unchanged; focused combined checks and fresh CI/review follow. No main merge, deployment or benchmark claim changes.
+
+### [2026-09-05 14:37 MUT] [Agent: Codex]
+**Status:** Refreshed #176 from parent #173 `7db1933`, preserving the reviewed source and history.
+**Resolution:** `docs/WORKLOG.md:3750` retains both task receipts and parent corrections. Other files merge automatically. The parent passed 46 combined provider/settings/dialog/app-screen tests and TypeScript; this branch's implementation and earlier benchmark/QA evidence are unchanged. Fresh combined checks and current-head CI/review follow; no main merge or deployment.
