@@ -3726,3 +3726,12 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Merge:** Three documentation-only conflicts preserve both the public-boundary receipts and the latency pickup queue. Production source merges automatically; main remains `655af01`.
 **Predictions:** Route isolation and download recovery remain valid after the merge; no private host appears in production output. The existing unused app-shell selectors should add store work without affecting rendered output. Confidence 0.96; measure before claiming a speedup.
 **Next files:** `App.tsx` and its existing unit/browser tests for review; `MainApp.tsx` for a separate deletion-only ticket; `playwright.config.ts` and existing QA instructions for a separate setup ticket. Keep semantic live acceptance, physical device checks and merge/deployment decisions open.
+
+### [2026-09-05] [Agent: Codex]
+**Status:** Starting QA-03 on `test/codex-production-qa`.
+**Files:** `playwright.config.ts` and `docs/infrastructure/E2E-TESTING.md`; Issues and this log.
+**Hypothesis/prediction:** Selecting an already-running preview through `LF_E2E_BASE_URL` removes temporary config duplication; refusing dev-server reuse prevents wrong-app success. `retain-on-failure` preserves evidence with zero retries. Confidence 0.98.
+**Boundary:** Existing local browser workflow only; no new dependency, daemon, browser profile or product behavior. Fallback is the isolated config/doc commit revert.
+
+**QA-03 result:** `playwright.config.ts:3,37,64` accepts an explicit preview URL, refuses default dev-server reuse and retains first-failure traces. Updated `docs/infrastructure/E2E-TESTING.md` replaces package-install drift and duplicate schema/wishlist prose with locked setup, isolated worktree, production preview and fresh/warm fixture instructions.
+**Verification:** Existing production route suite passes 3/3 through the new URL option. A disposable occupied-port probe proves the default runner refuses reuse. An intentionally failing external diagnostic produces `trace.zip` with retries zero; it is not part of the committed test suite. No new dependencies or runtime changes.
