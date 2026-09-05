@@ -63,3 +63,14 @@ Next useful input: a representative slow chapter/import interaction, target devi
 ## Follow-ups
 
 Root [Issues.md](../../Issues.md#agent-pickup-queue--2026-09-05-latency-and-complexity-pass) tracks the confirmed cleanup opportunities and QA setup gaps. LAT-01 is this implemented slice; LAT-02/LAT-03/QA-01/QA-02/QA-03/COPY-01 remain open. Raw debt references also live in [TECH-DEBT-INBOX](../../docs/roadmaps/TECH-DEBT-INBOX.md#2026-09-05-latency-pass). No other subsystem was refactored.
+
+## Refreshed review — 2026-09-05
+
+Merged current main and the public configuration cleanup without rewriting history
+(`0d5f5ce`); only three documentation conflicts needed resolution. The controlled
+comparison now uses privacy source `d09b11d` as its unchanged route baseline.
+Library H1 median: 1916 → 1167ms; decoded JavaScript 4765 → 1867KB. Gita H1 median:
+1757 → 610ms; decoded JavaScript 4764 → 197KB. Three samples per variant/path,
+alternating order; all twelve page-error lists empty. These retain the earlier
+measurement limits. Focused 25/25 tests, TypeScript, build and production route
+checks 3/3 pass. Fresh publication/CI and current-head independent review follow.
