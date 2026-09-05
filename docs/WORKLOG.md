@@ -3701,3 +3701,12 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 ### [2026-09-05 12:50 MUT] [Agent: Codex]
 **Status:** Reconciled PR #174's second Codex review finding.
 **Files/lines:** `docs/adr/FEAT-003-image-service-architecture.md:336` explicitly supersedes the deployment-specific wrong-service/default-endpoint claims using the approved SEC-001 public configuration boundary. Saved settings remain untouched; a configured wrong service receives protocol/network diagnostics. No runtime code changed; prior native Windows and provider tests remain applicable.
+
+### [2026-09-05 13:07 MUT] [Agent: Codex]
+**Status:** Corrected #174's unconfigured saved-model submission path.
+**Hypothesis/prediction:** A saved local model remained selectable after clearing its endpoint, so Generate could call prompt planning before eventual image failure. Three UI regressions fail on the old source for empty, whitespace and malformed configuration; the existing endpoint validator must disable submission, explain the correction and preserve an explicit cloud alternative. Confidence 0.99.
+**Options:** A (selected): validate the chosen route at the existing dialog submit boundary; high impact, small effort/time, low risk, fully reversible. B: impose provider configuration on the generic text planner; broader effort and risk because standalone caption authoring can legitimately precede image setup. No new settings framework.
+**Files:** `components/chapter/IllustrationRouteDialog.tsx:106` and its existing test file. The actual validator is used in tests; discovery remains mocked.
+**[DEBT]:** `tests/store/slices/illustration-marker-insertion.test.ts` copies its subject instead of importing production behavior. Record TEST-01 for deletion/replacement with real store tests; do not extend the copied algorithm.
+
+**Submission correction verified:** All three regression cases pass; configured offline saved models and cloud overrides remain usable. Node 24.19.0 focused provider/dialog/settings gate passes 43 tests; TypeScript passes; changed-file lint has zero errors and one existing warning. Build/security CI and exact-head review follow publication.

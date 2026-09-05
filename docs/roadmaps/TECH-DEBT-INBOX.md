@@ -302,3 +302,8 @@ Append-only raw debt receipts discovered during implementation.
 - Finding: operator-specific configuration and live diagnostics had accumulated in public source records.
 - Current correction: explicit runtime configuration, generic examples, sanitized records, and a private-host check in the existing build scanner.
 - Follow-up: keep incident/runtime evidence outside Git; historical refs and cached artifacts require a separate owner decision. Public receipts must describe categories and acceptance, never repeat removed values.
+
+[DEBT][TEST][2026-09-05] Copied marker-insertion implementation
+- `tests/store/slices/illustration-marker-insertion.test.ts:14` reimplements the
+  production algorithm, so the suite can stay green when the real action breaks.
+- Delete/replace with a few actual store-action cases. Pickup: Issues.md TEST-01.
