@@ -190,6 +190,8 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 
 - **Current correction:** Existing config accepts `LF_E2E_BASE_URL`, refuses accidental dev-server reuse, and retains first-failure traces. The E2E guide now uses locked installation and documents worktree/preview/fixture evidence. No new runner or dependency.
 
+- **Review:** [PR #176](https://github.com/anantham/LexiconForge/pull/176); implemented and pushed, pending review/merge.
+
 ### COPY-01 — Remove the hardcoded sutta title from shared provenance UI
 
 - **Status:** Open; unclaimed. Confidence: 0.99. Effort: small. Risk: factual accuracy; reversible.
