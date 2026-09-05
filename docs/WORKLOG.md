@@ -3728,3 +3728,11 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Next files:** `App.tsx` and its existing unit/browser tests for review; `MainApp.tsx` for a separate deletion-only ticket; `playwright.config.ts` and existing QA instructions for a separate setup ticket. Keep semantic live acceptance, physical device checks and merge/deployment decisions open.
 
 **Refreshed #173 verification:** `0d5f5ce` passes 25 focused tests, TypeScript, production build and the existing three production route checks. The existing startup probe confirms the improvement against the sanitized baseline: library H1 1916 → 1167ms, Gita H1 1757 → 610ms; no page errors. Receipt updated under `issues/01-bootup-time/`. Backend deployment and source merge decisions remain separate.
+
+### [2026-09-05] [Agent: Codex]
+**Status:** Addressing current-head Codex findings on #174.
+**Findings/predictions:** Two independently configured installation roots could diverge; canonical path comparison must reject missing/mismatched launcher configuration before hardening or route/task work. Required-variable failures happened before log redirection; moving the same guards into the existing logged entrypoint must retain errors for headless task diagnosis while still stopping before service startup. Confidence 0.97.
+**Files:** Windows cutover and both CMD launchers; native Windows regression probe; deployment README; this log. Existing authorization and loopback controls remain. No runtime cutover. Fallback: isolated corrective commit revert; no history rewrite.
+
+**Results:** Native Windows probe passes all three cutover root cases (missing, mismatched, normalized match) and all four missing-variable log cases. Its disposable hardening sentinel prevents task/service/route work. The initial stdin transport stalled; a temporary script-file transport completed and cleaned up. Bridge Python 3.12.13 suite passes 31 tests (one dependency deprecation warning).
+**Changed locations:** `deploy/windows/cutover-portal.ps1:124`, `start-bridge.cmd:22`, `start-sillytavern.cmd:14` under the bridge; `tests/windows/test-runtime-configuration.ps1:1`; bridge `README.md:81`. Runtime environment/task identity and actual process provenance remain deployment acceptance checks. No deployment performed.
