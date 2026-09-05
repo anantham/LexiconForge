@@ -142,3 +142,9 @@ If you want, I can turn this into a concrete investigation plan with expected me
 
 The durable checklist is [SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md](docs/roadmaps/SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md).
 Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion open until independently evidenced.
+
+
+Semantic delivery status (2026-09-05): #160 source is repaired with fresh green CI;
+backend recovery is committed locally, but TemporalCoordination is archived/read-only.
+Pick up the writable-repository, independent-review, browser/CSRF, deployment and
+real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
