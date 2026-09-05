@@ -316,3 +316,7 @@ Append-only raw debt receipts discovered during implementation.
 [DEBT][DUPLICATION] Shared provenance panel carries MN10-specific copy
 - `components/sutta-studio/AboutThisText.tsx:67-69` calls every packet Satipatthana regardless of its actual work ID.
 - Pickup ticket: [COPY-01](../../Issues.md#copy-01--remove-the-hardcoded-sutta-title-from-shared-provenance-ui). Recorded without expanding the route-loading patch.
+[DEBT][TEST][2026-09-05] Copied marker-insertion implementation
+- `tests/store/slices/illustration-marker-insertion.test.ts:14` reimplements the
+  production algorithm, so the suite can stay green when the real action breaks.
+- Delete/replace with a few actual store-action cases. Pickup: Issues.md TEST-01.

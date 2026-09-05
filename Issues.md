@@ -196,3 +196,8 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 - **Status:** Open; unclaimed. Confidence: 0.99. Effort: small. Risk: factual accuracy; reversible.
 - **Files / evidence:** `components/sutta-studio/AboutThisText.tsx:67-69` interpolates the packet's work ID but always appends “Satipaṭṭhāna Sutta (Foundations of Mindfulness).” The same component renders MN117 and live suttas.
 - **Done when:** Delete the fixed title or read a verified title from the packet; do not infer a title from the ID. Check two different packets and a packet without title metadata.
+### TEST-01 — Replace copied illustration-marker tests with production-path coverage
+
+- **Status:** Open; unclaimed.
+- **Evidence:** `tests/store/slices/illustration-marker-insertion.test.ts:14` implements its own `insertMarkerIntoHtml` and all assertions exercise that copy. It cannot detect changes to `store/slices/translationsSlice.ts`'s real action.
+- **Done when:** Remove the duplicated test implementation; retain only useful cases against the real action or a justified shared production function. Check actual chapter mutation and no mutation on rejected planning; do not add a wrapper solely to satisfy test counts.
