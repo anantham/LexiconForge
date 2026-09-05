@@ -310,3 +310,9 @@ Append-only raw debt receipts discovered during implementation.
 - Symptom: offline reimport in an already loaded app passes; a full browser restart/cold offline launch is not covered. Legacy FMoC tracks have no verified translation hash, so export deliberately omits them until bound to a verifiable corpus.
 - Follow-up: decide whether offline acceptance requires cold app launch, then test it with an installed/cached app. Do not label legacy tracks as portable verified data merely to satisfy export tests.
 - Pickup: Issues.md item 17 and semantic acceptance checklist; real-device acceptance still pending.
+
+### 2026-09-05 [DEBT][PRIVACY] Public handoff boundary
+- Files: `docs/WORKLOG.md`, public PR descriptions, deployment examples, broker defaults.
+- Finding: operator-specific configuration and live diagnostics had accumulated in public source records.
+- Current correction: explicit runtime configuration, generic examples, sanitized records, and a private-host check in the existing build scanner.
+- Follow-up: keep incident/runtime evidence outside Git; historical refs and cached artifacts require a separate owner decision. Public receipts must describe categories and acceptance, never repeat removed values.

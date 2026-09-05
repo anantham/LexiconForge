@@ -1,9 +1,14 @@
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$BasePython,
+    [string]$UvExecutable = 'uv'
+)
+
 $ErrorActionPreference = 'Stop'
 
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $bridgeRoot = (Resolve-Path (Join-Path $scriptDirectory '..\..')).Path
-$uv = 'C:\Users\adity\AppData\Local\Microsoft\WinGet\Packages\astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe\uv.exe'
-$basePython = 'C:\Users\adity\AppData\Roaming\uv\python\cpython-3.12.13-windows-x86_64-none\python.exe'
+$uv = (Get-Command $UvExecutable -CommandType Application -ErrorAction Stop).Source
 $virtualEnvironment = Join-Path $bridgeRoot '.venv-native'
 $virtualPython = Join-Path $virtualEnvironment 'Scripts\python.exe'
 $requirements = Join-Path $bridgeRoot '.runtime-requirements.txt'
@@ -41,7 +46,7 @@ Push-Location $bridgeRoot
 try {
     & $virtualPython -m pytest -q -p no:cacheprovider
     if ($LASTEXITCODE -ne 0) {
-        throw "Bridge tests failed on the deployed Asus runtime (exit $LASTEXITCODE)"
+        throw "Bridge tests failed on the runtime (exit $LASTEXITCODE)"
     }
 } finally {
     Pop-Location

@@ -4,7 +4,6 @@ import type { AppSettings } from '../../types';
 import type { ImageGenerationOverrides } from '../../services/imageJobTypes';
 import { getImageCapableModels } from '../../services/openrouterImageModelAdapter';
 import {
-  DEFAULT_INDRASNET_BASE_URL,
   fetchIndrasNetWorkflows,
   imageModelFromWorkflowName,
 } from '../../services/providers/indrasNetImageProvider';
@@ -13,7 +12,7 @@ import { OpenRouterEndpointSelect } from '../settings/OpenRouterEndpointSelect';
 interface ImageModelOption {
   id: string;
   label: string;
-  group: 'Saved' | 'Asus / IndrasNet' | 'OpenRouter' | 'Other';
+  group: 'Saved' | 'IndrasNet' | 'OpenRouter' | 'Other';
 }
 
 interface IllustrationRouteDialogProps {
@@ -44,10 +43,10 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
 
   useEffect(() => {
     let cancelled = false;
-    const endpointUrl = settings.indrasNetBaseUrl?.trim() || DEFAULT_INDRASNET_BASE_URL;
+    const endpointUrl = settings.indrasNetBaseUrl?.trim();
     Promise.allSettled([
       getImageCapableModels(),
-      fetchIndrasNetWorkflows(endpointUrl),
+      endpointUrl ? fetchIndrasNetWorkflows(endpointUrl) : Promise.resolve([]),
     ]).then(([openRouterResult, indrasNetResult]) => {
       if (cancelled) return;
       const options: ImageModelOption[] = [];
@@ -65,11 +64,11 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
       if (indrasNetResult.status === 'fulfilled') {
         options.push(...indrasNetResult.value.map(workflow => ({
           id: imageModelFromWorkflowName(workflow.name),
-          label: `Asus: ${workflow.manifest.display_name || workflow.name}`,
-          group: 'Asus / IndrasNet' as const,
+          label: `IndrasNet: ${workflow.manifest.display_name || workflow.name}`,
+          group: 'IndrasNet' as const,
         })));
       } else {
-        warnings.push('Asus workflow catalogue unavailable');
+        warnings.push('IndrasNet workflow catalogue unavailable');
         console.error('[IllustrationRouteDialog] IndrasNet catalogue failed:', indrasNetResult.reason);
       }
       setDiscoveredModels(options);
@@ -107,7 +106,7 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
     });
   };
 
-  const groups = ['Saved', 'Asus / IndrasNet', 'OpenRouter', 'Other'] as const;
+  const groups = ['Saved', 'IndrasNet', 'OpenRouter', 'Other'] as const;
 
   return (
     <div

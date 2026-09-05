@@ -3742,3 +3742,18 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 ### [2026-09-05] [Agent: Codex]
 **Status:** Public handoff correction.
 **Changes:** Removed private operational context from this log, the acceptance checklist and PR description. Source repair and synthetic test evidence remain recorded; private backend deployment and live acceptance are still pending. Operational evidence is retained outside this public repository. No Git history rewrite or deployment.
+
+### [2026-09-05] [Agent: Codex]
+**Status:** Starting approved public configuration cleanup.
+**Branch:** `fix/codex-public-boundary`, based on current main.
+**Scope:** Explicit private-broker settings, generic deployment examples, public-safe records and a bounded history assessment. Private evidence stays outside Git.
+**Hypothesis/prediction:** Removing implicit endpoints prevents broker discovery when unconfigured while preserving saved settings and authorization checks. Focused service/UI/extension tests and the artifact scan should prove both paths. Confidence 0.98. Fallback: revise or revert only the isolated cleanup commits; no history rewrite or deployment.
+
+### [2026-09-05] [Agent: Codex]
+**Status:** Public configuration cleanup validated locally.
+**Files:** Broker provider and default settings; settings/illustration panels; extension broker/scene controller; Windows launchers and examples; existing artifact scanner; focused tests; public documentation.
+**Behavior:** Missing endpoints cause no discovery request; extension configuration is checked before prompt composition. Saved endpoints remain unchanged. Removed the deployment-specific port wrapper. Windows owner identity and installation paths are explicit configuration; authorization, loopback binding and cutover controls are preserved.
+**Validation:** 114 focused Node 24.19.0 tests, TypeScript and production build pass. Python 3.12.13 bridge suite: 31 passing, one dependency deprecation warning. Three PowerShell files parse with their script parameter blocks recognized; both Windows launchers exit with configuration errors before starting services when required settings are absent. No runtime activation.
+**Privacy checks:** New production output passes the provider-key, Tailnet-host and canary scan; repository/extension integrity passes. Private audit evidence is outside the repository. Source cleanup does not erase prior commits or cached artifacts.
+**[DEBT]:** `Issues.md` item 18 and `docs/roadmaps/TECH-DEBT-INBOX.md` record the public boundary without reproducing operational identifiers.
+**Final review:** Corrected the bootstrap parameter block placement at `integrations/sillytavern-bridge/deploy/windows/bootstrap-bridge.ps1:1`; syntax alone had not verified script parameter binding. Production Chromium acceptance passes: fresh browser makes no broker discovery request, an explicitly configured endpoint discovers workflows, and the endpoint persists after save/reload. All network responses used by this browser check were controlled fixtures.

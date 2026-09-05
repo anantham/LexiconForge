@@ -148,3 +148,11 @@ Semantic delivery status (2026-09-05): #160 source is repaired with fresh green 
 backend recovery is committed locally; publication and live acceptance remain pending.
 Pick up the writable-repository, independent-review, browser/CSRF, deployment and
 real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
+
+18) Public configuration boundary: require local broker settings and keep operator records private.
+
+Current cleanup removes built-in endpoints, personal deployment defaults and operational
+records. Existing saved settings continue to work. The client artifact scan rejects
+embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
+Historical refs/caches are a separate assessment; do not claim deletion from history
+or copy private audit findings into this issue. Merge/deployment evidence is pending.

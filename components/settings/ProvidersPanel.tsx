@@ -24,7 +24,6 @@ import { TranslationEngineSection } from './TranslationEngineSection';
 import { ApiKeysSection } from './ApiKeysSection';
 import { IndrasNetImageFallbackSection } from './IndrasNetImageProviderSection';
 import {
-  DEFAULT_INDRASNET_BASE_URL,
   fetchIndrasNetWorkflows,
   imageModelFromWorkflowName,
   isIndrasNetImageModel,
@@ -166,8 +165,9 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
-    const endpoint = currentSettings.indrasNetBaseUrl?.trim() || DEFAULT_INDRASNET_BASE_URL;
+    const endpoint = currentSettings.indrasNetBaseUrl?.trim();
     setIndrasNetWorkflows([]);
+    if (!endpoint) return;
     const timer = setTimeout(() => {
       fetchIndrasNetWorkflows(endpoint, { force: true })
         .then(workflows => {
@@ -428,11 +428,11 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
 
     const indrasModels = indrasNetWorkflows.map(workflow => ({
       id: imageModelFromWorkflowName(workflow.name),
-      name: `Asus: ${workflow.manifest.display_name || workflow.name}`,
+      name: `IndrasNet: ${workflow.manifest.display_name || workflow.name}`,
       description: workflow.manifest.description || `IndrasNet workflow ${workflow.name}`,
-      label: `Asus: ${workflow.manifest.display_name || workflow.name} — local`,
+      label: `IndrasNet: ${workflow.manifest.display_name || workflow.name} — local`,
       sortKey: 0,
-      provider: 'Asus / IndrasNet',
+      provider: 'IndrasNet',
       source: 'dynamic' as const,
     }));
 
@@ -445,11 +445,11 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
       }
       indrasModels.push({
         id: currentSettings.imageModel,
-        name: `Asus: ${workflowName}`,
+        name: `IndrasNet: ${workflowName}`,
         description: 'Saved IndrasNet workflow; currently unavailable from the configured endpoint.',
-        label: `Asus: ${workflowName} — unavailable`,
+        label: `IndrasNet: ${workflowName} — unavailable`,
         sortKey: 0,
-        provider: 'Asus / IndrasNet',
+        provider: 'IndrasNet',
         source: 'dynamic' as const,
       });
     }
