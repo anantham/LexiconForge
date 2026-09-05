@@ -49,12 +49,21 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
         novel: { ...payload.novel, id: novelId }, version: { ...payload.version, versionId },
         chapters: payload.chapters.map(chapter => ({ ...chapter, title: `${novelId}/${versionId}: ${chapter.title}` })) });
     }
-    store.getState().openNovel('semantic-fixture', 'v1');
-    await store.getState().importSessionData(payload);
-    store.getState().setCurrentChapter([...store.getState().chapters.keys()][0]);
+    store.getState().shelveActiveNovel();
     store.getState().setViewMode('english');
   }, fixture);
+  // A pasted portable URL has no registry scope. Its parsed identity must govern
+  // storage and reader selection even when unrelated books are already cached.
+  await page.route('**/semantic-import-fixture.json', route => route.fulfill({ json: fixture }));
+  await page.getByPlaceholder('Paste chapter URL or session JSON file URL to start reading...')
+    .fill('http://127.0.0.1:5194/semantic-import-fixture.json');
+  await page.getByRole('button', { name: '🔗 Fetch', exact: true }).click();
   await expect(page.locator('.oscilloscope-panel')).toBeVisible();
+  expect(await page.evaluate(() => {
+    const state = (window as any).useAppStore.getState();
+    const chapter = state.chapters.get(state.currentChapterId);
+    return [state.activeNovelId, state.activeVersionId, chapter.novelId, chapter.libraryVersionId];
+  })).toEqual(['semantic-fixture', 'v1', 'semantic-fixture', 'v1']);
   const exported = await page.evaluate(() => (window as any).useAppStore.getState().exportSessionData());
   const portable = JSON.parse(exported);
   expect(portable.oscilloscope).toEqual(fixture.oscilloscope);

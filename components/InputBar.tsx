@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { SUPPORTED_WEBSITES_CONFIG } from '../config/constants';
 import { ImportService, ImportProgress } from '../services/importService';
-import { loadAllIntoStore } from '../services/readerHydrationService';
 
 /**
  * Heuristic guess that a URL is a session JSON export rather than a chapter page.
@@ -57,7 +56,7 @@ const InputBar: React.FC = () => {
 
     // Detect if this is a session JSON URL
     if (isSessionJsonUrl(trimmedUrl)) {
-      console.log('[InputBar] Detected session JSON URL, using streaming import...');
+      console.log('[InputBar] Detected session JSON URL, importing its declared scope...');
       shelveActiveLibraryNovel();
       setIsImporting(true);
       setImportProgress(null);
@@ -68,37 +67,10 @@ const InputBar: React.FC = () => {
         && useAppStore.getState().activeVersionId === importVersionId;
 
       try {
-        let hasNavigatedToFirstChapter = false;
-
-        await ImportService.streamImportFromUrl(
-          trimmedUrl,
-          (progress) => {
-            if (stillSelected()) setImportProgress(progress);
-          },
-          // Callback when first 10 chapters are ready
-          async () => {
-            if (hasNavigatedToFirstChapter || !stillSelected()) return;
-            hasNavigatedToFirstChapter = true;
-
-            console.log('[InputBar] First 10 chapters ready, navigating...');
-
-            const firstChapterId = await loadAllIntoStore((patch) => {
-              if (stillSelected()) useAppStore.setState(patch);
-            }, { limit: 10 });
-            if (!stillSelected()) return;
-
-            useAppStore.setState({
-              currentChapterId: firstChapterId,
-              appScreen: 'reader',
-              error: null,
-            });
-            setReaderReady();
-
-            // Clear the input
-            setUrl('');
-            console.log('[InputBar] Session import successful - user can start reading');
-          }
-        );
+        await ImportService.importFromUrl(trimmedUrl, (progress) => {
+          if (stillSelected()) setImportProgress(progress);
+        });
+        setUrl('');
 
         console.log('[InputBar] All chapters loaded successfully');
       } catch (err: any) {
@@ -267,14 +239,10 @@ const InputBar: React.FC = () => {
                     {importProgress.stage === 'downloading' && '📥 Downloading'}
                     {importProgress.stage === 'parsing' && '📋 Parsing'}
                     {importProgress.stage === 'importing' && '💾 Importing'}
-                    {importProgress.stage === 'streaming' && '🌊 Streaming'}
                     {importProgress.stage === 'complete' && '✅ Complete'}
                   </span>
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {importProgress.stage === 'streaming' && importProgress.chaptersLoaded !== undefined
-                      ? `${importProgress.chaptersLoaded}${importProgress.totalChapters ? `/${importProgress.totalChapters}` : ''} chapters`
-                      : `${importProgress.progress.toFixed(0)}%`
-                    }
+                    {importProgress.progress.toFixed(0)}%
                   </span>
                 </div>
                 <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2">
@@ -286,11 +254,6 @@ const InputBar: React.FC = () => {
                 {importProgress.message && (
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                     {importProgress.message}
-                  </p>
-                )}
-                {importProgress.canStartReading && (
-                  <p className="text-xs text-green-600 dark:text-green-400 mt-2 font-semibold">
-                    ✓ You can start reading now! Remaining chapters loading in background...
                   </p>
                 )}
               </div>

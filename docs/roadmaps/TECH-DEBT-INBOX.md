@@ -355,3 +355,10 @@ on its input. Check cross-component array reuse before a scoped correction.
 [DEBT][LEGACY][2026-09-05] Legacy binding and global tooltip receipts narrowed
 - #160 deletes the automatic unbound legacy loader/action and the global tooltip-title cache. Selected reader chapters now supply tooltip titles for every hydration path. The earlier fallback/title-cache follow-ups above are closed by deletion.
 - Bundled analysis assets remain available as data. Any future portable conversion must establish the exact corpus hash and translation first. Cold offline launch, same-selection import ordering and stale failure notifications remain open under Issues.md 17/19/20.
+
+[DEBT][IMPORT][2026-09-05] Unknown-scope streaming removed from pasted URL input
+- InputBar now uses ordinary `importFromUrl`, which parses the complete session identity before storage. Registry streaming requires a known novel scope; its unscoped ID/hydration branches and unused novel metadata inference are deleted.
+- Tradeoff: arbitrary pasted session URLs await complete download; registry first-batch reading is unchanged. Keep parser-order/request-identity work separate. Pickup: Issues.md 19.
+
+[DEBT][UI][2026-09-05] Current-chapter plot marker may retain a stale closure
+- `components/oscilloscope/OscilloscopeGraph.tsx` builds `youAreHerePlugin` from currentChapterNumber, but the uPlot creation effect intentionally does not depend on that callback. Static observation only: verify marker movement after navigation with unchanged tracks, then use current state without rebuilding the chart if reproduced. Pickup: Issues.md 19.

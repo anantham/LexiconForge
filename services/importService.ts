@@ -21,7 +21,7 @@ import type { TranslationRecord } from './db/types';
 import { debugLog, debugWarn } from '../utils/debug';
 import { withRetry, isNetworkError } from '../utils/retry';
 import { telemetryService } from './telemetryService';
-import { loadAllIntoStore, loadNovelIntoStore } from './readerHydrationService';
+import { loadNovelIntoStore } from './readerHydrationService';
 import { generateStableChapterId } from './stableIdService';
 import {
   buildLibraryScopeKey,
@@ -115,28 +115,14 @@ const getScopedChapterIdentity = (
     url?: string;
     canonicalUrl?: string;
   },
-  options: ImportOptions
+  novelId: string,
+  versionId: string | null
 ): { stableId: string; storageUrl: string; canonicalUrl: string } => {
   const canonicalUrl = chapter.canonicalUrl || chapter.url || '';
 
-  if (!options.registryNovelId) {
-    const stableId =
-      chapter.stableId ||
-      generateStableChapterId(
-        chapter.content || '',
-        chapter.chapterNumber || 0,
-        chapter.title || 'Untitled Chapter'
-      );
-    return {
-      stableId,
-      storageUrl: canonicalUrl,
-      canonicalUrl,
-    };
-  }
-
   const expectedScopeKey = buildLibraryScopeKey(
-    options.registryNovelId,
-    options.registryVersionId ?? null
+    novelId,
+    versionId
   );
 
   // isScopedStableId returns true only for strings, so this narrowing is
@@ -160,8 +146,8 @@ const getScopedChapterIdentity = (
       stableId: scopedStableId,
       storageUrl: buildScopedStorageUrl(
         scopedStableId,
-        options.registryNovelId,
-        options.registryVersionId ?? null
+        novelId,
+        versionId
       ),
       canonicalUrl,
     };
@@ -177,16 +163,16 @@ const getScopedChapterIdentity = (
 
   const stableId = buildScopedStableId(
     baseStableId,
-    options.registryNovelId,
-    options.registryVersionId ?? null
+    novelId,
+    versionId
   );
 
   return {
     stableId,
     storageUrl: buildScopedStorageUrl(
       stableId,
-      options.registryNovelId,
-      options.registryVersionId ?? null
+      novelId,
+      versionId
     ),
     canonicalUrl,
   };
@@ -351,8 +337,8 @@ export class ImportService {
   }
 
   /**
-   * Stream import session from URL - loads chapters progressively
-   * Allows users to start reading after first 10 chapters load
+   * Stream a registry-scoped session URL; unregistered URLs use importFromUrl.
+   * Allows reading after the first chapter batch loads.
    */
   static async streamImportFromUrl(
     url: string,
@@ -360,6 +346,10 @@ export class ImportService {
     onFirstChaptersReady?: () => void | Promise<void>,
     options: ImportOptions = {}
   ): Promise<any> {
+    const { registryNovelId, registryVersionId = null } = options;
+    if (!registryNovelId) {
+      throw new Error('Streaming requires a known novel scope; use importFromUrl for an unregistered session URL.');
+    }
     const { activeNovelId, activeVersionId } = useAppStore.getState();
     const stillSelected = () => useAppStore.getState().activeNovelId === activeNovelId
       && useAppStore.getState().activeVersionId === activeVersionId;
@@ -393,7 +383,6 @@ export class ImportService {
         let chaptersLoaded = 0;
         let totalChapters = 0;
         let metadata: any = null;
-        let sessionNovel: Record<string, unknown> | null = null;
         let sessionVersion: Record<string, unknown> | null = null;
         let sessionOscilloscope: unknown | undefined;
         const streamedStableIds: string[] = [];
@@ -715,7 +704,6 @@ export class ImportService {
           const arrayStart = buffer.indexOf('[', chaptersKey);
           if (arrayStart === -1) return;
 
-          sessionNovel = extractObjectField(buffer.slice(0, chaptersKey), 'novel') ?? sessionNovel;
           sessionVersion = extractObjectField(buffer.slice(0, chaptersKey), 'version') ?? sessionVersion;
           sessionOscilloscope = extractObjectField(buffer.slice(0, chaptersKey), 'oscilloscope') ?? sessionOscilloscope;
           buffer = buffer.slice(arrayStart + 1);
@@ -771,7 +759,8 @@ export class ImportService {
               url: chapterUrl,
               canonicalUrl: chapter.canonicalUrl || chapterUrl,
             },
-            options
+            registryNovelId,
+            registryVersionId
           );
 
           const translationInputs = buildTranslationInputs(chapter);
@@ -783,8 +772,8 @@ export class ImportService {
 
           const chapterPayload: Chapter & { stableId?: string; fanTranslation?: string | null } = {
             stableId: identity.stableId,
-            novelId: options.registryNovelId ?? null,
-            libraryVersionId: options.registryVersionId ?? null,
+            novelId: registryNovelId,
+            libraryVersionId: registryVersionId,
             originalUrl: chapterUrl,
             title: chapter.title,
             content: chapter.content,
@@ -1118,22 +1107,19 @@ export class ImportService {
           ? preHydrationState.chapters.get(preHydrationState.currentChapterId)
           : null;
         const openScopedChapterNumber =
-          options.registryNovelId &&
           openChapterBeforeHydration &&
-          (openChapterBeforeHydration.novelId ?? null) === options.registryNovelId &&
+          (openChapterBeforeHydration.novelId ?? null) === registryNovelId &&
           (openChapterBeforeHydration.libraryVersionId ?? null) ===
-            (options.registryVersionId ?? null) &&
+            registryVersionId &&
           typeof openChapterBeforeHydration.chapterNumber === 'number' &&
           Number.isSafeInteger(openChapterBeforeHydration.chapterNumber) &&
           openChapterBeforeHydration.chapterNumber > 0
             ? openChapterBeforeHydration.chapterNumber
             : null;
 
-        const firstChapterId = options.registryNovelId
-          ? await loadNovelIntoStore(options.registryNovelId, applyHydration, {
-              versionId: options.registryVersionId ?? null,
-            })
-          : await loadAllIntoStore(applyHydration);
+        const firstChapterId = await loadNovelIntoStore(registryNovelId, applyHydration, {
+          versionId: registryVersionId,
+        });
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
         if (!stillSelected()) {
           resolve({ metadata, chaptersLoaded });
@@ -1143,8 +1129,8 @@ export class ImportService {
         const remappedOpenChapterId = openScopedChapterNumber === null
           ? null
           : Array.from(hydratedState.chapters.entries()).find(([, chapter]) =>
-              (chapter.novelId ?? null) === options.registryNovelId &&
-              (chapter.libraryVersionId ?? null) === (options.registryVersionId ?? null) &&
+              (chapter.novelId ?? null) === registryNovelId &&
+              (chapter.libraryVersionId ?? null) === registryVersionId &&
               chapter.chapterNumber === openScopedChapterNumber
             )?.[0] ?? null;
 
@@ -1161,8 +1147,8 @@ export class ImportService {
               previousChapterId: preHydrationState.currentChapterId,
               chapterNumber: openScopedChapterNumber,
               remappedChapterId: remappedOpenChapterId,
-              novelId: options.registryNovelId,
-              versionId: options.registryVersionId ?? null,
+              novelId: registryNovelId,
+              versionId: registryVersionId,
             }
           );
         }
@@ -1207,15 +1193,11 @@ export class ImportService {
         const oscilloscopeCorpus = sessionOscilloscope && typeof sessionOscilloscope === 'object'
           ? (sessionOscilloscope as Record<string, any>).corpus
           : null;
-        const parsedSessionNovel = sessionNovel as Record<string, unknown> | null;
         const parsedSessionVersion = sessionVersion as Record<string, unknown> | null;
-        const corpusId = options.registryNovelId
-          ?? (typeof parsedSessionNovel?.id === 'string' ? parsedSessionNovel.id : null)
-          ?? oscilloscopeCorpus?.corpusId;
-        const versionId = options.registryVersionId
+        const versionId = registryVersionId
           ?? (typeof parsedSessionVersion?.versionId === 'string' ? parsedSessionVersion.versionId : null)
           ?? oscilloscopeCorpus?.versionId;
-        if (corpusId && versionId) {
+        if (versionId) {
           try {
             const hydratedChapters = streamedStableIds.map((stableId) => postHydrationState.chapters.get(stableId));
             if (hydratedChapters.some((chapter) => !chapter)) {
@@ -1224,7 +1206,7 @@ export class ImportService {
               );
             }
             const corpus = await computeSemanticCorpusIdentity({
-              novel: { id: corpusId },
+              novel: { id: registryNovelId },
               version: { versionId },
               chapters: hydratedChapters,
             } as any);

@@ -145,7 +145,7 @@ Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion op
 
 
 Semantic delivery status (2026-09-05): #160 has further reviewed storage/lifecycle
-corrections passing 130 focused Node 24.19.0 tests, including streamed selection races and rejection of unverified legacy fallback; final-head CI/review is pending;
+corrections passing 131 focused Node 24.19.0 tests, including streamed selection races and rejection of unverified legacy fallback; fresh CI is linked from the PR; final independent review is pending after the reviewer reported a usage limit;
 backend recovery is committed locally; publication and live acceptance remain pending.
 Pick up the writable-repository, independent-review, browser/CSRF, deployment and
 real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
@@ -169,6 +169,8 @@ or copy private audit findings into this issue. Cleanup is in [PR #174](https://
   preserve image-only changes and do not add a whole-store hashing subscription.
 - `components/session-info/VersionSelector.tsx:40` sorts its input versions in place; verify
   shared-array mutation before changing it.
+
+- `components/oscilloscope/OscilloscopeGraph.tsx`: investigate whether the current-chapter marker retains its creation-time chapter after navigation without plot reconstruction; static finding, browser regression not yet run.
 
 Receipts: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 graph review; structural
 friction belongs in `docs/architecture/ARCHITECTURE.md` section 7.

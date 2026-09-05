@@ -2,6 +2,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { computeSemanticCorpusIdentity, createSessionOscilloscope } from '../../services/semanticOscilloscopeSession';
+import { buildScopedStableId } from '../../services/libraryScope';
 
 const { chapterOpsMock, translationOpsMock } = vi.hoisted(() => ({
   chapterOpsMock: {
@@ -150,6 +151,13 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([]);
   });
 
+  it('rejects an unknown stream scope before fetching or storing chapters', async () => {
+    await expect(ImportService.streamImportFromUrl('https://example.com/session.json'))
+      .rejects.toThrow(/known novel scope/i);
+    expect(fetch).not.toHaveBeenCalled();
+    expect(chapterOpsMock.store).not.toHaveBeenCalled();
+  });
+
   it('fires onFirstChaptersReady for a session SMALLER than the first-batch threshold', async () => {
     const onFirstChaptersReady = vi.fn();
 
@@ -227,8 +235,10 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
       values: [0.6], totalChapters: 1,
       provenance: { origin: 'precomputed' as const, method: 'semantic-v1' },
     }]]), new Set(['tone:romance']));
-    importStoreState.chapters = new Map([['ch1', {
-      id: 'ch1', stableId: 'ch1', chapterNumber: 1, title: 'Chapter 1', content: 'Raw content',
+    const novelId = placement === 'wrong-scope' ? 'other-book' : 'book-a';
+    const stableId = buildScopedStableId('ch1', novelId, 'v1');
+    importStoreState.chapters = new Map([[stableId, {
+      id: stableId, stableId, novelId, libraryVersionId: 'v1', chapterNumber: 1, title: 'Chapter 1', content: 'Raw content',
       translationResult: { translation: 'Translated content' },
     }]]);
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf({
@@ -241,7 +251,8 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
       ...(placement !== 'before' ? { oscilloscope } : {}),
     })));
 
-    await ImportService.streamImportFromUrl('https://example.com/session.json');
+    await ImportService.streamImportFromUrl('https://example.com/session.json', undefined, undefined,
+      { registryNovelId: novelId, registryVersionId: 'v1' });
 
     if (placement === 'wrong-scope') {
       expect(importStoreState.loadSessionOscilloscope).not.toHaveBeenCalled();

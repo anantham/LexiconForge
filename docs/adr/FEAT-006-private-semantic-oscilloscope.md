@@ -188,3 +188,18 @@ Two panel regressions reject legacy requests for default and alternate FMoC
 translations. The production offline export/file-import/cache-reopen fixture
 checks distinctive scoped titles despite stale previous-import state. FEAT-006
 remains Accepted pending the live acceptance checklist.
+
+### Unregistered URL scope correction — 2026-09-05
+
+Pasted session URLs use the existing ordinary importer. It parses portable
+novel/version identity before persisting chapters, as local file import does.
+Registry imports retain progressive loading because their scope is known before
+chapter bytes arrive. The streaming entrypoint now rejects missing scope before
+fetch/storage; its all-book hydration fallback and unscoped identity branch are
+deleted. InputBar no longer owns first-batch hydration/navigation for arbitrary
+URLs. This supersedes earlier notes about that InputBar streaming path.
+
+Tradeoff: arbitrary pasted sessions await the full download before reading, with
+the ordinary importer's existing memory requirements. No key-order staging or
+retroactive scope migration is introduced. The production browser fixture proves
+URL import with other cached books, frozen export and native offline file reopen.

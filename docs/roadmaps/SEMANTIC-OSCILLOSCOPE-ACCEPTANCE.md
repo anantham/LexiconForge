@@ -9,9 +9,10 @@ are separate. Private operator records are maintained outside this repository.
 - [x] Merge current main without rewriting history and resolve conflicts.
 - [x] Review hydrated corpus verification, streamed imports, full/quick exports,
       book/version resets, cached reopening and removal of unverified legacy fallback.
-- [x] Correct reviewed findings with storage, import-race and graph-navigation regressions; run 130 focused tests on Node 24.19.0.
+- [x] Correct reviewed findings with storage, import-race and graph-navigation regressions; run 131 focused tests on Node 24.19.0.
 - [x] Verify TypeScript, build and integrity on repaired source.
-- [ ] Verify fresh CI and independent review on the final corrected head.
+- [x] Obtain fresh CI; each corrective push runs the required checks again.
+- [ ] Complete independent review of the final corrected head; the Codex reviewer reported a usage limit on the refreshed stack.
 - [x] Verify production offline exported-file upload, graph navigation and cached
       reopening on desktop Chromium and Pixel 7 Chromium emulation.
 - [ ] Verify native offline file upload on Safari; pinned WebKit file I/O fails
@@ -25,11 +26,11 @@ quick/publish/fork export and graph invalidation after chapter deletion. It also
 removes a duplicate invalid IndexedDB query and prevents delayed imports from
 replacing a newer reader selection. Further review corrections guard streamed and
 first-batch/cache hydration and restrict graph clicks to the selected book/version.
-Node 24.19.0: 130 focused tests pass. A full backup containing three corpus scopes
+Node 24.19.0: 131 focused tests pass. A full backup containing three corpus scopes
 preserves all six chapters and navigates within the selected graph offline.
 The production browser fixture now uses the ordinary portable format, without
 artificial top-level scope fields. Current-head CI/review is linked from #160;
-source and emulated-device checks do not close live acceptance. The unverified legacy loader is deleted; file, streamed and cached graph tooltips derive titles from selected reader chapters rather than global import state.
+source and emulated-device checks do not close live acceptance. Pasted session URLs now use ordinary import to establish parsed scope before storage; registry imports retain progressive loading. Unscoped streaming is rejected before download or persistence. The unverified legacy loader is deleted; file, streamed and cached graph tooltips derive titles from selected reader chapters rather than global import state.
 
 ## 2. Recover the backend implementation
 
