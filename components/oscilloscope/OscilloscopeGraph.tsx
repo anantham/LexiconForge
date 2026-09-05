@@ -55,7 +55,7 @@ function buildSeriesConfig(activeThreads: ThreadData[]): uPlot.Series[] {
 /** Build tooltip DOM content using safe DOM methods (no innerHTML). */
 function buildTooltipContent(
   tooltipEl: HTMLDivElement,
-  chapter: number,
+  title: string,
   series: uPlot.Series[],
   data: uPlot.AlignedData,
   idx: number,
@@ -64,9 +64,6 @@ function buildTooltipContent(
   tooltipEl.textContent = '';
 
   // Chapter header with title
-  const titles = (window as any).__oscilloscopeChapterTitles || {};
-  const title = titles[String(chapter)] || `Chapter ${chapter}`;
-
   const header = document.createElement('div');
   header.style.fontWeight = '600';
   header.style.marginBottom = '2px';
@@ -129,6 +126,19 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
   // Current chapter position for "you are here" marker
   const currentChapterId = useAppStore((s) => s.currentChapterId);
   const chapters = useAppStore((s) => s.chapters);
+  const chapterTitles = useMemo(() => {
+    const titles = new Map<number, string>();
+    for (const chapter of chapters.values()) {
+      if (chapter.novelId === activeNovelId && (chapter.libraryVersionId ?? null) === activeVersionId
+        && chapter.chapterNumber != null && chapter.title) {
+        titles.set(chapter.chapterNumber, chapter.title);
+      }
+    }
+    return titles;
+  }, [chapters, activeNovelId, activeVersionId]);
+  // The imperative cursor callback needs current titles without recreating uPlot.
+  const chapterTitlesRef = useRef(chapterTitles);
+  chapterTitlesRef.current = chapterTitles;
   const currentChapterNumber = useMemo(() => {
     if (!currentChapterId) return null;
     const ch = chapters.get(currentChapterId);
@@ -251,7 +261,7 @@ const OscilloscopeGraph: React.FC<OscilloscopeGraphProps> = ({ isExpanded }) => 
             setHoveredChapter(chapter);
 
             // Build tooltip content with safe DOM methods
-            buildTooltipContent(tooltipEl, chapter, u.series, u.data, idx);
+            buildTooltipContent(tooltipEl, chapterTitlesRef.current.get(chapter) || `Chapter ${chapter}`, u.series, u.data, idx);
             tooltipEl.style.display = 'block';
 
             // Position tooltip

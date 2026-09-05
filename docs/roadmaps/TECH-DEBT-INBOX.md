@@ -351,3 +351,7 @@ on its input. Check cross-component array reuse before a scoped correction.
 [DEBT][IMPORT][2026-09-05] Acquisition follow-up narrowed
 - File and ordinary URL acquisition now guard selected book/version before applying session metadata or invoking bootstrap; InputBar's streamed first-batch hydration is also guarded.
 - Same-selection overlapping requests, stale failure notifications, ordered stream parsing, and replacement of the global tooltip-title cache remain broader lifecycle/decomposition follow-ups. Preserve these as separate receipts rather than growing #160 into a parser rewrite.
+
+[DEBT][LEGACY][2026-09-05] Legacy binding and global tooltip receipts narrowed
+- #160 deletes the automatic unbound legacy loader/action and the global tooltip-title cache. Selected reader chapters now supply tooltip titles for every hydration path. The earlier fallback/title-cache follow-ups above are closed by deletion.
+- Bundled analysis assets remain available as data. Any future portable conversion must establish the exact corpus hash and translation first. Cold offline launch, same-selection import ordering and stale failure notifications remain open under Issues.md 17/19/20.

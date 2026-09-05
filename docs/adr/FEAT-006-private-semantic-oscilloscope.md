@@ -167,3 +167,24 @@ are not live acceptance and do not justify marking this ADR Implemented.
 - `tests/services/semanticOscilloscopeLifecycle.test.ts` exercises actual import,
   IndexedDB, hydration, export and cache boundaries; synthetic rendering mocks
   cannot supply a version scope that persistence failed to save.
+
+### Superseding legacy fallback and title-cache correction — 2026-09-05
+
+The FMoC-only legacy fallback described above is removed. Matching a novel ID
+does not establish the translation or chapter-content hash, and the bundled
+legacy analysis has no verified corpus binding. A cache miss leaves the graph
+unloaded; only a verified session/cached graph or an explicitly initialized
+verified corpus can populate it. No guessed binding or automatic conversion is
+introduced. Bundled analysis assets are retained as data, not loaded implicitly.
+
+Implementation: `components/oscilloscope/OscilloscopePanel.tsx` restores only the
+verified cache. The legacy loader, `loadFromJSON` store action and unused
+normalization helper are deleted. `OscilloscopeGraph.tsx` derives chapter titles
+from the selected novel/library-version chapters. Its cursor uses the current
+memoized lookup, avoiding a global title cache, full-book scans on hover and
+chart rebuilds on title updates. Bootstrap import no longer writes global titles.
+
+Two panel regressions reject legacy requests for default and alternate FMoC
+translations. The production offline export/file-import/cache-reopen fixture
+checks distinctive scoped titles despite stale previous-import state. FEAT-006
+remains Accepted pending the live acceptance checklist.

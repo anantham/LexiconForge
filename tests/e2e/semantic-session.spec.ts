@@ -7,10 +7,10 @@ const chapters = [1, 2].map((chapterNumber) => ({
   stableId: `semantic-fixture-${chapterNumber}`,
   canonicalUrl: `lexiconforge://semantic-fixture/chapter/${chapterNumber}`,
   chapterNumber,
-  title: `Chapter ${chapterNumber}`,
+  title: `Selected corpus: chapter ${chapterNumber}`,
   content: `Synthetic chapter ${chapterNumber}.`,
   translations: [
-    { version: 1, isActive: true, translatedTitle: `Chapter ${chapterNumber}`, translation: `Synthetic chapter ${chapterNumber}.`, provider: 'OpenRouter', model: 'synthetic-fixture' },
+    { version: 1, isActive: true, translatedTitle: `Selected corpus: chapter ${chapterNumber}`, translation: `Synthetic chapter ${chapterNumber}.`, provider: 'OpenRouter', model: 'synthetic-fixture' },
     { version: 2, isActive: false, translatedTitle: `Chapter ${chapterNumber}`, translation: `Alternative translation ${chapterNumber}.`, provider: 'OpenRouter', model: 'synthetic-fixture' },
   ],
 }));
@@ -80,6 +80,8 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
   await expect(page.getByRole('button', { name: 'Threads', exact: true })).toBeVisible();
   await page.evaluate(() => {
     const store = (window as any).useAppStore;
+    // A previous import must not supply the current plot's chapter labels.
+    (window as any).__oscilloscopeChapterTitles = { 1: 'Previous book title' };
     const chapter = [...store.getState().chapters.values()].find((chapter: any) =>
       chapter.novelId === 'semantic-fixture' && chapter.libraryVersionId === 'v1' && chapter.chapterNumber === 2) as any;
     store.getState().setCurrentChapter(chapter.id);
@@ -88,7 +90,7 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
   const plot = page.locator('.oscilloscope-panel .u-over');
   await plot.hover({ position: { x: 10, y: 10 } });
   await expect.poll(() => page.evaluate(() => (window as any).useAppStore.getState().hoveredChapter)).toBe(1);
-  await expect(page.locator('.oscilloscope-tooltip > div').first()).toHaveText('Chapter 1');
+  await expect(page.locator('.oscilloscope-tooltip > div').first()).toHaveText('Selected corpus: chapter 1');
   await plot.click({ position: { x: 10, y: 10 } });
   expect(await page.evaluate(() => {
     const state = (window as any).useAppStore.getState();
@@ -110,6 +112,10 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
   });
   await expect(page.locator('.oscilloscope-panel')).toBeVisible();
   expect(await page.evaluate(() => (window as any).useAppStore.getState().threads.get('tone:trust').values)).toEqual([0.2, 0.7]);
+
+  await page.locator('.oscilloscope-panel canvas').click();
+  await page.locator('.oscilloscope-panel .u-over').hover({ position: { x: 10, y: 10 } });
+  await expect(page.locator('.oscilloscope-tooltip > div').first()).toHaveText('Selected corpus: chapter 1');
 
   await page.evaluate(async () => {
     const store = (window as any).useAppStore.getState();

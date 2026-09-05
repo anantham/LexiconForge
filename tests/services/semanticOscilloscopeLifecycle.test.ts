@@ -151,7 +151,6 @@ it.each([null, 'v1'])('retains every book in a full backup and restores its grap
   expect(useAppStore.getState().chapters.size).toBe(4);
   expect(useAppStore.getState().activeNovelId).toBe('book-a');
   expect(useAppStore.getState().activeVersionId).toBe(selection);
-  expect((window as any).__oscilloscopeChapterTitles['1']).toBe('Chapter 1');
   expect(useAppStore.getState().threads.get('tone:trust')?.values).toEqual([0.2, 0.7]);
 });
 

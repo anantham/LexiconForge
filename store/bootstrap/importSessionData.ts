@@ -143,14 +143,6 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
             } else {
               ctx.get().initializeOscilloscope(corpus);
             }
-            if (typeof window !== 'undefined') {
-              (window as any).__oscilloscopeChapterTitles = Object.fromEntries(
-                chapters.map((chapter, index) => [
-                  String(chapter.chapterNumber ?? index + 1),
-                  chapter.title || `Chapter ${index + 1}`,
-                ]),
-              );
-            }
           } else {
             ctx.get().resetOscilloscope();
           }

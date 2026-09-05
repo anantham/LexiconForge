@@ -95,11 +95,6 @@ export interface OscilloscopeActions {
   setExpanded: (expanded: boolean) => void;
 
   // Data loading
-  loadFromJSON: (
-    metaData: Record<string, any>,
-    characterThreads: Record<string, Record<string, number>>,
-    totalChapters: number
-  ) => void;
   addThread: (thread: ThreadData) => void;
   addSemanticThread: (query: string, result: SemanticScanResult) => string;
   initializeOscilloscope: (corpus: SemanticCorpusIdentity) => void;

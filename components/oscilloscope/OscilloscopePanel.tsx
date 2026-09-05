@@ -13,7 +13,6 @@ import ThreadLegend from './ThreadLegend';
 import ThreadSelector from './ThreadSelector';
 import OscilloscopeMinimap from './OscilloscopeMinimap';
 import { restoreCachedOscilloscope } from '../../services/semanticOscilloscopeCache';
-import { loadOscilloscopeData } from './loadOscilloscopeData';
 
 /**
  * Toolbar component shown in expanded mode.
@@ -127,16 +126,8 @@ const OscilloscopePanel: React.FC = () => {
   useEffect(() => {
     if (isLoaded || !activeNovelId) return;
     const controller = new AbortController();
-    restoreCachedOscilloscope(controller.signal).then((restored) => {
-      if (restored || controller.signal.aborted || activeNovelId !== 'forty-millenniums-of-cultivation') return;
-      return loadOscilloscopeData(
-      '/oscilloscope-data/_all_meta.json',
-      '/oscilloscope-data/_character_threads.json',
-      3457,
-      controller.signal,
-      );
-    }).catch((error) => {
-      if (!controller.signal.aborted) console.warn('[Oscilloscope] Legacy graph unavailable:', error);
+    void restoreCachedOscilloscope(controller.signal).catch((error) => {
+      if (!controller.signal.aborted) console.warn('[Oscilloscope] Cached graph unavailable:', error);
     });
     return () => controller.abort();
   }, [activeNovelId, activeVersionId, isLoaded]);
