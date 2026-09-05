@@ -3700,3 +3700,26 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Scope boundary:** The parallel pre-existing null compound-key path in `findBySourceUrl` will be recorded as debt rather than changed in this four-finding follow-up. `NovelLibrary.tsx` is a multi-concern 727-line hotspot; Option 1 intentionally avoids a controller extraction and records the hotspot for later decomposition.
 **Fallback:** Revert the follow-up commit. The published base commits and PRs remain available without history rewriting.
 **Confidence:** 0.98
+
+### [2026-09-05T06:12+04:00] [Agent: Codex]
+**Status:** Starting
+**Task:** User-authorized deletion-first latency pass. Start with cold page loading; the user's precise slow interaction remains unspecified.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-startup-latency`
+**Branch:** `perf/codex-startup-latency`
+**Baseline:** Freshly fetched `origin/main` is `8423892`; root checkout clean. Node 24.19.0 production build produces a 4,756.69 kB entry script (1,135.45 kB gzip).
+**Hypothesis:** H1 (0.90): eager route imports make every page download and evaluate unrelated readers, datasets, and benchmark tools. Native lazy route loading will reduce startup bytes and latency without adding a dependency or changing provider/persistence contracts. H2 (0.95): the synchronous MN10 registry and asynchronous MN117 registry can become one local packet loader, preserving aliases, route precedence, and visible errors.
+**Options:** A: remove unrelated routes from the startup dependency graph (selected within the explicit simplification authorization; small effort, low risk, reversible). B: redesign bootstrap/caches/provider coordination (deferred; unmeasured impact and higher complexity/risk).
+**Files likely affected:** `App.tsx`; a small route-load error boundary if needed; focused routing tests; this worklog.
+**Predictions:** smaller route-specific initial JavaScript; lower cold render time under identical throttling; existing URLs and client navigation still work; failed chunk/packet loads display descriptive errors.
+**Fallback:** discard only the isolated changes if measured latency fails to improve or routing behavior regresses. No runtime/deployment changes.
+
+**2026-09-05 verification checkpoint:** Production-browser route checks pass 3/3: standalone routes avoid unrelated modules; delayed packet responses cannot replace the current route; rejected feature downloads give recovery and preserve other routes. Focused Vitest gate passes 24/24, including 14 routing cases and the existing Gita reader tests. The first race-test draft exposed an async Vitest mock re-import returning the real JSON module; diagnostic packet-key logging proved the harness artifact. Removed that artificial delay, retained packet identity checks, and verified the actual delayed network response in Chromium instead. No production guard was weakened.
+**Self-review:** Kept one small `lazyPage` wrapper because it supplies descriptive download-failure UI to every deferred feature. Deleted the unnecessary separate error-boundary class from this patch; no retry/cache state or routing dependency was added. Both local packets use the same loading path and fetch view/packet concurrently. `App.tsx` is 162 → 160 lines.
+**[DEBT]:** User requested actionable tickets for subsequent agents. Findings and setup/QA needs are recorded in root `Issues.md` (LAT-02/LAT-03/QA-01/QA-02/QA-03/COPY-01) with raw cross-references in `docs/roadmaps/TECH-DEBT-INBOX.md#2026-09-05-latency-pass`. These are deferred; only LAT-01 is implemented here.
+
+### [2026-09-05T06:28+04:00] [Agent: Codex]
+**Status:** Complete locally; publication pending.
+**Files/lines:** `App.tsx:5-160` defers route features, unifies local packets, and preserves visible failures; `App.test.tsx:1-105` covers routing/module isolation; `tests/e2e/route-loading.spec.ts:1-71` verifies real delayed/failed downloads; `issues/01-bootup-time/route-startup-probe.mjs` is the local-only reproducible timing probe; `issues/01-bootup-time/2026-09-05-route-startup.md` records measurements and QA limits; `Issues.md` and `docs/roadmaps/TECH-DEBT-INBOX.md` contain scoped follow-up tickets.
+**Final measurements:** 3 cold runs per version/path, alternating order, 4x CPU, 80ms latency, 10 Mbit/s, external calls/service workers blocked. Library H1 median 1813 → 1099ms; initial decoded JS 4759 → 1860KB. Gita index H1 1569 → 600ms; decoded JS 4757 → 197KB. All 12 page-error lists empty. No production or provider speedup claimed.
+**Verification:** Focused Vitest 25/25; production Chromium 3/3 (zero retries); build, current typecheck, integrity/extension checks, and scoped diff check pass. Changed TS/TSX ESLint has zero errors plus the pre-existing alias-effect warning. Routing line coverage 94.73%, no comparable prior baseline.
+**Next:** Review this isolated slice; six pickup tickets remain open. Main checkout preserved. No merge or deployment authorized. Confidence in measured startup improvement: 0.95. Fallback: revert this branch's focused changes.
