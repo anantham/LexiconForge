@@ -165,6 +165,8 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 - **Done when:** Remove the unused hooks/imports/ref/memo/commented code; preserve live job warnings and initialization/preload behavior. Existing app-shell/navigation tests pass. Measure render/subscription work before claiming a latency gain; do not replace dead code with another abstraction.
 - **Receipt:** [Controlled reader measurements](issues/09-chapter-change-perf-logging/2026-09-05-app-shell.md): 2,000 → 0 chapter lookups per 1,000 unrelated updates; synthetic navigation and job warnings verified. Review/merge pending.
 
+- **Review:** [PR #175](https://github.com/anantham/LexiconForge/pull/175); implemented and pushed, pending review/merge.
+
 ### LAT-03 — Stop rediscovering an unchanged broker on every settings-panel visit
 
 - **Status:** Open; unclaimed. Confidence: 0.95 for duplication; latency benefit unmeasured. Effort: small-medium. Risk: stale discovery if refresh semantics change; reversible.
