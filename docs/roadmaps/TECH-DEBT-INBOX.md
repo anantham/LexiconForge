@@ -296,3 +296,17 @@ Append-only raw debt receipts discovered during implementation.
 - Scope decision: PR #166 corrects the reviewed chapter-number path only. Expanding the follow-up to source-URL lookup would add an unreviewed behavioral contract.
 - Suggested follow-up: share one null-safe scoped-candidate helper between source-URL and chapter-number lookup, with real fake-IndexedDB tests for versioned and unversioned rows.
 - Blocker status: non-blocking for canonical `lexiconforge://` number navigation; remains a risk for unversioned external source-URL hydration.
+
+## 2026-09-05 latency pass
+
+[DEBT][LEGACY][DUPLICATION] App-shell subscriptions and repeated discovery
+- `MainApp.tsx` retains unused store subscriptions/ref/memo after auto-translation moved to the store; both settings panels force discovery despite the service's endpoint cache.
+- Pickup tickets with evidence and acceptance: [LAT-02](../../Issues.md#lat-02--delete-abandoned-app-shell-subscriptions-and-scaffolding), [LAT-03](../../Issues.md#lat-03--stop-rediscovering-an-unchanged-broker-on-every-settings-panel-visit).
+
+[DEBT][TEST] Validation and local QA gaps
+- Missing React declarations weaken JSX type checks; a wrong-endpoint UI test asserts no fetch before the 300ms fetch window. Worktree LFS filtering and a fixed dev-server E2E config complicate reproducible production checks.
+- Pickup tickets: [QA-01](../../Issues.md#qa-01--restore-meaningful-react-type-checking), [QA-02](../../Issues.md#qa-02--make-wrong-endpoint-coverage-actually-observe-the-debounce-window), [QA-03](../../Issues.md#qa-03--reproducible-worktree-and-production-browser-verification).
+
+[DEBT][DUPLICATION] Shared provenance panel carries MN10-specific copy
+- `components/sutta-studio/AboutThisText.tsx:67-69` calls every packet Satipatthana regardless of its actual work ID.
+- Pickup ticket: [COPY-01](../../Issues.md#copy-01--remove-the-hardcoded-sutta-title-from-shared-provenance-ui). Recorded without expanding the route-loading patch.
