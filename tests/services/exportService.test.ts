@@ -3,6 +3,7 @@ import { ExportService } from '../../services/exportService';
 import { useAppStore } from '../../store';
 import type { TranslationRecord } from '../../services/db/types';
 import type { SessionProvenance } from '../../types/session';
+import { attachOscilloscopeToFullExport } from '../../services/semanticOscilloscopeExport';
 import { computeSemanticCorpusIdentity } from '../../services/semanticOscilloscopeSession';
 
 const chapterOpsMock = vi.hoisted(() => ({
@@ -165,6 +166,24 @@ describe('ExportService', () => {
     expect(exportData.version.versionId).toBe('v1');
     expect(exportData.oscilloscope?.threads).toHaveLength(1);
     expect(exportData.oscilloscope?.threads[0].threadId).toBe('custom:trust');
+  });
+
+  it('preserves the active graph when a full backup includes other books and versions', async () => {
+    const chapter = { novelId: 'book-a', libraryVersionId: 'v1', chapterNumber: 1, title: 'One', content: 'Text' };
+    const corpus = await computeSemanticCorpusIdentity({
+      novel: { id: 'book-a' }, version: { versionId: 'v1' }, chapters: [chapter],
+    } as any);
+    const payload: any = { chapters: [chapter,
+      { ...chapter, novelId: 'book-b', content: 'Other book' },
+      { ...chapter, libraryVersionId: 'v2', content: 'Other translation' },
+    ] };
+    await attachOscilloscopeToFullExport(payload, corpus, new Map([['tone:trust', {
+      threadId: 'tone:trust', category: 'tone', label: 'Trust', color: '#ef4444',
+      values: [0.4], totalChapters: 1, provenance: { origin: 'precomputed', method: 'synthetic' },
+    }]]), new Set(['tone:trust']));
+    expect(payload.chapters).toHaveLength(3);
+    expect(payload.oscilloscope?.corpus).toEqual(corpus);
+    expect(payload.oscilloscope?.threads[0].values).toEqual([0.4]);
   });
 
   it('exports a readable partial book even though it has no complete graph corpus', async () => {

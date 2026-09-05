@@ -136,6 +136,9 @@ Implementation notes:
   text changes. Image-only changes do not invalidate a graph.
 - `components/oscilloscope/OscilloscopePanel.tsx` and
   `components/oscilloscope/loadOscilloscopeData.ts` restrict legacy data to FMoC and discard obsolete downloads.
+- `services/semanticOscilloscopeCache.ts` retains frozen scalar graphs on book
+  departure and verifies loaded text before cached reopening. Full backups hash
+  only the graph's corpus while preserving chapters from other books/versions.
 - Focused contracts plus `tests/e2e/semantic-session.spec.ts` cover synthetic
   IndexedDB export/offline reimport, visible text, graph rendering and invalidation.
 

@@ -52,7 +52,8 @@ export const attachOscilloscopeToFullExport = async (
         style: 'other',
         features: [],
       },
-      chapters: payload.chapters,
+      chapters: payload.chapters.filter((chapter: any) =>
+        chapter?.novelId === corpusHint.corpusId && chapter?.libraryVersionId === corpusHint.versionId),
     });
     if (!sameCorpus(corpusHint, corpus)) return;
     payload.oscilloscope = createSessionOscilloscope(corpus, threads, activeThreadIds);

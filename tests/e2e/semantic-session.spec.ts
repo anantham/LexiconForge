@@ -71,6 +71,18 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
   await page.screenshot({ path: test.info().outputPath('offline-graph.png') });
 
   await page.evaluate(async () => {
+    const store = (window as any).useAppStore;
+    const ids = [...store.getState().chapters.keys()];
+    store.getState().shelveActiveNovel();
+    store.getState().openNovel('semantic-fixture', 'v1');
+    for (const id of ids) await store.getState().loadChapterFromIDB(id);
+    store.getState().setCurrentChapter(ids[0]);
+    store.getState().setReaderReady();
+  });
+  await expect(page.locator('.oscilloscope-panel')).toBeVisible();
+  expect(await page.evaluate(() => (window as any).useAppStore.getState().threads.get('tone:trust').values)).toEqual([0.2, 0.7]);
+
+  await page.evaluate(async () => {
     const store = (window as any).useAppStore.getState();
     await store.setActiveTranslationVersion(store.currentChapterId, 2);
   });

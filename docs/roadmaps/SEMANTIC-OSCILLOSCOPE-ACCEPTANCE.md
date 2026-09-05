@@ -7,12 +7,12 @@ recorded; source, CI, merge, deployment, and device acceptance are separate.
 
 - [x] Freshly verify #159 merged: `655af01f5dfccc3376115688625eae75f9e39f54`.
 - [x] Retarget #160 from `feat/codex-oscilloscope-private-client` to `main`.
-- [ ] Merge current main into its published branch without rewriting history.
+- [x] Merge current main into its published branch without rewriting history.
 - [x] Resolve conflicts while preserving both sides' independent changes.
 - [x] Review corpus verification, book/version changes, frozen graph import/export,
       and FMoC-only legacy fallback, including delayed completion races.
-- [ ] Run focused tests on Node 24.19.0; fix findings and obtain fresh CI.
-- [ ] Correct stale backend dependency and verification claims in the PR body.
+- [x] Run focused tests on Node 24.19.0; fix findings and obtain fresh CI.
+- [x] Correct stale backend dependency and verification claims in the PR body.
 
 Review worktree: `/private/tmp/LexiconForge.worktrees/codex-pr160-review`.
 Local branch: `fix/codex-pr160-review`; publication target is the existing
@@ -21,7 +21,10 @@ Local branch: `fix/codex-pr160-review`; publication target is the existing
 Local repair: merge `9029313`, Node 24.19.0 focused suite, TypeScript and production
 build pass. Production Chromium verifies a synthetic two-chapter graph exported
 and reimported with network offline; readable translation and invalidation pass.
-This is not a real scan or an offline cold-launch test.
+Fresh CI on `c7e3b9d`: all five jobs and Vercel passed (run `33942600655`).
+Review follow-up adds multi-book backup scoping and verified cached graph reopening;
+68 focused tests and the expanded production browser flow pass locally. Its next
+published head still requires fresh CI. This is not a real scan or offline cold-launch test.
 
 ## 2. Recover the backend implementation
 
