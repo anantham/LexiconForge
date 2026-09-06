@@ -296,3 +296,14 @@ Append-only raw debt receipts discovered during implementation.
 - Scope decision: PR #166 corrects the reviewed chapter-number path only. Expanding the follow-up to source-URL lookup would add an unreviewed behavioral contract.
 - Suggested follow-up: share one null-safe scoped-candidate helper between source-URL and chapter-number lookup, with real fake-IndexedDB tests for versioned and unversioned rows.
 - Blocker status: non-blocking for canonical `lexiconforge://` number navigation; remains a risk for unversioned external source-URL hydration.
+
+### 2026-09-05 [DEBT][PRIVACY] Public handoff boundary
+- Files: `docs/WORKLOG.md`, public PR descriptions, deployment examples, broker defaults.
+- Finding: operator-specific configuration and live diagnostics had accumulated in public source records.
+- Current correction: explicit runtime configuration, generic examples, sanitized records, and a private-host check in the existing build scanner.
+- Follow-up: keep incident/runtime evidence outside Git; historical refs and cached artifacts require a separate owner decision. Public receipts must describe categories and acceptance, never repeat removed values.
+
+[DEBT][TEST][2026-09-05] Copied marker-insertion implementation
+- `tests/store/slices/illustration-marker-insertion.test.ts:14` reimplements the
+  production algorithm, so the suite can stay green when the real action breaks.
+- Delete/replace with a few actual store-action cases. Pickup: Issues.md TEST-01.

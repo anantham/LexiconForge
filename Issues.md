@@ -139,3 +139,17 @@ If you want, I can turn this into a concrete investigation plan with expected me
 16) changing versions means comments should go away and then come back, its tied to that version! and the floating comment icons also have vanished with version switch!
 
 17) 
+
+18) Public configuration boundary: require local broker settings and keep operator records private.
+
+Current cleanup removes built-in endpoints, personal deployment defaults and operational
+records. Existing saved settings continue to work. The client artifact scan rejects
+embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
+Historical refs/caches are a separate assessment; do not claim deletion from history
+or copy private audit findings into this issue. Cleanup is in [PR #174](https://github.com/anantham/LexiconForge/pull/174); merge/deployment evidence is pending.
+
+### TEST-01 — Replace copied illustration-marker tests with production-path coverage
+
+- **Status:** Open; unclaimed.
+- **Evidence:** `tests/store/slices/illustration-marker-insertion.test.ts:14` implements its own `insertMarkerIntoHtml` and all assertions exercise that copy. It cannot detect changes to `store/slices/translationsSlice.ts`'s real action.
+- **Done when:** Remove the duplicated test implementation; retain only useful cases against the real action or a justified shared production function. Check actual chapter mutation and no mutation on rejected planning; do not add a wrapper solely to satisfy test counts.

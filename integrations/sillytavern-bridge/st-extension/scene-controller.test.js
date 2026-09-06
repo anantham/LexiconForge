@@ -8,6 +8,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { createSceneController } from './scene-controller.js';
+import { createBrokerClient } from './broker-client.js';
 
 const makeContext = (chatId = 'LF-FMoC-Ch750-test') => ({
     groupId: '1234567890123',
@@ -20,6 +21,23 @@ const makeContext = (chatId = 'LF-FMoC-Ch750-test') => ({
 });
 
 describe('createSceneController', () => {
+    it('rejects an unconfigured broker before composing a prompt', async () => {
+        const composePrompt = vi.fn();
+        const notify = vi.fn();
+        const controller = createSceneController({
+            getContext: () => makeContext(),
+            getSettings: () => ({ enabled: true, portalOnly: true, brokerUrl: '' }),
+            composePrompt,
+            createImageClient: settings => createBrokerClient({ baseUrl: settings.brokerUrl }),
+            attachImage: vi.fn(),
+            notify,
+            logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+        });
+        await controller.handle('group');
+        expect(composePrompt).not.toHaveBeenCalled();
+        expect(notify).toHaveBeenCalledWith('failed', expect.objectContaining({ code: 'BROKER_ENDPOINT_REQUIRED' }));
+    });
+
     it('composes, submits, and attaches exactly once for duplicate group events', async () => {
         const context = makeContext();
         const broker = { run: vi.fn().mockResolvedValue({
@@ -135,7 +153,7 @@ describe('createSceneController', () => {
         resolvePrompt('prompt from potentially changed global context');
         await handling;
 
-        expect(createImageClient).not.toHaveBeenCalled();
+        expect(run).not.toHaveBeenCalled();
         expect(notify).toHaveBeenCalledWith('navigation_changed', expect.objectContaining({
             imageBackend: 'indrasnet',
         }));

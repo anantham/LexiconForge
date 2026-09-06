@@ -25,7 +25,7 @@ describe('SemanticOscilloscopeClient', () => {
     expect(normalizeSemanticBaseUrl('https://asus.example.ts.net:9443/')).toBe('https://asus.example.ts.net:9443');
     expect(normalizeSemanticBaseUrl('http://127.0.0.1:7777')).toBe('http://127.0.0.1:7777');
     expect(normalizeSemanticBaseUrl('http://[::1]:7777')).toBe('http://[::1]:7777');
-    expect(() => normalizeSemanticBaseUrl('http://100.81.65.74:7777')).toThrow(SemanticOscilloscopeError);
+    expect(() => normalizeSemanticBaseUrl('http://192.0.2.10:7777')).toThrow(SemanticOscilloscopeError);
   });
 
   it('passes the complete corpus identity to capability and accepts exact readiness', async () => {

@@ -12,7 +12,8 @@ def test_bridge_launcher_binds_loopback_and_disables_proxy_header_trust() -> Non
     launcher = read("deploy/windows/start-bridge.cmd")
 
     assert "--host 127.0.0.1 --port 5001 --no-proxy-headers" in launcher
-    assert "LF_PORTAL_OWNER_LOGINS=" in launcher
+    assert "if not defined LF_PORTAL_OWNER_LOGINS" in launcher
+    assert "if not defined LF_PORTAL_ST_PUBLIC_URL" in launcher
     assert "LF_PORTAL_MAX_REQUEST_BYTES=4194304" in launcher
 
 
