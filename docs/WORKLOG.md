@@ -3609,6 +3609,82 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Files modified:** chrome_extension/README.md (BookToki usage section, output-format block, Multi-Site feature bullet, content.js table row removed — every replacement now assert-guarded); docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md item-2 wording reconciled to REMOVED status.
 **Verification:** README booktoki grep = only the provenance deprecation line; ledger grep shows no pending-PR-b for extension; this entry supersedes the 15:30 entry's overclaim re README/ledger (gate + popup fixes in that entry were real and verified).
 
+### [2026-08-25 16:22 IST] [Agent: Codex]
+**Status:** Starting human-confirmed Option 1B repair for PR #161
+**Task:** Close every exact-head adversarial-review finding on the fail-honest semantic-alignment contract before the stacked audit or Morning Chants data can advance.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-liturgy-fail-honest-renderer`
+**Branch:** `fix/codex-liturgy-fail-honest-renderer`
+**Confirmed root causes:** foreign community witnesses retain `tokenAlignTo` after their word alignment is stripped; the new contract is only fully validated in stacked PR #162; analysis review status is authored but invisible; combined geometry can anchor over an unclaimed gap; the hover re-anchor pass recomputes already-identical endpoints; component tests bypass emitted DOM; generator `none` and `infer` modes can carry stale `tokenAlignTo`.
+**Predicted tests:** pooled witnesses lose every alignment layer; malformed IDs, lengths, bounds, and analysis targets reject at this PR head; confirmed/alternative/needs-review status changes both DOM metadata and visible tooltip/underline treatment; multi-slice analysis anchors on a claimed element; renderer-emitted attributes reach geometry; generator `none`/`infer` clear reviewed fine targets while preserve retains them.
+**Files likely affected:** `data/liturgy/resolve.ts`; `services/liturgy/validation.ts`; `services/liturgy-generator/pipeline.ts`; focused renderer modules extracted from `components/liturgy/shapes/TripleScriptWitness.tsx`; `components/liturgy/shapes/alignmentGeometry.ts`; resolver/validation/generator/renderer/geometry tests; `docs/adr/LITURGY-001-liturgy-generator-pipeline.md`; semantic-alignment documentation; this worklog.
+**Fallback:** revert the isolated follow-up commit. Existing whole-word fallback remains safe and all source/witness strings remain unchanged.
+**Confidence:** 0.96 overall; 0.99 pooled cleanup and stale generator metadata; 0.93 status presentation and claimed-slice geometry pending focused component tests.
+
+### [2026-08-25 16:58 IST] [Agent: Codex]
+**Status:** Complete — Option 1B repairs for PR #161 verified; commits and push pending
+**Result:** Every confirmed exact-head finding is closed at the source contract. Foreign pooled witnesses now lose word, legacy-morpheme, and reviewed token targets together. Generator `none` and `infer` modes cannot retain stale reviewed targets. Structural validation now ships on this PR head and rejects orphaned fine targets, length/range errors, invalid analysis identities, and unresolved units. Authored analysis status is exposed through literal tooltip text, DOM metadata, and distinct underline treatment. Multi-slice geometry selects an actual claimed surface element nearest the English endpoint and the inert re-anchor pass has been removed. A renderer-to-geometry bridge test exercises the real emitted DOM instead of a hand-written surrogate.
+**Files and relevant lines:** `data/liturgy/resolve.ts:45-57,111`; `services/liturgy-generator/pipeline.ts:129-156`; `services/liturgy/validation.ts:84-180,270-379`; `components/liturgy/shapes/analysisPresentation.ts:1-66`; `components/liturgy/shapes/TripleScriptWitness.tsx:35,462-508,711-733,1090-1129`; `components/liturgy/shapes/alignmentGeometry.ts:39-64,103-118`; focused resolver/generator/validation/renderer/geometry tests; `docs/adr/LITURGY-001-liturgy-generator-pipeline.md:112-138`; `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md`; this worklog.
+**Verification:** focused contract/renderer pass 33/33; complete affected suite 7,195 passed and 340 skipped across 10 files; TypeScript clean; focused ESLint 0 errors with 20 pre-existing renderer/data warnings; production Vite build and built-client secret scan pass; `git diff --check` clean. Existing build warnings are unchanged and are not claimed green as source improvements.
+**Assumptions:** reviewed `tokenAlignTo` is meaningful only with a same-witness `alignTo`; inference must never guess reviewed fine targets; cautious status wins when layered units disagree; missing live DOM anchors fall back to the authored whole-word target.
+**Predicted outcomes confirmed:** all start-entry predictions passed. Source chant strings and witness wording are byte-unchanged.
+**Fallback:** revert the two isolated follow-up commits. The prior whole-word renderer remains the safe fallback.
+**Confidence:** 0.98.
+
+### [2026-08-25 19:12 IST] [Agent: Codex]
+**Status:** Complete — Gemini exact-head REVISE follow-up for PR #161; commit and push pending
+**Review receipt:** Gemini 3.1 Pro High run `0d7595a1-f29f-4f8e-9c37-561ceade2d0f`, formal GitHub review `5018671866`, reviewed head `bac438389833bd56296c0890a8b87a77327d330e`, verdict `REVISE`.
+**Findings and disposition:** P1 claimed coarse n-to-one arrows overlap after positional fanning was removed. Rejected as a semantic misunderstanding: all coarse targets must share the one truthful source-word center, but each already has a distinct English endpoint, so the connectors visibly fan instead of overlapping. The geometry regression now asserts three distinct `(x1,x2)` paths while forbidding invented source positions. P2 confirmed: `fine_target_word_not_found` lacked a negative test; a valid source position with an empty `WordGloss` registry now proves the guard. P3 confirmed: an explicit `tokenAlignTo: [null]` fell through to stale legacy precision despite the contract. The new contract now owns the whole witness when present; null/missing fine entries resolve coarse and legacy targets are consulted only when `tokenAlignTo` is absent. Validator precedence and documentation match the resolver.
+**Predicted outcomes:** explicit null plus legacy index resolves to an unreviewed whole-word target; invalid ignored legacy entries do not create validation errors; legacy-only invalid entries still reject; missing `WordGloss` fine targets reject; coarse n-to-one lines share source center and have distinct English endpoints.
+**Verification:** focused review cases 21/21; complete affected liturgy gate 7,182 passed with 327 skipped across 10 files; TypeScript clean; focused ESLint clean. The first focused run correctly failed one legacy test whose fixture accidentally retained `tokenAlignTo`; removing the new contract restored the intended legacy-only test and the unchanged validator diagnostic.
+**Files:** `services/liturgy/alignmentTargets.ts:38-55`; `services/liturgy/validation.ts:350-356`; `tests/services/liturgy/alignmentTargets.test.ts`; `tests/services/liturgy/semanticAlignmentValidation.test.ts`; `tests/components/liturgy/alignment-geometry.test.ts`; `types/liturgy.ts`; `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md`; this worklog.
+**Fallback:** revert this isolated review-follow-up commit; existing whole-word fallback remains safe, but the explicit-null documentation mismatch would return.
+**Confidence:** 0.99 for P2/P3 repairs; 0.99 that P1's proposed source fanning would violate the approved fail-honest convention.
+
+### [2026-08-25 17:58 IST] [Agent: Codex]
+**Status:** Gemini fresh-head P1 reproduced and repaired; verification and rereview pending
+**Review run:** Gemini 3.1 Pro High run `c3c78d35-fa3c-4c4e-9662-252c1d37ff5a` examined head `14a90969623e96c44483ae794ad05fe24dffc57b` and returned a substantive `REVISE` response before agy ended with an invalid-path tool error. Because the run status is `ERROR`, it is evidence for repair but will not be posted as a completed review receipt.
+**Confirmed root cause:** `claimedElementAnchor` selected one slice of a multi-slice analysis unit by proximity to each English endpoint. Two English tokens targeting the identical unit therefore originated at different source positions (`30` and `102.5`), visually implying a distributive mapping that was not authored.
+**Options:** (A) union midpoint, rejected because it can target an empty gap; (B) first claimed surface element in authored DOM order, selected because it is stable, claimed, small, and reversible; (C) branched multi-endpoint connector, deferred as a larger interaction redesign.
+**Predicted test:** distant English tokens targeting the same multi-slice analysis unit share source x=`30` while retaining distinct English endpoints x=`40` and x=`160`. The red test failed exactly as predicted before implementation.
+**Files:** `components/liturgy/shapes/alignmentGeometry.ts`; `tests/components/liturgy/alignment-geometry.test.ts`; `docs/liturgy/SEMANTIC-ALIGNMENT-CONVENTION.md`; this worklog.
+**Verification:** The red regression failed exactly with source anchors `[30, 102.5]`; after the repair, focused geometry/renderer/target/validation suites pass 22/22, TypeScript and focused ESLint pass, and `git diff --check` is clean. Agy-created untracked `pr_diff.patch` and empty `val.diff` review artifacts were identified by timestamp/content and removed; no authored source was deleted.
+**Fallback:** revert the isolated follow-up commit, returning to the previous claimed-slice heuristic; this would reopen the semantic-overclaiming risk.
+**Confidence:** 0.93 in the root cause and selected deterministic anchor; fresh exact-head Gemini review remains required.
+
+### [2026-08-25 18:20 IST] [Agent: Codex]
+**Status:** Gemini Pro Low exact-head REVISE disposition complete; regression evidence pending commit
+**Review receipt:** Gemini run `460024ac-1708-4c35-8968-cfc6fc10e3e2`, formal GitHub review `5019052880`, reviewed head `e6f93c5ace33cb90fbe5da90ee04a69fa7342faa`, verdict `REVISE` with three reported findings.
+**P1 disposition:** Rejected against the exact tree. The cited `lib/validators.ts` does not exist. `services/liturgy/validation.ts` checks `paliIndex < 0` before source-word lookup and emits `fine_target_without_word_alignment`; the named regression passes. The test now also asserts the precise diagnostic object.
+**P2 disposition:** Rejected against the exact tree. The existing diagnostic path is already `witness.tokenAlignTo.${englishIndex}`. The strengthened P1 regression locks `witness.tokenAlignTo.0` explicitly.
+**P3 disposition:** Rejected as stated but coverage made more explicit. The suite already accepts a complete valid layered array, resolver tests accept `{ kind: 'word' }`, and geometry tests cover truthful coarse many-to-one anchors. A new validator case now proves reviewed whole-word targets remain valid even with no fine `WordGloss` metadata.
+**Predicted tests:** the strengthened unaligned-token case reports the correct code and exact path; reviewed whole-word targets with an empty fine-metadata registry produce no validation errors; all existing contract tests remain green.
+**Files:** `tests/services/liturgy/semanticAlignmentValidation.test.ts`; this worklog. Production code is unchanged because the reported defects were absent.
+**Verification:** focused validation/resolver/geometry suites pass 21/21; TypeScript and focused ESLint pass; `git diff --check` is clean. The remaining untracked `diff.patch` created by the earlier high-reasoning review was identified by timestamp/content and removed; no authored source was deleted.
+**Fallback:** revert the isolated evidence-only follow-up commit; production behavior would be unchanged, but the reviewer misconceptions would be easier to repeat.
+**Confidence:** 0.995 on P1/P2 source disposition; 0.98 that the added P3 acceptance case closes the only plausible coverage ambiguity.
+
+### [2026-08-25 18:28 IST] [Agent: Codex]
+**Status:** Gemini fresh-head legacy diagnostic P3 repair implemented; verification and rereview pending
+**Review receipt:** Gemini run `c341532e-b4c6-41b4-b263-4aedabf75de0`, formal GitHub review `5019130437`, reviewed head `e1159c83c7bf73e1107d7af0ac33fef61ea39b64`, verdict `REVISE` with two P3 findings.
+**Confirmed root cause:** The unaligned-token branch correctly detects both current `tokenAlignTo` and legacy `morphemeAlignTo` precision, but its diagnostic path was hardcoded to `witness.tokenAlignTo.${englishIndex}`. A legacy-only error therefore pointed to an absent field, and no legacy unaligned-token regression inspected that path.
+**Options:** (A) select the path from the active precision source, chosen as exact, small, and reversible; (B) point generically at `alignTo`, rejected as less actionable; (C) normalize both precision arrays before validation, deferred as unnecessary refactoring.
+**Predicted tests:** current explicit targets retain `witness.tokenAlignTo.0`; legacy-only targets report `witness.morphemeAlignTo.0`; all validator and resolver cases remain green.
+**Files:** `services/liturgy/validation.ts`; `tests/services/liturgy/semanticAlignmentValidation.test.ts`; this worklog.
+**Verification:** validator/resolver suites pass 16/16; TypeScript and focused ESLint pass; `git diff --check` is clean.
+**Fallback:** revert the isolated fix commit; detection would remain correct but legacy diagnostics would again misidentify the source field.
+**Confidence:** 0.99.
+
+### [2026-08-25 18:37 IST] [Agent: Codex]
+**Status:** Gemini inconsistent-approval P3 repairs implemented; verification and fresh consistent review pending
+**Review receipt:** Gemini run `c9c74cab-becd-44d2-ab40-288c52ea1890`, formal GitHub review `5019228319`, reviewed head `5b42370df135e2e8b041360286a0d54b2e6c37f5`. The response ended `APPROVE` while listing two actionable P3s, so the faithfully inconsistent receipt is not treated as gate-eligible.
+**Confirmed root causes:** Three analysis invariants had production guards but no direct negative regression. Separately, the validator iterated surface-index values without their array positions, so multiple invalid entries emitted indistinguishable collection paths.
+**Options:** (A) add direct invariant tests and index each diagnostic path, selected as precise and reversible; (B) coalesce invalid indices into one diagnostic, rejected because it hides exact edit locations; (C) replace paths with JSON Pointer globally, deferred as unrelated migration.
+**Predicted tests:** each of `analysis_requires_surface_morphemes`, `analysis_units_missing`, and `analysis_surface_target_missing` is directly observed; invalid entries `[98, 99]` report suffixes `.0` and `.1`; existing validation remains green.
+**Files:** `services/liturgy/validation.ts`; `tests/services/liturgy/semanticAlignmentValidation.test.ts`; this worklog.
+**Verification:** semantic validator suite passes 13/13; TypeScript and focused ESLint pass; `git diff --check` is clean. The first typecheck correctly rejected a test loop that did not preserve discriminated-union narrowing; binding and narrowing each section explicitly fixed the test without production changes.
+**Fallback:** revert the isolated follow-up commit; validation would still reject malformed data but diagnostics would lose per-entry precision and the three invariant branches would again lack direct tests.
+**Confidence:** 0.99.
+
 ### [2026-08-24 06:59 IST] [Agent: Codex]
 **Status:** Starting approved private semantic oscilloscope implementation
 **Worktree:** `/private/tmp/LexiconForge.worktrees/codex-semantic-oscilloscope/`
@@ -4066,6 +4142,13 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Verification:** Integrated #172 `712846d` passes 137 tests in 15 focused files on Node 24.19.0, types, production build, client security scan and four production Chromium cases (late navigation across three scope changes and frozen-graph offline reopen). Independent Grok follow-up `gen-1788706940-9sQzYYjBNNTha8hDheXr` approves all four LF PRs and both companion publisher PRs after checking the 13-file LFS correction packet.
 **CI correction:** #171 run `34040813318` failed its exact-base whitespace check on one extra blank line at `services/library/artifactUrl.ts:19`. Remove only that blank line; behavior and reviewed statements remain identical. Run integrity with the actual main base before publishing. No retry of a known source failure and no check weakening. Confidence 1.0; reversible formatting-only change.
 **Remaining:** Merge parents first with fresh main-targeted CI, publish the reviewed companion artifacts, verify main URLs, and retain CONS-07 ordinary-backup selection and complete-corpus/live-scan/device gates.
+
+### [2026-09-06 19:20 MUT] [Agent: Codex]
+**Status:** Starting approved alignment consolidation #161 → #162, preserving the separate #163 human/domain gate.
+**Worktrees:** `/private/tmp/LexiconForge.worktrees/codex-alignment-renderer` and `codex-alignment-audit`; existing agent-owned branches, root main clean.
+**Hypothesis/options:** A (selected): retain the previously independently approved renderer/audit source, refresh main ancestry and integration tests. Moderate verification effort, low code risk, independently reversible; confidence 0.97. B: combine renderer, audit and sacred-text curation now; broader review/rollback and unresolved semantic acceptance. No source simplification is justified merely by helper count.
+**Evidence/prediction:** GitHub review receipts `5019337359` (#161 `d553f2d`) and `5019420029` (#162 `9d73900`) explicitly approve the exact source with zero remaining findings. They are external Gemini verdicts recorded as COMMENTED reviews, not formal human approvals. Preserve source identity through log-only conflicts; focused validator/geometry/renderer/audit tests and current-main CI should remain green.
+**Files:** This log only resolves the first parent conflict, preserving both histories. No application or liturgy data edits. Fallback: hold only the failing lane; do not automatically curate sacred text or add review automation.
 
 ### [2026-09-06 19:21 MUT] [Agent: Codex]
 **Status:** Chapter foundations merged; final acquisition refresh targets main.

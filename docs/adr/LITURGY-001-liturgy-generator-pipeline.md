@@ -108,3 +108,28 @@ Initial scaffold files:
 - `tests/services/liturgy-generator/pipeline.test.ts` — fixture-level coverage.
 - `test-fixtures/liturgy-generator/ti-sarana-mini.json` — first structured
   source packet.
+
+## Amendment: reviewed semantic targets (2026-08-25)
+
+**Status:** Implemented in PR #161 follow-up
+
+The renderer now distinguishes reviewed whole-word, exact surface-morpheme,
+and layered lexical/grammar targets. This extends the generator's alignment
+boundary: `alignmentMode: preserve` is the only mode allowed to retain
+`tokenAlignTo`. `none` clears every alignment layer, while `infer` creates a new
+unreviewed word/morpheme alignment and clears any stale reviewed target array.
+
+Structural validation is part of the same contract, not a later audit add-on.
+It rejects non-parallel arrays, invalid word/morpheme indexes, missing or
+duplicate/DOM-unsafe analysis IDs, invalid surface references, and fine targets
+whose aligned word or analysis unit does not exist.
+
+Implementation files:
+
+- `services/liturgy-generator/pipeline.ts`
+- `services/liturgy/validation.ts`
+- `data/liturgy/resolve.ts`
+- `components/liturgy/shapes/analysisPresentation.ts`
+- `components/liturgy/shapes/alignmentGeometry.ts`
+- `components/liturgy/shapes/TripleScriptWitness.tsx`
+- focused resolver, validation, generator, renderer-bridge, and geometry tests
