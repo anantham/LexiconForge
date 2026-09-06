@@ -3,6 +3,8 @@ import { ExportService } from '../../services/exportService';
 import { useAppStore } from '../../store';
 import type { TranslationRecord } from '../../services/db/types';
 import type { SessionProvenance } from '../../types/session';
+import { attachOscilloscopeToFullExport } from '../../services/semanticOscilloscopeExport';
+import { computeSemanticCorpusIdentity } from '../../services/semanticOscilloscopeSession';
 
 const chapterOpsMock = vi.hoisted(() => ({
   getAll: vi.fn(),
@@ -24,7 +26,10 @@ describe('ExportService', () => {
     useAppStore.setState({
       chapters: new Map(),
       sessionProvenance: null,
-      sessionVersion: null
+      sessionVersion: null,
+      threads: new Map(),
+      activeThreadIds: new Set(),
+      corpusIdentity: null,
     });
 
     // Reset all mocks
@@ -96,9 +101,112 @@ describe('ExportService', () => {
     expect(exportData.chapters).toHaveLength(1);
     expect(exportData.chapters[0].title).toBe('Chapter 1');
     expect(exportData.provenance).toBeUndefined();
+    expect(exportData.oscilloscope).toBeUndefined();
 
     // Verify IndexedDB was called
     expect(chapterOpsMock.getAll).toHaveBeenCalled();
+  });
+
+  it('freezes precomputed scalar tracks into a portable quick export', async () => {
+    const corpus = await computeSemanticCorpusIdentity(await ExportService.generateQuickExport());
+    useAppStore.setState({
+      corpusIdentity: corpus,
+      threads: new Map([['tone:romance', {
+        threadId: 'tone:romance',
+        category: 'tone',
+        label: 'romance',
+        color: '#ef4444',
+        values: [0.42],
+        totalChapters: 1,
+        provenance: { origin: 'precomputed', method: 'semantic-v1' },
+      }]]),
+      activeThreadIds: new Set(['tone:romance']),
+    });
+
+    const exportData = await ExportService.generateQuickExport();
+
+    expect(exportData.oscilloscope?.threads[0]).toMatchObject({
+      threadId: 'tone:romance',
+      values: [0.42],
+    });
+    expect(JSON.stringify(exportData.oscilloscope)).not.toMatch(/baseUrl|endpoint|asus/i);
+  });
+
+  it('retains the loaded corpus and version for corpus-bound quick-export tracks', async () => {
+    const corpus = await computeSemanticCorpusIdentity({
+      novel: { id: 'test-novel', title: 'Test Novel' },
+      version: { versionId: 'v1', displayName: 'V1', style: 'other', features: [] },
+      chapters: [{
+        chapterNumber: 1,
+        title: 'Chapter 1',
+        content: 'Test content',
+        fanTranslation: null,
+        translations: [{ version: 1, isActive: true, translation: 'Translated content' }],
+      }],
+    });
+    useAppStore.setState({
+      corpusIdentity: corpus,
+      threads: new Map([['custom:trust', {
+        threadId: 'custom:trust', category: 'custom', label: 'trust', color: '#ec4899',
+        values: [0.7], totalChapters: 1,
+        provenance: {
+          origin: 'private-semantic-scan', query: 'trust', generatedAt: '2026-08-24T00:00:00Z',
+          protocol: 'lexiconforge-semantic-oscilloscope-v1',
+          scoreSemantics: 'cosine-similarity-clipped-0-1',
+          vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512,
+          scoring: { algorithm: 'chapter-top-2-mean-cosine-v1', range: [0, 1] }, corpus,
+        },
+      }]]),
+      activeThreadIds: new Set(['custom:trust']),
+    });
+
+    const exportData = await ExportService.generateQuickExport();
+
+    expect(exportData.novel.id).toBe('test-novel');
+    expect(exportData.version.versionId).toBe('v1');
+    expect(exportData.oscilloscope?.threads).toHaveLength(1);
+    expect(exportData.oscilloscope?.threads[0].threadId).toBe('custom:trust');
+  });
+
+  it('preserves the active graph when a full backup includes other books and versions', async () => {
+    const chapter = { novelId: 'book-a', libraryVersionId: 'v1', chapterNumber: 1, title: 'One', content: 'Text' };
+    const corpus = await computeSemanticCorpusIdentity({
+      novel: { id: 'book-a' }, version: { versionId: 'v1' }, chapters: [chapter],
+    } as any);
+    const payload: any = { chapters: [chapter,
+      { ...chapter, novelId: 'book-b', content: 'Other book' },
+      { ...chapter, libraryVersionId: 'v2', content: 'Other translation' },
+    ] };
+    await attachOscilloscopeToFullExport(payload, corpus, new Map([['tone:trust', {
+      threadId: 'tone:trust', category: 'tone', label: 'Trust', color: '#ef4444',
+      values: [0.4], totalChapters: 1, provenance: { origin: 'precomputed', method: 'synthetic' },
+    }]]), new Set(['tone:trust']));
+    expect(payload.chapters).toHaveLength(3);
+    expect(payload.oscilloscope?.corpus).toEqual(corpus);
+    expect(payload.oscilloscope?.threads[0].values).toEqual([0.4]);
+  });
+
+  it('exports a readable partial book even though it has no complete graph corpus', async () => {
+    chapterOpsMock.getAll.mockResolvedValue([{ stableId: 'ch64', chapterNumber: 64, title: 'Sixty four', content: 'Readable' }]);
+    const exported = await ExportService.generateQuickExport();
+    expect(exported.chapters[0].chapterNumber).toBe(64);
+    expect(exported.oscilloscope).toBeUndefined();
+  });
+
+  it('does not rebind a frozen precomputed track to changed text of the same length', async () => {
+    const exported = await ExportService.generateQuickExport();
+    const corpus = await computeSemanticCorpusIdentity(exported);
+    useAppStore.setState({
+      corpusIdentity: corpus,
+      threads: new Map([['tone:trust', {
+        threadId: 'tone:trust', category: 'tone', label: 'trust', color: '#ef4444',
+        totalChapters: 1, values: [0.7], provenance: { origin: 'precomputed', method: 'fixture' },
+      }]]),
+    });
+    translationOpsMock.getVersionsByStableId.mockResolvedValue([{ version: 1, isActive: true, translation: 'Different text' }]);
+    const changed = await ExportService.generateQuickExport();
+    expect(changed.chapters[0].translations[0].translation).toBe('Different text');
+    expect(changed.oscilloscope?.threads ?? []).toEqual([]);
   });
 
   it('should generate publish export with metadata and provenance', async () => {

@@ -14,17 +14,13 @@ const { mockFetchIndrasNetWorkflows } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../../services/providers/indrasNetImageProvider', () => ({
-  DEFAULT_INDRASNET_BASE_URL: 'https://asus-strix-scar.tail4741ad.ts.net:9443',
   fetchIndrasNetWorkflows: mockFetchIndrasNetWorkflows,
-  getIndrasNetEndpointConfigurationError: (endpoint: string) => endpoint.endsWith(':8444')
-    ? 'Port 8444 is the SillyTavern web UI, not the IndrasNet image broker. Use https://asus-strix-scar.tail4741ad.ts.net:9443.'
-    : null,
 }));
 
 const baseSettings = {
   enableSillyTavern: true,
   sillyTavernBridgeUrl: 'http://localhost:5001',
-  indrasNetBaseUrl: 'https://asus-strix-scar.tail4741ad.ts.net:9443',
+  indrasNetBaseUrl: 'https://broker.example.com:9443',
 } as unknown as AppSettings;
 
 const renderPanel = (overrides: Partial<AppSettings> = {}) => {
@@ -126,19 +122,21 @@ describe('SillyTavernPanel — Test Connection + Copy Command', () => {
   it('keeps the image broker controls visible when self-insert is disabled', () => {
     renderPanel({ enableSillyTavern: false } as any);
     expect(screen.getByLabelText('Tailnet broker endpoint')).toHaveValue(
-      'https://asus-strix-scar.tail4741ad.ts.net:9443',
+      'https://broker.example.com:9443',
     );
   });
 
-  it('identifies port 8444 as the SillyTavern UI without probing it as IndrasNet', async () => {
-    renderPanel({
-      indrasNetBaseUrl: 'https://asus-strix-scar.tail4741ad.ts.net:8444',
-    } as any);
-
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      'Port 8444 is the SillyTavern web UI, not the IndrasNet image broker',
-    );
-    expect(mockFetchIndrasNetWorkflows).not.toHaveBeenCalled();
+  it('does not discover workflows until a broker endpoint is configured', async () => {
+    vi.useFakeTimers();
+    try {
+      renderPanel({ indrasNetBaseUrl: '  ' });
+      await act(async () => { await vi.advanceTimersByTimeAsync(500); });
+      expect(screen.getByRole('button', { name: 'Refresh' })).toBeDisabled();
+      expect(screen.getByRole('status')).toHaveTextContent('Enter a broker URL');
+      expect(mockFetchIndrasNetWorkflows).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('discovers workflows through the configured IndrasNet endpoint', async () => {
@@ -157,7 +155,7 @@ describe('SillyTavernPanel — Test Connection + Copy Command', () => {
 
     await waitFor(() => {
       expect(mockFetchIndrasNetWorkflows).toHaveBeenCalledWith(
-        'https://asus-strix-scar.tail4741ad.ts.net:9443',
+        'https://broker.example.com:9443',
         { force: true },
       );
     });
@@ -167,11 +165,11 @@ describe('SillyTavernPanel — Test Connection + Copy Command', () => {
   it('keeps broker endpoint edits modal-local until Settings is saved', () => {
     const { handleSettingChange } = renderPanel();
     fireEvent.change(screen.getByLabelText('Tailnet broker endpoint'), {
-      target: { value: 'https://custom-asus.example.ts.net:9443' },
+      target: { value: 'https://custom-broker.example.com:9443' },
     });
     expect(handleSettingChange).toHaveBeenCalledWith(
       'indrasNetBaseUrl',
-      'https://custom-asus.example.ts.net:9443',
+      'https://custom-broker.example.com:9443',
     );
   });
 });

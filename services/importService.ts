@@ -21,7 +21,7 @@ import type { TranslationRecord } from './db/types';
 import { debugLog, debugWarn } from '../utils/debug';
 import { withRetry, isNetworkError } from '../utils/retry';
 import { telemetryService } from './telemetryService';
-import { loadAllIntoStore, loadNovelIntoStore } from './readerHydrationService';
+import { loadNovelIntoStore } from './readerHydrationService';
 import { generateStableChapterId } from './stableIdService';
 import {
   buildLibraryScopeKey,
@@ -34,6 +34,10 @@ import {
   convertBookTokiToLexiconForgeFullPayload,
   isBookTokiScrapePayload,
 } from './import/booktoki';
+import {
+  computeSemanticCorpusIdentity,
+  parseSessionOscilloscope,
+} from './semanticOscilloscopeSession';
 
 export interface ImportProgress {
   stage: 'downloading' | 'parsing' | 'importing' | 'streaming' | 'complete';
@@ -111,28 +115,14 @@ const getScopedChapterIdentity = (
     url?: string;
     canonicalUrl?: string;
   },
-  options: ImportOptions
+  novelId: string,
+  versionId: string | null
 ): { stableId: string; storageUrl: string; canonicalUrl: string } => {
   const canonicalUrl = chapter.canonicalUrl || chapter.url || '';
 
-  if (!options.registryNovelId) {
-    const stableId =
-      chapter.stableId ||
-      generateStableChapterId(
-        chapter.content || '',
-        chapter.chapterNumber || 0,
-        chapter.title || 'Untitled Chapter'
-      );
-    return {
-      stableId,
-      storageUrl: canonicalUrl,
-      canonicalUrl,
-    };
-  }
-
   const expectedScopeKey = buildLibraryScopeKey(
-    options.registryNovelId,
-    options.registryVersionId ?? null
+    novelId,
+    versionId
   );
 
   // isScopedStableId returns true only for strings, so this narrowing is
@@ -156,8 +146,8 @@ const getScopedChapterIdentity = (
       stableId: scopedStableId,
       storageUrl: buildScopedStorageUrl(
         scopedStableId,
-        options.registryNovelId,
-        options.registryVersionId ?? null
+        novelId,
+        versionId
       ),
       canonicalUrl,
     };
@@ -173,16 +163,16 @@ const getScopedChapterIdentity = (
 
   const stableId = buildScopedStableId(
     baseStableId,
-    options.registryNovelId,
-    options.registryVersionId ?? null
+    novelId,
+    versionId
   );
 
   return {
     stableId,
     storageUrl: buildScopedStorageUrl(
       stableId,
-      options.registryNovelId,
-      options.registryVersionId ?? null
+      novelId,
+      versionId
     ),
     canonicalUrl,
   };
@@ -197,6 +187,7 @@ export class ImportService {
     onProgress?: (progress: ImportProgress) => void,
     options: ImportOptions = {}
   ): Promise<any> {
+    const { activeNovelId, activeVersionId } = useAppStore.getState();
     // Convert GitHub URLs to raw format
     let fetchUrl = normalizeImportUrl(url);
 
@@ -299,6 +290,11 @@ export class ImportService {
             throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
           }
 
+          const current = useAppStore.getState();
+          if (current.activeNovelId !== activeNovelId || current.activeVersionId !== activeVersionId) {
+            debugLog('import', 'summary', '[Import] Reader selection changed during download; session not applied');
+            return sessionData;
+          }
           if (sessionData.provenance) {
             useAppStore.getState().setSessionProvenance(sessionData.provenance);
           }
@@ -341,8 +337,8 @@ export class ImportService {
   }
 
   /**
-   * Stream import session from URL - loads chapters progressively
-   * Allows users to start reading after first 10 chapters load
+   * Stream a registry-scoped session URL; unregistered URLs use importFromUrl.
+   * Allows reading after the first chapter batch loads.
    */
   static async streamImportFromUrl(
     url: string,
@@ -350,6 +346,16 @@ export class ImportService {
     onFirstChaptersReady?: () => void | Promise<void>,
     options: ImportOptions = {}
   ): Promise<any> {
+    const { registryNovelId, registryVersionId = null } = options;
+    if (!registryNovelId) {
+      throw new Error('Streaming requires a known novel scope; use importFromUrl for an unregistered session URL.');
+    }
+    const { activeNovelId, activeVersionId } = useAppStore.getState();
+    const stillSelected = () => useAppStore.getState().activeNovelId === activeNovelId
+      && useAppStore.getState().activeVersionId === activeVersionId;
+    const applyHydration: Parameters<typeof loadNovelIntoStore>[1] = (patch) => {
+      if (stillSelected()) useAppStore.setState(patch);
+    };
     return new Promise(async (resolve, reject) => {
       debugLog('import', 'summary', '[StreamImport] Starting streaming import from:', url);
 
@@ -377,6 +383,9 @@ export class ImportService {
         let chaptersLoaded = 0;
         let totalChapters = 0;
         let metadata: any = null;
+        let sessionVersion: Record<string, unknown> | null = null;
+        let sessionOscilloscope: unknown | undefined;
+        const streamedStableIds: string[] = [];
         let firstChaptersReadyCalled = false;
         // Translation accounting — a number never travels without its
         // denominator: expected (in the payload), stored (this run), and
@@ -606,6 +615,47 @@ export class ImportService {
           }
         };
 
+        const extractObjectField = (source: string, key: string): Record<string, unknown> | undefined => {
+          const fieldKey = `"${key}"`;
+          const keyIndex = source.indexOf(fieldKey);
+          if (keyIndex === -1) return undefined;
+          const colonIndex = source.indexOf(':', keyIndex + fieldKey.length);
+          if (colonIndex === -1) return undefined;
+          const objectStart = source.indexOf('{', colonIndex + 1);
+          if (objectStart === -1) return undefined;
+          const objectEnd = findMatchingBrace(source, objectStart);
+          if (objectEnd === -1) return undefined;
+          const parsed = JSON.parse(source.slice(objectStart, objectEnd + 1));
+          return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : undefined;
+        };
+
+        const captureOscilloscopeIfReady = () => {
+          if (!chaptersCompleted || sessionOscilloscope !== undefined) return;
+          const fieldKey = '"oscilloscope"';
+          const keyIndex = buffer.indexOf(fieldKey);
+          if (keyIndex === -1) {
+            buffer = buffer.slice(-Math.max(0, fieldKey.length - 1));
+            return;
+          }
+          const colonIndex = buffer.indexOf(':', keyIndex + fieldKey.length);
+          if (colonIndex === -1) {
+            buffer = buffer.slice(keyIndex);
+            return;
+          }
+          const objectStart = buffer.indexOf('{', colonIndex + 1);
+          if (objectStart === -1) {
+            buffer = buffer.slice(keyIndex);
+            return;
+          }
+          const objectEnd = findMatchingBrace(buffer, objectStart);
+          if (objectEnd === -1) {
+            buffer = buffer.slice(keyIndex);
+            return;
+          }
+          sessionOscilloscope = JSON.parse(buffer.slice(objectStart, objectEnd + 1));
+          buffer = buffer.slice(objectEnd + 1);
+        };
+
         const emitMetadataIfReady = () => {
           if (!metadataEmitted && isGitLfsPointer(buffer)) {
             throw buildGitLfsPointerError(fetchUrl);
@@ -654,6 +704,8 @@ export class ImportService {
           const arrayStart = buffer.indexOf('[', chaptersKey);
           if (arrayStart === -1) return;
 
+          sessionVersion = extractObjectField(buffer.slice(0, chaptersKey), 'version') ?? sessionVersion;
+          sessionOscilloscope = extractObjectField(buffer.slice(0, chaptersKey), 'oscilloscope') ?? sessionOscilloscope;
           buffer = buffer.slice(arrayStart + 1);
           chaptersStarted = true;
         };
@@ -707,7 +759,8 @@ export class ImportService {
               url: chapterUrl,
               canonicalUrl: chapter.canonicalUrl || chapterUrl,
             },
-            options
+            registryNovelId,
+            registryVersionId
           );
 
           const translationInputs = buildTranslationInputs(chapter);
@@ -719,8 +772,8 @@ export class ImportService {
 
           const chapterPayload: Chapter & { stableId?: string; fanTranslation?: string | null } = {
             stableId: identity.stableId,
-            novelId: options.registryNovelId ?? null,
-            libraryVersionId: options.registryVersionId ?? null,
+            novelId: registryNovelId,
+            libraryVersionId: registryVersionId,
             originalUrl: chapterUrl,
             title: chapter.title,
             content: chapter.content,
@@ -730,6 +783,7 @@ export class ImportService {
             fanTranslation: chapter.fanTranslation ?? null,
           };
           await ChapterOps.store(chapterPayload);
+          streamedStableIds.push(identity.stableId);
           debugLog('import', 'full', `[IMPORT] Chapter #${chapter.chapterNumber} stored to CHAPTERS`);
 
           let activeVersion: number | null = null;
@@ -887,7 +941,7 @@ export class ImportService {
           });
 
           const shouldTriggerFirstChapters =
-            !firstChaptersReadyCalled && chaptersLoaded >= readyThreshold;
+            !firstChaptersReadyCalled && chaptersLoaded >= readyThreshold && stillSelected();
 
           debugLog(
             'import',
@@ -948,6 +1002,7 @@ export class ImportService {
               if (nextChapter === null) break;
               await processChapter(nextChapter);
             }
+            captureOscilloscopeIfReady();
           }
 
           buffer += decoder.decode();
@@ -961,6 +1016,7 @@ export class ImportService {
             if (nextChapter === null) break;
             await processChapter(nextChapter);
           }
+          captureOscilloscopeIfReady();
         } catch (error) {
           console.error('[StreamImport] Stream failed:', error);
           reject(new Error(`Streaming import failed: ${error instanceof Error ? error.message : String(error)}`));
@@ -988,7 +1044,7 @@ export class ImportService {
         // single built chapter, so `1 >= min(126, 10)` never fired and the
         // user sat on "Opening Reader…" forever over a fully hydrated store.
         // Fire it at stream end whenever any chapter arrived.
-        if (!firstChaptersReadyCalled && chaptersLoaded > 0) {
+        if (!firstChaptersReadyCalled && chaptersLoaded > 0 && stillSelected()) {
           firstChaptersReadyCalled = true;
           debugLog('import', 'summary', '[StreamImport] Stream ended below first-batch threshold — firing onFirstChaptersReady now', {
             chaptersLoaded,
@@ -1041,34 +1097,40 @@ export class ImportService {
           }
         );
 
+        if (!stillSelected()) {
+          debugLog('import', 'summary', '[StreamImport] Cached completed import; reader selection changed');
+          resolve({ metadata, chaptersLoaded });
+          return;
+        }
         const preHydrationState = useAppStore.getState();
         const openChapterBeforeHydration = preHydrationState.currentChapterId
           ? preHydrationState.chapters.get(preHydrationState.currentChapterId)
           : null;
         const openScopedChapterNumber =
-          options.registryNovelId &&
           openChapterBeforeHydration &&
-          (openChapterBeforeHydration.novelId ?? null) === options.registryNovelId &&
+          (openChapterBeforeHydration.novelId ?? null) === registryNovelId &&
           (openChapterBeforeHydration.libraryVersionId ?? null) ===
-            (options.registryVersionId ?? null) &&
+            registryVersionId &&
           typeof openChapterBeforeHydration.chapterNumber === 'number' &&
           Number.isSafeInteger(openChapterBeforeHydration.chapterNumber) &&
           openChapterBeforeHydration.chapterNumber > 0
             ? openChapterBeforeHydration.chapterNumber
             : null;
 
-        const firstChapterId = options.registryNovelId
-          ? await loadNovelIntoStore(options.registryNovelId, useAppStore.setState, {
-              versionId: options.registryVersionId ?? null,
-            })
-          : await loadAllIntoStore(useAppStore.setState);
+        const firstChapterId = await loadNovelIntoStore(registryNovelId, applyHydration, {
+          versionId: registryVersionId,
+        });
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
+        if (!stillSelected()) {
+          resolve({ metadata, chaptersLoaded });
+          return;
+        }
         const hydratedState = useAppStore.getState();
         const remappedOpenChapterId = openScopedChapterNumber === null
           ? null
           : Array.from(hydratedState.chapters.entries()).find(([, chapter]) =>
-              (chapter.novelId ?? null) === options.registryNovelId &&
-              (chapter.libraryVersionId ?? null) === (options.registryVersionId ?? null) &&
+              (chapter.novelId ?? null) === registryNovelId &&
+              (chapter.libraryVersionId ?? null) === registryVersionId &&
               chapter.chapterNumber === openScopedChapterNumber
             )?.[0] ?? null;
 
@@ -1085,8 +1147,8 @@ export class ImportService {
               previousChapterId: preHydrationState.currentChapterId,
               chapterNumber: openScopedChapterNumber,
               remappedChapterId: remappedOpenChapterId,
-              novelId: options.registryNovelId,
-              versionId: options.registryVersionId ?? null,
+              novelId: registryNovelId,
+              versionId: registryVersionId,
             }
           );
         }
@@ -1128,6 +1190,51 @@ export class ImportService {
           useAppStore.setState({ currentChapterId: firstChapterId });
         }
 
+        const oscilloscopeCorpus = sessionOscilloscope && typeof sessionOscilloscope === 'object'
+          ? (sessionOscilloscope as Record<string, any>).corpus
+          : null;
+        const parsedSessionVersion = sessionVersion as Record<string, unknown> | null;
+        const versionId = registryVersionId
+          ?? (typeof parsedSessionVersion?.versionId === 'string' ? parsedSessionVersion.versionId : null)
+          ?? oscilloscopeCorpus?.versionId;
+        if (versionId) {
+          try {
+            const hydratedChapters = streamedStableIds.map((stableId) => postHydrationState.chapters.get(stableId));
+            if (hydratedChapters.some((chapter) => !chapter)) {
+              throw new Error(
+                `hydration returned ${hydratedChapters.filter(Boolean).length}/${streamedStableIds.length} streamed chapters`,
+              );
+            }
+            const corpus = await computeSemanticCorpusIdentity({
+              novel: { id: registryNovelId },
+              version: { versionId },
+              chapters: hydratedChapters,
+            } as any);
+            const current = useAppStore.getState();
+            if (!stillSelected() || current.chapters !== postHydrationState.chapters
+              || current.activeNovelId !== postHydrationState.activeNovelId
+              || current.activeVersionId !== postHydrationState.activeVersionId) {
+              resolve({ metadata, chaptersLoaded });
+              return;
+            }
+            if (sessionOscilloscope !== undefined) {
+              postHydrationState.loadSessionOscilloscope(
+                parseSessionOscilloscope(sessionOscilloscope, corpus),
+              );
+            } else {
+              postHydrationState.initializeOscilloscope(corpus);
+            }
+          } catch (error) {
+            console.error('[StreamImport] Ignoring invalid session oscilloscope data:', error);
+            const current = useAppStore.getState();
+            if (stillSelected() && current.chapters === postHydrationState.chapters
+              && current.activeNovelId === postHydrationState.activeNovelId
+              && current.activeVersionId === postHydrationState.activeVersionId) current.resetOscilloscope();
+          }
+        } else {
+          postHydrationState.resetOscilloscope();
+        }
+
         resolve({ metadata, chaptersLoaded });
       } catch (error: any) {
         console.error('[StreamImport] Failed to start stream:', error);
@@ -1145,6 +1252,7 @@ export class ImportService {
    * Import from File (existing behavior)
    */
   static async importFromFile(file: File): Promise<any> {
+    const { activeNovelId, activeVersionId } = useAppStore.getState();
     try {
       const text = await file.text();
       let sessionData = JSON.parse(text);
@@ -1159,6 +1267,11 @@ export class ImportService {
         throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
       }
 
+      const current = useAppStore.getState();
+      if (current.activeNovelId !== activeNovelId || current.activeVersionId !== activeVersionId) {
+        debugLog('import', 'summary', '[Import] Reader selection changed during file read; session not applied');
+        return sessionData;
+      }
       // Extract and store provenance if present
       if (sessionData.provenance) {
         useAppStore.getState().setSessionProvenance(sessionData.provenance);

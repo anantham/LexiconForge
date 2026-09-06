@@ -9,8 +9,9 @@ LexiconForge uses Playwright for end-to-end (E2E) browser automation testing, fo
 ### Installation
 
 ```bash
-npm install --save-dev @playwright/test
-npx playwright install chromium
+node --version # use Node 24.19.0 for the current verification baseline
+npm ci
+node node_modules/playwright/cli.js install chromium
 ```
 
 ### Configuration
@@ -34,6 +35,51 @@ npm run test:e2e:headed
 # Run with debugger
 npm run test:e2e:debug
 ```
+
+## Isolated worktrees and production checks
+
+Use one persistent worktree per branch, preferably beside the repository. Keep root
+main and other agents' work untouched. `npm ci` uses the checked-in lock; do not install
+new test packages merely to run the suite. If dependencies are deliberately shared
+between worktrees, first verify identical lockfiles and do not modify that shared
+installation. Git LFS needs writable repository metadata even for some status/diff
+operations; preserve media and fix access instead of disabling tracked-file checks.
+
+The default command owns a strict-port dev server and refuses to reuse an existing
+listener. From the worktree root, build into its own ignored `dist/` directory and
+start that preview explicitly in one terminal:
+
+```bash
+node node_modules/vite/bin/vite.js build
+node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 5192 --strictPort
+```
+
+Use a distinct port for each concurrent preview. Do not rebuild the same worktree
+while its tests are running; another branch must use its own worktree and output.
+
+In another terminal, target that preview without starting a dev server:
+
+```bash
+LF_E2E_BASE_URL=http://127.0.0.1:5192 node node_modules/playwright/cli.js test tests/e2e/route-loading.spec.ts --workers=1 --retries=0
+```
+
+Use a fresh automated browser with synthetic session fixtures. The route-loading
+suite blocks external requests; suites that need network or model access must be
+identified separately. Reuse `tests/e2e/helpers/sessionHarness.ts` for supported
+fresh/import flows; do not import a personal browser profile. Record the source SHA,
+Node/browser versions, fixture size, fresh/warm state and exact command with results.
+
+Failure traces are retained on the first failure, including zero-retry runs:
+
+```bash
+node node_modules/playwright/cli.js show-report
+node node_modules/playwright/cli.js show-trace path/to/trace.zip
+```
+
+For latency investigation, measure the actual rendered chapter/translation after
+its UI action. A heading alone does not establish readable text, full interaction
+readiness or backend scan latency. Keep timing samples separate from deterministic
+correctness assertions; do not add sleeps or retries to obtain green results.
 
 ## Test Suites
 
@@ -90,7 +136,7 @@ Reports include:
 
 ## Best Practices
 
-1. **Always clear state** - Tests clear IndexedDB in `beforeEach` for isolation
+1. **Isolate state** - Use fresh browser contexts; clear IndexedDB for fresh-install cases and retain it deliberately for warm-cache/reload checks.
 2. **Wait for initialization** - Don't assert until app fully initializes
 3. **Capture console logs** - Set up listeners before page navigation
 4. **Use descriptive names** - Test names should explain what's being verified
@@ -105,22 +151,6 @@ Reports include:
 - Use `waitUntil: 'domcontentloaded'` for page.goto() and page.reload()
 - Console messages may appear before 'load' event fires
 
-### Store Names (10 required)
-1. chapters
-2. translations
-3. settings
-4. feedback
-5. prompt_templates
-6. url_mappings
-7. novels
-8. chapter_summaries
-9. amendment_logs
-10. diffResults
-
-## Future Improvements
-
-- [ ] Add tests for translation operations
-- [ ] Add tests for EPUB export
-- [ ] Add visual regression testing
-- [ ] Add performance benchmarks
-- [ ] Add cross-browser testing (Firefox, WebKit)
+Schema changes and missing coverage belong in the existing source/tests and the
+Issues pickup queue; do not maintain a second schema inventory or a generic test
+wishlist in this guide.

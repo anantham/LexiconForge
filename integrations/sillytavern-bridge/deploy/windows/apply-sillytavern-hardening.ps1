@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory = $true)]
     [string[]]$AllowedDeviceIp,
-    [string]$SillyTavernRoot = 'C:\Users\adity\Documents\Ongoing Local\ST\runtime\SillyTavern-1.18.0',
+    [Parameter(Mandatory = $true)]
+    [string]$SillyTavernRoot,
     [string]$NodeExecutable = 'node',
     [switch]$Apply
 )

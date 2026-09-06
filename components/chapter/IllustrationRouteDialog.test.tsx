@@ -14,10 +14,9 @@ vi.mock('../../services/openrouterImageModelAdapter', () => ({
   getImageCapableModels: (...args: unknown[]) => imageModelsMock(...args),
 }));
 
-vi.mock('../../services/providers/indrasNetImageProvider', () => ({
-  DEFAULT_INDRASNET_BASE_URL: 'https://asus.test',
+vi.mock('../../services/providers/indrasNetImageProvider', async (importOriginal) => ({
+  ...await importOriginal<typeof import('../../services/providers/indrasNetImageProvider')>(),
   fetchIndrasNetWorkflows: (...args: unknown[]) => workflowsMock(...args),
-  imageModelFromWorkflowName: (name: string) => `indrasnet/${encodeURIComponent(name)}`,
 }));
 
 vi.mock('../../services/openrouterRouting', () => ({
@@ -69,12 +68,13 @@ describe('IllustrationRouteDialog', () => {
     });
     expect(settings.imageModel).toBe('imagen-3.0-generate-002');
     expect(settings.openRouterImageEndpoint).toBe('auto');
+    expect(workflowsMock).not.toHaveBeenCalled();
   });
 
   it('keeps saved models usable when both catalogues are down', async () => {
     imageModelsMock.mockRejectedValue(new Error('offline'));
     workflowsMock.mockRejectedValue(new Error('offline'));
-    const settings = createMockAppSettings({ imageModel: 'indrasnet/gen_anime' });
+    const settings = createMockAppSettings({ imageModel: 'indrasnet/gen_anime', indrasNetBaseUrl: 'https://broker.example.com' });
 
     render(
       <IllustrationRouteDialog
@@ -88,5 +88,24 @@ describe('IllustrationRouteDialog', () => {
     await waitFor(() => expect(screen.getByText(/Saved options remain usable/)).toBeInTheDocument());
     expect(screen.getByLabelText('Image model for this job')).toHaveValue('indrasnet/gen_anime');
     expect(screen.getByRole('button', { name: 'Generate' })).toBeEnabled();
+  });
+
+  it.each(['', '   ', 'not-a-url'])('blocks an invalid local route before submission: %j', async (indrasNetBaseUrl) => {
+    const onSubmit = vi.fn();
+    render(<IllustrationRouteDialog selection="A duel."
+      settings={createMockAppSettings({ imageModel: 'indrasnet/gen_anime', indrasNetBaseUrl })}
+      onCancel={vi.fn()} onSubmit={onSubmit} />);
+    const generate = screen.getByRole('button', { name: 'Generate' });
+    expect(generate).toBeDisabled();
+    expect(screen.getByRole('alert')).toHaveTextContent(/Configure your IndrasNet|Invalid IndrasNet/);
+    fireEvent.click(generate);
+    expect(onSubmit).not.toHaveBeenCalled();
+    // An explicit cloud choice remains usable without configuring a local broker.
+    fireEvent.change(screen.getByLabelText('Image model for this job'), {
+      target: { value: 'imagen-3.0-generate-002' },
+    });
+    await waitFor(() => expect(generate).toBeEnabled());
+    fireEvent.click(generate);
+    expect(onSubmit).toHaveBeenCalledWith({ imageModel: 'imagen-3.0-generate-002' });
   });
 });

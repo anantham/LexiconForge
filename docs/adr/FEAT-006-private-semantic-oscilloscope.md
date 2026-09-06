@@ -118,3 +118,88 @@ graph data is logged and dropped while the book remains readable.
 Mark this ADR `Implemented` only after both source stacks are merged and a real
 owner Tailnet device passes capability, one full-book scan, freeze/export, and
 offline re-import.
+
+
+## Implementation review amendment — 2026-09-05
+
+PR #159 is merged; PR #160 supplies the remaining portable import/export and
+book-switch integration. Status remains **Accepted**, pending live acceptance.
+
+Implementation notes:
+- `services/semanticOscilloscopeExport.ts` verifies the original graph corpus
+  against export text; optional graph failures preserve readable partial exports.
+- `store/bootstrap/importSessionData.ts` and `services/importService.ts` validate
+  portable tracks, preserve reader availability, and honor registry/session scope.
+- `services/db/operations/export.ts` and `store/slices/exportSlice.ts` preserve
+  per-chapter novel/version identity through full offline exports.
+- `store/slices/{uiSlice,chaptersSlice}.ts` reset graphs across books and selected
+  text changes. Image-only changes do not invalidate a graph.
+- `components/oscilloscope/OscilloscopePanel.tsx` and
+  `components/oscilloscope/loadOscilloscopeData.ts` restrict legacy data to FMoC and discard obsolete downloads.
+- `services/semanticOscilloscopeCache.ts` retains frozen scalar graphs on book
+  departure and verifies loaded text before cached reopening. Full backups hash
+  only the graph's corpus while preserving chapters from other books/versions.
+- Focused contracts plus `tests/e2e/semantic-session.spec.ts` cover synthetic
+  IndexedDB export/offline reimport, visible text, graph rendering and invalidation.
+
+TemporalCoordination #345/#346 were closed unmerged. Their recovery, exact deployed
+versions, complete index, real scan, latency and owner-device acceptance remain
+tracked in `docs/roadmaps/SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md`. Source/fixture tests
+are not live acceptance and do not justify marking this ADR Implemented.
+
+### Review corrections — 2026-09-05
+
+- Portable session import hoists the nested novel/version scope before storage.
+  Portable builders query only the selected corpus and serialize base chapter IDs
+  so the receiving library can apply its own scope. A fork with a new version ID
+  does not inherit a graph bound to the parent identity.
+- A default library selection is nullable even when its frozen graph names a
+  concrete version. The departure cache is keyed by that reader selection; its
+  graph is accepted only after recomputing the selected chapter hash. Full backups
+  preserve all books and carry `oscilloscopeLibraryVersionId` alongside the graph
+  to retain this nullable selection. Older backups without that field use the
+  graph's version ID. The portable scalar graph protocol itself is unchanged.
+- `services/db/operations/rendering.ts` reuses the existing null-safe chapter
+  query. It no longer treats a failed scope query as an empty library.
+- Chapter insertion/deletion/clearing invalidates affected graphs. An import that
+  finishes after a new book is selected may persist its data but cannot replace
+  the current reader.
+- `tests/services/semanticOscilloscopeLifecycle.test.ts` exercises actual import,
+  IndexedDB, hydration, export and cache boundaries; synthetic rendering mocks
+  cannot supply a version scope that persistence failed to save.
+
+### Superseding legacy fallback and title-cache correction — 2026-09-05
+
+The FMoC-only legacy fallback described above is removed. Matching a novel ID
+does not establish the translation or chapter-content hash, and the bundled
+legacy analysis has no verified corpus binding. A cache miss leaves the graph
+unloaded; only a verified session/cached graph or an explicitly initialized
+verified corpus can populate it. No guessed binding or automatic conversion is
+introduced. Bundled analysis assets are retained as data, not loaded implicitly.
+
+Implementation: `components/oscilloscope/OscilloscopePanel.tsx` restores only the
+verified cache. The legacy loader, `loadFromJSON` store action and unused
+normalization helper are deleted. `OscilloscopeGraph.tsx` derives chapter titles
+from the selected novel/library-version chapters. Its cursor uses the current
+memoized lookup, avoiding a global title cache, full-book scans on hover and
+chart rebuilds on title updates. Bootstrap import no longer writes global titles.
+
+Two panel regressions reject legacy requests for default and alternate FMoC
+translations. The production offline export/file-import/cache-reopen fixture
+checks distinctive scoped titles despite stale previous-import state. FEAT-006
+remains Accepted pending the live acceptance checklist.
+
+### Unregistered URL scope correction — 2026-09-05
+
+Pasted session URLs use the existing ordinary importer. It parses portable
+novel/version identity before persisting chapters, as local file import does.
+Registry imports retain progressive loading because their scope is known before
+chapter bytes arrive. The streaming entrypoint now rejects missing scope before
+fetch/storage; its all-book hydration fallback and unscoped identity branch are
+deleted. InputBar no longer owns first-batch hydration/navigation for arbitrary
+URLs. This supersedes earlier notes about that InputBar streaming path.
+
+Tradeoff: arbitrary pasted sessions await the full download before reading, with
+the ordinary importer's existing memory requirements. No key-order staging or
+retroactive scope migration is introduced. The production browser fixture proves
+URL import with other cached books, frozen export and native offline file reopen.

@@ -52,6 +52,32 @@ describe('ImportService', () => {
     mockImportSessionData.mockClear();
   });
 
+  it.each(['file', 'url'])('does not apply a %s acquired after the reader selection changes', async (source) => {
+    let state = { ...useAppStore.getState(), activeNovelId: 'book-a', activeVersionId: 'v1' };
+    const getState = vi.spyOn(useAppStore, 'getState').mockImplementation(() => state);
+    const payload = { metadata: { format: 'lexiconforge-session' }, chapters: [],
+      version: { versionId: 'v1' }, provenance: { contributors: [] } };
+    const switchSelection = () => { state = { ...state, activeNovelId: 'book-b', activeVersionId: 'v2' }; };
+    try {
+      if (source === 'file') {
+        const file = new File([JSON.stringify(payload)], 'session.json');
+        vi.spyOn(file, 'text').mockImplementation(async () => { switchSelection(); return JSON.stringify(payload); });
+        await ImportService.importFromFile(file);
+      } else {
+        global.fetch = vi.fn(async () => {
+          switchSelection();
+          return { ok: true, headers: new Headers(), body: createMockReadableStream(payload) } as Response;
+        });
+        await ImportService.importFromUrl('https://example.com/session.json');
+      }
+      expect(mockImportSessionData).not.toHaveBeenCalled();
+      expect(mockSetSessionProvenance).not.toHaveBeenCalled();
+      expect(mockSetSessionVersion).not.toHaveBeenCalled();
+    } finally {
+      getState.mockRestore();
+    }
+  });
+
   it('should extract provenance from session data', async () => {
     const mockSessionData: SessionData = {
       metadata: {

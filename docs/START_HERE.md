@@ -126,7 +126,7 @@ ADRs explain *why* we made key design decisions. They're organized by domain:
 |--------|--------|---------|
 | `DB-` | Database/IndexedDB | [DB-001](./adr/DB-001-decompose-monolithic-indexeddb.md) - Service decomposition |
 | `CORE-` | Core architecture | [CORE-005](./adr/CORE-005-agent-first-code-organization.md) - Agent-first code organization, [CORE-014](./adr/CORE-014-browser-provider-routing-boundaries.md) - Browser provider routing boundaries |
-| `FEAT-` | Feature design | [FEAT-001](./adr/FEAT-001-preloader-strategy.md) - Preloader strategy, [FEAT-003](./adr/FEAT-003-image-service-architecture.md) - Image service, [FEAT-004](./adr/FEAT-004-sillytavern-tailnet-portal.md) - SillyTavern tailnet portal |
+| `FEAT-` | Feature design | [FEAT-001](./adr/FEAT-001-preloader-strategy.md) - Preloader strategy, [FEAT-003](./adr/FEAT-003-image-service-architecture.md) - Image service, [FEAT-004](./adr/FEAT-004-sillytavern-tailnet-portal.md) - SillyTavern tailnet portal, [FEAT-006](./adr/FEAT-006-private-semantic-oscilloscope.md) - Private semantic oscilloscope |
 | `SUTTA-` | Sutta Studio | [SUTTA-003](./adr/SUTTA-003-sutta-studio-mvp.md) - MVP, [SUTTA-004](./adr/SUTTA-004-benchmark-development-phases.md) - Benchmarks, [SUTTA-006](./adr/SUTTA-006-pipeline-caching-architecture.md) - Caching, [SUTTA-007](./adr/SUTTA-007-pass-prompt-runner-layer.md) - Pass layer |
 
 ---
