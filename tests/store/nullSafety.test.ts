@@ -41,6 +41,7 @@ const makeChapter = (id: string, overrides: Partial<EnhancedChapter> = {}): Enha
 
 describe('Null safety regressions in modern slices', () => {
   const handleFetchSpy = vi.spyOn(NavigationService, 'handleFetch');
+  const handleNavigateSpy = vi.spyOn(NavigationService, 'handleNavigate');
   vi.spyOn(NavigationService, 'updateBrowserHistory').mockImplementation(() => {});
 
   const resetStoreState = () => {
@@ -72,6 +73,28 @@ describe('Null safety regressions in modern slices', () => {
 
   afterEach(() => {
     handleFetchSpy.mockReset();
+    handleNavigateSpy.mockReset();
+  });
+
+  describe('chaptersSlice.handleNavigate()', () => {
+    it('surfaces an unavailable internal chapter as a visible warning toast', async () => {
+      handleNavigateSpy.mockResolvedValue({
+        error: 'Chapter 509 is listed, but it is not cached yet.',
+        errorCode: 'chapter_not_cached',
+      });
+
+      await useAppStore.getState().handleNavigate(
+        'lexiconforge://dungeon-defense-wn/chapter/509'
+      );
+
+      expect(useAppStore.getState().error).toBe(
+        'Chapter 509 is listed, but it is not cached yet.'
+      );
+      expect(useAppStore.getState().notification).toMatchObject({
+        message: 'Chapter 509 is listed, but it is not cached yet.',
+        type: 'warning',
+      });
+    });
   });
 
   describe('chaptersSlice.handleFetch()', () => {

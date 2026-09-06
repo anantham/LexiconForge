@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const externalBaseURL = process.env.LF_E2E_BASE_URL;
+
 /**
  * Playwright Configuration for LexiconForge E2E Tests
  *
@@ -36,10 +38,10 @@ export default defineConfig({
   use: {
     // Base URL to use in actions like `await page.goto('/')`
     // Use a dedicated port to avoid collisions with other local dev servers.
-    baseURL: 'http://127.0.0.1:5177',
+    baseURL: externalBaseURL || 'http://127.0.0.1:5177',
 
-    // Collect trace when retrying the failed test
-    trace: 'on-first-retry',
+    // Keep failure evidence even with --retries=0.
+    trace: 'retain-on-failure',
 
     // Screenshot on failure
     screenshot: 'only-on-failure',
@@ -57,10 +59,10 @@ export default defineConfig({
   ],
 
   // Start a dedicated dev server for E2E to avoid “wrong app on same port” issues.
-  webServer: {
+  webServer: externalBaseURL ? undefined : {
     command: 'npm run dev -- --port 5177 --strictPort --host 127.0.0.1',
     url: 'http://127.0.0.1:5177',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120 * 1000,
   },
 });

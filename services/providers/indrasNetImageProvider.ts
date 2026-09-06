@@ -3,7 +3,6 @@ import { debugLog } from '../../utils/debug';
 import type { ImageJobLifecycleListener } from '../imageJobTypes';
 
 export const INDRASNET_IMAGE_MODEL_PREFIX = 'indrasnet/';
-export const DEFAULT_INDRASNET_BASE_URL = 'https://asus-strix-scar.tail4741ad.ts.net:9443';
 
 const DISCOVERY_TIMEOUT_MS = 10_000;
 const GENERATION_TIMEOUT_MS = 1_830_000;
@@ -130,8 +129,13 @@ export const imageModelFromWorkflowName = (workflowName: string): string =>
   `${INDRASNET_IMAGE_MODEL_PREFIX}${encodeURIComponent(workflowName)}`;
 
 export const normalizeIndrasNetBaseUrl = (rawBaseUrl?: string): string => {
-  const trimmedBaseUrl = rawBaseUrl?.trim();
-  const value = (trimmedBaseUrl || DEFAULT_INDRASNET_BASE_URL).replace(/\/+$/, '');
+  const value = rawBaseUrl?.trim().replace(/\/+$/, '');
+  if (!value) {
+    throw new IndrasNetProviderError('Configure your IndrasNet broker URL in Settings → Features.', {
+      code: 'INDRASNET_ENDPOINT_REQUIRED',
+      retryable: false,
+    });
+  }
   let parsed: URL;
   try {
     parsed = new URL(value);

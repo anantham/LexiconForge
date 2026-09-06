@@ -217,6 +217,15 @@ Key rules:
 - Doc-only changes use `docs:` type.
 - Never commit directly to `main` for non-trivial changes — see `AGENTS.md` §PULL_REQUEST_WORKFLOW.
 
+### Public documentation and configuration
+
+This repository, including branches, WORKLOG, issues, PR descriptions and review
+comments, is public. Record source changes, reproducible checks and product
+acceptance here. Keep private deployment inventories, owner logins, hostnames,
+machine paths, incident details and backend runtime state outside this repository.
+Use reserved example domains/addresses in fixtures and operator-provided
+configuration at runtime. Never paste private audit evidence into a public handoff.
+
 ---
 
 ## 11. Intentional Divergences

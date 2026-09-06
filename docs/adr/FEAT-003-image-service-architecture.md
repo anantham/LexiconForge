@@ -318,3 +318,39 @@ defaults. Exact endpoint mode disables provider fallback; all OpenRouter image
 requests require data collection denial and zero data retention. See
 [CORE-014](./CORE-014-browser-provider-routing-boundaries.md) for the shared
 text/image boundary and request invariants.
+
+## Amendment — 2026-08-30: Local broker settings placement
+
+**Status:** Implemented locally on `codex/features-indrasnet-panel`.
+
+The Asus/IndrasNet endpoint and workflow-health controls belong to the local
+feature workflow, so they now render in **Features -> SillyTavern** instead of
+above provider API keys. The image-model picker remains in Providers, and its
+model-dependent opt-in cloud fallback remains adjacent to that picker.
+
+The two Tailnet services stay separate: port `8444` serves the SillyTavern web
+UI, while port `9443` serves the IndrasNet image broker. Entering the known Asus
+`:8444` URL in the broker field fails locally with that exact distinction and
+does not send a workflow-discovery request to the wrong application.
+
+## Amendment — 2026-09-05: Explicit endpoints replace deployment-specific inference
+
+**Status:** Implemented on `fix/codex-public-boundary` (PR #174).
+
+This supersedes the August 30 amendment's local wrong-service diagnosis based on
+one installation's hostname/port, and the August 21 implicit endpoint default.
+A port number is not a portable service identity. Public client code must not
+encode an operator's deployment mapping; see [SEC-001](./SEC-001-browser-provider-credential-boundary.md#public-configuration-amendment--2026-09-05).
+
+Endpoints are explicit browser-local settings. Missing configuration sends no
+discovery request; configured endpoints retain HTTPS/mixed-content and strict
+catalogue/response validation. If an older saved setting points to another
+application, discovery reports the network or protocol error and the owner must
+correct that setting. No endpoint is silently rewritten or guessed. Authorization
+and same-origin artifact checks are unchanged.
+
+**Implementation notes:** `services/providers/indrasNetImageProvider.ts` normalizes
+explicit configuration and validates the broker protocol;
+`components/settings/SillyTavernPanel.tsx` exposes its diagnostics. The provider
+and panel tests cover configured and unconfigured states. This amendment records
+the already-reviewed configuration cleanup; it adds no runtime behavior.

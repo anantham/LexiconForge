@@ -4,16 +4,17 @@ import type { AppSettings } from '../../types';
 import type { ImageGenerationOverrides } from '../../services/imageJobTypes';
 import { getImageCapableModels } from '../../services/openrouterImageModelAdapter';
 import {
-  DEFAULT_INDRASNET_BASE_URL,
   fetchIndrasNetWorkflows,
   imageModelFromWorkflowName,
+  isIndrasNetImageModel,
+  normalizeIndrasNetBaseUrl,
 } from '../../services/providers/indrasNetImageProvider';
 import { OpenRouterEndpointSelect } from '../settings/OpenRouterEndpointSelect';
 
 interface ImageModelOption {
   id: string;
   label: string;
-  group: 'Saved' | 'Asus / IndrasNet' | 'OpenRouter' | 'Other';
+  group: 'Saved' | 'IndrasNet' | 'OpenRouter' | 'Other';
 }
 
 interface IllustrationRouteDialogProps {
@@ -44,10 +45,10 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
 
   useEffect(() => {
     let cancelled = false;
-    const endpointUrl = settings.indrasNetBaseUrl?.trim() || DEFAULT_INDRASNET_BASE_URL;
+    const endpointUrl = settings.indrasNetBaseUrl?.trim();
     Promise.allSettled([
       getImageCapableModels(),
-      fetchIndrasNetWorkflows(endpointUrl),
+      endpointUrl ? fetchIndrasNetWorkflows(endpointUrl) : Promise.resolve([]),
     ]).then(([openRouterResult, indrasNetResult]) => {
       if (cancelled) return;
       const options: ImageModelOption[] = [];
@@ -65,11 +66,11 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
       if (indrasNetResult.status === 'fulfilled') {
         options.push(...indrasNetResult.value.map(workflow => ({
           id: imageModelFromWorkflowName(workflow.name),
-          label: `Asus: ${workflow.manifest.display_name || workflow.name}`,
-          group: 'Asus / IndrasNet' as const,
+          label: `IndrasNet: ${workflow.manifest.display_name || workflow.name}`,
+          group: 'IndrasNet' as const,
         })));
       } else {
-        warnings.push('Asus workflow catalogue unavailable');
+        warnings.push('IndrasNet workflow catalogue unavailable');
         console.error('[IllustrationRouteDialog] IndrasNet catalogue failed:', indrasNetResult.reason);
       }
       setDiscoveredModels(options);
@@ -99,15 +100,24 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
     setEndpoint(nextModel === settings.imageModel ? settings.openRouterImageEndpoint || 'auto' : 'auto');
   };
 
+  let routeError: string | null = null;
+  if (isIndrasNetImageModel(imageModel)) {
+    try {
+      normalizeIndrasNetBaseUrl(settings.indrasNetBaseUrl);
+    } catch (error) {
+      routeError = error instanceof Error ? error.message : String(error);
+    }
+  }
+
   const submit = () => {
-    if (!imageModel || imageModel === 'none') return;
+    if (!imageModel || imageModel === 'none' || routeError) return;
     onSubmit({
       imageModel,
       ...(imageModel.startsWith('openrouter/') ? { openRouterImageEndpoint: endpoint } : {}),
     });
   };
 
-  const groups = ['Saved', 'Asus / IndrasNet', 'OpenRouter', 'Other'] as const;
+  const groups = ['Saved', 'IndrasNet', 'OpenRouter', 'Other'] as const;
 
   return (
     <div
@@ -157,6 +167,7 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
           This choice applies only to this illustration. Your LexiconForge defaults will not change.
           {catalogueWarning ? ` ${catalogueWarning}. Saved options remain usable.` : ''}
         </p>
+        {routeError && <p role="alert" className="mt-2 text-sm text-red-300">{routeError}</p>}
 
         <div className="mt-5 flex justify-end gap-3">
           <button type="button" onClick={onCancel} className="rounded-md px-4 py-2 text-sm text-gray-300 hover:bg-gray-800">
@@ -165,7 +176,7 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
           <button
             type="button"
             onClick={submit}
-            disabled={!imageModel || imageModel === 'none'}
+            disabled={!imageModel || imageModel === 'none' || Boolean(routeError)}
             className="rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Generate

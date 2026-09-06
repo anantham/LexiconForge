@@ -15,8 +15,14 @@ import { getRepoForService } from '../db/index';
 import { normalizeUrlAggressively } from '../stableIdService';
 import type { EnhancedChapter } from '../stableIdService';
 import type { TranslationSettingsSnapshot } from '../../types';
-import { ChapterOps, TranslationOps, SettingsOps, NavigationOps } from '../db/operations';
+import { ChapterOps, TranslationOps, SettingsOps } from '../db/operations';
 import { telemetryService } from '../telemetryService';
+import { parseInternalChapterUrl } from '../chapterCatalog';
+import { selectLatestChapterRevision } from '../chapterRevisionService';
+import {
+  acquirePublishedChapter,
+  TargetedChapterAcquisitionError,
+} from '../library/targetedChapterAcquisitionService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { adaptTranslationRecordToResult } from './converters';
 import { validateNavigation } from './validation';
@@ -62,7 +68,135 @@ export class NavigationService {
         }
       );
 
+      const internalTarget = parseInternalChapterUrl(url);
+      const usesInternalScheme = /^lexiconforge:/i.test(url);
+
+      if (usesInternalScheme && !internalTarget) {
+        const errorMessage =
+          'Malformed internal chapter URL. Expected ' +
+          'lexiconforge://<novel-id>/chapter/<positive-number> without query parameters or fragments.';
+        console.error(`[Navigate] ${errorMessage}`, { url });
+        telemetryMeta.outcome = 'invalid_internal_url';
+        telemetryMeta.reason = 'strict_internal_parser_rejected';
+        return { error: errorMessage, errorCode: 'invalid_internal_url' };
+      }
+
       let chapterId = urlIndex.get(normalizedUrl || '') || rawUrlIndex.get(url);
+
+      // A manually imported session has no registry scope: its rows keep
+      // novelId=null even when the session's exact URL uses our internal
+      // scheme. In that mode the URL indexes are the authoritative identity.
+      // Scoped library sessions still resolve by novel/version/number so an
+      // index entry can never cross the active library boundary.
+      if (internalTarget && (scope?.novelId || !chapterId)) {
+        const activeNovelId = scope?.novelId ?? null;
+        if (activeNovelId && activeNovelId !== internalTarget.novelId) {
+          const errorMessage =
+            `Navigation blocked: chapter link belongs to "${internalTarget.novelId}", ` +
+            `but the active novel is "${activeNovelId}".`;
+          console.error(`[Navigate] ${errorMessage}`, {
+            url,
+            activeNovelId,
+            targetNovelId: internalTarget.novelId,
+          });
+          telemetryMeta.outcome = 'scope_mismatch';
+          telemetryMeta.reason = 'internal_novel_mismatch';
+          return { error: errorMessage, errorCode: 'scope_mismatch' };
+        }
+
+        const lookupNovelId = activeNovelId ?? internalTarget.novelId;
+        const lookupVersionId = activeNovelId ? scope?.versionId ?? null : null;
+        const inMemoryMatch = selectLatestChapterRevision(Array.from(chapters.entries()).filter(([, chapter]) => {
+          return (
+            chapter.chapterNumber === internalTarget.chapterNumber &&
+            (chapter.novelId ?? null) === lookupNovelId &&
+            (chapter.libraryVersionId ?? null) === lookupVersionId
+          );
+        }).map(([chapterId, chapter]) => ({
+          ...chapter,
+          id: chapterId,
+        })));
+
+        if (inMemoryMatch) {
+          chapterId = inMemoryMatch.id;
+        } else {
+          const found = await ChapterOps.findByNumber(
+            internalTarget.chapterNumber,
+            lookupNovelId,
+            lookupVersionId
+          );
+          if (found?.stableId) {
+            const loaded = await loadChapterFromIDBCallback(found.stableId);
+            if (loaded) {
+              const newHistory = [...new Set(navigationHistory.concat(found.stableId))];
+
+              telemetryMeta.outcome = 'idb_hydrated_via_chapter_number';
+              telemetryMeta.chapterId = found.stableId;
+              telemetryMeta.hydratedTranslation = Boolean(loaded.translationResult);
+              return {
+                chapterId: found.stableId,
+                chapter: loaded,
+                shouldUpdateBrowserHistory: true,
+                navigationHistory: newHistory,
+              };
+            }
+          }
+
+          if (activeNovelId && lookupVersionId) {
+            try {
+              const acquired = await acquirePublishedChapter({
+                novelId: activeNovelId,
+                versionId: lookupVersionId,
+                chapterNumber: internalTarget.chapterNumber,
+                loadChapterFromIDB: loadChapterFromIDBCallback,
+              });
+              const newHistory = [...new Set(navigationHistory.concat(acquired.chapterId))];
+
+              telemetryMeta.outcome = 'targeted_chapter_acquired';
+              telemetryMeta.chapterId = acquired.chapterId;
+              return {
+                chapterId: acquired.chapterId,
+                chapter: acquired.chapter,
+                shouldUpdateBrowserHistory: true,
+                navigationHistory: newHistory,
+              };
+            } catch (error) {
+              if (
+                error instanceof TargetedChapterAcquisitionError &&
+                error.code === 'artifact_acquisition_failed'
+              ) {
+                console.error('[Navigate] Targeted chapter acquisition failed', {
+                  url,
+                  novelId: activeNovelId,
+                  versionId: lookupVersionId,
+                  chapterNumber: internalTarget.chapterNumber,
+                  error,
+                });
+                telemetryMeta.outcome = 'chapter_acquisition_failed';
+                telemetryMeta.reason = error.message;
+                return { error: error.message, errorCode: 'chapter_acquisition_failed' };
+              }
+              if (!(error instanceof TargetedChapterAcquisitionError)) {
+                throw error;
+              }
+            }
+          }
+
+          const versionLabel = lookupVersionId ? ` version "${lookupVersionId}"` : ' this version';
+          const errorMessage =
+            `Chapter ${internalTarget.chapterNumber} is listed for ${lookupNovelId}, but it is not cached yet for${versionLabel}. ` +
+            'Return to the Library and reopen this version to resume importing its chapters.';
+          console.warn(`[Navigate] ${errorMessage}`, {
+            url,
+            novelId: lookupNovelId,
+            versionId: lookupVersionId,
+            chapterNumber: internalTarget.chapterNumber,
+          });
+          telemetryMeta.outcome = 'chapter_not_cached';
+          telemetryMeta.reason = 'internal_chapter_number_miss';
+          return { error: errorMessage, errorCode: 'chapter_not_cached' };
+        }
+      }
 
       const tryScopedLookup = async (): Promise<NavigationResult | null> => {
         if (!scope?.novelId) {
@@ -112,13 +246,6 @@ export class NavigationService {
             currentChapter: chapterId
           });
         }
-
-        // Persist navigation state (NavigationOps owns these keys and logs failures)
-        NavigationOps.persistHistory({ stableIds: newHistory });
-        NavigationOps.persistLastActiveChapter({
-          id: chapterId,
-          url: chapters.get(chapterId)?.canonicalUrl || url,
-        });
 
         slog(`[Navigate] Found existing chapter ${chapterId} for URL ${url}.`);
 
@@ -202,10 +329,6 @@ export class NavigationService {
                 currentChapter: chapterId
               });
             }
-
-            // Persist navigation state (NavigationOps owns these keys and logs failures)
-            NavigationOps.persistHistory({ stableIds: newHistory });
-            NavigationOps.persistLastActiveChapter({ id: chapterId, url: loaded.canonicalUrl });
 
             slog(`[Navigate] Hydrated chapter ${chapterId} from IndexedDB.`);
             telemetryMeta.outcome = 'idb_hydrated';
@@ -372,9 +495,6 @@ export class NavigationService {
 
             const newHistory = [...new Set(navigationHistory.concat(chapterIdFound))];
 
-            // Persist navigation state (NavigationOps owns these keys and logs failures)
-            NavigationOps.persistLastActiveChapter({ id: chapterIdFound, url: canonicalUrl });
-            NavigationOps.persistHistory({ stableIds: newHistory });
 
             slog(`[Navigate] Found chapter directly in IndexedDB for URL ${url}.`);
             telemetryMeta.outcome = 'idb_direct_lookup';
