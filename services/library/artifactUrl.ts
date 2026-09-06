@@ -16,4 +16,3 @@ export const toMediaGitHubUrl = (value: string): string => {
     return value;
   }
 };
-
