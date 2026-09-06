@@ -30,6 +30,7 @@
     "build-library-session": "tsx scripts/build-library-session.ts",
     "verify-library-publication": "tsx scripts/verify-library-publication.ts",
     "build:liturgy-draft": "tsx scripts/liturgy-generator/build-liturgy-draft.ts",
+    "audit:liturgy-alignments": "tsx scripts/liturgy-generator/audit-liturgy-alignments.ts",
     "discover-chapter-alignment": "tsx scripts/discover-chapter-alignment.ts",
     "build:dpd": "tsx scripts/build-dpd.ts",
     "sutta:lookup": "tsx scripts/sutta-studio/lookup-phase.ts",
