@@ -160,9 +160,12 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 
 ### LAT-02 — Delete abandoned app-shell subscriptions and scaffolding
 
-- **Status:** Open; unclaimed. Confidence: 0.98. Effort: small. Risk: low; reversible.
+- **Status:** Implemented and locally verified; Codex on `perf/codex-reader-latency`. Confidence: 0.99. Effort: small. Risk: low; reversible.
 - **Files / evidence:** `MainApp.tsx:45-46,65-67,76-112,133-142,165-186`. `handleTranslate`, `handleFetch`, `loadPromptTemplates`, `getChapter`, `hasTranslationSettingsChanged`, `currentChapterTranslationResult`, `hasCurrentChapter`, `requestedRef`, and `settingsFingerprint` are declared but never consumed. The two derived selectors still execute on store changes; old auto-translation comments and a commented subscription remain after their behavior moved to the store.
 - **Done when:** Remove the unused hooks/imports/ref/memo/commented code; preserve live job warnings and initialization/preload behavior. Existing app-shell/navigation tests pass. Measure render/subscription work before claiming a latency gain; do not replace dead code with another abstraction.
+- **Receipt:** [Controlled reader measurements](issues/09-chapter-change-perf-logging/2026-09-05-app-shell.md): 2,000 → 0 chapter lookups per 1,000 unrelated updates; synthetic navigation and job warnings verified. Review/merge pending.
+
+- **Review:** [PR #175](https://github.com/anantham/LexiconForge/pull/175); implemented and pushed, pending review/merge.
 
 ### LAT-03 — Stop rediscovering an unchanged broker on every settings-panel visit
 

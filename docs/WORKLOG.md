@@ -3727,6 +3727,16 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Predictions:** Route isolation and download recovery remain valid after the merge; no private host appears in production output. The existing unused app-shell selectors should add store work without affecting rendered output. Confidence 0.96; measure before claiming a speedup.
 **Next files:** `App.tsx` and its existing unit/browser tests for review; `MainApp.tsx` for a separate deletion-only ticket; `playwright.config.ts` and existing QA instructions for a separate setup ticket. Keep semantic live acceptance, physical device checks and merge/deployment decisions open.
 
+### [2026-09-05] [Agent: Codex]
+**Status:** Starting LAT-02 in `perf/codex-reader-latency`, based on refreshed startup source `0d5f5ce`.
+**Files:** `MainApp.tsx` and existing app-shell/browser tests; Issues and this log.
+**Hypothesis/prediction:** Two unused derived selectors perform two chapter lookups on every irrelevant store update; unused scalar subscriptions can also cause unnecessary shell renders. Removing those subscriptions, unused imports/ref/memo and abandoned comments should reduce work without changing initialization, preloading or job warnings. Confidence 0.99 for dead code; navigation timing benefit is unmeasured.
+**Validation plan:** Compare production UI navigation and getter calls with synthetic persisted chapters and controlled network; run existing app-screen/mediator/image lifecycle tests. No new test that merely counts source hooks. Fallback: revert this isolated deletion commit.
+
+**LAT-02 result:** `MainApp.tsx:26-108` deletes nine unused subscriptions, the dead memo/ref, old selector logging and the test-only no-op fallback; 282 → 199 lines. `tests/store/appScreen.integration.test.tsx:36,80` supplies the real resume action in its existing fixture. No new runtime wrapper/cache or mirrored unit test.
+**Evidence:** 46 focused tests, TypeScript, build and scoped lint pass; six production browser contexts preserve chapter/version navigation and background-work warnings. Unrelated store updates cause 2,000 → 0 chapter lookups. Small synthetic chapter timing median 252 → 222ms; this is not a real-device claim. Reproduction/coverage/complexity limits: `issues/09-chapter-change-perf-logging/2026-09-05-app-shell.md` and its local probe.
+**Setup friction:** This existing worktree had no dependencies; matching lockfile hashes allowed reuse of the existing installation without changing packages.
+
 **Refreshed #173 verification:** `0d5f5ce` passes 25 focused tests, TypeScript, production build and the existing three production route checks. The existing startup probe confirms the improvement against the sanitized baseline: library H1 1916 → 1167ms, Gita H1 1757 → 610ms; no page errors. Receipt updated under `issues/01-bootup-time/`. Backend deployment and source merge decisions remain separate.
 
 ### [2026-09-05] [Agent: Codex]
@@ -3737,6 +3747,7 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Results:** Native Windows probe passes all three cutover root cases (missing, mismatched, normalized match) and all four missing-variable log cases. Its disposable hardening sentinel prevents task/service/route work. The initial stdin transport stalled; a temporary script-file transport completed and cleaned up. Bridge Python 3.12.13 suite passes 31 tests (one dependency deprecation warning).
 **Changed locations:** `deploy/windows/cutover-portal.ps1:124`, `start-bridge.cmd:22`, `start-sillytavern.cmd:14` under the bridge; `tests/windows/test-runtime-configuration.ps1:1`; bridge `README.md:81`. Runtime environment/task identity and actual process provenance remain deployment acceptance checks. No deployment performed.
 
+**Review checkpoint:** LAT-02 is published in https://github.com/anantham/LexiconForge/pull/175. The current stack includes #174 correction `d5efee7`; only documentation conflicted, both receipts retained. App behavior and measured test source are unchanged. Fresh current-head CI and independent review pending; no merge or deployment.
 ### [2026-09-05 12:50 MUT] [Agent: Codex]
 **Status:** Reconciled PR #174's second Codex review finding.
 **Files/lines:** `docs/adr/FEAT-003-image-service-architecture.md:336` explicitly supersedes the deployment-specific wrong-service/default-endpoint claims using the approved SEC-001 public configuration boundary. Saved settings remain untouched; a configured wrong service receives protocol/network diagnostics. No runtime code changed; prior native Windows and provider tests remain applicable.
@@ -3754,3 +3765,7 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Status:** Refreshing #173 against reviewed privacy parent `42732be`; GitHub reported conflicts.
 **Options:** A (selected): history-preserving parent merge, retaining both append-only pickup queues and debt receipts. Small effort/time, low risk, reversible; confidence 0.99. B: leave the reviewed branch conflicted until a later merge; less immediate work but incomplete integration.
 **Files/conflicts:** `Issues.md:151` and `docs/roadmaps/TECH-DEBT-INBOX.md:306` retained both sides. WORKLOG, FEAT-003 amendment and the already-reviewed illustration route guard merge automatically. Startup implementation is unchanged; focused combined checks and fresh CI/review follow. No main merge, deployment or benchmark claim changes.
+
+### [2026-09-05 14:37 MUT] [Agent: Codex]
+**Status:** Refreshed #175 from parent #173 `7db1933`, preserving the reviewed source and history.
+**Resolution:** `docs/WORKLOG.md:3750` retains both task receipts and parent corrections. Other files merge automatically. The parent passed 46 combined provider/settings/dialog/app-screen tests and TypeScript; this branch's implementation and earlier benchmark/QA evidence are unchanged. Fresh combined checks and current-head CI/review follow; no main merge or deployment.
