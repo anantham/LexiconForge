@@ -55,6 +55,7 @@ commit/runtime inventories and operator release prerequisites stay in private re
 
 ## 4. Prove the complete feature
 
+- [x] Verify pinned published FMoC/Dungeon Defense bytes and exercise both corpus validators; record the actual publication blockers and existing repair.
 - [ ] Select the novel and translation; verify full chapter count and corpus hash.
 - [ ] Build or verify a complete matching immutable index.
 - [ ] Run a real owner capability check and full-book scan; record latency.
@@ -67,6 +68,12 @@ Synthetic desktop and Pixel file-upload checks pass. WebKit in-memory restoratio
 passed earlier, but native offline file I/O currently fails in the pinned browser.
 These checks do not prove a complete novel scan, offline cold app launch,
 physical-device behavior or live scan latency. See Issues.md 20.
+
+The [September 6 corpus preflight](../reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md)
+found invalid chapter numbering in both published candidate novels. The existing
+Dungeon Defense publisher repair produces matching frontend/backend hashes for
+476 chapters, but remains partial against the declared 509. Issues.md 21 tracks
+the missing complete-corpus prerequisite; do not close it from this parity proof.
 
 ## 5. Close the records
 

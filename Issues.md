@@ -150,6 +150,11 @@ backend recovery is committed and independently reviewed locally (92 focused tes
 Pick up publication prerequisites, browser/CSRF, deployment and
 real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
 
+September 6 preflight: direct cross-site Strict-cookie calls fail in a disposable
+Chromium transport check; an owner-origin scan window succeeds without moving
+proof to the public reader. Connection design and implementation remain pending.
+The full-book gate also has a concrete publication-data blocker; see item 21.
+
 18) Public configuration boundary: require local broker settings and keep operator records private.
 
 Current cleanup removes built-in endpoints, personal deployment defaults and operational
@@ -174,6 +179,17 @@ or copy private audit findings into this issue. Cleanup is in [PR #174](https://
 
 Receipts: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 graph review; structural
 friction belongs in `docs/architecture/ARCHITECTURE.md` section 7.
+
+21) Supply a verified complete novel before semantic index acceptance (open; unclaimed).
+
+Pinned published FMoC and Dungeon Defense sessions fail the actual frontend and
+backend chapter-identity validators. FMoC also declares `unknown / quick-export`
+instead of the registry identity. Existing publisher PR #3 repairs Dungeon Defense
+numbering, but its 476-chapter corpus is still short of the declared 509 chapters
+and includes 30 source-content fallbacks. Do not index these as complete English
+novels or patch validators to accept them. Evidence, exact hashes, existing PR
+ownership and completion criteria are in
+[the corpus preflight](docs/reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md).
 
 ### TEST-01 — Replace copied illustration-marker tests with production-path coverage
 

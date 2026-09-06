@@ -377,3 +377,16 @@ reader loop. Use a repeated small chunk fixture instead of allocating a giant
 test payload. Record time and memory on a representative novel before adding
 staging, workers, caching, or another import path. Non-blocking for this reviewed
 scope correction; do not close the full-novel QA gate from synthetic checks.
+
+### 2026-09-06 — [DEBT][DATA][CORPUS] Published metadata does not prove a complete indexable novel
+
+Pinned FMoC bytes contain 3,273 records, duplicate numbers and `unknown / quick-export`
+identity despite a 3,521-chapter registry entry. Dungeon Defense contains 476 records
+with duplicate numbers despite 509 declared book chapters. Both actual corpus
+validators reject them. Existing publisher PR #3 fixes Dungeon Defense numbering
+with source-bound stable-ID proof, but still covers only 476 chapters, including
+30 source-text fallbacks. Capture data repair under Issues.md 21 and reuse the
+publisher integrity work; do not weaken semantic validation, silently relabel
+versions, or treat a complete supplied array as a complete novel. Exact public
+artifact and cross-language parity evidence:
+`docs/reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md`.
