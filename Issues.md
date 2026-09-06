@@ -148,6 +148,51 @@ embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
 Historical refs/caches are a separate assessment; do not claim deletion from history
 or copy private audit findings into this issue. Cleanup is in [PR #174](https://github.com/anantham/LexiconForge/pull/174); merge/deployment evidence is pending.
 
+## Agent pickup queue — 2026-09-05 latency and complexity pass
+
+These are scoped follow-ups, not permission for a repository-wide rewrite. Claim a ticket with an agent/branch before changing its files. Preserve the historical observations above. Raw debt receipt: [TECH-DEBT-INBOX](docs/roadmaps/TECH-DEBT-INBOX.md#2026-09-05-latency-pass). Start with deletion, then simplify; require measured evidence for performance claims.
+
+### LAT-01 — Remove unrelated routes from cold startup
+
+- **Status:** Implemented and verified; [draft PR #173](https://github.com/anantham/LexiconForge/pull/173) on `perf/codex-startup-latency`. Not merged or deployed. Owner: Codex.
+- **Files:** `App.tsx`, `App.test.tsx`, `tests/e2e/route-loading.spec.ts`.
+- **Evidence / acceptance:** [Build measurements, limits, and reproduction](issues/01-bootup-time/2026-09-05-route-startup.md). Load only the selected feature; preserve deep links, route transitions, and visible download failures. This does **not** close the full-import delay in historical issue 1.
+
+### LAT-02 — Delete abandoned app-shell subscriptions and scaffolding
+
+- **Status:** Open; unclaimed. Confidence: 0.98. Effort: small. Risk: low; reversible.
+- **Files / evidence:** `MainApp.tsx:45-46,65-67,76-112,133-142,165-186`. `handleTranslate`, `handleFetch`, `loadPromptTemplates`, `getChapter`, `hasTranslationSettingsChanged`, `currentChapterTranslationResult`, `hasCurrentChapter`, `requestedRef`, and `settingsFingerprint` are declared but never consumed. The two derived selectors still execute on store changes; old auto-translation comments and a commented subscription remain after their behavior moved to the store.
+- **Done when:** Remove the unused hooks/imports/ref/memo/commented code; preserve live job warnings and initialization/preload behavior. Existing app-shell/navigation tests pass. Measure render/subscription work before claiming a latency gain; do not replace dead code with another abstraction.
+
+### LAT-03 — Stop rediscovering an unchanged broker on every settings-panel visit
+
+- **Status:** Open; unclaimed. Confidence: 0.95 for duplication; latency benefit unmeasured. Effort: small-medium. Risk: stale discovery if refresh semantics change; reversible.
+- **Files / evidence:** `components/settings/ProvidersPanel.tsx:163-190` and `components/settings/SillyTavernPanel.tsx:24-55` each schedule a 300ms timer and call `fetchIndrasNetWorkflows(..., { force: true })`. `services/providers/indrasNetImageProvider.ts:385-418` already provides a normalized-endpoint cache with a 60-second TTL, bypassed by both effects.
+- **Done when:** Establish the freshness requirement; prefer deleting routine `force` overrides over adding another cache/hook. Keep explicit Refresh fresh, endpoint changes isolated, and errors visible. Count requests for Providers → SillyTavern → Providers, endpoint edits, and manual Refresh; verify selected workflow/fallback semantics.
+
+### QA-01 — Restore meaningful React type checking
+
+- **Status:** Open; unclaimed. Confidence: 0.99 for the setup gap. Effort: unknown until a baseline is captured. Risk: proper types may expose many existing errors; reversible.
+- **Files / evidence:** `package.json`, `package-lock.json`, `tsconfig.json`. React 19 is installed but `@types/react`/`@types/react-dom` are not declared; this checkout has no `node_modules/@types/react`. Baseline `App.tsx` passed typecheck while calling `Loader` without its required `text` prop. Introducing a standard class error boundary exposed missing `props` typing.
+- **Done when:** Add compatible React declarations in an isolated dependency PR, record the baseline errors, and resolve them without suppressions or placeholder declarations. An intentional invalid JSX prop must fail `tsc`. Do not describe today's green typecheck as full React prop safety.
+
+### QA-02 — Make wrong-endpoint coverage actually observe the debounce window
+
+- **Status:** Open; unclaimed. Confidence: 0.98. Effort: small. Risk: low; reversible.
+- **Files / evidence:** `tests/components/settings/SillyTavernPanel.test.tsx:143-156` mocks endpoint validation and checks “no workflow fetch” immediately after finding a synchronously rendered status. The production fetch is delayed 300ms, so that assertion alone cannot prove it is never sent.
+- **Done when:** Use the real validation helper or rely on its existing service contract tests; advance the UI timer beyond the debounce before asserting no dispatch. Demonstrate that removing the production guard fails the test. Delete duplicated assertions that cannot distinguish correct from broken behavior.
+
+### QA-03 — Reproducible worktree and production-browser verification
+
+- **Status:** Open; unclaimed. Confidence: 0.99 for observed setup friction. Effort: medium. Risk: low if opt-in and local; reversible.
+- **Files / evidence:** `playwright.config.ts`, `tests/e2e/helpers/sessionHarness.ts`, `package.json`, `.gitattributes`, and worktree setup instructions. Root Node is 26 while the project requires 24; this pass used an existing Node 24.19.0 binary. A broad `git diff --stat` in the temporary worktree invoked Git LFS cleaning for `media/demo.mp4` and failed writing the main repo's `.git/lfs/tmp`. Scoped diffs worked. The E2E config hardcodes port 5177/dev mode and may reuse an unrelated existing server; production QA needed a temporary preview config.
+- **Done when:** Document one persistent worktree per branch with Node 24 and an explicit LFS/dependency setup; do not prune, reset, or stash another agent's work. Reuse the existing session harness with a scrubbed representative novel, fresh/warm cache cases, a selectable production preview URL, and trace-on-failure. Record worktree path and exact source revision in receipts; never use a personal browser profile as the automated fixture. No daemon/dashboard needed.
+
+### COPY-01 — Remove the hardcoded sutta title from shared provenance UI
+
+- **Status:** Open; unclaimed. Confidence: 0.99. Effort: small. Risk: factual accuracy; reversible.
+- **Files / evidence:** `components/sutta-studio/AboutThisText.tsx:67-69` interpolates the packet's work ID but always appends “Satipaṭṭhāna Sutta (Foundations of Mindfulness).” The same component renders MN117 and live suttas.
+- **Done when:** Delete the fixed title or read a verified title from the packet; do not infer a title from the ID. Check two different packets and a packet without title metadata.
 ### TEST-01 — Replace copied illustration-marker tests with production-path coverage
 
 - **Status:** Open; unclaimed.

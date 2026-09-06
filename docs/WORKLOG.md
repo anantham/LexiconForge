@@ -3690,6 +3690,45 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Verification limits:** Controlled browser acceptance and Windows configuration checks passed; live service migration was not exercised. Historical refs, cached artifacts and binary attachments are not erased by this source cleanup.
 **Independent review:** A tool-free MiMo review of the published source found no blocking P1/P2 defects. The initial oversized attachment was partial; four smaller packets confirmed complete receipt of the remaining UI, provider/settings/scanner, extension and Windows source. Static review does not substitute for live deployment acceptance. Macroscope skipped.
 
+### [2026-09-05T06:12+04:00] [Agent: Codex]
+**Status:** Starting
+**Task:** User-authorized deletion-first latency pass. Start with cold page loading; the user's precise slow interaction remains unspecified.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-startup-latency`
+**Branch:** `perf/codex-startup-latency`
+**Baseline:** Freshly fetched `origin/main` is `8423892`; root checkout clean. Node 24.19.0 production build produces a 4,756.69 kB entry script (1,135.45 kB gzip).
+**Hypothesis:** H1 (0.90): eager route imports make every page download and evaluate unrelated readers, datasets, and benchmark tools. Native lazy route loading will reduce startup bytes and latency without adding a dependency or changing provider/persistence contracts. H2 (0.95): the synchronous MN10 registry and asynchronous MN117 registry can become one local packet loader, preserving aliases, route precedence, and visible errors.
+**Options:** A: remove unrelated routes from the startup dependency graph (selected within the explicit simplification authorization; small effort, low risk, reversible). B: redesign bootstrap/caches/provider coordination (deferred; unmeasured impact and higher complexity/risk).
+**Files likely affected:** `App.tsx`; a small route-load error boundary if needed; focused routing tests; this worklog.
+**Predictions:** smaller route-specific initial JavaScript; lower cold render time under identical throttling; existing URLs and client navigation still work; failed chunk/packet loads display descriptive errors.
+**Fallback:** discard only the isolated changes if measured latency fails to improve or routing behavior regresses. No runtime/deployment changes.
+
+**2026-09-05 verification checkpoint:** Production-browser route checks pass 3/3: standalone routes avoid unrelated modules; delayed packet responses cannot replace the current route; rejected feature downloads give recovery and preserve other routes. Focused Vitest gate passes 24/24, including 14 routing cases and the existing Gita reader tests. The first race-test draft exposed an async Vitest mock re-import returning the real JSON module; diagnostic packet-key logging proved the harness artifact. Removed that artificial delay, retained packet identity checks, and verified the actual delayed network response in Chromium instead. No production guard was weakened.
+**Self-review:** Kept one small `lazyPage` wrapper because it supplies descriptive download-failure UI to every deferred feature. Deleted the unnecessary separate error-boundary class from this patch; no retry/cache state or routing dependency was added. Both local packets use the same loading path and fetch view/packet concurrently. `App.tsx` is 162 → 160 lines.
+**[DEBT]:** User requested actionable tickets for subsequent agents. Findings and setup/QA needs are recorded in root `Issues.md` (LAT-02/LAT-03/QA-01/QA-02/QA-03/COPY-01) with raw cross-references in `docs/roadmaps/TECH-DEBT-INBOX.md#2026-09-05-latency-pass`. These are deferred; only LAT-01 is implemented here.
+
+### [2026-09-05T06:28+04:00] [Agent: Codex]
+**Status:** Complete locally; publication pending.
+**Files/lines:** `App.tsx:5-160` defers route features, unifies local packets, and preserves visible failures; `App.test.tsx:1-105` covers routing/module isolation; `tests/e2e/route-loading.spec.ts:1-71` verifies real delayed/failed downloads; `issues/01-bootup-time/route-startup-probe.mjs` is the local-only reproducible timing probe; `issues/01-bootup-time/2026-09-05-route-startup.md` records measurements and QA limits; `Issues.md` and `docs/roadmaps/TECH-DEBT-INBOX.md` contain scoped follow-up tickets.
+**Final measurements:** 3 cold runs per version/path, alternating order, 4x CPU, 80ms latency, 10 Mbit/s, external calls/service workers blocked. Library H1 median 1813 → 1099ms; initial decoded JS 4759 → 1860KB. Gita index H1 1569 → 600ms; decoded JS 4757 → 197KB. All 12 page-error lists empty. No production or provider speedup claimed.
+**Verification:** Focused Vitest 25/25; production Chromium 3/3 (zero retries); build, current typecheck, integrity/extension checks, and scoped diff check pass. Changed TS/TSX ESLint has zero errors plus the pre-existing alias-effect warning. Routing line coverage 94.73%, no comparable prior baseline.
+**Next:** Review this isolated slice; six pickup tickets remain open. Main checkout preserved. No merge or deployment authorized. Confidence in measured startup improvement: 0.95. Fallback: revert this branch's focused changes.
+
+### [2026-09-05T06:36+04:00] [Agent: Codex]
+**Status:** Complete — pushed for draft review.
+**PR:** https://github.com/anantham/LexiconForge/pull/173
+**Publication:** Performance commit `e140230` and pickup-ticket commit `ac1d796` are pushed; remote SHA matched the local head. This documentation follow-up links the PR from LAT-01 and its evidence receipt. Root `main` remains clean at `8423892`; no merge or deployment.
+**Next:** Review PR #173 and collect a representative device/chapter fixture for the remaining latency work; six follow-up tickets remain open.
+
+### [2026-09-05] [Agent: Codex]
+**Status:** Starting approved latency-first roadmap continuation.
+**Task:** Finish current-head reviews of #174/#160, refresh #173 against current main and the public configuration cleanup, then measure chapter/translation switching and remove proven unnecessary work. Backend publication prerequisites remain separate.
+**Branch/worktree:** `perf/codex-startup-latency` in its existing isolated worktree. Root main and other worktrees preserved.
+**Merge:** Three documentation-only conflicts preserve both the public-boundary receipts and the latency pickup queue. Production source merges automatically; main remains `655af01`.
+**Predictions:** Route isolation and download recovery remain valid after the merge; no private host appears in production output. The existing unused app-shell selectors should add store work without affecting rendered output. Confidence 0.96; measure before claiming a speedup.
+**Next files:** `App.tsx` and its existing unit/browser tests for review; `MainApp.tsx` for a separate deletion-only ticket; `playwright.config.ts` and existing QA instructions for a separate setup ticket. Keep semantic live acceptance, physical device checks and merge/deployment decisions open.
+
+**Refreshed #173 verification:** `0d5f5ce` passes 25 focused tests, TypeScript, production build and the existing three production route checks. The existing startup probe confirms the improvement against the sanitized baseline: library H1 1916 → 1167ms, Gita H1 1757 → 610ms; no page errors. Receipt updated under `issues/01-bootup-time/`. Backend deployment and source merge decisions remain separate.
+
 ### [2026-09-05] [Agent: Codex]
 **Status:** Addressing current-head Codex findings on #174.
 **Findings/predictions:** Two independently configured installation roots could diverge; canonical path comparison must reject missing/mismatched launcher configuration before hardening or route/task work. Required-variable failures happened before log redirection; moving the same guards into the existing logged entrypoint must retain errors for headless task diagnosis while still stopping before service startup. Confidence 0.97.
@@ -3710,3 +3749,8 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **[DEBT]:** `tests/store/slices/illustration-marker-insertion.test.ts` copies its subject instead of importing production behavior. Record TEST-01 for deletion/replacement with real store tests; do not extend the copied algorithm.
 
 **Submission correction verified:** All three regression cases pass; configured offline saved models and cloud overrides remain usable. Node 24.19.0 focused provider/dialog/settings gate passes 43 tests; TypeScript passes; changed-file lint has zero errors and one existing warning. Build/security CI and exact-head review follow publication.
+
+### [2026-09-05 14:34 MUT] [Agent: Codex]
+**Status:** Refreshing #173 against reviewed privacy parent `42732be`; GitHub reported conflicts.
+**Options:** A (selected): history-preserving parent merge, retaining both append-only pickup queues and debt receipts. Small effort/time, low risk, reversible; confidence 0.99. B: leave the reviewed branch conflicted until a later merge; less immediate work but incomplete integration.
+**Files/conflicts:** `Issues.md:151` and `docs/roadmaps/TECH-DEBT-INBOX.md:306` retained both sides. WORKLOG, FEAT-003 amendment and the already-reviewed illustration route guard merge automatically. Startup implementation is unchanged; focused combined checks and fresh CI/review follow. No main merge, deployment or benchmark claim changes.
