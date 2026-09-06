@@ -6,7 +6,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildChapterArtifacts,
-  chapterArtifactFileName,
 } from '../../scripts/lib/chapter-artifact-builder';
 
 const chapter = {
@@ -27,8 +26,8 @@ describe('chapter artifact builder', () => {
       publicBaseUrl: 'https://media.example/novels/',
     });
 
-    expect(chapterArtifactFileName(42)).toBe('chapter-000042.json');
-    expect(artifact.fileName).toBe('chapter-000042.json');
+    const digest = createHash('sha256').update(artifact.json, 'utf8').digest('hex');
+    expect(artifact.fileName).toBe(`chapter-000042-${digest}.json`);
     expect(artifact.document).toEqual({
       format: 'lexiconforge-chapter-artifact',
       version: '1.0',
@@ -37,8 +36,8 @@ describe('chapter artifact builder', () => {
       chapter,
     });
     expect(artifact.reference).toEqual({
-      url: 'https://media.example/novels/test-novel/chapters/chapter-000042.json',
-      sha256: createHash('sha256').update(artifact.json, 'utf8').digest('hex'),
+      url: `https://media.example/novels/test-novel/chapters/${artifact.fileName}`,
+      sha256: digest,
       byteLength: Buffer.byteLength(artifact.json, 'utf8'),
     });
   });

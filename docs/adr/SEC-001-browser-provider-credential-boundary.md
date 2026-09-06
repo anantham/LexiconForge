@@ -83,3 +83,11 @@ The following invariants apply:
 - Unit tests cover settings-only resolution, the browser/Node environment boundary, missing-key failure, Settings UI coverage, scanner detection, and stale in-memory audio credential removal.
 - The production build is run with synthetic values in every legacy provider environment variable.
 - `npm run security:scan-client` must report no provider-key patterns and no synthetic canaries.
+
+## Public configuration amendment — 2026-09-05
+
+Private broker endpoints have no built-in default. The reader and extension use
+explicit local settings; an unconfigured broker causes no discovery request or
+prompt composition. Existing saved endpoints remain unchanged. The client-artifact
+scan also rejects embedded Tailnet hostnames. Deployment examples use placeholders;
+runtime owner identities and machine paths are supplied outside source control.

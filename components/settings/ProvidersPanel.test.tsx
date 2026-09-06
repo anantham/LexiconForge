@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProvidersPanel from './ProvidersPanel';
 import { useSettingsModalContext } from './SettingsModalContext';
@@ -79,7 +79,6 @@ vi.mock('../../services/openrouterImageModelAdapter', () => ({
 }));
 
 vi.mock('../../services/providers/indrasNetImageProvider', () => ({
-  DEFAULT_INDRASNET_BASE_URL: 'https://default-asus.example.ts.net',
   fetchIndrasNetWorkflows: mockFetchIndrasNetWorkflows,
   imageModelFromWorkflowName: (name: string) => `indrasnet/${encodeURIComponent(name)}`,
   isIndrasNetImageModel: (model: string) => model.startsWith('indrasnet/'),
@@ -666,7 +665,7 @@ describe('ProvidersPanel', () => {
 
       render(<ProvidersPanel isOpen={true} />);
 
-      expect(await screen.findByRole('option', { name: 'Asus: Anime — Illustrious — local' })).toHaveValue('indrasnet/gen_anime');
+      expect(await screen.findByRole('option', { name: 'IndrasNet: Anime — Illustrious — local' })).toHaveValue('indrasnet/gen_anime');
       expect(mockFetchIndrasNetWorkflows).toHaveBeenCalledWith('https://asus.example.ts.net', { force: true });
     });
 
@@ -676,57 +675,40 @@ describe('ProvidersPanel', () => {
       render(<ProvidersPanel isOpen={true} />);
 
       expect(screen.getByRole('option', {
-        name: 'Asus: Invalid saved workflow ID — unavailable',
+        name: 'IndrasNet: Invalid saved workflow ID — unavailable',
       })).toHaveValue('indrasnet/%');
     });
 
-    it('clears stale workflows and rediscovers the effective default when the endpoint is emptied', async () => {
-      mockFetchIndrasNetWorkflows
-        .mockResolvedValueOnce([{
+    it('clears stale workflows without contacting another endpoint when the endpoint is emptied', async () => {
+      vi.useFakeTimers();
+      try {
+        mockFetchIndrasNetWorkflows.mockResolvedValueOnce([{
           name: 'custom_workflow',
           client_ready: true,
           manifest: {
-            name: 'custom_workflow',
-            display_name: 'Custom workflow',
-            client_ready: true,
-            requires_image: false,
-            inputs: { prompt: {} },
-          },
-        }])
-        .mockResolvedValueOnce([{
-          name: 'default_workflow',
-          client_ready: true,
-          manifest: {
-            name: 'default_workflow',
-            display_name: 'Default workflow',
-            client_ready: true,
-            requires_image: false,
-            inputs: { prompt: {} },
+            name: 'custom_workflow', display_name: 'Custom workflow', client_ready: true,
+            requires_image: false, inputs: { prompt: {} },
           },
         }]);
-      updateMockSettings({ indrasNetBaseUrl: 'https://custom-asus.example.ts.net' });
-      const { rerender } = render(<ProvidersPanel isOpen={true} />);
-
-      expect(await screen.findByRole('option', { name: 'Asus: Custom workflow — local' })).toBeInTheDocument();
-
-      updateMockSettings({ indrasNetBaseUrl: '' });
-      rerender(<ProvidersPanel isOpen={true} />);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('option', { name: 'Asus: Custom workflow — local' })).not.toBeInTheDocument();
-      });
-      expect(await screen.findByRole('option', { name: 'Asus: Default workflow — local' })).toBeInTheDocument();
-      expect(mockFetchIndrasNetWorkflows).toHaveBeenLastCalledWith(
-        'https://default-asus.example.ts.net',
-        { force: true },
-      );
+        updateMockSettings({ indrasNetBaseUrl: 'https://broker.example.com' });
+        const { rerender } = render(<ProvidersPanel isOpen={true} />);
+        await act(async () => { await vi.advanceTimersByTimeAsync(300); });
+        expect(screen.getByRole('option', { name: 'IndrasNet: Custom workflow — local' })).toBeInTheDocument();
+        updateMockSettings({ indrasNetBaseUrl: '' });
+        rerender(<ProvidersPanel isOpen={true} />);
+        await act(async () => { await vi.advanceTimersByTimeAsync(500); });
+        expect(screen.queryByRole('option', { name: 'IndrasNet: Custom workflow — local' })).not.toBeInTheDocument();
+        expect(mockFetchIndrasNetWorkflows).toHaveBeenCalledTimes(1);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('shows the opt-in fallback selector only when an Asus workflow is selected', () => {
       updateMockSettings({ imageModel: 'indrasnet/gen_anime', imageFallbackModel: 'none' });
       render(<ProvidersPanel isOpen={true} />);
 
-      expect(screen.getByLabelText(/Cloud fallback when Asus is offline or busy/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Cloud fallback when the broker is offline or busy/)).toBeInTheDocument();
     });
 
     it('keeps an unavailable saved cloud fallback visible as still active', () => {
@@ -737,7 +719,7 @@ describe('ProvidersPanel', () => {
 
       render(<ProvidersPanel isOpen={true} />);
 
-      const fallbackSelect = screen.getByLabelText(/Cloud fallback when Asus is offline or busy/);
+      const fallbackSelect = screen.getByLabelText(/Cloud fallback when the broker is offline or busy/);
       expect(fallbackSelect).toHaveValue('openrouter/acme/retired-image-model');
       expect(screen.getByRole('option', {
         name: 'Saved cloud fallback: openrouter/acme/retired-image-model — unavailable (still active)',

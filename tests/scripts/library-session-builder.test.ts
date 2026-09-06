@@ -182,7 +182,6 @@ describe('library-session-builder', () => {
     expect(result.chapterManifest.chapters.map((chapter) => chapter.chapterNumber)).toEqual([1, 2, 3, 4]);
     expect(result.chapterArtifacts).toHaveLength(4);
     expect(result.chapterArtifacts[0]).toMatchObject({
-      fileName: 'chapter-000001.json',
       document: {
         novelId: 'test-novel',
         versionId: 'v1',

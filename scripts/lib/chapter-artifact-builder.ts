@@ -20,9 +20,6 @@ interface BuildChapterArtifactsInput {
   directoryName?: string;
 }
 
-export const chapterArtifactFileName = (chapterNumber: number): string =>
-  `chapter-${String(chapterNumber).padStart(6, '0')}.json`;
-
 export const resolveChapterArtifactDirectoryName = (value = 'chapters'): string => {
   if (value === '.' || value === '..' || !/^[a-zA-Z0-9._-]+$/.test(value)) {
     throw new Error('chapter artifact directory must be one safe directory name.');
@@ -41,7 +38,6 @@ export const buildChapterArtifacts = ({
   const artifactDirectory = resolveChapterArtifactDirectoryName(directoryName);
 
   return chapters.map((chapter) => {
-    const fileName = chapterArtifactFileName(chapter.chapterNumber);
     const document: ChapterArtifactDocument = {
       format: 'lexiconforge-chapter-artifact',
       version: '1.0',
@@ -50,13 +46,15 @@ export const buildChapterArtifacts = ({
       chapter,
     };
     const json = JSON.stringify(document, null, 2);
+    const sha256 = sha256Utf8(json);
+    const fileName = `chapter-${String(chapter.chapterNumber).padStart(6, '0')}-${sha256}.json`;
     return {
       fileName,
       document,
       json,
       reference: {
         url: `${baseUrl}/${novelId}/${artifactDirectory}/${fileName}`,
-        sha256: sha256Utf8(json),
+        sha256,
         byteLength: Buffer.byteLength(json, 'utf8'),
       },
     };
