@@ -226,6 +226,8 @@ export const exportFullSessionToJson = async (
 
     chaptersOut.push({
       stableId,
+      novelId: chapter.novelId ?? null,
+      libraryVersionId: chapter.libraryVersionId ?? null,
       canonicalUrl,
       title: chapter.title,
       content: chapter.content,

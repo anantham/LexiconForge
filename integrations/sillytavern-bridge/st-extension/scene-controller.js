@@ -45,6 +45,7 @@ export function createSceneController({
         const imageBackend = settings.imageBackend === 'sillytavern' ? 'sillytavern' : 'indrasnet';
         const workflowName = settings.workflowName || 'gen_anime';
         try {
+            const imageClient = createImageClient(settings);
             const compositionEpoch = navigationEpoch;
             notify('composing', { fingerprint, imageBackend, workflowName });
             const prompt = (await composePrompt({ context, messageIndex: scene.index })).trim();
@@ -62,7 +63,6 @@ export function createSceneController({
                 });
             }
 
-            const imageClient = createImageClient(settings);
             const result = await imageClient.run({
                 workflowName,
                 prompt,

@@ -14,7 +14,6 @@ import { INITIAL_SYSTEM_PROMPT } from '../config/constants';
 import type { AppSettings, PromptTemplate, DiffMarkerVisibilitySettings } from '../types';
 import appConfig from '../config/app.json';
 import { getDefaultDiffPrompt } from './diff/promptUtils';
-import { DEFAULT_INDRASNET_BASE_URL } from './providers/indrasNetImageProvider';
 import { RESUMABLE_IMAGE_JOBS_STORAGE_KEY } from './imageJobTypes';
 
 const settingsStorageKey = 'app-settings';
@@ -34,7 +33,7 @@ export const defaultSettings: AppSettings = {
   openRouterTextEndpoint: 'auto',
   imageModel: appConfig.defaultModels?.imageModel || 'imagen-3.0-generate-001',
   openRouterImageEndpoint: 'auto',
-  indrasNetBaseUrl: DEFAULT_INDRASNET_BASE_URL,
+  indrasNetBaseUrl: '',
   imageFallbackModel: 'none',
   temperature: appConfig.aiParameters.defaults.temperature,
   apiKeyGemini: '',

@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { pingSillyTavernBridge, type BridgeStatus } from '../../services/sillyTavernBridge';
 import {
-  DEFAULT_INDRASNET_BASE_URL,
   fetchIndrasNetWorkflows,
-  getIndrasNetEndpointConfigurationError,
   type IndrasNetWorkflowProfile,
 } from '../../services/providers/indrasNetImageProvider';
 import { IndrasNetImageProviderSection } from './IndrasNetImageProviderSection';
@@ -20,12 +18,16 @@ const SillyTavernPanel: React.FC = () => {
   const [indrasNetLoading, setIndrasNetLoading] = useState(false);
   const [indrasNetError, setIndrasNetError] = useState<string | null>(null);
   const [indrasNetRefresh, setIndrasNetRefresh] = useState(0);
-  const indrasNetEndpoint = currentSettings.indrasNetBaseUrl?.trim() || DEFAULT_INDRASNET_BASE_URL;
-  const indrasNetConfigurationError = getIndrasNetEndpointConfigurationError(indrasNetEndpoint);
+  const indrasNetEndpoint = currentSettings.indrasNetBaseUrl?.trim() || '';
 
   useEffect(() => {
     let cancelled = false;
-    if (indrasNetConfigurationError) return () => { cancelled = true; };
+    if (!indrasNetEndpoint) {
+      setIndrasNetWorkflows([]);
+      setIndrasNetError(null);
+      setIndrasNetLoading(false);
+      return;
+    }
 
     const timer = setTimeout(() => {
       if (cancelled) return;
@@ -51,7 +53,7 @@ const SillyTavernPanel: React.FC = () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [indrasNetConfigurationError, indrasNetEndpoint, indrasNetRefresh]);
+  }, [indrasNetEndpoint, indrasNetRefresh]);
 
   const handleTestConnection = async () => {
     setIsChecking(true);
@@ -178,8 +180,8 @@ const SillyTavernPanel: React.FC = () => {
 
       <IndrasNetImageProviderSection
         endpoint={currentSettings.indrasNetBaseUrl || ''}
-        loading={indrasNetConfigurationError ? false : indrasNetLoading}
-        error={indrasNetConfigurationError || indrasNetError}
+        loading={indrasNetLoading}
+        error={indrasNetError}
         workflowCount={indrasNetWorkflows.length}
         onEndpointChange={(value) => handleSettingChange('indrasNetBaseUrl', value)}
         onRefresh={() => setIndrasNetRefresh(value => value + 1)}
