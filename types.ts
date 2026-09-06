@@ -1,4 +1,5 @@
 import type { DeepLoomPacket } from './types/suttaStudio';
+import type { ChapterArtifactReference } from './types/chapterManifest';
 
 export interface Chapter {
   title: string;
@@ -34,6 +35,8 @@ export interface ChapterSummary {
   hasImages: boolean;
   lastAccessed?: string;
   lastTranslatedAt?: string;
+  /** Present only on virtual manifest rows that support targeted acquisition. */
+  publicationArtifact?: ChapterArtifactReference;
 }
 
 // Legacy interface for backwards compatibility with tests

@@ -69,6 +69,24 @@ const createNavigationContext = (overrides: Partial<NavigationContext> = {}): Na
   ...overrides,
 });
 
+const targetedAcquisitionMocks = vi.hoisted(() => {
+  class MockTargetedChapterAcquisitionError extends Error {
+    public readonly code: string;
+
+    constructor(_code: string, message: string) {
+      super(message);
+      this.name = 'TargetedChapterAcquisitionError';
+      this.code = _code;
+    }
+  }
+  return {
+    ErrorClass: MockTargetedChapterAcquisitionError,
+    acquire: vi.fn().mockRejectedValue(
+      new MockTargetedChapterAcquisitionError('artifact_unavailable', 'No remote artifact')
+    ),
+  };
+});
+
 // ============================================================================
 // Mocks
 // ============================================================================
@@ -192,6 +210,11 @@ vi.mock('../../services/db/operations', () => ({
     get: vi.fn().mockResolvedValue(null),
     findByHashes: vi.fn().mockResolvedValue(null),
   },
+}));
+
+vi.mock('../../services/library/targetedChapterAcquisitionService', () => ({
+  acquirePublishedChapter: targetedAcquisitionMocks.acquire,
+  TargetedChapterAcquisitionError: targetedAcquisitionMocks.ErrorClass,
 }));
 
 // Mock db/index
@@ -540,6 +563,62 @@ describe('NavigationService', () => {
       expect(result.errorCode).toBe('chapter_not_cached');
       expect(result.error).toContain('Chapter 509');
       expect(result.error).toContain('not cached yet');
+    });
+
+    it('returns a normal navigation result after targeted artifact acquisition', async () => {
+      const { ChapterOps } = await import('../../services/db/operations');
+      (ChapterOps.findByNumber as Mock).mockResolvedValue(null);
+      const chapter = createMockEnhancedChapter({
+        id: 'scoped-ch42',
+        novelId: 'dungeon-defense-wn',
+        libraryVersionId: 'v1-primary',
+        chapterNumber: 42,
+        canonicalUrl: 'lexiconforge://dungeon-defense-wn/chapter/42',
+      });
+      targetedAcquisitionMocks.acquire.mockResolvedValueOnce({ chapterId: chapter.id, chapter });
+
+      const result = await NavigationService.handleNavigate(
+        chapter.canonicalUrl,
+        createNavigationContext({
+          scope: { novelId: 'dungeon-defense-wn', versionId: 'v1-primary' },
+        }),
+        vi.fn()
+      );
+
+      expect(targetedAcquisitionMocks.acquire).toHaveBeenCalledWith(expect.objectContaining({
+        novelId: 'dungeon-defense-wn',
+        versionId: 'v1-primary',
+        chapterNumber: 42,
+      }));
+      expect(result).toMatchObject({
+        chapterId: chapter.id,
+        chapter,
+        shouldUpdateBrowserHistory: true,
+      });
+    });
+
+    it('fails visibly without scraper fallback when targeted artifact integrity fails', async () => {
+      const { ChapterOps } = await import('../../services/db/operations');
+      (ChapterOps.findByNumber as Mock).mockResolvedValue(null);
+      targetedAcquisitionMocks.acquire.mockRejectedValueOnce(
+        new targetedAcquisitionMocks.ErrorClass(
+          'artifact_acquisition_failed',
+          'Could not acquire chapter 42: checksum mismatch'
+        )
+      );
+
+      const result = await NavigationService.handleNavigate(
+        'lexiconforge://dungeon-defense-wn/chapter/42',
+        createNavigationContext({
+          scope: { novelId: 'dungeon-defense-wn', versionId: 'v1-primary' },
+        }),
+        vi.fn()
+      );
+
+      expect(result).toEqual({
+        error: 'Could not acquire chapter 42: checksum mismatch',
+        errorCode: 'chapter_acquisition_failed',
+      });
     });
 
     it('strictly rejects an internal link for a different active novel', async () => {

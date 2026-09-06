@@ -8,6 +8,7 @@ import type {
   AccentColor,
   Witness,
   ScriptVariant,
+  WordAnalysisStatus,
 } from '../../../types/liturgy';
 
 // Accent → Tailwind text-color class. 300 level reads as a hint, not a shout,
@@ -24,6 +25,14 @@ import { ProseBlock } from '../ProseBlock';
 import { useLiturgySettings } from '../LiturgySettings';
 import { conceptsForToken } from '../../../data/concepts/lookup';
 import { conceptFacets } from '../../../data/concepts/tooltipFacets';
+import {
+  computeAlignmentLines,
+  type AlignmentLine,
+} from './alignmentGeometry';
+import {
+  ANALYSIS_STATUS_CLASS,
+  presentSurfaceAnalysis,
+} from './analysisPresentation';
 
 // Per-script font stacks. Latn/IAST uses Cardo (already loaded for diacritics).
 // Other scripts use Noto Serif Web Fonts pulled in index.html.
@@ -438,6 +447,10 @@ const HoverSpan: React.FC<{
    * data/concepts/lookup.ts).
    */
   conceptIds?: string[];
+  /** Layered analysis unit IDs carried by this exact surface slice. */
+  analysisUnitIds?: string[];
+  /** Most cautious review status among the layered units carried here. */
+  analysisStatus?: WordAnalysisStatus;
   /**
    * BCP-47 language tag (e.g. "sa-Latn"). When provided, the registry is
    * queried for additional conceptIds that attest this surface form, so
@@ -447,7 +460,16 @@ const HoverSpan: React.FC<{
    * with registry-resolved ones.
    */
   lang?: string;
-}> = ({ text, tooltipText, bold = false, morphemeIdx, conceptIds, lang }) => {
+}> = ({
+  text,
+  tooltipText,
+  bold = false,
+  morphemeIdx,
+  conceptIds,
+  analysisUnitIds,
+  analysisStatus,
+  lang,
+}) => {
   const [open, setOpen] = useState(false);
   const [facetIdx, setFacetIdx] = useState(0);
   const registryIds = lang
@@ -468,11 +490,17 @@ const HoverSpan: React.FC<{
       data-hover-span="true"
       data-morpheme-idx={morphemeIdx}
       data-concept-ids={conceptAttr}
+      data-analysis-unit-ids={analysisUnitIds?.join(' ') || undefined}
+      data-analysis-status={analysisStatus}
       // Each morpheme gets its own underline + tiny horizontal padding so
       // adjacent morphemes don't merge visually. mn10 pattern: the eye
       // sees per-segment breaks (kar · aṇī · yam) rather than one long
       // continuous underline under the whole word.
-      className={`relative inline-block cursor-help px-[2px] border-b border-dotted border-emerald-700/40 hover:border-emerald-300 hover:text-emerald-100 transition-colors ${
+      className={`relative inline-block cursor-help px-[2px] border-b ${
+        analysisStatus
+          ? ANALYSIS_STATUS_CLASS[analysisStatus]
+          : 'border-dotted border-emerald-700/40 hover:border-emerald-300'
+      } hover:text-emerald-100 transition-colors ${
         bold ? 'font-semibold' : ''
       }`}
       onMouseEnter={() => setOpen(true)}
@@ -542,6 +570,11 @@ const HoverWord: React.FC<{
   lang?: string;
 }> = ({ text, word, morphemes: morphemesOverride, hidePron = false, lang }) => {
   const morphemes = morphemesOverride ?? word.morphemes;
+  // WordAnalysis.surfaceMorphemeIndices is authored against the base/Latin
+  // morpheme list. An alternate script may choose a different segmentation;
+  // until it has its own explicit analysis-index contract, omit the unit IDs
+  // so analysis arrows fall honestly to the whole word.
+  const analysisUsesThisSegmentation = morphemesOverride === undefined;
   // If we have morphemes and they cleanly reconstruct the surface, render
   // one hover span per morpheme. Root morphemes render bold so the eye
   // lands on the meaning-carrier.
@@ -550,17 +583,29 @@ const HoverWord: React.FC<{
     if (split) {
       return (
         <>
-          {split.map((piece, i) => (
-            <HoverSpan
-              key={i}
-              text={piece.text}
-              tooltipText={tooltipForMorpheme(piece.morpheme, hidePron)}
-              bold={piece.morpheme.type === 'root'}
-              morphemeIdx={i}
-              conceptIds={piece.morpheme.conceptIds}
-              lang={lang}
-            />
-          ))}
+          {split.map((piece, i) => {
+            const presentation = analysisUsesThisSegmentation
+              ? presentSurfaceAnalysis(word, i)
+              : null;
+            const surfaceTooltip = tooltipForMorpheme(piece.morpheme, hidePron);
+            return (
+              <HoverSpan
+                key={i}
+                text={piece.text}
+                tooltipText={
+                  presentation
+                    ? `${surfaceTooltip} · ${presentation.tooltip}`
+                    : surfaceTooltip
+                }
+                bold={piece.morpheme.type === 'root'}
+                morphemeIdx={i}
+                conceptIds={piece.morpheme.conceptIds}
+                analysisUnitIds={presentation?.unitIds}
+                analysisStatus={presentation?.status}
+                lang={lang}
+              />
+            );
+          })}
         </>
       );
     }
@@ -830,108 +875,6 @@ export const WitnessDots: React.FC<{
   );
 };
 
-type Line = {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  engIdx: number;
-  paliIdx: number;
-  /**
-   * Which morpheme inside the Pāli word this line anchors to, if the
-   * word was rendered with morpheme-split HoverSpans. Lets the renderer
-   * distribute multiple-English-into-one-Pāli mappings across the Pāli
-   * morphemes (training-rule → sikkhā-pada) instead of fanning all
-   * arrows at the word's centre.
-   */
-  morphemeIdx?: number;
-};
-
-function computeAlignmentLines(
-  container: HTMLDivElement,
-  alignTo: number[] | undefined,
-  morphemeAlignTo?: (number | null)[]
-): Line[] {
-  if (!alignTo) return [];
-  const cRect = container.getBoundingClientRect();
-  const paliEls = container.querySelectorAll<HTMLElement>('[data-pali-idx]');
-  const enEls = container.querySelectorAll<HTMLElement>('[data-en-idx]');
-
-  // Group English indices by the Pāli idx they map to. When multiple
-  // English words map to the same Pāli word, we want to distribute them
-  // across that word's morphemes (by order) so the arrows land on
-  // sub-tokens instead of all converging at the word centre.
-  const groupedByPali = new Map<number, number[]>();
-  for (let engIdx = 0; engIdx < alignTo.length; engIdx++) {
-    const paliIdx = alignTo[engIdx];
-    if (paliIdx < 0) continue;
-    if (!groupedByPali.has(paliIdx)) groupedByPali.set(paliIdx, []);
-    groupedByPali.get(paliIdx)!.push(engIdx);
-  }
-
-  const lines: Line[] = [];
-  for (const [paliIdx, engIndices] of groupedByPali) {
-    const paliEl = paliEls[paliIdx];
-    if (!paliEl) continue;
-    const morphemeEls = paliEl.querySelectorAll<HTMLElement>('[data-morpheme-idx]');
-    const wordRect = paliEl.getBoundingClientRect();
-
-    for (let i = 0; i < engIndices.length; i++) {
-      const engIdx = engIndices[i];
-      const enEl = enEls[engIdx];
-      if (!enEl) continue;
-
-      // Three positioning strategies, in order of preference:
-      //   1. Authored morpheme spans exist → anchor on a morpheme.
-      //      Which morpheme: if the witness authored `morphemeAlignTo`
-      //      for this English token, use that index (lets a curator fix
-      //      crossed arrows when English reorders the morphemes). Else
-      //      fall back to the positional heuristic (i-th English → i-th
-      //      morpheme, clamped to the last).
-      //   2. No morpheme spans but the group has >1 English mapping to
-      //      this word → distribute proportionally along the word's
-      //      width so the arrows fan into separate landing zones
-      //      instead of converging at the centre. Works for any
-      //      script, any word, no authoring required.
-      //   3. Single English → just point at the word's centre.
-      let x1: number;
-      let y1: number;
-      let subIdx: number | undefined = undefined;
-      if (morphemeEls.length > 0) {
-        const authored = morphemeAlignTo?.[engIdx];
-        const target =
-          typeof authored === 'number'
-            ? Math.min(Math.max(authored, 0), morphemeEls.length - 1)
-            : Math.min(i, morphemeEls.length - 1);
-        const mr = morphemeEls[target].getBoundingClientRect();
-        x1 = mr.left + mr.width / 2 - cRect.left;
-        y1 = mr.bottom - cRect.top;
-        subIdx = target;
-      } else if (engIndices.length > 1) {
-        const xOffset = ((i + 0.5) / engIndices.length) * wordRect.width;
-        x1 = wordRect.left + xOffset - cRect.left;
-        y1 = wordRect.bottom - cRect.top;
-        subIdx = i;
-      } else {
-        x1 = wordRect.left + wordRect.width / 2 - cRect.left;
-        y1 = wordRect.bottom - cRect.top;
-      }
-
-      const er = enEl.getBoundingClientRect();
-      lines.push({
-        x1,
-        y1,
-        x2: er.left + er.width / 2 - cRect.left,
-        y2: er.top - cRect.top,
-        engIdx,
-        paliIdx,
-        morphemeIdx: subIdx,
-      });
-    }
-  }
-  return lines;
-}
-
 type HoverTarget = {
   kind: 'pali' | 'en';
   idx: number;
@@ -944,7 +887,7 @@ type HoverTarget = {
   element: HTMLElement;
 } | null;
 
-const AlignmentLines: React.FC<{ lines: Line[]; containerWidth: number }> = ({
+const AlignmentLines: React.FC<{ lines: AlignmentLine[]; containerWidth: number }> = ({
   lines,
 }) => {
   // The caller (SegmentRow.adjustedLines) is responsible for filtering by
@@ -1022,7 +965,7 @@ const SegmentRow: React.FC<{
   })();
   const currentWitness = segment.witnesses[witnessIdx];
   const containerRef = useRef<HTMLDivElement>(null);
-  const [lines, setLines] = useState<Line[]>([]);
+  const [lines, setLines] = useState<AlignmentLine[]>([]);
   const [hovered, setHovered] = useState<HoverTarget>(null);
 
   // Compute accent-by-surface-Pāli-position for this segment.
@@ -1080,7 +1023,13 @@ const SegmentRow: React.FC<{
         setLines([]);
         return;
       }
-      setLines(computeAlignmentLines(containerRef.current, currentWitness?.alignTo, currentWitness?.morphemeAlignTo));
+      setLines(
+        computeAlignmentLines(containerRef.current, {
+          alignTo: currentWitness?.alignTo,
+          morphemeAlignTo: currentWitness?.morphemeAlignTo,
+          tokenAlignTo: currentWitness?.tokenAlignTo,
+        })
+      );
     };
     compute();
     const raf = requestAnimationFrame(compute);
@@ -1106,7 +1055,15 @@ const SegmentRow: React.FC<{
       window.removeEventListener('resize', onResize);
       ro.disconnect();
     };
-  }, [witnessIdx, segment.id, currentWitness?.text, currentWitness?.alignTo, activeScript.lang]);
+  }, [
+    witnessIdx,
+    segment.id,
+    currentWitness?.text,
+    currentWitness?.alignTo,
+    currentWitness?.morphemeAlignTo,
+    currentWitness?.tokenAlignTo,
+    activeScript.lang,
+  ]);
 
   // Clear stale hover state when the active script or witness changes.
   // Without this, hovered.element points at a DOM node from before the
@@ -1184,9 +1141,7 @@ const SegmentRow: React.FC<{
   //      also attests at least one of those concepts. This is the
   //      "hover prajñā → show only the wisdom arrow, not the pāramitā
   //      arrow" behavior. Falls through if no concepts are tagged.
-  //   5. Adjust endpoints to anchor at the hover element when the line
-  //      has no morphemeIdx (otherwise the auto-distributed fan stays).
-  const adjustedLines: Line[] = (() => {
+  const adjustedLines: AlignmentLine[] = (() => {
     if (!hovered || !containerRef.current) return [];
     // Guard against stale hover state: if the user swapped scripts while
     // a hover was active, hovered.element is now detached from the DOM
@@ -1194,10 +1149,11 @@ const SegmentRow: React.FC<{
     // which would paint the line's source endpoint at the viewport corner.
     // (See task #73, user-reported mobile Devanāgarī bug.)
     if (!containerRef.current.contains(hovered.element)) return [];
-    const fresh = computeAlignmentLines(containerRef.current, currentWitness?.alignTo, currentWitness?.morphemeAlignTo);
-    const cRect = containerRef.current.getBoundingClientRect();
-    const r = hovered.element.getBoundingClientRect();
-
+    const fresh = computeAlignmentLines(containerRef.current, {
+      alignTo: currentWitness?.alignTo,
+      morphemeAlignTo: currentWitness?.morphemeAlignTo,
+      tokenAlignTo: currentWitness?.tokenAlignTo,
+    });
     // Step 3 — idx match. When the user is hovering a specific morpheme
     // within a Pāli word (the inner HoverSpan emits `data-morpheme-idx`),
     // narrow to lines that anchor at that morpheme. Without this, every
@@ -1213,8 +1169,12 @@ const SegmentRow: React.FC<{
     const idxMatched = fresh.filter((l) => {
       if (hovered.kind === 'pali') {
         if (l.paliIdx !== hovered.idx) return false;
-        if (hoveredMorphemeIdx !== null && l.morphemeIdx !== undefined) {
-          return l.morphemeIdx === hoveredMorphemeIdx;
+        if (
+          hoveredMorphemeIdx !== null &&
+          l.surfaceMorphemeIndices &&
+          l.surfaceMorphemeIndices.length > 0
+        ) {
+          return l.surfaceMorphemeIndices.includes(hoveredMorphemeIdx);
         }
         return true;
       }
@@ -1247,28 +1207,7 @@ const SegmentRow: React.FC<{
           return otherConcepts.some((c) => hoveredConcepts.has(c));
         });
 
-    // Step 5 — anchor endpoints at hover element
-    return conceptMatched.map((l) => {
-      if (
-        hovered.kind === 'pali' &&
-        l.paliIdx === hovered.idx &&
-        l.morphemeIdx === undefined
-      ) {
-        return {
-          ...l,
-          x1: r.left + r.width / 2 - cRect.left,
-          y1: r.bottom - cRect.top,
-        };
-      }
-      if (hovered.kind === 'en' && l.engIdx === hovered.idx) {
-        return {
-          ...l,
-          x2: r.left + r.width / 2 - cRect.left,
-          y2: r.top - cRect.top,
-        };
-      }
-      return l;
-    });
+    return conceptMatched;
   })();
 
   return (
@@ -1322,8 +1261,8 @@ const SegmentRow: React.FC<{
       )}
 
       {/* SVG alignment overlay — only renders lines for the hovered word.
-          Endpoints are adjusted to the actual hovered element so the
-          arrow anchors to the morpheme/word under the cursor. */}
+          Geometry is measured from the authored target itself; hover filters
+          visibility but never rewrites a coarse target into a precise one. */}
       <AlignmentLines
         lines={adjustedLines}
         containerWidth={containerRef.current?.offsetWidth ?? 0}

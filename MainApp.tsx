@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
 import { useAppStore } from './store';
-// InputBar is rendered inside LandingPage (the search bar there), not in the
-// reader chrome — keeping the import out avoids dead-code drift.
 import ChapterView from './components/ChapterView';
 import AmendmentModal from './components/AmendmentModal';
 import SessionInfo from './components/SessionInfo';
@@ -13,11 +11,9 @@ import OscilloscopePanel from './components/oscilloscope/OscilloscopePanel';
 import NotificationToast from './components/NotificationToast';
 import BackgroundWorkBanner from './components/BackgroundWorkBanner';
 import ImageJobsBanner from './components/ImageJobsBanner';
-import { clientTelemetry } from './services/clientTelemetry';
 
-import { validateApiKey } from './services/ai/apiKeyValidation';
 import { prepareConnection } from './services/db/core/connection';
-import { debugLog, debugWarn } from './utils/debug';
+import { debugLog } from './utils/debug';
 import { shouldBlockApp, type VersionCheckResult } from './services/db/core/versionGate';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -27,23 +23,16 @@ import './services/diff/DiffTriggerService';
 // Import diff colors CSS
 import './styles/diff-colors.css';
 
-const noResumableImageJobs = async (): Promise<void> => undefined;
-
 export const MainApp: React.FC = () => {
 const [dbGate, setDbGate] = React.useState<{
   status: 'checking' | 'blocked' | 'ready';
   result: VersionCheckResult | null;
 }>({ status: 'checking', result: null });
 
-// inside App component, near the top
 // Individual primitive selectors to avoid fresh object creation
 const currentChapterId = useAppStore((s) => s.currentChapterId);
 const appScreen = useAppStore((s) => s.appScreen);
-const viewMode = useAppStore((s) => s.viewMode);
-const isLoading = useAppStore((s) => s.isLoading);
 const settings = useAppStore((s) => s.settings);
-const handleTranslate = useAppStore((s) => s.handleTranslate);
-const handleFetch = useAppStore((s) => s.handleFetch);
 const amendmentProposals = useAppStore((s) => s.amendmentProposals);
 const acceptProposal = useAppStore((s) => s.acceptProposal);
 const rejectProposal = useAppStore((s) => s.rejectProposal);
@@ -62,49 +51,10 @@ React.useEffect(() => {
 }, [amendmentProposals.length, currentProposalIndex]);
 const showSettingsModal = useAppStore((s) => s.showSettingsModal);
 const setShowSettingsModal = useAppStore((s) => s.setShowSettingsModal);
-const loadPromptTemplates = useAppStore((s) => s.loadPromptTemplates);
-const getChapter = useAppStore((s) => s.getChapter);
-const hasTranslationSettingsChanged = useAppStore((s) => s.hasTranslationSettingsChanged);
 const isInitialized = useAppStore((s) => s.isInitialized);
 debugLog('ui', 'full', '[App:init] isInitialized selector', { isInitialized });
 const initializeStore = useAppStore((s) => s.initializeStore);
-// Partial-store integration harnesses predate the optional job slice. Keeping
-// boot inert there avoids coupling otherwise unrelated app-shell tests to it.
-const resumeInterruptedImageJobs = useAppStore((s) => s.resumeInterruptedImageJobs ?? noResumableImageJobs);
-
-// Separate leaf selector for translation result (returns primitive/null)
-const currentChapterTranslationResult = useAppStore((state) => {
-  const id = state.currentChapterId;
-  const ch = id ? state.getChapter(id) : null;
-  const result = ch?.translationResult || null;
-
-  // Diagnostic logging to track selector updates
-  if (typeof window !== 'undefined' && (window as any).LF_DEBUG_SELECTOR) {
-    console.log(`🔎 [Selector] currentChapterTranslationResult evaluated @${Date.now()}`, {
-      chapterId: id,
-      hasChapter: !!ch,
-      hasTranslationResult: !!result,
-      translationMetadata: result ? {
-        hasId: !!(result as any).id,
-        provider: result.usageMetrics?.provider,
-        model: result.usageMetrics?.model,
-        cost: result.usageMetrics?.estimatedCost
-      } : null
-    });
-  }
-
-  return result;
-});
-
-const hasCurrentChapter = useAppStore((state) => {
-  const id = state.currentChapterId;
-  if (!id) return false;
-  const chapter = state.getChapter(id);
-  return !!chapter;
-});
-
-// one-shot guard helpers
-const requestedRef = React.useRef(new Map<string, string>());
+const resumeInterruptedImageJobs = useAppStore((s) => s.resumeInterruptedImageJobs);
 
 // Warn user before page refresh/close if ANY translation or image generation is in flight.
 // Per CORE-012: after Phase 1, translations can be running for chapters other than the
@@ -130,17 +80,6 @@ useEffect(() => {
   return () => window.removeEventListener('beforeunload', handleBeforeUnload);
 }, [pendingTranslationsCount, activeImageJobsCount, hasImagesInProgress]);
 
-const settingsFingerprint = React.useMemo(
-  () =>
-    JSON.stringify({
-      provider: settings.provider,
-      model: settings.model,
-      temperature: settings.temperature,
-    }),
-  [settings.provider, settings.model, settings.temperature]
-);
-
-
     // Initialize store on first render, then handle URL params
     useEffect(() => {
       const init = async () => {
@@ -161,28 +100,6 @@ const settingsFingerprint = React.useMemo(
       if (!isInitialized) return;
       void resumeInterruptedImageJobs();
     }, [isInitialized, resumeInterruptedImageJobs]);
-
-    // Boot-time hydration is now handled automatically by the store initialization
-
-    // Auto-translate is now handled in chaptersSlice.loadChapterFromIDB —
-    // it fires AFTER hydration completes, so it knows whether a translation
-    // already exists in IDB. The old useEffect here was racy: it fired before
-    // hydration finished, saw no translation, and wasted API credits on
-    // duplicate translations. See chaptersSlice.ts loadChapterFromIDB.
-
-    // (requestedRef cleanup effect removed — auto-translate moved to store)
-
-    // Sanity check: selector subscription (optional but nice)
-    // Optional subscription for debugging
-    // useEffect(() => {
-    //   const unsub = useAppStore.subscribe(
-    //     (s) => (s.currentChapterId ? s.getChapterById(s.currentChapterId)?.translationResult : null),
-    //     (next, prev) => {
-    //       console.log('[subscribe] translationResult changed:', { prev, next });
-    //     }
-    //   );
-    //   return unsub;
-    // }, []);
 
     // Proactive Cache Worker effect
     useEffect(() => {

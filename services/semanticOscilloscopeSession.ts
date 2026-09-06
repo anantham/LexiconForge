@@ -7,7 +7,7 @@ import type {
 } from '../types/oscilloscope';
 
 const CORPUS_SCHEMA = 'lexiconforge-semantic-corpus-v1';
-const MAX_SESSION_THREADS = 500;
+export const MAX_SESSION_THREADS = 500;
 const CATEGORIES = new Set([
   'character', 'tone', 'location', 'faction', 'entity', 'power', 'meta', 'custom',
 ]);
@@ -25,7 +25,12 @@ const chapterNumber = (chapter: Record<string, unknown>, fallback: number): numb
   throw new Error('chapterNumber must be a positive integer when provided');
 };
 
-const selectedChapterText = (chapter: Record<string, unknown>): string => {
+export const selectedChapterText = (chapter: {
+  translations?: unknown;
+  translationResult?: unknown;
+  fanTranslation?: unknown;
+  content?: unknown;
+}): string => {
   if (Array.isArray(chapter.translations)) {
     const records = chapter.translations.filter(
       (item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object',
@@ -44,6 +49,12 @@ const selectedChapterText = (chapter: Record<string, unknown>): string => {
       }
     }
     if (latest) return normalizeText(latest.record.translation);
+  }
+  if (chapter.translationResult && typeof chapter.translationResult === 'object') {
+    const hydratedTranslation = normalizeText(
+      (chapter.translationResult as Record<string, unknown>).translation,
+    );
+    if (hydratedTranslation) return hydratedTranslation;
   }
   return normalizeText(chapter.fanTranslation) || normalizeText(chapter.content);
 };

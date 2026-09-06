@@ -33,6 +33,7 @@ type MockStoreState = {
   handleNavigate: (url: string) => Promise<void>;
   isInitialized: boolean;
   initializeStore: () => Promise<void>;
+  resumeInterruptedImageJobs: () => Promise<void>;
   chapters: Map<string, MockChapter>;
   pendingTranslations: Set<string>;
   hasImagesInProgress: () => boolean;
@@ -76,6 +77,7 @@ const resetStoreState = () => {
     handleNavigate: vi.fn().mockResolvedValue(undefined),
     isInitialized: true,
     initializeStore: vi.fn().mockResolvedValue(undefined),
+    resumeInterruptedImageJobs: vi.fn().mockResolvedValue(undefined),
     chapters,
     pendingTranslations: new Set<string>(),
     hasImagesInProgress: vi.fn(() => false),

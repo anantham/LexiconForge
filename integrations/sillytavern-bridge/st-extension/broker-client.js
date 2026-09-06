@@ -12,6 +12,11 @@ export class BrokerJobError extends Error {
 }
 
 function normalizeBaseUrl(value) {
+    if (!value?.trim()) {
+        throw new BrokerJobError('Configure your IndrasNet broker URL in extension settings', {
+            code: 'BROKER_ENDPOINT_REQUIRED',
+        });
+    }
     let url;
     try {
         url = new URL(value);

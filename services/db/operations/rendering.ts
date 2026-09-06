@@ -12,6 +12,7 @@ import {
 import { debugPipelineEnabled } from '../../../utils/debug';
 import { getConnection } from '../core/connection';
 import { TranslationOps } from './translations';
+import { ChapterOps } from './chapters';
 
 const dblog = (...args: any[]) => {
   if (debugPipelineEnabled('indexeddb', 'summary')) {
@@ -263,54 +264,14 @@ export const fetchChaptersForNovel = async (
   libraryVersionId: string | null = null
 ): Promise<ChapterRenderingRecord[]> => {
   try {
-    const db = await getConnection();
-    const transaction = db.transaction(['chapters'], 'readonly');
-    const store = transaction.objectStore('chapters');
-
-    const chapters = await new Promise<ChapterRecord[]>((resolve, reject) => {
-      if (store.indexNames.contains('novelVersion')) {
-        const index = store.index('novelVersion');
-        // libraryVersionId may be null; preserve the runtime composite-key value.
-        const request = index.getAll([novelId, libraryVersionId] as unknown as IDBValidKey);
-        request.onsuccess = () => resolve(request.result as ChapterRecord[]);
-        request.onerror = () => reject(request.error);
-        return;
-      }
-
-      if (store.indexNames.contains('novelId')) {
-        const index = store.index('novelId');
-        const request = index.getAll(novelId);
-        request.onsuccess = () =>
-          resolve(
-            (request.result as ChapterRecord[]).filter((row) => {
-              return (row.libraryVersionId ?? null) === libraryVersionId;
-            })
-          );
-        request.onerror = () => reject(request.error);
-        return;
-      }
-
-      const request = store.getAll();
-      request.onsuccess = () => {
-        const allRows = request.result as ChapterRecord[];
-        resolve(
-          allRows.filter(row => {
-            return (
-              (row.novelId ?? null) === novelId &&
-              (row.libraryVersionId ?? null) === libraryVersionId
-            );
-          })
-        );
-      };
-      request.onerror = () => reject(request.error);
-    });
+    const chapters = await ChapterOps.getByNovelAndVersion(novelId, libraryVersionId);
 
     return buildChapterRenderingRecords(chapters, {
-      openDatabase: () => Promise.resolve(db),
+      openDatabase: getConnection,
       getActiveTranslation: (chapterUrl: string) => TranslationOps.getActiveByUrl(chapterUrl),
     });
   } catch (error) {
     console.error('[IndexedDB] Failed to get chapters for novel:', novelId, error);
-    return [];
+    throw error;
   }
 };
