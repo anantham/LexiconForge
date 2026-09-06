@@ -170,12 +170,17 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     setIsLoading(true);
       setImportProgress(null);
       openNovel(novel.id, requestedVersionId);
+      const stillSelected = () => useAppStore.getState().activeNovelId === novel.id
+        && useAppStore.getState().activeVersionId === requestedVersionId;
+      const applyHydration: Parameters<typeof loadNovelIntoStore>[1] = (patch) => {
+        if (stillSelected()) useAppStore.setState(patch);
+      };
 
       // Load glossary layers if the version defines them
       if (version?.glossaryLayers?.length) {
         fetchAndMergeGlossary(version.glossaryLayers)
           .then(glossary => {
-            if (glossary.length > 0) {
+            if (glossary.length > 0 && stillSelected()) {
               const currentSettings = useAppStore.getState().settings;
               const glossaryOverrides = currentSettings.glossaryOverrides ?? [];
               useAppStore.getState().updateSettings({
@@ -190,9 +195,11 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
       try {
       const bookshelfEntry = await BookshelfStateService.getEntry(novel.id, requestedVersionId);
-      const cacheState = await loadNovelCacheIntoStore(novel.id, useAppStore.setState, {
+      if (!stillSelected()) return;
+      const cacheState = await loadNovelCacheIntoStore(novel.id, applyHydration, {
         versionId: requestedVersionId,
       });
+      if (!stillSelected()) return;
       const firstCachedChapterId = cacheState.firstChapterId;
       const expectedPublication = await resolveExpectedChapterPublication(novel, requestedVersionId);
       const expectedChapterCount = expectedPublication.count;
@@ -207,6 +214,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       if (firstCachedChapterId && (cacheIsComplete || !sessionJsonUrl)) {
         setImportProgress({ stage: 'importing', progress: 50, message: 'Loading from cache...' });
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
+        if (!stillSelected()) return;
         // Verified cache path: the selected package's expected raw chapters are
         // present. If there is no acquisition URL, retain the readable partial
         // cache but describe that limitation instead of pretending it is whole.
@@ -265,6 +273,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
                   firstCachedChapterId
                 ));
           const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
+          if (!stillSelected()) return;
 
           useAppStore.setState(state => ({
             navigationHistory: nav?.stableIds || state.navigationHistory,
@@ -289,14 +298,15 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           );
         }
 
+        if (!stillSelected()) return;
         const importResult = await ImportService.streamImportFromUrl(
           sessionJsonUrl,
           (progress) => {
-            setImportProgress(progress);
+            if (stillSelected()) setImportProgress(progress);
           },
           // Callback when first 10 chapters are ready
           async () => {
-            if (hasNavigatedToFirstChapter) return;
+            if (hasNavigatedToFirstChapter || !stillSelected()) return;
             hasNavigatedToFirstChapter = true;
 
             try {
@@ -314,10 +324,11 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
               const firstChapterId = await loadNovelIntoStore(
                 novel.id,
-                useAppStore.setState,
+                applyHydration,
                 { limit: 10, versionId: requestedVersionId }
               );
               const bookshelfEntry = await BookshelfStateService.getEntry(novel.id, requestedVersionId);
+              if (!stillSelected()) return;
               // Try to resolve the picked verse within the first streamed batch;
               // it usually lies further in (e.g. Gītā 2.47 with only 10 chapters
               // streamed so far), in which case pickedInBatch is null and the
@@ -425,6 +436,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
           return null;
         });
 
+        if (!stillSelected()) return;
         if (importResult === null && readerIsOpen) {
           return;
         }
@@ -440,13 +452,15 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
         // streamed batch. The stream has now fully completed, so load the whole
         // chapter set, find the picked verse, and navigate/persist there. Never
         // leave the reader parked on chapter 1 when a verse was explicitly chosen.
+        if (!stillSelected()) return;
         if (hasPickedVerse) {
           const currentId = useAppStore.getState().currentChapterId;
           const currentChapter = currentId ? useAppStore.getState().chapters.get(currentId) : null;
           const alreadyOnTarget = currentChapter?.chapterNumber === startChapterNumber;
 
           if (!alreadyOnTarget) {
-            await loadNovelIntoStore(novel.id, useAppStore.setState, { versionId: requestedVersionId });
+            await loadNovelIntoStore(novel.id, applyHydration, { versionId: requestedVersionId });
+            if (!stillSelected()) return;
             const targetId = resolvePickedChapterId();
             if (targetId) {
               useAppStore.setState({ currentChapterId: targetId, appScreen: 'reader' });
@@ -481,6 +495,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       }
     } catch (error: any) {
       console.error('[NovelLibrary] Failed to load novel:', error);
+      if (!stillSelected()) return;
       openLibrary();
       showNotification(`Failed to load ${novel.title}${versionLabel}: ${error.message}`, 'error');
     } finally {

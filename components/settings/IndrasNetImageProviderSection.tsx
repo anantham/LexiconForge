@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  DEFAULT_INDRASNET_BASE_URL,
   isIndrasNetImageModel,
 } from '../../services/providers/indrasNetImageProvider';
 
@@ -36,7 +35,7 @@ export const IndrasNetImageProviderSection: React.FC<IndrasNetImageProviderSecti
   return (
     <fieldset className="mt-6">
       <legend className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
-        Asus / IndrasNet image provider
+        IndrasNet image provider
       </legend>
       <div className="space-y-3">
         <div>
@@ -49,24 +48,28 @@ export const IndrasNetImageProviderSection: React.FC<IndrasNetImageProviderSecti
               type="url"
               value={endpoint}
               onChange={(event) => onEndpointChange(event.target.value)}
-              placeholder={DEFAULT_INDRASNET_BASE_URL}
+              placeholder="https://broker.example.com"
               className="block min-w-0 flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-800 dark:text-gray-200"
             />
             <button
               type="button"
               onClick={onRefresh}
-              disabled={loading}
+              disabled={loading || !endpoint.trim()}
               className="px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 disabled:opacity-50"
             >
               {loading ? 'Checking…' : 'Refresh'}
             </button>
           </div>
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            SillyTavern is served separately on port 8444. Image workflows use the IndrasNet broker on port 9443; prompts stay on your tailnet.
+            Enter your authorized broker's HTTPS URL. This setting is saved in this browser.
           </p>
-          {error ? (
+          {!endpoint.trim() ? (
+            <p role="status" className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Enter a broker URL to discover image workflows.
+            </p>
+          ) : error ? (
             <p role="status" className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-              Asus unavailable: {error}
+              Broker unavailable: {error}
             </p>
           ) : (
             <p role="status" className="mt-1 text-xs text-green-600 dark:text-green-400">
@@ -99,7 +102,7 @@ export const IndrasNetImageFallbackSection: React.FC<IndrasNetImageFallbackSecti
       </legend>
       <div>
         <label htmlFor="imageFallbackModel" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Cloud fallback when Asus is offline or busy
+          Cloud fallback when the broker is offline or busy
         </label>
         <select
           id="imageFallbackModel"

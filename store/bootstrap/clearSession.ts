@@ -55,6 +55,18 @@ const buildResetState = (state: StoreState): Partial<StoreState> => ({
   // Session metadata
   sessionProvenance: null,
   sessionVersion: null,
+
+  // Oscilloscope slice
+  threads: new Map(),
+  availableThreads: [],
+  activeThreadIds: new Set(),
+  zoomRange: [1, 1],
+  hoveredChapter: null,
+  selectedRange: null,
+  isExpanded: false,
+  isLoaded: false,
+  totalChapters: 0,
+  corpusIdentity: null,
 });
 
 export const createClearSession = (ctx: BootstrapContext): SessionActions['clearSession'] => {

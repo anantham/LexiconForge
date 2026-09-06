@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = Object.freeze({
     enabled: true,
     portalOnly: true,
     imageBackend: 'indrasnet',
-    brokerUrl: 'https://asus-strix-scar.tail4741ad.ts.net:9443',
+    brokerUrl: '',
     workflowName: 'gen_anime',
     negativePrompt: 'low quality, worst quality, blurry, text, watermark, logo, malformed hands, extra fingers',
     pollIntervalMs: 2000,
@@ -194,6 +194,11 @@ const sceneController = createSceneController({
 });
 
 async function refreshWorkflows({ announce = false } = {}) {
+    if (!settings().brokerUrl.trim()) {
+        settingsPanel.populateWorkflowSelect(FALLBACK_WORKFLOWS);
+        updateStatus('Broker not configured', 'Enter your broker URL in extension settings');
+        return;
+    }
     try {
         const workflows = await createBrokerClient({ baseUrl: settings().brokerUrl }).listWorkflows();
         settingsPanel.populateWorkflowSelect(workflows);

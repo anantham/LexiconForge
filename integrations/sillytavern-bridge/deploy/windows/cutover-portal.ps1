@@ -1,8 +1,11 @@
 param(
     [Parameter(Mandatory = $true)]
     [string[]]$AllowedDeviceIp,
-    [string]$OwnerLogin = 'adityaprasadiskool@gmail.com',
-    [string]$SillyTavernRoot = 'C:\Users\adity\Documents\Ongoing Local\ST\runtime\SillyTavern-1.18.0',
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$OwnerLogin,
+    [Parameter(Mandatory = $true)]
+    [string]$SillyTavernRoot,
     [switch]$Apply
 )
 
@@ -114,6 +117,16 @@ function Wait-ForLocalRuntime {
         Start-Sleep -Seconds 2
     }
     throw "Local runtime did not become ready within 30 seconds: $lastError"
+}
+
+# The verifier and scheduled-task launcher must target the same installation.
+if ([string]::IsNullOrWhiteSpace($env:LF_ST_ROOT)) {
+    throw 'Set LF_ST_ROOT in the runtime user environment before cutover.'
+}
+$launcherRoot = (Resolve-Path -LiteralPath $env:LF_ST_ROOT -ErrorAction Stop).ProviderPath.TrimEnd('\')
+$SillyTavernRoot = (Resolve-Path -LiteralPath $SillyTavernRoot -ErrorAction Stop).ProviderPath.TrimEnd('\')
+if ($SillyTavernRoot -ne $launcherRoot) {
+    throw 'SillyTavernRoot must match the LF_ST_ROOT used by the scheduled-task launcher.'
 }
 
 if (-not (Test-Path -LiteralPath $hardeningScript -PathType Leaf)) {

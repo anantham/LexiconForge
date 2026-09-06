@@ -2,6 +2,10 @@ import type { SessionActions } from '../storeTypes';
 import type { BootstrapContext } from './index';
 import { ImportOps, SettingsOps } from '../../services/db/operations';
 import { loadAllIntoStore, loadNovelIntoStore } from '../../services/readerHydrationService';
+import {
+  computeSemanticCorpusIdentity,
+  parseSessionOscilloscope,
+} from '../../services/semanticOscilloscopeSession';
 
 /**
  * Convert a `lexiconforge-session` payload (the publish/quick-export format)
@@ -27,6 +31,10 @@ const convertSessionToFullPayload = (session: any): any => {
 
   return {
     ...session,
+    novelId: session.novelId ?? novel.id,
+    // Registry callers can explicitly select the default/null library scope.
+    libraryVersionId: session.libraryVersionId !== undefined
+      ? session.libraryVersionId : session.version?.versionId ?? null,
     metadata: {
       ...session.metadata,
       format: 'lexiconforge-full-1',
@@ -58,20 +66,43 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
       }
 
       if (obj?.metadata?.format === 'lexiconforge-full-1') {
+        const { activeNovelId, activeVersionId } = ctx.get();
+        const stillSelected = () => ctx.get().activeNovelId === activeNovelId
+          && ctx.get().activeVersionId === activeVersionId;
         await ImportOps.importFullSessionData(obj, onProgress);
+        if (!stillSelected()) return;
+        const applyHydration: Parameters<typeof loadNovelIntoStore>[1] = (patch) => {
+          if (stillSelected()) ctx.set(patch);
+        };
 
         if (typeof obj?.novelId === 'string') {
-          await loadNovelIntoStore(obj.novelId, (patch) => ctx.set(patch), {
+          const firstChapterId = await loadNovelIntoStore(obj.novelId, applyHydration, {
             versionId: typeof obj?.libraryVersionId === 'string' ? obj.libraryVersionId : null,
           });
+          if (!stillSelected()) return;
+          ctx.set({
+            activeNovelId: obj.novelId,
+            activeVersionId: typeof obj.libraryVersionId === 'string' ? obj.libraryVersionId : null,
+            currentChapterId: firstChapterId,
+          });
         } else {
-          await loadAllIntoStore((patch) => ctx.set(patch));
+          const firstChapterId = await loadAllIntoStore(applyHydration);
+          if (!stillSelected()) return;
+          const current = ctx.get();
+          if (!current.currentChapterId || !current.chapters.has(current.currentChapterId)) {
+            ctx.set({ currentChapterId: firstChapterId });
+          }
         }
+        const hydrated = ctx.get();
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
         const lastActive = await SettingsOps.getKey<any>('lastActiveChapter').catch(() => null);
+        if (ctx.get().chapters !== hydrated.chapters
+          || ctx.get().activeNovelId !== hydrated.activeNovelId
+          || ctx.get().activeVersionId !== hydrated.activeVersionId) return;
 
         ctx.set((state) => {
-          const resolvedCurrentChapterId = lastActive?.id ? lastActive.id : state.currentChapterId;
+          const resolvedCurrentChapterId = lastActive?.id && state.chapters.has(lastActive.id)
+            ? lastActive.id : state.currentChapterId;
 
           return {
             navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
@@ -80,6 +111,47 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
             error: null,
           };
         });
+
+        try {
+          const hint = obj?.oscilloscope?.corpus;
+          const corpusId = obj?.novelId ?? obj?.novel?.id ?? hint?.corpusId;
+          const versionId = obj?.libraryVersionId ?? obj?.version?.versionId ?? hint?.versionId;
+          const libraryVersionId = obj.oscilloscopeLibraryVersionId !== undefined
+            ? obj.oscilloscopeLibraryVersionId
+            : obj.libraryVersionId !== undefined ? obj.libraryVersionId : versionId;
+          if (corpusId && versionId && Array.isArray(obj?.chapters)) {
+            const chapters = Array.from(hydrated.chapters.values()).filter((chapter) =>
+              chapter.novelId === corpusId && (chapter.libraryVersionId ?? null) === libraryVersionId);
+            const corpus = await computeSemanticCorpusIdentity({
+              novel: { id: corpusId },
+              version: { versionId },
+              chapters,
+            } as any);
+            if (ctx.get().chapters !== hydrated.chapters
+              || ctx.get().activeNovelId !== hydrated.activeNovelId
+              || ctx.get().activeVersionId !== hydrated.activeVersionId) return;
+            const graph = obj.oscilloscope ? parseSessionOscilloscope(obj.oscilloscope, corpus) : null;
+            ctx.set({
+              activeNovelId: corpusId,
+              activeVersionId: libraryVersionId,
+              currentChapterId: chapters.some(chapter => chapter.id === hydrated.currentChapterId)
+                ? hydrated.currentChapterId : chapters[0]?.id ?? null,
+              appScreen: 'reader',
+            });
+            if (graph) {
+              ctx.get().loadSessionOscilloscope(graph);
+            } else {
+              ctx.get().initializeOscilloscope(corpus);
+            }
+          } else {
+            ctx.get().resetOscilloscope();
+          }
+        } catch (error) {
+          console.warn('[Store] Graph corpus could not be verified; imported book remains readable:', error);
+          if (ctx.get().chapters === hydrated.chapters
+            && ctx.get().activeNovelId === hydrated.activeNovelId
+            && ctx.get().activeVersionId === hydrated.activeVersionId) ctx.get().resetOscilloscope();
+        }
 
         return;
       }
