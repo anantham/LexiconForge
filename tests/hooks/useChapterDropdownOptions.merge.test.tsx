@@ -24,6 +24,7 @@ const {
   storeState,
   fetchNovelByIdMock,
   resolveCompatibleVersionMock,
+  fetchChapterManifestMock,
   getChapterSummariesByScopeMock,
   capturePerformanceMock,
 } = vi.hoisted(() => {
@@ -36,6 +37,7 @@ const {
     storeState,
     fetchNovelByIdMock: vi.fn(),
     resolveCompatibleVersionMock: vi.fn(),
+    fetchChapterManifestMock: vi.fn(),
     getChapterSummariesByScopeMock: vi.fn(),
     capturePerformanceMock: vi.fn(),
   };
@@ -50,6 +52,10 @@ vi.mock('../../services/registryService', () => ({
     fetchNovelById: fetchNovelByIdMock,
     resolveCompatibleVersion: resolveCompatibleVersionMock,
   },
+}));
+
+vi.mock('../../services/library/chapterManifestService', () => ({
+  fetchChapterManifest: fetchChapterManifestMock,
 }));
 
 vi.mock('../../services/importTransformationService', () => ({
@@ -89,6 +95,7 @@ const resetState = () => {
   storeState.activeVersionId = null;
   fetchNovelByIdMock.mockReset();
   resolveCompatibleVersionMock.mockReset();
+  fetchChapterManifestMock.mockReset();
   resolveCompatibleVersionMock.mockReturnValue({
     version: null,
     requestedVersionId: null,
@@ -136,6 +143,50 @@ describe('useChapterDropdownOptions — virtual catalog merge', () => {
     expect(numbers).toEqual([1, 2, 3, 4, 5]);
     // All should be virtual (no real data loaded)
     expect(result.current.options.every((o) => o.stableId.startsWith('virtual:'))).toBe(true);
+    expect(result.current.options.every((o) => o.availability === 'not-cached')).toBe(true);
+  });
+
+  it('marks only artifact-backed manifest rows as remotely selectable', async () => {
+    storeState.activeNovelId = 'manifested';
+    storeState.activeVersionId = 'v1';
+    const version = {
+      versionId: 'v1',
+      chapterManifestUrl: 'https://example.com/chapter-manifest.json',
+      sessionJsonUrl: 'https://example.com/session.json',
+      chapterRange: { from: 1, to: 2 },
+      completionStatus: 'In Progress',
+      stats: { content: { totalRawChapters: 2 } },
+    };
+    fetchNovelByIdMock.mockResolvedValue({
+      id: 'manifested',
+      metadata: { chapterCount: 2 },
+      versions: [version],
+    });
+    resolveCompatibleVersionMock.mockReturnValue({
+      version,
+      requestedVersionId: 'v1',
+      resolvedVersionId: 'v1',
+      warning: null,
+    });
+    fetchChapterManifestMock.mockResolvedValue({
+      chapters: [
+        {
+          chapterNumber: 1,
+          stableId: 'ch1',
+          canonicalUrl: 'lexiconforge://manifested/chapter/1',
+          artifact: { url: 'https://example.com/1.json', sha256: 'a'.repeat(64), byteLength: 10 },
+        },
+        { chapterNumber: 2, stableId: 'ch2', canonicalUrl: 'lexiconforge://manifested/chapter/2' },
+      ],
+    });
+
+    const { result } = renderHook(() => useChapterDropdownOptions());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.options.map((option) => option.availability)).toEqual([
+      'remote',
+      'not-cached',
+    ]);
   });
 
   it('overlays real IDB summary on top of virtual placeholder for the same chapterNumber', async () => {
@@ -158,11 +209,64 @@ describe('useChapterDropdownOptions — virtual catalog merge', () => {
     expect(ch2?.stableId).toBe('real-ch2-id');
     expect(ch2?.translatedTitle).toBe('The Crucible');
     expect(ch2?.hasTranslation).toBe(true);
+    expect(ch2?.availability).toBe('ready');
     // Chapter 1 and 3: virtual placeholders
     const ch1 = result.current.options.find((o) => o.chapterNumber === 1);
     const ch3 = result.current.options.find((o) => o.chapterNumber === 3);
     expect(ch1?.stableId.startsWith('virtual:')).toBe(true);
     expect(ch3?.stableId.startsWith('virtual:')).toBe(true);
+    expect(ch1?.availability).toBe('not-cached');
+    expect(ch3?.availability).toBe('not-cached');
+  });
+
+  it('drops a virtual placeholder when a legacy real summary only exposes its number in the title', async () => {
+    storeState.activeNovelId = 'fmc';
+    fetchNovelByIdMock.mockResolvedValue({
+      id: 'fmc',
+      metadata: { chapterCount: 3 },
+      versions: [],
+    });
+    getChapterSummariesByScopeMock.mockResolvedValue([
+      realSummary('real-ch2-id', 2, {
+        chapterNumber: undefined,
+        translatedTitle: 'Chapter 2 — The Crucible',
+      }),
+    ]);
+
+    const { result } = renderHook(() => useChapterDropdownOptions());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.options).toHaveLength(3);
+    expect(result.current.options.filter((option) => option.displayNumber === 2)).toHaveLength(1);
+    expect(result.current.options.find((option) => option.displayNumber === 2)?.stableId).toBe('real-ch2-id');
+  });
+
+  it('does not let a translated title override a stored number and hide another catalog chapter', async () => {
+    storeState.activeNovelId = 'fmc';
+    fetchNovelByIdMock.mockResolvedValue({
+      id: 'fmc',
+      metadata: { chapterCount: 3 },
+      versions: [],
+    });
+    getChapterSummariesByScopeMock.mockResolvedValue([
+      realSummary('real-ch1-id', 1, {
+        translatedTitle: 'Chapter 2 appears in the title',
+      }),
+    ]);
+
+    const { result } = renderHook(() => useChapterDropdownOptions());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.options).toHaveLength(3);
+    expect(result.current.options.find((option) => option.stableId === 'real-ch1-id')).toMatchObject({
+      chapterNumber: 1,
+      displayNumber: 1,
+      availability: 'ready',
+    });
+    expect(result.current.options.find((option) => option.chapterNumber === 2)).toMatchObject({
+      displayNumber: 2,
+      availability: 'not-cached',
+    });
   });
 
   it('overlays in-memory data on top of both virtual and real summaries', async () => {

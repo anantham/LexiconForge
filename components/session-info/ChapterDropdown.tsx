@@ -47,7 +47,11 @@ export const ChapterDropdown: React.FC<ChapterDropdownProps> = ({ currentChapter
       aria-label="Select a chapter to navigate to"
     >
       {chapterOptions.map((chapter) => (
-        <option key={chapter.stableId} value={chapter.stableId}>
+        <option
+          key={chapter.stableId}
+          value={chapter.stableId}
+          disabled={chapter.availability === 'not-cached'}
+        >
           {/*
             Translation-status indicator (issue #19 visibility follow-up):
             ● = chapter has at least one stored translation (ready to read)
@@ -57,6 +61,8 @@ export const ChapterDropdown: React.FC<ChapterDropdownProps> = ({ currentChapter
             styling, so a unicode prefix is the broadest-compatible signal.
           */}
           {chapter.hasTranslation ? '● ' : '· '}{chapter.displayLabel}
+          {chapter.availability === 'remote' ? ' — download on select' : ''}
+          {chapter.availability === 'not-cached' ? ' — not cached yet' : ''}
         </option>
       ))}
     </select>

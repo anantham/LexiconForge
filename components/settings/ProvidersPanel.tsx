@@ -22,9 +22,8 @@ import {
 import { useAppStore } from '../../store';
 import { TranslationEngineSection } from './TranslationEngineSection';
 import { ApiKeysSection } from './ApiKeysSection';
-import { IndrasNetImageProviderSection } from './IndrasNetImageProviderSection';
+import { IndrasNetImageFallbackSection } from './IndrasNetImageProviderSection';
 import {
-  DEFAULT_INDRASNET_BASE_URL,
   fetchIndrasNetWorkflows,
   imageModelFromWorkflowName,
   isIndrasNetImageModel,
@@ -75,9 +74,6 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
   const [structuredOutputSupport, setStructuredOutputSupport] = useState<Record<string, boolean | null>>({});
   const [dynamicImageModels, setDynamicImageModels] = useState<OpenRouterImageModelProfile[]>([]);
   const [indrasNetWorkflows, setIndrasNetWorkflows] = useState<IndrasNetWorkflowProfile[]>([]);
-  const [indrasNetLoading, setIndrasNetLoading] = useState(false);
-  const [indrasNetError, setIndrasNetError] = useState<string | null>(null);
-  const [indrasNetRefresh, setIndrasNetRefresh] = useState(0);
   const [novelSpent, setNovelSpent] = useState<number | null>(null);
 
   // Fetch spent amount when in budget mode
@@ -169,10 +165,9 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
-    const endpoint = currentSettings.indrasNetBaseUrl?.trim() || DEFAULT_INDRASNET_BASE_URL;
-    setIndrasNetLoading(true);
-    setIndrasNetError(null);
+    const endpoint = currentSettings.indrasNetBaseUrl?.trim();
     setIndrasNetWorkflows([]);
+    if (!endpoint) return;
     const timer = setTimeout(() => {
       fetchIndrasNetWorkflows(endpoint, { force: true })
         .then(workflows => {
@@ -181,18 +176,14 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         .catch(error => {
           if (cancelled) return;
           console.error('[ProvidersPanel] Failed to discover IndrasNet workflows:', error);
-          setIndrasNetError(error instanceof Error ? error.message : 'Unknown discovery error');
           setIndrasNetWorkflows([]);
-        })
-        .finally(() => {
-          if (!cancelled) setIndrasNetLoading(false);
         });
     }, 300);
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [isOpen, currentSettings.indrasNetBaseUrl, indrasNetRefresh]);
+  }, [isOpen, currentSettings.indrasNetBaseUrl]);
 
   // Load OpenRouter catalogue and credits when provider is OpenRouter
   useEffect(() => {
@@ -437,11 +428,11 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
 
     const indrasModels = indrasNetWorkflows.map(workflow => ({
       id: imageModelFromWorkflowName(workflow.name),
-      name: `Asus: ${workflow.manifest.display_name || workflow.name}`,
+      name: `IndrasNet: ${workflow.manifest.display_name || workflow.name}`,
       description: workflow.manifest.description || `IndrasNet workflow ${workflow.name}`,
-      label: `Asus: ${workflow.manifest.display_name || workflow.name} — local`,
+      label: `IndrasNet: ${workflow.manifest.display_name || workflow.name} — local`,
       sortKey: 0,
-      provider: 'Asus / IndrasNet',
+      provider: 'IndrasNet',
       source: 'dynamic' as const,
     }));
 
@@ -454,11 +445,11 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
       }
       indrasModels.push({
         id: currentSettings.imageModel,
-        name: `Asus: ${workflowName}`,
+        name: `IndrasNet: ${workflowName}`,
         description: 'Saved IndrasNet workflow; currently unavailable from the configured endpoint.',
-        label: `Asus: ${workflowName} — unavailable`,
+        label: `IndrasNet: ${workflowName} — unavailable`,
         sortKey: 0,
-        provider: 'Asus / IndrasNet',
+        provider: 'IndrasNet',
         source: 'dynamic' as const,
       });
     }
@@ -543,17 +534,11 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
         onPreloadBudgetChange={(v) => handleSettingChange('preloadBudget' as any, v)}
       />
 
-      <IndrasNetImageProviderSection
-        endpoint={currentSettings.indrasNetBaseUrl || ''}
+      <IndrasNetImageFallbackSection
         selectedImageModel={currentSettings.imageModel}
         fallbackModel={currentSettings.imageFallbackModel || 'none'}
         fallbackModels={fallbackImageModels}
-        loading={indrasNetLoading}
-        error={indrasNetError}
-        workflowCount={indrasNetWorkflows.length}
-        onEndpointChange={(value) => handleSettingChange('indrasNetBaseUrl', value)}
         onFallbackModelChange={(value) => handleSettingChange('imageFallbackModel', value)}
-        onRefresh={() => setIndrasNetRefresh(value => value + 1)}
       />
 
       <ApiKeysSection

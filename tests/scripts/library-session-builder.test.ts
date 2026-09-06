@@ -169,6 +169,28 @@ describe('library-session-builder', () => {
     expect(result.session.chapters[2].fanTranslation).toBe('English three.');
     expect(result.session.chapters[3].fanTranslation).toBe('English four.');
     expect(result.metadata.versions?.[0].sessionJsonUrl).toBe('https://example.com/novels/test-novel/session.json');
+    expect(result.metadata.versions?.[0].chapterManifestUrl).toBe(
+      'https://example.com/novels/test-novel/chapter-manifest.json'
+    );
+    expect(result.chapterManifest).toMatchObject({
+      novelId: 'test-novel',
+      versionId: 'v1',
+      expectedChapterCount: 4,
+      publishedChapterCount: 4,
+      session: { url: 'https://example.com/novels/test-novel/session.json' },
+    });
+    expect(result.chapterManifest.chapters.map((chapter) => chapter.chapterNumber)).toEqual([1, 2, 3, 4]);
+    expect(result.chapterArtifacts).toHaveLength(4);
+    expect(result.chapterArtifacts[0]).toMatchObject({
+      document: {
+        novelId: 'test-novel',
+        versionId: 'v1',
+        chapter: { chapterNumber: 1 },
+      },
+    });
+    expect(result.chapterManifest.chapters[0].artifact).toEqual(
+      result.chapterArtifacts[0].reference
+    );
   });
 
   it('uses an alignment map to attach shifted fan chapters', async () => {

@@ -41,6 +41,7 @@ describe('RegistryService', () => {
           displayName: 'Version 1',
           translator: { name: 'Alice' },
           sessionJsonUrl: './session.json',
+          chapterManifestUrl: './chapter-manifest.json',
           targetLanguage: 'English',
           style: 'faithful',
           features: [],
@@ -84,6 +85,7 @@ describe('RegistryService', () => {
     expect(metadata.id).toBe('test-novel');
     expect(metadata.versions).toHaveLength(1);
     expect(metadata.versions?.[0].sessionJsonUrl).toBe('https://example.com/session.json');
+    expect(metadata.versions?.[0].chapterManifestUrl).toBe('https://example.com/chapter-manifest.json');
     expect(metadata.versions?.[0].glossaryLayers?.[0].url).toBe('https://example.com/glossary.json');
     expect(metadata.metadata.coverImageUrl).toBe('https://example.com/cover.jpg');
   });

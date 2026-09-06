@@ -284,3 +284,146 @@ Append-only raw debt receipts discovered during implementation.
 
 - [DEBT][SECURITY][2026-08-23] Official SillyTavern 1.18.0 production lock reports 44 npm audit findings (27 moderate, 16 high, 1 critical) before the LexiconForge tailnet portal is exposed. Critical: `protobufjs` via `onnxruntime-web`; high: `axios`, `simple-git`, `ws`, `multer`, `form-data`, `fast-uri`, `ip-address`, and others. Several transitive image/transformer/markdown findings have no published fix. Files: upstream runtime `package-lock.json`; integration boundary `integrations/sillytavern-bridge/`; decision record `docs/adr/FEAT-004-sillytavern-tailnet-portal.md`. Follow-up requires a human ruling between accepting a narrow tailnet-only exposure, maintaining a tested dependency overlay/fork, or retaining localhost-only operation. No Serve listener was added after discovery.
 - [DEBT][SECURITY][2026-08-23; Option A disposition] The owner selected identity-gated tailnet exposure without a second app-specific ACL. A version/revision/integrity-checked overlay updates portal-reachable Multer 2.1.1 to 2.2.0, reducing `npm audit --omit=dev` from 44 to 43 (27 moderate, 15 high, 1 critical). This is not an audit-zero claim. `image-size` remains portal-reachable when trusted card images are imported and has no fix in the audited graph; `protobufjs`/transformer and remaining endpoint/development paths are not portal preconditions but remain upstream risk. Controls: owner Serve identity at the bridge, loopback binds, exact forwarded-IP device whitelist at SillyTavern, pre-parse body cap, request-hash idempotency, single-flight plus cooldown, no Funnel, exact-route cutover/rollback. Reassess on SillyTavern upgrade or when `image-size` publishes a compatible fix.
+
+- [DEBT][MONOLITH][2026-08-24] `services/importService.ts` is 1,152 LOC and owns URL normalization/retries, buffered and streaming JSON parsing, chapter/translation persistence, loss reconciliation, reader hydration, and portable semantic-graph hydration. Adding a top-level session field required editing state across the entire stream lifecycle. Follow-up: first extract a format-aware streaming envelope/parser that emits metadata, chapters, and bounded top-level artifacts; then isolate persistence/reconciliation from post-import hydration. Keep the existing ordering and first-chapter readiness regression suites as behavior gates. Blocker status: non-blocking after focused semantic streaming coverage; do not mix decomposition into the current correctness PR.
+[DEBT][DATA][2026-08-30] Cached summary counts overwrite registry chapter denominators
+- Files: `components/NovelLibrary.tsx:492-508`; `services/db/operations/summaries.ts:187-240`; `components/VersionPicker.tsx:31-32,143-159`.
+- Symptom: `fetchNovelChapterCounts()` reports locally cached summary counts, then `NovelLibrary` mutates `novel.metadata.chapterCount` with that cache count. `VersionPicker` divides the registry package's raw count by the mutated cache denominator. A live partial Dungeon Defense import therefore rendered `Novel Coverage 230.3% (509/221 chapters)` while import was still progressing.
+- Friction: the same number is being asked to mean published novel size, packaged artifact size, and current local cache size. Its global `Processing N summaries` log is also non-causal for a selected version.
+- Suggested follow-up: keep immutable registry/package denominators separate from scoped local cache progress; pass both explicitly to the card/detail components; make logs include novel and version scope; add partial-cache coverage regressions.
+- Blocker status: non-blocking for CORE-015 because cache completeness now reads selected-version stats before novel metadata, but the library coverage display remains misleading.
+
+[DEBT][INDEXEDDB][2026-08-30] Unversioned source-URL lookup still constructs a null compound key
+- File: `services/db/operations/chapters.ts` (`findChapterModernBySourceUrl`).
+- Symptom: the `novelVersion` lookup receives `[novelId, null]`; IndexedDB compound keys cannot contain null, so an unversioned scoped source lookup can throw `DataError` before reaching its existing `novelId` scan/filter fallback.
+- Scope decision: PR #166 corrects the reviewed chapter-number path only. Expanding the follow-up to source-URL lookup would add an unreviewed behavioral contract.
+- Suggested follow-up: share one null-safe scoped-candidate helper between source-URL and chapter-number lookup, with real fake-IndexedDB tests for versioned and unversioned rows.
+- Blocker status: non-blocking for canonical `lexiconforge://` number navigation; remains a risk for unversioned external source-URL hydration.
+
+
+[DEBT][IMPORT][2026-09-05] Streaming session metadata and hydration ownership
+- Files: `services/importService.ts:600-760,1186-1235`; `store/bootstrap/importSessionData.ts:60-126`.
+- Symptom: graph-specific completion is now guarded, but the broader import pipeline has no cancellation/ownership token. String-based header/trailer extraction also assumes metadata placement relative to the chapters array.
+- Follow-up: reproduce a book switch during DB hydration and reordered top-level metadata before selecting the smallest parser/ownership repair. Preserve readable partial imports; do not add more parser wrappers speculatively.
+- Pickup: Issues.md item 17; non-blocking for the verified complete synthetic export round-trip.
+
+[DEBT][OFFLINE][2026-09-05] Frozen graph cold-launch and legacy binding remain unproven
+- Files: `store/slices/oscilloscopeSlice.ts`; `components/oscilloscope/loadOscilloscopeData.ts`; `tests/e2e/semantic-session.spec.ts`.
+- Symptom: offline reimport in an already loaded app passes; a full browser restart/cold offline launch is not covered. Legacy FMoC tracks have no verified translation hash, so export deliberately omits them until bound to a verifiable corpus.
+- Follow-up: decide whether offline acceptance requires cold app launch, then test it with an installed/cached app. Do not label legacy tracks as portable verified data merely to satisfy export tests.
+- Pickup: Issues.md item 17 and semantic acceptance checklist; real-device acceptance still pending.
+
+### 2026-09-05 [DEBT][PRIVACY] Public handoff boundary
+- Files: `docs/WORKLOG.md`, public PR descriptions, deployment examples, broker defaults.
+- Finding: operator-specific configuration and live diagnostics had accumulated in public source records.
+- Current correction: explicit runtime configuration, generic examples, sanitized records, and a private-host check in the existing build scanner.
+- Follow-up: keep incident/runtime evidence outside Git; historical refs and cached artifacts require a separate owner decision. Public receipts must describe categories and acceptance, never repeat removed values.
+
+### 2026-09-05 graph review
+
+[DEBT][DUPLICATION][EXPORT] `services/exportService.ts` repeats portable chapter
+serialization across quick/publish/fork; general metadata/stat helpers and
+`store/slices/exportSlice.ts` EPUB selection still read across cached books. #160
+fixes the three portable builders only. Follow up with two-book fixtures and
+selected-corpus statistics; preserve full backup semantics. Pickup: Issues.md 19.
+
+[DEBT][LIFECYCLE] `store/slices/chaptersSlice.ts` independently updates chapter maps
+in hydration, navigation, fetch, import and preload paths. Explicit insertion,
+deletion and clear operations now invalidate their graph; audit remaining bypasses
+without introducing full-book hashing on each store update.
+
+[DEBT][MUTATION] `components/session-info/VersionSelector.tsx:40` uses in-place `versions.sort()`
+on its input. Check cross-component array reuse before a scoped correction.
+
+
+## 2026-09-05 latency pass
+
+[DEBT][LEGACY][DUPLICATION] App-shell subscriptions and repeated discovery
+- `MainApp.tsx` retains unused store subscriptions/ref/memo after auto-translation moved to the store; both settings panels force discovery despite the service's endpoint cache.
+- Pickup tickets with evidence and acceptance: [LAT-02](../../Issues.md#lat-02--delete-abandoned-app-shell-subscriptions-and-scaffolding), [LAT-03](../../Issues.md#lat-03--stop-rediscovering-an-unchanged-broker-on-every-settings-panel-visit).
+
+[DEBT][TEST] Validation and local QA gaps
+- Missing React declarations weaken JSX type checks; a wrong-endpoint UI test asserts no fetch before the 300ms fetch window. Worktree LFS filtering and a fixed dev-server E2E config complicate reproducible production checks.
+- Pickup tickets: [QA-01](../../Issues.md#qa-01--restore-meaningful-react-type-checking), [QA-02](../../Issues.md#qa-02--make-wrong-endpoint-coverage-actually-observe-the-debounce-window), [QA-03](../../Issues.md#qa-03--reproducible-worktree-and-production-browser-verification).
+
+[DEBT][DUPLICATION] Shared provenance panel carries MN10-specific copy
+- `components/sutta-studio/AboutThisText.tsx:67-69` calls every packet Satipatthana regardless of its actual work ID.
+- Pickup ticket: [COPY-01](../../Issues.md#copy-01--remove-the-hardcoded-sutta-title-from-shared-provenance-ui). Recorded without expanding the route-loading patch.
+[DEBT][TEST][2026-09-05] Copied marker-insertion implementation
+- `tests/store/slices/illustration-marker-insertion.test.ts:14` reimplements the
+  production algorithm, so the suite can stay green when the real action breaks.
+- Delete/replace with a few actual store-action cases. Pickup: Issues.md TEST-01.
+
+[DEBT][IMPORT][2026-09-05] Ownership follow-up after streamed graph correction
+- The earlier streaming ownership receipt is partly corrected: selected book/version guards now cover streamed final hydration and the library's cache/first-batch hydration and completion.
+- `services/importService.ts` still combines the parser, storage, translation reconciliation and UI orchestration inside an async Promise executor. File/ordinary URL acquisition begins before the bootstrap import guard; independently reproduce selection changes during those reads. Same-selection overlapping imports need an explicit request-identity decision if supported.
+- Keep parser ordering, acquisition cancellation and broader import decomposition as focused follow-ups, not a new framework inside #160. Pickup: Issues.md 19.
+
+[DEBT][QA][2026-09-05] Native Safari offline file acceptance
+- `tests/e2e/semantic-session.spec.ts:65`: desktop and Pixel Chromium upload the exported multi-corpus file offline; pinned WebKit 2215 returns NotReadableError before JSON import.
+- Isolated blank-page diagnostic reproduces offline failure for native-file text(), memory-file text(), and FileReader; all three work online. Changing Playwright's buffer upload to native file paths does not repair it.
+- Keep the offline test and surface this limitation. Verify a downloaded backup through Safari Files while in airplane mode on a physical iPhone; then check graph navigation, title, translation switching and cold app reopening. Pickup: Issues.md 20.
+
+[DEBT][IMPORT][2026-09-05] Acquisition follow-up narrowed
+- File and ordinary URL acquisition now guard selected book/version before applying session metadata or invoking bootstrap; InputBar's streamed first-batch hydration is also guarded.
+- Same-selection overlapping requests, stale failure notifications, ordered stream parsing, and replacement of the global tooltip-title cache remain broader lifecycle/decomposition follow-ups. Preserve these as separate receipts rather than growing #160 into a parser rewrite.
+
+[DEBT][LEGACY][2026-09-05] Legacy binding and global tooltip receipts narrowed
+- #160 deletes the automatic unbound legacy loader/action and the global tooltip-title cache. Selected reader chapters now supply tooltip titles for every hydration path. The earlier fallback/title-cache follow-ups above are closed by deletion.
+- Bundled analysis assets remain available as data. Any future portable conversion must establish the exact corpus hash and translation first. Cold offline launch, same-selection import ordering and stale failure notifications remain open under Issues.md 17/19/20.
+
+[DEBT][IMPORT][2026-09-05] Unknown-scope streaming removed from pasted URL input
+- InputBar now uses ordinary `importFromUrl`, which parses the complete session identity before storage. Registry streaming requires a known novel scope; its unscoped ID/hydration branches and unused novel metadata inference are deleted.
+- Tradeoff: arbitrary pasted session URLs await complete download; registry first-batch reading is unchanged. Keep parser-order/request-identity work separate. Pickup: Issues.md 19.
+
+[DEBT][UI][2026-09-05] Current-chapter plot marker may retain a stale closure
+- `components/oscilloscope/OscilloscopeGraph.tsx` builds `youAreHerePlugin` from currentChapterNumber, but the uPlot creation effect intentionally does not depend on that callback. Static observation only: verify marker movement after navigation with unchanged tracks, then use current state without rebuilding the chart if reproduced. Pickup: Issues.md 19.
+
+
+### 2026-09-06 — [DEBT][IMPORT][LATENCY] Verify body download bounds before changing buffering
+
+`services/importService.ts:220-272` clears the ordinary URL timeout after headers
+and checks the 500 MB limit only against declared Content-Length. A chunked or
+underdeclared body has no observed-byte limit, and a stalled body is outside that
+timer. This behavior predates the final URL-scope correction; the current packet
+review also noted the headers-only timeout. No runtime failure is claimed here.
+Follow up with a controlled chunked/stalled response, preserve the full-payload
+identity-before-persistence contract, and bound/cancel acquisition at the existing
+reader loop. Use a repeated small chunk fixture instead of allocating a giant
+test payload. Record time and memory on a representative novel before adding
+staging, workers, caching, or another import path. Non-blocking for this reviewed
+scope correction; do not close the full-novel QA gate from synthetic checks.
+
+### 2026-09-06 — [DEBT][DATA][CORPUS] Published metadata does not prove a complete indexable novel
+
+Pinned FMoC bytes contain 3,273 records, duplicate numbers and `unknown / quick-export`
+identity despite a 3,521-chapter registry entry. Dungeon Defense contains 476 records
+with duplicate numbers despite 509 declared book chapters. Both actual corpus
+validators reject them. Existing publisher PR #3 fixes Dungeon Defense numbering
+with source-bound stable-ID proof, but still covers only 476 chapters, including
+30 source-text fallbacks. Capture data repair under Issues.md 21 and reuse the
+publisher integrity work; do not weaken semantic validation, silently relabel
+versions, or treat a complete supplied array as a complete novel. Exact public
+artifact and cross-language parity evidence:
+`docs/reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md`.
+
+
+## 2026-09-06 consolidation review
+
+[DEBT][PUBLICATION] #171 artifact names omit changed-byte identity; republishing overwrites files still referenced by old manifests. Actual builder probe reproduces same URL/different SHA. Files and publication acceptance: Issues.md CONS-01. Blocks #172 artifact release too.
+
+[DEBT][TEST] #165's manual coverage exclusions drift from Vitest; an excluded configuration file passes its floor validator. Share the effective scope and delete the no-op mapping. Probe and acceptance: Issues.md CONS-02.
+
+[DEBT][PROCESS] #164's receipt schema rejects four real approvals because producer/validator key names differ; controller bootstrap and duplicate ADR numbering are separate problems. Defer automation; Issues.md CONS-03.
+
+[DEBT][COORDINATION] WORKLOG alone conflicts across five original PRs and the reader/QA merge. Preserve both histories while consolidating; evaluate existing task receipts afterward, without a synchronization service. Issues.md CONS-04.
+
+[DEBT][UI] IllustrationRouteDialog's static model insertion can overwrite the saved-default annotation for the same ID. Cosmetic; source review found no submission problem. Pickup: Issues.md UI-01.
+
+[DEBT][UI][2026-09-06] Both offline graph screenshots show a separate unlabelled red outline beneath the plot and above the custom thread chip. Inspect uPlot/default legend DOM in `OscilloscopeGraph.tsx` before choosing a deletion; this is a visual observation, not a confirmed cause or scan failure. Pickup: Issues.md UI-02.
+
+[DEBT][NAVIGATION][2026-09-06] Late targeted acquisition crossed reader scopes on #172. Production held-response repro and local deletion-based correction: Issues.md CONS-05. Existing general source fetching and same-scope overlapping requests need separate measured request-ownership review; no new request coordinator added here.
+
+[DEBT][LATENCY][2026-09-06] `hooks/useChapterDropdownOptions.ts` eagerly creates full chapter diagnostics and uses `summaries.some` inside the considered-ID filter even when debug logging is disabled. `services/navigation/hydration.ts` emits detailed translation logs unconditionally. Measure a representative large catalog, then delete unused diagnostic payloads or gate their construction using existing debug controls; avoid adding observers or caching. Do not mix this into the chapter-publication correction.
+
+[DEBT][IMPORT][2026-09-06] Actual published two-chapter export/offline native-file reopen loses active novel/version selection while retaining readable scoped rows. Synthetic graph-backed selection is a different path. Pickup and acceptance: Issues.md CONS-07. Do not add top-level novel defaults that silently re-scope unrelated or legacy-null chapter rows.

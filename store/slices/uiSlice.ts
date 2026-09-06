@@ -12,6 +12,7 @@
 import type { StateCreator } from 'zustand';
 import type { StoreState } from '../storeTypes';
 import { BookshelfStateService } from '../../services/bookshelfStateService';
+import { cacheOscilloscope } from '../../services/semanticOscilloscopeCache';
 import type { TelemetryErrorContext } from '../../types/telemetry';
 
 export type AppScreen = 'library' | 'reader-loading' | 'reader';
@@ -156,11 +157,15 @@ export const createUiSlice: StateCreator<
     activeVersionId: versionId,
   }),
 
-  openNovel: (novelId, versionId = null) => set({
-    appScreen: 'reader-loading',
-    activeNovelId: novelId,
-    activeVersionId: versionId,
-  }),
+  openNovel: (novelId, versionId = null) => {
+    cacheOscilloscope(get());
+    get().resetOscilloscope();
+    set({
+      appScreen: 'reader-loading',
+      activeNovelId: novelId,
+      activeVersionId: versionId,
+    });
+  },
 
   setReaderReady: () => set({
     appScreen: 'reader',
@@ -185,6 +190,8 @@ export const createUiSlice: StateCreator<
       });
     }
 
+    cacheOscilloscope(get());
+    get().resetOscilloscope();
     set({
       appScreen: 'library',
       activeNovelId: null,
