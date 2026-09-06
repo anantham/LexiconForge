@@ -71,6 +71,8 @@
     "hooks/**",
     "utils/**",
     "components/**",
-    "types.ts"
+    "types.ts",
+    "App.tsx",
+    "MainApp.tsx"
   ]
 }

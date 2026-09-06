@@ -274,9 +274,9 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 
 ### CONS-02 — Make coverage validation match the measured scope
 
-- **Status:** Open; P2 blocker for #165. Subject `b9f0904`; confidence 0.99.
+- **Status:** Repaired locally in #165; full measured coverage, independent review and fresh CI pending. Original subject `b9f0904`; confidence 0.99.
 - **Files / evidence:** `scripts/ci/validate-coverage-policy.mjs:55-67` incompletely mirrors `vitest.config.ts:42-54`. A temporary `components/review.config.ts` with a 90% floor passes validation although Vitest excludes `**/*.config.*`.
-- **Candidate / done when:** Share the effective include/exclude scope, delete the no-op mapping and reject excluded-only floors in `tests/scripts/ci/coveragePolicy.test.ts`. Valid floors still pass without lowering thresholds. Explicitly settle root `App.tsx`/`MainApp.tsx` coverage before calling the baseline product-wide. Retain current coverage until corrected.
+- **Candidate / done when:** Use the actual fresh Vitest coverage report as the measured scope, deleting the competing filesystem walk/glob parser/exclusion copy. Reject excluded-only floors and missing/empty reports; match globstar/brace patterns with Vitest semantics. `App.tsx`/`MainApp.tsx` are explicitly included; all eight earned floors remain unchanged. Complete full coverage and independent review before merge.
 
 ### CONS-03 — Defer review automation; reconcile its receipt schema if retained
 

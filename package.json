@@ -40,7 +40,7 @@
     "verify:integrity": "node scripts/ci/integrity.mjs && node scripts/ci/extension-check.mjs",
     "verify:static": "npm run typecheck && npm run lint",
     "verify:build-security": "npm run build && npm run security:scan-client",
-    "verify:test": "npm run verify:coverage-policy && vitest run --coverage",
+    "verify:test": "vitest run --coverage && npm run verify:coverage-policy",
     "verify:invariants": "tsx scripts/malayalam/validate-surface.ts",
     "verify:coverage-policy": "node scripts/ci/validate-coverage-policy.mjs"
   },
@@ -79,6 +79,7 @@
     "fake-indexeddb": "^6.1.0",
     "happy-dom": "^20.0.11",
     "jsdom": "^26.1.0",
+    "picomatch": "4.0.4",
     "playwright": "^1.56.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",

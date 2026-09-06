@@ -1,12 +1,8 @@
 #!/usr/bin/env node
-/**
- * validate-coverage-policy — closes the phantom-glob class (CAP-006) without
- * reopening a fail-open variant: globs are matched against the EFFECTIVE
- * instrumented set (include roots minus excludes), not raw disk files, so a
- * floor on a real-but-uninstrumented file also fails loudly.
- */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+/** Validate earned floors against the fresh report produced by Vitest. */
+import { readFileSync } from 'node:fs';
+import { relative } from 'node:path';
+import picomatch from 'picomatch';
 
 const policyPath = process.env.COVERAGE_POLICY_PATH || 'config/coverage-policy.json';
 let policy;
@@ -15,23 +11,6 @@ try {
 } catch (err) {
   console.error(`[coverage-policy] unreadable/invalid JSON at ${policyPath}: ${err.message}`);
   process.exit(1);
-}
-
-function walk(dir, out = []) {
-  let entries;
-  try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return out; }
-  for (const e of entries) {
-    if (['node_modules', '.git', 'dist', 'coverage'].includes(e.name)) continue;
-    const p = join(dir, e.name);
-    if (statSync(p).isDirectory()) walk(p, out);
-    else out.push(p.replace(/^\.\//, ''));
-  }
-  return out;
-}
-
-function globToRegex(glob) {
-  const esc = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&');
-  return new RegExp('^' + esc.replace(/\*\*/g, '::').replace(/\*/g, '[^/]*').replace(/::/g, '.*') + '$');
 }
 
 // Fail-closed structure checks.
@@ -52,34 +31,29 @@ if (failures.length) {
   process.exit(1);
 }
 
-// Effective instrumented set: include roots minus excludes (mirrors vitest.config.ts).
-const includeRes = (policy.include ?? []).map(globToRegex);
-const excludeRes = [
-  /(^|\/)(node_modules|\.git|dist|coverage)\//,
-  /\.d\.ts$/,
-  /\.d\.cts$/,
-  /services\/audio\/storage\/(cache|opfs)\.ts$/,
-].map(r => r.source ? r : r);
-const extraExcludes = [/tests\//];
-const files = walk('.').filter(f =>
-  includeRes.some(re => re.test(f)) &&
-  !excludeRes.some(re => re.test(f)) &&
-  !extraExcludes.some(re => re.test(f))
-);
-
+// The measured report is authoritative. Do not predict its file set from a
+// second include/exclude implementation. verify:test runs Vitest first.
+const reportPath = process.env.COVERAGE_REPORT_PATH || 'coverage/coverage-final.json';
+let coverage;
+try {
+  coverage = JSON.parse(readFileSync(reportPath, 'utf8'));
+} catch (err) {
+  console.error(`[coverage-policy] unreadable/invalid coverage report at ${reportPath}: ${err.message}. Run the coverage suite first.`);
+  process.exit(1);
+}
+if (!coverage || Array.isArray(coverage) || typeof coverage !== 'object' || Object.keys(coverage).length === 0) {
+  console.error(`[coverage-policy] FAIL: ${reportPath} must contain a non-empty measured coverage map`);
+  process.exit(1);
+}
+const files = Object.keys(coverage).map(file => relative(process.cwd(), file).replace(/\\/g, '/'));
 for (const entry of policy.entries) {
-  const re = globToRegex(entry.glob);
-  const matches = files.filter(f => re.test(f));
+  // Same matcher and root-relative paths as Vitest's resolveThresholds.
+  const matchesGlob = picomatch(entry.glob);
+  const matches = files.filter(file => matchesGlob(file));
   if (matches.length === 0) {
-    // Distinguish: phantom vs real-but-outside-instrumented-scope
-    const onDiskRaw = walk('.').filter(f => re.test(f));
-    if (onDiskRaw.length > 0) {
-      console.error(`[coverage-policy] FAIL: "${entry.glob}" matches ${onDiskRaw.length} disk file(s) but NONE in the instrumented coverage set (outside include roots or excluded) — floor would silently enforce nothing (owner: ${entry.owner ?? 'unassigned'})`);
-    } else {
-      console.error(`[coverage-policy] PHANTOM: "${entry.glob}" matches no file on disk (owner: ${entry.owner ?? 'unassigned'})`);
-    }
+    console.error(`[coverage-policy] FAIL: "${entry.glob}" matches no measured file in ${reportPath} — floor would enforce nothing (owner: ${entry.owner ?? 'unassigned'})`);
     process.exitCode = 1;
   } else {
-    console.log(`[coverage-policy] ${entry.glob} -> ${matches.length} instrumented file(s), floors L${entry.lines}/F${entry.functions}`);
+    console.log(`[coverage-policy] ${entry.glob} -> ${matches.length} measured file(s), floors L${entry.lines}/F${entry.functions}`);
   }
 }
