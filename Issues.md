@@ -270,7 +270,6 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 
 - **Status:** Complete: app #171 at `f200274` and companion publisher #4 at `ddd29d1` are merged after independent review and fresh CI. Original subject `3a7fee9`; confidence 0.99.
 - **Files / evidence:** `scripts/lib/chapter-artifact-builder.ts:23,44,58` derives names without content/version identity; `scripts/build-library-session.ts:88` overwrites them. A Node 24.19 probe of the actual builder gives two changed versions/revisions the same URL with different hashes. Old manifests then fail integrity checks.
-- **Candidate / done when:** Prefer digest filenames and manifest-last publication; retain old referenced artifacts. Prove identical bytes keep their address, changed bytes get another address, and both old/new manifests still retrieve hash-valid bytes. Keep directory safety, version checks and full-session compatibility. Hold artifact publication until repaired.
 
 ### CONS-02 — Make coverage validation match the measured scope
 
@@ -307,13 +306,11 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 
 - **Status:** Complete: #172 merged at `ebcea8f` after independent review, 137 combined tests, three production scope-race cases and fresh CI. Real published chapter acquisition and cached navigation also pass.
 - **Evidence/files:** A held chapter download followed by a book switch reopened the old chapter under the new novel/version. `store/slices/chaptersSlice.ts` applied hydration and navigation without checking the current scope; `services/navigation/index.ts` persisted before the caller could reject a stale result.
-- **Correction / done when:** Commit accepted navigation once in the store; reject cross-scope hydration and late results. Production browser regressions cover book/version/library changes. Verify current-scope downloads, cached navigation and durable history as well before merging #172.
 
 ### CONS-06 — Publish byte URLs rather than GitHub LFS pointer URLs
 
 - **Status:** Complete: app #171 at `f200274` and companion #4 at `ddd29d1` are merged after independent follow-up review and fresh CI. Real navigation on ordinary published main URLs downloads one chapter artifact and no full session.
 - **Evidence/files:** Default session URLs from `scripts/lib/library-session-builder.ts` were raw GitHub URLs, but registry normalization changed only metadata to media, breaking exact manifest URL validation. Chapter URLs from the builder also targeted raw LFS pointers.
-- **Correction / done when:** Reuse the existing GitHub media conversion for byte artifacts, keep manifest/metadata URLs raw and keep strict equality. The actual default CLI -> RegistryService -> manifest test passes. Companion #4 must reject known LFS pointer URLs and retain all old chapter files.
 
 ### CONS-07 — Retain the selected book when reopening a full backup without a graph
 
