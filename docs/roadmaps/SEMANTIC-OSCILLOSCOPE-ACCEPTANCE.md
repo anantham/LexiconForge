@@ -84,3 +84,18 @@ the missing complete-corpus prerequisite; do not close it from this parity proof
 Startup latency is tracked in PR #173, reader subscription reduction in #175,
 and production QA setup in #176. Public configuration cleanup is #174. Their
 Issues.md pickup queues retain deferred work and acceptance limits.
+
+
+## September 6 consolidation checkpoint
+
+Privacy/startup/reader/QA PRs #174/#173/#175/#176 are merged into main through
+`b1af513`. #160 inherits their source without altering its 30 reviewed semantic
+source/test files. Current Node 24.19.0 checks pass 129 tests in 14 selected suites,
+plus types, build and privacy/integrity checks. Desktop and Pixel-emulated Chromium
+pass the production pasted URL → export → offline native-file upload flow, scoped
+plot navigation, cached reopening, translation invalidation and book reset.
+Screenshots confirm readable selected-corpus labels and chart controls; a cosmetic
+extra chart mark is recorded in Issues.md UI-02. Final main-targeted CI is pending.
+These are synthetic corpus checks; live indexing, Safari, physical devices and
+FEAT-006 implementation acceptance remain open. The counts describe this selected
+integration gate and do not replace the earlier 131-test source-review receipt.

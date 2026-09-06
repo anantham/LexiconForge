@@ -152,7 +152,7 @@ real novel/device acceptance gates from the linked checklist. FEAT-006 stays Acc
 
 September 6 preflight: direct cross-site Strict-cookie calls fail in a disposable
 Chromium transport check; an owner-origin scan window succeeds without moving
-proof to the public reader. Connection design and implementation remain pending.
+proof to the public reader. The reviewed owner-window client is in #177; compatible backend publication and live verification remain pending.
 The full-book gate also has a concrete publication-data blocker; see item 21.
 
 18) Public configuration boundary: require local broker settings and keep operator records private.
@@ -161,7 +161,7 @@ Current cleanup removes built-in endpoints, personal deployment defaults and ope
 records. Existing saved settings continue to work. The client artifact scan rejects
 embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
 Historical refs/caches are a separate assessment; do not claim deletion from history
-or copy private audit findings into this issue. Cleanup is in [PR #174](https://github.com/anantham/LexiconForge/pull/174); merge/deployment evidence is pending.
+or copy private audit findings into this issue. Cleanup merged in [PR #174](https://github.com/anantham/LexiconForge/pull/174) at `fb80065`. Private runtime adoption remains a separate deployment check.
 
 19) Export and chapter lifecycle follow-ups from #160 review (open; unclaimed).
 
@@ -191,6 +191,59 @@ novels or patch validators to accept them. Evidence, exact hashes, existing PR
 ownership and completion criteria are in
 [the corpus preflight](docs/reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md).
 
+
+## Agent pickup queue — 2026-09-05 latency and complexity pass
+
+These are scoped follow-ups, not permission for a repository-wide rewrite. Claim a ticket with an agent/branch before changing its files. Preserve the historical observations above. Raw debt receipt: [TECH-DEBT-INBOX](docs/roadmaps/TECH-DEBT-INBOX.md#2026-09-05-latency-pass). Start with deletion, then simplify; require measured evidence for performance claims.
+
+### LAT-01 — Remove unrelated routes from cold startup
+
+- **Status:** Merged and verified; [PR #173](https://github.com/anantham/LexiconForge/pull/173), main merge `3301e3a`. Owner: Codex. Measurements below are controlled browser evidence.
+- **Files:** `App.tsx`, `App.test.tsx`, `tests/e2e/route-loading.spec.ts`.
+- **Evidence / acceptance:** [Build measurements, limits, and reproduction](issues/01-bootup-time/2026-09-05-route-startup.md). Load only the selected feature; preserve deep links, route transitions, and visible download failures. This does **not** close the full-import delay in historical issue 1.
+
+### LAT-02 — Delete abandoned app-shell subscriptions and scaffolding
+
+- **Status:** Merged and verified; [PR #175](https://github.com/anantham/LexiconForge/pull/175), main merge `7962464`. Confidence: 0.99. The deletion remains isolated and reversible.
+- **Files / evidence:** `MainApp.tsx:45-46,65-67,76-112,133-142,165-186`. `handleTranslate`, `handleFetch`, `loadPromptTemplates`, `getChapter`, `hasTranslationSettingsChanged`, `currentChapterTranslationResult`, `hasCurrentChapter`, `requestedRef`, and `settingsFingerprint` are declared but never consumed. The two derived selectors still execute on store changes; old auto-translation comments and a commented subscription remain after their behavior moved to the store.
+- **Done when:** Remove the unused hooks/imports/ref/memo/commented code; preserve live job warnings and initialization/preload behavior. Existing app-shell/navigation tests pass. Measure render/subscription work before claiming a latency gain; do not replace dead code with another abstraction.
+- **Receipt:** [Controlled reader measurements](issues/09-chapter-change-perf-logging/2026-09-05-app-shell.md): 2,000 → 0 chapter lookups per 1,000 unrelated updates; synthetic navigation and job warnings verified; combined source review and fresh CI pass.
+
+- **Review:** [PR #175](https://github.com/anantham/LexiconForge/pull/175); merged after exact-source independent review and fresh five-job CI.
+
+### LAT-03 — Stop rediscovering an unchanged broker on every settings-panel visit
+
+- **Status:** Open; unclaimed. Confidence: 0.95 for duplication; latency benefit unmeasured. Effort: small-medium. Risk: stale discovery if refresh semantics change; reversible.
+- **Files / evidence:** `components/settings/ProvidersPanel.tsx:163-190` and `components/settings/SillyTavernPanel.tsx:24-55` each schedule a 300ms timer and call `fetchIndrasNetWorkflows(..., { force: true })`. `services/providers/indrasNetImageProvider.ts:385-418` already provides a normalized-endpoint cache with a 60-second TTL, bypassed by both effects.
+- **Done when:** Establish the freshness requirement; prefer deleting routine `force` overrides over adding another cache/hook. Keep explicit Refresh fresh, endpoint changes isolated, and errors visible. Count requests for Providers → SillyTavern → Providers, endpoint edits, and manual Refresh; verify selected workflow/fallback semantics.
+
+### QA-01 — Restore meaningful React type checking
+
+- **Status:** Open; unclaimed. Confidence: 0.99 for the setup gap. Effort: unknown until a baseline is captured. Risk: proper types may expose many existing errors; reversible.
+- **Files / evidence:** `package.json`, `package-lock.json`, `tsconfig.json`. React 19 is installed but `@types/react`/`@types/react-dom` are not declared; this checkout has no `node_modules/@types/react`. Baseline `App.tsx` passed typecheck while calling `Loader` without its required `text` prop. Introducing a standard class error boundary exposed missing `props` typing.
+- **Done when:** Add compatible React declarations in an isolated dependency PR, record the baseline errors, and resolve them without suppressions or placeholder declarations. An intentional invalid JSX prop must fail `tsc`. Do not describe today's green typecheck as full React prop safety.
+
+### QA-02 — Make wrong-endpoint coverage actually observe the debounce window
+
+- **Status:** Open; unclaimed. Confidence: 0.98. Effort: small. Risk: low; reversible.
+- **Files / evidence:** `tests/components/settings/SillyTavernPanel.test.tsx:143-156` mocks endpoint validation and checks “no workflow fetch” immediately after finding a synchronously rendered status. The production fetch is delayed 300ms, so that assertion alone cannot prove it is never sent.
+- **Done when:** Use the real validation helper or rely on its existing service contract tests; advance the UI timer beyond the debounce before asserting no dispatch. Demonstrate that removing the production guard fails the test. Delete duplicated assertions that cannot distinguish correct from broken behavior.
+
+### QA-03 — Reproducible worktree and production-browser verification
+
+- **Status:** Partial; setup/configuration merged in #176 at `b1af513`. Representative novel and fresh/warm-cache acceptance remain open. Confidence: 0.99 for observed setup friction. Effort: medium. Risk: low if opt-in and local; reversible.
+- **Files / evidence:** `playwright.config.ts`, `tests/e2e/helpers/sessionHarness.ts`, `package.json`, `.gitattributes`, and worktree setup instructions. Root Node is 26 while the project requires 24; this pass used an existing Node 24.19.0 binary. A broad `git diff --stat` in the temporary worktree invoked Git LFS cleaning for `media/demo.mp4` and failed writing the main repo's `.git/lfs/tmp`. Scoped diffs worked. The E2E config hardcodes port 5177/dev mode and may reuse an unrelated existing server; production QA needed a temporary preview config.
+- **Done when:** Document one persistent worktree per branch with Node 24 and an explicit LFS/dependency setup; do not prune, reset, or stash another agent's work. Reuse the existing session harness with a scrubbed representative novel, fresh/warm cache cases, a selectable production preview URL, and trace-on-failure. Record worktree path and exact source revision in receipts; never use a personal browser profile as the automated fixture. No daemon/dashboard needed.
+
+- **Current correction:** Existing config accepts `LF_E2E_BASE_URL`, refuses accidental dev-server reuse, and retains first-failure traces. The E2E guide now uses locked installation and documents worktree/preview/fixture evidence. No new runner or dependency.
+
+- **Review:** [PR #176](https://github.com/anantham/LexiconForge/pull/176); setup merged after independent source review and fresh CI. Keep this ticket open until the fixture and receipt criteria above pass.
+
+### COPY-01 — Remove the hardcoded sutta title from shared provenance UI
+
+- **Status:** Open; unclaimed. Confidence: 0.99. Effort: small. Risk: factual accuracy; reversible.
+- **Files / evidence:** `components/sutta-studio/AboutThisText.tsx:67-69` interpolates the packet's work ID but always appends “Satipaṭṭhāna Sutta (Foundations of Mindfulness).” The same component renders MN117 and live suttas.
+- **Done when:** Delete the fixed title or read a verified title from the packet; do not infer a title from the ID. Check two different packets and a packet without title metadata.
 ### TEST-01 — Replace copied illustration-marker tests with production-path coverage
 
 - **Status:** Open; unclaimed.
@@ -205,3 +258,45 @@ even on a blank page without application code (File.text and FileReader); online
 reads pass. The browser regression remains active. Verify the downloaded backup
 using Safari Files in airplane mode on an iPhone before closing mobile acceptance.
 Receipt: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 native Safari QA.
+
+
+## Consolidation pickup queue — 2026-09-06
+
+Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. First four PRs are merged; #160 combined-source and offline browser checks pass, with final main-targeted CI pending. Merge records belong in WORKLOG.
+
+### CONS-01 — Give changed chapter artifacts distinct addresses
+
+- **Status:** Open; P2 blocker for #171 and #172 publication. Subject `3a7fee9`; confidence 0.99.
+- **Files / evidence:** `scripts/lib/chapter-artifact-builder.ts:23,44,58` derives names without content/version identity; `scripts/build-library-session.ts:88` overwrites them. A Node 24.19 probe of the actual builder gives two changed versions/revisions the same URL with different hashes. Old manifests then fail integrity checks.
+- **Candidate / done when:** Prefer digest filenames and manifest-last publication; retain old referenced artifacts. Prove identical bytes keep their address, changed bytes get another address, and both old/new manifests still retrieve hash-valid bytes. Keep directory safety, version checks and full-session compatibility. Hold artifact publication until repaired.
+
+### CONS-02 — Make coverage validation match the measured scope
+
+- **Status:** Open; P2 blocker for #165. Subject `b9f0904`; confidence 0.99.
+- **Files / evidence:** `scripts/ci/validate-coverage-policy.mjs:55-67` incompletely mirrors `vitest.config.ts:42-54`. A temporary `components/review.config.ts` with a 90% floor passes validation although Vitest excludes `**/*.config.*`.
+- **Candidate / done when:** Share the effective include/exclude scope, delete the no-op mapping and reject excluded-only floors in `tests/scripts/ci/coveragePolicy.test.ts`. Valid floors still pass without lowering thresholds. Explicitly settle root `App.tsx`/`MainApp.tsx` coverage before calling the baseline product-wide. Retain current coverage until corrected.
+
+### CONS-03 — Defer review automation; reconcile its receipt schema if retained
+
+- **Status:** Deferred; P2 blocker for #164 activation. Subject `cabd5c9`; confidence 0.99.
+- **Files / evidence:** `scripts/ci/cross-family-review-gate.mjs:135` requires `reviewRunId`, while four real current-head approvals contain `reviewerRunId`. The exact gate rejects all four; changing only that key in disposable copies makes them pass. No real review was edited. The failed controller separately runs a script absent from trusted main; its ADR also duplicates CORE-015.
+- **Done when, if retained:** Align producer/schema with a real-format fixture; stale/incomplete reviews still fail; fix the ADR number and prove bootstrap before separately approving activation. Independent source review can proceed without this controller.
+
+### CONS-04 — Preserve task receipts while resolving shared worklog conflicts
+
+- **Status:** Open coordination debt. The five initially conflicted PRs (#161/#164/#165/#168/#169) conflicted only in `docs/WORKLOG.md`; integrating #175/#176 also conflicts there alone.
+- **Follow-up:** Preserve both histories now. After consolidation, assess short log pointers to existing per-task evidence instead of more repeated receipts. Do not add a synchronization bot. Recompute each child diff and refresh stale descriptions when its parent merges.
+
+
+### UI-01 — Preserve the saved-default label when model lists overlap
+
+- **Status:** Open; non-blocking cosmetic review finding.
+- **File / evidence:** `components/chapter/IllustrationRouteDialog.tsx` populates its model-ID map in Saved → static Gemini → discovered order. A static entry with the saved ID overwrites the saved-default label/group; the model remains selectable and validation works. Independent Claude source review confirmed this collision path.
+- **Done when:** Establish the intended grouping and preserve the saved annotation without duplicate options or another selection abstraction. No latency or submission defect is claimed.
+
+
+### UI-02 — Investigate the redundant mark below the expanded graph
+
+- **Status:** Open; non-blocking visual QA finding from desktop and Pixel-emulated offline graph screenshots.
+- **Files / evidence:** `components/oscilloscope/OscilloscopeGraph.tsx:299` configures uPlot while the panel also renders its own thread labels. Both screenshots show a separate unlabelled red outline below the chart, above the useful Trust chip.
+- **Done when:** Inspect the generated DOM and existing legend configuration; remove the redundant output if the custom thread controls already supply its purpose. Preserve thread visibility controls and hover values. The visual symptom is confirmed; its exact DOM/CSS cause is not yet verified.
