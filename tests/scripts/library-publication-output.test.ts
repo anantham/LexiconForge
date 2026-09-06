@@ -5,9 +5,11 @@ import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ChapterPublicationManifest } from '../../types/chapterManifest';
 import type { LibraryBuildManifest } from '../../scripts/lib/library-session-builder';
+import { RegistryService } from '../../services/registryService';
+import { resolveExpectedChapterPublication } from '../../services/library/chapterPublicationResolver';
 
 let root: string;
 let manifest: LibraryBuildManifest;
@@ -30,7 +32,10 @@ beforeEach(() => {
   };
 });
 
-afterEach(() => fs.rmSync(root, { recursive: true, force: true }));
+afterEach(() => {
+  fs.rmSync(root, { recursive: true, force: true });
+  vi.unstubAllGlobals();
+});
 
 const publish = () => {
   const configPath = path.join(root, 'build.json');
@@ -44,6 +49,20 @@ const publish = () => {
 };
 
 describe('library publication output', () => {
+  it('publishes default GitHub LFS URLs that survive registry normalization', async () => {
+    delete manifest.output.publicBaseUrl;
+    const publication = publish();
+    const metadata = JSON.parse(fs.readFileSync(path.join(root, 'test-novel/metadata.json'), 'utf8'));
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify(metadata)))
+      .mockResolvedValueOnce(new Response(JSON.stringify(publication))));
+    const normalized = await RegistryService.fetchNovelMetadata(
+      'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels/test-novel/metadata.json'
+    );
+    await expect(resolveExpectedChapterPublication(normalized, 'v1')).resolves.toMatchObject({ numbers: [1] });
+    expect(new URL(publication.chapters[0].artifact!.url).hostname).toBe('media.githubusercontent.com');
+  }, 20_000);
+
   it('keeps old manifest downloads valid after content and version revisions', () => {
     const original = publish();
     const unchanged = publish();

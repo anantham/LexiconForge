@@ -188,3 +188,14 @@ changing the manifest format or the compatible full-session output.
   verifies old/new chapter downloads after content and version revisions,
   deterministic unchanged output, and unchanged published pointers after an
   artifact-directory failure.
+
+## Amendment: GitHub LFS byte transport (2026-09-06)
+
+The publisher emits media.githubusercontent.com URLs for GitHub session and
+chapter bytes. Plain metadata and manifests remain on raw.githubusercontent.com.
+`services/library/artifactUrl.ts` contains the existing registry conversion,
+shared by the Node builders; no second conversion policy or validation fallback
+was introduced. Exact metadata/manifest session URL equality is preserved.
+The default CLI publication is tested through the real registry normalizer and
+manifest resolver, so a locally valid publication must also survive that client
+contract before it is shipped.
