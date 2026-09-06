@@ -26,4 +26,4 @@ these are local transport observations, not model benchmarks. Owner JS is about
 No backend publication/deployment is included. Complete corpus, exact release
 scope, real-model latency, physical popup/local-network permission, Safari file
 reopen and cold offline launch remain in the [acceptance checklist](../roadmaps/SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md).
-FEAT-006 remains Accepted. Reader implementation: [PR #177](https://github.com/anantham/LexiconForge/pull/177), stacked above #160.
+FEAT-006 remains Accepted. Reader implementation: [PR #177](https://github.com/anantham/LexiconForge/pull/177), targeted to main after #160 and the chapter/coverage consolidation.
