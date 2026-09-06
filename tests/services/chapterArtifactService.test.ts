@@ -69,6 +69,36 @@ describe('chapter artifact service', () => {
     })).rejects.toThrow(/tuple does not match/i);
   });
 
+  it.each(['novelId', 'libraryVersionId'])(
+    'rejects a nested %s that would redirect the scoped import', async (field) => {
+      const value = document();
+      Object.assign(value.chapter, { [field]: 'another-scope' });
+      const text = JSON.stringify(value);
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(text)));
+      await expect(fetchChapterArtifact(referenceFor(text), {
+        novelId: 'test-novel', versionId: 'v1', identity,
+      })).rejects.toThrow(/chapter scope.*manifest context/i);
+    }
+  );
+
+  it('cancels an underdeclared body as soon as observed bytes exceed the manifest', async () => {
+    let chunks = 0;
+    const cancel = vi.fn();
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (++chunks === 10) controller.close();
+        else controller.enqueue(new Uint8Array(256));
+      },
+      cancel,
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(body)));
+    await expect(fetchChapterArtifact({ ...referenceFor('x'), byteLength: 1 }, {
+      novelId: 'test-novel', versionId: 'v1', identity,
+    })).rejects.toThrow(/bytes.*manifest/i);
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(chunks).toBeLessThan(10);
+  });
+
   it('rejects oversized declarations and HTTP failures before parsing', async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);

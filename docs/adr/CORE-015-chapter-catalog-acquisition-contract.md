@@ -228,3 +228,19 @@ changing the manifest format or the compatible full-session output.
   verifies old/new chapter downloads after content and version revisions,
   deterministic unchanged output, and unchanged published pointers after an
   artifact-directory failure.
+
+## Amendment: acquisition completion and byte boundaries (2026-09-06)
+
+- `services/library/chapterArtifactService.ts` rejects chapter-level novel or
+  version overrides that disagree with the envelope before persistence. It
+  enforces observed download bytes, cancels an underdeclared stream, and rejects
+  truncation before hashing/parsing. The existing 64 MiB declaration ceiling
+  also bounds the preallocated receive buffer.
+- `store/slices/chaptersSlice.ts` applies and persists resolved navigation only
+  while its selected novel/version remains current and rejects cross-scope
+  hydration. `services/navigation/index.ts` no longer persists the five
+  intermediate resolution paths. Cached downloads can survive navigation; they
+  cannot choose the reader's new book or translation.
+- The production browser regression `tests/e2e/chapter-acquisition.spec.ts`
+  awaits download, import and hydration after book/version/library changes.
+  Small streamed-response and nested-scope tests cover the validation boundary.

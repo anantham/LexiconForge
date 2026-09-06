@@ -50,6 +50,10 @@ export const validateChapterArtifactDocument = (
   if (!isRecord(value.chapter)) return fail('chapter must be an object.');
 
   const chapter = value.chapter;
+  if ((chapter.novelId != null && chapter.novelId !== context.novelId)
+    || (chapter.libraryVersionId != null && chapter.libraryVersionId !== context.versionId)) {
+    return fail('chapter scope does not match the requested manifest context.');
+  }
   if (
     chapter.chapterNumber !== context.identity.chapterNumber ||
     chapter.stableId !== context.identity.stableId ||
@@ -89,12 +93,30 @@ export const fetchChapterArtifact = async (
 
   let bytes: ArrayBuffer;
   try {
-    bytes = await response.arrayBuffer();
+    const reader = response.body?.getReader();
+    if (!reader) return fail(`empty response body from ${reference.url}.`);
+    const buffer = new Uint8Array(reference.byteLength);
+    let received = 0;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (received + value.byteLength > reference.byteLength) {
+          await reader.cancel();
+          return fail(`downloaded more bytes than the manifest declares (${reference.byteLength}).`);
+        }
+        buffer.set(value, received);
+        received += value.byteLength;
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    if (received !== reference.byteLength) {
+      return fail(`downloaded ${received} bytes; manifest declares ${reference.byteLength}.`);
+    }
+    bytes = buffer.buffer;
   } catch (error) {
     return fail(`failed to read ${reference.url}: ${error instanceof Error ? error.message : String(error)}.`);
-  }
-  if (bytes.byteLength !== reference.byteLength) {
-    return fail(`downloaded ${bytes.byteLength} bytes; manifest declares ${reference.byteLength}.`);
   }
   const digest = await hexDigest(bytes);
   if (digest !== reference.sha256) {
