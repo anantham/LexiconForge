@@ -21,8 +21,7 @@ import {
   loadNovelIntoStore,
 } from '../services/readerHydrationService';
 import {
-  resolveExpectedChapterCount,
-  resolveExpectedChapterNumbers,
+  resolveExpectedChapterPublication,
 } from '../services/chapterCatalog';
 import { fetchAndMergeGlossary, mergeGlossaryEntries } from '../services/glossaryService';
 import { fetchNovelChapterCounts } from '../services/db/operations/summaries';
@@ -202,8 +201,9 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
       });
       if (!stillSelected()) return;
       const firstCachedChapterId = cacheState.firstChapterId;
-      const expectedChapterCount = resolveExpectedChapterCount(novel, requestedVersionId);
-      const expectedChapterNumbers = resolveExpectedChapterNumbers(novel, requestedVersionId);
+      const expectedPublication = await resolveExpectedChapterPublication(novel, requestedVersionId);
+      const expectedChapterCount = expectedPublication.count;
+      const expectedChapterNumbers = expectedPublication.numbers;
       const cachedChapterNumbers = new Set(cacheState.chapterNumbers);
       const cacheIsComplete = Boolean(
         firstCachedChapterId &&

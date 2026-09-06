@@ -138,6 +138,9 @@ The library currently features:
 1. **Dynamic Registry** (`services/registryService.ts`) — **primary path**
    - `NovelLibrary.tsx` fetches novel metadata from a remote GitHub-hosted `registry.json`
    - New novels are added by updating the registry, not the codebase
+   - Versions with `chapterManifestUrl` expose only their exact validated
+     published identities; expected-but-unpublished chapters are not projected
+     as navigable package rows
 
 2. **Legacy Static Catalog** (`config/novelCatalog.ts`) — **deprecated, backward compat only**
    - Marked `@deprecated`; still exported for deep-link URLs (`?novel=<id>`)
@@ -148,6 +151,14 @@ The library currently features:
    - Fetches session JSON from URLs
    - Validates format and structure
    - Handles CORS, timeouts, and errors
+
+4. **Publication Integrity** (`services/library/chapterManifestService.ts`)
+   - Validates the version/novel identity, exact chapter tuples, counts, and
+     session digest declaration before a manifested package is trusted
+   - A missing or invalid declared manifest blocks package import and never
+     falls back to a broader metadata range
+   - Older packages without a manifest retain the legacy range behavior until
+     their publisher migrates them
    - Supports GitHub, Google Drive, and custom URLs
 
 4. **State Management**

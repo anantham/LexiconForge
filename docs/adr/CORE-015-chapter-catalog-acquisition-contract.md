@@ -123,3 +123,46 @@ could be hidden by translation-specific inline error rules.
 - [CORE-007](./CORE-007-fetch-transport-contract.md)
 - [CORE-012](./CORE-012-background-work-survives-navigation.md)
 - [DB-003](./DB-003-version-centric-data-model.md)
+
+## Amendment: exact publication manifest (2026-08-31)
+
+**Status:** Implemented on the publication-integrity branch; deployment still
+requires review, merge, and publisher-package migration.
+
+The deferred exact package-manifest position is now adopted. A hosted version
+may keep `metadata.chapterCount` as the expected size of the work, but it may
+advertise reader navigation only for identities in its
+`chapter-manifest.json`. The manifest binds each published `chapterNumber`,
+`stableId`, and `canonicalUrl` to the version and binds the complete session
+artifact by URL, byte length, and SHA-256 digest.
+
+A version that declares `chapterManifestUrl` creates a hard boundary. The
+client validates and uses its exact identity list for virtual catalog rows and
+cache completeness. If acquisition or validation fails, the client returns no
+metadata-projected replacement rows and blocks the session import with a
+descriptive error. Versions without the field retain the legacy range contract
+until migrated.
+
+The publisher validator rejects duplicate or unordered chapter numbers,
+duplicate stable IDs, metadata/session/version disagreement, range/count
+disagreement, incomplete versions labelled `Complete`, tuple drift, byte-length
+drift, and checksum drift before output is accepted. It never invents, drops,
+or renumbers an identity.
+
+### Amendment implementation notes
+
+- `types/chapterManifest.ts` defines the versioned manifest and reserves an
+  optional per-chapter artifact reference for the separately reviewed targeted
+  acquisition phase.
+- `services/library/chapterManifestService.ts` owns browser-safe structural and
+  contextual validation. `services/chapterCatalog.ts` consumes exact manifest
+  identities and refuses metadata fallback after a declared-manifest failure.
+- `components/NovelLibrary.tsx` uses the same identity set for package cache
+  completeness before deciding whether to replay a session.
+- `scripts/lib/library-publication-integrity.ts` owns publisher-side tuple,
+  metadata, and session-digest validation. `scripts/build-library-session.ts`
+  emits the manifest, and `scripts/verify-library-publication.ts` verifies an
+  existing three-file publication without rewriting it.
+- Focused regressions cover manifest structure, hostile duplicate/mismatch
+  cases, checksums, registry URL normalization, exact non-contiguous catalog
+  projection, fail-closed behavior, and reader cache/import decisions.
