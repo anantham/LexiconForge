@@ -15,13 +15,33 @@ $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $bridgeRoot = (Resolve-Path (Join-Path $scriptDirectory '..\..')).Path
 $patchPath = Join-Path $bridgeRoot 'security\sillytavern-1.18.0-multer-2.2.0.patch'
 $configuratorPath = Join-Path $scriptDirectory 'configure-sillytavern-security.mjs'
+$dependencyInspectorPath = Join-Path $scriptDirectory 'inspect-sillytavern-dependencies.mjs'
 
-foreach ($requiredFile in @($patchPath, $configuratorPath, (Join-Path $SillyTavernRoot 'package.json'))) {
+foreach ($requiredFile in @(
+    $patchPath,
+    $configuratorPath,
+    $dependencyInspectorPath,
+    (Join-Path $SillyTavernRoot 'package.json'),
+    (Join-Path $SillyTavernRoot 'package-lock.json')
+)) {
     if (-not (Test-Path -LiteralPath $requiredFile -PathType Leaf)) {
         throw "Required hardening input is missing: $requiredFile"
     }
 }
 
+function Get-DependencyInspection {
+    $output = @(& $NodeExecutable $dependencyInspectorPath '--root' $SillyTavernRoot 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        throw "SillyTavern dependency inspection failed (exit $LASTEXITCODE): $($output -join [Environment]::NewLine)"
+    }
+    try {
+        return ($output -join [Environment]::NewLine) | ConvertFrom-Json
+    } catch {
+        throw "SillyTavern dependency inspector returned invalid JSON: $($output -join [Environment]::NewLine)"
+    }
+}
+
+$SillyTavernRoot = (Resolve-Path -LiteralPath $SillyTavernRoot).Path
 Push-Location $SillyTavernRoot
 try {
     $resolvedBase = & git rev-parse --verify --quiet "$($expectedBaseCommit)^{commit}"
@@ -47,10 +67,9 @@ try {
         throw "SillyTavern runtime has unrelated uncommitted files: $($unexpectedDirtyPaths -join ', ')."
     }
 
-    $package = Get-Content -LiteralPath 'package.json' -Raw | ConvertFrom-Json
-    $lock = Get-Content -LiteralPath 'package-lock.json' -Raw | ConvertFrom-Json
-    $declaredMulter = $package.dependencies.multer
-    $lockedMulter = $lock.packages.'node_modules/multer'.version
+    $dependencyBefore = Get-DependencyInspection
+    $declaredMulter = $dependencyBefore.declaredMulter
+    $lockedMulter = $dependencyBefore.lockedMulter
 
     if ($declaredMulter -eq '^2.1.1' -and $lockedMulter -eq '2.1.1') {
         if (-not $Apply) {
@@ -69,9 +88,12 @@ try {
         throw "Unexpected Multer state: package.json=$declaredMulter package-lock.json=$lockedMulter."
     }
 
-    $lockedMulterRecord = $lock.packages.'node_modules/multer'
-    if ($lockedMulterRecord.resolved -ne 'https://registry.npmjs.org/multer/-/multer-2.2.0.tgz' `
-        -or $lockedMulterRecord.integrity -ne 'sha512-6rdyFg2kLrMh9Jee7/BMPuV9lEAd7lLW2YUpF9/YxR7njyoUwwQ0ZPh3TaIY50Sw6vlyD2HW3wGOkTS4P79xrQ==') {
+    $dependencyAfter = Get-DependencyInspection
+    if ($dependencyAfter.declaredMulter -ne '^2.2.0' -or $dependencyAfter.lockedMulter -ne '2.2.0') {
+        throw "Multer overlay did not produce the expected manifest state: package.json=$($dependencyAfter.declaredMulter) package-lock.json=$($dependencyAfter.lockedMulter)."
+    }
+    if ($dependencyAfter.resolved -ne 'https://registry.npmjs.org/multer/-/multer-2.2.0.tgz' `
+        -or $dependencyAfter.integrity -ne 'sha512-6rdyFg2kLrMh9Jee7/BMPuV9lEAd7lLW2YUpF9/YxR7njyoUwwQ0ZPh3TaIY50Sw6vlyD2HW3wGOkTS4P79xrQ==') {
         throw 'Multer 2.2.0 lock source or integrity differs from the reviewed overlay.'
     }
 
