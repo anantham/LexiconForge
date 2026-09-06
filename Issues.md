@@ -144,7 +144,9 @@ The durable checklist is [SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md](docs/roadmaps/SEM
 Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion open until independently evidenced.
 
 
-Semantic delivery status (2026-09-05): #160 has further reviewed storage/lifecycle
+Current frontend status (2026-09-06): #160 merged at `eb97601` after current-main integration, 129 focused Node 24.19 tests, desktop/Pixel-emulated production offline round trips and all five fresh CI jobs (run `34036511332`). Live acceptance remains open.
+
+Earlier semantic delivery status (2026-09-05): #160 has further reviewed storage/lifecycle
 corrections passing 131 focused Node 24.19.0 tests, including streamed selection races and rejection of unverified legacy fallback; fresh CI is linked from the PR; Claude Sonnet 5 approved the final URL-scope correction after the Codex bot reported a usage limit;
 backend recovery is committed and independently reviewed locally (92 focused tests pass); publication and live acceptance remain pending.
 Pick up publication prerequisites, browser/CSRF, deployment and
@@ -262,7 +264,7 @@ Receipt: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 native Safari QA.
 
 ## Consolidation pickup queue — 2026-09-06
 
-Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. First four PRs are merged; #160 combined-source and offline browser checks pass, with final main-targeted CI pending. Merge records belong in WORKLOG.
+Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. First five PRs (#174/#173/#175/#176/#160) are merged through `eb97601`; exact-head CI and source/production-browser verification pass. Merge records belong in WORKLOG.
 
 ### CONS-01 — Give changed chapter artifacts distinct addresses
 
@@ -285,7 +287,7 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 ### CONS-04 — Preserve task receipts while resolving shared worklog conflicts
 
 - **Status:** Open coordination debt. The five initially conflicted PRs (#161/#164/#165/#168/#169) conflicted only in `docs/WORKLOG.md`; integrating #175/#176 also conflicts there alone.
-- **Follow-up:** Preserve both histories now. After consolidation, assess short log pointers to existing per-task evidence instead of more repeated receipts. Do not add a synchronization bot. Recompute each child diff and refresh stale descriptions when its parent merges.
+- **Follow-up:** Preserve both histories now. After consolidation, assess short log pointers to existing per-task evidence instead of more repeated receipts. Do not add a synchronization bot. Recompute each child diff and refresh stale descriptions when its parent merges. #177 now targets main; a post-consolidation merge simulation reports conflicts only in Issues, WORKLOG, the semantic acceptance checklist and debt inbox. Preserve both sets of receipts when refreshing that branch; its live backend release gate remains separate.
 
 
 ### UI-01 — Preserve the saved-default label when model lists overlap
