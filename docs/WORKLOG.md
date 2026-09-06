@@ -3736,6 +3736,15 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **QA-03 result:** `playwright.config.ts:3,37,64` accepts an explicit preview URL, refuses default dev-server reuse and retains first-failure traces. Updated `docs/infrastructure/E2E-TESTING.md` replaces package-install drift and duplicate schema/wishlist prose with locked setup, isolated worktree, production preview and fresh/warm fixture instructions.
 **Verification:** Existing production route suite passes 3/3 through the new URL option. A disposable occupied-port probe proves the default runner refuses reuse. An intentionally failing external diagnostic produces `trace.zip` with retries zero; it is not part of the committed test suite. No new dependencies or runtime changes.
 
+**Status:** Starting LAT-02 in `perf/codex-reader-latency`, based on refreshed startup source `0d5f5ce`.
+**Files:** `MainApp.tsx` and existing app-shell/browser tests; Issues and this log.
+**Hypothesis/prediction:** Two unused derived selectors perform two chapter lookups on every irrelevant store update; unused scalar subscriptions can also cause unnecessary shell renders. Removing those subscriptions, unused imports/ref/memo and abandoned comments should reduce work without changing initialization, preloading or job warnings. Confidence 0.99 for dead code; navigation timing benefit is unmeasured.
+**Validation plan:** Compare production UI navigation and getter calls with synthetic persisted chapters and controlled network; run existing app-screen/mediator/image lifecycle tests. No new test that merely counts source hooks. Fallback: revert this isolated deletion commit.
+
+**LAT-02 result:** `MainApp.tsx:26-108` deletes nine unused subscriptions, the dead memo/ref, old selector logging and the test-only no-op fallback; 282 → 199 lines. `tests/store/appScreen.integration.test.tsx:36,80` supplies the real resume action in its existing fixture. No new runtime wrapper/cache or mirrored unit test.
+**Evidence:** 46 focused tests, TypeScript, build and scoped lint pass; six production browser contexts preserve chapter/version navigation and background-work warnings. Unrelated store updates cause 2,000 → 0 chapter lookups. Small synthetic chapter timing median 252 → 222ms; this is not a real-device claim. Reproduction/coverage/complexity limits: `issues/09-chapter-change-perf-logging/2026-09-05-app-shell.md` and its local probe.
+**Setup friction:** This existing worktree had no dependencies; matching lockfile hashes allowed reuse of the existing installation without changing packages.
+
 **Refreshed #173 verification:** `0d5f5ce` passes 25 focused tests, TypeScript, production build and the existing three production route checks. The existing startup probe confirms the improvement against the sanitized baseline: library H1 1916 → 1167ms, Gita H1 1757 → 610ms; no page errors. Receipt updated under `issues/01-bootup-time/`. Backend deployment and source merge decisions remain separate.
 
 ### [2026-09-05] [Agent: Codex]
@@ -3753,6 +3762,8 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Files:** `Issues.md:186` now explicitly marks QA-03 partial. #176 implements runner/setup improvements; a scrubbed representative novel, fresh/warm cases through the session harness, and exact fixture/revision receipts still need execution. Three synthetic route checks do not close those acceptance criteria. No runtime code changed.
 
 **QA-03 review correction:** `docs/infrastructure/E2E-TESTING.md:49` now uses the current worktree's ignored `dist/`, not one shared temporary output path. Concurrent branches need distinct worktrees/output and strict preview ports; do not rebuild a worktree during its test run. This prevents one branch replacing another preview's files. Documentation-only correction; the earlier actual probes already used separate output directories.
+
+**Review checkpoint:** LAT-02 is published in https://github.com/anantham/LexiconForge/pull/175. The current stack includes #174 correction `d5efee7`; only documentation conflicted, both receipts retained. App behavior and measured test source are unchanged. Fresh current-head CI and independent review pending; no merge or deployment.
 ### [2026-09-05 12:50 MUT] [Agent: Codex]
 **Status:** Reconciled PR #174's second Codex review finding.
 **Files/lines:** `docs/adr/FEAT-003-image-service-architecture.md:336` explicitly supersedes the deployment-specific wrong-service/default-endpoint claims using the approved SEC-001 public configuration boundary. Saved settings remain untouched; a configured wrong service receives protocol/network diagnostics. No runtime code changed; prior native Windows and provider tests remain applicable.
@@ -3773,4 +3784,17 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 
 ### [2026-09-05 14:37 MUT] [Agent: Codex]
 **Status:** Refreshed #176 from parent #173 `7db1933`, preserving the reviewed source and history.
+
+**Status:** Refreshed #175 from parent #173 `7db1933`, preserving the reviewed source and history.
 **Resolution:** `docs/WORKLOG.md:3750` retains both task receipts and parent corrections. Other files merge automatically. The parent passed 46 combined provider/settings/dialog/app-screen tests and TypeScript; this branch's implementation and earlier benchmark/QA evidence are unchanged. Fresh combined checks and current-head CI/review follow; no main merge or deployment.
+
+### [2026-09-06 16:54 MUT] [Agent: Codex]
+**Status:** Starting the approved first consolidation batch: #174 → #173 → #175 → #176.
+**Worktree/branch:** Existing isolated `codex-production-qa` worktree, `test/codex-production-qa`; root main remains clean. Combine the reader parent into QA without rewriting history, then retain focused PR diffs through their bases.
+**Files:** Three append-only conflicts in this log retain both prior task receipts. `MainApp.tsx`, its existing app-screen fixture and reader evidence merge unchanged. Consolidation findings will be carried into `Issues.md` and `docs/roadmaps/TECH-DEBT-INBOX.md`.
+**Hypotheses/predictions:** Removing unused selectors preserves initialization, navigation and background-work protection; lazy routes still isolate downloads and show failures; explicit preview selection exercises the same built source. Confidence 0.97. Verify with existing focused tests on Node 24.19.0, production browser probes, independent tools-disabled source review and fresh CI for the merge heads.
+**Options:** A (approved): preserve the four focused PRs and merge parents first; moderate effort, lower integration risk, isolated rollback. B: replace them with one aggregate PR; fewer visible PRs but larger review/rollback scope and discarded review context. No new runtime framework or review automation.
+**Fallback:** Hold only a failing lane and record its reproducible blocker. Backend deployment, complete-corpus and physical-device acceptance remain separate.
+
+**Combined verification:** Node 24.19.0 passes 175 tests across 13 existing suites, TypeScript, production build, repository marker integrity and the client privacy scan. Chromium production route checks pass 3/3; six isolated synthetic reader contexts preserve chapter/version navigation and working/idle tab-close behavior, with no page errors and zero chapter lookups on 1,000 irrelevant store updates. Both probe URLs use this same build; these are functional checks, not a new before/after latency comparison. Existing large-chunk warnings remain.
+**Review progress:** Fresh #174 CI attempt 2 passed all five jobs at `42732be`. The tools-disabled Claude request was rejected before inference by its session quota; Gemini is reviewing the same 12-file source packet with tools, hooks, extensions, MCP and context discovery disabled. Independent review is not yet complete. Packet SHA-256: `5fcb72ccaed1e98168ac61156003996aa7ec45cd731b4c6c15c984133aa742c2`.
