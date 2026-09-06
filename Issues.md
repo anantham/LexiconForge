@@ -268,7 +268,7 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 
 ### CONS-01 — Give changed chapter artifacts distinct addresses
 
-- **Status:** Open; P2 blocker for #171 and #172 publication. Subject `3a7fee9`; confidence 0.99.
+- **Status:** Repaired locally in #171; independent review, fresh CI and companion package publication pending. Original subject `3a7fee9`; confidence 0.99.
 - **Files / evidence:** `scripts/lib/chapter-artifact-builder.ts:23,44,58` derives names without content/version identity; `scripts/build-library-session.ts:88` overwrites them. A Node 24.19 probe of the actual builder gives two changed versions/revisions the same URL with different hashes. Old manifests then fail integrity checks.
 - **Candidate / done when:** Prefer digest filenames and manifest-last publication; retain old referenced artifacts. Prove identical bytes keep their address, changed bytes get another address, and both old/new manifests still retrieve hash-valid bytes. Keep directory safety, version checks and full-session compatibility. Hold artifact publication until repaired.
 

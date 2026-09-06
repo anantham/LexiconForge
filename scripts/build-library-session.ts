@@ -65,20 +65,8 @@ async function main(): Promise<void> {
 
   fs.mkdirSync(novelDir, { recursive: true });
 
-  const sessionPath = path.join(novelDir, sessionFileName);
-  fs.writeFileSync(sessionPath, sessionJson);
-  const sessionSizeBytes = Buffer.byteLength(sessionJson, 'utf8');
-
-  if (metadata.versions?.[0]) {
-    metadata.versions[0].stats.fileSize = `${(sessionSizeBytes / 1024 / 1024).toFixed(2)}MB`;
-  }
-
-  const metadataPath = path.join(novelDir, metadataFileName);
-  fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
-
-  const chapterManifestPath = path.join(novelDir, chapterManifestFileName);
-  fs.writeFileSync(chapterManifestPath, JSON.stringify(chapterManifest, null, 2));
-
+  // Keep prior chapter revisions available, and finish their output before
+  // replacing any manifest or metadata that advertises the new publication.
   const chapterArtifactDirectoryName = resolveChapterArtifactDirectoryName(
     manifest.output.chapterArtifactDirectoryName
   );
@@ -87,6 +75,20 @@ async function main(): Promise<void> {
   chapterArtifacts.forEach((artifact) => {
     fs.writeFileSync(path.join(chapterArtifactDirectory, artifact.fileName), artifact.json);
   });
+
+  const sessionPath = path.join(novelDir, sessionFileName);
+  fs.writeFileSync(sessionPath, sessionJson);
+  const sessionSizeBytes = Buffer.byteLength(sessionJson, 'utf8');
+
+  if (metadata.versions?.[0]) {
+    metadata.versions[0].stats.fileSize = `${(sessionSizeBytes / 1024 / 1024).toFixed(2)}MB`;
+  }
+
+  const chapterManifestPath = path.join(novelDir, chapterManifestFileName);
+  fs.writeFileSync(chapterManifestPath, JSON.stringify(chapterManifest, null, 2));
+
+  const metadataPath = path.join(novelDir, metadataFileName);
+  fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
 
   const reportPath = path.join(novelDir, reportFileName);
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
