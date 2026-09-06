@@ -3609,6 +3609,21 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Files modified:** chrome_extension/README.md (BookToki usage section, output-format block, Multi-Site feature bullet, content.js table row removed — every replacement now assert-guarded); docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md item-2 wording reconciled to REMOVED status.
 **Verification:** README booktoki grep = only the provenance deprecation line; ledger grep shows no pending-PR-b for extension; this entry supersedes the 15:30 entry's overclaim re README/ledger (gate + popup fixes in that entry were real and verified).
 
+### [2026-08-23 17:20 IST] [Agent: ox-alpha]
+**Status:** Complete — CI programme PR 2 of 5 (truthful coverage)
+**Task:** Implement CORE-013 PR-2 per plan committed at f068e05.
+**Worktree:** ../LexiconForge.worktrees/alpha-tier-l/
+**Branch:** ci/alpha-coverage-pr2
+**Files modified:** vitest.config.ts (coverage.include product roots; thresholds from config/coverage-policy.json with explicit perFile:true; reportOnFailure:true; excludes for *.d.cts + tsconfig-excluded audio modules that crashed the v8 remapper); config/coverage-policy.json (new single source of truth w/ owners + rationale); scripts/ci/validate-coverage-policy.mjs (new phantom-glob validator, wired as verify:coverage-policy + CI step); package.json (verify:test now runs --coverage; new verify:coverage-policy); .github/workflows/test.yml (policy step + coverage artifact upload on failure in unit-coverage job); tests/services/HtmlRepairService.test.ts (+9 behavior tests); docs/infrastructure/COVERAGE-BASELINE.md (new).
+**Measured:** HtmlRepairService was 53.7%L/72.7%F vs its 75/75 floor — earned via 9 behavior tests → 88.9%L/90.9%F locally. No floors lowered. Full-surface total deferred to first CI run on Node 24 (local Node-26 webstorage class: 144 failures reproduce on pristine main; reportOnFailure keeps reports flowing).
+**Discoveries en route:** include-scoped instrumentation crashes v8 remapper on *.d.cts and tsconfig-excluded audio modules (excluded); filtered runs legitimately fail OTHER files' floors (0% when their suites aren't selected) — targeted greps used to isolate signal.
+
+### [2026-08-23 18:40 IST] [Agent: ox-alpha]
+**Status:** Complete — Codex-review corrections for PR 165 (coverage PR-2)
+**Task:** Address 4×P2 findings. (1) Global baselines removed from vitest thresholds — with perFile:true they'd compare per-file and can never represent an aggregate total; config now throws if anyone sets positive global floors until a report-parser mechanism exists. (2) Policy file now owns include roots; validator matches globs against the EFFECTIVE instrumented set (include minus excludes), so floors on real-but-uninstrumented files fail loudly with a distinct message vs phantoms. (3) Validator is fail-closed: non-empty well-formed entries required. (4) verify:coverage-policy folded into verify:test (single-command contract restored); separate workflow step removed.
+**Files modified:** vitest.config.ts; config/coverage-policy.json (+include roots); scripts/ci/validate-coverage-policy.mjs (rewritten fail-closed, COVERAGE_POLICY_PATH env for testability); package.json (verify:test chain); .github/workflows/test.yml (step removed); tests/scripts/ci/coveragePolicy.test.ts (new, 5 red/green cases).
+**Verification:** new harness 10/10 (extension gate + policy validator cases incl. emptied entries, positive-global guard, outside-instrumented-scope rejection); tsc clean.
+
 ### [2026-08-25 16:22 IST] [Agent: Codex]
 **Status:** Starting human-confirmed Option 1B repair for PR #161
 **Task:** Close every exact-head adversarial-review finding on the fail-honest semantic-alignment contract before the stacked audit or Morning Chants data can advance.
@@ -4224,6 +4239,14 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **[DEBT] Static latency observation:** `components/liturgy/shapes/alignmentGeometry.ts:45-49` measures every claimed element's rectangle but consumes only the first rectangle. Candidate: measure the first element alone, retain all morpheme identities. Impact unmeasured; preserve shared source-anchor behavior. Capture for a focused measured deletion, not a speculative new renderer abstraction.
 **Chapter publication checkpoint:** #172 merged as `ebcea8f`, CI `34041898537` all five jobs plus Vercel pass. Publisher #3 merged `b96825a` after fresh run `33394159213` attempt 2; #4 merged `ddd29d1` after run `34042119879`. #3 preceded #172 by 20 seconds; artifact activation followed the complete reader stack. Normal published main URLs download exactly one 5,344,477-byte chapter artifact and no full session: 4,306 ms cold / 232 ms offline cached in one local production-browser observation. Ordinary-backup reimport still loses selected scope (CONS-07), with readable chapters retained and its assertion failing. No complete novel/index/scan or physical-device claim.
 
+### [2026-09-06 19:43 MUT] [Agent: Codex]
+**Status:** Starting approved #165 / CONS-02 coverage-scope repair on merged main.
+**Worktree/branch:** Existing `../LexiconForge.worktrees/alpha-tier-l`, `ci/alpha-coverage-pr2`; clean before the history-preserving main merge. Only WORKLOG conflicts; both histories retained.
+**Hypothesis:** The validator predicts coverage from a second, incomplete filesystem/glob implementation, so it admits floors for files absent from Vitest's measured report. Existing excluded-config reproduction confirms the drift. Confidence 0.99.
+**Options:** A (selected): validate floors against the actual fresh `coverage-final.json` after Vitest; delete the parallel filesystem walk, custom glob parser and mirrored exclusions. Moderate effort, low risk, reversible, no runtime impact. B: share include/exclude arrays and reproduce Vitest matching; more retained policy/matcher coupling and still no proof that a file was measured. The timing tradeoff is that unenforceable floors fail after coverage generation rather than before the suite.
+**Prediction:** Excluded-only and phantom floors fail; missing/empty reports fail visibly; real measured glob matches and all earned floors still pass. Root App/MainApp appear in measured product scope without inventing or lowering a floor. Use Vitest's existing picomatch semantics, declaring the already-installed dev dependency instead of a custom parser.
+**Files:** validator and its existing regressions, package scripts/lock, coverage policy and baseline notes, WORKLOG/Issues. No product feature, threshold reduction or new review automation. Fallback: hold #165 and retain main's existing coverage until exact report/CI evidence passes.
+
 ### [2026-09-06 19:37 MUT] [Agent: Codex]
 **Status:** Reviewing approved debt-policy PR #168 against merged main.
 **Worktree:** `/private/tmp/LexiconForge.worktrees/codex-debt-policy`, `docs/codex-attentional-policy`. Only WORKLOG conflicts; retain both histories. Policy text remains byte-identical to `d2cbb56`; no application/config/test edits.
@@ -4234,3 +4257,9 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Status:** Refreshing #177's source-ready owner-window client against consolidated main; release gates remain open.
 **Files:** Issues, WORKLOG, semantic acceptance checklist and debt inbox retain both append-only histories; the duplicated owner-window status sentence uses main's current PR wording. Application files merge automatically. Compare the owner-window files to independently approved `17d6b1c`, run focused integration tests and refresh CI before publishing the handoff.
 **Boundary:** No backend publication, host mutation, authorization change, index build or deployment. Compatible backend release prerequisites, complete corpus and physical-device acceptance remain separate. Confidence 0.98 for unchanged-source integration; hold only this lane if tests disagree.
+
+### [2026-09-06 19:56 MUT] [Agent: Codex]
+**Status:** CONS-02 repair passes 33 focused tests; complete measured coverage running.
+**Files:** `scripts/ci/validate-coverage-policy.mjs` falls from 85 to 59 lines by deleting filesystem traversal, custom regex globs and copied exclusions; the fresh measured report determines floor applicability. Package `verify:test` runs coverage first; `picomatch` 4.0.4 is already installed/transitive and now directly declared (lockfile delta one line). Coverage policy adds root App/MainApp without changing any earned threshold. Existing regression file, baseline notes and Issues CONS-02 retain the new contract.
+**Evidence:** Four original red cases reproduced excluded-file admission, ignored missing/empty reports and rejected valid globstar/brace patterns. Multi-file report fixtures then caught accidental passing of array indices into picomatch's return-object parameter; an explicit one-argument callback fixes it. Canonical fixture paths avoid macOS `/var` versus `/private/var` aliases. Nine policy regressions and 24 repair-service behavior tests now pass on Node 24.19. No suppressed assertion or threshold reduction.
+**Limits/next:** Full measured report, excluded-floor proof against that real report, independent source review and fresh CI remain required. Removed unrelated npm lockfile churn; no new package bytes or runtime dependency.

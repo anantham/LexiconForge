@@ -1,0 +1,78 @@
+{
+  "$comment": [
+    "Coverage policy \u2014 single source of truth (CI PR-2, CORE-013 programme).",
+    "Consumed by vitest.config.ts (thresholds) and scripts/ci/validate-coverage-policy.mjs.",
+    "Rules: floors are EARNED by tests, never lowered to reach green.",
+    "'global' is baseline-only (0) until the full-surface measurement from CI",
+    "is accepted; raising it is an ADR-noteworthy event."
+  ],
+  "perFile": true,
+  "global": {
+    "lines": 0,
+    "functions": 0,
+    "branches": 0,
+    "statements": 0
+  },
+  "entries": [
+    {
+      "glob": "components/diff/**",
+      "lines": 95,
+      "functions": 95,
+      "owner": "diff lane"
+    },
+    {
+      "glob": "components/ChapterView.tsx",
+      "lines": 30,
+      "functions": 15,
+      "owner": "reader core"
+    },
+    {
+      "glob": "adapters/providers/OpenAIAdapter.ts",
+      "lines": 50,
+      "functions": 40,
+      "owner": "providers"
+    },
+    {
+      "glob": "adapters/providers/GeminiAdapter.ts",
+      "lines": 50,
+      "functions": 40,
+      "owner": "providers"
+    },
+    {
+      "glob": "adapters/providers/ClaudeAdapter.ts",
+      "lines": 50,
+      "functions": 40,
+      "owner": "providers"
+    },
+    {
+      "glob": "services/diff/DiffAnalysisService.ts",
+      "lines": 70,
+      "functions": 60,
+      "owner": "diff lane"
+    },
+    {
+      "glob": "services/translate/HtmlSanitizer.ts",
+      "lines": 80,
+      "functions": 80,
+      "owner": "translate hygiene"
+    },
+    {
+      "glob": "services/translate/HtmlRepairService.ts",
+      "lines": 75,
+      "functions": 75,
+      "owner": "translate hygiene",
+      "note": "floor earned 2026-08-23: was 53.7/72.7, behavior tests added (PR-2)"
+    }
+  ],
+  "include": [
+    "services/**",
+    "adapters/**",
+    "store/**",
+    "hooks/**",
+    "utils/**",
+    "components/**",
+    "types.ts",
+    "App.tsx",
+    "MainApp.tsx"
+  ]
+}

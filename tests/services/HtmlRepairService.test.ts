@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { HtmlRepairService } from '../../services/translate/HtmlRepairService';
 
 const repair = (input: string) => HtmlRepairService.repair(input, { enabled: true, verbose: false }).html;
@@ -111,5 +111,72 @@ describe('HtmlRepairService.repair', () => {
     const output = repair(input);
     // First normalizes <hr /> to <hr>, then adds spacing
     expect(output).toContain('sighed.<br><br><hr><br><br>The battle');
+  });
+});
+
+
+/**
+ * Behavior coverage added 2026-08-23 (CI PR-2): earns the 75% per-file floor
+ * by exercising public API paths that had zero coverage — disabled rules,
+ * verbose logging, validate/preview/rules-list helpers, hr edge spacing, and
+ * entity decoding. Note: decode-html-entities' comment says "DISABLED BY
+ * DEFAULT" but it runs like every rule; tests pin ACTUAL behavior until that
+ * discrepancy is adjudicated.
+ */
+describe('HtmlRepairService — API surface behavior', () => {
+  it('skips rules listed in disabledRules', () => {
+    const input = 'text<hr>more';
+    const enabled = HtmlRepairService.repair(input);
+    expect(enabled.stats.applied.join(' ')).toContain('hr');
+    const disabled = HtmlRepairService.repairWithDisabledRules(input, ['space-hr-edges', 'space-hr-tags', 'normalize-hr', 'dedupe-hr-tags']);
+    expect(disabled.stats.applied.join(' ')).not.toMatch(/\bhr\b/i);
+    expect(disabled.html).toBe(input);
+  });
+
+  it('verbose mode logs applied repairs', () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    try {
+      const { stats } = HtmlRepairService.repair('text<hr>more', { enabled: true, verbose: true });
+      expect(stats.applied.length).toBeGreaterThan(0);
+      expect(logSpy).toHaveBeenCalled();
+    } finally {
+      logSpy.mockRestore();
+    }
+  });
+
+  it('validate reports repairs without returning html', () => {
+    const stats = HtmlRepairService.validate('<hr>');
+    expect(stats.applied.length).toBeGreaterThan(0);
+  });
+
+  it('getRepairPreview reports clean and dirty HTML distinctly', () => {
+    expect(HtmlRepairService.getRepairPreview('<p>clean</p>')).toContain('No issues found');
+    expect(HtmlRepairService.getRepairPreview('<p>a</p><hr><p>b</p>')).toContain('Repairs that will be applied');
+  });
+
+  it('getAvailableRules returns the expected rule names', () => {
+    const names = HtmlRepairService.getAvailableRules().map(r => r.name);
+    for (const expected of ['space-hr-tags', 'space-hr-edges', 'fix-short-dangling-closers', 'decode-html-entities']) {
+      expect(names).toContain(expected);
+    }
+  });
+
+  it('adds spacing when <hr> sits at a line edge (before branch)', () => {
+    expect(repair('end of text<hr>')).toContain('end of text<br><br><hr>');
+  });
+
+  it('adds spacing when <hr> precedes text (after branch)', () => {
+    expect(repair('<hr>Start of text')).toContain('<hr><br><br>Start of text');
+  });
+
+  it('decodes HTML entities and records the count', () => {
+    const { html, stats } = HtmlRepairService.repair('&lt;b&gt;bold&lt;/b&gt; &amp; more');
+    expect(html).toContain('<b>bold</b> & more');
+    expect(stats.applied.some(a => a.includes('HTML entities'))).toBe(true);
+  });
+
+  it('decoding is skippable via disabledRules', () => {
+    const out = HtmlRepairService.repairWithDisabledRules('&lt;i&gt;x&lt;/i&gt;', ['decode-html-entities']);
+    expect(out.html).toContain('&lt;');
   });
 });
