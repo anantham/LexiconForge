@@ -34,6 +34,7 @@
  */
 
 import type { ChapterSummary } from '../types';
+import type { ChapterArtifactReference } from '../types/chapterManifest';
 import type { NovelEntry } from '../types/novel';
 import { fetchVersionChapterManifest } from './library/chapterPublicationResolver';
 import { RegistryService } from './registryService';
@@ -159,11 +160,17 @@ export const buildVirtualCatalog = async (
   }
 
   const version = RegistryService.resolveCompatibleVersion(novel, versionId).version;
-  let chapterNumbers: number[];
+  let chapterIdentities: Array<{
+    chapterNumber: number;
+    artifact?: ChapterArtifactReference;
+  }>;
   if (version?.chapterManifestUrl) {
     try {
       const manifest = await fetchVersionChapterManifest(novel, version);
-      chapterNumbers = manifest.chapters.map((chapter) => chapter.chapterNumber);
+      chapterIdentities = manifest.chapters.map(({ chapterNumber, artifact }) => ({
+        chapterNumber,
+        ...(artifact ? { artifact } : {}),
+      }));
     } catch (error) {
       console.error(
         '[chapterCatalog] Declared chapter manifest rejected; refusing metadata-range fallback',
@@ -178,14 +185,14 @@ export const buildVirtualCatalog = async (
       cache.set(key, []);
       return [];
     }
-    chapterNumbers = Array.from(
+    chapterIdentities = Array.from(
       { length: range.to - range.from + 1 },
-      (_, index) => range.from + index
+      (_, index) => ({ chapterNumber: range.from + index })
     );
   }
 
   const entries: ChapterSummary[] = [];
-  for (const n of chapterNumbers) {
+  for (const { chapterNumber: n, artifact } of chapterIdentities) {
     entries.push({
       stableId: buildVirtualStableId(novelId, n),
       canonicalUrl: buildCanonicalUrl(novelId, n),
@@ -193,6 +200,7 @@ export const buildVirtualCatalog = async (
       chapterNumber: n,
       hasTranslation: false,
       hasImages: false,
+      ...(artifact ? { publicationArtifact: artifact } : {}),
     });
   }
 

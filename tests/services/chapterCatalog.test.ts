@@ -202,7 +202,16 @@ describe('buildVirtualCatalog', () => {
       publishedChapterCount: 3,
       chapters: [
         { chapterNumber: 1, stableId: 'one', canonicalUrl: 'https://source/1' },
-        { chapterNumber: 2, stableId: 'two', canonicalUrl: 'https://source/2' },
+        {
+          chapterNumber: 2,
+          stableId: 'two',
+          canonicalUrl: 'https://source/2',
+          artifact: {
+            url: 'https://source/chapter-000002.json',
+            sha256: 'a'.repeat(64),
+            byteLength: 123,
+          },
+        },
         { chapterNumber: 4, stableId: 'four', canonicalUrl: 'https://source/4' },
       ],
     });
@@ -210,6 +219,11 @@ describe('buildVirtualCatalog', () => {
     const entries = await buildVirtualCatalog('manifested', 'v1');
 
     expect(entries.map((entry) => entry.chapterNumber)).toEqual([1, 2, 4]);
+    expect(entries[0].publicationArtifact).toBeUndefined();
+    expect(entries[1].publicationArtifact).toMatchObject({
+      url: 'https://source/chapter-000002.json',
+      byteLength: 123,
+    });
     expect(fetchChapterManifestMock).toHaveBeenCalledWith(
       'https://example.com/manifested/chapter-manifest.json',
       expect.objectContaining({ novelId: 'manifested', versionId: 'v1' })

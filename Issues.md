@@ -264,11 +264,11 @@ Receipt: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 native Safari QA.
 
 ## Consolidation pickup queue — 2026-09-06
 
-Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. First five PRs (#174/#173/#175/#176/#160) are merged through `eb97601`; exact-head CI and source/production-browser verification pass. Merge records belong in WORKLOG.
+Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. First five PRs (#174/#173/#175/#176/#160) are merged through `eb97601`; chapter foundations #169/#170/#171 are merged through `f200274`. #172 is independently reviewed with 137 focused tests and four production browser cases passing; final main-targeted CI and package activation follow. Merge records belong in WORKLOG.
 
 ### CONS-01 — Give changed chapter artifacts distinct addresses
 
-- **Status:** Repaired locally in #171; independent review, fresh CI and companion package publication pending. Original subject `3a7fee9`; confidence 0.99.
+- **Status:** App repair merged in #171 at `f200274` after independent review and fresh CI; companion package #4 is reviewed and awaits publication. Original subject `3a7fee9`; confidence 0.99.
 - **Files / evidence:** `scripts/lib/chapter-artifact-builder.ts:23,44,58` derives names without content/version identity; `scripts/build-library-session.ts:88` overwrites them. A Node 24.19 probe of the actual builder gives two changed versions/revisions the same URL with different hashes. Old manifests then fail integrity checks.
 - **Candidate / done when:** Prefer digest filenames and manifest-last publication; retain old referenced artifacts. Prove identical bytes keep their address, changed bytes get another address, and both old/new manifests still retrieve hash-valid bytes. Keep directory safety, version checks and full-session compatibility. Hold artifact publication until repaired.
 
@@ -303,8 +303,20 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 - **Files / evidence:** `components/oscilloscope/OscilloscopeGraph.tsx:299` configures uPlot while the panel also renders its own thread labels. Both screenshots show a separate unlabelled red outline below the chart, above the useful Trust chip.
 - **Done when:** Inspect the generated DOM and existing legend configuration; remove the redundant output if the custom thread controls already supply its purpose. Preserve thread visibility controls and hover values. The visual symptom is confirmed; its exact DOM/CSS cause is not yet verified.
 
+### CONS-05 — Prevent late chapter downloads from changing another reader scope
+
+- **Status:** Reproduced on #172 `5c2c753`; repair independently approved, 137 combined tests and three production scope-race cases pass. Final main-targeted CI/merge pending.
+- **Evidence/files:** A held chapter download followed by a book switch reopened the old chapter under the new novel/version. `store/slices/chaptersSlice.ts` applied hydration and navigation without checking the current scope; `services/navigation/index.ts` persisted before the caller could reject a stale result.
+- **Correction / done when:** Commit accepted navigation once in the store; reject cross-scope hydration and late results. Production browser regressions cover book/version/library changes. Verify current-scope downloads, cached navigation and durable history as well before merging #172.
+
 ### CONS-06 — Publish byte URLs rather than GitHub LFS pointer URLs
 
-- **Status:** Independent review finding reproduced and repaired locally in #171; follow-up review/CI pending.
+- **Status:** App repair merged in #171 at `f200274` after independent follow-up approval and fresh CI; companion #4 gate is approved and awaits publication.
 - **Evidence/files:** Default session URLs from `scripts/lib/library-session-builder.ts` were raw GitHub URLs, but registry normalization changed only metadata to media, breaking exact manifest URL validation. Chapter URLs from the builder also targeted raw LFS pointers.
 - **Correction / done when:** Reuse the existing GitHub media conversion for byte artifacts, keep manifest/metadata URLs raw and keep strict equality. The actual default CLI -> RegistryService -> manifest test passes. Companion #4 must reject known LFS pointer URLs and retain all old chapter files.
+
+### CONS-07 — Retain the selected book when reopening a full backup without a graph
+
+- **Status:** Open; real package QA finding, separate export/import follow-up.
+- **Evidence:** Two genuinely published Dungeon Defense chapters downloaded/read in `v1-primary` export successfully. Offline native-file reimport preserves two readable chapters but returns `activeNovelId=null`, `activeVersionId=null`. The frozen-graph path has separate corpus-based selection; do not infer this ordinary-backup case from those tests.
+- **Files / done when:** Trace `store/slices/exportSlice.ts`, `services/db/operations/export.ts`, and `store/bootstrap/importSessionData.ts`. Preserve selected book/version on full-backup reopen without reassigning unrelated or explicitly unscoped chapters. Cover mixed-book backups, legacy null scopes, and both graph/no-graph cases. Keep the failing real-package assertion until fixed.

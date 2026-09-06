@@ -15,10 +15,14 @@ import { getRepoForService } from '../db/index';
 import { normalizeUrlAggressively } from '../stableIdService';
 import type { EnhancedChapter } from '../stableIdService';
 import type { TranslationSettingsSnapshot } from '../../types';
-import { ChapterOps, TranslationOps, SettingsOps, NavigationOps } from '../db/operations';
+import { ChapterOps, TranslationOps, SettingsOps } from '../db/operations';
 import { telemetryService } from '../telemetryService';
 import { parseInternalChapterUrl } from '../chapterCatalog';
 import { selectLatestChapterRevision } from '../chapterRevisionService';
+import {
+  acquirePublishedChapter,
+  TargetedChapterAcquisitionError,
+} from '../library/targetedChapterAcquisitionService';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { adaptTranslationRecordToResult } from './converters';
 import { validateNavigation } from './validation';
@@ -125,11 +129,7 @@ export class NavigationService {
             const loaded = await loadChapterFromIDBCallback(found.stableId);
             if (loaded) {
               const newHistory = [...new Set(navigationHistory.concat(found.stableId))];
-              NavigationOps.persistHistory({ stableIds: newHistory });
-              NavigationOps.persistLastActiveChapter({
-                id: found.stableId,
-                url: loaded.canonicalUrl,
-              });
+
               telemetryMeta.outcome = 'idb_hydrated_via_chapter_number';
               telemetryMeta.chapterId = found.stableId;
               telemetryMeta.hydratedTranslation = Boolean(loaded.translationResult);
@@ -139,6 +139,46 @@ export class NavigationService {
                 shouldUpdateBrowserHistory: true,
                 navigationHistory: newHistory,
               };
+            }
+          }
+
+          if (activeNovelId && lookupVersionId) {
+            try {
+              const acquired = await acquirePublishedChapter({
+                novelId: activeNovelId,
+                versionId: lookupVersionId,
+                chapterNumber: internalTarget.chapterNumber,
+                loadChapterFromIDB: loadChapterFromIDBCallback,
+              });
+              const newHistory = [...new Set(navigationHistory.concat(acquired.chapterId))];
+
+              telemetryMeta.outcome = 'targeted_chapter_acquired';
+              telemetryMeta.chapterId = acquired.chapterId;
+              return {
+                chapterId: acquired.chapterId,
+                chapter: acquired.chapter,
+                shouldUpdateBrowserHistory: true,
+                navigationHistory: newHistory,
+              };
+            } catch (error) {
+              if (
+                error instanceof TargetedChapterAcquisitionError &&
+                error.code === 'artifact_acquisition_failed'
+              ) {
+                console.error('[Navigate] Targeted chapter acquisition failed', {
+                  url,
+                  novelId: activeNovelId,
+                  versionId: lookupVersionId,
+                  chapterNumber: internalTarget.chapterNumber,
+                  error,
+                });
+                telemetryMeta.outcome = 'chapter_acquisition_failed';
+                telemetryMeta.reason = error.message;
+                return { error: error.message, errorCode: 'chapter_acquisition_failed' };
+              }
+              if (!(error instanceof TargetedChapterAcquisitionError)) {
+                throw error;
+              }
             }
           }
 
@@ -206,13 +246,6 @@ export class NavigationService {
             currentChapter: chapterId
           });
         }
-
-        // Persist navigation state (NavigationOps owns these keys and logs failures)
-        NavigationOps.persistHistory({ stableIds: newHistory });
-        NavigationOps.persistLastActiveChapter({
-          id: chapterId,
-          url: chapters.get(chapterId)?.canonicalUrl || url,
-        });
 
         slog(`[Navigate] Found existing chapter ${chapterId} for URL ${url}.`);
 
@@ -296,10 +329,6 @@ export class NavigationService {
                 currentChapter: chapterId
               });
             }
-
-            // Persist navigation state (NavigationOps owns these keys and logs failures)
-            NavigationOps.persistHistory({ stableIds: newHistory });
-            NavigationOps.persistLastActiveChapter({ id: chapterId, url: loaded.canonicalUrl });
 
             slog(`[Navigate] Hydrated chapter ${chapterId} from IndexedDB.`);
             telemetryMeta.outcome = 'idb_hydrated';
@@ -466,9 +495,6 @@ export class NavigationService {
 
             const newHistory = [...new Set(navigationHistory.concat(chapterIdFound))];
 
-            // Persist navigation state (NavigationOps owns these keys and logs failures)
-            NavigationOps.persistLastActiveChapter({ id: chapterIdFound, url: canonicalUrl });
-            NavigationOps.persistHistory({ stableIds: newHistory });
 
             slog(`[Navigate] Found chapter directly in IndexedDB for URL ${url}.`);
             telemetryMeta.outcome = 'idb_direct_lookup';

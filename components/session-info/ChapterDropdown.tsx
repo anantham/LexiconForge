@@ -61,6 +61,7 @@ export const ChapterDropdown: React.FC<ChapterDropdownProps> = ({ currentChapter
             styling, so a unicode prefix is the broadest-compatible signal.
           */}
           {chapter.hasTranslation ? '● ' : '· '}{chapter.displayLabel}
+          {chapter.availability === 'remote' ? ' — download on select' : ''}
           {chapter.availability === 'not-cached' ? ' — not cached yet' : ''}
         </option>
       ))}

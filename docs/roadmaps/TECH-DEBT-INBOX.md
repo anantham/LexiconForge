@@ -419,3 +419,9 @@ artifact and cross-language parity evidence:
 [DEBT][UI] IllustrationRouteDialog's static model insertion can overwrite the saved-default annotation for the same ID. Cosmetic; source review found no submission problem. Pickup: Issues.md UI-01.
 
 [DEBT][UI][2026-09-06] Both offline graph screenshots show a separate unlabelled red outline beneath the plot and above the custom thread chip. Inspect uPlot/default legend DOM in `OscilloscopeGraph.tsx` before choosing a deletion; this is a visual observation, not a confirmed cause or scan failure. Pickup: Issues.md UI-02.
+
+[DEBT][NAVIGATION][2026-09-06] Late targeted acquisition crossed reader scopes on #172. Production held-response repro and local deletion-based correction: Issues.md CONS-05. Existing general source fetching and same-scope overlapping requests need separate measured request-ownership review; no new request coordinator added here.
+
+[DEBT][LATENCY][2026-09-06] `hooks/useChapterDropdownOptions.ts` eagerly creates full chapter diagnostics and uses `summaries.some` inside the considered-ID filter even when debug logging is disabled. `services/navigation/hydration.ts` emits detailed translation logs unconditionally. Measure a representative large catalog, then delete unused diagnostic payloads or gate their construction using existing debug controls; avoid adding observers or caching. Do not mix this into the chapter-publication correction.
+
+[DEBT][IMPORT][2026-09-06] Actual published two-chapter export/offline native-file reopen loses active novel/version selection while retaining readable scoped rows. Synthetic graph-backed selection is a different path. Pickup and acceptance: Issues.md CONS-07. Do not add top-level novel defaults that silently re-scope unrelated or legacy-null chapter rows.

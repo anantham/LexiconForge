@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ChapterDropdown } from '../../../components/session-info/ChapterDropdown';
 
 const { handleNavigateMock } = vi.hoisted(() => ({
@@ -40,6 +40,17 @@ vi.mock('../../../hooks/useChapterDropdownOptions', () => ({
         displayNumber: 2,
         availability: 'not-cached',
       },
+      {
+        stableId: 'virtual:novel:3',
+        canonicalUrl: 'lexiconforge://novel/chapter/3',
+        title: 'Chapter 3',
+        chapterNumber: 3,
+        hasTranslation: false,
+        hasImages: false,
+        displayLabel: 'Chapter 3',
+        displayNumber: 3,
+        availability: 'remote',
+      },
     ],
   }),
 }));
@@ -50,5 +61,14 @@ describe('ChapterDropdown availability', () => {
 
     expect(screen.getByRole('option', { name: /Chapter 1/ })).toBeEnabled();
     expect(screen.getByRole('option', { name: /Chapter 2.*not cached yet/i })).toBeDisabled();
+    expect(screen.getByRole('option', { name: /Chapter 3.*download on select/i })).toBeEnabled();
+  });
+
+  it('navigates to an enabled remote artifact identity', () => {
+    render(<ChapterDropdown currentChapterId="ready-1" />);
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'virtual:novel:3' } });
+
+    expect(handleNavigateMock).toHaveBeenCalledWith('lexiconforge://novel/chapter/3');
   });
 });

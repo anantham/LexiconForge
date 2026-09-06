@@ -14,7 +14,7 @@ import type { StoreState } from '../storeTypes';
 import type { EnhancedChapter, NovelInfo } from '../../services/stableIdService';
 import { normalizeUrlAggressively, transformImportedChapters } from '../../services/stableIdService';
 import { NavigationService, type NavigationContext } from '../../services/navigationService';
-import { ChapterOps, ImportOps } from '../../services/db/operations';
+import { ChapterOps, ImportOps, NavigationOps } from '../../services/db/operations';
 import type { ImportedChapter } from '../../types';
 import { BookshelfStateService } from '../../services/bookshelfStateService';
 import { validateApiKey } from '../../services/ai/apiKeyValidation';
@@ -206,6 +206,12 @@ export const createChaptersSlice: StateCreator<
     };
 
     const chapter = await NavigationService.loadChapterFromIDB(chapterId, updateHydratingState);
+
+    if (chapter && ((get().activeNovelId ?? null) !== (chapter.novelId ?? null)
+      || (get().activeVersionId ?? null) !== (chapter.libraryVersionId ?? null))) {
+      debugLog('navigation', 'summary', '[ChaptersSlice] Ignoring hydration outside the active book/version', { chapterId });
+      return null;
+    }
 
     if (chapter) {
       // Add to chapters map. Merge with any existing entry so in-memory-only
@@ -400,6 +406,11 @@ export const createChaptersSlice: StateCreator<
     );
     
     const result = await NavigationService.handleNavigate(url, context, get().loadChapterFromIDB);
+    if ((get().activeNovelId ?? null) !== context.scope?.novelId
+      || (get().activeVersionId ?? null) !== context.scope?.versionId) {
+      debugLog('navigation', 'summary', '[ChaptersSlice] Ignoring navigation after book/version changed', { url });
+      return;
+    }
     debugLog(
       'navigation',
       'summary',
@@ -468,6 +479,12 @@ export const createChaptersSlice: StateCreator<
 
         return updates;
       });
+
+      // Persist only the navigation that was accepted by the active reader.
+      if (result.navigationHistory) {
+        NavigationOps.persistHistory({ stableIds: result.navigationHistory });
+      }
+      NavigationOps.persistLastActiveChapter({ id: result.chapterId, url: result.chapter.canonicalUrl });
 
       // Update browser history if needed
       if (result.shouldUpdateBrowserHistory && result.chapter) {

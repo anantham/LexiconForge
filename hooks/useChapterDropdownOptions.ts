@@ -99,7 +99,7 @@ export interface ChapterDropdownOption extends ChapterSummary {
   displayNumber: number | null;
   // Virtual registry rows stay visible for orientation, but are not actionable
   // until an imported chapter summary or in-memory chapter replaces them.
-  availability: 'ready' | 'not-cached';
+  availability: 'ready' | 'remote' | 'not-cached';
 }
 
 export interface UseChapterDropdownOptionsResult {
@@ -305,7 +305,9 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
             ...summary,
             displayLabel,
             displayNumber,
-            availability: isVirtualStableId(summary.stableId) ? 'not-cached' : 'ready',
+            availability: isVirtualStableId(summary.stableId)
+              ? (summary.publicationArtifact ? 'remote' : 'not-cached')
+              : 'ready',
           };
         });
 
