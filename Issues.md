@@ -302,3 +302,9 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 - **Status:** Open; non-blocking visual QA finding from desktop and Pixel-emulated offline graph screenshots.
 - **Files / evidence:** `components/oscilloscope/OscilloscopeGraph.tsx:299` configures uPlot while the panel also renders its own thread labels. Both screenshots show a separate unlabelled red outline below the chart, above the useful Trust chip.
 - **Done when:** Inspect the generated DOM and existing legend configuration; remove the redundant output if the custom thread controls already supply its purpose. Preserve thread visibility controls and hover values. The visual symptom is confirmed; its exact DOM/CSS cause is not yet verified.
+
+### CONS-05 — Prevent late chapter downloads from changing another reader scope
+
+- **Status:** Reproduced on #172 `5c2c753`; locally repaired, review/CI pending.
+- **Evidence/files:** A held chapter download followed by a book switch reopened the old chapter under the new novel/version. `store/slices/chaptersSlice.ts` applied hydration and navigation without checking the current scope; `services/navigation/index.ts` persisted before the caller could reject a stale result.
+- **Correction / done when:** Commit accepted navigation once in the store; reject cross-scope hydration and late results. Production browser regressions cover book/version/library changes. Verify current-scope downloads, cached navigation and durable history as well before merging #172.
