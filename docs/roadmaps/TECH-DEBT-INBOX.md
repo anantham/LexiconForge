@@ -333,6 +333,20 @@ without introducing full-book hashing on each store update.
 [DEBT][MUTATION] `components/session-info/VersionSelector.tsx:40` uses in-place `versions.sort()`
 on its input. Check cross-component array reuse before a scoped correction.
 
+
+## 2026-09-05 latency pass
+
+[DEBT][LEGACY][DUPLICATION] App-shell subscriptions and repeated discovery
+- `MainApp.tsx` retains unused store subscriptions/ref/memo after auto-translation moved to the store; both settings panels force discovery despite the service's endpoint cache.
+- Pickup tickets with evidence and acceptance: [LAT-02](../../Issues.md#lat-02--delete-abandoned-app-shell-subscriptions-and-scaffolding), [LAT-03](../../Issues.md#lat-03--stop-rediscovering-an-unchanged-broker-on-every-settings-panel-visit).
+
+[DEBT][TEST] Validation and local QA gaps
+- Missing React declarations weaken JSX type checks; a wrong-endpoint UI test asserts no fetch before the 300ms fetch window. Worktree LFS filtering and a fixed dev-server E2E config complicate reproducible production checks.
+- Pickup tickets: [QA-01](../../Issues.md#qa-01--restore-meaningful-react-type-checking), [QA-02](../../Issues.md#qa-02--make-wrong-endpoint-coverage-actually-observe-the-debounce-window), [QA-03](../../Issues.md#qa-03--reproducible-worktree-and-production-browser-verification).
+
+[DEBT][DUPLICATION] Shared provenance panel carries MN10-specific copy
+- `components/sutta-studio/AboutThisText.tsx:67-69` calls every packet Satipatthana regardless of its actual work ID.
+- Pickup ticket: [COPY-01](../../Issues.md#copy-01--remove-the-hardcoded-sutta-title-from-shared-provenance-ui). Recorded without expanding the route-loading patch.
 [DEBT][TEST][2026-09-05] Copied marker-insertion implementation
 - `tests/store/slices/illustration-marker-insertion.test.ts:14` reimplements the
   production algorithm, so the suite can stay green when the real action breaks.
@@ -409,3 +423,23 @@ actual browser fixture emitted one capability GET. Current corpus state is not
 recreated on ordinary renders. Before changing dependencies or caching readiness,
 record repeated requests for one unchanged corpus and preserve endpoint/selection
 invalidation. Unused refresh state is deleted. Pickup: Issues.md 22.
+
+## 2026-09-06 consolidation review
+
+[DEBT][PUBLICATION] #171 artifact names omit changed-byte identity; republishing overwrites files still referenced by old manifests. Actual builder probe reproduces same URL/different SHA. Files and publication acceptance: Issues.md CONS-01. Blocks #172 artifact release too.
+
+[DEBT][TEST] #165's manual coverage exclusions drift from Vitest; an excluded configuration file passes its floor validator. Share the effective scope and delete the no-op mapping. Probe and acceptance: Issues.md CONS-02.
+
+[DEBT][PROCESS] #164's receipt schema rejects four real approvals because producer/validator key names differ; controller bootstrap and duplicate ADR numbering are separate problems. Defer automation; Issues.md CONS-03.
+
+[DEBT][COORDINATION] WORKLOG alone conflicts across five original PRs and the reader/QA merge. Preserve both histories while consolidating; evaluate existing task receipts afterward, without a synchronization service. Issues.md CONS-04.
+
+[DEBT][UI] IllustrationRouteDialog's static model insertion can overwrite the saved-default annotation for the same ID. Cosmetic; source review found no submission problem. Pickup: Issues.md UI-01.
+
+[DEBT][UI][2026-09-06] Both offline graph screenshots show a separate unlabelled red outline beneath the plot and above the custom thread chip. Inspect uPlot/default legend DOM in `OscilloscopeGraph.tsx` before choosing a deletion; this is a visual observation, not a confirmed cause or scan failure. Pickup: Issues.md UI-02.
+
+[DEBT][NAVIGATION][2026-09-06] Late targeted acquisition crossed reader scopes on #172. Production held-response repro and local deletion-based correction: Issues.md CONS-05. Existing general source fetching and same-scope overlapping requests need separate measured request-ownership review; no new request coordinator added here.
+
+[DEBT][LATENCY][2026-09-06] `hooks/useChapterDropdownOptions.ts` eagerly creates full chapter diagnostics and uses `summaries.some` inside the considered-ID filter even when debug logging is disabled. `services/navigation/hydration.ts` emits detailed translation logs unconditionally. Measure a representative large catalog, then delete unused diagnostic payloads or gate their construction using existing debug controls; avoid adding observers or caching. Do not mix this into the chapter-publication correction.
+
+[DEBT][IMPORT][2026-09-06] Actual published two-chapter export/offline native-file reopen loses active novel/version selection while retaining readable scoped rows. Synthetic graph-backed selection is a different path. Pickup and acceptance: Issues.md CONS-07. Do not add top-level novel defaults that silently re-scope unrelated or legacy-null chapter rows.

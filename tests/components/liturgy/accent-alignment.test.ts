@@ -25,7 +25,10 @@ import { LITURGY_DOCS_BY_SANGHA } from '../../../data/liturgy';
 import type { LiturgyDoc, TripleScriptWitnessSection } from '../../../types/liturgy';
 // Canonical tokenizers (mirror the renderer's word class), shared so the
 // Pāli regex can't drift between this audit and the renderer/generator.
-import { tokenizePali, tokenizeEnglish } from '../../../services/liturgy/validation';
+import {
+  tokenizeSegmentPali,
+  tokenizeEnglish,
+} from '../../../services/liturgy/validation';
 
 function strip(w: string): string {
   return w.toLowerCase().replace(/[.,;:!?'"()—–\-]/g, '');
@@ -78,7 +81,7 @@ describe('accent / alignment audit', () => {
       for (const segment of section.segments) {
         if (!segment.words) continue;
         const wordIdx = new Map(segment.words.map((w) => [w.form, w]));
-        const paliTokens = tokenizePali(segment.pali);
+        const paliTokens = tokenizeSegmentPali(segment);
 
         paliTokens.forEach((tok, _paliIdx) => {
           const w = wordIdx.get(tok);

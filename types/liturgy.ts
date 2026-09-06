@@ -20,6 +20,20 @@ export type SectionShape =
   | 'dedication-formula'      // Romaji + kanji/script + multiple renderings + tradition note
   | 'prose-commentary';       // Pure prose block — section header / framing text
 
+/**
+ * Explicit fine-grained target for one English witness token.
+ *
+ * `alignTo` remains the word-level bridge. This optional second layer says
+ * whether a reviewed token should stay at that whole word, land on an exact
+ * surface morpheme, or land on a semantic/grammatical analysis unit. Omitting
+ * a target is safe: the renderer uses the whole word and never guesses a
+ * morpheme from English token order.
+ */
+export type TokenAlignmentTarget =
+  | { kind: 'word' }
+  | { kind: 'morpheme'; index: number }
+  | { kind: 'analysis'; unitId: string };
+
 export type Witness = {
   /** Who renders it this way — institution name, translator, or compiler. */
   by: string;
@@ -41,19 +55,34 @@ export type Witness = {
    */
   alignTo?: number[];
   /**
-   * Optional per-token morpheme target. Parallel-indexed to `alignTo`.
+   * Legacy per-token surface-morpheme target, parallel-indexed to `alignTo`.
    * `morphemeAlignTo[i]` is the morpheme index (within the Pāli word that
    * `alignTo[i]` points to) that English word `i` should anchor its arrow
-   * to. `null`/absent → the renderer falls back to its positional heuristic
-   * (i-th English token mapped to a word → i-th morpheme).
+   * to. `null`/absent now falls back safely to the whole Pāli word; the
+   * renderer never infers a morpheme from English token order.
    *
    * Why this exists: when English reorders the morphemes of a Pāli word,
-   * the positional heuristic crosses the arrows. Example: `kusalena` =
+   * positional guesses used to cross the arrows. Example: `kusalena` =
    * `kusal` (skilled) + `ena` (by-an-agent); Amaravati renders it "one …
    * skilled", reversing the order, so the heuristic sends `kusal`'s arrow
    * to "one". Authoring `morphemeAlignTo` fixes the pairing explicitly.
    */
   morphemeAlignTo?: (number | null)[];
+  /**
+   * Reviewed fine-grained targets, parallel-indexed to `alignTo`.
+   *
+   * - `{ kind: 'word' }` records an intentional coarse alignment.
+   * - `{ kind: 'morpheme', index }` targets an exact rendered surface slice.
+   * - `{ kind: 'analysis', unitId }` targets a layered lexical or grammatical
+   *   unit declared on the aligned `WordGloss.analysis` record.
+   * - `null` degrades honestly to the whole aligned word and suppresses any
+   *   legacy morpheme target at that index.
+   *
+   * When this field exists it takes precedence over the complete legacy
+   * `morphemeAlignTo` array. Only a witness with no `tokenAlignTo` field uses
+   * legacy targets.
+   */
+  tokenAlignTo?: (TokenAlignmentTarget | null)[];
 };
 
 /**
@@ -116,6 +145,46 @@ export type WordMorpheme = {
  */
 export type AccentColor = 'sky' | 'amber' | 'rose' | 'violet' | 'emerald';
 
+export type WordAnalysisStatus = 'confirmed' | 'alternative' | 'needs-review';
+
+/**
+ * A meaning-bearing or grammar-bearing unit that may not be an exact
+ * substring of the displayed word. `surfaceMorphemeIndices` points to the
+ * honest surface slices that carry the unit in this form; multiple units may
+ * share a slice when sandhi or fusion prevents a one-to-one character split.
+ */
+export type WordAnalysisUnit = {
+  id: string;
+  layer: 'lexical' | 'grammar';
+  label: string;
+  underlyingForm?: string;
+  gloss: string;
+  surfaceMorphemeIndices: number[];
+  status?: WordAnalysisStatus;
+  note?: string;
+  citations?: import('./suttaStudio').Citation[];
+};
+
+export type WordTransformation = {
+  type: 'sandhi' | 'inflection' | 'phonological';
+  from: string;
+  to: string;
+  note: string;
+  citations?: import('./suttaStudio').Citation[];
+};
+
+/**
+ * Evidence-bounded analysis kept separate from the exact rendered surface.
+ * It records lexical units, grammatical units, and the transformations that
+ * relate their underlying forms to the spelling on the page.
+ */
+export type WordAnalysis = {
+  status: WordAnalysisStatus;
+  units: WordAnalysisUnit[];
+  transformations?: WordTransformation[];
+  note?: string;
+};
+
 export type WordGloss = {
   /** The surface form as it appears in the chant (Pali romanized, kanji, etc.). */
   form: string;
@@ -159,6 +228,11 @@ export type WordGloss = {
    * When absent, the whole word gets a single hover tooltip from etymology+gloss.
    */
   morphemes?: WordMorpheme[];
+  /**
+   * Layered lexical/grammatical analysis. Use this when exact surface
+   * morphemes alone would disguise sandhi, fusion, or an inflectional role.
+   */
+  analysis?: WordAnalysis;
   /**
    * Per-script morpheme breakdowns keyed by BCP-47 lang tag. When the
    * active script matches, the renderer uses this array (instead of

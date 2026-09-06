@@ -123,3 +123,135 @@ could be hidden by translation-specific inline error rules.
 - [CORE-007](./CORE-007-fetch-transport-contract.md)
 - [CORE-012](./CORE-012-background-work-survives-navigation.md)
 - [DB-003](./DB-003-version-centric-data-model.md)
+
+## Amendment: exact publication manifest (2026-08-31)
+
+**Status:** Implemented on the publication-integrity branch; deployment still
+requires review, merge, and publisher-package migration.
+
+The deferred exact package-manifest position is now adopted. A hosted version
+may keep `metadata.chapterCount` as the expected size of the work, but it may
+advertise reader navigation only for identities in its
+`chapter-manifest.json`. The manifest binds each published `chapterNumber`,
+`stableId`, and `canonicalUrl` to the version and binds the complete session
+artifact by URL, byte length, and SHA-256 digest.
+
+A version that declares `chapterManifestUrl` creates a hard boundary. The
+client validates and uses its exact identity list for virtual catalog rows and
+cache completeness. If acquisition or validation fails, the client returns no
+metadata-projected replacement rows and blocks the session import with a
+descriptive error. Versions without the field retain the legacy range contract
+until migrated.
+
+The publisher validator rejects duplicate or unordered chapter numbers,
+duplicate stable IDs, metadata/session/version disagreement, range/count
+disagreement, incomplete versions labelled `Complete`, tuple drift, byte-length
+drift, and checksum drift before output is accepted. It never invents, drops,
+or renumbers an identity.
+
+### Amendment implementation notes
+
+- `types/chapterManifest.ts` defines the versioned manifest and reserves an
+  optional per-chapter artifact reference for the separately reviewed targeted
+  acquisition phase.
+- `services/library/chapterManifestService.ts` owns browser-safe structural and
+  contextual validation. `services/chapterCatalog.ts` consumes exact manifest
+  identities and refuses metadata fallback after a declared-manifest failure.
+- `components/NovelLibrary.tsx` uses the same identity set for package cache
+  completeness before deciding whether to replay a session.
+- `scripts/lib/library-publication-integrity.ts` owns publisher-side tuple,
+  metadata, and session-digest validation. `scripts/build-library-session.ts`
+  emits the manifest, and `scripts/verify-library-publication.ts` verifies an
+  existing three-file publication without rewriting it.
+- Focused regressions cover manifest structure, hostile duplicate/mismatch
+  cases, checksums, registry URL normalization, exact non-contiguous catalog
+  projection, fail-closed behavior, and reader cache/import decisions.
+
+## Amendment: targeted immutable chapter acquisition (2026-08-31)
+
+**Status:** Implemented on stacked Phase C branches; canonical artifact
+publication, review, merge, and deployment remain separate gates.
+
+The previously deferred per-chapter artifact position is adopted for manifested
+versions. Each manifest identity may name a `lexiconforge-chapter-artifact` v1
+envelope containing that exact chapter and its packaged translations. The
+reference binds URL, UTF-8 byte length, and SHA-256. The browser checks all
+three before parsing, checks the novel/version/chapter tuple after parsing, and
+only then writes the scoped chapter through the existing idempotent import path.
+
+Virtual rows become selectable only when their exact identity carries an
+artifact reference. A manifested identity without an artifact remains visible
+and disabled. Integrity, transport, or persistence failures are surfaced as
+typed acquisition errors and never fall through to web scraping. Full-session
+artifacts remain available for compatibility and background bulk acquisition.
+
+The browser refuses individual artifact declarations above 64 MiB before
+fetching. The current Dungeon Defense source audit measured a 29,386,434-byte
+maximum envelope, so this leaves headroom while bounding manifest-driven memory
+use on mobile devices.
+
+### Targeted acquisition implementation notes
+
+- `scripts/lib/chapter-artifact-builder.ts` emits deterministic envelopes and
+  manifest references; `scripts/build-library-session.ts` writes them beneath a
+  traversal-safe directory name.
+- `services/library/chapterArtifactService.ts` owns byte/hash/UTF-8/document
+  validation. `targetedChapterAcquisitionService.ts` owns the registry,
+  manifest, import, and post-write hydration sequence.
+- `services/navigation/index.ts` attempts targeted acquisition only for a
+  strictly parsed internal URL in an exact active novel/version scope.
+- `services/chapterCatalog.ts`, `useChapterDropdownOptions.ts`, and
+  `ChapterDropdown.tsx` distinguish ready, remotely acquirable, and unavailable
+  identities.
+- Focused tests cover byte drift, tuple drift, size/HTTP failures, no-write
+  behavior, scoped import/hydration, scraper non-fallback, and dropdown
+  availability/actionability.
+
+## Amendment: preserve chapter revisions at distinct addresses (2026-09-06)
+
+Chapter artifact filenames include the SHA-256 of their complete serialized
+envelope. Rebuilding identical chapter bytes reuses the address; changing the
+content or novel/version envelope produces a different address. Publishers must
+retain previously referenced chapter files. This corrects CONS-01 without
+changing the manifest format or the compatible full-session output.
+
+### Implementation notes
+
+- `scripts/lib/chapter-artifact-builder.ts` computes the digest once and uses it
+  in both the filename and manifest reference; the chapter-number-only helper
+  was removed.
+- `scripts/build-library-session.ts` finishes chapter artifact output before
+  replacing the session, manifest and metadata. Git/static publication still
+  needs a validated complete snapshot; this is not a filesystem transaction or
+  a promise that old full-session URLs are immutable.
+- `tests/scripts/library-publication-output.test.ts` runs the actual CLI and
+  verifies old/new chapter downloads after content and version revisions,
+  deterministic unchanged output, and unchanged published pointers after an
+  artifact-directory failure.
+
+## Amendment: acquisition completion and byte boundaries (2026-09-06)
+
+- `services/library/chapterArtifactService.ts` rejects chapter-level novel or
+  version overrides that disagree with the envelope before persistence. It
+  enforces observed download bytes, cancels an underdeclared stream, and rejects
+  truncation before hashing/parsing. The existing 64 MiB declaration ceiling
+  also bounds the preallocated receive buffer.
+- `store/slices/chaptersSlice.ts` applies and persists resolved navigation only
+  while its selected novel/version remains current and rejects cross-scope
+  hydration. `services/navigation/index.ts` no longer persists the five
+  intermediate resolution paths. Cached downloads can survive navigation; they
+  cannot choose the reader's new book or translation.
+- The production browser regression `tests/e2e/chapter-acquisition.spec.ts`
+  awaits download, import and hydration after book/version/library changes.
+  Small streamed-response and nested-scope tests cover the validation boundary.
+
+## Amendment: GitHub LFS byte transport (2026-09-06)
+
+The publisher emits media.githubusercontent.com URLs for GitHub session and
+chapter bytes. Plain metadata and manifests remain on raw.githubusercontent.com.
+`services/library/artifactUrl.ts` contains the existing registry conversion,
+shared by the Node builders; no second conversion policy or validation fallback
+was introduced. Exact metadata/manifest session URL equality is preserved.
+The default CLI publication is tested through the real registry normalizer and
+manifest resolver, so a locally valid publication must also survive that client
+contract before it is shipped.

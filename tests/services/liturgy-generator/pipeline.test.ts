@@ -81,4 +81,48 @@ describe('liturgy generator pipeline', () => {
       'liturgy_generator.low_alignment_coverage'
     );
   });
+
+  it.each(['none', 'infer'] as const)(
+    'clears stale reviewed token targets in %s mode',
+    (alignmentMode) => {
+      const input = structuredClone(fixture) as LiturgyGeneratorInput;
+      const section = input.sections[0];
+      if (section.shape !== 'triple-script-witness') {
+        throw new Error('fixture invariant failed: expected triple-script-witness section');
+      }
+      const witness = section.segments[0].witnesses[0];
+      witness.alignmentMode = alignmentMode;
+      witness.tokenAlignTo = [{ kind: 'word' }];
+
+      const result = buildLiturgyDraft(input);
+      const builtSection = result.doc.sections[0];
+      if (builtSection.shape !== 'triple-script-witness') {
+        throw new Error('result invariant failed: expected triple-script-witness section');
+      }
+      expect(builtSection.segments[0].witnesses[0].tokenAlignTo).toBeUndefined();
+    }
+  );
+
+  it('retains reviewed token targets only in preserve mode', () => {
+    const input = structuredClone(fixture) as LiturgyGeneratorInput;
+    const section = input.sections[0];
+    if (section.shape !== 'triple-script-witness') {
+      throw new Error('fixture invariant failed: expected triple-script-witness section');
+    }
+    const witness = section.segments[0].witnesses[0];
+    witness.alignmentMode = 'preserve';
+    witness.alignTo = [2, 1, 1, -1, -1, 0];
+    witness.tokenAlignTo = witness.alignTo.map((paliIndex) =>
+      paliIndex < 0 ? null : { kind: 'word' as const }
+    );
+
+    const result = buildLiturgyDraft(input);
+    const builtSection = result.doc.sections[0];
+    if (builtSection.shape !== 'triple-script-witness') {
+      throw new Error('result invariant failed: expected triple-script-witness section');
+    }
+    expect(builtSection.segments[0].witnesses[0].tokenAlignTo).toEqual(
+      witness.tokenAlignTo
+    );
+  });
 });
