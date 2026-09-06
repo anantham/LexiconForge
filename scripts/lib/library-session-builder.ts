@@ -22,6 +22,7 @@ import type {
 } from './translation-source-types';
 import { findAdapter } from './translation-sources';
 import { createPublicationManifest } from './library-publication-integrity';
+import { toMediaGitHubUrl } from '../../services/library/artifactUrl';
 // The app's identity function — imported, NOT copied (script-built sessions
 // must produce IDs the app reproduces; a comment is not a guard).
 import { generateStableChapterId } from '../../services/stableIdService';
@@ -442,7 +443,7 @@ export const buildHostedLibraryArtifacts = async (
         versionId: manifest.version.versionId,
         displayName: manifest.version.displayName,
         translator: manifest.version.translator,
-        sessionJsonUrl: `${(manifest.output.publicBaseUrl || 'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels').replace(/\/$/, '')}/${manifest.novel.id}/${manifest.output.sessionFileName || 'session.json'}`,
+        sessionJsonUrl: toMediaGitHubUrl(`${(manifest.output.publicBaseUrl || 'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels').replace(/\/$/, '')}/${manifest.novel.id}/${manifest.output.sessionFileName || 'session.json'}`),
         chapterManifestUrl: `${(manifest.output.publicBaseUrl || 'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels').replace(/\/$/, '')}/${manifest.novel.id}/${manifest.output.manifestFileName || 'chapter-manifest.json'}`,
         targetLanguage: manifest.version.targetLanguage,
         style: manifest.version.style,

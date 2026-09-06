@@ -1,3 +1,4 @@
+import { toMediaGitHubUrl } from '../../services/library/artifactUrl';
 import type {
   ChapterArtifactDocument,
   ChapterArtifactReference,
@@ -53,7 +54,7 @@ export const buildChapterArtifacts = ({
       document,
       json,
       reference: {
-        url: `${baseUrl}/${novelId}/${artifactDirectory}/${fileName}`,
+        url: toMediaGitHubUrl(`${baseUrl}/${novelId}/${artifactDirectory}/${fileName}`),
         sha256,
         byteLength: Buffer.byteLength(json, 'utf8'),
       },

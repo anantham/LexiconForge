@@ -308,3 +308,15 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 - **Status:** Reproduced on #172 `5c2c753`; locally repaired, review/CI pending.
 - **Evidence/files:** A held chapter download followed by a book switch reopened the old chapter under the new novel/version. `store/slices/chaptersSlice.ts` applied hydration and navigation without checking the current scope; `services/navigation/index.ts` persisted before the caller could reject a stale result.
 - **Correction / done when:** Commit accepted navigation once in the store; reject cross-scope hydration and late results. Production browser regressions cover book/version/library changes. Verify current-scope downloads, cached navigation and durable history as well before merging #172.
+
+### CONS-06 — Publish byte URLs rather than GitHub LFS pointer URLs
+
+- **Status:** Independent review finding reproduced and repaired locally in #171; follow-up review/CI pending.
+- **Evidence/files:** Default session URLs from `scripts/lib/library-session-builder.ts` were raw GitHub URLs, but registry normalization changed only metadata to media, breaking exact manifest URL validation. Chapter URLs from the builder also targeted raw LFS pointers.
+- **Correction / done when:** Reuse the existing GitHub media conversion for byte artifacts, keep manifest/metadata URLs raw and keep strict equality. The actual default CLI -> RegistryService -> manifest test passes. Companion #4 must reject known LFS pointer URLs and retain all old chapter files.
+
+### CONS-07 — Retain the selected book when reopening a full backup without a graph
+
+- **Status:** Open; real package QA finding, separate export/import follow-up.
+- **Evidence:** Two genuinely published Dungeon Defense chapters downloaded/read in `v1-primary` export successfully. Offline native-file reimport preserves two readable chapters but returns `activeNovelId=null`, `activeVersionId=null`. The frozen-graph path has separate corpus-based selection; do not infer this ordinary-backup case from those tests.
+- **Files / done when:** Trace `store/slices/exportSlice.ts`, `services/db/operations/export.ts`, and `store/bootstrap/importSessionData.ts`. Preserve selected book/version on full-backup reopen without reassigning unrelated or explicitly unscoped chapters. Cover mixed-book backups, legacy null scopes, and both graph/no-graph cases. Keep the failing real-package assertion until fixed.
