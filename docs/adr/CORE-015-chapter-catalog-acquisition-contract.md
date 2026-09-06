@@ -167,6 +167,46 @@ or renumbers an identity.
   cases, checksums, registry URL normalization, exact non-contiguous catalog
   projection, fail-closed behavior, and reader cache/import decisions.
 
+## Amendment: targeted immutable chapter acquisition (2026-08-31)
+
+**Status:** Implemented on stacked Phase C branches; canonical artifact
+publication, review, merge, and deployment remain separate gates.
+
+The previously deferred per-chapter artifact position is adopted for manifested
+versions. Each manifest identity may name a `lexiconforge-chapter-artifact` v1
+envelope containing that exact chapter and its packaged translations. The
+reference binds URL, UTF-8 byte length, and SHA-256. The browser checks all
+three before parsing, checks the novel/version/chapter tuple after parsing, and
+only then writes the scoped chapter through the existing idempotent import path.
+
+Virtual rows become selectable only when their exact identity carries an
+artifact reference. A manifested identity without an artifact remains visible
+and disabled. Integrity, transport, or persistence failures are surfaced as
+typed acquisition errors and never fall through to web scraping. Full-session
+artifacts remain available for compatibility and background bulk acquisition.
+
+The browser refuses individual artifact declarations above 64 MiB before
+fetching. The current Dungeon Defense source audit measured a 29,386,434-byte
+maximum envelope, so this leaves headroom while bounding manifest-driven memory
+use on mobile devices.
+
+### Targeted acquisition implementation notes
+
+- `scripts/lib/chapter-artifact-builder.ts` emits deterministic envelopes and
+  manifest references; `scripts/build-library-session.ts` writes them beneath a
+  traversal-safe directory name.
+- `services/library/chapterArtifactService.ts` owns byte/hash/UTF-8/document
+  validation. `targetedChapterAcquisitionService.ts` owns the registry,
+  manifest, import, and post-write hydration sequence.
+- `services/navigation/index.ts` attempts targeted acquisition only for a
+  strictly parsed internal URL in an exact active novel/version scope.
+- `services/chapterCatalog.ts`, `useChapterDropdownOptions.ts`, and
+  `ChapterDropdown.tsx` distinguish ready, remotely acquirable, and unavailable
+  identities.
+- Focused tests cover byte drift, tuple drift, size/HTTP failures, no-write
+  behavior, scoped import/hydration, scraper non-fallback, and dropdown
+  availability/actionability.
+
 ## Amendment: preserve chapter revisions at distinct addresses (2026-09-06)
 
 Chapter artifact filenames include the SHA-256 of their complete serialized
@@ -188,6 +228,22 @@ changing the manifest format or the compatible full-session output.
   verifies old/new chapter downloads after content and version revisions,
   deterministic unchanged output, and unchanged published pointers after an
   artifact-directory failure.
+
+## Amendment: acquisition completion and byte boundaries (2026-09-06)
+
+- `services/library/chapterArtifactService.ts` rejects chapter-level novel or
+  version overrides that disagree with the envelope before persistence. It
+  enforces observed download bytes, cancels an underdeclared stream, and rejects
+  truncation before hashing/parsing. The existing 64 MiB declaration ceiling
+  also bounds the preallocated receive buffer.
+- `store/slices/chaptersSlice.ts` applies and persists resolved navigation only
+  while its selected novel/version remains current and rejects cross-scope
+  hydration. `services/navigation/index.ts` no longer persists the five
+  intermediate resolution paths. Cached downloads can survive navigation; they
+  cannot choose the reader's new book or translation.
+- The production browser regression `tests/e2e/chapter-acquisition.spec.ts`
+  awaits download, import and hydration after book/version/library changes.
+  Small streamed-response and nested-scope tests cover the validation boundary.
 
 ## Amendment: GitHub LFS byte transport (2026-09-06)
 
