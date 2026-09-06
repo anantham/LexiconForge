@@ -166,3 +166,36 @@ or renumbers an identity.
 - Focused regressions cover manifest structure, hostile duplicate/mismatch
   cases, checksums, registry URL normalization, exact non-contiguous catalog
   projection, fail-closed behavior, and reader cache/import decisions.
+
+## Amendment: preserve chapter revisions at distinct addresses (2026-09-06)
+
+Chapter artifact filenames include the SHA-256 of their complete serialized
+envelope. Rebuilding identical chapter bytes reuses the address; changing the
+content or novel/version envelope produces a different address. Publishers must
+retain previously referenced chapter files. This corrects CONS-01 without
+changing the manifest format or the compatible full-session output.
+
+### Implementation notes
+
+- `scripts/lib/chapter-artifact-builder.ts` computes the digest once and uses it
+  in both the filename and manifest reference; the chapter-number-only helper
+  was removed.
+- `scripts/build-library-session.ts` finishes chapter artifact output before
+  replacing the session, manifest and metadata. Git/static publication still
+  needs a validated complete snapshot; this is not a filesystem transaction or
+  a promise that old full-session URLs are immutable.
+- `tests/scripts/library-publication-output.test.ts` runs the actual CLI and
+  verifies old/new chapter downloads after content and version revisions,
+  deterministic unchanged output, and unchanged published pointers after an
+  artifact-directory failure.
+
+## Amendment: GitHub LFS byte transport (2026-09-06)
+
+The publisher emits media.githubusercontent.com URLs for GitHub session and
+chapter bytes. Plain metadata and manifests remain on raw.githubusercontent.com.
+`services/library/artifactUrl.ts` contains the existing registry conversion,
+shared by the Node builders; no second conversion policy or validation fallback
+was introduced. Exact metadata/manifest session URL equality is preserved.
+The default CLI publication is tested through the real registry normalizer and
+manifest resolver, so a locally valid publication must also survive that client
+contract before it is shipped.

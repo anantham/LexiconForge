@@ -6,6 +6,11 @@ import type { NovelEntry, NovelVersion, SourceLinks } from '../../types/novel';
 import type { SessionData } from '../../types/session';
 import type { ChapterPublicationManifest } from '../../types/chapterManifest';
 import {
+  buildChapterArtifacts,
+  indexChapterArtifactReferences,
+  type BuiltChapterArtifact,
+} from './chapter-artifact-builder';
+import {
   loadAlignmentMap,
   resolveAlignmentTarget,
 } from './alignment-map';
@@ -17,6 +22,7 @@ import type {
 } from './translation-source-types';
 import { findAdapter } from './translation-sources';
 import { createPublicationManifest } from './library-publication-integrity';
+import { toMediaGitHubUrl } from '../../services/library/artifactUrl';
 // The app's identity function — imported, NOT copied (script-built sessions
 // must produce IDs the app reproduces; a comment is not a guard).
 import { generateStableChapterId } from '../../services/stableIdService';
@@ -82,6 +88,7 @@ export interface BuildOutputConfig {
   metadataFileName?: string;
   sessionFileName?: string;
   manifestFileName?: string;
+  chapterArtifactDirectoryName?: string;
   reportFileName?: string;
 }
 
@@ -333,6 +340,7 @@ export const buildHostedLibraryArtifacts = async (
   metadata: NovelEntry;
   session: SessionData & { metadata: Record<string, any> };
   chapterManifest: ChapterPublicationManifest;
+  chapterArtifacts: BuiltChapterArtifact[];
   report: LibraryBuildReport;
 }> => {
   const exportedAt = new Date().toISOString();
@@ -435,7 +443,7 @@ export const buildHostedLibraryArtifacts = async (
         versionId: manifest.version.versionId,
         displayName: manifest.version.displayName,
         translator: manifest.version.translator,
-        sessionJsonUrl: `${(manifest.output.publicBaseUrl || 'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels').replace(/\/$/, '')}/${manifest.novel.id}/${manifest.output.sessionFileName || 'session.json'}`,
+        sessionJsonUrl: toMediaGitHubUrl(`${(manifest.output.publicBaseUrl || 'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels').replace(/\/$/, '')}/${manifest.novel.id}/${manifest.output.sessionFileName || 'session.json'}`),
         chapterManifestUrl: `${(manifest.output.publicBaseUrl || 'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels').replace(/\/$/, '')}/${manifest.novel.id}/${manifest.output.manifestFileName || 'chapter-manifest.json'}`,
         targetLanguage: manifest.version.targetLanguage,
         style: manifest.version.style,
@@ -500,14 +508,24 @@ export const buildHostedLibraryArtifacts = async (
     ],
   };
 
+  const publicBaseUrl = manifest.output.publicBaseUrl
+    || 'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels';
+  const chapterArtifacts = buildChapterArtifacts({
+    novelId: manifest.novel.id,
+    versionId: manifest.version.versionId,
+    chapters,
+    publicBaseUrl,
+    directoryName: manifest.output.chapterArtifactDirectoryName,
+  });
   const chapterManifest = createPublicationManifest({
     metadata,
     session,
     sessionJson: JSON.stringify(session, null, 2),
     generatedAt: exportedAt,
+    chapterArtifacts: indexChapterArtifactReferences(chapterArtifacts),
   });
 
-  return { metadata, session, chapterManifest, report };
+  return { metadata, session, chapterManifest, chapterArtifacts, report };
 };
 
 export const updateRegistryJson = (

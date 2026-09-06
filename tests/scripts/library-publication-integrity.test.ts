@@ -63,6 +63,25 @@ describe('library publication integrity', () => {
     expect(manifest.chapters.map((chapter) => chapter.chapterNumber)).toEqual([1, 2, 4]);
   });
 
+  it('attaches exact per-chapter references by stable ID', () => {
+    const sessionValue = session();
+    const artifact = {
+      url: 'https://example.com/test-novel/chapters/chapter-000002.json',
+      sha256: 'a'.repeat(64),
+      byteLength: 123,
+    };
+    const manifest = createPublicationManifest({
+      metadata: metadata() as any,
+      session: sessionValue as any,
+      sessionJson: JSON.stringify(sessionValue, null, 2),
+      generatedAt: '2026-08-31T00:00:00.000Z',
+      chapterArtifacts: new Map([['ch2_c_d', artifact]]),
+    });
+
+    expect(manifest.chapters[0].artifact).toBeUndefined();
+    expect(manifest.chapters[1].artifact).toEqual(artifact);
+  });
+
   it.each([
     ['chapter number', (value: any) => { value.chapters[2].chapterNumber = 2; }],
     ['stable ID', (value: any) => { value.chapters[2].stableId = 'ch2_c_d'; }],

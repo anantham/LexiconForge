@@ -195,10 +195,11 @@ Fills in Novel Metadata Form:
   ↓
 Clicks "Export → Publish to Library"
   ↓
-Exports three files:
+Exports the publication package:
   - metadata.json (novel + version info)
   - session.json (chapter data)
-  - chapter-manifest.json (exact identities + session checksum)
+  - chapter-manifest.json (exact identities + checksums)
+  - chapters/chapter-NNNNNN.json (one immutable artifact per chapter)
   ↓
 Uploads files to hosting (GitHub, CDN, etc.)
   ↓
@@ -257,7 +258,7 @@ User uploads and adds to registry as new version
 1. **Create your version** (translation, remix, or fork)
 2. **Export with provenance** tracking
 3. **Update metadata.json** to add your version
-4. **Upload session.json and chapter-manifest.json** with your version ID
+4. **Upload session.json, chapter-manifest.json, and the chapters directory** with your version ID
 5. **Update the metadata URL** (or create PR if different repo)
 
 ### Publication Integrity Contract
@@ -267,7 +268,10 @@ all of those chapters are currently downloadable. For a manifested version,
 `version.stats.content.totalRawChapters` and
 `chapterManifest.publishedChapterCount` describe the exact published package.
 Only the ordered identities in `chapter-manifest.json` appear as package-backed
-chapters in the reader.
+chapters in the reader. Each generated identity also names one independently
+downloadable chapter envelope by URL, UTF-8 byte length, and SHA-256. The
+envelope includes that chapter's packaged translations and preserves the exact
+stable ID/canonical URL tuple used by the full session.
 
 The publication verifier fails closed on duplicate or unordered chapter
 numbers, duplicate stable IDs, identity drift between the session and manifest,

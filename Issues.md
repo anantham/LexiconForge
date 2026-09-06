@@ -268,7 +268,7 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 
 ### CONS-01 — Give changed chapter artifacts distinct addresses
 
-- **Status:** Open; P2 blocker for #171 and #172 publication. Subject `3a7fee9`; confidence 0.99.
+- **Status:** Repaired locally in #171; independent review, fresh CI and companion package publication pending. Original subject `3a7fee9`; confidence 0.99.
 - **Files / evidence:** `scripts/lib/chapter-artifact-builder.ts:23,44,58` derives names without content/version identity; `scripts/build-library-session.ts:88` overwrites them. A Node 24.19 probe of the actual builder gives two changed versions/revisions the same URL with different hashes. Old manifests then fail integrity checks.
 - **Candidate / done when:** Prefer digest filenames and manifest-last publication; retain old referenced artifacts. Prove identical bytes keep their address, changed bytes get another address, and both old/new manifests still retrieve hash-valid bytes. Keep directory safety, version checks and full-session compatibility. Hold artifact publication until repaired.
 
@@ -302,3 +302,9 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 - **Status:** Open; non-blocking visual QA finding from desktop and Pixel-emulated offline graph screenshots.
 - **Files / evidence:** `components/oscilloscope/OscilloscopeGraph.tsx:299` configures uPlot while the panel also renders its own thread labels. Both screenshots show a separate unlabelled red outline below the chart, above the useful Trust chip.
 - **Done when:** Inspect the generated DOM and existing legend configuration; remove the redundant output if the custom thread controls already supply its purpose. Preserve thread visibility controls and hover values. The visual symptom is confirmed; its exact DOM/CSS cause is not yet verified.
+
+### CONS-06 — Publish byte URLs rather than GitHub LFS pointer URLs
+
+- **Status:** Independent review finding reproduced and repaired locally in #171; follow-up review/CI pending.
+- **Evidence/files:** Default session URLs from `scripts/lib/library-session-builder.ts` were raw GitHub URLs, but registry normalization changed only metadata to media, breaking exact manifest URL validation. Chapter URLs from the builder also targeted raw LFS pointers.
+- **Correction / done when:** Reuse the existing GitHub media conversion for byte artifacts, keep manifest/metadata URLs raw and keep strict equality. The actual default CLI -> RegistryService -> manifest test passes. Companion #4 must reject known LFS pointer URLs and retain all old chapter files.

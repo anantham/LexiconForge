@@ -1,3 +1,4 @@
+import { toMediaGitHubUrl } from './library/artifactUrl';
 import type { Registry, NovelEntry } from '../types/novel';
 
 // Built-in entries that appear alongside the remote registry
@@ -37,23 +38,6 @@ const resolveMetadataAssetUrl = (value: string | undefined, metadataUrl: string)
   }
 };
 
-const toMediaGitHubUrl = (value: string): string => {
-  try {
-    const url = new URL(value);
-    if (url.hostname !== 'raw.githubusercontent.com') {
-      return value;
-    }
-
-    const [, owner, repo, ...rest] = url.pathname.split('/');
-    if (!owner || !repo || rest.length === 0) {
-      return value;
-    }
-
-    return `https://media.githubusercontent.com/media/${owner}/${repo}/${rest.join('/')}`;
-  } catch {
-    return value;
-  }
-};
 
 const normalizeSessionArtifactUrl = (value: string | undefined, metadataUrl: string): string | undefined => {
   const resolved = resolveMetadataAssetUrl(value, metadataUrl);

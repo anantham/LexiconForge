@@ -1,7 +1,10 @@
 import { createHash } from 'node:crypto';
 
 import { validateChapterManifest } from '../../services/library/chapterManifestService';
-import type { ChapterPublicationManifest } from '../../types/chapterManifest';
+import type {
+  ChapterArtifactReference,
+  ChapterPublicationManifest,
+} from '../../types/chapterManifest';
 import type { NovelEntry, NovelVersion } from '../../types/novel';
 
 interface PublicationChapter {
@@ -24,6 +27,7 @@ interface PublicationInputs {
 
 interface CreatePublicationInputs extends PublicationInputs {
   generatedAt?: string;
+  chapterArtifacts?: ReadonlyMap<string, ChapterArtifactReference>;
 }
 
 interface ValidatePublicationInputs extends PublicationInputs {
@@ -34,7 +38,8 @@ const fail = (message: string): never => {
   throw new Error(`Library publication integrity error: ${message}`);
 };
 
-const sha256 = (value: string): string => createHash('sha256').update(value, 'utf8').digest('hex');
+export const sha256Utf8 = (value: string): string =>
+  createHash('sha256').update(value, 'utf8').digest('hex');
 
 const resolveVersion = (
   metadata: NovelEntry,
@@ -133,6 +138,7 @@ export const createPublicationManifest = ({
   session,
   sessionJson,
   generatedAt = new Date().toISOString(),
+  chapterArtifacts,
 }: CreatePublicationInputs): ChapterPublicationManifest => {
   const version = resolveVersion(metadata, session);
   const chapters = validateSessionIdentities(session);
@@ -148,14 +154,18 @@ export const createPublicationManifest = ({
     publishedChapterCount: chapters.length,
     session: {
       url: version.sessionJsonUrl,
-      sha256: sha256(sessionJson),
+      sha256: sha256Utf8(sessionJson),
       byteLength: Buffer.byteLength(sessionJson, 'utf8'),
     },
-    chapters: chapters.map(({ chapterNumber, stableId, canonicalUrl }) => ({
-      chapterNumber,
-      stableId,
-      canonicalUrl,
-    })),
+    chapters: chapters.map(({ chapterNumber, stableId, canonicalUrl }) => {
+      const artifact = chapterArtifacts?.get(stableId);
+      return {
+        chapterNumber,
+        stableId,
+        canonicalUrl,
+        ...(artifact ? { artifact } : {}),
+      };
+    }),
   };
 
   return validateChapterManifest(manifest, {
@@ -193,7 +203,7 @@ export const validateLibraryPublication = ({
       `manifest session byteLength ${manifest.session.byteLength} does not match ${actualByteLength}.`
     );
   }
-  const actualSha256 = sha256(sessionJson);
+  const actualSha256 = sha256Utf8(sessionJson);
   if (manifest.session.sha256 !== actualSha256) {
     return fail(`manifest session sha256 ${manifest.session.sha256} does not match ${actualSha256}.`);
   }
