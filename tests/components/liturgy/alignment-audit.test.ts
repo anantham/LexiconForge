@@ -20,7 +20,10 @@ import type {
 // Canonical tokenizers (mirror the renderer's word class). Previously these
 // were re-declared inline here; they now live in one place so the Pāli regex
 // can't drift between the renderer, the generator, and this audit.
-import { countPaliWords, countEnglishWords } from '../../../services/liturgy/validation';
+import {
+  countSegmentPaliWords,
+  countEnglishWords,
+} from '../../../services/liturgy/validation';
 
 function tripleScriptSections(
   doc: LiturgyDoc
@@ -47,7 +50,7 @@ for (const doc of ALL_DOCS) {
     for (const section of sections) {
       describe(`section: ${section.id}`, () => {
         for (const segment of section.segments) {
-          const paliWordCount = countPaliWords(segment.pali);
+          const paliWordCount = countSegmentPaliWords(segment);
 
           for (const witness of segment.witnesses) {
             const label = `${segment.id} · ${witness.by}`;

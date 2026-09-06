@@ -16,6 +16,14 @@ afterEach(async () => {
 });
 
 describe('client artifact secret scanner', () => {
+  it('rejects embedded Tailnet hosts while allowing documentation placeholders', () => {
+    const findings = scanText('https://compute.example.ts.net:9443', 'assets/app.js');
+    expect(findings).toEqual([
+      { file: 'assets/app.js', detector: 'private-tailnet-host', offset: 8 },
+    ]);
+    expect(scanText('https://broker.example.com', 'assets/app.js')).toEqual([]);
+  });
+
   it('detects provider-shaped credentials without returning the credential value', () => {
     const secret = `sk-${'a'.repeat(32)}`;
     const findings = scanText(`window.config = "${secret}"`, 'assets/app.js');

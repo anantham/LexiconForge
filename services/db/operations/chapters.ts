@@ -5,6 +5,7 @@ import { STORE_NAMES } from '../core/schema';
 import { withReadTxn, withWriteTxn, promisifyRequest } from '../core/txn';
 import { generateStableChapterId, normalizeUrlAggressively } from '../../stableIdService';
 import { buildScopedStorageUrl } from '../../libraryScope';
+import { selectLatestChapterRevision } from '../../chapterRevisionService';
 import { debugLog, debugWarn } from '../../../utils/debug';
 
 const CHAPTER_DOMAIN = 'chapters';
@@ -328,44 +329,50 @@ const findChapterModernByNumber = async (
     STORE_NAMES.CHAPTERS,
     async (_txn, stores) => {
       const store = stores[STORE_NAMES.CHAPTERS];
-      if (novelId && store.indexNames.contains('novelVersionChapter')) {
+      if (
+        novelId &&
+        libraryVersionId !== null &&
+        typeof libraryVersionId !== 'undefined' &&
+        store.indexNames.contains('novelVersionChapter')
+      ) {
         const index = store.index('novelVersionChapter');
-        // libraryVersionId may be null in this composite key; preserve the runtime
-        // value (IDBValidKey doesn't include null but the key value is unchanged).
-        const result = (await promisifyRequest(
-          index.get([novelId, libraryVersionId ?? null, chapterNumber] as unknown as IDBValidKey)
-        )) as ChapterRecord | undefined;
-        return result || null;
+        const rows = (await promisifyRequest(
+          index.getAll([novelId, libraryVersionId, chapterNumber])
+        )) as ChapterRecord[];
+        return selectLatestChapterRevision(rows);
       }
 
+      // IndexedDB compound keys cannot contain null. Unversioned rows are not
+      // represented in novelVersionChapter, so use the novel index and filter
+      // explicitly instead of issuing [novelId, null, chapterNumber].
       if (novelId && store.indexNames.contains('novelId')) {
         const index = store.index('novelId');
         const rows = (await promisifyRequest(index.getAll(novelId))) as ChapterRecord[];
-        return (
-          rows.find(ch => {
+        return selectLatestChapterRevision(
+          rows.filter(ch => {
             return (
               ch.chapterNumber === chapterNumber &&
               (ch.libraryVersionId ?? null) === (libraryVersionId ?? null)
             );
-          }) || null
+          })
         );
       }
 
       if (!novelId && store.indexNames.contains('chapterNumber')) {
         const index = store.index('chapterNumber');
-        const result = (await promisifyRequest(index.get(chapterNumber))) as ChapterRecord | undefined;
-        return result || null;
+        const rows = (await promisifyRequest(index.getAll(chapterNumber))) as ChapterRecord[];
+        return selectLatestChapterRevision(rows);
       }
 
       const chapters = (await promisifyRequest(store.getAll())) as ChapterRecord[];
-      return chapters.find(
+      return selectLatestChapterRevision(chapters.filter(
         ch =>
           ch.chapterNumber === chapterNumber &&
           (typeof novelId === 'undefined' ? true : (ch.novelId ?? null) === novelId) &&
           (typeof novelId === 'undefined'
             ? true
             : (ch.libraryVersionId ?? null) === (libraryVersionId ?? null))
-      ) || null;
+      ));
     },
     CHAPTER_DOMAIN,
     'operations',

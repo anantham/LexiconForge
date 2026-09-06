@@ -14,7 +14,7 @@ import type { StoreState } from '../storeTypes';
 import type { EnhancedChapter, NovelInfo } from '../../services/stableIdService';
 import { normalizeUrlAggressively, transformImportedChapters } from '../../services/stableIdService';
 import { NavigationService, type NavigationContext } from '../../services/navigationService';
-import { ChapterOps, ImportOps } from '../../services/db/operations';
+import { ChapterOps, ImportOps, NavigationOps } from '../../services/db/operations';
 import type { ImportedChapter } from '../../types';
 import { BookshelfStateService } from '../../services/bookshelfStateService';
 import { validateApiKey } from '../../services/ai/apiKeyValidation';
@@ -22,6 +22,7 @@ import { debugLog, debugWarn } from '../../utils/debug';
 import { telemetryService } from '../../services/telemetryService';
 import { memoryCacheSnapshot } from '../../utils/memoryDiagnostics';
 import { mergeChapter } from '../../utils/mergeChapter';
+import { selectedChapterText } from '../../services/semanticOscilloscopeSession';
 
 export interface ChaptersState {
   // Core data
@@ -206,6 +207,12 @@ export const createChaptersSlice: StateCreator<
 
     const chapter = await NavigationService.loadChapterFromIDB(chapterId, updateHydratingState);
 
+    if (chapter && ((get().activeNovelId ?? null) !== (chapter.novelId ?? null)
+      || (get().activeVersionId ?? null) !== (chapter.libraryVersionId ?? null))) {
+      debugLog('navigation', 'summary', '[ChaptersSlice] Ignoring hydration outside the active book/version', { chapterId });
+      return null;
+    }
+
     if (chapter) {
       // Add to chapters map. Merge with any existing entry so in-memory-only
       // fields (e.g. fanTranslation attached by the library-search flow when
@@ -253,6 +260,12 @@ export const createChaptersSlice: StateCreator<
   },
   
   importChapter: (chapter) => {
+    const state = get();
+    const previous = state.chapters.get(chapter.id);
+    if (state.corpusIdentity?.corpusId === chapter.novelId
+      && (chapter.libraryVersionId ?? null) === state.activeVersionId
+      && (!previous || previous.title !== chapter.title || previous.chapterNumber !== chapter.chapterNumber
+        || selectedChapterText(previous) !== selectedChapterText(chapter))) state.resetOscilloscope();
     set(state => {
       const newChapters = new Map(state.chapters);
       const existed = newChapters.has(chapter.id);
@@ -289,6 +302,15 @@ export const createChaptersSlice: StateCreator<
   },
   
   updateChapter: (chapterId, updates) => {
+    const state = get();
+    const previous = state.chapters.get(chapterId);
+    if (state.corpusIdentity && previous) {
+      const next = { ...previous, ...updates };
+      if (previous.title !== next.title || previous.chapterNumber !== next.chapterNumber
+        || selectedChapterText(previous) !== selectedChapterText(next)) {
+        state.resetOscilloscope();
+      }
+    }
     set(state => {
       const chapter = state.chapters.get(chapterId);
       if (!chapter) return state;
@@ -305,6 +327,10 @@ export const createChaptersSlice: StateCreator<
   },
   
   removeChapter: (chapterId) => {
+    const state = get();
+    const removed = state.chapters.get(chapterId);
+    if (removed && state.corpusIdentity?.corpusId === removed.novelId
+      && (removed.libraryVersionId ?? null) === state.activeVersionId) state.resetOscilloscope();
     set(state => {
       const newChapters = new Map(state.chapters);
       const chapter = newChapters.get(chapterId);
@@ -380,6 +406,11 @@ export const createChaptersSlice: StateCreator<
     );
     
     const result = await NavigationService.handleNavigate(url, context, get().loadChapterFromIDB);
+    if ((get().activeNovelId ?? null) !== context.scope?.novelId
+      || (get().activeVersionId ?? null) !== context.scope?.versionId) {
+      debugLog('navigation', 'summary', '[ChaptersSlice] Ignoring navigation after book/version changed', { url });
+      return;
+    }
     debugLog(
       'navigation',
       'summary',
@@ -399,6 +430,12 @@ export const createChaptersSlice: StateCreator<
       const uiActions = get();
       if (uiActions.setError) {
         uiActions.setError(result.error);
+      }
+      if (typeof result.error === 'string' && uiActions.showNotification) {
+        uiActions.showNotification(
+          result.error,
+          result.errorCode === 'chapter_not_cached' ? 'warning' : 'error'
+        );
       }
       
       // Handle fetch if needed
@@ -442,6 +479,12 @@ export const createChaptersSlice: StateCreator<
 
         return updates;
       });
+
+      // Persist only the navigation that was accepted by the active reader.
+      if (result.navigationHistory) {
+        NavigationOps.persistHistory({ stableIds: result.navigationHistory });
+      }
+      NavigationOps.persistLastActiveChapter({ id: result.chapterId, url: result.chapter.canonicalUrl });
 
       // Update browser history if needed
       if (result.shouldUpdateBrowserHistory && result.chapter) {
@@ -735,6 +778,7 @@ export const createChaptersSlice: StateCreator<
   },
   
   clearAllChapters: () => {
+    get().resetOscilloscope();
     set(state => {
       recordChapterCache('chapters.clearAll', 0, { previousSize: state.chapters.size });
       return {

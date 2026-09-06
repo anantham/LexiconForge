@@ -71,6 +71,8 @@ export interface NovelVersion {
   displayName: string;
   translator: TranslatorInfo;
   sessionJsonUrl: string;
+  /** Exact published identities and session checksum for this version. */
+  chapterManifestUrl?: string;
   targetLanguage: string;
   style: 'faithful' | 'liberal' | 'image-heavy' | 'audio-enhanced' | 'other';
   features: string[];

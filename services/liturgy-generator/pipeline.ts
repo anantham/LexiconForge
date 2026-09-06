@@ -49,7 +49,12 @@ function materializeWitness(params: {
 
   if (mode === 'none') {
     stats.skippedAlignments++;
-    return { ...base, alignTo: undefined, morphemeAlignTo: undefined };
+    return {
+      ...base,
+      alignTo: undefined,
+      morphemeAlignTo: undefined,
+      tokenAlignTo: undefined,
+    };
   }
 
   if (mode === 'preserve' || witness.alignTo) {
@@ -80,6 +85,9 @@ function materializeWitness(params: {
     ...base,
     alignTo: inferred.alignTo,
     morphemeAlignTo: inferred.morphemeAlignTo,
+    // Inference produces a new unreviewed word/morpheme alignment. Reviewed
+    // targets from a prior authored array cannot be transferred onto it.
+    tokenAlignTo: undefined,
   };
 }
 

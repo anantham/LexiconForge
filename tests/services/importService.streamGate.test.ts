@@ -1,6 +1,39 @@
 // @vitest-environment node
 import 'fake-indexeddb/auto';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { computeSemanticCorpusIdentity, createSessionOscilloscope } from '../../services/semanticOscilloscopeSession';
+import { buildScopedStableId } from '../../services/libraryScope';
+
+const { chapterOpsMock, translationOpsMock } = vi.hoisted(() => ({
+  chapterOpsMock: {
+    store: vi.fn(),
+  },
+  translationOpsMock: {
+    store: vi.fn(),
+    setActiveByUrl: vi.fn(),
+    getVersionsByStableId: vi.fn(),
+  },
+}));
+
+const importStoreState = vi.hoisted(() => ({
+  importSessionData: vi.fn().mockResolvedValue(undefined),
+  setSessionProvenance: vi.fn(),
+  setSessionVersion: vi.fn(),
+  chapters: new Map<string, any>(),
+  currentChapterId: null as string | null,
+  activeNovelId: null as string | null,
+  activeVersionId: null as string | null,
+  navigationHistory: [] as string[],
+  loadSessionOscilloscope: vi.fn(),
+  initializeOscilloscope: vi.fn(),
+  resetOscilloscope: vi.fn(),
+  error: null as string | null,
+}));
+
+const hydrationMocks = vi.hoisted(() => ({
+  loadNovelIntoStore: vi.fn().mockResolvedValue('lf-library:test:ch1'),
+  loadAllIntoStore: vi.fn().mockResolvedValue('lf-library:test:ch1'),
+}));
 
 /**
  * Regression guard for the "Opening Reader…" hang (2026-07-28).
@@ -16,27 +49,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../store', () => ({
   useAppStore: {
-    getState: vi.fn(() => ({
-      importSessionData: vi.fn().mockResolvedValue(undefined),
-      setSessionProvenance: vi.fn(),
-      setSessionVersion: vi.fn(),
-      chapters: new Map(),
-      currentChapterId: null,
-    })),
-    setState: vi.fn(),
+    getState: vi.fn(() => importStoreState),
+    setState: vi.fn((update: any) => {
+      const patch = typeof update === 'function' ? update(importStoreState) : update;
+      Object.assign(importStoreState, patch);
+    }),
   },
 }));
 
 vi.mock('../../services/db/operations/chapters', () => ({
-  ChapterOps: { store: vi.fn().mockResolvedValue(undefined) },
+  ChapterOps: chapterOpsMock,
 }));
 
 vi.mock('../../services/db/operations/translations', () => ({
-  TranslationOps: {
-    store: vi.fn().mockResolvedValue({ id: 't1', version: 1 }),
-    setActiveByUrl: vi.fn().mockResolvedValue(undefined),
-    getVersionsByStableId: vi.fn().mockResolvedValue([{ id: 't1', version: 1 }]),
-  },
+  TranslationOps: translationOpsMock,
 }));
 
 vi.mock('../../services/db/operations', () => ({
@@ -47,8 +73,8 @@ vi.mock('../../services/db/operations', () => ({
 }));
 
 vi.mock('../../services/readerHydrationService', () => ({
-  loadNovelIntoStore: vi.fn().mockResolvedValue('lf-library:test:ch1'),
-  loadAllIntoStore: vi.fn().mockResolvedValue('lf-library:test:ch1'),
+  loadNovelIntoStore: hydrationMocks.loadNovelIntoStore,
+  loadAllIntoStore: hydrationMocks.loadAllIntoStore,
 }));
 
 vi.mock('../../services/telemetryService', () => ({
@@ -100,9 +126,36 @@ const streamResponseOf = (data: unknown) => {
   } as unknown as Response;
 };
 
+beforeEach(() => {
+  chapterOpsMock.store.mockReset().mockResolvedValue(undefined);
+  importStoreState.chapters = new Map();
+  importStoreState.currentChapterId = null;
+  importStoreState.navigationHistory = [];
+  importStoreState.activeNovelId = null;
+  importStoreState.activeVersionId = null;
+  importStoreState.error = null;
+  hydrationMocks.loadNovelIntoStore.mockReset().mockResolvedValue('lf-library:test:ch1');
+  hydrationMocks.loadAllIntoStore.mockReset().mockResolvedValue('lf-library:test:ch1');
+});
+
 describe('streamImportFromUrl — first-chapters-ready gate', () => {
   beforeEach(() => {
+    importStoreState.loadSessionOscilloscope.mockClear();
+    importStoreState.initializeOscilloscope.mockClear();
+    importStoreState.resetOscilloscope.mockClear();
+    importStoreState.chapters = new Map();
+    importStoreState.currentChapterId = null;
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(sessionWithOneChapter)));
+    translationOpsMock.store.mockReset().mockResolvedValue({ id: 't1', version: 1 });
+    translationOpsMock.setActiveByUrl.mockReset().mockResolvedValue(undefined);
+    translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([]);
+  });
+
+  it('rejects an unknown stream scope before fetching or storing chapters', async () => {
+    await expect(ImportService.streamImportFromUrl('https://example.com/session.json'))
+      .rejects.toThrow(/known novel scope/i);
+    expect(fetch).not.toHaveBeenCalled();
+    expect(chapterOpsMock.store).not.toHaveBeenCalled();
   });
 
   it('fires onFirstChaptersReady for a session SMALLER than the first-batch threshold', async () => {
@@ -160,9 +213,190 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
 
     expect(onFirstChaptersReady).not.toHaveBeenCalled();
   });
+
+  it.each(['after', 'before', 'wrong-scope'])('validates streamed graph metadata (%s)', async (placement) => {
+    const chapter = {
+      stableId: 'ch1',
+      url: 'https://example.com/ch1',
+      canonicalUrl: 'https://example.com/ch1',
+      chapterNumber: 1,
+      title: 'Chapter 1',
+      content: 'Raw content',
+      translations: [{ version: 1, isActive: true, translation: 'Translated content' }],
+    };
+    const corpusSeed = {
+      novel: { id: 'book-a', title: 'Book A' },
+      version: { versionId: 'v1', displayName: 'V1', style: 'other' as const, features: [] },
+      chapters: [chapter],
+    };
+    const corpus = await computeSemanticCorpusIdentity(corpusSeed);
+    const oscilloscope = createSessionOscilloscope(corpus, new Map([['tone:romance', {
+      threadId: 'tone:romance', category: 'tone' as const, label: 'romance', color: '#ef4444',
+      values: [0.6], totalChapters: 1,
+      provenance: { origin: 'precomputed' as const, method: 'semantic-v1' },
+    }]]), new Set(['tone:romance']));
+    const novelId = placement === 'wrong-scope' ? 'other-book' : 'book-a';
+    const stableId = buildScopedStableId('ch1', novelId, 'v1');
+    importStoreState.chapters = new Map([[stableId, {
+      id: stableId, stableId, novelId, libraryVersionId: 'v1', chapterNumber: 1, title: 'Chapter 1', content: 'Raw content',
+      translationResult: { translation: 'Translated content' },
+    }]]);
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf({
+      metadata: {
+        format: 'lexiconforge-session', version: '2.0', exportedAt: '2026-08-24T00:00:00Z', chapterCount: 1,
+      },
+      ...(placement === 'before' ? { oscilloscope } : {}),
+      ...corpusSeed,
+      ...(placement === 'wrong-scope' ? { novel: { id: 'other-book', title: 'Other' } } : {}),
+      ...(placement !== 'before' ? { oscilloscope } : {}),
+    })));
+
+    await ImportService.streamImportFromUrl('https://example.com/session.json', undefined, undefined,
+      { registryNovelId: novelId, registryVersionId: 'v1' });
+
+    if (placement === 'wrong-scope') {
+      expect(importStoreState.loadSessionOscilloscope).not.toHaveBeenCalled();
+      expect(importStoreState.resetOscilloscope).toHaveBeenCalled();
+    } else {
+      expect(importStoreState.loadSessionOscilloscope).toHaveBeenCalledWith(oscilloscope);
+      expect(importStoreState.initializeOscilloscope).not.toHaveBeenCalled();
+    }
+  });
+
+  it('awaits the first-ready callback before processing later chapters', async () => {
+    const fiveChapterSession = {
+      ...sessionWithOneChapter,
+      metadata: { ...sessionWithOneChapter.metadata, chapterCount: 5 },
+      chapters: Array.from({ length: 5 }, (_, index) => ({
+        ...sessionWithOneChapter.chapters[0],
+        url: `lexiconforge://aithihyamala/chapter/${index + 1}`,
+        canonicalUrl: `lexiconforge://aithihyamala/chapter/${index + 1}`,
+        chapterNumber: index + 1,
+        translations: [],
+      })),
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(fiveChapterSession)));
+
+    let releaseReady!: () => void;
+    const readyGate = new Promise<void>((resolve) => {
+      releaseReady = resolve;
+    });
+    let signalReadyStarted!: () => void;
+    const readyStarted = new Promise<void>((resolve) => {
+      signalReadyStarted = resolve;
+    });
+    const onFirstChaptersReady = vi.fn(() => {
+      signalReadyStarted();
+      return readyGate;
+    });
+
+    const importPromise = ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      onFirstChaptersReady,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    await readyStarted;
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    expect(chapterOpsMock.store).toHaveBeenCalledTimes(4);
+
+    releaseReady();
+    await importPromise;
+    expect(chapterOpsMock.store).toHaveBeenCalledTimes(5);
+  });
+
+  it.each([
+    ['fetch', 'book'], ['fetch', 'version'],
+    ['hydration', 'book'], ['hydration', 'version'],
+  ])('keeps a new %s-time %s selection when the old stream finishes', async (phase, switchKind) => {
+    const payload = {
+      ...sessionWithOneChapter,
+      version: { versionId: 'v1' },
+      chapters: [{ ...sessionWithOneChapter.chapters[0], chapterNumber: 1, translations: [] }],
+    };
+    const corpus = await computeSemanticCorpusIdentity(payload as any);
+    const oscilloscope = createSessionOscilloscope(corpus, new Map(), new Set());
+    importStoreState.activeNovelId = 'aithihyamala';
+    importStoreState.activeVersionId = 'v1';
+    const selectedChapters = new Map([['new-selection', { chapterNumber: 64 }]]);
+    const switchSelection = () => {
+      importStoreState.activeNovelId = switchKind === 'book' ? 'book-b' : 'aithihyamala';
+      importStoreState.activeVersionId = switchKind === 'version' ? 'v2' : 'v1';
+      importStoreState.chapters = selectedChapters;
+      importStoreState.currentChapterId = 'new-selection';
+    };
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      if (phase === 'fetch') switchSelection();
+      return streamResponseOf({ ...payload, oscilloscope });
+    }));
+    hydrationMocks.loadNovelIntoStore.mockImplementationOnce(async (_novelId, setState) => {
+      switchSelection();
+      const chapter = chapterOpsMock.store.mock.calls[0][0];
+      setState({ chapters: new Map([[chapter.stableId, { ...chapter, id: chapter.stableId }]]) });
+      return chapter.stableId;
+    });
+    const onFirstChaptersReady = vi.fn();
+
+    await ImportService.streamImportFromUrl('https://example.com/session.json', undefined,
+      onFirstChaptersReady, { registryNovelId: 'aithihyamala', registryVersionId: 'v1' });
+
+    expect(chapterOpsMock.store).toHaveBeenCalledTimes(1);
+    expect(importStoreState.chapters).toBe(selectedChapters);
+    expect(importStoreState.currentChapterId).toBe('new-selection');
+    expect(importStoreState.loadSessionOscilloscope).not.toHaveBeenCalled();
+    expect(importStoreState.initializeOscilloscope).not.toHaveBeenCalled();
+    expect(importStoreState.resetOscilloscope).not.toHaveBeenCalled();
+    if (phase === 'fetch') {
+      expect(onFirstChaptersReady).not.toHaveBeenCalled();
+      expect(hydrationMocks.loadNovelIntoStore).not.toHaveBeenCalled();
+    }
+  });
+
+  it('remaps an open scoped chapter to its authoritative revision after final hydration', async () => {
+    importStoreState.currentChapterId = 'chapter-64-stale';
+    importStoreState.chapters = new Map([
+      ['chapter-64-stale', {
+        id: 'chapter-64-stale',
+        novelId: 'aithihyamala',
+        libraryVersionId: 'v1-opus-draft',
+        chapterNumber: 64,
+      }],
+    ]);
+    hydrationMocks.loadNovelIntoStore.mockImplementationOnce(async (_novelId, setState) => {
+      setState({
+        chapters: new Map([
+          ['chapter-64-current', {
+            id: 'chapter-64-current',
+            novelId: 'aithihyamala',
+            libraryVersionId: 'v1-opus-draft',
+            chapterNumber: 64,
+          }],
+        ]),
+        urlIndex: new Map(),
+        rawUrlIndex: new Map(),
+      });
+      return 'chapter-64-current';
+    });
+
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      undefined,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    expect(importStoreState.currentChapterId).toBe('chapter-64-current');
+  });
 });
 
 describe('streamImportFromUrl — translation-loss telemetry (2026-07-28 race)', () => {
+  beforeEach(() => {
+    translationOpsMock.store.mockReset().mockResolvedValue({ id: 't1', version: 1 });
+    translationOpsMock.setActiveByUrl.mockReset().mockResolvedValue(undefined);
+    translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([]);
+  });
+
   it('a failed translation store does NOT abort the import and is loudly accounted', async () => {
     const { TranslationOps } = await import('../../services/db/operations/translations');
     const { telemetryService } = await import('../../services/telemetryService');
@@ -208,5 +442,144 @@ describe('streamImportFromUrl — translation-loss telemetry (2026-07-28 race)',
     const events = (telemetryService.capturePerformance as ReturnType<typeof vi.fn>).mock.calls.map(c => c[0]);
     expect(events).toContain('import:stream:translationVerifyMissing');
     consoleError.mockRestore();
+  });
+});
+
+describe('streamImportFromUrl — idempotent resume', () => {
+  beforeEach(() => {
+    translationOpsMock.store.mockReset().mockResolvedValue({ id: 'new', version: 2 });
+    translationOpsMock.setActiveByUrl.mockReset().mockResolvedValue(undefined);
+    translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([
+      {
+        id: 'existing',
+        version: 1,
+        isActive: true,
+        translatedTitle: 'The Ammathiruvadi of Urakam',
+        translation: '<p>How a goddess rode a palm-leaf umbrella…</p>',
+        provider: 'Claude',
+        model: 'claude-opus-4-8',
+        footnotes: [],
+        suggestedIllustrations: [],
+        proposal: null,
+      },
+    ]);
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(sessionWithOneChapter)));
+  });
+
+  it('reuses an exact packaged translation instead of creating a duplicate version', async () => {
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      undefined,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    expect(translationOpsMock.store).not.toHaveBeenCalled();
+    expect(translationOpsMock.setActiveByUrl).toHaveBeenCalledWith(
+      expect.stringContaining('lf-library:'),
+      1
+    );
+  });
+
+  it('consumes reused translations one-to-one when packaged versions have identical content', async () => {
+    const identicalVersionsSession = {
+      ...sessionWithOneChapter,
+      chapters: [
+        {
+          ...sessionWithOneChapter.chapters[0],
+          translations: [
+            {
+              ...sessionWithOneChapter.chapters[0].translations[0],
+              version: 1,
+              isActive: false,
+            },
+            {
+              ...sessionWithOneChapter.chapters[0].translations[0],
+              version: 2,
+              isActive: true,
+            },
+          ],
+        },
+      ],
+    };
+    const existingVersion = {
+      id: 'existing-v1',
+      version: 1,
+      isActive: true,
+      translatedTitle: 'The Ammathiruvadi of Urakam',
+      translation: '<p>How a goddess rode a palm-leaf umbrella…</p>',
+      provider: 'Claude',
+      model: 'claude-opus-4-8',
+      footnotes: [],
+      suggestedIllustrations: [],
+      proposal: null,
+    };
+    const storedVersion = { ...existingVersion, id: 'new-v2', version: 2, isActive: false };
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(identicalVersionsSession)));
+    translationOpsMock.store.mockResolvedValue({ id: 'new-v2', version: 2 });
+    translationOpsMock.getVersionsByStableId
+      .mockReset()
+      .mockResolvedValueOnce([existingVersion])
+      .mockResolvedValueOnce([existingVersion, storedVersion]);
+
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      undefined,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    expect(translationOpsMock.store).toHaveBeenCalledTimes(1);
+    expect(translationOpsMock.setActiveByUrl).toHaveBeenCalledWith(
+      expect.stringContaining('lf-library:'),
+      2
+    );
+  });
+
+  it('falls back to an unused exact-content row when local version numbers diverge', async () => {
+    const versionedSession = {
+      ...sessionWithOneChapter,
+      chapters: [
+        {
+          ...sessionWithOneChapter.chapters[0],
+          translations: [
+            {
+              ...sessionWithOneChapter.chapters[0].translations[0],
+              version: 1,
+              isActive: true,
+            },
+          ],
+        },
+      ],
+    };
+    const divergedExactVersion = {
+      id: 'existing-local-v2',
+      version: 2,
+      isActive: false,
+      translatedTitle: 'The Ammathiruvadi of Urakam',
+      translation: '<p>How a goddess rode a palm-leaf umbrella…</p>',
+      provider: 'Claude',
+      model: 'claude-opus-4-8',
+      footnotes: [],
+      suggestedIllustrations: [],
+      proposal: null,
+    };
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(streamResponseOf(versionedSession)));
+    translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([divergedExactVersion]);
+
+    await ImportService.streamImportFromUrl(
+      'https://example.com/session.json',
+      undefined,
+      undefined,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1-opus-draft' }
+    );
+
+    expect(translationOpsMock.store).not.toHaveBeenCalled();
+    expect(translationOpsMock.setActiveByUrl).toHaveBeenCalledWith(
+      expect.stringContaining('lf-library:'),
+      2
+    );
   });
 });

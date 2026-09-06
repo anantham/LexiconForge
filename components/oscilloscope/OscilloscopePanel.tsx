@@ -12,7 +12,7 @@ import OscilloscopeGraph from './OscilloscopeGraph';
 import ThreadLegend from './ThreadLegend';
 import ThreadSelector from './ThreadSelector';
 import OscilloscopeMinimap from './OscilloscopeMinimap';
-import { loadOscilloscopeData } from './loadOscilloscopeData';
+import { restoreCachedOscilloscope } from '../../services/semanticOscilloscopeCache';
 
 /**
  * Toolbar component shown in expanded mode.
@@ -120,26 +120,18 @@ const OscilloscopePanel: React.FC = () => {
   const isLoaded = useAppStore((s) => s.isLoaded);
   const isExpanded = useAppStore((s) => s.isExpanded);
   const setExpanded = useAppStore((s) => s.setExpanded);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const activeNovelId = useAppStore((s) => s.activeNovelId);
+  const activeVersionId = useAppStore((s) => s.activeVersionId);
 
-  // Auto-load oscilloscope data from public directory
   useEffect(() => {
-    if (isLoaded || isLoading) return;
-    setIsLoading(true);
-    loadOscilloscopeData(
-      '/oscilloscope-data/_all_meta.json',
-      '/oscilloscope-data/_character_threads.json',
-      3457, // FMoC total chapters — will be dynamic later
-    )
-      .then(() => setIsLoading(false))
-      .catch((err) => {
-        setLoadError(err?.message || 'Failed to load oscilloscope data');
-        setIsLoading(false);
-      });
-  }, [isLoaded, isLoading]);
+    if (isLoaded || !activeNovelId) return;
+    const controller = new AbortController();
+    void restoreCachedOscilloscope(controller.signal).catch((error) => {
+      if (!controller.signal.aborted) console.warn('[Oscilloscope] Cached graph unavailable:', error);
+    });
+    return () => controller.abort();
+  }, [activeNovelId, activeVersionId, isLoaded]);
 
-  if (loadError) return null; // silently hide if no data available
   if (!isLoaded) return null;
 
   return (

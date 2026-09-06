@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 const SCANNED_EXTENSIONS = new Set(['.css', '.html', '.js', '.json', '.map', '.mjs']);
 
 export const SECRET_PATTERNS = [
+  { id: 'private-tailnet-host', pattern: /\b(?:[a-z0-9-]+\.)+ts\.net\b/gi },
   { id: 'provider-sk-token', pattern: /\bsk-[A-Za-z0-9_-]{20,}\b/g },
   { id: 'google-api-key', pattern: /\bAIza[A-Za-z0-9_-]{30,}\b/g },
   { id: 'private-key-block', pattern: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g },
@@ -73,7 +74,7 @@ async function main() {
     return;
   }
 
-  console.log(`[client-secret-scan] Passed: ${directory} contains no provider-key patterns or build canaries.`);
+  console.log(`[client-secret-scan] Passed: ${directory} contains no provider-key patterns, private Tailnet hosts or build canaries.`);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

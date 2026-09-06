@@ -97,6 +97,7 @@ export interface ChapterRecordLike {
   blurb?: string | null;
   sourceLanguage?: string | null;
   dateAdded?: string;
+  lastAccessed?: string;
   sourceUrls?: string[];
 }
 
@@ -137,7 +138,7 @@ export const buildEnhancedChapter = (
     sourceUrls,
     importSource: {
       originalUrl: rec.originalUrl || rec.url || '',
-      importDate: new Date(rec.dateAdded || Date.now()),
+      importDate: new Date(rec.lastAccessed || rec.dateAdded || Date.now()),
       sourceFormat: 'json',
     },
     fanTranslation: rec.fanTranslation ?? null,

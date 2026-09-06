@@ -1,3 +1,33 @@
+export interface SemanticCorpusIdentity {
+  corpusId: string;
+  versionId: string;
+  contentHash: `sha256:${string}`;
+  chapterCount: number;
+}
+
+export interface ThreadScoringProvenance {
+  algorithm: string;
+  range: [number, number];
+}
+
+export type ThreadProvenance =
+  | {
+      origin: 'precomputed';
+      method: string;
+      generatedAt?: string;
+    }
+  | {
+      origin: 'private-semantic-scan';
+      query: string;
+      generatedAt: string;
+      protocol: string;
+      scoreSemantics: string;
+      vectorSpace: string;
+      dimensions: number;
+      scoring: ThreadScoringProvenance;
+      corpus: SemanticCorpusIdentity;
+    };
+
 export interface ThreadData {
   threadId: string;           // e.g., "char:Li Yao", "tone:combat", "meta:word_count"
   category: 'character' | 'tone' | 'location' | 'faction' | 'entity' | 'power' | 'meta' | 'custom';
@@ -5,6 +35,7 @@ export interface ThreadData {
   color: string;              // Hex color
   values: number[];           // One value per chapter, indexed by chapterNumber-1. 0 if no data.
   totalChapters: number;      // Length of values array
+  provenance?: ThreadProvenance;
 }
 
 export interface ThreadMetadata {
@@ -48,6 +79,7 @@ export interface OscilloscopeState {
   // Data loading
   isLoaded: boolean;
   totalChapters: number;
+  corpusIdentity: SemanticCorpusIdentity | null;
 }
 
 export interface OscilloscopeActions {
@@ -63,16 +95,31 @@ export interface OscilloscopeActions {
   setExpanded: (expanded: boolean) => void;
 
   // Data loading
-  loadFromJSON: (
-    metaData: Record<string, any>,
-    characterThreads: Record<string, Record<string, number>>,
-    totalChapters: number
-  ) => void;
   addThread: (thread: ThreadData) => void;
-  computeKeywordThread: (
-    keyword: string,
-    searchFn: (query: string) => Promise<Array<{ chapter_number: string; count?: number }>>
-  ) => Promise<string>;
+  addSemanticThread: (query: string, result: SemanticScanResult) => string;
+  initializeOscilloscope: (corpus: SemanticCorpusIdentity) => void;
+  loadSessionOscilloscope: (data: SessionOscilloscopeData) => void;
+  resetOscilloscope: () => void;
+}
+
+export interface SemanticScanResult {
+  ok: true;
+  protocol: string;
+  corpus: SemanticCorpusIdentity;
+  query: string;
+  scores: number[];
+  scoreSemantics: string;
+  scoring: ThreadScoringProvenance;
+  vectorSpace: string;
+  dimensions: number;
+}
+
+export interface SessionOscilloscopeData {
+  format: 'lexiconforge-oscilloscope';
+  version: '1.0';
+  corpus: SemanticCorpusIdentity;
+  threads: ThreadData[];
+  activeThreadIds: string[];
 }
 
 export type OscilloscopeSlice = OscilloscopeState & OscilloscopeActions;
