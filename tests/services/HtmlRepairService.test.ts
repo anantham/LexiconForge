@@ -124,9 +124,6 @@ describe('HtmlRepairService.repair', () => {
  * discrepancy is adjudicated.
  */
 describe('HtmlRepairService — API surface behavior', () => {
-  const repair = (html: string, options?: Parameters<typeof HtmlRepairService.repair>[1]) =>
-    HtmlRepairService.repair(html, options).html;
-
   it('skips rules listed in disabledRules', () => {
     const input = 'text<hr>more';
     const enabled = HtmlRepairService.repair(input);
@@ -157,7 +154,7 @@ describe('HtmlRepairService — API surface behavior', () => {
     expect(HtmlRepairService.getRepairPreview('<p>a</p><hr><p>b</p>')).toContain('Repairs that will be applied');
   });
 
-  it('getAvailableRules includes named rules with descriptions', () => {
+  it('getAvailableRules returns the expected rule names', () => {
     const names = HtmlRepairService.getAvailableRules().map(r => r.name);
     for (const expected of ['space-hr-tags', 'space-hr-edges', 'fix-short-dangling-closers', 'decode-html-entities']) {
       expect(names).toContain(expected);
