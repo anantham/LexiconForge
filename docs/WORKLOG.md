@@ -3714,6 +3714,7 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Files likely affected:** oscilloscope types/store/components and focused tests; a new modular IndrasNet semantic-scan service/hook; existing session import/export mapping only if the current artifact drops thread provenance; a new FEAT ADR; this WORKLOG. Existing SillyTavern/provider integration files are out of scope because active worktrees own them.
 **Fallback:** Keep all new behavior behind the semantic capability adapter and remove that adapter/UI wiring if the existing IndrasNet contract cannot express book identity safely. Static oscilloscope tracks and session loading remain unchanged.
 **Confidence:** 0.89
+
 ### [2026-08-30 12:14 IST] [Agent: Codex]
 **Status:** Starting
 **Task:** Implement the user-approved durable chapter-navigation repair (Option 2) with the virtual-row containment layer (Option 1).
@@ -3766,6 +3767,27 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Scope boundary:** The parallel pre-existing null compound-key path in `findBySourceUrl` will be recorded as debt rather than changed in this four-finding follow-up. `NovelLibrary.tsx` is a multi-concern 727-line hotspot; Option 1 intentionally avoids a controller extraction and records the hotspot for later decomposition.
 **Fallback:** Revert the follow-up commit. The published base commits and PRs remain available without history rewriting.
 **Confidence:** 0.98
+
+### [2026-08-31 03:53 IST] [Agent: Codex]
+**Status:** Starting approved technical-debt attentional policy
+**Task:** Add the selected in-register attentional policy to the curated technical-debt status document without changing application code or mixing with the two active feature/privacy worktrees.
+**Worktree:** `../LexiconForge.worktrees/codex-attentional-policy/`
+**Branch:** `docs/codex-attentional-policy`
+**Issues:** Raw debt receipts, curated status, architectural hotspots, and chronological context already have distinct homes, but the repository does not state when a finding earns active attention or how to prevent opportunistic cleanup from expanding feature scope.
+**Assumptions:** The policy should govern prioritization and evidence, not replace human architectural gates or impose an arbitrary capacity percentage. Documentation-only scope is sufficient. Confidence 0.96.
+**Predicted validation:** The policy maps cleanly to the existing four-document debt-capture system; defines urgency, admission evidence, selection, WIP, performance-proof, and review cadence; and changes only this WORKLOG plus `docs/roadmaps/TECH-DEBT-STATUS.md`.
+**Files likely affected:** `docs/roadmaps/TECH-DEBT-STATUS.md`; `docs/WORKLOG.md`.
+**Fallback:** Revert the isolated documentation diff; active debt entries, application behavior, and the other worktrees remain unchanged.
+
+### [2026-08-31 03:55 IST] [Agent: Codex]
+**Status:** Complete — technical-debt attentional policy
+**Result:** Added an evidence-first policy at `docs/roadmaps/TECH-DEBT-STATUS.md:6-74` covering the existing four-register boundary, four attention classes, admission evidence, ordered selection, WIP/scope limits, performance-proof requirements, lifecycle, and review cadence. The policy explicitly preserves human solution gates and does not assign an arbitrary capacity percentage.
+**Review correction:** The March 29 `Critical`/`High Priority`/`Medium Priority` headings now explicitly remain historical candidates rather than automatic mappings to the new attention classes; this task intentionally did not re-triage stale items.
+**Files modified:** `docs/roadmaps/TECH-DEBT-STATUS.md:3-74`; `docs/WORKLOG.md:3555-end`.
+**Validation:** Referenced policy documents exist; manual Markdown/table review passed; the exact Git status contains only the two authorized documentation files; `git diff --check` passes with line-ending warnings only. No application tests were run because no source, configuration, build, migration, or test behavior changed.
+**Independent review:** Not required by the repository review loop for documentation-only changes; no source code, configuration, migrations, build/deployment logic, or tests changed.
+**Confidence:** 0.97. Fallback remains reverting this isolated two-file documentation diff.
+
 ### [2026-08-31 07:43 IST] [Agent: Codex]
 **Status:** Starting - chapter publication integrity contract (phase B before targeted acquisition)
 **Task:** Implement the user-approved publication-integrity gate before the separately stacked per-chapter artifact/acquisition phase. A version may describe the work's expected total, but reader navigation and cache completeness must use only exact manifest-backed chapter identities.
@@ -4183,3 +4205,9 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Source/review:** All renderer/audit application, data, script and test files match the exact independently approved Gemini subjects (`d553f2d` / `9d73900`). Parent-main merge is tree-identical; fresh CI follows on the final head. This log is the only local follow-up edit.
 **[DEBT] Static latency observation:** `components/liturgy/shapes/alignmentGeometry.ts:45-49` measures every claimed element's rectangle but consumes only the first rectangle. Candidate: measure the first element alone, retain all morpheme identities. Impact unmeasured; preserve shared source-anchor behavior. Capture for a focused measured deletion, not a speculative new renderer abstraction.
 **Chapter publication checkpoint:** #172 merged as `ebcea8f`, CI `34041898537` all five jobs plus Vercel pass. Publisher #3 merged `b96825a` after fresh run `33394159213` attempt 2; #4 merged `ddd29d1` after run `34042119879`. #3 preceded #172 by 20 seconds; artifact activation followed the complete reader stack. Normal published main URLs download exactly one 5,344,477-byte chapter artifact and no full session: 4,306 ms cold / 232 ms offline cached in one local production-browser observation. Ordinary-backup reimport still loses selected scope (CONS-07), with readable chapters retained and its assertion failing. No complete novel/index/scan or physical-device claim.
+
+### [2026-09-06 19:37 MUT] [Agent: Codex]
+**Status:** Reviewing approved debt-policy PR #168 against merged main.
+**Worktree:** `/private/tmp/LexiconForge.worktrees/codex-debt-policy`, `docs/codex-attentional-policy`. Only WORKLOG conflicts; retain both histories. Policy text remains byte-identical to `d2cbb56`; no application/config/test edits.
+**Assessment/options:** Keep the evidence/freshness/WIP policy (selected): small reversible documentation change, confidence 0.97; it supports the approved deletion-first consolidation without expanding its scope. Defer the policy: avoids a document but leaves stale scan counts easier to mistake for priorities. Neither option requires a scoring system or review bot. Existing user authorization persists; the policy does not require repeating already-granted approval.
+**Verification:** Read the complete 277-line document; current classifications explicitly exclude the historical March snapshot. Referenced paths, Markdown and diff checks follow. Source-only independent review is authorized; no test is added for prose.
