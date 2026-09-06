@@ -320,3 +320,16 @@ Append-only raw debt receipts discovered during implementation.
 - `tests/store/slices/illustration-marker-insertion.test.ts:14` reimplements the
   production algorithm, so the suite can stay green when the real action breaks.
 - Delete/replace with a few actual store-action cases. Pickup: Issues.md TEST-01.
+
+
+## 2026-09-06 consolidation review
+
+[DEBT][PUBLICATION] #171 artifact names omit changed-byte identity; republishing overwrites files still referenced by old manifests. Actual builder probe reproduces same URL/different SHA. Files and publication acceptance: Issues.md CONS-01. Blocks #172 artifact release too.
+
+[DEBT][TEST] #165's manual coverage exclusions drift from Vitest; an excluded configuration file passes its floor validator. Share the effective scope and delete the no-op mapping. Probe and acceptance: Issues.md CONS-02.
+
+[DEBT][PROCESS] #164's receipt schema rejects four real approvals because producer/validator key names differ; controller bootstrap and duplicate ADR numbering are separate problems. Defer automation; Issues.md CONS-03.
+
+[DEBT][COORDINATION] WORKLOG alone conflicts across five original PRs and the reader/QA merge. Preserve both histories while consolidating; evaluate existing task receipts afterward, without a synchronization service. Issues.md CONS-04.
+
+[DEBT][UI] IllustrationRouteDialog's static model insertion can overwrite the saved-default annotation for the same ID. Cosmetic; source review found no submission problem. Pickup: Issues.md UI-01.

@@ -146,7 +146,7 @@ Current cleanup removes built-in endpoints, personal deployment defaults and ope
 records. Existing saved settings continue to work. The client artifact scan rejects
 embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
 Historical refs/caches are a separate assessment; do not claim deletion from history
-or copy private audit findings into this issue. Cleanup is in [PR #174](https://github.com/anantham/LexiconForge/pull/174); merge/deployment evidence is pending.
+or copy private audit findings into this issue. Cleanup merged in [PR #174](https://github.com/anantham/LexiconForge/pull/174) at `fb80065`. Private runtime adoption remains a separate deployment check.
 
 ## Agent pickup queue — 2026-09-05 latency and complexity pass
 
@@ -154,18 +154,18 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 
 ### LAT-01 — Remove unrelated routes from cold startup
 
-- **Status:** Implemented and verified; [draft PR #173](https://github.com/anantham/LexiconForge/pull/173) on `perf/codex-startup-latency`. Not merged or deployed. Owner: Codex.
+- **Status:** Merged and verified; [PR #173](https://github.com/anantham/LexiconForge/pull/173), main merge `3301e3a`. Owner: Codex. Measurements below are controlled browser evidence.
 - **Files:** `App.tsx`, `App.test.tsx`, `tests/e2e/route-loading.spec.ts`.
 - **Evidence / acceptance:** [Build measurements, limits, and reproduction](issues/01-bootup-time/2026-09-05-route-startup.md). Load only the selected feature; preserve deep links, route transitions, and visible download failures. This does **not** close the full-import delay in historical issue 1.
 
 ### LAT-02 — Delete abandoned app-shell subscriptions and scaffolding
 
-- **Status:** Implemented and locally verified; Codex on `perf/codex-reader-latency`. Confidence: 0.99. Effort: small. Risk: low; reversible.
+- **Status:** Merged and verified; [PR #175](https://github.com/anantham/LexiconForge/pull/175), main merge `7962464`. Confidence: 0.99. The deletion remains isolated and reversible.
 - **Files / evidence:** `MainApp.tsx:45-46,65-67,76-112,133-142,165-186`. `handleTranslate`, `handleFetch`, `loadPromptTemplates`, `getChapter`, `hasTranslationSettingsChanged`, `currentChapterTranslationResult`, `hasCurrentChapter`, `requestedRef`, and `settingsFingerprint` are declared but never consumed. The two derived selectors still execute on store changes; old auto-translation comments and a commented subscription remain after their behavior moved to the store.
 - **Done when:** Remove the unused hooks/imports/ref/memo/commented code; preserve live job warnings and initialization/preload behavior. Existing app-shell/navigation tests pass. Measure render/subscription work before claiming a latency gain; do not replace dead code with another abstraction.
-- **Receipt:** [Controlled reader measurements](issues/09-chapter-change-perf-logging/2026-09-05-app-shell.md): 2,000 → 0 chapter lookups per 1,000 unrelated updates; synthetic navigation and job warnings verified. Review/merge pending.
+- **Receipt:** [Controlled reader measurements](issues/09-chapter-change-perf-logging/2026-09-05-app-shell.md): 2,000 → 0 chapter lookups per 1,000 unrelated updates; synthetic navigation and job warnings verified; combined source review and fresh CI pass.
 
-- **Review:** [PR #175](https://github.com/anantham/LexiconForge/pull/175); implemented and pushed, pending review/merge.
+- **Review:** [PR #175](https://github.com/anantham/LexiconForge/pull/175); merged after exact-source independent review and fresh five-job CI.
 
 ### LAT-03 — Stop rediscovering an unchanged broker on every settings-panel visit
 
@@ -187,9 +187,13 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 
 ### QA-03 — Reproducible worktree and production-browser verification
 
-- **Status:** Open; unclaimed. Confidence: 0.99 for observed setup friction. Effort: medium. Risk: low if opt-in and local; reversible.
+- **Status:** Partial; setup/configuration implemented in #176. Representative novel and fresh/warm-cache acceptance remain open. Confidence: 0.99 for observed setup friction. Effort: medium. Risk: low if opt-in and local; reversible.
 - **Files / evidence:** `playwright.config.ts`, `tests/e2e/helpers/sessionHarness.ts`, `package.json`, `.gitattributes`, and worktree setup instructions. Root Node is 26 while the project requires 24; this pass used an existing Node 24.19.0 binary. A broad `git diff --stat` in the temporary worktree invoked Git LFS cleaning for `media/demo.mp4` and failed writing the main repo's `.git/lfs/tmp`. Scoped diffs worked. The E2E config hardcodes port 5177/dev mode and may reuse an unrelated existing server; production QA needed a temporary preview config.
 - **Done when:** Document one persistent worktree per branch with Node 24 and an explicit LFS/dependency setup; do not prune, reset, or stash another agent's work. Reuse the existing session harness with a scrubbed representative novel, fresh/warm cache cases, a selectable production preview URL, and trace-on-failure. Record worktree path and exact source revision in receipts; never use a personal browser profile as the automated fixture. No daemon/dashboard needed.
+
+- **Current correction:** Existing config accepts `LF_E2E_BASE_URL`, refuses accidental dev-server reuse, and retains first-failure traces. The E2E guide now uses locked installation and documents worktree/preview/fixture evidence. No new runner or dependency.
+
+- **Review:** [PR #176](https://github.com/anantham/LexiconForge/pull/176); setup changes pushed for review. Keep this ticket open until the fixture and receipt criteria above pass.
 
 ### COPY-01 — Remove the hardcoded sutta title from shared provenance UI
 
@@ -201,3 +205,38 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 - **Status:** Open; unclaimed.
 - **Evidence:** `tests/store/slices/illustration-marker-insertion.test.ts:14` implements its own `insertMarkerIntoHtml` and all assertions exercise that copy. It cannot detect changes to `store/slices/translationsSlice.ts`'s real action.
 - **Done when:** Remove the duplicated test implementation; retain only useful cases against the real action or a justified shared production function. Check actual chapter mutation and no mutation on rejected planning; do not add a wrapper solely to satisfy test counts.
+
+
+## Consolidation pickup queue — 2026-09-06
+
+Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. First three PRs are merged; #176 integration checks and independent review pass, with final main-targeted CI pending. Merge records belong in WORKLOG.
+
+### CONS-01 — Give changed chapter artifacts distinct addresses
+
+- **Status:** Open; P2 blocker for #171 and #172 publication. Subject `3a7fee9`; confidence 0.99.
+- **Files / evidence:** `scripts/lib/chapter-artifact-builder.ts:23,44,58` derives names without content/version identity; `scripts/build-library-session.ts:88` overwrites them. A Node 24.19 probe of the actual builder gives two changed versions/revisions the same URL with different hashes. Old manifests then fail integrity checks.
+- **Candidate / done when:** Prefer digest filenames and manifest-last publication; retain old referenced artifacts. Prove identical bytes keep their address, changed bytes get another address, and both old/new manifests still retrieve hash-valid bytes. Keep directory safety, version checks and full-session compatibility. Hold artifact publication until repaired.
+
+### CONS-02 — Make coverage validation match the measured scope
+
+- **Status:** Open; P2 blocker for #165. Subject `b9f0904`; confidence 0.99.
+- **Files / evidence:** `scripts/ci/validate-coverage-policy.mjs:55-67` incompletely mirrors `vitest.config.ts:42-54`. A temporary `components/review.config.ts` with a 90% floor passes validation although Vitest excludes `**/*.config.*`.
+- **Candidate / done when:** Share the effective include/exclude scope, delete the no-op mapping and reject excluded-only floors in `tests/scripts/ci/coveragePolicy.test.ts`. Valid floors still pass without lowering thresholds. Explicitly settle root `App.tsx`/`MainApp.tsx` coverage before calling the baseline product-wide. Retain current coverage until corrected.
+
+### CONS-03 — Defer review automation; reconcile its receipt schema if retained
+
+- **Status:** Deferred; P2 blocker for #164 activation. Subject `cabd5c9`; confidence 0.99.
+- **Files / evidence:** `scripts/ci/cross-family-review-gate.mjs:135` requires `reviewRunId`, while four real current-head approvals contain `reviewerRunId`. The exact gate rejects all four; changing only that key in disposable copies makes them pass. No real review was edited. The failed controller separately runs a script absent from trusted main; its ADR also duplicates CORE-015.
+- **Done when, if retained:** Align producer/schema with a real-format fixture; stale/incomplete reviews still fail; fix the ADR number and prove bootstrap before separately approving activation. Independent source review can proceed without this controller.
+
+### CONS-04 — Preserve task receipts while resolving shared worklog conflicts
+
+- **Status:** Open coordination debt. The five initially conflicted PRs (#161/#164/#165/#168/#169) conflicted only in `docs/WORKLOG.md`; integrating #175/#176 also conflicts there alone.
+- **Follow-up:** Preserve both histories now. After consolidation, assess short log pointers to existing per-task evidence instead of more repeated receipts. Do not add a synchronization bot. Recompute each child diff and refresh stale descriptions when its parent merges.
+
+
+### UI-01 — Preserve the saved-default label when model lists overlap
+
+- **Status:** Open; non-blocking cosmetic review finding.
+- **File / evidence:** `components/chapter/IllustrationRouteDialog.tsx` populates its model-ID map in Saved → static Gemini → discovered order. A static entry with the saved ID overwrites the saved-default label/group; the model remains selectable and validation works. Independent Claude source review confirmed this collision path.
+- **Done when:** Establish the intended grouping and preserve the saved annotation without duplicate options or another selection abstraction. No latency or submission defect is claimed.

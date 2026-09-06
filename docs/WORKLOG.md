@@ -3728,6 +3728,14 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Next files:** `App.tsx` and its existing unit/browser tests for review; `MainApp.tsx` for a separate deletion-only ticket; `playwright.config.ts` and existing QA instructions for a separate setup ticket. Keep semantic live acceptance, physical device checks and merge/deployment decisions open.
 
 ### [2026-09-05] [Agent: Codex]
+**Status:** Starting QA-03 on `test/codex-production-qa`.
+**Files:** `playwright.config.ts` and `docs/infrastructure/E2E-TESTING.md`; Issues and this log.
+**Hypothesis/prediction:** Selecting an already-running preview through `LF_E2E_BASE_URL` removes temporary config duplication; refusing dev-server reuse prevents wrong-app success. `retain-on-failure` preserves evidence with zero retries. Confidence 0.98.
+**Boundary:** Existing local browser workflow only; no new dependency, daemon, browser profile or product behavior. Fallback is the isolated config/doc commit revert.
+
+**QA-03 result:** `playwright.config.ts:3,37,64` accepts an explicit preview URL, refuses default dev-server reuse and retains first-failure traces. Updated `docs/infrastructure/E2E-TESTING.md` replaces package-install drift and duplicate schema/wishlist prose with locked setup, isolated worktree, production preview and fresh/warm fixture instructions.
+**Verification:** Existing production route suite passes 3/3 through the new URL option. A disposable occupied-port probe proves the default runner refuses reuse. An intentionally failing external diagnostic produces `trace.zip` with retries zero; it is not part of the committed test suite. No new dependencies or runtime changes.
+
 **Status:** Starting LAT-02 in `perf/codex-reader-latency`, based on refreshed startup source `0d5f5ce`.
 **Files:** `MainApp.tsx` and existing app-shell/browser tests; Issues and this log.
 **Hypothesis/prediction:** Two unused derived selectors perform two chapter lookups on every irrelevant store update; unused scalar subscriptions can also cause unnecessary shell renders. Removing those subscriptions, unused imports/ref/memo and abandoned comments should reduce work without changing initialization, preloading or job warnings. Confidence 0.99 for dead code; navigation timing benefit is unmeasured.
@@ -3746,6 +3754,14 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 
 **Results:** Native Windows probe passes all three cutover root cases (missing, mismatched, normalized match) and all four missing-variable log cases. Its disposable hardening sentinel prevents task/service/route work. The initial stdin transport stalled; a temporary script-file transport completed and cleaned up. Bridge Python 3.12.13 suite passes 31 tests (one dependency deprecation warning).
 **Changed locations:** `deploy/windows/cutover-portal.ps1:124`, `start-bridge.cmd:22`, `start-sillytavern.cmd:14` under the bridge; `tests/windows/test-runtime-configuration.ps1:1`; bridge `README.md:81`. Runtime environment/task identity and actual process provenance remain deployment acceptance checks. No deployment performed.
+
+**Review checkpoint:** QA-03 is published in https://github.com/anantham/LexiconForge/pull/176. The current stack includes #174 correction `d5efee7`; only documentation conflicted, both receipts retained. App behavior and measured test source are unchanged. Fresh current-head CI and independent review pending; no merge or deployment.
+
+### [2026-09-05 12:50 MUT] [Agent: Codex]
+**Status:** Corrected QA-03 completion claim after independent review.
+**Files:** `Issues.md:186` now explicitly marks QA-03 partial. #176 implements runner/setup improvements; a scrubbed representative novel, fresh/warm cases through the session harness, and exact fixture/revision receipts still need execution. Three synthetic route checks do not close those acceptance criteria. No runtime code changed.
+
+**QA-03 review correction:** `docs/infrastructure/E2E-TESTING.md:49` now uses the current worktree's ignored `dist/`, not one shared temporary output path. Concurrent branches need distinct worktrees/output and strict preview ports; do not rebuild a worktree during its test run. This prevents one branch replacing another preview's files. Documentation-only correction; the earlier actual probes already used separate output directories.
 
 **Review checkpoint:** LAT-02 is published in https://github.com/anantham/LexiconForge/pull/175. The current stack includes #174 correction `d5efee7`; only documentation conflicted, both receipts retained. App behavior and measured test source are unchanged. Fresh current-head CI and independent review pending; no merge or deployment.
 ### [2026-09-05 12:50 MUT] [Agent: Codex]
@@ -3767,5 +3783,29 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 **Files/conflicts:** `Issues.md:151` and `docs/roadmaps/TECH-DEBT-INBOX.md:306` retained both sides. WORKLOG, FEAT-003 amendment and the already-reviewed illustration route guard merge automatically. Startup implementation is unchanged; focused combined checks and fresh CI/review follow. No main merge, deployment or benchmark claim changes.
 
 ### [2026-09-05 14:37 MUT] [Agent: Codex]
+**Status:** Refreshed #176 from parent #173 `7db1933`, preserving the reviewed source and history.
+
 **Status:** Refreshed #175 from parent #173 `7db1933`, preserving the reviewed source and history.
 **Resolution:** `docs/WORKLOG.md:3750` retains both task receipts and parent corrections. Other files merge automatically. The parent passed 46 combined provider/settings/dialog/app-screen tests and TypeScript; this branch's implementation and earlier benchmark/QA evidence are unchanged. Fresh combined checks and current-head CI/review follow; no main merge or deployment.
+
+### [2026-09-06 16:54 MUT] [Agent: Codex]
+**Status:** Starting the approved first consolidation batch: #174 → #173 → #175 → #176.
+**Worktree/branch:** Existing isolated `codex-production-qa` worktree, `test/codex-production-qa`; root main remains clean. Combine the reader parent into QA without rewriting history, then retain focused PR diffs through their bases.
+**Files:** Three append-only conflicts in this log retain both prior task receipts. `MainApp.tsx`, its existing app-screen fixture and reader evidence merge unchanged. Consolidation findings will be carried into `Issues.md` and `docs/roadmaps/TECH-DEBT-INBOX.md`.
+**Hypotheses/predictions:** Removing unused selectors preserves initialization, navigation and background-work protection; lazy routes still isolate downloads and show failures; explicit preview selection exercises the same built source. Confidence 0.97. Verify with existing focused tests on Node 24.19.0, production browser probes, independent tools-disabled source review and fresh CI for the merge heads.
+**Options:** A (approved): preserve the four focused PRs and merge parents first; moderate effort, lower integration risk, isolated rollback. B: replace them with one aggregate PR; fewer visible PRs but larger review/rollback scope and discarded review context. No new runtime framework or review automation.
+**Fallback:** Hold only a failing lane and record its reproducible blocker. Backend deployment, complete-corpus and physical-device acceptance remain separate.
+
+**Combined verification:** Node 24.19.0 passes 175 tests across 13 existing suites, TypeScript, production build, repository marker integrity and the client privacy scan. Chromium production route checks pass 3/3; six isolated synthetic reader contexts preserve chapter/version navigation and working/idle tab-close behavior, with no page errors and zero chapter lookups on 1,000 irrelevant store updates. Both probe URLs use this same build; these are functional checks, not a new before/after latency comparison. Existing large-chunk warnings remain.
+**Review progress:** Fresh #174 CI attempt 2 passed all five jobs at `42732be`. The tools-disabled Claude request was rejected before inference by its session quota; Gemini is reviewing the same 12-file source packet with tools, hooks, extensions, MCP and context discovery disabled. Independent review is not yet complete. Packet SHA-256: `5fcb72ccaed1e98168ac61156003996aa7ec45cd731b4c6c15c984133aa742c2`.
+
+**[DEBT] Consolidation handoff:** `Issues.md` CONS-01–04 and `docs/roadmaps/TECH-DEBT-INBOX.md` now retain the reproduced artifact-address, coverage-scope and review-receipt blockers plus worklog coordination friction. The issue queue records the remaining approved consolidation order. No implementation in those later lanes changed; #164 remains deferred and live/domain gates remain open.
+
+**Independent review complete:** Anthropic Claude Sonnet 5 returned APPROVE for all 12 supplied source/test files, confirming the complete inventory and end marker. Source bytes still match the tested packet. Review run `gen-1788700103-OHAQEWMtZBjOLSYxnYwz`; packet SHA-256 above. No tools or repository access were offered. The earlier Claude CLI quota and retired Gemini CLI path performed no review; the first API response exhausted its output allocation without a verdict and is not counted. The completed review used a separate reasoning cap. Anonymous GitHub downloads at published merge head `4bc5531` matched all 12 file hashes before the authorized external API transmission.
+**Scope/limitations:** This fresh review covers app routing, reader shell, illustration/settings validation, provider source, QA config and relevant tests. Windows/configuration files outside the packet retain their existing exact-head Codex/native-probe evidence. No full novel, actual scan, Safari or physical-device acceptance is inferred. One cosmetic saved-model grouping observation is captured in Issues.md UI-01 without expanding this batch.
+
+### [2026-09-06 17:23 MUT] [Agent: Codex]
+**Status:** First three approved consolidation PRs merged; QA handoff ready for final main-targeted CI.
+**Merged source:** #174 head `42732be` → main `fb80065` (CI `33957202433`, attempt 2); #173 head `5c24f02` → main `3301e3a` (CI `34035438244`); #175 head `799d94c` → main `7962464` (CI `34035683073`). All five jobs and Vercel passed on each head. Both child refreshes have identical before/after Git trees; no published history was rewritten.
+**Files/lines:** `Issues.md:144` updates privacy/startup/reader merge status; its consolidation queue at `:211` and UI-01 retain future work. `docs/roadmaps/TECH-DEBT-INBOX.md:325` retains the four consolidation findings and cosmetic label receipt. This log records the source review, tests, merge boundaries and next work. These are documentation-only follow-ups; all 12 reviewed source/test hashes remain unchanged.
+**Next:** Merge #176 after its final CI; refresh #160 against the combined reader and prove URL import → graph export → offline file reopen/book-version invalidation. Keep FEAT-006 Accepted and leave its live backend/corpus/Safari/physical-device gates open. No private service deployment occurred. Root checkout remains clean on main; review evidence is preserved in local Git metadata before later merged-worktree cleanup.
