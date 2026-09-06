@@ -581,7 +581,7 @@ Add to `config.json`:
 {
   "sillytavern_url": "http://localhost:8000",
   "bridge_port": 5001,
-  "exocortex_repo": "/Users/aditya/Library/CloudStorage/GoogleDrive-adityaprasadiskool@gmail.com/My Drive/Exocortex"
+  "exocortex_repo": "/path/to/private/notes"
 }
 ```
 

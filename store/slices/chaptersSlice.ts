@@ -22,6 +22,7 @@ import { debugLog, debugWarn } from '../../utils/debug';
 import { telemetryService } from '../../services/telemetryService';
 import { memoryCacheSnapshot } from '../../utils/memoryDiagnostics';
 import { mergeChapter } from '../../utils/mergeChapter';
+import { selectedChapterText } from '../../services/semanticOscilloscopeSession';
 
 export interface ChaptersState {
   // Core data
@@ -253,6 +254,12 @@ export const createChaptersSlice: StateCreator<
   },
   
   importChapter: (chapter) => {
+    const state = get();
+    const previous = state.chapters.get(chapter.id);
+    if (state.corpusIdentity?.corpusId === chapter.novelId
+      && (chapter.libraryVersionId ?? null) === state.activeVersionId
+      && (!previous || previous.title !== chapter.title || previous.chapterNumber !== chapter.chapterNumber
+        || selectedChapterText(previous) !== selectedChapterText(chapter))) state.resetOscilloscope();
     set(state => {
       const newChapters = new Map(state.chapters);
       const existed = newChapters.has(chapter.id);
@@ -289,6 +296,15 @@ export const createChaptersSlice: StateCreator<
   },
   
   updateChapter: (chapterId, updates) => {
+    const state = get();
+    const previous = state.chapters.get(chapterId);
+    if (state.corpusIdentity && previous) {
+      const next = { ...previous, ...updates };
+      if (previous.title !== next.title || previous.chapterNumber !== next.chapterNumber
+        || selectedChapterText(previous) !== selectedChapterText(next)) {
+        state.resetOscilloscope();
+      }
+    }
     set(state => {
       const chapter = state.chapters.get(chapterId);
       if (!chapter) return state;
@@ -305,6 +321,10 @@ export const createChaptersSlice: StateCreator<
   },
   
   removeChapter: (chapterId) => {
+    const state = get();
+    const removed = state.chapters.get(chapterId);
+    if (removed && state.corpusIdentity?.corpusId === removed.novelId
+      && (removed.libraryVersionId ?? null) === state.activeVersionId) state.resetOscilloscope();
     set(state => {
       const newChapters = new Map(state.chapters);
       const chapter = newChapters.get(chapterId);
@@ -399,6 +419,12 @@ export const createChaptersSlice: StateCreator<
       const uiActions = get();
       if (uiActions.setError) {
         uiActions.setError(result.error);
+      }
+      if (typeof result.error === 'string' && uiActions.showNotification) {
+        uiActions.showNotification(
+          result.error,
+          result.errorCode === 'chapter_not_cached' ? 'warning' : 'error'
+        );
       }
       
       // Handle fetch if needed
@@ -735,6 +761,7 @@ export const createChaptersSlice: StateCreator<
   },
   
   clearAllChapters: () => {
+    get().resetOscilloscope();
     set(state => {
       recordChapterCache('chapters.clearAll', 0, { previousSize: state.chapters.size });
       return {

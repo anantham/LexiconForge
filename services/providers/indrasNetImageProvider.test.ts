@@ -2,7 +2,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   clearIndrasNetWorkflowCacheForTests,
-  DEFAULT_INDRASNET_BASE_URL,
   fetchIndrasNetWorkflows,
   generateIndrasNetImage,
   imageModelFromWorkflowName,
@@ -10,7 +9,7 @@ import {
   normalizeIndrasNetBaseUrl,
 } from './indrasNetImageProvider';
 
-const endpoint = 'https://asus-strix-scar.example.ts.net';
+const endpoint = 'https://broker.example.com';
 const clientReadyWorkflow = {
   name: 'storybook',
   client_ready: true,
@@ -39,14 +38,18 @@ describe('IndrasNet image provider', () => {
     vi.unstubAllGlobals();
   });
 
-  it('uses the default endpoint when the saved endpoint contains only whitespace', () => {
-    expect(normalizeIndrasNetBaseUrl('  \n  ')).toBe(DEFAULT_INDRASNET_BASE_URL);
+  it.each([undefined, '', '  \n  '])('requires an explicit endpoint before discovery (%j)', async (value) => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    await expect(fetchIndrasNetWorkflows(value)).rejects.toMatchObject({
+      code: 'INDRASNET_ENDPOINT_REQUIRED', retryable: false,
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   it('rejects an HTTP endpoint as configuration error when the page uses HTTPS', () => {
     vi.stubGlobal('window', { location: { protocol: 'https:' } });
 
-    expect(() => normalizeIndrasNetBaseUrl('http://100.81.65.74:7777')).toThrowError(
+    expect(() => normalizeIndrasNetBaseUrl('http://192.0.2.10:7777')).toThrowError(
       expect.objectContaining({ code: 'INDRASNET_MIXED_CONTENT', retryable: false }),
     );
   });

@@ -193,7 +193,8 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 | `scripts/sutta-studio/benchmark.ts` | 2,493 | Split candidate | Run orchestration, pipeline execution, artifact indexing, metrics, and progress lifecycle share one module; completion-boundary testing required a main-module guard |
 | `components/bench/SuttaStudioBenchmarkView.tsx` | 1,620 | Split candidate | Fixture loading + runner orchestration + metrics display |
 | `services/imageService.ts` | 1,245 | Split candidate | Generation planning, dual-generation Google SDK transports, cache/version handling in one module |
-| `services/exportService.ts` | 1,062 | Split candidate | EPUB export and session export are unrelated concerns |
+| `services/exportService.ts` | 1,072 | Split candidate | Three portable serializers duplicate chapter/image assembly; metadata/stat export uses separate scope decisions. Graph review required correcting each builder. |
+| `services/importService.ts` | 1,152 | Split candidate | URL retry, two JSON parsers, persistence/reconciliation, reader hydration, and portable artifact hydration share one lifecycle; adding semantic graph streaming crossed every responsibility |
 | `adapters/providers/OpenAIAdapter.ts` | 886 | Split candidate | Translation/chat request construction, adaptive fallbacks, metrics, and response parsing share one adapter |
 | `services/suttaStudioPassPrompts.ts` | 47 | Resolved | Now a thin re-export shim (was mislisted at 725); real prompt mass lives under `services/sutta-studio/prompts/` |
 | `services/suttaStudioPassRunners.ts` | 35 | Resolved | Thin re-export shim (was mislisted at 586); runners live under `services/sutta-studio/passes/` — deletion candidate tracked by CONSOLIDATION Phase-4 tail (CAP-011) |
@@ -205,10 +206,11 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 > from a stale pre-extraction snapshot.
 | `services/imageGenerationService.ts` | 631 | Split candidate | Initial generation and retry duplicate provenance, persistence, versioning, and metrics assembly; fallback review found behavior drift between the two paths |
 | `components/settings/ProvidersPanel.tsx` | 565 | Watchlist | Provider catalogue effects, credit state, capability checks, pricing assembly, and selection lifecycle remain coupled; PR #138 review found stale endpoint-owned workflow state |
+| `components/NovelLibrary.tsx` | 727 | Split candidate | Registry display, bookshelf persistence, cache hydration, stream acquisition, glossary loading, source search, reader routing, and progress UI share one component; PR #166 review exposed failure-state coupling between acquisition and reader ownership |
 | `components/Illustration.tsx` | 822 | Split candidate | Marker lookup, durable-job status, ETA lifecycle, prompt/plan editing, advanced controls, image rendering, generation actions, and version controls share one component; interrupted-state review exposed status/render drift |
 | `store/slices/imageSlice.ts` | 1,580 | Split candidate | Job lifecycle is now separate, but result application, persistence, cache migration, controls, versioning, and recovery orchestration still give this file multiple reasons to change |
 | `store/slices/translationsSlice.ts` | 1,059 | Keep | Single domain, complex but cohesive |
-| `store/slices/chaptersSlice.ts` | 825 | Keep | Single domain |
+| `store/slices/chaptersSlice.ts` | 1,120 | Split candidate | Reader hydration, navigation, import, preload/budget policy and chapter mutation each write maps; graph invalidation must track multiple mutation paths. |
 | `store/slices/exportSlice.ts` | 605 | Keep | Single domain |
 
 ### Completed Decompositions (formerly on this list)

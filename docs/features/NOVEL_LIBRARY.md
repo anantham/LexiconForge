@@ -1,6 +1,6 @@
 # Novel Library - Curated Collection Browser
 
-**Last Updated:** 2026-03-19
+**Last Updated:** 2026-08-30
 
 ---
 
@@ -138,6 +138,9 @@ The library currently features:
 1. **Dynamic Registry** (`services/registryService.ts`) — **primary path**
    - `NovelLibrary.tsx` fetches novel metadata from a remote GitHub-hosted `registry.json`
    - New novels are added by updating the registry, not the codebase
+   - Versions with `chapterManifestUrl` expose only their exact validated
+     published identities; expected-but-unpublished chapters are not projected
+     as navigable package rows
 
 2. **Legacy Static Catalog** (`config/novelCatalog.ts`) — **deprecated, backward compat only**
    - Marked `@deprecated`; still exported for deep-link URLs (`?novel=<id>`)
@@ -148,12 +151,35 @@ The library currently features:
    - Fetches session JSON from URLs
    - Validates format and structure
    - Handles CORS, timeouts, and errors
+
+4. **Publication Integrity** (`services/library/chapterManifestService.ts`)
+   - Validates the version/novel identity, exact chapter tuples, counts, and
+     session digest declaration before a manifested package is trusted
+   - A missing or invalid declared manifest blocks package import and never
+     falls back to a broader metadata range
+   - Older packages without a manifest retain the legacy range behavior until
+     their publisher migrates them
    - Supports GitHub, Google Drive, and custom URLs
 
 4. **State Management**
    - Landing page shows when no session active
    - Main app shows after successful import
    - Seamless transition (no page reload)
+
+### Chapter Catalog and Cache Acquisition
+
+- The registry projects the selected version's full chapter range so readers
+  can see where they are in the work.
+- A projected chapter is labelled `not cached yet` and cannot be selected until
+  its scoped chapter row has been imported.
+- Internal `lexiconforge://` chapter links resolve by novel, version, and
+  chapter number. They are identity links and never enter the web-scraper
+  transport chain.
+- Reopening a partially cached version resumes its session import while keeping
+  the saved cached chapter readable. Exact packaged translations are reused,
+  so replay does not create duplicate versions.
+- See [CORE-015](../adr/CORE-015-chapter-catalog-acquisition-contract.md) for
+  the cache-completeness and failure-surfacing invariants.
 
 ### Session JSON Structure
 

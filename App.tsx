@@ -1,46 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import Loader from './components/Loader';
-import MainApp from './MainApp';
-import { SuttaStudioBenchmarkView } from './components/bench/SuttaStudioBenchmarkView';
-import { SuttaStudioApp } from './components/sutta-studio/SuttaStudioApp';
-import { SuttaStudioView } from './components/sutta-studio/SuttaStudioView';
-import { SuttaStudioPipelineLoader } from './components/sutta-studio/SuttaStudioPipelineLoader';
-import { SuttaStudioCompareView } from './components/sutta-studio/SuttaStudioCompareView';
-import { DEMO_PACKET_MN10 } from './components/sutta-studio/demoPacket';
 import type { DeepLoomPacket } from './types/suttaStudio';
-import { LiturgyApp } from './components/liturgy/LiturgyApp';
-import { CalvinoReader } from './components/calvino/CalvinoReader';
-import { UrakamProtoPage } from './components/malayalam/UrakamProtoPage';
-import { MalayalamLibraryPage } from './components/malayalam/MalayalamLibraryPage';
-import { GitaIndexPage } from './components/gita/GitaIndexPage';
-import { GitaSthitaprajnaPage } from './components/gita/GitaSthitaprajnaPage';
 
-// Free Tier-1 chapter reader — lazy-loaded so its ~468 KB generated chapter data
-// (dynamically imported inside the page) stays out of the initial bundle.
-const GitaChapter2Page = React.lazy(() => import('./components/gita/GitaChapter2Page'));
+// Handle failed downloads once, without adding retry state or a routing framework.
+function lazyPage<Props>(load: () => Promise<{ default: React.ComponentType<Props> }>) {
+  return React.lazy(() => load().catch((error: unknown) => {
+    console.error('[App] Failed to download page:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    return { default: () => (
+      <div role="alert" className="p-8 text-slate-200">
+        <p>Unable to open this page: {message}</p>
+        <button type="button" className="mt-4 underline" onClick={() => window.location.reload()}>
+          Reload page
+        </button>
+      </div>
+    ) };
+  }));
+}
 
-// Published local suttas — real IDs, rendered from bundled packets (no API calls).
-// Add an entry here to publish a sutta at a real, linkable URL like /sutta/mn10.
-const LOCAL_SUTTA_PACKETS: Record<string, DeepLoomPacket> = {
-  mn10: DEMO_PACKET_MN10,
-};
+// Load each feature only when its route is opened. Keep its data out of other readers.
+const MainApp = lazyPage(() => import('./MainApp'));
+const SuttaStudioBenchmarkView = lazyPage(() => import('./components/bench/SuttaStudioBenchmarkView').then(m => ({ default: m.SuttaStudioBenchmarkView })));
+const SuttaStudioApp = lazyPage(() => import('./components/sutta-studio/SuttaStudioApp').then(m => ({ default: m.SuttaStudioApp })));
+const SuttaStudioPipelineLoader = lazyPage(() => import('./components/sutta-studio/SuttaStudioPipelineLoader').then(m => ({ default: m.SuttaStudioPipelineLoader })));
+const SuttaStudioCompareView = lazyPage(() => import('./components/sutta-studio/SuttaStudioCompareView').then(m => ({ default: m.SuttaStudioCompareView })));
+const LiturgyApp = lazyPage(() => import('./components/liturgy/LiturgyApp').then(m => ({ default: m.LiturgyApp })));
+const CalvinoReader = lazyPage(() => import('./components/calvino/CalvinoReader').then(m => ({ default: m.CalvinoReader })));
+const UrakamProtoPage = lazyPage(() => import('./components/malayalam/UrakamProtoPage').then(m => ({ default: m.UrakamProtoPage })));
+const MalayalamLibraryPage = lazyPage(() => import('./components/malayalam/MalayalamLibraryPage').then(m => ({ default: m.MalayalamLibraryPage })));
+const GitaIndexPage = lazyPage(() => import('./components/gita/GitaIndexPage').then(m => ({ default: m.GitaIndexPage })));
+const GitaSthitaprajnaPage = lazyPage(() => import('./components/gita/GitaSthitaprajnaPage').then(m => ({ default: m.GitaSthitaprajnaPage })));
+const GitaChapter2Page = lazyPage(() => import('./components/gita/GitaChapter2Page'));
 
-// Larger packets load as their own chunk on route hit instead of riding in the
-// main bundle (mn117 is ~1.1MB minified; mn10's 0.5MB stays sync for now).
-const LAZY_SUTTA_LOADERS: Record<string, () => Promise<{ default: unknown }>> = {
+// Published packets use one loading path; no packet is needed by the app shell.
+const LOCAL_SUTTA_LOADERS: Record<string, () => Promise<{ default: unknown }>> = {
+  mn10: () => import('./content/references/sutta/mn10.json'),
   mn117: () => import('./content/references/sutta/mn117.json'),
 };
 
-function LazyLocalSutta({ uid }: { uid: string }) {
-  const [packet, setPacket] = useState<DeepLoomPacket | null>(null);
+const LazyLocalSutta: React.FC<{ uid: string }> = ({ uid }) => {
+  const [content, setContent] = useState<React.ReactNode>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
-    LAZY_SUTTA_LOADERS[uid]()
-      .then((m) => {
-        if (!cancelled) setPacket(m.default as DeepLoomPacket);
+    Promise.all([LOCAL_SUTTA_LOADERS[uid](), import('./components/sutta-studio/SuttaStudioView')])
+      .then(([m, { SuttaStudioView }]) => {
+        if (!cancelled) setContent(<SuttaStudioView packet={m.default as DeepLoomPacket} />);
       })
       .catch((e) => {
+        console.error(`[App] Failed to load local sutta ${uid}:`, e);
         if (!cancelled) setError(e?.message || String(e));
       });
     return () => {
@@ -54,11 +62,10 @@ function LazyLocalSutta({ uid }: { uid: string }) {
       </div>
     );
   }
-  if (!packet) return <Loader />;
-  return <SuttaStudioView packet={packet} />;
-}
+  return content ?? <Loader text={`Loading ${uid.toUpperCase()}…`} />;
+};
 
-const App: React.FC = () => {
+const AppRoutes: React.FC = () => {
   // Track pathname in state so client-side navigation (history.pushState +
   // synthetic popstate) re-renders the right route handler. Previously the
   // pathname was read once at mount, so the Sutta Studio button (a plain
@@ -101,22 +108,11 @@ const App: React.FC = () => {
     return <SuttaStudioCompareView />;
   }
 
-  // Bake-off resolved 2026-07-03: gemini-3-flash won (100% word coverage vs
-  // 32-40% for deepseek-v4-flash / gemini-3.5-flash); its surface-repaired
-  // compile is now the canonical bundled packet, lazy-loaded below via
-  // LAZY_SUTTA_LOADERS. The compare lab stays at /sutta/compare.
-
-  // Published local suttas by REAL id (/sutta/mn10, …) — bundled packet, no API calls.
-  // /sutta/demo is a legacy alias handled here (the effect above rewrites its URL to mn10).
-  if (pathname === '/sutta/demo') {
-    return <SuttaStudioView packet={DEMO_PACKET_MN10} />;
-  }
-  const localSuttaMatch = pathname.match(/^\/sutta\/([a-z0-9-]+)$/i);
+  const localSuttaMatch = (pathname === '/sutta/demo' ? '/sutta/mn10' : pathname)
+    .match(/^\/sutta\/([a-z0-9-]+)$/i);
   if (localSuttaMatch) {
     const uid = localSuttaMatch[1].toLowerCase();
-    const packet = LOCAL_SUTTA_PACKETS[uid];
-    if (packet) return <SuttaStudioView packet={packet} />;
-    if (LAZY_SUTTA_LOADERS[uid]) return <LazyLocalSutta uid={uid} />;
+    if (Object.hasOwn(LOCAL_SUTTA_LOADERS, uid)) return <LazyLocalSutta key={uid} uid={uid} />;
   }
 
   // Any other /sutta/* (SuttaCentral uids, /sutta/fojin/…) → live compile.
@@ -146,11 +142,7 @@ const App: React.FC = () => {
   }
   // Free Tier-1 chapters (mechanical: Devanāgarī + akshara sounds + MW glosses).
   if (pathname === '/gita/chapter/2' || pathname === '/gita/chapter/2/') {
-    return (
-      <React.Suspense fallback={<Loader />}>
-        <GitaChapter2Page />
-      </React.Suspense>
-    );
+    return <GitaChapter2Page />;
   }
   if (pathname.startsWith('/gita/')) {
     return <GitaSthitaprajnaPage />;
@@ -158,5 +150,11 @@ const App: React.FC = () => {
 
   return <MainApp />;
 };
+
+const App: React.FC = () => (
+  <React.Suspense fallback={<Loader text="Loading page…" />}>
+    <AppRoutes />
+  </React.Suspense>
+);
 
 export default App;

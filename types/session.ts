@@ -3,6 +3,7 @@
  */
 
 import type { NovelProvenance } from './novel';
+import type { SessionOscilloscopeData } from './oscilloscope';
 
 export interface SessionMetadata {
   format: 'lexiconforge-session';
@@ -33,4 +34,5 @@ export interface SessionData {
   provenance?: SessionProvenance;
   chapters: any[];  // Will be defined by existing chapter types
   settings?: any;    // EPUB and other settings
+  oscilloscope?: SessionOscilloscopeData;
 }

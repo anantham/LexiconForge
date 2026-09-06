@@ -4,8 +4,12 @@ import { NovelLibrary } from '../../components/NovelLibrary';
 import { RegistryService } from '../../services/registryService';
 import { BookshelfStateService } from '../../services/bookshelfStateService';
 import { ImportService } from '../../services/importService';
-import { loadNovelIntoStore } from '../../services/readerHydrationService';
+import {
+  loadNovelCacheIntoStore,
+  loadNovelIntoStore,
+} from '../../services/readerHydrationService';
 import { clearChapterIndexCache } from '../../services/library/chapterIndexService';
+import { fetchNovelChapterCounts } from '../../services/db/operations/summaries';
 import { createMockEnhancedChapter } from '../utils/test-data';
 
 const storeState = vi.hoisted(() => ({
@@ -77,6 +81,9 @@ vi.mock('../../services/registryService', () => ({
 vi.mock('../../services/importService');
 vi.mock('../../services/readerHydrationService');
 vi.mock('../../services/bookshelfStateService');
+vi.mock('../../services/db/operations/summaries', () => ({
+  fetchNovelChapterCounts: vi.fn(),
+}));
 vi.mock('../../services/db/operations', async () => {
   const actual = await vi.importActual<typeof import('../../services/db/operations')>(
     '../../services/db/operations'
@@ -136,7 +143,10 @@ describe('NovelLibrary', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     storeState.showNotification.mockReset();
-    storeState.openNovel.mockReset();
+    storeState.openNovel.mockReset().mockImplementation((novelId, versionId) => {
+      storeState.activeNovelId = novelId;
+      storeState.activeVersionId = versionId;
+    });
     storeState.openLibrary.mockReset();
     storeState.setReaderReady.mockReset();
     storeState.shelveActiveNovel.mockReset();
@@ -163,7 +173,13 @@ describe('NovelLibrary', () => {
     vi.mocked(BookshelfStateService.resolveResumeChapterId).mockImplementation((entry, _chapters, fallback) => {
       return entry?.lastChapterId ?? fallback;
     });
+    vi.mocked(fetchNovelChapterCounts).mockResolvedValue({});
     vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({} as any);
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: null,
+      chapterCount: 0,
+      chapterNumbers: [],
+    });
     vi.mocked(loadNovelIntoStore).mockResolvedValue(null);
     settingsOpsMock.getKey.mockReset();
     settingsOpsMock.set.mockReset();
@@ -172,6 +188,7 @@ describe('NovelLibrary', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('should show loading state initially', () => {
@@ -245,6 +262,44 @@ describe('NovelLibrary', () => {
     expect(screen.getByText('In Progress')).toBeInTheDocument();
   });
 
+  it.each(['cache', 'first-batch'])('ignores an old %s hydration after switching books', async (phase) => {
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([
+      { ...mockNovel, sessionJsonUrl: 'https://example.com/session.json' },
+    ] as any);
+    const selectedChapters = new Map([['book-b-1', createMockEnhancedChapter({
+      id: 'book-b-1', novelId: 'book-b', chapterNumber: 1,
+    })]]);
+    const hydrateOldBook = async (_novelId: string, setState: any) => {
+      storeState.activeNovelId = 'book-b';
+      storeState.chapters = selectedChapters;
+      storeState.currentChapterId = 'book-b-1';
+      setState({ chapters: new Map([['old-chapter', createMockEnhancedChapter({ id: 'old-chapter' })]]) });
+      return 'old-chapter';
+    };
+    if (phase === 'cache') {
+      vi.mocked(loadNovelCacheIntoStore).mockImplementation(async (novelId, setState) => ({
+        firstChapterId: await hydrateOldBook(novelId, setState), chapterCount: 1, chapterNumbers: [1],
+      }));
+    } else {
+      vi.mocked(loadNovelIntoStore).mockImplementation(hydrateOldBook);
+    }
+    let finishStream!: () => void;
+    const streamFinished = new Promise<void>(resolve => { finishStream = resolve; });
+    vi.mocked(ImportService.streamImportFromUrl).mockImplementation(async (_url, _progress, firstReady) => {
+      await firstReady?.();
+      finishStream();
+      return { chaptersLoaded: 1 };
+    });
+    render(<NovelLibrary />);
+    fireEvent.click(await screen.findByText('Test Novel 1'));
+    if (phase === 'first-batch') await streamFinished;
+    await waitFor(() => expect(storeState.activeNovelId).toBe('book-b'));
+    expect(storeState.chapters).toBe(selectedChapters);
+    expect(storeState.currentChapterId).toBe('book-b-1');
+    expect(storeState.setReaderReady).not.toHaveBeenCalled();
+    expect(BookshelfStateService.upsertEntry).not.toHaveBeenCalled();
+  });
+
   it('resumes the saved version directly from the shelf card', async () => {
     vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([mockNovel] as any);
     vi.mocked(BookshelfStateService.getState).mockResolvedValue({
@@ -263,7 +318,11 @@ describe('NovelLibrary', () => {
       lastChapterNumber: 12,
       lastReadAtIso: '2026-03-29T18:00:00.000Z',
     });
-    vi.mocked(loadNovelIntoStore).mockResolvedValue('ch-12');
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 100,
+      chapterNumbers: Array.from({ length: 100 }, (_, index) => index + 1),
+    });
     settingsOpsMock.getKey.mockResolvedValue({ stableIds: ['ch-12'] } as any);
 
     render(<NovelLibrary />);
@@ -278,9 +337,10 @@ describe('NovelLibrary', () => {
       expect(storeState.openNovel).toHaveBeenCalledWith('novel-1', 'alice-v1');
     });
 
-    expect(loadNovelIntoStore).toHaveBeenCalledWith('novel-1', expect.any(Function), {
+    expect(loadNovelCacheIntoStore).toHaveBeenCalledWith('novel-1', expect.any(Function), {
       versionId: 'alice-v1',
     });
+    expect(ImportService.streamImportFromUrl).not.toHaveBeenCalled();
     expect(storeState.setReaderReady).toHaveBeenCalled();
     expect(BookshelfStateService.upsertEntry).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -321,7 +381,11 @@ describe('NovelLibrary', () => {
       lastChapterNumber: 12,
       lastReadAtIso: '2026-03-29T18:00:00.000Z',
     });
-    vi.mocked(loadNovelIntoStore).mockResolvedValue('ch-12');
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 100,
+      chapterNumbers: Array.from({ length: 100 }, (_, index) => index + 1),
+    });
     settingsOpsMock.getKey.mockResolvedValue({ stableIds: ['ch-12'] } as any);
 
     render(<NovelLibrary />);
@@ -340,9 +404,425 @@ describe('NovelLibrary', () => {
     });
 
     expect(storeState.openNovel).toHaveBeenCalledWith('novel-1', 'st-enhanced');
-    expect(loadNovelIntoStore).toHaveBeenCalledWith('novel-1', expect.any(Function), {
+    expect(loadNovelCacheIntoStore).toHaveBeenCalledWith('novel-1', expect.any(Function), {
       versionId: 'st-enhanced',
     });
+  });
+
+  it('resumes an incomplete scoped cache and keeps the saved chapter readable while streaming', async () => {
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([mockNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-03-29T18:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-03-29T18:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 12,
+      chapterNumbers: Array.from({ length: 12 }, (_, index) => index + 1),
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({
+      chaptersLoaded: 100,
+    } as any);
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => expect(ImportService.streamImportFromUrl).toHaveBeenCalled());
+    expect(storeState.currentChapterId).toBe('ch-12');
+    expect(storeState.setReaderReady).toHaveBeenCalled();
+    expect(ImportService.streamImportFromUrl).toHaveBeenCalledWith(
+      'https://example.com/alice.json',
+      expect.any(Function),
+      expect.any(Function),
+      { registryNovelId: 'novel-1', registryVersionId: 'alice-v1' }
+    );
+    expect(storeState.showNotification).toHaveBeenCalledWith(
+      expect.stringContaining('12/100 chapters cached'),
+      'info'
+    );
+  });
+
+  it('persists the authoritative chapter id after replay remaps the open revision', async () => {
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([mockNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-03-29T18:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-03-29T18:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 12,
+      chapterNumbers: Array.from({ length: 12 }, (_, index) => index + 1),
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockImplementation(async () => {
+      storeState.chapters = new Map([
+        [
+          'ch-12-current',
+          createMockEnhancedChapter({
+            id: 'ch-12-current',
+            novelId: 'novel-1',
+            libraryVersionId: 'alice-v1',
+            chapterNumber: 12,
+          }),
+        ],
+      ]);
+      storeState.currentChapterId = 'ch-12-current';
+      return { chaptersLoaded: 100 } as any;
+    });
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => {
+      expect(BookshelfStateService.upsertEntry).toHaveBeenCalledWith(
+        expect.objectContaining({
+          novelId: 'novel-1',
+          versionId: 'alice-v1',
+          lastChapterId: 'ch-12-current',
+          lastChapterNumber: 12,
+        })
+      );
+    });
+    expect(storeState.currentChapterId).toBe('ch-12-current');
+  });
+
+  it('does not treat a same-sized stale chapter range as the selected package', async () => {
+    const shiftedRangeNovel = {
+      ...mockNovel,
+      versions: [
+        {
+          ...mockNovel.versions[0],
+          chapterRange: { from: 2, to: 101 },
+        },
+      ],
+    };
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([shiftedRangeNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-08-30T00:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-08-30T00:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 100,
+      chapterNumbers: Array.from({ length: 100 }, (_, index) => index + 1),
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({ chaptersLoaded: 100 } as any);
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => expect(ImportService.streamImportFromUrl).toHaveBeenCalled());
+  });
+
+  it('uses exact manifest identities to recognize a complete cache', async () => {
+    const manifestedNovel = {
+      ...mockNovel,
+      versions: [{
+        ...mockNovel.versions[0],
+        chapterManifestUrl: 'https://example.com/chapter-manifest.json',
+        chapterRange: { from: 1, to: 4 },
+        completionStatus: 'In Progress',
+        stats: {
+          ...mockNovel.versions[0].stats,
+          content: { ...mockNovel.versions[0].stats.content, totalRawChapters: 3 },
+        },
+      }],
+    };
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([manifestedNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-08-31T00:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-08-31T00:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 3,
+      chapterNumbers: [1, 2, 4],
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        format: 'lexiconforge-chapter-manifest',
+        version: '1.0',
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        generatedAt: '2026-08-31T00:00:00.000Z',
+        expectedChapterCount: 100,
+        publishedChapterCount: 3,
+        session: {
+          url: 'https://example.com/alice.json',
+          sha256: 'a'.repeat(64),
+          byteLength: 100,
+        },
+        chapters: [
+          { chapterNumber: 1, stableId: 'one', canonicalUrl: 'https://source/1' },
+          { chapterNumber: 2, stableId: 'two', canonicalUrl: 'https://source/2' },
+          { chapterNumber: 4, stableId: 'four', canonicalUrl: 'https://source/4' },
+        ],
+      }),
+    }));
+
+    render(<NovelLibrary />);
+    await waitFor(() => expect(
+      screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')
+    ).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => expect(storeState.setReaderReady).toHaveBeenCalled());
+    expect(ImportService.streamImportFromUrl).not.toHaveBeenCalled();
+  });
+
+  it('blocks session import when a declared manifest fails integrity validation', async () => {
+    const manifestedNovel = {
+      ...mockNovel,
+      versions: [{
+        ...mockNovel.versions[0],
+        chapterManifestUrl: 'https://example.com/chapter-manifest.json',
+      }],
+    };
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([manifestedNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-08-31T00:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-08-31T00:00:00.000Z',
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        format: 'lexiconforge-chapter-manifest',
+        version: '1.0',
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        generatedAt: '2026-08-31T00:00:00.000Z',
+        expectedChapterCount: 100,
+        publishedChapterCount: 2,
+        session: {
+          url: 'https://example.com/alice.json',
+          sha256: 'a'.repeat(64),
+          byteLength: 100,
+        },
+        chapters: [
+          { chapterNumber: 1, stableId: 'duplicate', canonicalUrl: 'https://source/1' },
+          { chapterNumber: 1, stableId: 'duplicate', canonicalUrl: 'https://source/1-copy' },
+        ],
+      }),
+    }));
+
+    render(<NovelLibrary />);
+    await waitFor(() => expect(
+      screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')
+    ).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => expect(storeState.openLibrary).toHaveBeenCalled());
+    expect(ImportService.streamImportFromUrl).not.toHaveBeenCalled();
+    expect(storeState.showNotification).toHaveBeenCalledWith(
+      expect.stringContaining('Chapter publication manifest integrity error'),
+      'error'
+    );
+  });
+
+  it('preserves a legacy registry denominator when cached display counts are partial', async () => {
+    const legacyNovel = {
+      id: 'legacy-novel',
+      title: 'Legacy Novel',
+      sessionJsonUrl: 'https://example.com/legacy.json',
+      metadata: {
+        originalLanguage: 'Korean',
+        targetLanguage: 'English',
+        chapterCount: 100,
+        genres: ['Fantasy'],
+        description: 'Legacy top-level session metadata.',
+      },
+    };
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([legacyNovel] as any);
+    vi.mocked(fetchNovelChapterCounts).mockResolvedValue({
+      'legacy-novel': { translatedCount: 0, totalCount: 12 },
+    });
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'legacy-novel': {
+        novelId: 'legacy-novel',
+        lastChapterId: 'legacy-ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-08-30T00:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'legacy-novel',
+      lastChapterId: 'legacy-ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-08-30T00:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'legacy-ch-12',
+      chapterCount: 12,
+      chapterNumbers: Array.from({ length: 12 }, (_, index) => index + 1),
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({ chaptersLoaded: 100 } as any);
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Chapter 12 • 0/12 translated')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Chapter 12 • 0/12 translated'));
+
+    await waitFor(() => expect(ImportService.streamImportFromUrl).toHaveBeenCalled());
+  });
+
+  it('keeps a cached chapter open when background resume acquisition fails', async () => {
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([mockNovel] as any);
+    vi.mocked(BookshelfStateService.getState).mockResolvedValue({
+      'novel-1::alice-v1': {
+        novelId: 'novel-1',
+        versionId: 'alice-v1',
+        lastChapterId: 'ch-12',
+        lastChapterNumber: 12,
+        lastReadAtIso: '2026-03-29T18:00:00.000Z',
+      },
+    });
+    vi.mocked(BookshelfStateService.getEntry).mockResolvedValue({
+      novelId: 'novel-1',
+      versionId: 'alice-v1',
+      lastChapterId: 'ch-12',
+      lastChapterNumber: 12,
+      lastReadAtIso: '2026-03-29T18:00:00.000Z',
+    });
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 12,
+      chapterNumbers: Array.from({ length: 12 }, (_, index) => index + 1),
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockRejectedValue(
+      new Error('offline while resuming')
+    );
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Alice Edition • Chapter 12 • 0/100 translated'));
+
+    await waitFor(() => {
+      expect(storeState.showNotification).toHaveBeenCalledWith(
+        expect.stringContaining('loading the remaining chapters failed'),
+        'warning'
+      );
+    });
+    expect(storeState.currentChapterId).toBe('ch-12');
+    expect(storeState.appScreen).toBe('reader');
+    expect(storeState.setReaderReady).toHaveBeenCalled();
+    expect(storeState.openLibrary).not.toHaveBeenCalled();
+  });
+
+  it('resumes acquisition when a non-empty cache has an unknown expected size', async () => {
+    const unknownSizeNovel = {
+      id: 'unknown-size-novel',
+      title: 'Unknown Size Novel',
+      sessionJsonUrl: 'https://example.com/unknown-size.json',
+      metadata: {
+        originalLanguage: 'Korean',
+        targetLanguage: 'English',
+        chapterCount: 0,
+        genres: ['Fantasy'],
+        description: 'Legacy metadata without a usable chapter denominator.',
+      },
+    };
+    vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([unknownSizeNovel] as any);
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: 'ch-12',
+      chapterCount: 1,
+      chapterNumbers: [12],
+    });
+    vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({ chaptersLoaded: 1 } as any);
+
+    render(<NovelLibrary />);
+
+    await waitFor(() => expect(screen.getByText('Unknown Size Novel')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Unknown Size Novel'));
+
+    await waitFor(() => {
+      expect(ImportService.streamImportFromUrl).toHaveBeenCalledWith(
+        'https://example.com/unknown-size.json',
+        expect.any(Function),
+        expect.any(Function),
+        { registryNovelId: 'unknown-size-novel', registryVersionId: null }
+      );
+    });
+    expect(storeState.showNotification).toHaveBeenCalledWith(
+      expect.stringContaining('1/unknown chapters cached'),
+      'info'
+    );
   });
 
   // P1 red-proof: a grouped novel opened at a verse OUTSIDE the first streamed
@@ -397,12 +877,16 @@ describe('NovelLibrary', () => {
     // libraries skip it and read straight through).
     vi.mocked(RegistryService.fetchAllNovelMetadata).mockResolvedValue([gitaNovel, mockNovel] as any);
 
-    // Streaming path: first (cache) load is empty → stream. The initial batch
+    // Streaming path: cache inspection is empty → stream. The initial batch
     // holds ONLY chapter 1001; the post-import reconcile load holds 2047 too.
+    vi.mocked(loadNovelCacheIntoStore).mockResolvedValue({
+      firstChapterId: null,
+      chapterCount: 0,
+      chapterNumbers: [],
+    });
     let loadCall = 0;
     vi.mocked(loadNovelIntoStore).mockImplementation(async (_novelId, setState, options) => {
       loadCall += 1;
-      if (loadCall === 1) return null; // cache check — not cached → stream
       if (options?.limit === 10) {
         setState({ chapters: new Map([['ch-1001', ch1001]]), urlIndex: new Map(), rawUrlIndex: new Map() } as any);
         return 'ch-1001';

@@ -8,12 +8,13 @@
  *   dropdown only ever showed "chapters ever visited" — not "chapters in
  *   this novel." For a 3500-chapter novel where you've read 13, the
  *   dropdown showed 13 entries, which defeats the purpose. Likewise the
- *   oscilloscope graph couldn't navigate to unloaded chapters.
+ *   oscilloscope graph couldn't identify unloaded chapters.
  *
  *   This service projects the full novel range from the registry, so the
  *   dropdown / graph / "jump to chapter N" surfaces always know about
- *   every chapter, with virtual placeholders for unloaded ones. Click a
- *   virtual entry → handleNavigate(canonicalUrl) → existing fetch path.
+ *   every chapter, with virtual placeholders for unloaded ones. A virtual
+ *   entry remains visibly unavailable until the scoped chapter row exists;
+ *   internal URLs are resolved by chapter number, never sent to a scraper.
  *
  * Design notes:
  *   - Virtual entries match the ChapterSummary shape with a synthetic
@@ -34,7 +35,14 @@
 
 import type { ChapterSummary } from '../types';
 import type { NovelEntry } from '../types/novel';
+import { fetchVersionChapterManifest } from './library/chapterPublicationResolver';
 import { RegistryService } from './registryService';
+
+export {
+  resolveExpectedChapterCount,
+  resolveExpectedChapterNumbers,
+  resolveExpectedChapterPublication,
+} from './library/chapterPublicationResolver';
 
 export const VIRTUAL_STABLE_ID_PREFIX = 'virtual:';
 
@@ -60,6 +68,29 @@ export const buildVirtualStableId = (novelId: string, chapterNumber: number): st
 export const buildCanonicalUrl = (novelId: string, chapterNumber: number): string =>
   `lexiconforge://${novelId}/chapter/${chapterNumber}`;
 
+export interface InternalChapterTarget {
+  novelId: string;
+  chapterNumber: number;
+}
+
+/**
+ * Parse only the canonical internal chapter form emitted by
+ * buildCanonicalUrl(). Query strings, fragments, zero/negative chapters, and
+ * alternate paths are rejected rather than repaired into a different target.
+ */
+export const parseInternalChapterUrl = (url: string): InternalChapterTarget | null => {
+  const match = /^lexiconforge:\/\/([a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)\/chapter\/([1-9]\d*)$/i.exec(url);
+  if (!match) return null;
+
+  const chapterNumber = Number(match[2]);
+  if (!Number.isSafeInteger(chapterNumber)) return null;
+
+  return {
+    novelId: match[1].toLowerCase(),
+    chapterNumber,
+  };
+};
+
 /**
  * Inputs that determine the catalog. We cache on these.
  */
@@ -82,14 +113,10 @@ const cacheKey = (key: CatalogKey): string =>
  * and an optional resolved version. Prefers the version's chapterRange
  * (specific to the translation); falls back to the novel-level chapterCount.
  */
-const resolveRange = (
+const resolveRangeForVersion = (
   novel: NovelEntry,
-  versionId: string | null
+  version: ReturnType<typeof RegistryService.resolveCompatibleVersion>['version']
 ): { from: number; to: number } | null => {
-  // Resolve the version (handles legacy aliases + single-version fallback)
-  const resolution = RegistryService.resolveCompatibleVersion(novel, versionId);
-  const version = resolution.version;
-
   if (version?.chapterRange?.from && version?.chapterRange?.to) {
     return {
       from: version.chapterRange.from,
@@ -131,14 +158,34 @@ export const buildVirtualCatalog = async (
     return [];
   }
 
-  const range = resolveRange(novel, versionId);
-  if (!range) {
-    cache.set(key, []);
-    return [];
+  const version = RegistryService.resolveCompatibleVersion(novel, versionId).version;
+  let chapterNumbers: number[];
+  if (version?.chapterManifestUrl) {
+    try {
+      const manifest = await fetchVersionChapterManifest(novel, version);
+      chapterNumbers = manifest.chapters.map((chapter) => chapter.chapterNumber);
+    } catch (error) {
+      console.error(
+        '[chapterCatalog] Declared chapter manifest rejected; refusing metadata-range fallback',
+        { novelId, versionId: version.versionId, manifestUrl: version.chapterManifestUrl, error }
+      );
+      cache.set(key, []);
+      return [];
+    }
+  } else {
+    const range = resolveRangeForVersion(novel, version);
+    if (!range) {
+      cache.set(key, []);
+      return [];
+    }
+    chapterNumbers = Array.from(
+      { length: range.to - range.from + 1 },
+      (_, index) => range.from + index
+    );
   }
 
   const entries: ChapterSummary[] = [];
-  for (let n = range.from; n <= range.to; n++) {
+  for (const n of chapterNumbers) {
     entries.push({
       stableId: buildVirtualStableId(novelId, n),
       canonicalUrl: buildCanonicalUrl(novelId, n),

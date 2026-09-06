@@ -7,6 +7,7 @@ const storeState = vi.hoisted(() => ({
   handleFetch: vi.fn(),
   importCustomText: vi.fn(),
   activeNovelId: 'orv' as string | null,
+  activeVersionId: null as string | null,
   openLibrary: vi.fn(),
   shelveActiveNovel: vi.fn(),
   setReaderLoading: vi.fn(),
@@ -49,13 +50,9 @@ vi.mock('../../config/constants', () => ({
 
 vi.mock('../../services/importService', () => ({
   ImportService: {
-    streamImportFromUrl: vi.fn(),
+    importFromUrl: vi.fn(),
     importFromFile: vi.fn(),
   },
-}));
-
-vi.mock('../../services/readerHydrationService', () => ({
-  loadAllIntoStore: vi.fn().mockResolvedValue(null),
 }));
 
 describe('InputBar guardrails', () => {
@@ -69,11 +66,12 @@ describe('InputBar guardrails', () => {
     storeState.setReaderReady.mockReset();
     storeState.setError.mockReset();
     storeState.activeNovelId = 'orv';
+    storeState.activeVersionId = null;
     storeState.error = null;
     storeState.chapters = new Map();
     storeState.currentChapterId = null;
 
-    vi.mocked(ImportService.streamImportFromUrl).mockResolvedValue({} as any);
+    vi.mocked(ImportService.importFromUrl).mockResolvedValue({} as any);
     vi.mocked(ImportService.importFromFile).mockResolvedValue({} as any);
   });
 
@@ -90,14 +88,33 @@ describe('InputBar guardrails', () => {
     });
 
     expect(storeState.setReaderLoading).toHaveBeenCalledWith(null);
-    expect(ImportService.streamImportFromUrl).toHaveBeenCalledWith(
+    expect(ImportService.importFromUrl).toHaveBeenCalledWith(
       'https://example.com/session.json',
-      expect.any(Function),
       expect.any(Function)
     );
     expect(storeState.shelveActiveNovel.mock.invocationCallOrder[0]).toBeLessThan(
       storeState.setReaderLoading.mock.invocationCallOrder[0]
     );
+  });
+
+  it('does not replace a newer book with a stale URL-import error', async () => {
+    const selectedChapters = new Map([['book-b-1', { chapterNumber: 1 }]]);
+    vi.mocked(ImportService.importFromUrl).mockImplementationOnce(async () => {
+      storeState.activeNovelId = 'book-b';
+      storeState.chapters = selectedChapters;
+      storeState.currentChapterId = 'book-b-1';
+      throw new Error('Old import failed');
+    });
+    render(<InputBar />);
+    fireEvent.change(screen.getByPlaceholderText(/Paste chapter URL or session JSON file URL/i), {
+      target: { value: 'https://example.com/session.json' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /fetch/i }));
+    await waitFor(() => expect(screen.getByRole('button', { name: /fetch/i })).toBeEnabled());
+    expect(storeState.chapters).toBe(selectedChapters);
+    expect(storeState.currentChapterId).toBe('book-b-1');
+    expect(storeState.openLibrary).not.toHaveBeenCalled();
+    expect(storeState.setError).not.toHaveBeenCalledWith(expect.stringContaining('Old import failed'));
   });
 
   it('shelves the active library novel before local file imports', async () => {

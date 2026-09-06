@@ -101,6 +101,7 @@ The system uses a **hybrid architecture**:
         "link": "https://..."
       },
       "sessionJsonUrl": "https://.../session.json",
+      "chapterManifestUrl": "https://.../chapter-manifest.json",
       "targetLanguage": "English",
       "style": "faithful",
       "features": ["high-quality", "footnotes"],
@@ -194,9 +195,11 @@ Fills in Novel Metadata Form:
   ↓
 Clicks "Export → Publish to Library"
   ↓
-Exports two files:
+Exports the publication package:
   - metadata.json (novel + version info)
   - session.json (chapter data)
+  - chapter-manifest.json (exact identities + checksums)
+  - chapters/chapter-NNNNNN.json (one immutable artifact per chapter)
   ↓
 Uploads files to hosting (GitHub, CDN, etc.)
   ↓
@@ -231,11 +234,15 @@ User uploads and adds to registry as new version
 1. **Prepare your translation** in LexiconForge
 2. **Fill in metadata** via Settings → Metadata
 3. **Export with "Publish to Library"**
-4. **Upload files** to your preferred hosting:
+4. **Verify the publication** before uploading:
+   ```bash
+   npm run verify-library-publication -- metadata.json session.json chapter-manifest.json
+   ```
+5. **Upload files** to your preferred hosting:
    - GitHub repo (recommended for collaboration)
    - GitHub releases
    - CDN or personal server
-5. **Create PR** to add entry to registry
+6. **Create PR** to add entry to registry
 
 **Registry PR Example:**
 
@@ -251,8 +258,27 @@ User uploads and adds to registry as new version
 1. **Create your version** (translation, remix, or fork)
 2. **Export with provenance** tracking
 3. **Update metadata.json** to add your version
-4. **Upload session.json** with your version ID
+4. **Upload session.json, chapter-manifest.json, and the chapters directory** with your version ID
 5. **Update the metadata URL** (or create PR if different repo)
+
+### Publication Integrity Contract
+
+`metadata.chapterCount` is the expected size of the work; it is not proof that
+all of those chapters are currently downloadable. For a manifested version,
+`version.stats.content.totalRawChapters` and
+`chapterManifest.publishedChapterCount` describe the exact published package.
+Only the ordered identities in `chapter-manifest.json` appear as package-backed
+chapters in the reader. Each generated identity also names one independently
+downloadable chapter envelope by URL, UTF-8 byte length, and SHA-256. The
+envelope includes that chapter's packaged translations and preserves the exact
+stable ID/canonical URL tuple used by the full session.
+
+The publication verifier fails closed on duplicate or unordered chapter
+numbers, duplicate stable IDs, identity drift between the session and manifest,
+metadata count/range mismatches, falsely complete versions, or a session byte
+length/SHA-256 mismatch. Do not repair those failures by truncating, inventing,
+or silently renumbering chapters; resolve them from provenance and regenerate
+the manifest.
 
 ## Technical Implementation
 
