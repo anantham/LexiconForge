@@ -203,3 +203,24 @@ Tradeoff: arbitrary pasted sessions await the full download before reading, with
 the ordinary importer's existing memory requirements. No key-order staging or
 retroactive scope migration is introduced. The production browser fixture proves
 URL import with other cached books, frozen export and native offline file reopen.
+
+
+### Owner-window transport amendment — 2026-09-06
+
+The owner selected a dedicated top-level scan window while retaining the public
+reader URL and storage. A separate owner-origin reader deployment was rejected
+because it would create another library origin. The former direct cross-site
+POST cannot supply the existing Strict paired CSRF cookie.
+
+Implemented source: `services/semanticScanWindow.ts` owns one fixed scan/window
+lifetime; `services/semanticScanProtocol.ts` owns strict bounded messages;
+`services/semanticOscilloscopeClient.ts` retains a direct capability function.
+`useSemanticOscilloscopeCapability` and `ThreadSelector` cancel/discard stale
+selection results. No generic proxy, service, cache or retry framework is added.
+The public reader receives scalar graph provenance only, while the owner page
+uses its own same-origin proof helper. The portable graph contract is unchanged.
+
+Synthetic browser acceptance now covers actual owner/CSRF middleware and native
+offline file reopening. Deployment, complete novel, real model and physical
+mobile gates remain open; this amendment does not change the ADR's Accepted
+status. See `docs/features/SEMANTIC-SCAN-WINDOW.md` and the acceptance checklist.

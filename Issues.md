@@ -152,7 +152,7 @@ real novel/device acceptance gates from the linked checklist. FEAT-006 stays Acc
 
 September 6 preflight: direct cross-site Strict-cookie calls fail in a disposable
 Chromium transport check; an owner-origin scan window succeeds without moving
-proof to the public reader. Connection design and implementation remain pending.
+proof to the public reader. The selected owner-window workflow is implemented and locally verified; publication, deployment and live acceptance remain pending.
 The full-book gate also has a concrete publication-data blocker; see item 21.
 
 18) Public configuration boundary: require local broker settings and keep operator records private.
@@ -205,3 +205,20 @@ even on a blank page without application code (File.text and FileReader); online
 reads pass. The browser regression remains active. Verify the downloaded backup
 using Safari Files in airplane mode on an iPhone before closing mobile acceptance.
 Receipt: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 native Safari QA.
+
+
+22) Owner-window semantic scan rollout and device QA (open; source implemented).
+
+The implementation deletes the unusable cross-site scan POST, a native-fetch
+class wrapper and unused refresh state. Real Chromium + Pixel emulation pass
+same-origin owner/CSRF scan and exported-file offline reopen with synthetic
+compute. Keep complete-novel indexing and real-model latency separate. Verify
+physical Safari/Chrome popup return, local-network permission where applicable,
+touch graph navigation and native offline file import before closing.
+Implementation, bounds and repeatable reader QA:
+[SEMANTIC-SCAN-WINDOW.md](docs/features/SEMANTIC-SCAN-WINDOW.md).
+
+- Slop follow-up: `services/semanticOscilloscopeClient.ts` still returns broader
+  capability metadata than the UI uses. Measure actual same-corpus rechecks
+  before proposing caching or trimming the contract; the current browser probe
+  emitted one capability GET. Do not remove effect dependencies to hide rerenders.

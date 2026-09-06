@@ -48,7 +48,7 @@ commit/runtime inventories and operator release prerequisites stay in private re
 
 - [x] Inspect checkout state, concurrent work, services, models and index locations.
 - [ ] Verify HTTPS, owner authorization and exact-origin CORS end to end.
-- [ ] Review a compatible browser connection path with existing access controls.
+- [x] Select, implement and locally review the owner-window browser connection with existing access controls.
 - [ ] Confirm exact deployment scope, reviewed commits, index destination and rollback.
 - [ ] Deploy within that scope, preserving dirty/concurrent work.
 - [ ] Independently verify the running version, health, authorization and routes.
@@ -84,3 +84,14 @@ the missing complete-corpus prerequisite; do not close it from this parity proof
 Startup latency is tracked in PR #173, reader subscription reduction in #175,
 and production QA setup in #176. Public configuration cleanup is #174. Their
 Issues.md pickup queues retain deferred work and acceptance limits.
+
+
+## Owner-window implementation amendment — 2026-09-06
+
+The reader remains public and opens one minimal owner-origin page per Scan.
+The direct POST and native-fetch class wrapper are deleted. The new source is a
+separate stacked change above #160. Local Node 24.19.0 tests and actual-browser
+synthetic scan/export/offline tests pass; the complete feature remains pending.
+See [implementation and evidence](../features/SEMANTIC-SCAN-WINDOW.md).
+Physical device acceptance includes popup/opener return and browser local-network
+permission where applicable. No auth or CSRF exemption was introduced.

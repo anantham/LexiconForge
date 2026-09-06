@@ -1,13 +1,6 @@
-import type {
-  SemanticCorpusIdentity,
-  SemanticScanResult,
-} from '../types/oscilloscope';
-
-export const SEMANTIC_OSCILLOSCOPE_PROTOCOL = 'lexiconforge-semantic-oscilloscope-v1';
-export const SEMANTIC_VECTOR_SPACE = 'qwen3-embedding-8b:mrl-512:l2-v1';
-export const SEMANTIC_VECTOR_DIMENSIONS = 512;
-export const SEMANTIC_SCORE_SEMANTICS = 'cosine-similarity-clipped-0-1';
-export const SEMANTIC_SCORING_ALGORITHM = 'chapter-top-2-mean-cosine-v1';
+import type { SemanticCorpusIdentity } from '../types/oscilloscope';
+import { sameCorpus, SemanticOscilloscopeError, SEMANTIC_OSCILLOSCOPE_PROTOCOL, SEMANTIC_VECTOR_SPACE, SEMANTIC_VECTOR_DIMENSIONS } from './semanticScanProtocol';
+export { SemanticOscilloscopeError, SEMANTIC_OSCILLOSCOPE_PROTOCOL, SEMANTIC_VECTOR_SPACE, SEMANTIC_VECTOR_DIMENSIONS } from './semanticScanProtocol';
 
 export interface SemanticCapability {
   ok: true;
@@ -21,15 +14,6 @@ export interface SemanticCapability {
   index: { ready: boolean; vectorCount: number | null; createdAt: string | null };
 }
 
-export class SemanticOscilloscopeError extends Error {}
-
-const sameCorpus = (left: SemanticCorpusIdentity, right: SemanticCorpusIdentity): boolean => (
-  left.corpusId === right.corpusId
-  && left.versionId === right.versionId
-  && left.contentHash === right.contentHash
-  && left.chapterCount === right.chapterCount
-);
-
 export const normalizeSemanticBaseUrl = (value: string): string => {
   let url: URL;
   try {
@@ -38,12 +22,12 @@ export const normalizeSemanticBaseUrl = (value: string): string => {
     throw new SemanticOscilloscopeError('IndrasNet semantic scan URL is invalid');
   }
   const localHttp = url.protocol === 'http:'
-    && ['localhost', '127.0.0.1', '::1', '[::1]'].includes(url.hostname.toLowerCase());
+    && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname.toLowerCase());
   if (url.protocol !== 'https:' && !localHttp) {
     throw new SemanticOscilloscopeError('IndrasNet semantic scans require HTTPS (HTTP is allowed only on loopback)');
   }
-  if (url.username || url.password || url.search || url.hash) {
-    throw new SemanticOscilloscopeError('IndrasNet semantic scan URL must be an origin without credentials, query, or fragment');
+  if (url.username || url.password || url.search || url.hash || url.pathname !== '/') {
+    throw new SemanticOscilloscopeError('IndrasNet semantic scan URL must be an origin without a path, credentials, query, or fragment');
   }
   return url.toString().replace(/\/$/, '');
 };
@@ -77,72 +61,26 @@ const validateEnvelope = (
   return body;
 };
 
-export class SemanticOscilloscopeClient {
-  private readonly baseUrl: string;
-  private readonly fetchImpl: typeof fetch;
-
-  constructor(baseUrl: string, fetchImpl: typeof fetch = fetch) {
-    this.baseUrl = normalizeSemanticBaseUrl(baseUrl);
-    this.fetchImpl = fetchImpl;
+export async function getSemanticCapability(
+  baseUrl: string, corpus: SemanticCorpusIdentity, signal?: AbortSignal,
+): Promise<SemanticCapability> {
+  const params = new URLSearchParams({
+    corpusId: corpus.corpusId,
+    versionId: corpus.versionId,
+    contentHash: corpus.contentHash,
+    chapterCount: String(corpus.chapterCount),
+  });
+  const response = await fetch(
+    `${normalizeSemanticBaseUrl(baseUrl)}/api/lexiconforge/semantic-oscilloscope/capability?${params}`,
+    { method: 'GET', credentials: 'omit', signal },
+  );
+  if (!response.ok) throw await responseError(response, 'Semantic capability check');
+  const body = validateEnvelope(await response.json(), corpus, 'Semantic capability check');
+  if (typeof body.ready !== 'boolean' || typeof body.reason !== 'string') {
+    throw new SemanticOscilloscopeError('Semantic capability check returned an invalid readiness state');
   }
-
-  async capability(corpus: SemanticCorpusIdentity, signal?: AbortSignal): Promise<SemanticCapability> {
-    const params = new URLSearchParams({
-      corpusId: corpus.corpusId,
-      versionId: corpus.versionId,
-      contentHash: corpus.contentHash,
-      chapterCount: String(corpus.chapterCount),
-    });
-    const response = await this.fetchImpl(
-      `${this.baseUrl}/api/lexiconforge/semantic-oscilloscope/capability?${params}`,
-      { method: 'GET', credentials: 'omit', signal },
-    );
-    if (!response.ok) throw await responseError(response, 'Semantic capability check');
-    const body = validateEnvelope(await response.json(), corpus, 'Semantic capability check');
-    if (typeof body.ready !== 'boolean' || typeof body.reason !== 'string') {
-      throw new SemanticOscilloscopeError('Semantic capability check returned an invalid readiness state');
-    }
-    if (!body.index || typeof body.index !== 'object' || typeof (body.index as Record<string, unknown>).ready !== 'boolean') {
-      throw new SemanticOscilloscopeError('Semantic capability check returned invalid index metadata');
-    }
-    return body as unknown as SemanticCapability;
+  if (!body.index || typeof body.index !== 'object' || typeof (body.index as Record<string, unknown>).ready !== 'boolean') {
+    throw new SemanticOscilloscopeError('Semantic capability check returned invalid index metadata');
   }
-
-  async scan(query: string, corpus: SemanticCorpusIdentity, signal?: AbortSignal): Promise<SemanticScanResult> {
-    const response = await this.fetchImpl(
-      `${this.baseUrl}/api/lexiconforge/semantic-oscilloscope/scan`,
-      {
-        method: 'POST',
-        credentials: 'omit',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...corpus, query }),
-        signal,
-      },
-    );
-    if (!response.ok) throw await responseError(response, 'Semantic scan');
-    const body = validateEnvelope(await response.json(), corpus, 'Semantic scan');
-    if (!Array.isArray(body.scores) || body.scores.length !== corpus.chapterCount) {
-      throw new SemanticOscilloscopeError(`Semantic scan must return ${corpus.chapterCount} chapter scores`);
-    }
-    if (body.scores.some((score: unknown) => typeof score !== 'number' || !Number.isFinite(score) || score < 0 || score > 1)) {
-      throw new SemanticOscilloscopeError('Semantic scan returned a non-finite or out-of-range score');
-    }
-    if (body.query !== query.trim() || body.scoreSemantics !== SEMANTIC_SCORE_SEMANTICS) {
-      throw new SemanticOscilloscopeError('Semantic scan returned invalid provenance');
-    }
-    if (!body.scoring || typeof body.scoring !== 'object') {
-      throw new SemanticOscilloscopeError('Semantic scan returned invalid scoring metadata');
-    }
-    const scoring = body.scoring as Record<string, unknown>;
-    if (
-      scoring.algorithm !== SEMANTIC_SCORING_ALGORITHM
-      || !Array.isArray(scoring.range)
-      || scoring.range.length !== 2
-      || scoring.range[0] !== 0
-      || scoring.range[1] !== 1
-    ) {
-      throw new SemanticOscilloscopeError('Semantic scan returned unsupported scoring semantics');
-    }
-    return body as unknown as SemanticScanResult;
-  }
+  return body as unknown as SemanticCapability;
 }

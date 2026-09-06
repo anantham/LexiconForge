@@ -390,3 +390,22 @@ publisher integrity work; do not weaken semantic validation, silently relabel
 versions, or treat a complete supplied array as a complete novel. Exact public
 artifact and cross-language parity evidence:
 `docs/reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md`.
+
+
+### 2026-09-06 — [DEBT][TEST][BROWSER] Native fetch and scalar-export QA gaps closed
+
+The old capability class invoked stored native fetch with the wrong receiver;
+mocked fetch tests passed while real Chromium sent no request. Delete the
+single-method wrapper and retain a production-browser capability/popup regression.
+A broad `/vectors/i` receipt assertion also matched the allowed `vectorSpace`
+provenance key. Restrict forbidden-field assertions to exact serialized keys;
+do not delete privacy assertions or drop scoring provenance to pass them.
+
+### 2026-09-06 — [DEBT][LATENCY] Capability rechecks need measurement, not another cache
+
+`hooks/useSemanticOscilloscopeCapability.ts` depends on corpus object identity as
+well as its value key. Review suggested repeated equal-object probes, but the
+actual browser fixture emitted one capability GET. Current corpus state is not
+recreated on ordinary renders. Before changing dependencies or caching readiness,
+record repeated requests for one unchanged corpus and preserve endpoint/selection
+invalidation. Unused refresh state is deleted. Pickup: Issues.md 22.

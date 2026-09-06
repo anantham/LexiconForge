@@ -69,7 +69,7 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
   expect(portable.oscilloscope).toEqual(fixture.oscilloscope);
   expect(portable.chapters).toHaveLength(6);
   expect(portable.chapters).toContainEqual(expect.objectContaining({ novelId: corpus.corpusId, libraryVersionId: corpus.versionId }));
-  expect(JSON.stringify(portable.oscilloscope)).not.toMatch(/endpoint|baseUrl|vectors|token/i);
+  expect(JSON.stringify(portable.oscilloscope)).not.toMatch(/"(?:endpoint|baseUrl|vectors|token)"\s*:/i);
 
   await page.getByRole('button', { name: 'Return to library (home)' }).click();
   await context.setOffline(true);
@@ -139,4 +139,60 @@ test('exports a frozen graph, reimports offline, and invalidates changed text an
   }, exported);
   await expect(page.locator('.oscilloscope-panel')).toHaveCount(0);
   expect(await page.evaluate(() => (window as any).useAppStore.getState().corpusIdentity)).toBeNull();
+});
+
+
+test('uses native fetch for capability and returns a scalar graph through a real popup', async ({ page, context }) => {
+  // Synthetic owner wire fixture. Actual owner/CSRF middleware is a separate acceptance gate.
+  const owner = 'https://owner.example';
+  await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1'
+    ? route.continue() : route.abort());
+  await page.route(`${owner}/api/lexiconforge/semantic-oscilloscope/capability?*`, route => route.fulfill({ json: {
+    ok: true, protocol: 'lexiconforge-semantic-oscilloscope-v1', corpus, ready: true, reason: 'ready',
+    vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512,
+    index: { ready: true, vectorCount: 2, createdAt: null },
+  } }));
+  await page.goto('/');
+  const readerOrigin = new URL(page.url()).origin;
+  await context.route(`${owner}/api/lexiconforge/semantic-oscilloscope/owner-window`, route => route.fulfill({
+    contentType: 'text/html', body: `<title>Synthetic owner window</title><script>
+      const reader = ${JSON.stringify(readerOrigin)};
+      addEventListener('message', event => {
+        if (event.origin !== reader || event.source !== opener) return;
+        const request = JSON.parse(event.data);
+        opener.postMessage(JSON.stringify({protocol: 'lf-owner-scan-v1', type: 'result', requestId: request.requestId,
+          result: {ok: true, protocol: 'lexiconforge-semantic-oscilloscope-v1', corpus: request.corpus,
+            query: request.query, scores: [0.31, 0.62], scoreSemantics: 'cosine-similarity-clipped-0-1',
+            scoring: {algorithm: 'chapter-top-2-mean-cosine-v1', range: [0, 1]},
+            vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512}}), reader);
+      });
+      opener.postMessage(JSON.stringify({protocol: 'lf-owner-scan-v1', type: 'ready'}), reader);
+    </script>`,
+  }));
+  await page.waitForFunction(() => (window as any).useAppStore?.getState().isInitialized);
+  await page.evaluate(async ({ payload, owner }) => {
+    const store = (window as any).useAppStore;
+    await store.getState().importSessionData(payload);
+    store.setState({ settings: { ...store.getState().settings, indrasNetBaseUrl: owner, preloadCount: 0 } });
+  }, { payload: fixture, owner });
+  await page.locator('.oscilloscope-panel canvas').click();
+  await page.getByRole('button', { name: 'Threads', exact: true }).click();
+  await page.getByRole('button', { name: 'Custom', exact: true }).click();
+  await page.getByPlaceholder('e.g. reluctant trust becoming intimacy').fill('trust');
+  const popupPromise = page.waitForEvent('popup');
+  await page.getByRole('button', { name: 'Scan', exact: true }).click();
+  const popup = await popupPromise;
+  await expect.poll(() => page.evaluate(() => (window as any).useAppStore.getState()
+    .threads.get('custom:semantic:trust')?.values)).toEqual([0.31, 0.62]);
+  expect(popup.isClosed()).toBe(true);
+  const exported = await page.evaluate(() => (window as any).useAppStore.getState().exportSessionData());
+  expect(JSON.stringify(JSON.parse(exported).oscilloscope)).not.toMatch(/"(?:endpoint|baseUrl|vectors|token)"\s*:/i);
+  await page.getByRole('button', { name: 'Return to library (home)' }).click();
+  await context.setOffline(true);
+  const file = test.info().outputPath('scanned-graph.json');
+  await writeFile(file, exported);
+  await page.locator('input[type="file"][accept=".json,application/json"]').setInputFiles(file);
+  await expect(page.locator('.oscilloscope-panel')).toBeVisible();
+  expect(await page.evaluate(() => (window as any).useAppStore.getState()
+    .threads.get('custom:semantic:trust').values)).toEqual([0.31, 0.62]);
 });

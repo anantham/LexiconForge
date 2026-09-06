@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ThreadSelector from '../../../components/oscilloscope/ThreadSelector';
 import { useAppStore } from '../../../store';
 import { SEMANTIC_OSCILLOSCOPE_PROTOCOL } from '../../../services/semanticOscilloscopeClient';
@@ -28,6 +28,7 @@ describe('ThreadSelector private semantic scan gate', () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it('shows no custom-query input when the session has no private capability', () => {
@@ -121,41 +122,66 @@ describe('ThreadSelector private semantic scan gate', () => {
     useAppStore.getState().initializeOscilloscope(corpus);
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.includes('/capability?')) {
-        return jsonResponse({
-          ok: true,
-          protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
-          ready: true,
-          reason: 'ready',
-          corpus,
-          vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1',
-          dimensions: 512,
-          embeddingModel: 'qwen3-embedding:8b',
-          index: { ready: true, vectorCount: 2, createdAt: null },
-        });
-      }
+      if (!url.includes('/capability?')) throw new Error('The public reader must not POST a scan');
       return jsonResponse({
-        ok: true,
-        protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
-        corpus,
-        query: 'romantic trust',
-        scores: [0.31, 0.62],
-        scoreSemantics: 'cosine-similarity-clipped-0-1',
-        scoring: { algorithm: 'chapter-top-2-mean-cosine-v1', range: [0, 1] },
-        vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1',
-        dimensions: 512,
+        ok: true, protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, ready: true, reason: 'ready', corpus,
+        vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512, embeddingModel: 'qwen3-embedding:8b',
+        index: { ready: true, vectorCount: 2, createdAt: null },
       });
     });
     vi.stubGlobal('fetch', fetchMock);
+    const popup = { close: vi.fn(), postMessage: vi.fn(), closed: false } as unknown as Window;
+    vi.spyOn(window, 'open').mockReturnValue(popup);
     render(<ThreadSelector isOpen onClose={() => undefined} />);
 
     fireEvent.click(await screen.findByRole('button', { name: 'Custom' }));
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'romantic trust' } });
     fireEvent.click(screen.getByRole('button', { name: 'Scan' }));
 
+    act(() => window.dispatchEvent(new MessageEvent('message', {
+      origin: 'https://asus.example.ts.net', source: popup,
+      data: JSON.stringify({ protocol: 'lf-owner-scan-v1', type: 'ready' }),
+    })));
+    const request = JSON.parse(vi.mocked(popup.postMessage).mock.calls[0][0]);
+    act(() => window.dispatchEvent(new MessageEvent('message', {
+      origin: 'https://asus.example.ts.net', source: popup,
+      data: JSON.stringify({ protocol: 'lf-owner-scan-v1', type: 'result', requestId: request.requestId,
+        result: { ok: true, protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, corpus, query: request.query,
+          scores: [0.31, 0.62], scoreSemantics: 'cosine-similarity-clipped-0-1',
+          scoring: { algorithm: 'chapter-top-2-mean-cosine-v1', range: [0, 1] },
+          vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512 } }),
+    })));
     await waitFor(() => {
       expect(useAppStore.getState().threads.get('custom:semantic:romantic trust')?.values).toEqual([0.31, 0.62]);
     });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it.each(['book', 'endpoint'])('cancels a pending scan after a %s change and discards late scores', async change => {
+    useAppStore.getState().initializeOscilloscope(corpus);
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({
+      ok: true, protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, ready: true, reason: 'ready', corpus,
+      vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512,
+      index: { ready: true, vectorCount: 2, createdAt: null },
+    })));
+    const popup = { close: vi.fn(), postMessage: vi.fn(), closed: false } as unknown as Window;
+    vi.spyOn(window, 'open').mockReturnValue(popup);
+    render(<ThreadSelector isOpen onClose={() => undefined} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Custom' }));
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'trust' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Scan' }));
+    act(() => {
+      if (change === 'book') useAppStore.getState().initializeOscilloscope({ ...corpus, versionId: 'v2' });
+      else useAppStore.setState(state => ({ settings: { ...state.settings, indrasNetBaseUrl: 'https://new.example' } }));
+    });
+    await waitFor(() => expect(popup.close).toHaveBeenCalledOnce());
+    act(() => window.dispatchEvent(new MessageEvent('message', {
+      origin: 'https://asus.example.ts.net', source: popup,
+      data: JSON.stringify({ protocol: 'lf-owner-scan-v1', type: 'ready' }),
+    })));
+    expect(popup.postMessage).not.toHaveBeenCalled();
+    expect(useAppStore.getState().threads.has('custom:semantic:trust')).toBe(false);
+    expect(screen.queryByRole('button', { name: 'Scanning…' })).not.toBeInTheDocument();
+  });
+
 });
