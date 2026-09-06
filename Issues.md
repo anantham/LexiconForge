@@ -138,7 +138,22 @@ If you want, I can turn this into a concrete investigation plan with expected me
 
 16) changing versions means comments should go away and then come back, its tied to that version! and the floating comment icons also have vanished with version switch!
 
-17) 
+17) Semantic oscilloscope: repair #160, recover backend, verify private service and complete live/offline acceptance.
+
+The durable checklist is [SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md](docs/roadmaps/SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md).
+Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion open until independently evidenced.
+
+
+Semantic delivery status (2026-09-05): #160 has further reviewed storage/lifecycle
+corrections passing 131 focused Node 24.19.0 tests, including streamed selection races and rejection of unverified legacy fallback; fresh CI is linked from the PR; Claude Sonnet 5 approved the final URL-scope correction after the Codex bot reported a usage limit;
+backend recovery is committed and independently reviewed locally (92 focused tests pass); publication and live acceptance remain pending.
+Pick up publication prerequisites, browser/CSRF, deployment and
+real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
+
+September 6 preflight: direct cross-site Strict-cookie calls fail in a disposable
+Chromium transport check; an owner-origin scan window succeeds without moving
+proof to the public reader. The reviewed owner-window client is in #177; compatible backend publication and live verification remain pending.
+The full-book gate also has a concrete publication-data blocker; see item 21.
 
 18) Public configuration boundary: require local broker settings and keep operator records private.
 
@@ -147,6 +162,35 @@ records. Existing saved settings continue to work. The client artifact scan reje
 embedded Tailnet hosts; `docs/CONVENTIONS.md` governs public-safe handoffs.
 Historical refs/caches are a separate assessment; do not claim deletion from history
 or copy private audit findings into this issue. Cleanup merged in [PR #174](https://github.com/anantham/LexiconForge/pull/174) at `fb80065`. Private runtime adoption remains a separate deployment check.
+
+19) Export and chapter lifecycle follow-ups from #160 review (open; unclaimed).
+
+- `services/exportService.ts` repeats portable chapter/translation/image assembly
+  in three builders; metadata/stat helpers and EPUB still have unscoped all-book
+  reads. Consolidate only after proving selected-book counts and preserving the
+  intentional all-book backup. Do not count the graph fixes as general export QA.
+- `store/slices/chaptersSlice.ts` has separate hydration/fetch/import/preload map
+  writes. Audit graph invalidation for changes that bypass explicit chapter edits;
+  preserve image-only changes and do not add a whole-store hashing subscription.
+- `components/session-info/VersionSelector.tsx:40` sorts its input versions in place; verify
+  shared-array mutation before changing it.
+
+- `components/oscilloscope/OscilloscopeGraph.tsx`: investigate whether the current-chapter marker retains its creation-time chapter after navigation without plot reconstruction; static finding, browser regression not yet run.
+
+Receipts: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 graph review; structural
+friction belongs in `docs/architecture/ARCHITECTURE.md` section 7.
+
+21) Supply a verified complete novel before semantic index acceptance (open; unclaimed).
+
+Pinned published FMoC and Dungeon Defense sessions fail the actual frontend and
+backend chapter-identity validators. FMoC also declares `unknown / quick-export`
+instead of the registry identity. Existing publisher PR #3 repairs Dungeon Defense
+numbering, but its 476-chapter corpus is still short of the declared 509 chapters
+and includes 30 source-content fallbacks. Do not index these as complete English
+novels or patch validators to accept them. Evidence, exact hashes, existing PR
+ownership and completion criteria are in
+[the corpus preflight](docs/reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md).
+
 
 ## Agent pickup queue — 2026-09-05 latency and complexity pass
 
@@ -187,13 +231,13 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 
 ### QA-03 — Reproducible worktree and production-browser verification
 
-- **Status:** Partial; setup/configuration implemented in #176. Representative novel and fresh/warm-cache acceptance remain open. Confidence: 0.99 for observed setup friction. Effort: medium. Risk: low if opt-in and local; reversible.
+- **Status:** Partial; setup/configuration merged in #176 at `b1af513`. Representative novel and fresh/warm-cache acceptance remain open. Confidence: 0.99 for observed setup friction. Effort: medium. Risk: low if opt-in and local; reversible.
 - **Files / evidence:** `playwright.config.ts`, `tests/e2e/helpers/sessionHarness.ts`, `package.json`, `.gitattributes`, and worktree setup instructions. Root Node is 26 while the project requires 24; this pass used an existing Node 24.19.0 binary. A broad `git diff --stat` in the temporary worktree invoked Git LFS cleaning for `media/demo.mp4` and failed writing the main repo's `.git/lfs/tmp`. Scoped diffs worked. The E2E config hardcodes port 5177/dev mode and may reuse an unrelated existing server; production QA needed a temporary preview config.
 - **Done when:** Document one persistent worktree per branch with Node 24 and an explicit LFS/dependency setup; do not prune, reset, or stash another agent's work. Reuse the existing session harness with a scrubbed representative novel, fresh/warm cache cases, a selectable production preview URL, and trace-on-failure. Record worktree path and exact source revision in receipts; never use a personal browser profile as the automated fixture. No daemon/dashboard needed.
 
 - **Current correction:** Existing config accepts `LF_E2E_BASE_URL`, refuses accidental dev-server reuse, and retains first-failure traces. The E2E guide now uses locked installation and documents worktree/preview/fixture evidence. No new runner or dependency.
 
-- **Review:** [PR #176](https://github.com/anantham/LexiconForge/pull/176); setup changes pushed for review. Keep this ticket open until the fixture and receipt criteria above pass.
+- **Review:** [PR #176](https://github.com/anantham/LexiconForge/pull/176); setup merged after independent source review and fresh CI. Keep this ticket open until the fixture and receipt criteria above pass.
 
 ### COPY-01 — Remove the hardcoded sutta title from shared provenance UI
 
@@ -206,10 +250,19 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 - **Evidence:** `tests/store/slices/illustration-marker-insertion.test.ts:14` implements its own `insertMarkerIntoHtml` and all assertions exercise that copy. It cannot detect changes to `store/slices/translationsSlice.ts`'s real action.
 - **Done when:** Remove the duplicated test implementation; retain only useful cases against the real action or a justified shared production function. Check actual chapter mutation and no mutation on rejected planning; do not add a wrapper solely to satisfy test counts.
 
+20) Native Safari offline file import — physical-device verification pending.
+
+Desktop and Pixel Chromium pass actual exported-file upload, selected-corpus
+navigation and tooltip checks offline. Pinned WebKit 2215 fails offline file I/O
+even on a blank page without application code (File.text and FileReader); online
+reads pass. The browser regression remains active. Verify the downloaded backup
+using Safari Files in airplane mode on an iPhone before closing mobile acceptance.
+Receipt: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 native Safari QA.
+
 
 ## Consolidation pickup queue — 2026-09-06
 
-Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. First three PRs are merged; #176 integration checks and independent review pass, with final main-targeted CI pending. Merge records belong in WORKLOG.
+Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. First four PRs are merged; #160 combined-source and offline browser checks pass, with final main-targeted CI pending. Merge records belong in WORKLOG.
 
 ### CONS-01 — Give changed chapter artifacts distinct addresses
 
@@ -240,3 +293,10 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 - **Status:** Open; non-blocking cosmetic review finding.
 - **File / evidence:** `components/chapter/IllustrationRouteDialog.tsx` populates its model-ID map in Saved → static Gemini → discovered order. A static entry with the saved ID overwrites the saved-default label/group; the model remains selectable and validation works. Independent Claude source review confirmed this collision path.
 - **Done when:** Establish the intended grouping and preserve the saved annotation without duplicate options or another selection abstraction. No latency or submission defect is claimed.
+
+
+### UI-02 — Investigate the redundant mark below the expanded graph
+
+- **Status:** Open; non-blocking visual QA finding from desktop and Pixel-emulated offline graph screenshots.
+- **Files / evidence:** `components/oscilloscope/OscilloscopeGraph.tsx:299` configures uPlot while the panel also renders its own thread labels. Both screenshots show a separate unlabelled red outline below the chart, above the useful Trust chip.
+- **Done when:** Inspect the generated DOM and existing legend configuration; remove the redundant output if the custom thread controls already supply its purpose. Preserve thread visibility controls and hover values. The visual symptom is confirmed; its exact DOM/CSS cause is not yet verified.

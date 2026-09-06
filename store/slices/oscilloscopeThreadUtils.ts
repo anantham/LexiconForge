@@ -1,12 +1,12 @@
 import type { ThreadData, ThreadMetadata } from '../../types/oscilloscope';
 
-export const THREAD_COLORS = [
+const THREAD_COLORS = [
   '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4',
   '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6',
   '#a855f7', '#6366f1', '#0ea5e9', '#84cc16', '#f59e0b',
 ];
 
-export const CATEGORY_COLORS: Record<string, string> = {
+const CATEGORY_COLORS: Record<string, string> = {
   character: '#3b82f6',
   tone: '#ef4444',
   location: '#22c55e',
@@ -41,9 +41,4 @@ export function toThreadMetadata(thread: ThreadData): ThreadMetadata {
     peakValue,
     peakChapter,
   };
-}
-
-export function normalizeThreadValues(raw: number[]): number[] {
-  const max = Math.max(...raw);
-  return max === 0 ? raw : raw.map((value) => value / max);
 }
