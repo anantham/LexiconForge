@@ -362,3 +362,18 @@ on its input. Check cross-component array reuse before a scoped correction.
 
 [DEBT][UI][2026-09-05] Current-chapter plot marker may retain a stale closure
 - `components/oscilloscope/OscilloscopeGraph.tsx` builds `youAreHerePlugin` from currentChapterNumber, but the uPlot creation effect intentionally does not depend on that callback. Static observation only: verify marker movement after navigation with unchanged tracks, then use current state without rebuilding the chart if reproduced. Pickup: Issues.md 19.
+
+
+### 2026-09-06 — [DEBT][IMPORT][LATENCY] Verify body download bounds before changing buffering
+
+`services/importService.ts:220-272` clears the ordinary URL timeout after headers
+and checks the 500 MB limit only against declared Content-Length. A chunked or
+underdeclared body has no observed-byte limit, and a stalled body is outside that
+timer. This behavior predates the final URL-scope correction; the current packet
+review also noted the headers-only timeout. No runtime failure is claimed here.
+Follow up with a controlled chunked/stalled response, preserve the full-payload
+identity-before-persistence contract, and bound/cancel acquisition at the existing
+reader loop. Use a repeated small chunk fixture instead of allocating a giant
+test payload. Record time and memory on a representative novel before adding
+staging, workers, caching, or another import path. Non-blocking for this reviewed
+scope correction; do not close the full-novel QA gate from synthetic checks.

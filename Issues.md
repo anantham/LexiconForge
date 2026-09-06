@@ -145,9 +145,9 @@ Keep deployment, full novel index, desktop/mobile QA, and FEAT-006 completion op
 
 
 Semantic delivery status (2026-09-05): #160 has further reviewed storage/lifecycle
-corrections passing 131 focused Node 24.19.0 tests, including streamed selection races and rejection of unverified legacy fallback; fresh CI is linked from the PR; final independent review is pending after the reviewer reported a usage limit;
-backend recovery is committed locally; publication and live acceptance remain pending.
-Pick up the writable-repository, independent-review, browser/CSRF, deployment and
+corrections passing 131 focused Node 24.19.0 tests, including streamed selection races and rejection of unverified legacy fallback; fresh CI is linked from the PR; Claude Sonnet 5 approved the final URL-scope correction after the Codex bot reported a usage limit;
+backend recovery is committed and independently reviewed locally (92 focused tests pass); publication and live acceptance remain pending.
+Pick up publication prerequisites, browser/CSRF, deployment and
 real novel/device acceptance gates from the linked checklist. FEAT-006 stays Accepted.
 
 18) Public configuration boundary: require local broker settings and keep operator records private.

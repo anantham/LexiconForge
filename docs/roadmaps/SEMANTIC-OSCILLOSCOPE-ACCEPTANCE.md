@@ -12,7 +12,7 @@ are separate. Private operator records are maintained outside this repository.
 - [x] Correct reviewed findings with storage, import-race and graph-navigation regressions; run 131 focused tests on Node 24.19.0.
 - [x] Verify TypeScript, build and integrity on repaired source.
 - [x] Obtain fresh CI; each corrective push runs the required checks again.
-- [ ] Complete independent review of the final corrected head; the Codex reviewer reported a usage limit on the refreshed stack.
+- [x] Independently review the final URL-scope correction at `3108221` with Claude Sonnet 5 after the Codex bot hit its quota; see [review receipt](../reviews/PR-160-URL-SCOPE-REVIEW.md).
 - [x] Verify production offline exported-file upload, graph navigation and cached
       reopening on desktop Chromium and Pixel 7 Chromium emulation.
 - [ ] Verify native offline file upload on Safari; pinned WebKit file I/O fails
@@ -37,8 +37,8 @@ source and emulated-device checks do not close live acceptance. Pasted session U
 - [x] Compare the earlier unmerged implementation with current backend code.
 - [x] Recover and locally test corpus hashes, pinned embedding/scoring contracts,
       capability checks and strict response validation.
-- [x] Run focused backend and authorization tests (86 passing).
-- [ ] Complete independent review of final recovery changes.
+- [x] Run focused backend and authorization tests (92 passing after three review corrections).
+- [x] Complete independent source review and approval of the final recovery repairs; private receipts remain outside this repository.
 - [ ] Resolve backend publication prerequisites and create replacement PRs.
 
 Backend source is recovered locally; it is not a deployed dependency. Private
