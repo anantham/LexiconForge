@@ -262,6 +262,22 @@ using Safari Files in airplane mode on an iPhone before closing mobile acceptanc
 Receipt: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 native Safari QA.
 
 
+22) Owner-window semantic scan rollout and device QA (open; source implemented).
+
+The implementation deletes the unusable cross-site scan POST, a native-fetch
+class wrapper and unused refresh state. Real Chromium + Pixel emulation pass
+same-origin owner/CSRF scan and exported-file offline reopen with synthetic
+compute. Keep complete-novel indexing and real-model latency separate. Verify
+physical Safari/Chrome popup return, local-network permission where applicable,
+touch graph navigation and native offline file import before closing.
+Implementation, bounds and repeatable reader QA:
+[SEMANTIC-SCAN-WINDOW.md](docs/features/SEMANTIC-SCAN-WINDOW.md).
+
+- Slop follow-up: `services/semanticOscilloscopeClient.ts` still returns broader
+  capability metadata than the UI uses. Measure actual same-corpus rechecks
+  before proposing caching or trimming the contract; the current browser probe
+  emitted one capability GET. Do not remove effect dependencies to hide rerenders.
+
 ## Consolidation pickup queue — 2026-09-06
 
 Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. Thirteen original PRs are merged: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162, #165/#168. Companion publisher #3/#4 are merged. Minimal runtime parser recovery #178 is also merged at `d6006eb`. Only #163 (domain acceptance), #164 (deferred automation) and #177 (compatible backend release) remain open; #163/#177 have fresh green CI. Merge records belong in WORKLOG.

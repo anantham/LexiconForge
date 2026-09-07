@@ -1,12 +1,13 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
-  SemanticOscilloscopeClient,
+  getSemanticCapability,
   SemanticOscilloscopeError,
   SEMANTIC_OSCILLOSCOPE_PROTOCOL,
   SEMANTIC_VECTOR_SPACE,
   normalizeSemanticBaseUrl,
 } from './semanticOscilloscopeClient';
 import type { SemanticCorpusIdentity } from '../types/oscilloscope';
+import { OWNER_SCAN_PROTOCOL } from './semanticScanProtocol';
 
 const corpus: SemanticCorpusIdentity = {
   corpusId: 'book-a',
@@ -15,71 +16,54 @@ const corpus: SemanticCorpusIdentity = {
   chapterCount: 2,
 };
 
+const capability = {
+  ok: true, protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, scanTransport: OWNER_SCAN_PROTOCOL,
+  ready: true, reason: 'ready', corpus, vectorSpace: SEMANTIC_VECTOR_SPACE, dimensions: 512,
+  embeddingModel: 'model', index: { ready: true, vectorCount: 2, createdAt: null },
+};
+
 const jsonResponse = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status,
   headers: { 'content-type': 'application/json' },
 });
 
-describe('SemanticOscilloscopeClient', () => {
+afterEach(() => vi.unstubAllGlobals());
+
+describe('getSemanticCapability', () => {
   it('allows Tailnet HTTPS and loopback HTTP but rejects remote cleartext', () => {
     expect(normalizeSemanticBaseUrl('https://asus.example.ts.net:9443/')).toBe('https://asus.example.ts.net:9443');
     expect(normalizeSemanticBaseUrl('http://127.0.0.1:7777')).toBe('http://127.0.0.1:7777');
     expect(normalizeSemanticBaseUrl('http://[::1]:7777')).toBe('http://[::1]:7777');
     expect(() => normalizeSemanticBaseUrl('http://192.0.2.10:7777')).toThrow(SemanticOscilloscopeError);
+    expect(() => normalizeSemanticBaseUrl('https://owner.example/api')).toThrow(/without a path/);
   });
 
   it('passes the complete corpus identity to capability and accepts exact readiness', async () => {
-    const fetchImpl = vi.fn(async (_input: RequestInfo | URL) => jsonResponse({
-      ok: true,
-      protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
-      ready: true,
-      reason: 'ready',
-      corpus,
-      vectorSpace: SEMANTIC_VECTOR_SPACE,
-      dimensions: 512,
-      embeddingModel: 'model',
-      index: { ready: true, vectorCount: 2, createdAt: null },
-    }));
-    const result = await new SemanticOscilloscopeClient('https://asus.example.ts.net', fetchImpl as typeof fetch)
-      .capability(corpus);
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL) => jsonResponse(capability));
+    vi.stubGlobal('fetch', fetchImpl);
+    const result = await getSemanticCapability('https://asus.example.ts.net', corpus);
 
     expect(result.ready).toBe(true);
+    expect(fetchImpl).toHaveBeenCalledOnce();
     expect(String(fetchImpl.mock.calls[0][0])).toContain(`contentHash=${encodeURIComponent(corpus.contentHash)}`);
   });
 
-  it('keeps absolute server scores and rejects malformed or wrong-corpus tracks', async () => {
-    const valid = {
-      ok: true,
-      protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
-      corpus,
-      query: 'romantic trust',
-      scores: [0.31, 0.62],
-      scoreSemantics: 'cosine-similarity-clipped-0-1',
-      scoring: { algorithm: 'chapter-top-2-mean-cosine-v1', range: [0, 1] },
-      vectorSpace: SEMANTIC_VECTOR_SPACE,
-      dimensions: 512,
-    };
-    const validClient = new SemanticOscilloscopeClient(
-      'https://asus.example.ts.net', vi.fn(async () => jsonResponse(valid)) as typeof fetch,
-    );
-    await expect(validClient.scan('romantic trust', corpus)).resolves.toMatchObject({ scores: [0.31, 0.62] });
+  it.each([undefined, null, 'lf-owner-scan-v0'])('rejects ready compute with unsupported window transport %s', async scanTransport => {
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ ...capability, scanTransport })));
+    await expect(getSemanticCapability('https://owner.example', corpus)).rejects.toThrow(/scan window protocol/i);
+  });
 
-    const invalidClient = new SemanticOscilloscopeClient(
-      'https://asus.example.ts.net',
-      vi.fn(async () => jsonResponse({ ...valid, scores: [0.2, 1.2] })) as typeof fetch,
-    );
-    await expect(invalidClient.scan('romantic trust', corpus)).rejects.toThrow(/out-of-range/);
+  it('rejects readiness that contradicts the index state', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ ...capability, index: { ...capability.index, ready: false } })));
+    await expect(getSemanticCapability('https://owner.example', corpus)).rejects.toThrow(/index metadata/i);
+  });
 
-    const wrongCorpusClient = new SemanticOscilloscopeClient(
-      'https://asus.example.ts.net',
-      vi.fn(async () => jsonResponse({ ...valid, corpus: { ...corpus, versionId: 'v2' } })) as typeof fetch,
-    );
-    await expect(wrongCorpusClient.scan('romantic trust', corpus)).rejects.toThrow(/different corpus/);
-
-    const wrongScoringClient = new SemanticOscilloscopeClient(
-      'https://asus.example.ts.net',
-      vi.fn(async () => jsonResponse({ ...valid, scoring: { algorithm: 'max-normalized', range: [0, 1] } })) as typeof fetch,
-    );
-    await expect(wrongScoringClient.scan('romantic trust', corpus)).rejects.toThrow(/scoring semantics/);
+  it('preserves a compatible backend not-ready reason without probing another endpoint', async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse({ ...capability, ready: false, reason: 'owner-scan-window-not-built' }));
+    vi.stubGlobal('fetch', fetchImpl);
+    await expect(getSemanticCapability('https://owner.example', corpus)).resolves.toMatchObject({
+      ready: false, reason: 'owner-scan-window-not-built',
+    });
+    expect(fetchImpl).toHaveBeenCalledOnce();
   });
 });
