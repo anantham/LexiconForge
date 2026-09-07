@@ -38,9 +38,9 @@ describe('Morning Chants semantic alignments', () => {
       { from: 'pāṇātipāta', to: 'pāṇātipātā' },
     ]);
 
-    const maple = segment?.witnesses.find((item) => item.by === 'MAPLE chant text');
-    expect(maple?.alignTo?.[6]).toBe(0);
-    expect(maple?.tokenAlignTo?.slice(6)).toEqual([
+    const studyDraft = segment?.witnesses.find((item) => item.by === 'AI study draft');
+    expect(studyDraft?.alignTo?.[6]).toBe(0);
+    expect(studyDraft?.tokenAlignTo?.slice(6)).toEqual([
       { kind: 'analysis', unitId: 'ablative-source' },
       { kind: 'analysis', unitId: 'killing' },
       { kind: 'analysis', unitId: 'living-being' },

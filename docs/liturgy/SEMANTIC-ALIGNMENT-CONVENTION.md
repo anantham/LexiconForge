@@ -102,8 +102,9 @@ slice is not presented as an independent `ti-` prefix. The analysis records:
   `pāṇātipāta → pāṇātipātā`.
 
 The compound analysis and declension are grounded in the Digital Pāḷi
-Dictionary record for `pāṇātipātā`; the witness translation is linked to
-SuttaCentral Kp 2 in the chant data.
+Dictionary record for `pāṇātipātā`; the study adaptation is linked to
+SuttaCentral Kp 2 in the chant data. The five-precept third line links to AN 8.39
+instead: Kp 2's third line belongs to the ten-precept abstinence formula.
 
 The Devanāgarī surface is safely divided as `पाणा | तिपाता`, not
 `पाणा | तिपात | ा`: the final vowel sign cannot be shaped independently from
@@ -157,3 +158,12 @@ the curator, even when several routes share underlying content.
 Zero findings do not prove the underlying linguistic analysis true. Corpus
 validation proves structural integrity; citations and human review establish
 the content claim.
+
+## Morning Chants acceptance — 2026-09-07
+
+The operator approved this bounded curation after attribution corrections.
+The AI English is labeled as a study draft; the Sujato and Thanissaro witness
+families are labeled as adaptations rather than consistently verbatim quotations.
+The Pāli, Devanagari, English wording and authored targets are preserved.
+See [the source comparison](MORNING-CHANTS-ATTRIBUTION.md). This ruling does not
+authorize automatic acceptance of future content or the remaining route findings.
