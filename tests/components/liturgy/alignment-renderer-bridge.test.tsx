@@ -123,4 +123,34 @@ describe('semantic alignment renderer-to-geometry bridge', () => {
       ['ablative-source', 102.5],
     ]);
   });
+
+  it('falls back to one whole-word span when alternate-script metadata splits a grapheme', () => {
+    const unsafe = structuredClone(section);
+    const segment = unsafe.segments[0];
+    segment.paliDeva = 'पाणातिपाता';
+    const sourceWord = segment.words![0];
+    sourceWord.scriptAlt = 'पाणातिपाता';
+    sourceWord.scriptMorphemes = {
+      'pi-Deva': [
+        { text: 'पाणा', type: 'stem', gloss: 'living being' },
+        { text: 'तिपात', type: 'stem', gloss: 'killing' },
+        { text: 'ा', type: 'suffix', gloss: 'from' },
+      ],
+    };
+
+    const { container } = render(
+      <TripleScriptWitness
+        section={unsafe}
+        preferredWitnessBy="Test"
+        onCycleWitness={() => undefined}
+      />
+    );
+    fireEvent.click(screen.getByTitle('Click to switch script (Pāli)'));
+
+    const paliWord = container.querySelector<HTMLElement>('[data-pali-idx="0"]')!;
+    const hoverSpans = paliWord.querySelectorAll<HTMLElement>('[data-hover-span="true"]');
+    expect(hoverSpans).toHaveLength(1);
+    expect(hoverSpans[0]).toHaveTextContent('पाणातिपाता');
+    expect(hoverSpans[0]).not.toHaveAttribute('data-morpheme-idx');
+  });
 });
