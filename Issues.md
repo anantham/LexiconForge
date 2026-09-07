@@ -264,19 +264,18 @@ Receipt: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 native Safari QA.
 
 ## Consolidation pickup queue — 2026-09-06
 
-Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. First five PRs (#174/#173/#175/#176/#160) are merged through `eb97601`; chapter foundations #169/#170/#171 are merged through `f200274`. #172 is independently reviewed with 137 focused tests and four production browser cases passing; final main-targeted CI and package activation follow. Merge records belong in WORKLOG.
+Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. Thirteen original PRs are merged: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162, #165/#168. Companion publisher #3/#4 are merged. Minimal runtime parser recovery #178 is also merged at `d6006eb`. Only #163 (domain acceptance), #164 (deferred automation) and #177 (compatible backend release) remain open; #163/#177 have fresh green CI. Merge records belong in WORKLOG.
 
 ### CONS-01 — Give changed chapter artifacts distinct addresses
 
-- **Status:** App repair merged in #171 at `f200274` after independent review and fresh CI; companion package #4 is reviewed and awaits publication. Original subject `3a7fee9`; confidence 0.99.
+- **Status:** Complete: app #171 at `f200274` and companion publisher #4 at `ddd29d1` are merged after independent review and fresh CI. Original subject `3a7fee9`; confidence 0.99.
 - **Files / evidence:** `scripts/lib/chapter-artifact-builder.ts:23,44,58` derives names without content/version identity; `scripts/build-library-session.ts:88` overwrites them. A Node 24.19 probe of the actual builder gives two changed versions/revisions the same URL with different hashes. Old manifests then fail integrity checks.
-- **Candidate / done when:** Prefer digest filenames and manifest-last publication; retain old referenced artifacts. Prove identical bytes keep their address, changed bytes get another address, and both old/new manifests still retrieve hash-valid bytes. Keep directory safety, version checks and full-session compatibility. Hold artifact publication until repaired.
 
 ### CONS-02 — Make coverage validation match the measured scope
 
-- **Status:** Open; P2 blocker for #165. Subject `b9f0904`; confidence 0.99.
+- **Status:** Complete: #165 merged at `15a0611` after independent review and fresh CI. Full measured coverage passes 9,536 tests (347 existing skips), covering 458 files; an excluded-only floor fails against that actual report. Original subject `b9f0904`; confidence 0.99.
 - **Files / evidence:** `scripts/ci/validate-coverage-policy.mjs:55-67` incompletely mirrors `vitest.config.ts:42-54`. A temporary `components/review.config.ts` with a 90% floor passes validation although Vitest excludes `**/*.config.*`.
-- **Candidate / done when:** Share the effective include/exclude scope, delete the no-op mapping and reject excluded-only floors in `tests/scripts/ci/coveragePolicy.test.ts`. Valid floors still pass without lowering thresholds. Explicitly settle root `App.tsx`/`MainApp.tsx` coverage before calling the baseline product-wide. Retain current coverage until corrected.
+- **Candidate / done when:** Use the actual fresh Vitest coverage report as the measured scope, deleting the competing filesystem walk/glob parser/exclusion copy. Reject excluded-only floors and missing/empty reports; match globstar/brace patterns with Vitest semantics. `App.tsx`/`MainApp.tsx` are explicitly included; all eight earned floors remain unchanged. Full coverage and independent review passed; aggregate baseline acceptance remains separate.
 
 ### CONS-03 — Defer review automation; reconcile its receipt schema if retained
 
@@ -287,7 +286,7 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 ### CONS-04 — Preserve task receipts while resolving shared worklog conflicts
 
 - **Status:** Open coordination debt. The five initially conflicted PRs (#161/#164/#165/#168/#169) conflicted only in `docs/WORKLOG.md`; integrating #175/#176 also conflicts there alone.
-- **Follow-up:** Preserve both histories now. After consolidation, assess short log pointers to existing per-task evidence instead of more repeated receipts. Do not add a synchronization bot. Recompute each child diff and refresh stale descriptions when its parent merges. #177 now targets main; a post-consolidation merge simulation reports conflicts only in Issues, WORKLOG, the semantic acceptance checklist and debt inbox. Preserve both sets of receipts when refreshing that branch; its live backend release gate remains separate.
+- **Follow-up:** Preserve both histories now. After consolidation, assess short log pointers to existing per-task evidence instead of more repeated receipts. Do not add a synchronization bot. Recompute each child diff and refresh stale descriptions when its parent merges. #177 now targets main at `73a8807`; its four documentation conflicts are resolved with both histories preserved. Ten application/test files match the independent review; 54 focused tests, build, four desktop/Pixel browser cases and all five CI jobs pass. Its live backend release gate remains separate.
 
 
 ### UI-01 — Preserve the saved-default label when model lists overlap
@@ -305,18 +304,23 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 
 ### CONS-05 — Prevent late chapter downloads from changing another reader scope
 
-- **Status:** Reproduced on #172 `5c2c753`; repair independently approved, 137 combined tests and three production scope-race cases pass. Final main-targeted CI/merge pending.
+- **Status:** Complete: #172 merged at `ebcea8f` after independent review, 137 combined tests, three production scope-race cases and fresh CI. Real published chapter acquisition and cached navigation also pass.
 - **Evidence/files:** A held chapter download followed by a book switch reopened the old chapter under the new novel/version. `store/slices/chaptersSlice.ts` applied hydration and navigation without checking the current scope; `services/navigation/index.ts` persisted before the caller could reject a stale result.
-- **Correction / done when:** Commit accepted navigation once in the store; reject cross-scope hydration and late results. Production browser regressions cover book/version/library changes. Verify current-scope downloads, cached navigation and durable history as well before merging #172.
 
 ### CONS-06 — Publish byte URLs rather than GitHub LFS pointer URLs
 
-- **Status:** App repair merged in #171 at `f200274` after independent follow-up approval and fresh CI; companion #4 gate is approved and awaits publication.
+- **Status:** Complete: app #171 at `f200274` and companion #4 at `ddd29d1` are merged after independent follow-up review and fresh CI. Real navigation on ordinary published main URLs downloads one chapter artifact and no full session.
 - **Evidence/files:** Default session URLs from `scripts/lib/library-session-builder.ts` were raw GitHub URLs, but registry normalization changed only metadata to media, breaking exact manifest URL validation. Chapter URLs from the builder also targeted raw LFS pointers.
-- **Correction / done when:** Reuse the existing GitHub media conversion for byte artifacts, keep manifest/metadata URLs raw and keep strict equality. The actual default CLI -> RegistryService -> manifest test passes. Companion #4 must reject known LFS pointer URLs and retain all old chapter files.
 
 ### CONS-07 — Retain the selected book when reopening a full backup without a graph
 
 - **Status:** Open; real package QA finding, separate export/import follow-up.
 - **Evidence:** Two genuinely published Dungeon Defense chapters downloaded/read in `v1-primary` export successfully. Offline native-file reimport preserves two readable chapters but returns `activeNovelId=null`, `activeVersionId=null`. The frozen-graph path has separate corpus-based selection; do not infer this ordinary-backup case from those tests.
 - **Files / done when:** Trace `store/slices/exportSlice.ts`, `services/db/operations/export.ts`, and `store/bootstrap/importSessionData.ts`. Preserve selected book/version on full-backup reopen without reassigning unrelated or explicitly unscoped chapters. Cover mixed-book backups, legacy null scopes, and both graph/no-graph cases. Keep the failing real-package assertion until fixed.
+
+### CONS-08 — Recover only unique local runtime and policy work
+
+- **Status:** Parser slice merged as #178 after independent review, 38 locked bridge tests, native PowerShell 5.1 verification and fresh CI. Four original local heads remain preserved and bundled; they are not all pushed.
+- **Pickup:** Separate later hardening idempotency, process-lifecycle verification, portable macOS setup and governance-document reconciliation. Exact local branch identities and unmerged-source observations remain in local Git metadata under `reviews/runtime-recovery-2026-09-06/remaining-local-work.md`; see the debt inbox for the public pickup receipt.
+- **Disposition:** Rebuild needed behavior on current main. Older aggregate trees predate current native-provider/settings files and must not be merged wholesale. Keep public records limited to reviewed source contracts; retain private operator and unpublished-implementation details in local evidence.
+- **Done when:** Each needed behavior has a focused reviewed recovery or an evidence-backed superseded disposition. Preserve the four original heads/bundle until reconciliation is complete. Backend publication/deployment, complete corpus/index, real scan and physical-device acceptance remain separate gates.
