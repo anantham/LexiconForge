@@ -27,6 +27,7 @@ import type {
   TripleScriptWitnessSegment,
   WordGloss,
 } from '../../types/liturgy';
+import { segmentSurfaceMorphemes } from './surfaceSegmentation';
 
 // ── Canonical tokenizers ────────────────────────────────────────────────────
 // Pāli word class — MUST stay identical to the renderer's `tokenize` regex in
@@ -82,9 +83,10 @@ export const SEGMENT_ID_SHORTHAND = /\bv\d+[a-z]\b/;
 // the jargonAllowlist option rather than deleting the check.
 export const JARGON = /\b(gerundive|accusative|nominative|genitive|locative|ablative|optative|vocative|declension|declensional|instrumental case|past participle|present participle)\b/i;
 
-// Token separators that are not morpheme content: ASCII whitespace and the
-// Tibetan tsek `་`. Per-script morphemes reconstruct the separator-free
-// surface (the renderer splits per token).
+// Some CJK/Tibetan authoring records intentionally omit visual token
+// separators from their morpheme fragments. They already render whole-word
+// when the exact surface cannot be sliced, but their normalized reconstruction
+// remains valid corpus metadata.
 const SCRIPT_SEPARATOR_RE = /[\s་]/g;
 const ANALYSIS_UNIT_ID_RE = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
@@ -149,14 +151,32 @@ function checkWord(
 ): void {
   const wordPath = `${base.segmentId ?? '?'}.words.${word.form}`;
 
-  // 1a. Roman morpheme reconstruction (case-insensitive surface match).
+  // 1a. Roman morpheme reconstruction and render-safe Unicode boundaries.
   if (word.morphemes && word.morphemes.length > 0) {
-    const reconstructed = word.morphemes.map((m) => m.text).join('');
-    if (reconstructed.toLowerCase() !== word.form.toLowerCase()) {
+    const segmentation = segmentSurfaceMorphemes(word.form, word.morphemes);
+    if (!segmentation.ok && segmentation.reason === 'reconstruction') {
       diagnostics.push({
         level: 'error',
         code: 'morpheme_reconstruction_failed',
-        message: `morphemes [${word.morphemes.map((m) => m.text).join('+')}] do not reconstruct "${word.form}" — splitByMorphemes returns null and the word degrades to whole-word hover`,
+        message: `morphemes [${word.morphemes.map((m) => m.text).join('+')}] do not reconstruct "${word.form}" — surface segmentation returns null and the word degrades to whole-word hover`,
+        ...base,
+        path: `${wordPath}.morphemes`,
+      });
+    }
+    if (!segmentation.ok && segmentation.reason === 'grapheme-boundary') {
+      diagnostics.push({
+        level: 'error',
+        code: 'morpheme_grapheme_split',
+        message: `morpheme ${segmentation.morphemeIndex} on "${word.form}" ends at code-unit offset ${segmentation.boundary}, inside a Unicode grapheme cluster; the renderer would fall back to one whole-word span`,
+        ...base,
+        path: `${wordPath}.morphemes.${segmentation.morphemeIndex}`,
+      });
+    }
+    if (!segmentation.ok && segmentation.reason === 'segmenter-unavailable') {
+      diagnostics.push({
+        level: 'error',
+        code: 'grapheme_segmenter_unavailable',
+        message: `cannot validate morpheme boundaries on "${word.form}" because Intl.Segmenter is unavailable`,
         ...base,
         path: `${wordPath}.morphemes`,
       });
@@ -242,16 +262,38 @@ function checkWord(
     }
   }
 
-  // 1b. Per-script morpheme reconstruction (case-sensitive, separators stripped).
+  // 1b. Per-script reconstruction and render-safe Unicode boundaries.
   for (const [lang, morphs] of Object.entries(word.scriptMorphemes ?? {})) {
-    const surface = word.scriptAlts?.[lang];
+    const script = lang.split('-')[1];
+    const surface = word.scriptAlts?.[lang] ?? (script === 'Deva' ? word.scriptAlt : undefined);
     if (!surface || !morphs || morphs.length === 0) continue;
-    const reconstructed = morphs.map((m) => m.text).join('').replace(SCRIPT_SEPARATOR_RE, '');
-    if (reconstructed !== surface.replace(SCRIPT_SEPARATOR_RE, '')) {
+    const reconstructed = morphs.map((morpheme) => morpheme.text).join('');
+    const normalizedReconstruction = reconstructed.replace(SCRIPT_SEPARATOR_RE, '');
+    const normalizedSurface = surface.replace(SCRIPT_SEPARATOR_RE, '');
+    const segmentation = segmentSurfaceMorphemes(surface, morphs, { caseSensitive: true });
+    if (normalizedReconstruction !== normalizedSurface) {
       diagnostics.push({
         level: 'error',
         code: 'script_morpheme_reconstruction_failed',
         message: `${lang} scriptMorphemes do not reconstruct "${surface}"`,
+        ...base,
+        path: `${wordPath}.scriptMorphemes.${lang}`,
+      });
+    }
+    if (!segmentation.ok && segmentation.reason === 'grapheme-boundary') {
+      diagnostics.push({
+        level: 'error',
+        code: 'script_morpheme_grapheme_split',
+        message: `${lang} scriptMorphemes boundary after item ${segmentation.morphemeIndex} on "${surface}" falls at code-unit offset ${segmentation.boundary}, inside a Unicode grapheme cluster; merge the dependent mark with its base grapheme`,
+        ...base,
+        path: `${wordPath}.scriptMorphemes.${lang}.${segmentation.morphemeIndex}`,
+      });
+    }
+    if (!segmentation.ok && segmentation.reason === 'segmenter-unavailable') {
+      diagnostics.push({
+        level: 'error',
+        code: 'grapheme_segmenter_unavailable',
+        message: `cannot validate ${lang} scriptMorphemes on "${surface}" because Intl.Segmenter is unavailable`,
         ...base,
         path: `${wordPath}.scriptMorphemes.${lang}`,
       });

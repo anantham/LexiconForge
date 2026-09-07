@@ -33,6 +33,7 @@ import {
   ANALYSIS_STATUS_CLASS,
   presentSurfaceAnalysis,
 } from './analysisPresentation';
+import { splitSurfaceByMorphemes } from '../../../services/liturgy/surfaceSegmentation';
 
 // Per-script font stacks. Latn/IAST uses Cardo (already loaded for diacritics).
 // Other scripts use Noto Serif Web Fonts pulled in index.html.
@@ -402,33 +403,6 @@ function matchWord(token: string, idx: Map<string, WordGloss>): WordGloss | unde
 // SegmentRow — one chant phrase: Pāli line + English line, paired
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Split a Pāli surface token by a list of morphemes. Each output slice carries
- * the original token's casing (so "Namo" → "Nam" + "o", not "nam" + "o").
- *
- * Returns null if the morpheme texts don't reconstruct the surface (which
- * means morphemes are stale relative to the form — falls back to word-level
- * hover so we never render incorrect splits).
- */
-function splitByMorphemes(
-  surface: string,
-  morphemes: WordMorpheme[]
-): Array<{ text: string; morpheme: WordMorpheme }> | null {
-  const out: Array<{ text: string; morpheme: WordMorpheme }> = [];
-  const surfaceLower = surface.toLowerCase();
-  let cursor = 0;
-  for (const m of morphemes) {
-    const mText = m.text.toLowerCase();
-    if (surfaceLower.slice(cursor, cursor + mText.length) !== mText) {
-      return null;
-    }
-    out.push({ text: surface.slice(cursor, cursor + mText.length), morpheme: m });
-    cursor += mText.length;
-  }
-  if (cursor !== surface.length) return null;
-  return out;
-}
-
 const HoverSpan: React.FC<{
   text: string;
   tooltipText: string;
@@ -579,7 +553,9 @@ const HoverWord: React.FC<{
   // one hover span per morpheme. Root morphemes render bold so the eye
   // lands on the meaning-carrier.
   if (morphemes && morphemes.length > 0) {
-    const split = splitByMorphemes(text, morphemes);
+    const split = splitSurfaceByMorphemes(text, morphemes, {
+      caseSensitive: morphemesOverride !== undefined,
+    });
     if (split) {
       return (
         <>

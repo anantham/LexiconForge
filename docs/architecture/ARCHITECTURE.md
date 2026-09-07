@@ -201,6 +201,8 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 | `components/sutta-studio/SuttaStudioApp.tsx` | ~498 | Watchlist | Store wiring, navigation, compilation, and render gating |
 | `services/db/repositories/TranslationRepository.ts` | 405 | Watchlist | Translation versioning, active-version mutation, stableId fallback, and direct IDB write paths share one module |
 | `services/imagePlanPlanner.ts` | 451 | Watchlist | Planner schema/prompt logic and three provider transports share one module |
+| `components/liturgy/shapes/TripleScriptWitness.tsx` | 1,363 | Split candidate | Script tokenization, word tooltips, settings, witness controls, accent state, and alignment interaction remain coupled; semantic alignment geometry was extracted to `alignmentGeometry.ts`, but the component still has several independent reasons to change |
+| `data/liturgy/morning-chants.ts` | 982 | Watchlist | Chant source data, shared vocabulary registries, semantic analyses, witness alignments, and commentary live together; the 2026-08-25 word-by-word curation required editing several distant regions in one file |
 
 > Measured 2026-08-22 (`wc -l`). The two shim rows previously claimed 725/586 LOC
 > from a stale pre-extraction snapshot.

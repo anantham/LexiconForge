@@ -162,7 +162,7 @@ Status: **all still pending**; I did not work in this lane. Full text: `git show
 2. **Author 4 remaining Sariputta chants** — `threefold-vandana`, `dai-hi-shu`, `daisegaki`, `teidai-dempo`.
 3. **Buddha Vandana per-word depth** — glosses/morphemes flagged pending in `sariputta-refuges-and-precepts.ts`.
 4. **Cross-model adversarial review on any new sacred-text authoring** before merge.
-5. Deferred (liturgy): chant-depth parity with `metta-sutta.ts`; `morphemeAlignTo` audit for non-Metta chants; MAPLE/Bodhi retrofit onto `heart-sutra-content.ts`; app does network I/O at module import (real fix for the smoke flake).
+5. Deferred (liturgy): chant-depth parity with `metta-sutta.ts`; the non-Metta alignment audit is now automated and Morning Chants is curated, while 179 route-visible review groups remain as of 2026-08-25; MAPLE/Bodhi retrofit onto `heart-sutra-content.ts`; app does network I/O at module import (real fix for the smoke flake).
 
 ## Key Context
 
