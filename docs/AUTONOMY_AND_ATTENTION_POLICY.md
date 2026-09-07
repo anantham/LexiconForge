@@ -361,9 +361,12 @@ evidence recovery.
 
 ## Maintenance and precedence
 
-This is a living operational policy, not an immutable ADR. Amend it when lived
-work reveals repeated attention thrash, hidden authority transfer, misleading
-affordances, or a better boundary. Record why the boundary changed.
+This is a living operational policy, not an immutable ADR. Agents may make
+editorial corrections that do not change authority and record operator rulings
+already given. Any amendment that changes proceed/ask/stop boundaries requires
+an explicit operator ruling before the change; an agent's own policy edit cannot
+authorize its next action. When lived work suggests a better boundary, discuss
+that classification with the operator, then record the ruling, scope and reason.
 
 More specific current human rulings and applicable platform or security
 instructions take precedence. ADRs and product documents define product intent;
