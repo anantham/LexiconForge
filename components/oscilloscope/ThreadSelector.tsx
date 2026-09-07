@@ -31,6 +31,7 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
   const [keyword, setKeyword] = useState('');
   const [isComputing, setIsComputing] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
+  const submission = useRef(0);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const availableThreads = useAppStore((s) => s.availableThreads);
@@ -48,6 +49,14 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
   const visibleActiveTab = activeTab === 'custom' && semantic.status !== 'ready' && !hasPortableCustomTracks
     ? 'character'
     : activeTab;
+
+  useEffect(() => {
+    submission.current += 1;
+    setIsComputing(false);
+    setScanError(null);
+    setKeyword('');
+    return () => { submission.current += 1; };
+  }, [corpusIdentity, indrasNetBaseUrl]);
 
   // Close on click outside
   useEffect(() => {
@@ -81,16 +90,20 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     if (!keyword.trim() || isComputing) return;
 
+    const attempt = ++submission.current;
     setIsComputing(true);
     setScanError(null);
     try {
       const query = keyword.trim();
-      addSemanticThread(query, await semantic.scan(query));
+      const result = await semantic.scan(query);
+      if (attempt !== submission.current) return;
+      addSemanticThread(query, result);
       setKeyword('');
     } catch (error) {
+      if (attempt !== submission.current) return;
       setScanError(error instanceof Error ? error.message : String(error));
     } finally {
-      setIsComputing(false);
+      if (attempt === submission.current) setIsComputing(false);
     }
   };
 
@@ -147,6 +160,13 @@ const ThreadSelector: React.FC<ThreadSelectorProps> = ({ isOpen, onClose }) => {
               </button>
             </form>
 
+            <p className="text-xs text-gray-400">Scan opens a private window. Keep it open until the graph returns.</p>
+            {isComputing && <button type="button" onClick={() => {
+              submission.current += 1;
+              semantic.cancel();
+              setIsComputing(false);
+              setScanError(null);
+            }} className="text-xs text-blue-400">Cancel scan</button>}
             {scanError && <p className="text-xs text-red-400">{scanError}</p>}
 
             {/* Show existing custom threads */}

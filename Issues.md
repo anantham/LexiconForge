@@ -154,7 +154,7 @@ real novel/device acceptance gates from the linked checklist. FEAT-006 stays Acc
 
 September 6 preflight: direct cross-site Strict-cookie calls fail in a disposable
 Chromium transport check; an owner-origin scan window succeeds without moving
-proof to the public reader. The reviewed owner-window client is in #177; compatible backend publication and live verification remain pending.
+proof to the public reader. The reviewed owner-window client is merged as #177 (`39e0aba`); compatible backend publication and live verification remain pending.
 The full-book gate also has a concrete publication-data blocker; see item 21.
 
 18) Public configuration boundary: require local broker settings and keep operator records private.
@@ -262,9 +262,25 @@ using Safari Files in airplane mode on an iPhone before closing mobile acceptanc
 Receipt: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 native Safari QA.
 
 
+22) Owner-window semantic scan rollout and device QA (open; source implemented).
+
+The implementation deletes the unusable cross-site scan POST, a native-fetch
+class wrapper and unused refresh state. Real Chromium + Pixel emulation pass
+same-origin owner/CSRF scan and exported-file offline reopen with synthetic
+compute. Keep complete-novel indexing and real-model latency separate. Verify
+physical Safari/Chrome popup return, local-network permission where applicable,
+touch graph navigation and native offline file import before closing.
+Implementation, bounds and repeatable reader QA:
+[SEMANTIC-SCAN-WINDOW.md](docs/features/SEMANTIC-SCAN-WINDOW.md).
+
+- Slop follow-up: `services/semanticOscilloscopeClient.ts` still returns broader
+  capability metadata than the UI uses. Measure actual same-corpus rechecks
+  before proposing caching or trimming the contract; the current browser probe
+  emitted one capability GET. Do not remove effect dependencies to hide rerenders.
+
 ## Consolidation pickup queue — 2026-09-06
 
-Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. Thirteen original PRs are merged: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162, #165/#168. Companion publisher #3/#4 are merged. Minimal runtime parser recovery #178 is also merged at `d6006eb`. Only #163 (domain acceptance), #164 (deferred automation) and #177 (compatible backend release) remain open; #163/#177 have fresh green CI. Merge records belong in WORKLOG.
+Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. Fourteen original PRs are merged: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162, #165/#168, #177. Companion publisher #3/#4 are merged. Minimal runtime parser recovery #178 is also merged at `d6006eb`. Only #163 (interpretation acceptance) and #164 (automation disposition) remain open from that queue. #177 merged as `39e0aba` after independent and Codex review, 35 focused tests, 12 desktop/Pixel browser cases and fresh CI; backend release and live acceptance remain separate. Merge records belong in WORKLOG.
 
 ### CONS-01 — Give changed chapter artifacts distinct addresses
 
@@ -314,13 +330,15 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 
 ### CONS-07 — Retain the selected book when reopening a full backup without a graph
 
-- **Status:** Open; real package QA finding, separate export/import follow-up.
+- **Status:** Complete: [PR #181](https://github.com/anantham/LexiconForge/pull/181) merged at `ac04bb7` after independent and Codex review and fresh final-head CI.
 - **Evidence:** Two genuinely published Dungeon Defense chapters downloaded/read in `v1-primary` export successfully. Offline native-file reimport preserves two readable chapters but returns `activeNovelId=null`, `activeVersionId=null`. The frozen-graph path has separate corpus-based selection; do not infer this ordinary-backup case from those tests.
-- **Files / done when:** Trace `store/slices/exportSlice.ts`, `services/db/operations/export.ts`, and `store/bootstrap/importSessionData.ts`. Preserve selected book/version on full-backup reopen without reassigning unrelated or explicitly unscoped chapters. Cover mixed-book backups, legacy null scopes, and both graph/no-graph cases. Keep the failing real-package assertion until fixed.
+- **Correction:** `services/db/operations/imports.ts` now consumes the existing full-export navigation fields; `store/bootstrap/importSessionData.ts` derives book/version from the restored chapter; `store/slices/exportSlice.ts` snapshots the current chapter when persistence is older. No new backup schema or chapter-scope fallback.
+- **Verification / done when:** Five regressions failed before repair/review correction; 72 integrated focused Node 24.19.0 tests now pass, including fresh mixed-book/null-scope and graph/no-graph round trips. Types/build pass. The original published two-chapter offline file-upload assertions now pass with selected book, version and chapter retained. Final head `bc55dca` passed all five CI jobs and Vercel (`34086116646`), independent review and Codex review. This proves ordinary backup restoration, not a complete semantic scan.
 
 ### CONS-08 — Recover only unique local runtime and policy work
 
 - **Status:** Parser slice merged as #178 after independent review, 38 locked bridge tests, native PowerShell 5.1 verification and fresh CI. Four original local heads remain preserved and bundled; they are not all pushed.
-- **Pickup:** Separate later hardening idempotency, process-lifecycle verification, portable macOS setup and governance-document reconciliation. Exact local branch identities and unmerged-source observations remain in local Git metadata under `reviews/runtime-recovery-2026-09-06/remaining-local-work.md`; see the debt inbox for the public pickup receipt.
+- **Policy recovery:** The accepted autonomy policy is recovered in `docs/AUTONOMY_AND_ATTENTION_POLICY.md`, with the operator's red/green/gray rules and standing consolidation/external-review authorization. AGENTS, the documentation index and debt-prioritization policy point to it. Publication/merge evidence belongs in WORKLOG; the original local head remains preserved.
+- **Pickup:** Separate later hardening idempotency, process-lifecycle verification and portable macOS setup. Exact local branch identities and unmerged-source observations remain in local Git metadata under `reviews/runtime-recovery-2026-09-06/remaining-local-work.md`; see the debt inbox for the public pickup receipt.
 - **Disposition:** Rebuild needed behavior on current main. Older aggregate trees predate current native-provider/settings files and must not be merged wholesale. Keep public records limited to reviewed source contracts; retain private operator and unpublished-implementation details in local evidence.
 - **Done when:** Each needed behavior has a focused reviewed recovery or an evidence-backed superseded disposition. Preserve the four original heads/bundle until reconciliation is complete. Backend publication/deployment, complete corpus/index, real scan and physical-device acceptance remain separate gates.

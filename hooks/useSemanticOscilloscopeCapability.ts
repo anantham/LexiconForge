@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   normalizeSemanticBaseUrl,
-  SemanticOscilloscopeClient,
+  getSemanticCapability,
 } from '../services/semanticOscilloscopeClient';
 import type { SemanticCapability } from '../services/semanticOscilloscopeClient';
 import type { SemanticCorpusIdentity, SemanticScanResult } from '../types/oscilloscope';
+
+import { scanInOwnerWindow } from '../services/semanticScanWindow';
 
 type CapabilityStatus = 'checking' | 'ready' | 'unavailable';
 
@@ -19,7 +21,7 @@ export const useSemanticOscilloscopeCapability = (
   baseUrl: string | undefined,
   corpus: SemanticCorpusIdentity | null,
 ) => {
-  const [refreshToken, setRefreshToken] = useState(0);
+  const activeScan = useRef<AbortController | null>(null);
   const [state, setState] = useState<CapabilityState>({
     key: null,
     status: 'checking',
@@ -30,26 +32,23 @@ export const useSemanticOscilloscopeCapability = (
   const endpoint = useMemo(() => {
     if (!baseUrl) return null;
     try {
-      const normalizedBaseUrl = normalizeSemanticBaseUrl(baseUrl);
-      return {
-        key: normalizedBaseUrl,
-        client: new SemanticOscilloscopeClient(normalizedBaseUrl),
-      };
+      return normalizeSemanticBaseUrl(baseUrl);
     } catch {
       return null;
     }
   }, [baseUrl]);
-  const client = endpoint?.client ?? null;
 
   const capabilityKey = endpoint && corpus
-    ? `${endpoint.key}\0${corpus.corpusId}\0${corpus.versionId}\0${corpus.contentHash}\0${corpus.chapterCount}\0${refreshToken}`
+    ? `${endpoint}\0${corpus.corpusId}\0${corpus.versionId}\0${corpus.contentHash}\0${corpus.chapterCount}`
     : null;
 
+  useEffect(() => () => activeScan.current?.abort(), [capabilityKey]);
+
   useEffect(() => {
-    if (!corpus || !client || !capabilityKey) return;
+    if (!corpus || !endpoint || !capabilityKey) return;
 
     const controller = new AbortController();
-    client.capability(corpus, controller.signal)
+    getSemanticCapability(endpoint, corpus, controller.signal)
       .then((capability) => {
         if (capability.ready) {
           setState({ key: capabilityKey, status: 'ready', reason: 'Private semantic compute is ready.', capability });
@@ -63,26 +62,29 @@ export const useSemanticOscilloscopeCapability = (
         setState({ key: capabilityKey, status: 'unavailable', reason, capability: null });
       });
     return () => controller.abort();
-  }, [capabilityKey, client, corpus]);
+  }, [capabilityKey, endpoint, corpus]);
 
   const effectiveState: CapabilityState = !corpus
     ? { key: null, status: 'unavailable', reason: 'This session has no verified semantic corpus identity.', capability: null }
-    : !client
+    : !endpoint
       ? { key: null, status: 'unavailable', reason: 'The private IndrasNet URL is missing or invalid.', capability: null }
       : state.key === capabilityKey
         ? state
         : { key: capabilityKey, status: 'checking', reason: 'Checking private semantic compute…', capability: null };
 
   const scan = useCallback(async (query: string): Promise<SemanticScanResult> => {
-    if (!client || !corpus || effectiveState.status !== 'ready') {
+    if (!endpoint || !corpus || effectiveState.status !== 'ready') {
       throw new Error(`Private semantic scan is unavailable: ${effectiveState.reason}`);
     }
-    return client.scan(query.trim(), corpus);
-  }, [client, corpus, effectiveState.reason, effectiveState.status]);
+    activeScan.current?.abort();
+    const controller = new AbortController();
+    activeScan.current = controller;
+    return scanInOwnerWindow(endpoint, query, corpus, controller.signal);
+  }, [endpoint, corpus, effectiveState.reason, effectiveState.status]);
 
   return {
     ...effectiveState,
     scan,
-    refresh: () => setRefreshToken((value) => value + 1),
+    cancel: () => activeScan.current?.abort(),
   };
 };
