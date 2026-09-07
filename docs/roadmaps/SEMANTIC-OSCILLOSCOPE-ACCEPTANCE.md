@@ -68,8 +68,8 @@ checks. See the FEAT-006 work-in-progress amendment and Issues SEM-01.
 - [x] Select Dungeon Defense's available local revision; verify all 476 chapter identities, selected-text coverage and matching frontend/backend corpus hashes.
 - [x] Build a matching local immutable index of all 476 available chapters; real local compute capability and four bounded queries pass.
 - [ ] Run a real deployed owner capability check and scan of the selected revision; record latency.
-- [ ] Export its scalar graph and reopen it offline.
-- [ ] Verify book and translation changes invalidate mismatched graphs.
+- [x] Export scalar graphs from the real local selected-revision scans and reopen the actual exported file offline in fresh desktop and Pixel-emulated Chromium profiles.
+- [x] Verify book and changed-text translation switches invalidate those graphs; identical selected text preserves them.
 - [ ] Exercise desktop behavior with the real backend, including unavailability.
 - [ ] Exercise physical mobile admission, scan, touch/scroll and offline reopening.
 - [ ] Support incremental refresh for added, edited and removed chapter text while reusing unchanged embeddings; preserve version/fork isolation and exact revision identity.
@@ -77,8 +77,15 @@ checks. See the FEAT-006 work-in-progress amendment and Issues SEM-01.
 
 Synthetic desktop and Pixel file-upload checks pass. WebKit in-memory restoration
 passed earlier, but native offline file I/O currently fails in the pinned browser.
-These synthetic checks do not prove a real selected-revision scan, offline cold app launch,
-physical-device behavior or live scan latency. See Issues.md 20.
+The September 7 real local evaluation additionally verifies all 476 chapter scores
+for both `love` and `betrayal` through actual export and offline native-file import.
+Desktop import took 2.10 seconds and Pixel-emulated import 1.77 seconds, with no
+page errors. Feedback-only and identical-text translation switches preserve the
+graph; changed selected text and book switches invalidate it. Screenshots confirm
+readable plots on both viewports. The graph results were installed through the
+application action, so this proves real-result graph portability, not deployed
+owner-window transport. Offline cold app launch, physical-device behavior and live
+scan latency remain unverified. See Issues.md 20.
 
 The [September 6 corpus preflight](../reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md)
 found invalid chapter numbering in both published candidate novels. The existing
