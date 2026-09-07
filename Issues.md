@@ -154,7 +154,7 @@ real novel/device acceptance gates from the linked checklist. FEAT-006 stays Acc
 
 September 6 preflight: direct cross-site Strict-cookie calls fail in a disposable
 Chromium transport check; an owner-origin scan window succeeds without moving
-proof to the public reader. The reviewed owner-window client is in #177; compatible backend publication and live verification remain pending.
+proof to the public reader. The reviewed owner-window client is merged as #177 (`39e0aba`); compatible backend publication and live verification remain pending.
 The full-book gate also has a concrete publication-data blocker; see item 21.
 
 18) Public configuration boundary: require local broker settings and keep operator records private.
@@ -280,7 +280,7 @@ Implementation, bounds and repeatable reader QA:
 
 ## Consolidation pickup queue — 2026-09-06
 
-Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. Thirteen original PRs are merged: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162, #165/#168. Companion publisher #3/#4 are merged. Minimal runtime parser recovery #178 is also merged at `d6006eb`. Only #163 (domain acceptance), #164 (deferred automation) and #177 (compatible backend release) remain open; #163/#177 have fresh green CI. Merge records belong in WORKLOG.
+Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. Fourteen original PRs are merged: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162, #165/#168, #177. Companion publisher #3/#4 are merged. Minimal runtime parser recovery #178 is also merged at `d6006eb`. Only #163 (interpretation acceptance) and #164 (automation disposition) remain open from that queue. #177 merged as `39e0aba` after independent and Codex review, 35 focused tests, 12 desktop/Pixel browser cases and fresh CI; backend release and live acceptance remain separate. Merge records belong in WORKLOG.
 
 ### CONS-01 — Give changed chapter artifacts distinct addresses
 
@@ -330,9 +330,10 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 
 ### CONS-07 — Retain the selected book when reopening a full backup without a graph
 
-- **Status:** Open; real package QA finding, separate export/import follow-up.
+- **Status:** Reviewed repair in [PR #181](https://github.com/anantham/LexiconForge/pull/181), application head `3b14adc`; exact-head CI and merge tracked there.
 - **Evidence:** Two genuinely published Dungeon Defense chapters downloaded/read in `v1-primary` export successfully. Offline native-file reimport preserves two readable chapters but returns `activeNovelId=null`, `activeVersionId=null`. The frozen-graph path has separate corpus-based selection; do not infer this ordinary-backup case from those tests.
-- **Files / done when:** Trace `store/slices/exportSlice.ts`, `services/db/operations/export.ts`, and `store/bootstrap/importSessionData.ts`. Preserve selected book/version on full-backup reopen without reassigning unrelated or explicitly unscoped chapters. Cover mixed-book backups, legacy null scopes, and both graph/no-graph cases. Keep the failing real-package assertion until fixed.
+- **Correction:** `services/db/operations/imports.ts` now consumes the existing full-export navigation fields; `store/bootstrap/importSessionData.ts` derives book/version from the restored chapter; `store/slices/exportSlice.ts` snapshots the current chapter when persistence is older. No new backup schema or chapter-scope fallback.
+- **Verification / done when:** Five regressions failed before repair/review correction; 72 integrated focused Node 24.19.0 tests now pass, including fresh mixed-book/null-scope and graph/no-graph round trips. Types/build pass. The original published two-chapter offline file-upload assertions now pass with selected book, version and chapter retained. Independent review approves the correction; require exact-head CI and Codex review before merge. This proves ordinary backup restoration, not a complete semantic scan.
 
 ### CONS-08 — Recover only unique local runtime and policy work
 

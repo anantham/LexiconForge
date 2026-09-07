@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import { useAppStore } from '../../store';
-import { ChapterOps, ImportOps } from '../../services/db/operations';
+import { ChapterOps, ImportOps, NavigationOps } from '../../services/db/operations';
 import { getConnection } from '../../services/db/core/connection';
 import { loadNovelIntoStore } from '../../services/readerHydrationService';
 import { ExportService } from '../../services/exportService';
@@ -188,5 +188,64 @@ it('opens a readable chapter when a full backup has no frozen graph', async () =
   const state = useAppStore.getState();
   expect(state.appScreen).toBe('reader');
   expect(state.chapters.get(state.currentChapterId!)?.chapterNumber).toBe(1);
+  expect([state.activeNovelId, state.activeVersionId]).toEqual(['book-a', 'v1']);
   expect(state.corpusIdentity).toBeNull();
+});
+
+it.each([null, 'v1'])('restores saved navigation without a graph and preserves mixed scopes %s', async selection => {
+  const selected = await fixture('book-z');
+  await ImportOps.importFullSessionData({ ...selected, novelId: 'book-z', libraryVersionId: selection });
+  const other = await fixture('book-a');
+  await ImportOps.importFullSessionData({ ...other, novelId: 'book-a', libraryVersionId: 'v2' });
+  await ImportOps.importFullSessionData({ chapters: [{ stableId: 'legacy-unscoped',
+    canonicalUrl: 'https://example.invalid/legacy', title: 'Legacy', content: 'Legacy text', chapterNumber: 1,
+    novelId: null, libraryVersionId: null, translations: [],
+  }] });
+  const first = await loadNovelIntoStore('book-z', useAppStore.setState, { versionId: selection });
+  const last = [...useAppStore.getState().chapters.values()].find(chapter => chapter.chapterNumber === 2)!;
+  useAppStore.setState({ activeNovelId: 'book-z', activeVersionId: selection, currentChapterId: last.id });
+  const history = [first!, last.id];
+  // Persist through the existing navigation API, as chapter navigation does.
+  await NavigationOps.setHistory({ stableIds: history });
+  await NavigationOps.setLastActiveChapter({ id: last.id, url: last.canonicalUrl });
+  const backup = JSON.parse(await useAppStore.getState().exportSessionData({ includeImages: false, includeTelemetry: false }));
+  expect(backup.oscilloscope).toBeUndefined();
+  expect(backup.lastActiveChapter.id).toBe(last.id);
+  const identities = backup.chapters.map((chapter: any) => [chapter.stableId, chapter.novelId, chapter.libraryVersionId]);
+  // A fresh receiving library cannot lend the importer its previous navigation.
+  const db = await getConnection();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(Array.from(db.objectStoreNames), 'readwrite');
+    for (const name of Array.from(db.objectStoreNames)) tx.objectStore(name).clear();
+    tx.oncomplete = () => resolve();
+    tx.onabort = () => reject(tx.error);
+  });
+  useAppStore.setState({ chapters: new Map(), activeNovelId: null, activeVersionId: null,
+    currentChapterId: null, navigationHistory: [] });
+  await useAppStore.getState().importSessionData(backup);
+  const state = useAppStore.getState();
+  expect([state.activeNovelId, state.activeVersionId, state.currentChapterId]).toEqual(['book-z', selection, last.id]);
+  expect(state.navigationHistory).toEqual(history);
+  expect(state.corpusIdentity).toBeNull();
+  const restored = await ChapterOps.getAll();
+  expect(restored.map(chapter => [chapter.stableId, chapter.novelId, chapter.libraryVersionId])).toEqual(identities);
+  expect(restored).toHaveLength(5);
+});
+
+it('exports the current reader chapter when persisted navigation is older', async () => {
+  await useAppStore.getState().importSessionData(await fixture());
+  useAppStore.getState().resetOscilloscope();
+  const chapters = [...useAppStore.getState().chapters.values()];
+  await NavigationOps.setLastActiveChapter({ id: chapters[0].id, url: chapters[0].canonicalUrl });
+  useAppStore.getState().setCurrentChapter(chapters[1].id);
+  const backup = JSON.parse(await useAppStore.getState().exportSessionData({ includeImages: false, includeTelemetry: false }));
+  expect(backup.lastActiveChapter).toEqual({ id: chapters[1].id, url: chapters[1].canonicalUrl });
+});
+
+it('preserves receiving history when the imported backup only names a saved chapter', async () => {
+  await NavigationOps.setHistory({ stableIds: ['existing-chapter'] });
+  const lastActiveChapter = { id: 'saved-chapter', url: 'https://example.invalid/saved' };
+  await ImportOps.importFullSessionData({ lastActiveChapter });
+  expect(await NavigationOps.getHistory()).toEqual({ stableIds: ['existing-chapter'] });
+  expect(await NavigationOps.getLastActiveChapter()).toEqual(lastActiveChapter);
 });
