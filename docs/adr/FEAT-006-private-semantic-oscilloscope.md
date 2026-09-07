@@ -224,3 +224,32 @@ Synthetic browser acceptance now covers actual owner/CSRF middleware and native
 offline file reopening. Deployment, complete novel, real model and physical
 mobile gates remain open; this amendment does not change the ADR's Accepted
 status. See `docs/features/SEMANTIC-SCAN-WINDOW.md` and the acceptance checklist.
+
+
+### Work-in-progress community editions — 2026-09-07
+
+The operator clarified that readers load, translate, annotate, fork and
+republish evolving editions. This agrees with `docs/features/COMMUNITY_LIBRARY.md`
+and the existing `NovelVersion.completionStatus` contract. Earlier references
+to a complete/full-book index mean all available chapters of the selected
+version and exact text revision; a finished novel or fully translated edition
+is not an acceptance prerequisite. Missing/unpublished chapters remain outside
+the measured coverage and must not be represented as zero thematic presence.
+
+A graph belongs to a particular selected-text revision. New or revised chapter
+text needs a refreshed index/graph; unchanged chapter embeddings should be
+reused. Removed chapters and version/fork switches must preserve correct scope.
+Feedback or illustration changes that leave selected text unchanged do not
+require re-embedding. Frozen exports remain immutable evidence of their original
+revision and must not be silently updated or rebound to a contributor's fork.
+
+Current implementation validates exact corpus snapshots and invalidates changed
+selected text. Incremental refresh is not implemented; Issues SEM-01 owns its
+acceptance evidence. The local 476-chapter evaluation is a valid work-in-progress
+revision test, with source-versus-translation coverage recorded explicitly.
+
+This clarification does not enable automatic background provider calls, public
+access to private compute, dual-language indexing or new publication effects.
+Existing user settings, owner authorization and data boundaries still apply.
+ADR status remains Accepted pending the updated live and incremental acceptance
+checklist; local index completion alone is insufficient.

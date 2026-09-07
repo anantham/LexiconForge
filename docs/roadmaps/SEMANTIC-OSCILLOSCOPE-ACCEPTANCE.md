@@ -57,25 +57,45 @@ commit/runtime inventories and operator release prerequisites stay in private re
 
 ## 4. Prove the complete feature
 
+September 7 operator clarification: novels and community translations are works
+in progress. A complete index covers every available chapter in the selected
+version/revision; the novel need not be finished or fully translated. Show actual
+coverage and selected-text provenance. This supersedes the earlier completed-book
+prerequisite without relaxing identity, completeness-within-revision or privacy
+checks. See the FEAT-006 work-in-progress amendment and Issues SEM-01.
+
 - [x] Verify pinned published FMoC/Dungeon Defense bytes and exercise both corpus validators; record the actual publication blockers and existing repair.
-- [ ] Select the novel and translation; verify full chapter count and corpus hash.
-- [ ] Build or verify a complete matching immutable index.
-- [ ] Run a real owner capability check and full-book scan; record latency.
-- [ ] Export its scalar graph and reopen it offline.
-- [ ] Verify book and translation changes invalidate mismatched graphs.
+- [x] Select Dungeon Defense's available local revision; verify all 476 chapter identities, selected-text coverage and matching frontend/backend corpus hashes.
+- [x] Build a matching local immutable index of all 476 available chapters; real local compute capability and four bounded queries pass.
+- [ ] Run a real deployed owner capability check and scan of the selected revision; record latency.
+- [x] Export scalar graphs from the real local selected-revision scans and reopen the actual exported file offline in fresh desktop and Pixel-emulated Chromium profiles.
+- [x] Verify book and changed-text translation switches invalidate those graphs; identical selected text preserves them.
 - [ ] Exercise desktop behavior with the real backend, including unavailability.
 - [ ] Exercise physical mobile admission, scan, touch/scroll and offline reopening.
+- [ ] Support incremental refresh for added, edited and removed chapter text while reusing unchanged embeddings; preserve version/fork isolation and exact revision identity.
+- [ ] Verify feedback-only edits avoid embedding work and exported historical graphs retain their original revision.
 
 Synthetic desktop and Pixel file-upload checks pass. WebKit in-memory restoration
 passed earlier, but native offline file I/O currently fails in the pinned browser.
-These checks do not prove a complete novel scan, offline cold app launch,
-physical-device behavior or live scan latency. See Issues.md 20.
+The September 7 real local evaluation additionally verifies all 476 chapter scores
+for both `love` and `betrayal` through actual export and offline native-file import.
+Desktop import took 2.10 seconds and Pixel-emulated import 1.77 seconds, with no
+page errors. Feedback-only and identical-text translation switches preserve the
+graph; changed selected text and book switches invalidate it. Screenshots confirm
+readable plots on both viewports. The graph results were installed through the
+application action, so this proves real-result graph portability, not deployed
+owner-window transport. Offline cold app launch, physical-device behavior and live
+scan latency remain unverified. See Issues.md 20.
 
 The [September 6 corpus preflight](../reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md)
 found invalid chapter numbering in both published candidate novels. The existing
 Dungeon Defense publisher repair produces matching frontend/backend hashes for
-476 chapters, but remains partial against the declared 509. Issues.md 21 tracks
-the missing complete-corpus prerequisite; do not close it from this parity proof.
+476 chapters. Its partial publication coverage is valid for a work-in-progress
+version under the September 7 clarification. The original numbering/integrity
+findings remain valid; waiting for a finished novel is no longer a prerequisite.
+The newly tested local revision has its own selected-text identity and must not
+be silently labelled as the published version. Issues.md 21 tracks this evidence;
+SEM-01 tracks the missing incremental-refresh workflow.
 
 ## 5. Close the records
 
