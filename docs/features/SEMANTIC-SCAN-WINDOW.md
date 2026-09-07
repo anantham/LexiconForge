@@ -11,6 +11,9 @@ The former cross-site POST could not carry the paired Strict cookie.
   query and scores. The owner vendors the dependency-free module byte-for-byte.
 - `semanticOscilloscopeClient.ts` now exposes a direct capability function:
   deleting its single-method class fixes native fetch's Illegal invocation.
+  Capability must advertise `scanTransport: lf-owner-scan-v1` before Scan is
+  offered. Legacy readiness and contradictory index readiness are rejected in
+  the same request; no second probe or retry is added.
 - The capability hook and ThreadSelector discard stale selections, close cancelled
   windows and surface connection failures. Unused refresh state/exports are deleted.
 
@@ -27,3 +30,10 @@ No backend publication/deployment is included. Complete corpus, exact release
 scope, real-model latency, physical popup/local-network permission, Safari file
 reopen and cold offline launch remain in the [acceptance checklist](../roadmaps/SEMANTIC-OSCILLOSCOPE-ACCEPTANCE.md).
 FEAT-006 remains Accepted. Reader implementation: [PR #177](https://github.com/anantham/LexiconForge/pull/177), targeted to main after #160 and the chapter/coverage consolidation.
+
+September 7 compatibility correction: 35 focused Node 24.19.0 tests, types,
+production build and 12 desktop/Pixel browser cases pass. Missing backend,
+owner rejection, unbuilt window and legacy readiness keep reading and frozen
+custom-track export available while hiding Scan. The matching local backend
+returns HTTP 503 before model probing when its fixed window artifact is absent;
+its publication and deployment remain separate acceptance work.

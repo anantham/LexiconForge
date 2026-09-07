@@ -49,6 +49,8 @@ commit/runtime inventories and operator release prerequisites stay in private re
 - [x] Inspect checkout state, concurrent work, services, models and index locations.
 - [ ] Verify HTTPS, owner authorization and exact-origin CORS end to end.
 - [x] Select, implement and locally review the owner-window browser connection with existing access controls.
+- [x] Reject legacy window capability before showing Scan; verify frozen custom
+      graphs remain usable across backend failures in 12 desktop/Pixel browser cases.
 - [ ] Confirm exact deployment scope, reviewed commits, index destination and rollback.
 - [ ] Deploy within that scope, preserving dirty/concurrent work.
 - [ ] Independently verify the running version, health, authorization and routes.

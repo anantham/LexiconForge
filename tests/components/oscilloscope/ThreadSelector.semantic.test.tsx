@@ -61,7 +61,7 @@ describe('ThreadSelector private semantic scan gate', () => {
     useAppStore.getState().initializeOscilloscope(corpus);
     vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({
       ok: true,
-      protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
+      protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, scanTransport: 'lf-owner-scan-v1',
       ready: true,
       reason: 'ready',
       corpus: { ...corpus, versionId: 'wrong-version' },
@@ -83,7 +83,7 @@ describe('ThreadSelector private semantic scan gate', () => {
       if (String(input).startsWith('https://asus.example.ts.net/')) {
         return jsonResponse({
           ok: true,
-          protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
+          protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, scanTransport: 'lf-owner-scan-v1',
           ready: true,
           reason: 'ready',
           corpus,
@@ -96,7 +96,7 @@ describe('ThreadSelector private semantic scan gate', () => {
       await new Promise<void>((resolve) => { releaseSecond = resolve; });
       return jsonResponse({
         ok: true,
-        protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL,
+        protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, scanTransport: 'lf-owner-scan-v1',
         ready: true,
         reason: 'ready',
         corpus,
@@ -124,7 +124,7 @@ describe('ThreadSelector private semantic scan gate', () => {
       const url = String(input);
       if (!url.includes('/capability?')) throw new Error('The public reader must not POST a scan');
       return jsonResponse({
-        ok: true, protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, ready: true, reason: 'ready', corpus,
+        ok: true, protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, scanTransport: 'lf-owner-scan-v1', ready: true, reason: 'ready', corpus,
         vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512, embeddingModel: 'qwen3-embedding:8b',
         index: { ready: true, vectorCount: 2, createdAt: null },
       });
@@ -160,7 +160,7 @@ describe('ThreadSelector private semantic scan gate', () => {
   it.each(['book', 'endpoint'])('cancels a pending scan after a %s change and discards late scores', async change => {
     useAppStore.getState().initializeOscilloscope(corpus);
     vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({
-      ok: true, protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, ready: true, reason: 'ready', corpus,
+      ok: true, protocol: SEMANTIC_OSCILLOSCOPE_PROTOCOL, scanTransport: 'lf-owner-scan-v1', ready: true, reason: 'ready', corpus,
       vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512,
       index: { ready: true, vectorCount: 2, createdAt: null },
     })));

@@ -1,10 +1,11 @@
 import type { SemanticCorpusIdentity } from '../types/oscilloscope';
-import { sameCorpus, SemanticOscilloscopeError, SEMANTIC_OSCILLOSCOPE_PROTOCOL, SEMANTIC_VECTOR_SPACE, SEMANTIC_VECTOR_DIMENSIONS } from './semanticScanProtocol';
+import { sameCorpus, SemanticOscilloscopeError, SEMANTIC_OSCILLOSCOPE_PROTOCOL, SEMANTIC_VECTOR_SPACE, SEMANTIC_VECTOR_DIMENSIONS, OWNER_SCAN_PROTOCOL } from './semanticScanProtocol';
 export { SemanticOscilloscopeError, SEMANTIC_OSCILLOSCOPE_PROTOCOL, SEMANTIC_VECTOR_SPACE, SEMANTIC_VECTOR_DIMENSIONS } from './semanticScanProtocol';
 
 export interface SemanticCapability {
   ok: true;
   protocol: string;
+  scanTransport: typeof OWNER_SCAN_PROTOCOL;
   ready: boolean;
   reason: string;
   corpus: SemanticCorpusIdentity;
@@ -76,10 +77,14 @@ export async function getSemanticCapability(
   );
   if (!response.ok) throw await responseError(response, 'Semantic capability check');
   const body = validateEnvelope(await response.json(), corpus, 'Semantic capability check');
+  if (body.scanTransport !== OWNER_SCAN_PROTOCOL) {
+    throw new SemanticOscilloscopeError('Private semantic backend does not support the required scan window protocol. Update the private scan service.');
+  }
   if (typeof body.ready !== 'boolean' || typeof body.reason !== 'string') {
     throw new SemanticOscilloscopeError('Semantic capability check returned an invalid readiness state');
   }
-  if (!body.index || typeof body.index !== 'object' || typeof (body.index as Record<string, unknown>).ready !== 'boolean') {
+  if (!body.index || typeof body.index !== 'object' || typeof (body.index as Record<string, unknown>).ready !== 'boolean'
+    || (body.ready && !(body.index as Record<string, unknown>).ready)) {
     throw new SemanticOscilloscopeError('Semantic capability check returned invalid index metadata');
   }
   return body as unknown as SemanticCapability;

@@ -148,7 +148,7 @@ test('uses native fetch for capability and returns a scalar graph through a real
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1'
     ? route.continue() : route.abort());
   await page.route(`${owner}/api/lexiconforge/semantic-oscilloscope/capability?*`, route => route.fulfill({ json: {
-    ok: true, protocol: 'lexiconforge-semantic-oscilloscope-v1', corpus, ready: true, reason: 'ready',
+    ok: true, protocol: 'lexiconforge-semantic-oscilloscope-v1', scanTransport: 'lf-owner-scan-v1', corpus, ready: true, reason: 'ready',
     vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512,
     index: { ready: true, vectorCount: 2, createdAt: null },
   } }));
@@ -196,3 +196,44 @@ test('uses native fetch for capability and returns a scalar graph through a real
   expect(await page.evaluate(() => (window as any).useAppStore.getState()
     .threads.get('custom:semantic:trust').values)).toEqual([0.31, 0.62]);
 });
+
+const unavailableBackends = [
+  { name: 'missing backend', status: 404, body: { detail: 'Not Found' }, reason: /HTTP 404/ },
+  { name: 'owner admission required', status: 401, body: { detail: 'Owner access required' }, reason: /HTTP 401/ },
+  { name: 'window not built', status: 503, body: { detail: 'Private scan window is not built' }, reason: /window is not built/ },
+  { name: 'legacy ready backend', status: 200, body: {
+    ok: true, protocol: 'lexiconforge-semantic-oscilloscope-v1', corpus, ready: true, reason: 'ready',
+    vectorSpace: 'qwen3-embedding-8b:mrl-512:l2-v1', dimensions: 512,
+    index: { ready: true, vectorCount: 2, createdAt: null },
+  }, reason: /required scan window protocol/ },
+];
+
+for (const backend of unavailableBackends) {
+  test(`preserves frozen custom graphs and reading with ${backend.name}`, async ({ page, context }) => {
+    const owner = 'https://owner.example';
+    await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1'
+      ? route.continue() : route.abort());
+    await page.route(`${owner}/api/lexiconforge/semantic-oscilloscope/capability?*`, route =>
+      route.fulfill({ status: backend.status, json: backend.body }));
+    await page.goto('/');
+    await page.waitForFunction(() => (window as any).useAppStore?.getState().isInitialized);
+    await page.evaluate(async ({ payload, owner }) => {
+      const store = (window as any).useAppStore;
+      await store.getState().importSessionData({ ...payload, oscilloscope: { ...payload.oscilloscope,
+        threads: [{ ...payload.oscilloscope.threads[0], threadId: 'custom:frozen', category: 'custom' }],
+        activeThreadIds: ['custom:frozen'],
+      } });
+      store.setState({ settings: { ...store.getState().settings, indrasNetBaseUrl: owner, preloadCount: 0 } });
+    }, { payload: fixture, owner });
+    await expect(page.locator('[data-translation-content]')).toContainText('Synthetic chapter 1.');
+    await page.locator('.oscilloscope-panel canvas').click();
+    await page.getByRole('button', { name: 'Threads', exact: true }).click();
+    await expect(page.getByText(backend.reason)).toBeVisible();
+    await page.getByRole('button', { name: /^Custom\s*\(1\)$/ }).click();
+    await expect(page.getByRole('button', { name: /Trust.*2 ch/ })).toBeVisible();
+    await expect(page.getByPlaceholder('e.g. reluctant trust becoming intimacy')).toHaveCount(0);
+    const exported = JSON.parse(await page.evaluate(() => (window as any).useAppStore.getState().exportSessionData()));
+    expect(exported.oscilloscope.threads[0].values).toEqual([0.2, 0.7]);
+    expect(context.pages()).toHaveLength(1);
+  });
+}
