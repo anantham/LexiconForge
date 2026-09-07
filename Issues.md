@@ -182,19 +182,29 @@ or copy private audit findings into this issue. Cleanup merged in [PR #174](http
 Receipts: `docs/roadmaps/TECH-DEBT-INBOX.md`, September 5 graph review; structural
 friction belongs in `docs/architecture/ARCHITECTURE.md` section 7.
 
-21) Supply a verified complete novel before semantic index acceptance (open; unclaimed).
+21) Verify the available work-in-progress revision for semantic evaluation.
 
-The pinned FMoC session fails chapter-identity validation and declares
-`unknown / quick-export` instead of the registry identity. Publisher PR #3 is
-now merged and repairs Dungeon Defense numbering; it remains 476/509 chapters
-with 30 source-content fallbacks. The September 7 metadata sweep at published
-novel-repository main `ddd29d1` establishes no complete eligible alternative:
-Eternal Life is 8/1,634, Aithihyamala is chapter 64 only, and the Gita translation
-is partial and is not a novel. All five versions declare In Progress. Metadata
-is not corpus-byte proof; retain the actual frontend/backend validation gate.
-Do not index these as complete English novels or relax the validators. Earlier
-byte/hash evidence and the completion criteria are in
-[the corpus preflight](docs/reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md).
+**Updated 2026-09-07:** The operator clarified that the community publishes
+evolving books and translations. The earlier requirement to wait for a finished
+novel is superseded. Verify all chapters actually included in the selected
+revision, its text sources and identity; missing/unpublished chapters are not
+zero-score evidence. Incremental additions and revisions are tracked in SEM-01.
+
+The selected local backup contains 476 Dungeon Defense records and 33 from
+another novel. A disposable Dungeon Defense projection verifies numbered source
+titles and every original stable ID; the existing publisher repair proves 29
+number corrections. Original bytes are preserved. The selected text uses 281
+saved translations, 165 fan translations and 30 source-language fallbacks.
+Frontend/backend corpus hashes agree. Production file upload retains all 476
+chapters and the selected scope without page errors. A matching local index and
+four real local semantic queries now pass. Graph-quality, offline graph,
+deployed owner transport and physical-device evidence remain separate.
+
+The published package and this local revision have different selected-text
+identities; never substitute one for the other. Earlier published FMoC numbering
+and identity failures remain unresolved, and all original byte/hash findings
+remain in [the corpus preflight](docs/reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md).
+That historical report's completed-novel requirement is superseded here.
 
 
 ## Agent pickup queue — 2026-09-05 latency and complexity pass
@@ -349,3 +359,11 @@ Merged original PRs: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162/#1
 - **Pickup:** Finish process-lifecycle verification. The prepared native ownership probe is held by automatic approval review pending the requested explicit payload/destination approval; no native result is claimed. Compare the existing named-task controls and documented POSIX launch commands before recovering wrappers or another supervisor. Preserve explicit runtime configuration, exact dependency provenance and actual owner admission. Exact local branch identities, static findings and next verification steps remain in local Git metadata under `reviews/runtime-recovery-2026-09-06/remaining-local-work.md`; see the debt inbox for the public pickup receipt.
 - **Disposition:** Rebuild needed behavior on current main. Older aggregate trees predate current native-provider/settings files and must not be merged wholesale. Keep public records limited to reviewed source contracts; retain private operator and unpublished-implementation details in local evidence.
 - **Done when:** Each needed behavior has a focused reviewed recovery or an evidence-backed superseded disposition. Preserve the four original heads/bundle until reconciliation is complete. Backend publication/deployment, complete corpus/index, real scan and physical-device acceptance remain separate gates.
+
+### SEM-01 — Evaluate chapter-level reuse and meaningful passage boundaries
+
+- **Status:** Open; findings from the operator-selected real-corpus evaluation. No product or scheduling change made.
+- **Evidence:** The current path builds a snapshot of the selected text; it does not incrementally index newly translated chapters. `services/semanticOscilloscopeSession.ts` chooses one text per chapter, and `store/slices/chaptersSlice.ts:updateChapter` invalidates the graph when that selected text changes. Local acceptance has not proved automatic addition or chapter-level vector reuse.
+- **Boundary finding:** The current 1,800-character windows overlap by 200 characters and do not align to words, sentences or paragraphs. In the selected 476-chapter corpus, 2,087 of 3,544 internal end boundaries fall between ASCII letters (58.9%); this proves mechanical splitting, not a measured retrieval-quality loss. Full mostly-English windows have a median of 310 words.
+- **Follow-up:** Compare bounded paragraph/sentence grouping against the unchanged baseline using predetermined query/evidence samples. For incremental refresh, reuse unchanged chapter results and recompute changed/new text under the same model and chunking contract, preserving exact whole-corpus identity and immutable exported graphs. Establish explicit source-versus-translation semantics before adding parallel language indexes. Avoid a new daemon or implicit scan scheduling.
+- **Done when:** New, revised, removed and translation-switched chapters produce the correct current graph with unchanged chapters reused; stale results cannot attach to another corpus/version. Record work avoided and actual scan/refresh latency, plus semantic quality. Current existing immutable snapshots remain independently readable.
