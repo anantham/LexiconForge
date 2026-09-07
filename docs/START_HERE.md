@@ -30,7 +30,8 @@ Add provider credentials through **Settings -> API Keys** after the app opens. D
 |-----|---------|
 | [ONBOARDING.md](./ONBOARDING.md) | Step-by-step guide to your first contribution |
 | [../CONTRIBUTING.md](../CONTRIBUTING.md) | Code style, PR process, testing requirements |
-| [../AGENTS.md](../AGENTS.md) | How to work with AI agents on this codebase |
+| [AUTONOMY_AND_ATTENTION_POLICY.md](./AUTONOMY_AND_ATTENTION_POLICY.md) | When agents proceed, escalate, or discuss an unclassified decision |
+| [../AGENTS.md](../AGENTS.md) | Investigation, testing, documentation and review workflow |
 
 ### Understanding the Architecture
 | Doc | Purpose |
