@@ -190,21 +190,25 @@ novel is superseded. Verify all chapters actually included in the selected
 revision, its text sources and identity; missing/unpublished chapters are not
 zero-score evidence. Incremental additions and revisions are tracked in SEM-01.
 
-The selected local backup contains 476 Dungeon Defense records and 33 from
+The original local backup contained 476 Dungeon Defense records and 33 from
 another novel. A disposable Dungeon Defense projection verifies numbered source
 titles and every original stable ID; the existing publisher repair proves 29
 number corrections. Original bytes are preserved. The selected text uses 281
 saved translations, 165 fan translations and 30 source-language fallbacks.
 Frontend/backend corpus hashes agree. Production file upload retains all 476
 chapters and the selected scope without page errors. A matching local index and
-four real local semantic queries now pass. Graph-quality, offline graph,
-deployed owner transport and physical-device evidence remain separate.
+four real local semantic queries now pass. Actual exported graphs reopen offline
+with exact scores in desktop and Pixel-emulated Chromium; changed selected text
+and book switches invalidate them. Semantic quality, deployed owner transport
+and physical-device evidence remain separate.
 
 The operator-requested tracked-backup cleanup now removes those 33 unrelated
 records and 66 mappings, retaining all Dungeon Defense work and the saved
 reading position. [Exact cleanup evidence](docs/reviews/DUNGEON-DEFENSE-SESSION-CLEANUP-2026-09-07.md)
 records the byte hashes, structural preservation and real-file import check.
-Review/integration is pending.
+Cleanup merged in [PR #184](https://github.com/anantham/LexiconForge/pull/184)
+as `9d83524`; main contains the verified cleaned LFS bytes. The original byte
+backup remains preserved locally.
 
 The published package and this local revision have different selected-text
 identities; never substitute one for the other. Earlier published FMoC numbering
@@ -371,5 +375,6 @@ Merged original PRs: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162/#1
 - **Status:** Open; findings from the operator-selected real-corpus evaluation. No product or scheduling change made.
 - **Evidence:** The current path builds a snapshot of the selected text; it does not incrementally index newly translated chapters. `services/semanticOscilloscopeSession.ts` chooses one text per chapter, and `store/slices/chaptersSlice.ts:updateChapter` invalidates the graph when that selected text changes. Local acceptance has not proved automatic addition or chapter-level vector reuse.
 - **Boundary finding:** The current 1,800-character windows overlap by 200 characters and do not align to words, sentences or paragraphs. In the selected 476-chapter corpus, 2,087 of 3,544 internal end boundaries fall between ASCII letters (58.9%); this proves mechanical splitting, not a measured retrieval-quality loss. Full mostly-English windows have a median of 310 words.
+- **Quality sample:** The fixed highest, middle and lowest chapter samples for `love` and `betrayal` show useful association, but physical intimacy, disputed accusations and enemy deception do not establish calibrated theme prevalence. Query/paraphrase chapter-score correlations are 0.946 and 0.869; the shared lowest sample uses Korean source text, so language/source effects remain confounded. Expand blinded relevance checks and source-language controls before claiming semantic quality. No scoring adjustment or extra model call was made.
 - **Follow-up:** Compare bounded paragraph/sentence grouping against the unchanged baseline using predetermined query/evidence samples. For incremental refresh, reuse unchanged chapter results and recompute changed/new text under the same model and chunking contract, preserving exact whole-corpus identity and immutable exported graphs. Establish explicit source-versus-translation semantics before adding parallel language indexes. Avoid a new daemon or implicit scan scheduling.
 - **Done when:** New, revised, removed and translation-switched chapters produce the correct current graph with unchanged chapters reused; stale results cannot attach to another corpus/version. Record work avoided and actual scan/refresh latency, plus semantic quality. Current existing immutable snapshots remain independently readable.
