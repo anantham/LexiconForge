@@ -20,6 +20,10 @@ isolated, and reviewed. If older language below appears to require a human gate
 for routine A0/A1 mechanics, interpret it through the authority policy. Product
 runtime automation remains governed by its ADRs and explicit user settings.
 
+Workflow exceptions, including the single-agent small-fix exception, change
+isolation or PR mechanics only. They do not authorize a push, merge, deployment
+or other external effect; the authority policy and current human rulings do.
+
 ---
 
 # PRIME_DIRECTIVES 
@@ -30,7 +34,7 @@ runtime automation remains governed by its ADRs and explicit user settings.
 4. **Human Gates Are Sacred and Scarce:** Use H1 for value-bearing or consequential choices and S1 for credible harm. Proceed with A0 evidence work and A1 mechanics inside an approved envelope without repeated permission requests. Root-cause confirmation needs a human ruling only when it depends on product meaning, conflicting evidence, or acceptance of consequential uncertainty.
 5. **Documentation Is Design:** Every feature needs intent documentation. Use ADRs for significant decisions. When a PR ships what an ADR proposed, update the ADR status to `Implemented` and add an Implementation Notes section pointing to the actual files — in the same commit or a follow-up doc commit.
 6. **Don't be trigger happy** - A question is not an implementation objective. Answer it without inferring authority to edit. Once the human explicitly approves an objective and its boundary, use the A0/A1 envelope rather than asking again for routine mechanics.
-7. **Epistemic Hygiene** - Every fix proposal includes: assumptions, predicted test outcomes, confidence (0.0–1.0), fallback plan. If confidence < 0.7 or unsafe → "decline & explain" using STOP template
+7. **Epistemic Hygiene** - Every fix proposal includes assumptions, predicted test outcomes, confidence (0.0–1.0), and a fallback plan. Do not implement an unsafe or weakly supported fix. Low confidence calls for further green diagnostics or a narrower experiment; a human ruling is needed only for a red boundary or gray authority classification.
 
 
 8. **Meta update protocol** - if I ask you to do something and mention /metaupdate then incorporate that request into the appropriate section in this AGENTS.md document itself after confirming with me. If you offer me an investigation plan as part of the bug squashing protocol below and I say "make sure you also note all relevant files that will be affected /metaupdate" then you will append that rule to the protocol below specifying concrete paths to files that are relevant and will be investigated.
@@ -247,7 +251,7 @@ Attempt 3/3
 
 - final_hypothesis: <…>
     
-- if still failing → MANDATORY STOP
+- if still failing → stop this approach, preserve evidence, and apply the rule below
     
 
 HARD_STOP: after 3 failed attempts OR 2 inconclusive cycles, stop that approach
@@ -333,22 +337,17 @@ Use a two-stage debt capture system rather than relying on `docs/WORKLOG.md` alo
 
 # STOP_CONDITIONS (affected action or approach)
 
-Interpret these through the authority policy: record friction and preserve safe
-work. Only an applicable red boundary or unresolved gray classification requires
-a human ruling; a hotspot or exhausted diagnostic method does not stop the task.
-
-1. loop limit reached (3 fails or 2 inconclusive cycles of trying to replace text, edit file, run command)
-    
-2. context overflow (> 80% of window) prepare to make best use of remaining tokens
-    
-3. file triggers friction signals (see `docs/CONVENTIONS.md` §4) — flag it in `docs/architecture/ARCHITECTURE.md` §7 (Hotspots)
-    
-4. security risk (auth/crypto/sanitization/secrets)
-    
-5. destructive operation detected (rm/drop/truncate to evade or goodhart tests)
-    
-6. If you notice a general quick hacky fix to bypass the slow careful principled solution
-    
+- **Credible harm or invalid authority:** stop the affected action under the
+  policy's S1 rule, preserve evidence, and cite the boundary when escalating.
+  Never delete data or disable a guard to make a check pass.
+- **Exhausted diagnostic approach:** after three failed attempts or two
+  inconclusive cycles, stop repeating that approach. Continue materially
+  different safe diagnostics; report a technical blocker if none remain.
+- **Context pressure:** prepare a durable handoff before context overflow.
+- **Structural friction:** record the hotspot and a debt receipt; continue
+  unrelated work. File size or an awkward helper is not an approval gate.
+- **Unsafe shortcut:** reject it, explain the concern, and continue within the
+  authorized boundary. Discuss only a genuinely red or gray next action.
 
 ### STOP_MESSAGE_TEMPLATE  
 

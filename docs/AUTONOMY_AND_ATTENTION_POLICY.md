@@ -229,6 +229,9 @@ what it costs, or what the user is told requires H1.
   authority to publish the branch. An explicit request to publish or merge,
   including the current consolidation ruling below, supplies that authority
   within its stated scope; do not request it again for each mechanic.
+- The existing single-agent small-fix exception in `AGENTS.md` permits local
+  main-checkout mechanics within an approved objective. It does not supply
+  publication or deployment authority; use the same authorization rules above.
 - “Committed,” “pushed,” “reviewed,” “merged,” “deployed,” and “verified in the
   user runtime” are distinct states and must be reported separately.
 
