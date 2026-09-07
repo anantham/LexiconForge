@@ -93,11 +93,15 @@ logged.
 
 Before cutover, run `apply-sillytavern-hardening.ps1 -SillyTavernRoot <directory>
 -AllowedDeviceIp <ip...> -Apply`. It requires either the official upstream ancestry or exact reviewed
-v1.18.0 manifest/lock blob hashes, applies the Multer 2.2.0 overlay, installs
+committed v1.18.0 manifest/lock blob hashes, applies the Multer 2.2.0 overlay, installs
 the exact lock, verifies the installed version and integrity, and changes only
 SillyTavern's whitelist block. The list
 must contain loopback plus explicit owner-device Tailscale IPs; forwarded-IP
 checking, CSRF protection, whitelist mode, and localhost binding must remain on.
+The working manifests must be either the exact reviewed base pair or the exact
+reviewed overlay pair. Re-run without `-Apply` to verify without installation or
+configuration writes. The configurator's timestamped backups are preserved and
+accepted; unrelated uncommitted files remain a failure.
 
 Run `cutover-portal.ps1 -SillyTavernRoot <directory>
 -OwnerLogin <owner-login> -AllowedDeviceIp <ip...>` first as a no-write preflight.
@@ -113,6 +117,15 @@ it does not restore the cleartext route.
 Run `tests/windows/test-runtime-configuration.ps1` in a separate PowerShell process
 to check root matching and missing-variable logs using disposable launcher copies.
 The probe stops at a hardening sentinel; it does not start services or alter routes.
+
+Run `tests/windows/test-hardening-repeat.ps1 -SeedDirectory <fixture>` in a
+separate PowerShell process for the real overlay/configurator round trip. The
+fixture contains `package.json` and `package-lock.json` from upstream commit
+`51ad27fb86d39a3daca3adaa970375c9670c12df`, plus the extracted `yaml/` package
+from that lock (2.8.3, verified against its recorded integrity). This test creates
+and removes its own temporary checkout, simulates npm's installed manifest, and
+checks repeat verification and rejection paths. It neither installs dependencies
+nor changes the live runtime, services or routes.
 
 The dependency overlay intentionally does not manufacture a zero audit. The
 2026-08-23 `npm audit --omit=dev` count moves from 44 to 43 findings by removing

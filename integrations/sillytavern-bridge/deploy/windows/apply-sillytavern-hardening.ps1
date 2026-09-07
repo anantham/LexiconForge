@@ -9,8 +9,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $expectedBaseCommit = '51ad27fb86d39a3daca3adaa970375c9670c12df'
-$expectedPackageBlob = '12c30fc061e38c0a35becca70fab9c6fb991a7f0'
-$expectedLockBlob = '95b4dbc33c62829e2aff383f286889ebdcc15ffd'
+$expectedBasePackageBlob = '12c30fc061e38c0a35becca70fab9c6fb991a7f0'
+$expectedBaseLockBlob = '95b4dbc33c62829e2aff383f286889ebdcc15ffd'
+$expectedHardenedPackageBlob = '47898a96d79c053a90acb5502283161ff8c49b16'
+$expectedHardenedLockBlob = 'c4f410036f0dfe5194764ae56620eb76a362ea44'
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $bridgeRoot = (Resolve-Path (Join-Path $scriptDirectory '..\..')).Path
 $patchPath = Join-Path $bridgeRoot 'security\sillytavern-1.18.0-multer-2.2.0.patch'
@@ -50,19 +52,44 @@ try {
         & git merge-base --is-ancestor $expectedBaseCommit HEAD
         $hasExpectedAncestor = $LASTEXITCODE -eq 0
     }
+
     if (-not $hasExpectedAncestor) {
-        $manifestBlobs = @(& git hash-object package.json package-lock.json)
-        if ($LASTEXITCODE -ne 0 `
-            -or $manifestBlobs.Count -ne 2 `
-            -or $manifestBlobs[0] -ne $expectedPackageBlob `
-            -or $manifestBlobs[1] -ne $expectedLockBlob) {
-            throw "SillyTavern lacks expected release ancestry and its manifest blobs do not match the reviewed v1.18.0 snapshot."
+        $committedPackageBlob = & git rev-parse --verify 'HEAD:package.json'
+        if ($LASTEXITCODE -ne 0 -or -not $committedPackageBlob) {
+            throw 'Cannot resolve committed SillyTavern package.json provenance at HEAD:package.json.'
         }
-        Write-Host 'Accepted history-independent v1.18.0 import by exact package manifest and lock blob hashes.'
+        $committedLockBlob = & git rev-parse --verify 'HEAD:package-lock.json'
+        if ($LASTEXITCODE -ne 0 -or -not $committedLockBlob) {
+            throw 'Cannot resolve committed SillyTavern package-lock.json provenance at HEAD:package-lock.json.'
+        }
+        if ($committedPackageBlob -ne $expectedBasePackageBlob `
+            -or $committedLockBlob -ne $expectedBaseLockBlob) {
+            throw "SillyTavern lacks expected release ancestry and its committed HEAD manifest blobs do not match the reviewed v1.18.0 snapshot: package.json=$committedPackageBlob package-lock.json=$committedLockBlob."
+        }
+        Write-Host 'Accepted history-independent v1.18.0 import by exact committed HEAD manifest blob hashes.'
+    }
+
+    $workingManifestBlobs = @(& git hash-object -- package.json package-lock.json)
+    if ($LASTEXITCODE -ne 0 -or $workingManifestBlobs.Count -ne 2) {
+        throw 'Cannot compute working SillyTavern package manifest blob hashes.'
+    }
+    $workingPackageBlob = $workingManifestBlobs[0]
+    $workingLockBlob = $workingManifestBlobs[1]
+    $isReviewedBasePair = $workingPackageBlob -eq $expectedBasePackageBlob `
+        -and $workingLockBlob -eq $expectedBaseLockBlob
+    $isReviewedHardenedPair = $workingPackageBlob -eq $expectedHardenedPackageBlob `
+        -and $workingLockBlob -eq $expectedHardenedLockBlob
+    if (-not $isReviewedBasePair -and -not $isReviewedHardenedPair) {
+        throw "Working SillyTavern manifests are neither the reviewed v1.18.0 pair nor the reviewed Multer 2.2.0 pair: package.json=$workingPackageBlob package-lock.json=$workingLockBlob."
     }
 
     $dirtyPaths = @(& git status --porcelain | ForEach-Object { $_.Substring(3) })
-    $unexpectedDirtyPaths = @($dirtyPaths | Where-Object { $_ -notin @('package.json', 'package-lock.json') })
+    $unexpectedDirtyPaths = @($dirtyPaths | Where-Object {
+        $path = $_
+        $isManifest = $path -in @('package.json', 'package-lock.json')
+        $isConfiguratorBackup = $path -match '^config\.yaml\.lexiconforge-backup-\d+$'
+        -not ($isManifest -or $isConfiguratorBackup)
+    })
     if ($unexpectedDirtyPaths.Count -gt 0) {
         throw "SillyTavern runtime has unrelated uncommitted files: $($unexpectedDirtyPaths -join ', ')."
     }
