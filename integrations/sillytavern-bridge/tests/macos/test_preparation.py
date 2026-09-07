@@ -1,7 +1,7 @@
 """Executable Mac preparation probe; only disposable clones are mutated.
 
-Run with --seed pointing to the reviewed upstream checkout with yaml 2.8.3
-installed. npm is simulated; this does not certify a real dependency install.
+Run with --seed pointing to the reviewed upstream checkout. Requires its locked
+npm packages in the local cache; installs run offline in the disposable clone.
 """
 
 import argparse
@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 
@@ -21,8 +22,6 @@ def main():
     script = bridge / "deploy/macos/prepare-sillytavern.sh"
     configurator = bridge / "deploy/windows/configure-sillytavern-security.mjs"
     seed = args.seed.resolve()
-    yaml = seed / "node_modules/yaml"
-    assert json.loads((yaml / "package.json").read_text())["version"] == "2.8.3"
     assert subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=seed, text=True).strip() == "51ad27fb86d39a3daca3adaa970375c9670c12df"
 
     with tempfile.TemporaryDirectory(prefix="lf-macos-preparation-") as temporary:
@@ -35,15 +34,14 @@ def main():
         npm = tools / "npm"
         npm.write_text('''#!/usr/bin/env bash
 set -euo pipefail
-[[ "$*" == 'ci --ignore-scripts' ]] || exit 91
-printf 'install\n' >> "$LF_TEST_INSTALLS"
-mkdir -p node_modules/multer
-printf '{"version":"2.2.0"}\n' > node_modules/multer/package.json
-cp -R "$LF_TEST_YAML" node_modules/yaml
+if [[ "$*" == 'ci --ignore-scripts' ]]; then
+  printf 'install\n' >> "$LF_TEST_INSTALLS"
+fi
+exec "$LF_TEST_NPM" "$@"
 ''')
         npm.chmod(0o755)
         installs = fixture / "installs"
-        env = dict(os.environ, PATH=f"{tools}:{os.environ['PATH']}", LF_TEST_INSTALLS=str(installs), LF_TEST_YAML=str(yaml))
+        env = dict(os.environ, PATH=f"{tools}:{os.environ['PATH']}", LF_TEST_INSTALLS=str(installs), LF_TEST_NPM=shutil.which("npm"), npm_config_offline="true")
         env.pop("LF_ST_ROOT", None)
         results = []
 
@@ -71,6 +69,12 @@ cp -R "$LF_TEST_YAML" node_modules/yaml
         invoke("first no-write verification")
         invoke("second no-write verification")
         assert snapshot() == before and installs.read_text().splitlines() == ["install"]
+
+        missing = runtime / "node_modules/express"
+        held = fixture / "held-express"
+        missing.rename(held)
+        invoke("missing production dependency", expected="production dependency tree is incomplete or invalid")
+        held.rename(missing)
 
         package = runtime / "package.json"
         original = package.read_bytes()
@@ -105,9 +109,10 @@ cp -R "$LF_TEST_YAML" node_modules/yaml
         extension.write_bytes(original)
 
         installed = runtime / "node_modules/multer/package.json"
+        original = installed.read_bytes()
         installed.write_text('{"version":"2.1.1"}')
         invoke("wrong installed version", expected="Installed Multer must be 2.2.0")
-        installed.write_text('{"version":"2.2.0"}')
+        installed.write_bytes(original)
         config = runtime / "config.yaml"
         original = config.read_bytes()
         assert b"disableCsrfProtection: false" in original
@@ -130,7 +135,7 @@ cp -R "$LF_TEST_YAML" node_modules/yaml
         subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-m", "synthetic revision"], cwd=runtime, check=True, capture_output=True)
         invoke("different upstream revision rejected", expected="reviewed official SillyTavern 1.18.0 commit")
         assert installs.read_text().splitlines() == ["install"]
-        print(json.dumps({"passed": len(results), "cases": results, "npmSimulated": True, "liveRuntimeChanged": False}))
+        print(json.dumps({"passed": len(results), "cases": results, "npmSimulated": False, "offlineCache": True, "liveRuntimeChanged": False}))
 
 
 if __name__ == "__main__":

@@ -81,8 +81,8 @@ absent destination and select the reviewed release:
 : "${LF_ST_ROOT:?Set the approved installation directory}"
 git clone https://github.com/SillyTavern/SillyTavern.git "$LF_ST_ROOT"
 git -C "$LF_ST_ROOT" checkout --detach 51ad27fb86d39a3daca3adaa970375c9670c12df
-bash deploy/macos/prepare-sillytavern.sh --apply
-bash deploy/macos/prepare-sillytavern.sh
+bash deploy/macos/prepare-sillytavern.sh --runtime-root "$LF_ST_ROOT" --apply
+bash deploy/macos/prepare-sillytavern.sh --runtime-root "$LF_ST_ROOT"
 ```
 
 Run these commands from this integration directory. For an existing checkout,
@@ -90,7 +90,8 @@ skip cloning and start with the last command. Preparation requires the exact
 upstream commit and either the exact base or reviewed hardened manifest pair.
 `--apply` applies the overlay, runs `npm ci --ignore-scripts`, sets the whitelist
 to loopback only and installs the byte-verified extension. Without `--apply`, it
-checks the complete prepared state without installation or configuration writes.
+checks source, the installed production dependency tree with `npm ls --all`,
+configuration and extension without installation or configuration writes.
 Unrelated changes, a changed extension, staged files and mixed manifests fail.
 A failed apply leaves its explicit checkout available for inspection and retry;
 it does not claim atomic installation or activate a service.
@@ -116,10 +117,11 @@ path for actual portal acceptance; read-only local `/csrf-token` health alone is
 also insufficient.
 
 Run `python3 tests/macos/test_preparation.py --seed <reviewed-checkout>` for the
-executable disposable-clone probe. The seed must have the exact upstream commit
-and installed lock-pinned `yaml` 2.8.3. The probe uses real Git, overlay and
-configuration operations, but simulates npm; it never modifies the seed or starts
-services. The seed is an explicit fixture input, not a machine-specific default.
+executable disposable-clone probe. The seed must have the exact upstream commit,
+and the locked npm packages must already be in the local cache. The probe runs
+real Git, installation, dependency inspection and configuration operations
+offline; it never modifies the seed or starts services. The seed is an explicit
+fixture input, not a machine-specific default.
 
 ## Windows runtime
 

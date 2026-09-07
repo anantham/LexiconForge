@@ -19,7 +19,7 @@ done
 [[ -n "$runtime_root" ]] || fail 'set LF_ST_ROOT or pass --runtime-root for the approved checkout'
 [[ -d "$runtime_root" ]] || fail "runtime directory is missing: $runtime_root"
 runtime_root="$(cd "$runtime_root" && pwd -P)"
-for executable in git node diff; do
+for executable in git node npm diff; do
   command -v "$executable" >/dev/null || fail "required executable is missing: $executable"
 done
 [[ "$(node -p 'Number(process.versions.node.split(".")[0])')" -ge 20 ]] \
@@ -64,7 +64,6 @@ fi
   || fail 'overlay did not produce the exact reviewed hardened pair'
 
 if [[ "$apply" == true ]]; then
-  command -v npm >/dev/null || fail 'required executable is missing: npm'
   printf '%s\n' 'Installing the reviewed lock with lifecycle scripts disabled.'
   (cd "$runtime_root" && npm ci --ignore-scripts)
 fi
@@ -74,6 +73,8 @@ node -e '
   const installed = JSON.parse(fs.readFileSync(file, "utf8")).version;
   if (installed !== "2.2.0") throw new Error(`Installed Multer must be 2.2.0; found ${installed}`);
 ' "$runtime_root"
+(cd "$runtime_root" && npm ls --omit=dev --all --package-lock-only=false --json >/dev/null) \
+  || fail 'installed production dependency tree is incomplete or invalid; run with --apply to reinstall the reviewed lock'
 
 if [[ ! -f "$runtime_root/config.yaml" && "$apply" == true ]]; then
   cp "$runtime_root/default/config.yaml" "$runtime_root/config.yaml"
