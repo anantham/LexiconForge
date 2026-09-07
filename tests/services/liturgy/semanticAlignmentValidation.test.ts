@@ -190,6 +190,23 @@ describe('layered liturgy alignment validation', () => {
     expect(errorCodes(value)).toContain('legacy_morpheme_index_out_of_range');
   });
 
+  it('rejects legacy Devanagari scriptAlt ranges that split a grapheme cluster', () => {
+    const value = doc();
+    const section = value.sections[0];
+    if (section.shape !== 'triple-script-witness') return;
+    const sourceWord = section.segments[0].words![0];
+    sourceWord.scriptAlt = 'पाणातिपाता';
+    sourceWord.scriptMorphemes = {
+      'pi-Deva': [
+        { text: 'पाणा', type: 'stem', gloss: 'living being' },
+        { text: 'तिपात', type: 'stem', gloss: 'killing' },
+        { text: 'ा', type: 'suffix', gloss: 'from' },
+      ],
+    };
+
+    expect(errorCodes(value)).toContain('script_morpheme_grapheme_split');
+  });
+
   it('rejects a fine target whose valid source position has no WordGloss', () => {
     const value = doc();
     const section = value.sections[0];

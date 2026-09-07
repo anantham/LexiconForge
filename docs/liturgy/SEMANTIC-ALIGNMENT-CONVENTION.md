@@ -1,7 +1,7 @@
 # Liturgy semantic-alignment convention
 
 **Adopted:** 2026-08-25
-**Status:** Implemented for rendering, structural validation, and corpus audit
+**Status:** Implemented for rendering, structural validation, corpus audit, and Morning Chants curation
 
 ## Intent
 
@@ -32,7 +32,8 @@ displayed characters permit a cut.
 - Record an explicit whole-word target when the translation is paraphrastic or
   the available evidence does not justify finer precision.
 - Leave a token unaligned only when it is supplied by the English witness and
-  has no source contribution.
+  has no source contribution. Do not use `-1` for source grammar such as an
+  ablative ending rendered by “from.”
 - Mark uncertain analyses `needs-review`; uncertainty must never be converted
   into an apparently exact arrow by token order.
 
@@ -61,7 +62,19 @@ precision and is prohibited.
 `WordGloss.analysis` names lexical and grammar units, their supporting surface
 slices, review status, citations, and any transformations. Unit IDs are unique
 lowercase kebab-case tokens because the renderer serializes them into DOM
-attributes.
+attributes. Several analysis units may share a surface slice when spelling is
+fused. Analysis slice indexes currently apply to the base Latin segmentation;
+an alternate-script segmentation falls back to the whole word unless and until
+an explicit per-script analysis mapping is added.
+
+Every rendered surface boundary must also fall between Unicode extended
+grapheme clusters. “Fine-grained” means the smallest honest **renderable**
+surface unit, not the smallest code-point or code-unit range. A Devanāgarī
+vowel sign, anusvāra, or virāma conjunct stays in the same DOM span as its base
+grapheme. When that forces a lexical stem and grammatical ending to share one
+alternate-script span, the tooltip says so and the separate underlying analysis
+remains available on the Latin evidence layer. Invalid client-side metadata
+falls back to one whole-word span; corpus validation rejects the same boundary.
 
 Review status must remain visible rather than living only in metadata:
 
@@ -77,6 +90,26 @@ must share this stable source anchor; their distinct English endpoints form the
 fan. Alternate-script analysis targets remain whole-word until an explicit
 per-script mapping is authored.
 
+## Example: pāṇātipātā
+
+The exact Latin surface is recorded as `pāṇā | tipāt | ā`. The middle surface
+slice is not presented as an independent `ti-` prefix. The analysis records:
+
+- lexical `pāṇa`, “a living being,” carried by `pāṇā`;
+- lexical `atipāta`, “striking down / killing,” carried by fused `tipāt`;
+- grammatical ablative `-ā`, rendered by “from”;
+- `pāṇa + atipāta → pāṇātipāta`, then
+  `pāṇātipāta → pāṇātipātā`.
+
+The compound analysis and declension are grounded in the Digital Pāḷi
+Dictionary record for `pāṇātipātā`; the witness translation is linked to
+SuttaCentral Kp 2 in the chant data.
+
+The Devanāgarī surface is safely divided as `पाणा | तिपाता`, not
+`पाणा | तिपात | ा`: the final vowel sign cannot be shaped independently from
+its base grapheme. This is intentionally coarser than the Latin surface while
+the grammar unit remains explicit in the layered analysis.
+
 ## Failure behavior
 
 Foreign community witnesses lose all alignment layers because their indexes
@@ -86,7 +119,22 @@ Malformed lengths, indexes, identifiers, surface references, or unknown units
 are validation errors. Missing precision falls back to the whole word rather
 than to a positional guess.
 
-## Audit counting contract
+## Audit workflow
+
+Run:
+
+```bash
+npm run audit:liturgy-alignments
+npm run audit:liturgy-alignments -- --json
+```
+
+The audit traverses every registered route, source-word record, witness, and
+English token. It reports the dangerous review class: multiple English tokens
+mapped to a multi-morpheme source word while one or more tokens still lack an
+explicit reviewed target. A route reaches zero only after each reported group
+has an authored exact, layered, or intentional whole-word decision.
+
+### Counting contract
 
 The corpus audit traverses registered **routes**, not unique document object
 identities. If the same document or a pooled witness is visible at several
@@ -105,3 +153,7 @@ all “aligned”:
 `explicitReviewedTargets` is a subset of `sourceAlignedEnglishTokens`. Review
 group counts remain route-addressed so every affected reader URL is visible to
 the curator, even when several routes share underlying content.
+
+Zero findings do not prove the underlying linguistic analysis true. Corpus
+validation proves structural integrity; citations and human review establish
+the content claim.
