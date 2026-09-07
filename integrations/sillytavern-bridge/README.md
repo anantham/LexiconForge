@@ -71,6 +71,58 @@ policy that meets the desired retention boundary; this overlay does not claim
 to strengthen that upstream request. Exact per-request OpenRouter privacy
 routing would require a separately reviewed SillyTavern server change.
 
+## macOS preparation and foreground launch
+
+Use Node 24.19 and the explicit approved `LF_ST_ROOT`; keep the runtime outside
+this repository. For a new installation, clone the official source once into an
+absent destination and select the reviewed release:
+
+```bash
+: "${LF_ST_ROOT:?Set the approved installation directory}"
+git clone https://github.com/SillyTavern/SillyTavern.git "$LF_ST_ROOT"
+git -C "$LF_ST_ROOT" checkout --detach 51ad27fb86d39a3daca3adaa970375c9670c12df
+bash deploy/macos/prepare-sillytavern.sh --runtime-root "$LF_ST_ROOT" --apply
+bash deploy/macos/prepare-sillytavern.sh --runtime-root "$LF_ST_ROOT"
+```
+
+Run these commands from this integration directory. For an existing checkout,
+skip cloning and start with the last command. Preparation requires the exact
+upstream commit and either the exact base or reviewed hardened manifest pair.
+`--apply` applies the overlay, runs `npm ci --ignore-scripts`, sets the whitelist
+to loopback only and installs the byte-verified extension. Without `--apply`, it
+checks source, the installed production dependency tree with `npm ls --all`,
+configuration and extension without installation or configuration writes.
+Unrelated changes, a changed extension, staged files and mixed manifests fail.
+A failed apply leaves its explicit checkout available for inspection and retry;
+it does not claim atomic installation or activate a service.
+
+The existing configurator's `--local-only` mode cannot be combined with device
+IPs. Other forwarded-IP, CSRF and security settings must already be safe. Its
+Windows path remains stable for existing callers; no wrapper is needed.
+
+Prepare the bridge with `uv sync --frozen --python 3.12`, export the explicit
+values described in Local development, and use its existing foreground uvicorn
+command. In a separate terminal, start SillyTavern:
+
+```bash
+: "${LF_ST_ROOT:?Set the approved installation directory}"
+cd "$LF_ST_ROOT"
+NODE_ENV=production node server.js --port 8000 --no-listen --no-browserLaunchEnabled
+```
+
+These commands do not create startup tasks, expose routes, copy a private vault,
+or bypass owner admission. A locally supplied identity header is only a test
+fixture and cannot prove Tailscale/device authorization. Use the existing owner
+path for actual portal acceptance; read-only local `/csrf-token` health alone is
+also insufficient.
+
+Run `python3 tests/macos/test_preparation.py --seed <reviewed-checkout>` for the
+executable disposable-clone probe. The seed must have the exact upstream commit,
+and the locked npm packages must already be in the local cache. The probe runs
+real Git, installation, dependency inspection and configuration operations
+offline; it never modifies the seed or starts services. The seed is an explicit
+fixture input, not a machine-specific default.
+
 ## Windows runtime
 
 Run `deploy/windows/bootstrap-bridge.ps1 -BasePython <python.exe>` first. It creates a standard Python

@@ -9,11 +9,13 @@ const fail = (message) => {
 };
 
 const parseArguments = (args) => {
-  const parsed = { allowedIps: [], apply: false, root: '' };
+  const parsed = { allowedIps: [], apply: false, localOnly: false, root: '' };
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];
     if (argument === '--apply') {
       parsed.apply = true;
+    } else if (argument === '--local-only') {
+      parsed.localOnly = true;
     } else if (argument === '--root') {
       parsed.root = args[index + 1] ?? '';
       index += 1;
@@ -41,7 +43,8 @@ const assertBoolean = (config, key, expected) => {
 
 const args = parseArguments(process.argv.slice(2));
 if (!args.root) fail('--root is required');
-if (args.allowedIps.length === 0) fail('at least one --allowed-ip is required');
+if (args.localOnly && args.allowedIps.length > 0) fail('--local-only cannot be combined with --allowed-ip');
+if (!args.localOnly && args.allowedIps.length === 0) fail('at least one --allowed-ip or --local-only is required');
 if (args.allowedIps.some((value) => !isTailscaleIpv4(value))) {
   fail('every --allowed-ip must be an IPv4 address in Tailscale CGNAT range 100.64.0.0/10');
 }
@@ -116,4 +119,5 @@ if (verifiedWhitelist.length !== requiredWhitelist.length
   fail('post-write whitelist verification did not match the declared device set');
 }
 
-process.stdout.write(`SillyTavern portal security verified for ${args.allowedIps.length} tailnet device(s).\n`);
+const boundary = args.localOnly ? 'loopback only' : `${args.allowedIps.length} tailnet device(s)`;
+process.stdout.write(`SillyTavern portal security verified for ${boundary}.\n`);

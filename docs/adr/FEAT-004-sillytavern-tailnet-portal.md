@@ -113,3 +113,20 @@ The cutover is exact rather than global: remove only stale HTTP `:8000`, add
 HTTPS `:8444` and `:5001`, reject Funnel, and compare all unrelated Serve
 routes before/after. Startup tasks are registered disabled and are rolled back
 with newly added routes if readiness or invariants fail.
+
+## macOS recovery amendment — 2026-09-07
+
+The approved local-runtime recovery retains the official 1.18.0 source, exact
+reviewed dependency overlay, extension and locked bridge on macOS. It does not
+replace the selected tailnet architecture or grant local requests owner identity.
+`integrations/sillytavern-bridge/deploy/macos/prepare-sillytavern.sh` owns only
+preparation and no-write verification. The existing security configurator accepts
+an explicit loopback-only mode while retaining every other safety check.
+
+Four historical bootstrap/launch/health wrappers are omitted: the existing uv
+workflow and documented foreground commands supply their useful behavior without
+duplicate defaults or synthetic identity masquerading as device acceptance.
+Setup requires an explicit runtime root, preserves unrelated changes by rejecting
+them, and leaves failed installation state inspectable. Persistent startup,
+private vault migration, tailnet exposure and device acceptance remain separate.
+The ADR stays Accepted until its real exact-group device acceptance passes.
