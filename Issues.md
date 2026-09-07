@@ -283,7 +283,9 @@ Implementation, bounds and repeatable reader QA:
 
 ## Consolidation pickup queue — 2026-09-06
 
-Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), portable offline graphs (#160), chapter acquisition (#169 → #170 → repaired #171 → #172), alignment (#161 → #162), then coverage/debt policy (#165/#168). Keep #163's domain acceptance and #177's live backend/device acceptance explicit. Defer #164's review automation. Recover unique local-only runtime work onto the merged configuration baseline before retiring old refs. Fifteen original PRs are merged: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162/#163, #165/#168, #177. Companion publisher #3/#4 are merged. Minimal runtime parser recovery #178 is also merged at `d6006eb`. Only #164 remains open from that queue and awaits the automation disposition. The operator-approved #163 curation merged at `b57e68f` after attribution corrections, independent/Codex review and fresh final-head CI. #177 merged as `39e0aba` after independent and Codex review, 35 focused tests, 12 desktop/Pixel browser cases and fresh CI; backend release and live acceptance remain separate. Merge records belong in WORKLOG.
+All sixteen original PRs have a disposition: fifteen merged; #164 closed unmerged by operator-approved retirement on September 7. Manual independent review continues, and its local and remote branch remain preserved. No open PRs remain at this checkpoint.
+
+Merged original PRs: #174/#173/#175/#176/#160, #169/#170/#171/#172, #161/#162/#163, #165/#168, #177. Companion publisher #3/#4 are merged. Minimal runtime parser recovery #178 is also merged at `d6006eb`. The operator-approved #163 curation merged at `b57e68f` after attribution corrections, independent/Codex review and fresh final-head CI. #177 merged as `39e0aba` after independent and Codex review, 35 focused tests, 12 desktop/Pixel browser cases and fresh CI. Recover remaining useful local-only runtime work before retiring its original refs; backend release and live acceptance remain separate. Merge records belong in WORKLOG.
 
 ### CONS-01 — Give changed chapter artifacts distinct addresses
 
@@ -296,11 +298,11 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 - **Files / evidence:** `scripts/ci/validate-coverage-policy.mjs:55-67` incompletely mirrors `vitest.config.ts:42-54`. A temporary `components/review.config.ts` with a 90% floor passes validation although Vitest excludes `**/*.config.*`.
 - **Candidate / done when:** Use the actual fresh Vitest coverage report as the measured scope, deleting the competing filesystem walk/glob parser/exclusion copy. Reject excluded-only floors and missing/empty reports; match globstar/brace patterns with Vitest semantics. `App.tsx`/`MainApp.tsx` are explicitly included; all eight earned floors remain unchanged. Full coverage and independent review passed; aggregate baseline acceptance remains separate.
 
-### CONS-03 — Defer review automation; reconcile its receipt schema if retained
+### CONS-03 — Retire review automation; retain manual independent review
 
-- **Status:** Deferred; P2 blocker for #164 activation. Subject `cabd5c9`; confidence 0.99.
-- **Files / evidence:** `scripts/ci/cross-family-review-gate.mjs:135` requires `reviewRunId`, while four real current-head approvals contain `reviewerRunId`. The exact gate rejects all four; changing only that key in disposable copies makes them pass. No real review was edited. The failed controller separately runs a script absent from trusted main; its ADR also duplicates CORE-015.
-- **Done when, if retained:** Align producer/schema with a real-format fixture; stale/incomplete reviews still fail; fix the ADR number and prove bootstrap before separately approving activation. Independent source review can proceed without this controller.
+- **Status:** Complete by operator-approved retirement. [PR #164](https://github.com/anantham/LexiconForge/pull/164) closed unmerged on 2026-09-07; the user selected Option A after comparing retirement, inactive repair and deferral. The local and remote `feat/codex-cross-family-review-gate` branch retain head `cabd5c96670a37f16a847dccc907ecb0a6924924`.
+- **Decision:** Keep independent review and manually check that its result covers the exact code being merged. Retire this controller's implementation and activation work; no workflow or required check was introduced by closing the PR. The branch can be reconsidered later without reconstructing its source.
+- **Historical findings:** `scripts/ci/cross-family-review-gate.mjs:135` requires `reviewRunId`, while four real current-head approvals contain `reviewerRunId`. The exact gate rejects all four; changing only that key in disposable copies makes them pass. No real review was edited. The failed controller separately runs a script absent from trusted main; its ADR also duplicates CORE-015. Any future adoption must resolve these findings and establish its activation scope.
 
 ### CONS-04 — Preserve task receipts while resolving shared worklog conflicts
 
