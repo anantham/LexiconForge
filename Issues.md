@@ -200,6 +200,12 @@ chapters and the selected scope without page errors. A matching local index and
 four real local semantic queries now pass. Graph-quality, offline graph,
 deployed owner transport and physical-device evidence remain separate.
 
+The operator-requested tracked-backup cleanup now removes those 33 unrelated
+records and 66 mappings, retaining all Dungeon Defense work and the saved
+reading position. [Exact cleanup evidence](docs/reviews/DUNGEON-DEFENSE-SESSION-CLEANUP-2026-09-07.md)
+records the byte hashes, structural preservation and real-file import check.
+Review/integration is pending.
+
 The published package and this local revision have different selected-text
 identities; never substitute one for the other. Earlier published FMoC numbering
 and identity failures remain unresolved, and all original byte/hash findings
