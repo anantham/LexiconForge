@@ -4273,3 +4273,34 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 
 ### [2026-09-06 21:02 MUT] [Agent: Codex]
 **Review correction:** Closing-delta review `gen-1788713972-roEQxrjGFBRlhA4eYSpl` found obsolete premerge/publication instructions under completed CONS-01/05/06. Delete those three fulfilled-action bullets entirely; retain completed status, original evidence and all open acceptance gates. This is a prose correction only; refresh exact-delta review and CI without adding tests or changing application source.
+
+
+### [2026-09-07 07:55 MUT] [Agent: Codex]
+**Status:** Starting approved autonomy-policy consolidation onto main.
+**Branch:** `docs/codex-attention-main`; dedicated worktree, root checkout preserved on clean main.
+**Task:** Recover the accepted policy from the preserved local branch, incorporate the operator's red/green/gray clarification, reconcile conflicting agent/debt instructions, and publish and merge the focused documentation PR.
+**Hypothesis:** One discoverable authority policy plus explicit standing rulings will prevent routine engineering and external review from becoming repeated permission requests. Confidence 0.98.
+**Predicted validation:** Green work proceeds within its authorization; red escalations cite an explicit rule or hold; gray cases receive a human classification recorded in the policy. Unknown technical causes remain diagnostic work. Existing deployment and data boundaries remain intact.
+**Files likely affected:** `docs/AUTONOMY_AND_ATTENTION_POLICY.md`, `AGENTS.md`, `docs/START_HERE.md`, `docs/roadmaps/TECH-DEBT-STATUS.md`, `Issues.md`, this log.
+**Recovery boundary:** Carry forward the policy content onto current main; keep private provenance and historical operator records out of the public patch. Preserve original history locally. No application, runtime, dependency, schema or automation change. Fallback: revert the isolated documentation commit.
+
+### [2026-09-07 07:56 MUT] [Agent: Codex]
+**Status:** Policy recovery prepared; independent review and fresh CI pending.
+**Files/lines:** `docs/AUTONOMY_AND_ATTENTION_POLICY.md:1-390` recovers the accepted policy, adds red/green/gray rules and records current operator authorizations; `AGENTS.md:9-55,190,253-288,306-340,416-440` reconciles precedence and repeated-approval/stop language, including the already-superseded line-count split rule; `docs/START_HERE.md:33` adds the entry point; `docs/roadmaps/TECH-DEBT-STATUS.md:3-12` separates priority from authority; `Issues.md:324-325` records the recovered governance slice and remaining runtime work.
+**Verification:** All three policy links resolve; manual clause review distinguishes unknown technical causes from unknown authority, preserves explicit holds and harm stops, and checks standing external-review/consolidation scope. Initial diff check found four inherited Markdown hard-break trailing spaces; removed them before publication. No prose-only tests or review controller were added. Application tests are not required locally for this documentation-only change; existing CI still runs.
+**State:** The six-file recovery is ready for the authorized PR workflow. Original local history remains preserved. Review and merge evidence will follow here.
+
+### [2026-09-07 08:00 MUT] [Agent: Codex]
+**Independent review:** Grok review `gen-1788753544-aG9JqutsKlBUBEPLD4Kt` requested changes on `a81ca41`: remaining blanket stop/confidence instructions could still interrupt green work, and the existing small-fix exception needed an explicit authority boundary.
+**Correction:** `AGENTS.md` directive 7, Phase 2 and STOP_CONDITIONS now stop unsafe actions or exhausted approaches while continuing safe diagnostics; replace the duplicated stop list with concrete scoped rules. AGENTS precedence and the policy Git section clarify that a workflow exception does not authorize publication or deployment. Preserve the existing small-fix workflow rather than introducing an unrelated ban.
+**Validation:** Rerun exact-base integrity and independent review on the corrected documentation. No application behavior changes. First-head CI had four successful jobs and unit coverage pending when checked; final-head CI remains required.
+
+### [2026-09-07 08:04 MUT] [Agent: Codex]
+**Status:** Policy consolidation implementation and independent review complete; final CI/merge tracked in [PR #180](https://github.com/anantham/LexiconForge/pull/180).
+**Review:** Grok follow-up `gen-1788753700-rw56aEr5EuTOmDg0pasc` approves corrected head `0380320`; GitHub review receipt `5127948591` records the external AI verdict. The full final policy and AGENTS were reviewed with the remaining documentation delta. The two bounded reviews cost $0.074244 in total. All six files were verified against public GitHub bytes before transmission.
+**Verification:** Exact-base repository integrity and whitespace checks pass against `ed4f1c4`; three entry-point links resolve; only six Markdown files change. Four CI jobs and Vercel passed at `0380320` while unit coverage remained in progress. This receipt changes WORKLOG only; policy/manual/index/debt/issue bytes remain exactly those independently approved. Final-head CI must pass before the authorized merge; the PR records that result and merge commit. No application tests were added for prose.
+**Consolidation disposition:** The local-only policy content now has one focused public integration path. Original local history remains preserved. Remaining runtime recovery, #163 interpretation acceptance, #164 automation disposition and #177 backend/live acceptance remain separate work; none is silently marked complete by this policy recovery. Future agents use the policy's actual red/green/gray rules and current human rulings when deciding which next actions require attention.
+
+### [2026-09-07 08:06 MUT] [Agent: Codex]
+**Codex review correction:** Automated review comment `3946457459` on the initial head identified an authority-maintenance ambiguity: the general invitation to amend the policy could be interpreted as permission to change one's own proceed/ask/stop boundaries. The Maintenance and precedence section now explicitly requires the operator's ruling for authority-changing amendments; autonomous edits are limited to non-authority editorial corrections and recording rulings already given. This implements the operator's gray-case discussion requirement.
+**Verification:** Recheck the policy and final delta independently, then refresh exact-head CI. The earlier Grok approval does not cover this new policy paragraph until follow-up review completes.

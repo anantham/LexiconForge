@@ -1,11 +1,15 @@
 # Tech Debt Status
 
-**Last Updated:** August 31, 2026 (attentional policy added; scan metrics below remain the March 29 snapshot)
+**Last Updated:** September 7, 2026 (authority-policy precedence reconciled; scan metrics below remain the March 29 snapshot)
 **Last Surface Scan:** March 29, 2026 (v1.1.0, post-review corrected)
 
 ## Attentional Policy
 
-This policy decides when a technical-debt observation deserves active engineering attention. It does not authorize a fix: architectural choices, solution selection, and scope expansion still require the human gates in `AGENTS.md`.
+This section prioritizes technical debt; it does not determine who must approve
+an action. The [Autonomy, Attention, and Authority Policy](../AUTONOMY_AND_ATTENTION_POLICY.md)
+governs red/green/gray classification and standing authorization. Use `AGENTS.md`
+for investigation and delivery mechanics. A debt receipt alone does not expand
+scope, and an already-approved repair does not require another permission request.
 
 ### Registers and scope
 
