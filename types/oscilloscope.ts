@@ -1,9 +1,5 @@
-export interface SemanticCorpusIdentity {
-  corpusId: string;
-  versionId: string;
-  contentHash: `sha256:${string}`;
-  chapterCount: number;
-}
+import type { SemanticCorpusIdentity, SemanticScanResult } from '../services/semanticScanProtocol';
+export type { SemanticCorpusIdentity, SemanticScanResult } from '../services/semanticScanProtocol';
 
 export interface ThreadScoringProvenance {
   algorithm: string;
@@ -100,18 +96,6 @@ export interface OscilloscopeActions {
   initializeOscilloscope: (corpus: SemanticCorpusIdentity) => void;
   loadSessionOscilloscope: (data: SessionOscilloscopeData) => void;
   resetOscilloscope: () => void;
-}
-
-export interface SemanticScanResult {
-  ok: true;
-  protocol: string;
-  corpus: SemanticCorpusIdentity;
-  query: string;
-  scores: number[];
-  scoreSemantics: string;
-  scoring: ThreadScoringProvenance;
-  vectorSpace: string;
-  dimensions: number;
 }
 
 export interface SessionOscilloscopeData {
