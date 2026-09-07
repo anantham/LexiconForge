@@ -176,6 +176,8 @@ export class ImportOps {
       promptTemplates,
       diffResults,
       navigation,
+      navigationHistory,
+      lastActiveChapter,
       amendmentLogs,
       images: imagesPayload,
     } = payload ?? {};
@@ -243,12 +245,13 @@ export class ImportOps {
         putSettingsRecord(settingsStore, 'app-settings', settings);
       }
 
-      if (navigation) {
+      if (navigation || navigationHistory || lastActiveChapter) {
         putSettingsRecord(settingsStore, 'navigation-history', {
-          stableIds: navigation.history || [],
+          stableIds: navigation?.history ?? navigationHistory?.stableIds ?? [],
         });
-        if (navigation.lastActive) {
-          putSettingsRecord(settingsStore, 'lastActiveChapter', navigation.lastActive);
+        const lastActive = navigation?.lastActive ?? lastActiveChapter;
+        if (lastActive) {
+          putSettingsRecord(settingsStore, 'lastActiveChapter', lastActive);
         }
       }
 

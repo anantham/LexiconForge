@@ -241,6 +241,11 @@ export const createExportSlice: StateCreator<
       };
 
       ensureChaptersFromMemory();
+      const selectedChapter = storeState.currentChapterId
+        ? storeState.chapters.get(storeState.currentChapterId) : undefined;
+      if (selectedChapter) {
+        jsonObj.lastActiveChapter = { id: selectedChapter.id, url: selectedChapter.canonicalUrl };
+      }
       await attachOscilloscopeToFullExport(
         jsonObj,
         storeState.corpusIdentity,

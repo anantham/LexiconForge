@@ -93,24 +93,30 @@ export const createImportSessionData = (ctx: BootstrapContext): SessionActions['
             ctx.set({ currentChapterId: firstChapterId });
           }
         }
-        const hydrated = ctx.get();
+        const imported = ctx.get();
         const nav = await SettingsOps.getKey<any>('navigation-history').catch(() => null);
         const lastActive = await SettingsOps.getKey<any>('lastActiveChapter').catch(() => null);
-        if (ctx.get().chapters !== hydrated.chapters
-          || ctx.get().activeNovelId !== hydrated.activeNovelId
-          || ctx.get().activeVersionId !== hydrated.activeVersionId) return;
+        if (ctx.get().chapters !== imported.chapters
+          || ctx.get().activeNovelId !== imported.activeNovelId
+          || ctx.get().activeVersionId !== imported.activeVersionId) return;
 
         ctx.set((state) => {
           const resolvedCurrentChapterId = lastActive?.id && state.chapters.has(lastActive.id)
             ? lastActive.id : state.currentChapterId;
+          const selectedChapter = state.chapters.get(resolvedCurrentChapterId);
 
           return {
             navigationHistory: Array.isArray(nav?.stableIds) ? nav.stableIds : state.navigationHistory,
             currentChapterId: resolvedCurrentChapterId,
+            ...(selectedChapter ? {
+              activeNovelId: selectedChapter.novelId ?? null,
+              activeVersionId: selectedChapter.libraryVersionId ?? null,
+            } : {}),
             appScreen: resolvedCurrentChapterId ? 'reader' : state.appScreen,
             error: null,
           };
         });
+        const hydrated = ctx.get();
 
         try {
           const hint = obj?.oscilloscope?.corpus;
