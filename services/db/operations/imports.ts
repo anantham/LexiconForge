@@ -245,14 +245,14 @@ export class ImportOps {
         putSettingsRecord(settingsStore, 'app-settings', settings);
       }
 
-      if (navigation || navigationHistory || lastActiveChapter) {
+      if (navigation || navigationHistory) {
         putSettingsRecord(settingsStore, 'navigation-history', {
           stableIds: navigation?.history ?? navigationHistory?.stableIds ?? [],
         });
-        const lastActive = navigation?.lastActive ?? lastActiveChapter;
-        if (lastActive) {
-          putSettingsRecord(settingsStore, 'lastActiveChapter', lastActive);
-        }
+      }
+      const lastActive = navigation?.lastActive ?? lastActiveChapter;
+      if (lastActive) {
+        putSettingsRecord(settingsStore, 'lastActiveChapter', lastActive);
       }
 
       if (Array.isArray(urlMappings)) {

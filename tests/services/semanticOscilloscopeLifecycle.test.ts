@@ -241,3 +241,11 @@ it('exports the current reader chapter when persisted navigation is older', asyn
   const backup = JSON.parse(await useAppStore.getState().exportSessionData({ includeImages: false, includeTelemetry: false }));
   expect(backup.lastActiveChapter).toEqual({ id: chapters[1].id, url: chapters[1].canonicalUrl });
 });
+
+it('preserves receiving history when the imported backup only names a saved chapter', async () => {
+  await NavigationOps.setHistory({ stableIds: ['existing-chapter'] });
+  const lastActiveChapter = { id: 'saved-chapter', url: 'https://example.invalid/saved' };
+  await ImportOps.importFullSessionData({ lastActiveChapter });
+  expect(await NavigationOps.getHistory()).toEqual({ stableIds: ['existing-chapter'] });
+  expect(await NavigationOps.getLastActiveChapter()).toEqual(lastActiveChapter);
+});
