@@ -184,13 +184,16 @@ friction belongs in `docs/architecture/ARCHITECTURE.md` section 7.
 
 21) Supply a verified complete novel before semantic index acceptance (open; unclaimed).
 
-Pinned published FMoC and Dungeon Defense sessions fail the actual frontend and
-backend chapter-identity validators. FMoC also declares `unknown / quick-export`
-instead of the registry identity. Existing publisher PR #3 repairs Dungeon Defense
-numbering, but its 476-chapter corpus is still short of the declared 509 chapters
-and includes 30 source-content fallbacks. Do not index these as complete English
-novels or patch validators to accept them. Evidence, exact hashes, existing PR
-ownership and completion criteria are in
+The pinned FMoC session fails chapter-identity validation and declares
+`unknown / quick-export` instead of the registry identity. Publisher PR #3 is
+now merged and repairs Dungeon Defense numbering; it remains 476/509 chapters
+with 30 source-content fallbacks. The September 7 metadata sweep at published
+novel-repository main `ddd29d1` establishes no complete eligible alternative:
+Eternal Life is 8/1,634, Aithihyamala is chapter 64 only, and the Gita translation
+is partial and is not a novel. All five versions declare In Progress. Metadata
+is not corpus-byte proof; retain the actual frontend/backend validation gate.
+Do not index these as complete English novels or relax the validators. Earlier
+byte/hash evidence and the completion criteria are in
 [the corpus preflight](docs/reviews/SEMANTIC-CORPUS-PREFLIGHT-2026-09-06.md).
 
 
@@ -340,7 +343,7 @@ Approved sequence: privacy/startup/reader/QA (#174 → #173 → #175 → #176), 
 - **Status:** Parser slice merged as #178 after independent review, 38 locked bridge tests, native PowerShell 5.1 verification and fresh CI. Four original local heads remain preserved and bundled; they are not all pushed.
 - **Policy recovery:** The accepted autonomy policy is recovered in `docs/AUTONOMY_AND_ATTENTION_POLICY.md`, with the operator's red/green/gray rules and standing consolidation/external-review authorization. AGENTS, the documentation index and debt-prioritization policy point to it. Publication/merge evidence belongs in WORKLOG; the original local head remains preserved.
 - **Hardening recovery:** Complete: [PR #182](https://github.com/anantham/LexiconForge/pull/182) merged at `f7c2200`. Ten native disposable Windows cases, 38 bridge tests, independent source approval, Codex final-head review and all five fresh CI jobs (`34093818311`) pass. The repair preserves committed-release provenance, exact working manifest pairs and timestamped backup receipts. npm was simulated in the native fixture; no runtime was deployed and no process supervisor recovered.
-- **macOS recovery:** A focused source recovery now uses one preparation/check script and documented foreground commands. It replaces four historical wrappers and rejects altered already-patched manifests before npm. The executable Mac probe now uses actual offline-cache installation and npm inspection, including missing production dependencies; ten native Windows compatibility cases and 38 bridge tests cover the unchanged shared configurator. Independent review approves the source; final-head CI/Codex review and merge are tracked in [PR #183](https://github.com/anantham/LexiconForge/pull/183). Real disposable startup also passes loopback, CSRF-shape and exact-extension checks. Owner admission and device acceptance are not inferred.
-- **Pickup:** Finish process-lifecycle verification and the macOS source review/merge. Compare the existing named-task controls and documented POSIX launch commands before recovering wrappers or another supervisor. Preserve explicit runtime configuration, exact dependency provenance and actual owner admission. Exact local branch identities, static findings and next verification steps remain in local Git metadata under `reviews/runtime-recovery-2026-09-06/remaining-local-work.md`; see the debt inbox for the public pickup receipt.
+- **macOS recovery:** A focused source recovery now uses one preparation/check script and documented foreground commands. It replaces four historical wrappers and rejects altered already-patched manifests before npm. The executable Mac probe now uses actual offline-cache installation and npm inspection, including missing production dependencies; ten native Windows compatibility cases and 38 bridge tests cover the unchanged shared configurator. Complete: [PR #183](https://github.com/anantham/LexiconForge/pull/183) merged at `0dd4f19` after 21 final native Mac cases, exact-source independent/Codex approval and all five fresh CI jobs (`34105347380`). Real disposable startup also passes loopback, CSRF-shape and exact-extension checks. Owner admission and device acceptance are not inferred.
+- **Pickup:** Finish process-lifecycle verification. The prepared native ownership probe is held by automatic approval review pending the requested explicit payload/destination approval; no native result is claimed. Compare the existing named-task controls and documented POSIX launch commands before recovering wrappers or another supervisor. Preserve explicit runtime configuration, exact dependency provenance and actual owner admission. Exact local branch identities, static findings and next verification steps remain in local Git metadata under `reviews/runtime-recovery-2026-09-06/remaining-local-work.md`; see the debt inbox for the public pickup receipt.
 - **Disposition:** Rebuild needed behavior on current main. Older aggregate trees predate current native-provider/settings files and must not be merged wholesale. Keep public records limited to reviewed source contracts; retain private operator and unpublished-implementation details in local evidence.
 - **Done when:** Each needed behavior has a focused reviewed recovery or an evidence-backed superseded disposition. Preserve the four original heads/bundle until reconciliation is complete. Backend publication/deployment, complete corpus/index, real scan and physical-device acceptance remain separate gates.
