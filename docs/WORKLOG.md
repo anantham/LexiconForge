@@ -4299,3 +4299,6 @@ Known traps: Node26-local webstorage failures are env-class (CI/24 authoritative
 
 ### [2026-09-07 07:16 +04] [Agent: Codex]
 **Status:** Prepared #177 integration of independently approved closing records `df127af` while GitHub connectivity is unavailable. Only WORKLOG conflicted; both histories retained. All 10 branch-owned source/data/test files remain byte-identical to `73a8807`; inherited parser source already passed its independent/native checks. This commit is local until network access returns; fresh remote CI and parent #179 merge remain pending. Existing domain/release acceptance gates are unchanged.
+
+### [2026-09-07 07:31 MUT] [Agent: Codex]
+**Status:** Connectivity restored; #179 merged at `ed4f1c4`. The final main-ancestry merge leaves this branch tree unchanged. Node 24.19.0 focused integration rerun passes 54 tests; reviewed source/data/test blobs remain unchanged. Publish the prepared history-preserving refresh and obtain fresh CI. The compatible backend release and live/device acceptance gate remains open; no source or product-policy change accompanies this log receipt.
