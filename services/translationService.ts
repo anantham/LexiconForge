@@ -31,7 +31,6 @@ import {
 } from './prompts';
 import { normalizeTranslationSettingsSnapshot } from './translationSettingsSnapshot';
 import {
-  getProposalResponseGeminiSchema,
   getProposalResponseJsonSchema,
 } from './translate/translationResponseSchema';
 import type { ProviderName } from '../adapters/providers/Provider';
@@ -178,10 +177,7 @@ export class TranslationService {
       fanTranslation: chapter.fanTranslation || null,
     });
 
-    const schema =
-      settings.provider === 'Gemini'
-        ? getProposalResponseGeminiSchema()
-        : getProposalResponseJsonSchema();
+    const schema = getProposalResponseJsonSchema();
 
     const response = await provider.chatJSON({
       settings,
