@@ -57,6 +57,7 @@ const geminiMocks = vi.hoisted(() => {
 
 vi.mock('@google/genai', () => ({
   GoogleGenAI: geminiMocks.GoogleGenAI,
+  FinishReason: { SAFETY: 'SAFETY', RECITATION: 'RECITATION', LANGUAGE: 'LANGUAGE' },
   Type: {
     OBJECT: 'OBJECT',
     ARRAY: 'ARRAY',

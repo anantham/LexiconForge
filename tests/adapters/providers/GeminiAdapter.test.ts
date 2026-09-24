@@ -4,6 +4,22 @@ import { GeminiAdapter } from '../../../adapters/providers/GeminiAdapter';
 import { createMockAppSettings } from '../../utils/test-data';
 
 const calculateCostMock = vi.fn().mockResolvedValue(0.25);
+const generateContentMock = vi.hoisted(() => vi.fn());
+
+vi.mock('@google/genai', async (importOriginal) => ({
+  ...(await importOriginal<any>()),
+  GoogleGenAI: class {
+    models = { generateContent: generateContentMock };
+  },
+}));
+
+vi.mock('../../../services/rateLimitService', () => ({
+  rateLimitService: { acquireRequestSlot: vi.fn().mockResolvedValue(undefined) },
+}));
+
+vi.mock('../../../services/apiMetricsService', () => ({
+  apiMetricsService: { recordMetric: vi.fn().mockResolvedValue(undefined) },
+}));
 
 vi.mock('../../../services/ai/cost', () => ({
   calculateCost: (...args: any[]) => calculateCostMock(...args),
@@ -39,6 +55,7 @@ const settings: AppSettings = createMockAppSettings({
 describe('GeminiAdapter internals', () => {
   beforeEach(() => {
     calculateCostMock.mockClear();
+    generateContentMock.mockReset();
   });
 
   it('processResponse returns normalized TranslationResult', async () => {
@@ -71,6 +88,46 @@ describe('GeminiAdapter internals', () => {
     const response = { text: undefined, usageMetadata, promptFeedback: { blockReason: 'SAFETY' } };
 
     await expect(adapter.processResponse(response, settings, 0, 0)).rejects.toThrow('Empty response from Gemini API (SAFETY)');
+  });
+
+  // The new SDK's `text` getter returns text even from blocked candidates; the legacy SDK
+  // rejected these finish reasons, and the adapter must keep doing so.
+  for (const finishReason of ['SAFETY', 'RECITATION', 'LANGUAGE']) {
+    it(`processResponse rejects text from a candidate that finished with ${finishReason}`, async () => {
+      const adapter = new GeminiAdapter() as any;
+      const response = {
+        ...makeResponse({ translatedTitle: 'T', translation: 'partial' }),
+        candidates: [{ finishReason }],
+      };
+
+      await expect(adapter.processResponse(response, settings, 0, 0)).rejects.toThrow(
+        `Gemini response blocked (${finishReason})`,
+      );
+    });
+  }
+
+  it('chatJSON rejects text from a blocked candidate', async () => {
+    generateContentMock.mockResolvedValue({
+      text: '{"ok":true}',
+      usageMetadata,
+      candidates: [{ finishReason: 'SAFETY' }],
+    });
+
+    await expect(new GeminiAdapter().chatJSON({ settings, user: 'u' })).rejects.toThrow(
+      'Gemini response blocked (SAFETY)',
+    );
+  });
+
+  it('chatJSON returns text from a candidate that finished normally', async () => {
+    generateContentMock.mockResolvedValue({
+      text: '{"ok":true}',
+      usageMetadata,
+      candidates: [{ finishReason: 'STOP' }],
+    });
+
+    const result = await new GeminiAdapter().chatJSON({ settings, user: 'u' });
+
+    expect(result.text).toBe('{"ok":true}');
   });
 
   it('processResponse throws when JSON parsing fails', async () => {

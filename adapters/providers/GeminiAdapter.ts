@@ -1,4 +1,4 @@
-import { GoogleGenAI, type GenerateContentConfig, type GenerateContentResponse } from '@google/genai';
+import { FinishReason, GoogleGenAI, type GenerateContentConfig, type GenerateContentResponse } from '@google/genai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter } from '../../types';
@@ -51,10 +51,26 @@ const dlogFull = (message: string, ...args: any[]) => {
   }
 };
 
-// A blocked or truncated response has no text; surface why instead of a bare "empty".
-const emptyResponseError = (result: GenerateContentResponse): Error => {
-  const reason = result.promptFeedback?.blockReason ?? result.candidates?.[0]?.finishReason;
-  return new Error(`Empty response from Gemini API${reason ? ` (${reason})` : ''}`);
+// Finish reasons whose (possibly partial) text must not be used — the rule the legacy
+// @google/generative-ai SDK enforced in text(); @google/genai's `text` getter does not.
+const BLOCKED_FINISH_REASONS: ReadonlySet<string> = new Set([
+  FinishReason.SAFETY,
+  FinishReason.RECITATION,
+  FinishReason.LANGUAGE,
+]);
+
+// Returns the response text, or throws naming why Gemini produced none usable.
+const responseTextOrThrow = (result: GenerateContentResponse): string => {
+  const finishReason = result.candidates?.[0]?.finishReason;
+  if (finishReason && BLOCKED_FINISH_REASONS.has(finishReason)) {
+    throw new Error(`Gemini response blocked (${finishReason})`);
+  }
+  const text = result.text;
+  if (!text) {
+    const reason = result.promptFeedback?.blockReason ?? finishReason;
+    throw new Error(`Empty response from Gemini API${reason ? ` (${reason})` : ''}`);
+  }
+  return text;
 };
 
 export class GeminiAdapter implements TranslationProvider, Provider {
@@ -180,10 +196,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     }
 
     const endTime = performance.now();
-    const responseText = result.text;
-    if (!responseText) {
-      throw emptyResponseError(result);
-    }
+    const responseText = responseTextOrThrow(result);
 
     const promptTokens = result.usageMetadata?.promptTokenCount || 0;
     const completionTokens = result.usageMetadata?.candidatesTokenCount || 0;
@@ -268,10 +281,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     startTime: number,
     endTime: number
   ): Promise<TranslationResult> {
-    const responseText = result.text;
-    if (!responseText) {
-      throw emptyResponseError(result);
-    }
+    const responseText = responseTextOrThrow(result);
 
     dlog('Raw response preview (first 500 chars):', responseText.slice(0, 500));
 
