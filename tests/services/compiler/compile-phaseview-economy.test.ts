@@ -22,8 +22,8 @@ const supportsStructuredOutputsMock = vi.hoisted(() => vi.fn(() => Promise.rejec
   new Error('ordinary compilation must not await capability metadata')
 )));
 
-vi.mock('../../../services/compiler/llm', () => ({
-  callCompilerLLM: (...args: any[]) => llmMock(...args),
+vi.mock('../../../services/sutta-studio/llm', () => ({
+  callCompilerLLMText: (...args: any[]) => llmMock(...args),
   resolveCompilerProvider: vi.fn(),
 }));
 

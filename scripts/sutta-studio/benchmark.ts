@@ -12,8 +12,8 @@ import {
   runWeaverPass,
   type LLMCaller,
   type PassName,
-} from '../../services/suttaStudioPassRunners';
-import type { SkeletonPhase } from '../../services/suttaStudioPassPrompts';
+} from '../../services/sutta-studio/passes';
+import type { SkeletonPhase } from '../../services/sutta-studio/utils';
 import { SUTTA_STUDIO_PROMPT_VERSION } from '../../services/suttaStudioPromptVersion';
 import type {
   AnatomistPass,

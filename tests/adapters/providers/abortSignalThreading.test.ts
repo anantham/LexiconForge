@@ -11,14 +11,14 @@ import { createMockAppSettings } from '../../utils/test-data';
 const geminiGenerateContent = vi.hoisted(() => vi.fn());
 const claudeCreate = vi.hoisted(() => vi.fn());
 
-vi.mock('@google/generative-ai', async (importOriginal) => {
-  // Keep the real module (SchemaType etc. are used at load by translationResponseSchema); only
+vi.mock('@google/genai', async (importOriginal) => {
+  // Keep the real module (Type etc. are used at load by translationResponseSchema); only
   // swap the client so we can capture the generateContent call.
   const actual = await importOriginal<any>();
   return {
     ...actual,
-    GoogleGenerativeAI: class {
-      getGenerativeModel() { return { generateContent: geminiGenerateContent }; }
+    GoogleGenAI: class {
+      models = { generateContent: geminiGenerateContent };
     },
   };
 });
@@ -54,7 +54,7 @@ describe('abort signal threading into provider SDKs (review #3)', () => {
     }).catch(() => {});
 
     expect(geminiGenerateContent).toHaveBeenCalledTimes(1);
-    expect(geminiGenerateContent.mock.calls[0][1]).toEqual({ signal: controller.signal });
+    expect(geminiGenerateContent.mock.calls[0][0].config.abortSignal).toBe(controller.signal);
   });
 
   it('translateWithClaude passes the abort signal into messages.create', async () => {

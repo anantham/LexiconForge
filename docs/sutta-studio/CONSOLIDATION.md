@@ -11,14 +11,26 @@
 > | 2c | schemas.ts moved | DONE (PR #62, commit 0d81bec, 2026-05-16) |
 > | 2d | orchestrator port (compiler/index.ts → sutta-studio/orchestrator.ts) | PENDING (PR D) |
 > | 3 | Single LLM caller | DONE (this PR, 2026-05-16) |
-> | 4 | Shim cleanup + delete services/compiler/ | PENDING |
+> | 4 | Shim cleanup + delete services/compiler/ | IN PROGRESS — the six re-export shims are deleted (2026-09-24); `services/compiler/` awaits 2d |
 >
 > Earlier task tracking marked Phase 3 complete after Phase 2 landed; the 2026-05-16 doc audit caught
 > that two divergent callers (compiler/llm.ts and suttaStudioLLM.ts) still existed and reopened the
 > work. The canonical caller now lives at services/sutta-studio/llm.ts. (Update 2026-07: the
-> `services/suttaStudioLLM.ts` shim has since been deleted as an unused orphan; `compiler/llm.ts` remains.)
+> `services/suttaStudioLLM.ts` shim has since been deleted as an unused orphan; `compiler/llm.ts` was subsequently deleted in #186.)
 >
 > **Companion PR:** #50 (V2 wire) is PAUSED — its commits will be reworked once consolidation lands.
+
+## Current paths (2026-09-25)
+
+Production still enters through `services/suttaStudioCompiler.ts` →
+`services/compiler/index.ts`. Both production and benchmarks import canonical
+`services/sutta-studio/{prompts,passes,llm,schemas,utils}` directly. The six
+forwarding modules were removed by #186. Phase 4's shim-consumer migration is
+complete; moving the orchestrator and remaining compiler modules is still pending.
+
+The inventories and migration instructions below describe the original plan.
+References to forwarding files and benchmark imports in that plan are historical,
+not current entry points. The new ownership table is in `docs/architecture/ARCHITECTURE.md` §4.5.
 
 ## Why this exists
 

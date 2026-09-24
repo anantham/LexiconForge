@@ -8,6 +8,16 @@
 
 ---
 
+## 2026-09-25 completion reconciliation
+
+PR #186 merged as `5e88259`: six Sutta forwarding modules, the unused
+localStorage migration and dead audio files were removed; Gemini uses one SDK.
+Real Gemini translation, image generation and a small compiler run passed.
+The compiler rewrite and live browser acceptance remain separate D2 work.
+The follow-up removes duplicate Gemini translation schemas and unused audio
+helpers. Local resolved investigations are indexed in `issues/ARCHIVE.md`;
+#13 already has its ETA fix. The remaining decision register below is unchanged.
+
 ## Rev 2.1 changes (post-rereview)
 
 1. **Calvino evidence corrected.** The spec generates tests in a loop over the payload; with payload absent it defines **zero** tests (not 22 skipped). T0.3 now separates zero-test discovery, payload preflight, and the external-server prerequisite.
@@ -41,7 +51,7 @@
 | `normalizeUrlAggressively` custom-scheme fix | `stableIdService.ts:156,161-164`; V6 migration |
 | SEC-001 credential boundary + canary scan | `test.yml`, `scripts/security/scan-client-secrets.mjs` |
 | `codex-review.yml` false-green deleted | only `test.yml` remains |
-| Pass-prompts/runner consolidated to `sutta-studio/` | 47/35-line shims (verified) |
+| Pass-prompts/runner consolidated to `sutta-studio/` | Callers migrated and forwarding shims deleted in #186 |
 | TypeScript clean | `npm run typecheck` → exit 0 |
 
 ---
@@ -83,7 +93,7 @@
 
 ### T1.1 — Two `runSkeletonPass` bodies → one (de-sprawl, NOT a SUTTA-014 parity fix)
 **Verdict:** verified · **Confidence:** 0.95 · **Effort:** M · **DECISION NEEDED** (which is canonical)
-- `compiler/skeleton.ts:20` (138 LOC, production) vs `sutta-studio/passes/skeleton.ts:54` (196 LOC, benchmark via shim). Both live; no orchestrator port has occurred.
+- `compiler/skeleton.ts:20` (138 LOC, production) vs `sutta-studio/passes/skeleton.ts:54` (benchmark canonical pass). Both live; no orchestrator port has occurred.
 - **Options:** (a) production adopts `sutta-studio/passes/skeleton` and `compiler/skeleton.ts` is deleted, or (b) `sutta-studio/passes/skeleton` re-exports the compiler impl. **Constraint:** if the end state is deleting `services/compiler/`, option (b) is invalid (it would keep `compiler/skeleton.ts` canonical). Pick (a) if `services/compiler/` is to be retired.
 - **Acceptance:** exactly one `runSkeletonPass` symbol, consistent with the intended `services/compiler/` fate.
 
@@ -102,10 +112,11 @@
 - `compiler/index.ts` (947 LOC) imports ~9 flat files alongside `sutta-studio/`. `CONSOLIDATION.md:248` requires the orchestrator port + consumer migration + full tests + benchmark smoke + manual UI compile smoke.
 - **Acceptance (must include):** a canonical orchestrator; zero legacy production imports; full test suite; benchmark CLI smoke; live UI compile smoke. Moving the flat cluster alone does not pass.
 
-### T1.5 — Shim deletion ONLY after consumer + orchestrator migration (and the T1.4 gates)
-**Verdict:** verified · **Confidence:** 0.9 · **Effort:** M
-- `suttaStudioPassPrompts.ts`/`suttaStudioPassRunners.ts` are true shims, but `benchmark.ts` still imports them. `compiler/index.ts` still imports `./llm`, `./prompts`, `./skeleton` — so `compiler/llm.ts`/`prompts.ts`/`skeleton.ts` are production dependencies, not deletable shims.
-- **Acceptance:** shims deleted only after benchmark + compiler import canonical paths directly AND all T1.4 gates pass.
+### T1.5 — Forwarding shim deletion completed (#186)
+**Verdict:** complete for six forwarding modules; orchestrator migration remains T1.4.
+- Production and benchmark callers import canonical `sutta-studio/` modules directly.
+- Removed `suttaStudioPassPrompts.ts`, `suttaStudioPassRunners.ts` and `compiler/{llm,prompts,schemas,utils}.ts`.
+- `compiler/skeleton.ts` is still a live implementation, not a forwarding shim; keep it until D2 is resolved.
 
 ---
 
@@ -118,7 +129,7 @@
 
 ### T2.2 — Delete only genuinely-dead exports (re-verified)
 **Verdict:** inferred · **Confidence:** 0.7 · **Effort:** M
-- Candidates (must be re-confirmed entrypoint-aware before deletion): `migrateFromLocalStorage`/`isMigrationCompleted`, `dbUtils`, `resetToModernBackend`, `validateSchema`/`exportSchema`/`DOMAIN_STORES`/`getStoresForDomain`.
+- Candidates (must be re-confirmed entrypoint-aware before deletion): `dbUtils`, `resetToModernBackend`, `validateSchema`/`exportSchema`/`DOMAIN_STORES`/`getStoresForDomain`.
 - **Explicitly NOT here:** `migrateImagesToCacheFromDB` — it is live by design (window exposure via `store/index.ts:26` + `imageMigrationService.ts:154-156`).
 - **Acceptance:** delete only after a dynamic-import-aware audit confirms zero entrypoints; keep a removal note for anything retained.
 
@@ -132,14 +143,12 @@
 - `migrationService.ts:269` writes `model-field-repair-completed` unconditionally, even when `errors.length > 0`; `ensureModelFieldsRepaired` returns normally so boot treats it as success.
 - **Acceptance:** failed records are never recorded as success; a regression test proves a partial failure is retried, not stamped done.
 
-### T2.4b — Dead localStorage migration cleanup
-**Verdict:** verified · **Confidence:** 0.85 · **Effort:** S
-- `migrateFromLocalStorage` (`migrationService.ts:47`) sets `indexeddb-migration-completed` prematurely (`:63`), swallows per-section errors, and has zero importers.
-- **Acceptance:** the function and its flag are deleted or given a real owner with correct exit semantics.
+### T2.4b — Dead localStorage migration cleanup completed (#186)
+- Removed the unused migration plus `isMigrationCompleted` and its `resetMigrationState` helper. Live model-field repairs remain.
 
 ### T2.4c — Repair-flag registry (OPTION, not a decided fact)
 **Verdict:** verified problem, solution TBD · **Confidence:** 0.8 · **Effort:** L · **DECISION NEEDED**
-- **Problem:** ~19 ad-hoc flags; two different `resetMigrationState()`.
+- **Problem:** Ad-hoc repair flags remain. #186 removed the unused migrationService reset helper; the DB reset path remains.
 - **Options:** (a) versioned repairs record keyed by `SCHEMA_VERSIONS`; (b) keep flags but add completeness gates + failure-retry; (c) per-repair explicit exit conditions. **Acceptance:** failed/obsolete repairs are re-runnable and removable.
 
 ---
@@ -174,7 +183,7 @@
 
 ### T4.1 — Refresh stale LOC tables
 **Verdict:** verified · **Confidence:** 0.95 · **Effort:** S
-- `ARCHITECTURE.md` §4.5/§7 lists `suttaStudioPassPrompts.ts`=725, `PassRunners.ts`=586, `compiler/prompts.ts`=347 — actuals are 47 / 35 / 26 (shims). §5 `ChapterView.tsx` 433 vs actual 581 LOC (22,376 bytes).
+- Sutta ownership/path tables refreshed after #186 and retired shim rows removed. Other dated LOC tables still need a separate full census.
 - **Acceptance:** every cited LOC matches the file.
 
 ### T4.2 — Reconcile ADR index and DB-007 (DB-001 is fine)
@@ -230,4 +239,4 @@ Each requires a **decision packet** (impact / effort / risk / reversibility / ti
 
 ## Confidence & evidence note
 
-Rev 2.1 corrects all rereview findings; contested facts (Calvino test generation, image-migration window exposure) were re-verified against the source this session. This is an **audit draft**, not an approved execution plan — every `DECISION NEEDED` item awaits a decision packet. Nothing has been executed.
+Rev 2.1 corrects all rereview findings; contested facts (Calvino test generation, image-migration window exposure) were re-verified against the source this session. This is an **audit draft**, not an approved execution plan — every `DECISION NEEDED` item awaits a decision packet. The September completion note above supersedes the original no-execution status for the explicitly completed items.

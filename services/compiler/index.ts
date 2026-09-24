@@ -2,13 +2,10 @@
  * SuttaStudio compiler orchestrator.
  *
  * Extracted concerns live in:
- *   schemas.ts    — JSON response schemas for structured outputs
- *   utils.ts      — Parsing, throttling, chunking, source ref utilities
  *   dictionary.ts — Dictionary fetching via proxies
  *   segments.ts   — Canonical segment fetching from SuttaCentral
- *   llm.ts        — LLM call infrastructure (callCompilerLLM, resolveCompilerProvider)
- *   prompts.ts    — All prompt builder functions
  *   skeleton.ts   — runSkeletonPass (chunked skeleton phase)
+ *   ../sutta-studio/{schemas,utils,llm,prompts} — canonical shared modules
  */
 
 import { shouldRequestStructuredOutputs } from '../ai/structuredOutputPolicy';
@@ -55,7 +52,7 @@ import {
 import { SUTTA_STUDIO_PROMPT_VERSION } from '../suttaStudioPromptVersion';
 import { fetchCanonicalSegmentsForUid } from './segments';
 import { fetchDictionaryEntry } from './dictionary';
-import { callCompilerLLM } from './llm';
+import { callCompilerLLMText } from '../sutta-studio/llm';
 import { DpdProvider, type DpdData } from '../providers/dpd';
 import { getBundledDpdData } from '../providers/dpd-loader-vite';
 import type { LexiconEntry } from '../providers/types';
@@ -66,7 +63,7 @@ import {
   buildPhasePrompt,
   buildTypesetterPrompt,
   buildWeaverPrompt,
-} from './prompts';
+} from '../sutta-studio/prompts';
 import { runSkeletonPass } from './skeleton';
 import {
   runGroundingPass,
@@ -91,7 +88,7 @@ import {
   createCompilerThrottle,
   type BoundaryNote,
   type SkeletonPhase,
-} from './utils';
+} from '../sutta-studio/utils';
 
 export { SUTTA_STUDIO_PROMPT_VERSION } from '../suttaStudioPromptVersion';
 
@@ -451,7 +448,7 @@ export const compileSuttaStudioPacket = async (options: {
             anatomistDpd,
           );
           await throttle(signal);
-          const anatomistRaw = await callCompilerLLM(
+          const anatomistRaw = await callCompilerLLMText(
             settings,
             [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: anatomistPrompt }],
             signal, SUTTA_STUDIO_TOKEN_BUDGETS.anatomist,
@@ -582,7 +579,7 @@ export const compileSuttaStudioPacket = async (options: {
               dpdLookups,
             );
             await throttle(signal);
-            const lexRaw = await callCompilerLLM(
+            const lexRaw = await callCompilerLLMText(
               settings,
               [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: lexicographerPrompt }],
               signal, SUTTA_STUDIO_TOKEN_BUDGETS.lexicographer,
@@ -621,7 +618,7 @@ export const compileSuttaStudioPacket = async (options: {
               });
               const weaverPrompt = buildWeaverPrompt(phase.id, effectiveSegments, weaverPhaseState, anatomistOutput, lexicographerOutput, englishTokens);
               await throttle(signal);
-              const weaverRaw = await callCompilerLLM(
+              const weaverRaw = await callCompilerLLMText(
                 settings,
                 [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: weaverPrompt }],
                 signal, SUTTA_STUDIO_TOKEN_BUDGETS.weaver,
@@ -663,7 +660,7 @@ export const compileSuttaStudioPacket = async (options: {
               .join(' → ');
             logPipelineEvent({ level: 'debug', stage: 'typesetter', phaseId: phase.id, message: 'typesetter.input', data: { wordIds, englishOrder: englishOrderDebug } });
             await throttle(signal);
-            const typesetterRaw = await callCompilerLLM(
+            const typesetterRaw = await callCompilerLLMText(
               settings,
               [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: typesetterPrompt }],
               signal, SUTTA_STUDIO_TOKEN_BUDGETS.typesetter,
@@ -709,7 +706,7 @@ export const compileSuttaStudioPacket = async (options: {
         const phasePrompt = buildPhasePrompt(phase.id, effectiveSegments, renderDefaults, retrievalContext || undefined, { anatomist: anatomistOutput || undefined, lexicographer: lexicographerOutput || undefined, phaseState });
         try {
           await throttle(signal);
-          const raw = await callCompilerLLM(
+          const raw = await callCompilerLLMText(
             settings,
             [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: phasePrompt }],
             signal, SUTTA_STUDIO_TOKEN_BUDGETS.phaseView,
@@ -780,7 +777,7 @@ export const compileSuttaStudioPacket = async (options: {
           log(`Morphology pass for ${phase.id}...`);
           const morphPrompt = buildMorphologyPrompt(phase.id, normalized, effectiveSegments, retrievalContext || undefined);
           await throttle(signal);
-          const morphRaw = await callCompilerLLM(
+          const morphRaw = await callCompilerLLMText(
             settings,
             [{ role: 'system', content: 'Return JSON only.' }, { role: 'user', content: morphPrompt }],
             signal, SUTTA_STUDIO_TOKEN_BUDGETS.morphology,

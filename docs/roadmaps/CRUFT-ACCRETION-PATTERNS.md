@@ -268,3 +268,10 @@ Recorded so future refactors don't regress them:
 5. ~19 orphaned scripts (`debug-*`, `gemini_research.py`, …) — operator-entrypoint classification pass required before any deletion verdict
 6. Legacy `LF_AI_DEBUG*` key retirement after one release
 7. `backfillChapterNumbers` exit condition — completion semantics fixed in the safety packet (unparseable=terminal, write-failures block the done-flag); remaining question is flag-coverage telemetry → eventual script+gate deletion once all users are done
+
+## Closed instances — 2026-09-25
+
+Closed: #186 removed the unused `migrateFromLocalStorage` path cited by CAP-007
+and consolidated Gemini on `@google/genai`. Its Sutta forwarding modules and
+dead audio cache/OPFS files were also removed. The dated findings above remain
+evidence of the original audit, not instructions to delete those files again.

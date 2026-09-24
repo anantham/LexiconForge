@@ -1,6 +1,5 @@
 
 import { GoogleGenAI } from '@google/genai';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AppSettings, GeneratedImageResult } from '../types';
 import { imageFileToBase64 } from './imageUtils';
 import { getConfiguredApiKey } from './ai/providerCredentials';
@@ -325,27 +324,26 @@ export const generateImage = async (
         } else if (imageModel.startsWith('gemini')) {
             ilog('[ImageService] Using Gemini native image generation:', imageModel);
             const apiKey = getConfiguredApiKey(settings, 'Gemini'); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Gemini.');
-            const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: imageModel });
+            const ai = new GoogleGenAI({ apiKey });
             try {
                 const needsModalities = imageModel.includes('gemini-2.0') && imageModel.includes('image-generation');
-                const requestPayload: any = {
-                    contents: [{
-                        role: 'user',
-                        parts: [{
-                            text: `Generate an image based on this description: ${prompt}. Target size approximately ${reqW}x${reqH} with a matching aspect ratio. Style: dark, atmospheric, highly detailed.`
-                        }]
-                    }],
-                };
-                if (needsModalities) {
-                    requestPayload.responseModalities = ['TEXT', 'IMAGE'];
-                }
-                const result = await withTimeout(
-                    model.generateContent(requestPayload, { signal: AbortSignal.timeout(IMAGE_GENERATION_TIMEOUT_MS) }),
+                const response = await withTimeout(
+                    ai.models.generateContent({
+                        model: imageModel,
+                        contents: [{
+                            role: 'user',
+                            parts: [{
+                                text: `Generate an image based on this description: ${prompt}. Target size approximately ${reqW}x${reqH} with a matching aspect ratio. Style: dark, atmospheric, highly detailed.`
+                            }]
+                        }],
+                        config: {
+                            ...(needsModalities ? { responseModalities: ['TEXT', 'IMAGE'] } : {}),
+                            abortSignal: AbortSignal.timeout(IMAGE_GENERATION_TIMEOUT_MS),
+                        },
+                    }),
                     IMAGE_GENERATION_TIMEOUT_MS,
                     'Gemini image generation'
                 );
-                const response = result.response;
                 let foundImageData = null as string | null;
                 const parts = response.candidates?.[0]?.content?.parts || [];
                 for (const part of parts) {

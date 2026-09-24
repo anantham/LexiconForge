@@ -24,15 +24,6 @@ export default tseslint.config(
       'issues/**',
       '**/*.cjs',
       'api/**', // CJS Vercel functions, linted by deployment
-      // These three were committed with newlines encoded as the LITERAL escape
-      // `\n` (144 backslashes, zero real line breaks — the whole file is one
-      // physical line). tsc tolerates it; the eslint TS parser rejects it as
-      // "Invalid character". Pre-existing (commit b17f834), agent-untouched, and
-      // out of P0 scope — normalizing them safely is a separate fix (a literal
-      // `\n` inside a real string would flip to a newline). Tracked, not hidden.
-      'services/audio/storage/cache.ts',
-      'services/audio/storage/opfs.ts',
-      'services/audio/storage/pinning.ts',
     ],
   },
   js.configs.recommended,

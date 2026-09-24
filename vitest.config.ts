@@ -43,9 +43,6 @@ export default defineConfig({
         '**/.claude/**', // agent worktrees (see test.exclude above)
         '**/*.d.ts',
         '**/*.d.cts',
-        // tsconfig-excluded broken modules cannot be instrumented
-        'services/audio/storage/cache.ts',
-        'services/audio/storage/opfs.ts',
         '**/*.config.*',
         '**/coverage/**',
         'chrome_extension/**',

@@ -139,3 +139,12 @@ existing code at a moment when the two stacks aligned; subsequent drift forced t
 - [SUTTA-006](./SUTTA-006-pipeline-caching-architecture.md) — Pipeline caching
 - `services/compiler/` — Production pipeline (decomposed from `suttaStudioCompiler.ts`)
 - `scripts/sutta-studio/benchmark.ts` — Primary consumer of the runner layer
+
+## Implementation Notes — forwarding modules retired (2026-09-25)
+
+PR #186 removed `services/suttaStudioPassPrompts.ts`,
+`services/suttaStudioPassRunners.ts` and `services/compiler/{llm,prompts,schemas,utils}.ts`
+after their consumers switched to the canonical `services/sutta-studio/` modules.
+The earlier amendment's present-tense shim descriptions are now historical.
+`services/compiler/index.ts` remains the production orchestrator; its port and
+skeleton unification remain pending. This does not mark the full consolidation complete.

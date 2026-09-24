@@ -16,16 +16,11 @@ const sdkMocks = vi.hoisted(() => ({
 
 vi.mock('@google/genai', () => ({
   GoogleGenAI: class {
-    models = { generateImages: (...args: any[]) => sdkMocks.generateImages(...args) };
+    models = {
+      generateImages: (...args: any[]) => sdkMocks.generateImages(...args),
+      generateContent: (...args: any[]) => sdkMocks.generateContent(...args),
+    };
     constructor(_opts: any) {}
-  },
-}));
-vi.mock('@google/generative-ai', () => ({
-  GoogleGenerativeAI: class {
-    constructor(_key: any) {}
-    getGenerativeModel(_cfg: any) {
-      return { generateContent: (...args: any[]) => sdkMocks.generateContent(...args) };
-    }
   },
 }));
 vi.mock('../../services/apiMetricsService', () => ({

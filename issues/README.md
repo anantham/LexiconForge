@@ -51,6 +51,10 @@ For each issue, the per-issue README's section 4 records `(A?, B?, C?)` plus a o
 | `(*, *, C2/C3)` | Vision-anchor the decision before any local fix. Otherwise the patch will drift again. |
 | `(A1*, B1, C2)` | The ADR itself is the bug. Re-derive from Vision, then update ADR + code. |
 
+## Active investigations
+
+Resolved implementations and the duplicate #7 are in [the archive](./ARCHIVE.md). Original dossiers stay at their existing paths so evidence links remain stable. Archive status preserves any explicitly deferred live/manual checks. These are local investigation numbers, independent of GitHub issue numbers.
+
 ## Status
 
 Legend: `R`=Reproduced · `V`=Verdict · `E`=Evidence/code paths · `T`=Test-gap analysis · `A`=Archaeology · `G`=Generator function · `Themes` = cross-cutting layers it instances
@@ -60,27 +64,18 @@ Legend: `R`=Reproduced · `V`=Verdict · `E`=Evidence/code paths · `T`=Test-gap
 | 1 | [bootup-time](./01-bootup-time/) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | `(A1*, B2, C2)` — **CORE-006 violated** (commits to "render shell immediately, lazy non-critical"; init blocks on import + audio); status drift | [jit-vs-precompute](./_themes/jit-vs-precompute.md), [completion-only-guards](./_themes/completion-only-guards.md), [silent-failure-deep](./_themes/silent-failure-deep.md), [co-mingled-commits](./_themes/co-mingled-commits.md) |
 | 2 | [fan-toggle-restarts-translation](./02-fan-toggle-restarts-translation/) | — | ◐ | ✓ | ✓ | ◐ | ✓ | **paused on user repro** · `(A1, B1, C2)` for in-flight axis · `(A3, B3, C2)` for settings-fingerprint axis · matrix prediction partially **falsified** | ~~completion-only-guards~~ (defended), [jit-vs-precompute](./_themes/jit-vs-precompute.md) (settings-as-identity) |
 | 3 | [metadata-empty-and-glossary](./03-metadata-empty-and-glossary/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | `(A3, B2, C2)` — **compound: 5 anomalies** (virtual+imported dup, Hangul cross-contamination ch478-509, untranslated Korean placeholders, "Chapter N" placeholder, no glossary UI). 2 escalations pending. | [jit-vs-precompute](./_themes/jit-vs-precompute.md), candidate: `catalog-cross-contamination` |
-| 4 | [portal-no-feedback](./04-portal-no-feedback/) | ✓ | ✓ | ✓ | ✓ | — | ✓ | **FIXED 2026-05-04** · 9 regression tests · pre-fix: 5 fail · pending manual validation in dev server | [silent-feedback-gaps](./_themes/silent-feedback-gaps.md) |
-| 5 | [illustration-no-feedback](./05-illustration-no-feedback/) | ✓ | ✓ | ✓ | ✓ | — | ✓ | **FIXED 2026-05-04** · twin of #4 (skip-and-reference per skill v0.2) · 2 new regression tests | [silent-feedback-gaps](./_themes/silent-feedback-gaps.md) |
 | 6 | [image-models-dynamic-and-tested](./06-image-models-dynamic-and-tested/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | `(A1/A2 split, B2, C2)` — **OpenRouter dynamic ✓**, Gemini/Imagen/PiAPI static + date-stamped preview IDs, PiAPI misfiled under "Gemini" key. Action: re-key + draft ADR-010 (liveness). | [jit-vs-precompute](./_themes/jit-vs-precompute.md), candidate: `unverified-external-resource` |
-| 7 | [provider-registration-inefficiency](./07-provider-registration-inefficiency/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | `(A2, B1, C1)` — **confusion / superseded by #1.** Cold-boot trace shows `[Providers] All providers registered:` fires **0×**; module-level singleton verified. User's "again and again" was the StrictMode double-init that #1 owns. | NOT [completion-only-guards](./_themes/completion-only-guards.md) at this layer |
 | 8 | [wasted-logs-audit](./08-wasted-logs-audit/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | `(A3, B3, C2)` — **158 console lines in 1.5s cold boot**. Single-line offender: `initializeStore.ts:30 logStep` = 82/158 (52%) of trace. Action: draft ADR-009 (logging policy). | _propose:_ `logging-policy-missing` |
 | 9 | [chapter-change-perf-logging](./09-chapter-change-perf-logging/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | `(A1*, B2, C2)` — **CORE-006 SLO violated: 574ms visible transition (>500ms)**, plus serial URL→stableId fallback wastes ~330ms. Action: enforce_existing_ADR + Promise.any race. | [jit-vs-precompute](./_themes/jit-vs-precompute.md), [completion-only-guards](./_themes/completion-only-guards.md) |
-| 10 | [library-to-home-icon](./10-library-to-home-icon/) | · | · | · | · | · | · | `(A3, B1, —)` _provisional_ — preference, not bug | — |
-| 11 | [comparison-panel-follows-chapter](./11-comparison-panel-follows-chapter/) | — | ✓ | ✓ | ✓ | ✓ | ✓ | **already fixed in `0c5162b`** · `(A3, B1, C1)` post-fix · test gap remains | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
-| 12 | [background-preload-spinner-restart](./12-background-preload-spinner-restart/) | ◐ | ✓ | ✓ | ✓ | ✓ | ✓ | **FIXED 2026-05-05 via #19's `72a2a80572`** — cancellation block at `chaptersSlice.ts:170-199` removed; shared regression test at `tests/store/slices/setCurrentChapter-survives-nav.test.ts`. README staleness caught by 2026-05-15 archaeology pass. | [jit-vs-precompute](./_themes/jit-vs-precompute.md), `nav-cancels-bg-work` (ratified N=2 via #12+#19) |
-| 13 | [eta-not-model-specific](./13-eta-not-model-specific/) | ◐ | ✓ | ✓ | ✓ | · | ✓ | `(A3, B3, C2)` — **system IS model-aware** at `apiMetricsService.ts:457`, but 2-sample threshold + mean (not median) hurts fresh state. 4-part fix_local (~2 hr). | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
-| 14 | [retry-spinner-not-clickable](./14-retry-spinner-not-clickable/) | ✓ | ✓ | ✓ | ✓ | — | ✓ | **FIXED 2026-05-04** · same-theme-different-fix-shape · 4 new regression tests · brings silent-feedback-gaps to N=3 fixed | [silent-feedback-gaps](./_themes/silent-feedback-gaps.md) |
 | 15 | [comparison-cycle-modes](./15-comparison-cycle-modes/) | ◐ | ✓ | ✓ | ✓ | · | ✓ | `(A3, B3, C3)` — boolean `showRawComparison` (2 modes only) + "Selected: ..." duplication confirmed. Action: fix_local 3-part; 9.3 (Google Translate) blocked on user provider strategy. | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
 | 16 | [version-switch-comments-vanish](./16-version-switch-comments-vanish/) | · | ◐ | ✓ | ◐ | · | ✓ | **triaged — needs §2 live repro**. Static analysis revealed bug-shape is not the simple `useEffect`-on-active-id I'd assumed. Probably interacts with #17/#18 | [jit-vs-precompute](./_themes/jit-vs-precompute.md) |
-| 17 | [feedback-not-loaded-from-idb](./17-feedback-not-loaded-from-idb/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | **FIXED 2026-05-04** · 3 regression tests · pre-fix: 2 fail | (none) |
-| 18 | [submit-feedback-not-persisted](./18-submit-feedback-not-persisted/) | ✓ | ✓ | ✓ | ✓ | · | ✓ | **FIXED 2026-05-04** · 4 regression tests · pre-fix: 3 fail | candidate: [co-mingled-commits](./_themes/co-mingled-commits.md) |
-| 19 | [translation-survives-nav-policy](./19-translation-survives-nav-policy/) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **FIXED 2026-05-05 in `72a2a80572`** — CORE-012 ratified in `5f170b0`. Cancellation block at `chaptersSlice.ts:170-199` removed; 4 regression tests at `tests/store/slices/setCurrentChapter-survives-nav.test.ts`. README left in stale `investigated` state for 10 days; archaeology audit caught it 2026-05-15. | `nav-cancels-bg-work` (ratified N=2 via this + #12) |
-| 20 | [chapter-number-drift-from-history-walker](./20-chapter-number-drift-from-history-walker/) | ◐ | ✓ | ✓ | ✓ | ✓ | ✓ | **FIXED 2026-05-10 in `bef65dd534`** — `services/translationService.ts:858-876` bug-introducing write removed (now gated on `chapterNumber == null`); `correctChapterNumberDriftV5` repair migration at `services/db/operations/maintenance.ts:2640+` runs once per user. README labeled `root-caused` but fix landed same day; archaeology audit caught it 2026-05-15. | candidate: `stale-issue-readme` |
 
 `·` = not yet done · `✓` = done · `◐` = partial · `—` = not applicable · `?` = blocked / open question
 
 `_provisional_` on the Class column means it was assigned at the index level without a full per-issue investigation; the per-issue README is the authoritative coordinate once it's filled in.
+
+<details>
+<summary>Historical May 2026 analysis and prioritization (superseded by the active index and archive above)</summary>
 
 ## Themes — cross-cutting failure classes
 
@@ -93,7 +88,7 @@ When two issues share a generator, both cite the same theme rather than re-litig
 | [silent-feedback-gaps](./_themes/silent-feedback-gaps.md) | 4, 5, 14 | **None.** No UX-feedback ADR or convention. CORE-006 mentions "loading states for async features" in passing but doesn't commit to user-action signal SLA. Theme retired — all instances fixed 2026-05-04. |
 | [silent-failure-deep](./_themes/silent-failure-deep.md) | 1 (so far — likely 2, 16) | **None.** CORE-007 (fetch-transport, *Proposed*) covers proxy boundaries but not request-boundary validation. DB-002 has "check inside transaction to prevent races" but that's the post-acceptance shape, not the pre-acceptance shape |
 | [co-mingled-commits](./_themes/co-mingled-commits.md) | 1 | **None.** No policy in CONTRIBUTING.md against bundling control-flow changes with cleanups |
-| [nav-cancels-bg-work](./_themes/nav-cancels-bg-work.md) | **12, 19** (ratified N=2 on 2026-05-15) | **None.** No ADR governs "speculative work survives navigation." `chaptersSlice.ts:170-199` actively cancels in-flight requests on any nav. Worth its own ADR. |
+| `nav-cancels-bg-work` | **12, 19** (ratified N=2 on 2026-05-15) | **None.** No ADR governs "speculative work survives navigation." `chaptersSlice.ts:170-199` actively cancels in-flight requests on any nav. Worth its own ADR. |
 | `logging-policy-missing` _(proposed)_ | **8** + indirect: 9 (runtime), 7 (façade) | **None.** No logging-level discipline. Cold boot fires 158 lines in 1.5s. ADR-009 sketched in issue #8 §9. |
 | `unverified-external-resource` _(proposed)_ | **6** + indirect: pricing, translation models | **None.** Provider catalogues treated as static config; no liveness probe SLA. ADR-010 sketched in issue #6 §9. |
 | `catalog-cross-contamination` _(proposed)_ | **3** (Hangul-in-Dungeon-Defense ch478-509) | **None.** No invariant test that a novel's catalog contains only that novel's chapters. Single instance so far; could expand if upstream registry is polluted. |
@@ -191,6 +186,8 @@ Fix-shape 1 is the cheapest and applies to every agent (not just author of fix c
 - **Draft `CORE-008-derived-views-recomputed-not-stored` ADR + introduce `recomputableView<T>()` primitive**, then mechanically apply — ~4 hr upfront, then each Tier 2/3 fix becomes a 1-line application of the primitive.
 
 The template's `fix_generator` rule fires at N≥2 with shared primitive. We have N=10. The case for the primitive-first sprint is strong, but `Bulldozer` risk (rewriting more than needed) is real. Recommend `enforce_existing_ADR` on CORE-006 first (Tier 1), see whether the pattern emerges naturally, then decide on CORE-008 ratification.
+
+</details>
 
 ## Workflow
 

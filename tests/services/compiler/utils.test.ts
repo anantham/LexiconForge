@@ -10,7 +10,7 @@ import {
   chunkPhases,
   waitFor,
   createCompilerThrottle,
-} from '../../../services/compiler/utils';
+} from '../../../services/sutta-studio/utils';
 import type { CanonicalSegment } from '../../../types/suttaStudio';
 
 // Helper to build minimal CanonicalSegments for tests

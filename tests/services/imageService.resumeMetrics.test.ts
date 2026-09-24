@@ -7,7 +7,6 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@google/genai', () => ({ GoogleGenAI: class {} }));
-vi.mock('@google/generative-ai', () => ({ GoogleGenerativeAI: class {} }));
 vi.mock('../../services/apiMetricsService', () => ({
   apiMetricsService: { recordMetric: mocks.recordMetric },
 }));

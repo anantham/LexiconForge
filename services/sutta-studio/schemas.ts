@@ -7,8 +7,8 @@
  *   - services/compiler/* (legacy orchestrator — until Phase 4 fully migrates it)
  *   - scripts/sutta-studio/* (benchmark, run-phase-experiment)
  *
- * Both legacy locations (services/compiler/schemas.ts and the schemas
- * section of services/suttaStudioPassPrompts.ts) now re-export from here.
+ * The legacy re-export shims (services/compiler/schemas.ts and
+ * services/suttaStudioPassPrompts.ts) are retired; callers import from here.
  *
  * History: these schemas were duplicated for months — one copy in each
  * legacy location, with the bench-side copy gaining wordRange + refrainId
@@ -27,6 +27,15 @@
  *     the same underline color in the reader. See CURATION_PROTOCOL.md §217
  *     for the ≥2-phase rule.
  */
+
+const morphFunctionProperties = {
+  function: {
+    type: 'string',
+    enum: ['agent', 'patient', 'recipient', 'instrument', 'possessor', 'location', 'temporal_frame', 'membership'],
+    description: 'Syntactic function in this clause; keep morphological case separate.',
+  },
+  semanticRole: { type: 'string', description: 'Explanation qualifying the syntactic function.' },
+};
 
 export const skeletonResponseSchema = {
   type: 'object',
@@ -92,6 +101,7 @@ export const anatomistResponseSchema = {
           morph: {
             type: 'object',
             properties: {
+              ...morphFunctionProperties,
               case: { type: 'string', enum: ['gen', 'dat', 'loc', 'ins', 'acc', 'nom', 'voc'] },
               number: { type: 'string', enum: ['sg', 'pl'] },
               note: { type: 'string' },
@@ -327,6 +337,7 @@ export const phaseResponseSchema = {
                 morph: {
                   type: 'object',
                   properties: {
+                    ...morphFunctionProperties,
                     case: { type: 'string', enum: ['gen', 'dat', 'loc', 'ins', 'acc', 'nom', 'voc'] },
                     number: { type: 'string', enum: ['sg', 'pl'] },
                     note: { type: 'string' },
@@ -430,6 +441,7 @@ export const morphResponseSchema = {
                 morph: {
                   type: 'object',
                   properties: {
+                    ...morphFunctionProperties,
                     case: { type: 'string', enum: ['gen', 'dat', 'loc', 'ins', 'acc', 'nom', 'voc'] },
                     number: { type: 'string', enum: ['sg', 'pl'] },
                     note: { type: 'string' },
