@@ -29,8 +29,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "services/audio/storage/cache.ts",
-    "services/audio/storage/opfs.ts",
     "tests/e2e"
   ]
 }
