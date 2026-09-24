@@ -76,6 +76,7 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "fake-indexeddb": "^6.1.0",
     "happy-dom": "^20.0.11",
+    "istanbul-lib-coverage": "3.2.2",
     "jsdom": "^26.1.0",
     "picomatch": "4.0.4",
     "playwright": "^1.56.0",

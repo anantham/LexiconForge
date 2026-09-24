@@ -3,6 +3,9 @@
 import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 import picomatch from 'picomatch';
+import libCoverage from 'istanbul-lib-coverage';
+
+const { createCoverageMap } = libCoverage;
 
 const policyPath = process.env.COVERAGE_POLICY_PATH || 'config/coverage-policy.json';
 let policy;
@@ -23,8 +26,10 @@ for (const [i, e] of policy.entries.entries()) {
   if (typeof e.glob !== 'string' || !e.glob) failures.push(`entries[${i}].glob missing`);
   if (!Number.isFinite(e.lines) || !Number.isFinite(e.functions)) failures.push(`entries[${i}] floors must be numeric`);
 }
-if (Object.values(policy.global ?? {}).some(v => v > 0)) {
-  failures.push('positive global floors need the aggregate enforcement mechanism (perFile:true makes them per-file); keep 0 until it exists');
+const GLOBAL_METRICS = ['lines', 'functions', 'branches', 'statements'];
+for (const [metric, floor] of Object.entries(policy.global ?? {})) {
+  if (!GLOBAL_METRICS.includes(metric)) failures.push(`global.${metric} is not a coverage metric (${GLOBAL_METRICS.join('/')})`);
+  else if (!Number.isFinite(floor) || floor < 0 || floor > 100) failures.push(`global.${metric} must be a percentage`);
 }
 if (failures.length) {
   console.error('[coverage-policy] FAIL:\n' + failures.map(f => '  - ' + f).join('\n'));
@@ -55,5 +60,28 @@ for (const entry of policy.entries) {
     process.exitCode = 1;
   } else {
     console.log(`[coverage-policy] ${entry.glob} -> ${matches.length} measured file(s), floors L${entry.lines}/F${entry.functions}`);
+  }
+}
+
+// Aggregate floors. Vitest's perFile:true would apply `global` to every file,
+// so the whole-surface total is summed here with the library Vitest's own
+// summary reporter uses.
+const globalFloors = Object.entries(policy.global ?? {}).filter(([, floor]) => floor > 0);
+if (globalFloors.length > 0) {
+  let total;
+  try {
+    total = createCoverageMap(coverage).getCoverageSummary();
+  } catch (err) {
+    console.error(`[coverage-policy] FAIL: cannot total ${reportPath} for global floors: ${err.message}`);
+    process.exit(1);
+  }
+  for (const [metric, floor] of globalFloors) {
+    const { pct, covered, total: count } = total[metric];
+    if (!(count > 0) || pct < floor) {
+      console.error(`[coverage-policy] FAIL: global ${metric} ${pct}% (${covered}/${count}) is below the ${floor}% floor`);
+      process.exitCode = 1;
+    } else {
+      console.log(`[coverage-policy] global ${metric} ${pct}% >= ${floor}%`);
+    }
   }
 }

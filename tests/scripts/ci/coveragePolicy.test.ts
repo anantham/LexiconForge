@@ -49,8 +49,6 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-const baseEntry = { glob: 'services/example.ts', lines: 50, functions: 40 };
-
 describe('validate-coverage-policy — fail-closed contract', () => {
   it('accepts a well-formed policy with instrumented globs', () => {
     // The floor must match a measured file, including a file with zero coverage.
@@ -73,14 +71,61 @@ describe('validate-coverage-policy — fail-closed contract', () => {
     expect(runValidator()).toBe(1);
   });
 
-  it('rejects positive global floors until aggregate enforcement exists', () => {
-    writePolicy({
+  describe('global (aggregate) floors', () => {
+    // Istanbul file coverage with `covered` of `total` one-line statements hit,
+    // plus one function hit or not, so the summed total is known exactly.
+    const measuredFile = (file: string, covered: number, total: number) => {
+      const path = join(dir, file);
+      const statementMap = Object.fromEntries(Array.from({ length: total }, (_, i) => [
+        String(i), { start: { line: i + 1, column: 0 }, end: { line: i + 1, column: 1 } },
+      ]));
+      const s = Object.fromEntries(Array.from({ length: total }, (_, i) => [String(i), i < covered ? 1 : 0]));
+      const loc = { start: { line: 1, column: 0 }, end: { line: 1, column: 1 } };
+      return [path, {
+        path, statementMap, s,
+        fnMap: { 0: { name: 'f', decl: loc, loc, line: 1 } }, f: { 0: covered > 0 ? 1 : 0 },
+        branchMap: {}, b: {},
+      }] as const;
+    };
+
+    const writeMeasured = (...files: ReturnType<typeof measuredFile>[]) => {
+      writeFileSync(join(dir, 'coverage-final.json'), JSON.stringify(Object.fromEntries(files)));
+    };
+
+    const policyWithGlobal = (global: Record<string, number>) => ({
       perFile: true,
-      global: { lines: 10 },
+      global,
       include: ['services/**'],
-      entries: [baseEntry],
+      entries: [{ glob: 'services/rateLimitService.ts', lines: 50, functions: 40 }],
     });
-    expect(runValidator()).toBe(1);
+
+    it('passes when the summed total meets every floor', () => {
+      // 6/10 + 0/10 = 30% lines across the whole surface, including a 0% file.
+      writeMeasured(measuredFile('services/rateLimitService.ts', 6, 10), measuredFile('services/other.ts', 0, 10));
+      writePolicy(policyWithGlobal({ lines: 30, statements: 30, functions: 50 }));
+      expect(runValidator()).toBe(0);
+    });
+
+    it('fails when the summed total drops below a floor', () => {
+      writeMeasured(measuredFile('services/rateLimitService.ts', 6, 10), measuredFile('services/other.ts', 0, 10));
+      writePolicy(policyWithGlobal({ lines: 31 }));
+      expect(runValidator()).toBe(1);
+    });
+
+    it('fails when the report has nothing to total for a positive floor', () => {
+      writePolicy(policyWithGlobal({ branches: 10 }));
+      writeMeasured(measuredFile('services/rateLimitService.ts', 6, 10));
+      expect(runValidator()).toBe(1);
+    });
+
+    it.each([
+      ['an unknown metric', { line: 10 }],
+      ['a non-percentage', { lines: 150 }],
+    ])('rejects %s', (_label, global) => {
+      writeMeasured(measuredFile('services/rateLimitService.ts', 6, 10));
+      writePolicy(policyWithGlobal(global));
+      expect(runValidator()).toBe(1);
+    });
   });
 
   it('rejects floors on files outside the measured report (silent no-op class)', () => {

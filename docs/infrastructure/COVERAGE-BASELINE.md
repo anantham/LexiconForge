@@ -64,3 +64,28 @@ Tradeoff: an unenforceable floor is detected after coverage generation, giving a
 measured answer instead of a faster but potentially inconsistent prediction. The
 existing installed `picomatch` is declared directly as a dev dependency; no new
 package or production dependency is introduced.
+
+## September 24: aggregate floors accepted
+
+The owner accepted the measured whole-surface baseline as the global floor,
+rounded down so a floor is never above what the tests earn:
+
+| Metric | Measured on `main` (`d3515c4`) | Floor |
+|---|---:|---:|
+| Lines | 60.45% (16,113 / 26,651) | 60 |
+| Statements | 58.94% (17,367 / 29,462) | 59* |
+| Functions | 59.07% (3,360 / 5,688) | 59 |
+| Branches | 47.51% (10,551 / 22,204) | 47 |
+
+`scripts/ci/validate-coverage-policy.mjs` enforces these against the summed
+`coverage/coverage-final.json` using `istanbul-lib-coverage` (the library behind
+Vitest's own summary; its totals match the `All files` row exactly). Vitest's
+`thresholds` still receive only the per-file entries, because `perFile: true`
+would apply a global floor to every file. The measurement ran on Node 22; the
+Node 24 CI run covers at least as much (one IndrasNet test fails only on 22).
+
+\* Raised on the same branch after new tests lifted statements to 59.19%
+(lines 60.71, functions 59.39, branches 47.67). Those tests also earned three
+per-file floors: `services/ai/cost.ts` (68% → 100% lines),
+`services/db/core/txn.ts` (21% → 100%, unused helpers deleted) and
+`services/db/operations/translations.ts` (22% → 78%).

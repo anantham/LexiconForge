@@ -44,7 +44,12 @@ export const calculateCost = async (
   }
 
   if (model.includes('/')) {
-    const pricing = await fetchDynamicPricing(model);
+    // A failed catalog refresh must not throw away a response that was already
+    // paid for; it falls through to the $0 path below like any unpriced model.
+    const pricing = await fetchDynamicPricing(model).catch((error) => {
+      console.error(`[Cost] OpenRouter pricing lookup failed for ${model}:`, error);
+      return null;
+    });
     if (pricing) {
       const promptCost =
         (typeof pricing.prompt === 'string' ? parseFloat(pricing.prompt) : pricing.prompt) || 0;

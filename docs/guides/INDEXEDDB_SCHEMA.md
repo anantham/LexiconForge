@@ -242,7 +242,7 @@ await withWriteTxn(
 | Range query | O(log N + K) | `IDBKeyRange.bound(min, max)` |
 | Cursor | Efficient for batch | `store.openCursor()` |
 
-Use `batchOperation` helper for large bulk inserts.
+For bulk writes, put every record in one transaction (see `withWriteTxn`).
 
 ## Debugging
 
