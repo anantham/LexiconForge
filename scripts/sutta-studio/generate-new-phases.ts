@@ -13,7 +13,7 @@ import {
   runWeaverPass,
   runTypesetterPass,
   type LLMCaller,
-} from '../../services/suttaStudioPassRunners';
+} from '../../services/sutta-studio/passes';
 import type { CanonicalSegment } from '../../types/suttaStudio';
 import { resolveCallCostUsd } from './lib/cost';
 import { preflightOpenRouterKey } from './lib/preflight';

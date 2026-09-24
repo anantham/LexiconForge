@@ -11,7 +11,7 @@
 > | 2c | schemas.ts moved | DONE (PR #62, commit 0d81bec, 2026-05-16) |
 > | 2d | orchestrator port (compiler/index.ts → sutta-studio/orchestrator.ts) | PENDING (PR D) |
 > | 3 | Single LLM caller | DONE (this PR, 2026-05-16) |
-> | 4 | Shim cleanup + delete services/compiler/ | PENDING |
+> | 4 | Shim cleanup + delete services/compiler/ | IN PROGRESS — the six re-export shims are deleted (2026-09-24); `services/compiler/` awaits 2d |
 >
 > Earlier task tracking marked Phase 3 complete after Phase 2 landed; the 2026-05-16 doc audit caught
 > that two divergent callers (compiler/llm.ts and suttaStudioLLM.ts) still existed and reopened the

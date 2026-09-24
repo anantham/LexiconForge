@@ -1,15 +1,11 @@
 /**
  * Contract test for the canonical schemas at services/sutta-studio/schemas.ts.
  *
- * After PR A (Phase 2c of CONSOLIDATION.md), all 7 response schemas live in
- * one place. The two legacy locations (services/compiler/schemas.ts and the
- * schema section of services/suttaStudioPassPrompts.ts) are now thin
- * re-export shims that forward to the canonical file.
+ * All 7 response schemas live in one place (CONSOLIDATION.md Phase 2c); the
+ * legacy re-export shims are retired in Phase 4.
  *
  * This test locks in two invariants:
- *   1. All three locations export THE SAME object (referentially === ).
- *      If anyone duplicates a schema definition in a legacy file, this
- *      test catches the re-divergence before it ships.
+ *   1. Every pass schema is exported from the canonical module.
  *   2. The canonical schemas include wordRange and refrainId — the
  *      production-needed fields that production schemas used to lack.
  *      If anyone strips these during a future refactor, this fails
@@ -18,8 +14,6 @@
 import { describe, it, expect } from 'vitest';
 
 import * as canonical from '../../../services/sutta-studio/schemas';
-import * as compilerLegacy from '../../../services/compiler/schemas';
-import * as passPromptsLegacy from '../../../services/suttaStudioPassPrompts';
 
 const schemaNames = [
   'skeletonResponseSchema',
@@ -32,16 +26,10 @@ const schemaNames = [
 ] as const;
 
 describe('schemas canonical reconciliation (PR A / Phase 2c)', () => {
-  describe('legacy locations re-export canonical objects', () => {
+  describe('canonical module exports every pass schema', () => {
     for (const name of schemaNames) {
-      it(`${name} is the same object across all three locations`, () => {
-        const canonicalRef = (canonical as Record<string, unknown>)[name];
-        const compilerRef = (compilerLegacy as Record<string, unknown>)[name];
-        const passPromptsRef = (passPromptsLegacy as Record<string, unknown>)[name];
-
-        expect(canonicalRef).toBeDefined();
-        expect(compilerRef).toBe(canonicalRef);
-        expect(passPromptsRef).toBe(canonicalRef);
+      it(`${name} is exported`, () => {
+        expect((canonical as Record<string, unknown>)[name]).toBeDefined();
       });
     }
   });
