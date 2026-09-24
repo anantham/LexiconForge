@@ -1,4 +1,4 @@
-# LexiconForge Architecture (January 2026)
+# LexiconForge Architecture
 
 ## 1. System Overview
 
@@ -73,7 +73,7 @@
 
 ## 4.5 Sutta Studio Pipeline Services
 
-The Sutta Studio compiler is the largest service subsystem (~4,200 LOC across 12 files).
+The Sutta Studio compiler spans the production orchestrator and canonical pass modules.
 It transforms raw SuttaCentral segments into `DeepLoomPacket` IR for the `/sutta/:uid` route
 via a sequential 5-pass assembly line. Each pass is a specialist — no parallelization.
 
@@ -99,23 +99,25 @@ SuttaCentral segments
 
 ### Key Files
 
-The compiler was decomposed from a 2,280 LOC monolith into `services/compiler/` (8 modules).
-A backward-compatible shim at `services/suttaStudioCompiler.ts` re-exports from the new location.
+The production orchestrator remains in `services/compiler/`; canonical prompts,
+schemas, LLM calls and pass runners live under `services/sutta-studio/`.
+PR #186 removed six forwarding modules after migrating their callers. The
+orchestrator rewrite remains a separate decision (D2); shim removal did not finish it.
+`services/suttaStudioCompiler.ts` still re-exports the production entry point.
 
-| File | LOC | Responsibility |
-|------|-----|----------------|
-| `services/compiler/index.ts` | 957 | Pipeline orchestration and packet assembly |
-| `services/compiler/schemas.ts` | 401 | JSON schemas for all passes |
-| `services/compiler/prompts.ts` | 347 | Prompt builders for each pass |
-| `services/compiler/utils.ts` | 218 | Shared compiler utilities |
-| `services/compiler/dictionary.ts` | 137 | Dictionary lookup helpers |
-| `services/compiler/skeleton.ts` | 124 | Skeleton pass logic |
-| `services/compiler/llm.ts` | 123 | LLM call wrapper with structured outputs |
-| `services/compiler/segments.ts` | 51 | Segment processing utilities |
-| `services/suttaStudioPassPrompts.ts` | 725 | Prompt contracts for all 5 passes |
-| `services/suttaStudioPassRunners.ts` | 586 | Per-pass execution and retry logic |
-| `services/suttaStudioPipelineCache.ts` | 472 | L2 morphology cache + L5 segment cache |
-| `services/suttaStudioRehydrator.ts` | 437 | Reconstructs packets from DB for UI rendering |
+| File | Responsibility |
+|------|----------------|
+| `services/compiler/index.ts` | Production pipeline orchestration and packet assembly |
+| `services/compiler/dictionary.ts` | Dictionary lookup and proxy helpers |
+| `services/compiler/skeleton.ts` | Production skeleton pass |
+| `services/compiler/segments.ts` | Canonical source acquisition |
+| `services/sutta-studio/schemas.ts` | Canonical JSON schemas for all passes |
+| `services/sutta-studio/prompts/` | Canonical prompt builders |
+| `services/sutta-studio/passes/` | Canonical pass execution and retry logic |
+| `services/sutta-studio/llm.ts` | LLM transport and structured outputs |
+| `services/sutta-studio/utils.ts` | Shared compiler utilities |
+| `services/suttaStudioPipelineCache.ts` | L2 morphology and L5 segment caches |
+| `services/suttaStudioRehydrator.ts` | Joins pass outputs into a phase view |
 
 ### Caching (SUTTA-006)
 
@@ -192,20 +194,17 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 | `services/db/operations/maintenance.ts` | 2,992 | Split candidate | Many repair generations (scoped-id, chapter-number drift V4–V6, canonical-key repair) plus duplicate repair own direct writes to summaries/mappings — the concrete CAP-013 pressure point; boot-repair battery in `initializeStore` depends on it |
 | `scripts/sutta-studio/benchmark.ts` | 2,493 | Split candidate | Run orchestration, pipeline execution, artifact indexing, metrics, and progress lifecycle share one module; completion-boundary testing required a main-module guard |
 | `components/bench/SuttaStudioBenchmarkView.tsx` | 1,620 | Split candidate | Fixture loading + runner orchestration + metrics display |
-| `services/imageService.ts` | 1,245 | Split candidate | Generation planning, dual-generation Google SDK transports, cache/version handling in one module |
+| `services/imageService.ts` | 1,245 | Split candidate | Generation planning, Google SDK and other provider transports, cache/version handling in one module |
 | `services/exportService.ts` | 1,072 | Split candidate | Three portable serializers duplicate chapter/image assembly; metadata/stat export uses separate scope decisions. Graph review required correcting each builder. |
 | `services/importService.ts` | 1,152 | Split candidate | URL retry, two JSON parsers, persistence/reconciliation, reader hydration, and portable artifact hydration share one lifecycle; adding semantic graph streaming crossed every responsibility |
 | `adapters/providers/OpenAIAdapter.ts` | 886 | Split candidate | Translation/chat request construction, adaptive fallbacks, metrics, and response parsing share one adapter |
-| `services/suttaStudioPassPrompts.ts` | 47 | Resolved | Now a thin re-export shim (was mislisted at 725); real prompt mass lives under `services/sutta-studio/prompts/` |
-| `services/suttaStudioPassRunners.ts` | 35 | Resolved | Thin re-export shim (was mislisted at 586); runners live under `services/sutta-studio/passes/` — deletion candidate tracked by CONSOLIDATION Phase-4 tail (CAP-011) |
 | `components/sutta-studio/SuttaStudioApp.tsx` | ~498 | Watchlist | Store wiring, navigation, compilation, and render gating |
 | `services/db/repositories/TranslationRepository.ts` | 405 | Watchlist | Translation versioning, active-version mutation, stableId fallback, and direct IDB write paths share one module |
 | `services/imagePlanPlanner.ts` | 451 | Watchlist | Planner schema/prompt logic and three provider transports share one module |
 | `components/liturgy/shapes/TripleScriptWitness.tsx` | 1,363 | Split candidate | Script tokenization, word tooltips, settings, witness controls, accent state, and alignment interaction remain coupled; semantic alignment geometry was extracted to `alignmentGeometry.ts`, but the component still has several independent reasons to change |
 | `data/liturgy/morning-chants.ts` | 982 | Watchlist | Chant source data, shared vocabulary registries, semantic analyses, witness alignments, and commentary live together; the 2026-08-25 word-by-word curation required editing several distant regions in one file |
 
-> Measured 2026-08-22 (`wc -l`). The two shim rows previously claimed 725/586 LOC
-> from a stale pre-extraction snapshot.
+> Hotspot counts are the 2026-08-22 snapshot. Retired shim rows were removed on 2026-09-25.
 | `services/imageGenerationService.ts` | 631 | Split candidate | Initial generation and retry duplicate provenance, persistence, versioning, and metrics assembly; fallback review found behavior drift between the two paths |
 | `components/settings/ProvidersPanel.tsx` | 565 | Watchlist | Provider catalogue effects, credit state, capability checks, pricing assembly, and selection lifecycle remain coupled; PR #138 review found stale endpoint-owned workflow state |
 | `components/NovelLibrary.tsx` | 727 | Split candidate | Registry display, bookshelf persistence, cache hydration, stream acquisition, glossary loading, source search, reader routing, and progress UI share one component; PR #166 review exposed failure-state coupling between acquisition and reader ownership |
@@ -219,7 +218,7 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 
 | File | Was | Now |
 |------|-----|-----|
-| `services/suttaStudioCompiler.ts` | 2,280 LOC monolith | 3-line shim → `services/compiler/` (8 modules, ~2,019 LOC) |
+| `services/suttaStudioCompiler.ts` | 2,280 LOC monolith | 3-line entry shim → `services/compiler/` (4 production modules), sharing canonical `services/sutta-studio/` modules |
 | `services/adapters.ts` | 914 LOC, 4 adapters | Removed → `adapters/providers/` (6 files, ~1,306 LOC) |
 | `services/navigationService.ts` | 1,109 LOC | 3-line shim → `services/navigation/` (8 modules, ~1,112 LOC) |
 | `components/sutta-studio/demoPacket.ts` | 4,390 LOC data | 3-line shim → `demoPacket.json` (12,325 lines) |
@@ -240,5 +239,5 @@ Files flagged for engineering friction (see `~/.claude/CLAUDE.md` for split crit
 
 ---
 
-*Last updated: July 2026 (worker tier removed; EPUB export moved to `services/epubService/`).*
+*Sutta module ownership refreshed 2026-09-25 after PR #186; unrelated counts remain dated snapshots.*
 *Previous major update: January 2026*

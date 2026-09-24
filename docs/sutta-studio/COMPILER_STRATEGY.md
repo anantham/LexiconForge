@@ -1,5 +1,11 @@
 # Sutta Studio Compiler Strategy — When to Hand-Curate, When to Pipeline
 
+> **Current-code note (2026-09-25):** this is a historical strategy snapshot.
+> The V2 overlay is already imported by `services/sutta-studio/prompts/{anatomist,lexicographer,phase}.ts`.
+> The old `services/compiler/prompts.ts` forwarding file was removed in #186.
+> The wiring proposals in §5/§6 below are completed, not new work estimates;
+> their quality percentages remain historical estimates, not measured acceptance.
+
 > **Status:** Ratified 2026-05-12. Captures the economic-strategic analysis that emerged from MN10 batches 1-4 (phases a-h + phase-1, 9/51 phases done).
 > **Companions:** `docs/sutta-studio/CURATION_PROTOCOL.md` (how a phase is hand-curated), `docs/sutta-studio/FEATURES.md` (schema fields the compiler must populate), `config/suttaStudioPromptContextV2.ts` (the v2 prompt overlay codifying protocol learnings).
 > **Audience:** a new curator deciding what to do next, or a future agent-session weighing "continue hand-curating MN10" vs "wire the pipeline."

@@ -12,7 +12,7 @@
 > of truth are:
 > - `types/suttaStudio.ts` — schema (298 LOC)
 > - `config/suttaStudioPromptContext.ts` — prompt rationale embedded in code (272 LOC)
-> - `services/compiler/prompts.ts` — prompt builders (347 LOC)
+> - `services/sutta-studio/prompts/` — canonical prompt builders (path refreshed after #186)
 > - `docs/adr/SUTTA-003-sutta-studio-mvp.md` — original architectural decisions
 > - `docs/sutta-studio/IR.md` — schema spec (Pali-only by design)
 
