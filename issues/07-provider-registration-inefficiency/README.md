@@ -1,6 +1,6 @@
 # Issue 7 — Provider registration may run repeatedly
 
-> Status: **investigated** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M) · Worktree `opus-issues-investigation`
+> Status: **CLOSED — duplicate of local #1 (2026-09-25)** · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M) · Worktree `opus-issues-investigation`
 
 ## 1. Claim (verbatim from Issues.md)
 
@@ -175,3 +175,11 @@ This issue closes as `superseded` once issue #1 is `fixed`. No independent regre
 
 - Should the no-op `initializeProviders()` façade be deleted independently of issue #1? (Cost <30min; reader cognitive cost reduction. Not on critical path.)
 - Are there any production paths that *await* `initializeProviders` for ordering rather than registration? (Grep suggests no — every caller is purely defensive.)
+
+## 2026-09-25 reconciliation
+
+Closed as duplicate, as requested by the owner. The provider-registration concern
+was not reproduced; #1 already records the single-flight bootstrap fix. #1 stays
+open for its separate import-latency defects. The older closing-gate/status text
+above is historical. Provider imports now use `services/sutta-studio/llm.ts`;
+`services/compiler/llm.ts` was retired in PR #186.

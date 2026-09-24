@@ -75,7 +75,7 @@ window.exportTelemetry(); // Should include test error
 **File**: `services/imageCacheService.ts`
 
 **Requirements**:
-- Mirror `services/audio/storage/cache.ts` structure
+- Original plan mirrored the audio cache structure; that unused audio file was deleted in #186. Use the existing `services/imageCacheService.ts` as the current implementation reference.
 - Methods:
   - `storeImage(chapterId, marker, base64) → blobUrl`
   - `getImageBlobUrl(chapterId, marker) → blobUrl | null`

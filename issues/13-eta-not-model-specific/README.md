@@ -190,3 +190,13 @@ This issue closes as `fixed` when ALL of the following:
 - Should the 30s default be lowered to better-match Flash users (e.g., 15s)? Probably no — defaults should reflect global mean, and Flash users will quickly populate model-specific data.
 - Should "Estimating…" replace the elapsed counter too, or just the ETA? (Probably keep elapsed; only suppress prediction.)
 - Is there appetite to add a percentile band (e.g., "between 8s and 22s") instead of a point estimate? Outside scope for this issue but worth a Phase 2.
+
+## 2026-09-25 reconciliation
+
+The four-part fix described at the top is present in the merged source. The
+older proposed action and unchecked gates below it predate that implementation.
+`tests/services/apiMetricsService.eta.test.ts` passes all 15 current tests,
+including the 11 original ETA cases. Both chapter timer components suppress the
+default prediction and disclose the sample source. Deferred real-event/manual
+checks remain deferred; no additional paid translations were made for ETA.
+Archived in the local index; no new ETA implementation is needed.

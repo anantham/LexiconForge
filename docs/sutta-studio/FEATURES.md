@@ -745,3 +745,18 @@ These docs are **design / charter only**. Implementation comes after MN10 biling
 ---
 
 *Maintenance: when you add a new feature, add a row to §1 and §3 and §7. When you remove or rename, leave a "Deprecated" stub in §1 with the version it disappeared in.*
+
+### 2026-09-25 additive schema follow-up (#39, #40, #42)
+
+Implemented in `types/suttaStudio.ts`, with grounded examples in
+`content/references/sutta/mn10.json` and the [phase-a curation receipt](curation/phase-a.md):
+
+- `DeepLoomPacket.workParallels` holds whole-work parallels once.
+- `Span.kind` also accepts `formula` and `refrain`; `Span.parallels` points to
+  attested phrase recurrence, independently of `PhaseView.parallels`.
+- `MorphHint.function` records syntactic function while `case` records form;
+  `semanticRole` provides a qualifying explanation. Compiler morphology schemas
+  accept both fields and the existing rehydrator carries them into word segments.
+
+All fields remain optional. Existing packets and renderer behavior remain
+compatible; this change does not add a parallels or morphology UI.

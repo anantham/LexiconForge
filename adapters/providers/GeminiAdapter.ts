@@ -8,7 +8,7 @@ import { apiMetricsService } from '../../services/apiMetricsService';
 import prompts from '../../config/prompts.json';
 import { buildFanTranslationContext, formatHistory } from '../../services/prompts';
 import { requireConfiguredApiKey } from '../../services/ai/providerCredentials';
-import { getTranslationOnlyResponseGeminiSchema } from '../../services/translate/translationResponseSchema';
+import { getTranslationOnlyResponseJsonSchema } from '../../services/translate/translationResponseSchema';
 import { getTranslationSystemPrompt } from '../../utils/promptUtils';
 import { replacePlaceholders } from '../../services/ai/textUtils';
 
@@ -105,7 +105,7 @@ export class GeminiAdapter implements TranslationProvider, Provider {
           temperature: settings.temperature,
           maxOutputTokens: settings.maxOutputTokens || 16384,
           responseMimeType: 'application/json',
-          responseSchema: getTranslationOnlyResponseGeminiSchema(),
+          responseSchema: getTranslationOnlyResponseJsonSchema(),
           abortSignal,
         },
       });

@@ -470,3 +470,34 @@ Aditya's verdict on the proposed JSON diff (chat artifact, second gate) was "app
 ---
 
 *This log is filled in during the phase-a curation run that follows this commit. The skeleton is committed first so the protocol's structure is locked before the work begins.*
+
+## 2026-09-25 schema follow-up — GitHub #39, #40, #42
+
+The owner requested these additive schema follow-ups. The reference packet now
+stores whole-work parallels once in `workParallels`, and phase-a has a `formula`
+span from a1 to a3 with its own DN22:1.1 reference. `PhaseView.parallels` retains
+its phase-specific meaning; `refrainId` still means within-packet recurrence.
+
+Evidence refreshed 2026-09-24 UTC: SuttaCentral's
+[MN10 parallels response](https://suttacentral.net/api/parallels/mn10) contains
+**eight** work-level entries (dn22, ea12.1, ma98, sht-sutta11, ma31, ma81, mn119,
+t32), replacing this log's older count of sixteen. The public
+[DN22 Bilara response](https://suttacentral.net/api/bilarasuttas/dn22/sujato)
+attests `dn22:1.1` as `Evaṁ me sutaṁ—`. Packet citations
+`cite:sc-suttaplex:mn10:work-parallels` and
+`cite:sc-bilara:dn22:1.1:formula` preserve the evidence date and excerpts.
+Whole-work similarity alone was not treated as phrase-level evidence.
+
+The requested form/function distinction records a2s1 as case `gen`, function
+`agent`; b2s3 as case `acc`, function `temporal_frame`; c1s2 as case `loc`, number
+`pl`, function `membership`. These reuse the grammatical analyses, existing
+relations and DPD attestations in phase-a/b/c's earlier approved records.
+`semanticRole` qualifies membership as the locative social setting (among the
+Kurus), not an assertion that the subject is a member of the group. Source text,
+translation, tooltip prose, alignment and sense order remain unchanged.
+
+`MorphHint.function` and `semanticRole` are also accepted by all three existing
+compiler morphology schemas; the rehydrator preserves them. The new fields are
+optional, require no packet version bump and introduce no new runtime lookup.
+Renderer affordances remain separate work. Focused checks cover the loaded MN10
+packet, formula bounds, distinct reference scopes and morphology rehydration.

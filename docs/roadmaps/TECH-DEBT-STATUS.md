@@ -162,14 +162,16 @@ Commit:     5d18e77
 | npm vulnerabilities | `package.json` | 8 total: 6 high (flatted, happy-dom, minimatch, picomatch, rollup, tar) + 2 moderate (brace-expansion, yaml) | NEW |
 | No selector layer | `store/slices/*.ts` | Cross-slice state access duplicated 13 times via `(state as any).chapters \|\| new Map()` pattern | NEW |
 
-**Services >500 LOC with no tests found:**
+**Services >500 LOC with no tests found (dated audit snapshot):**
+
+Retired Sutta forwarding modules removed from this list on 2026-09-25 (#186).
+Current prompts/runners live under `services/sutta-studio/{prompts,passes}/`;
+remaining size and coverage claims below retain their original audit date.
 
 | Service | LOC |
 |---------|-----|
 | `imageService.ts` | 857 |
-| `suttaStudioPassPrompts.ts` | 725 |
 | `translationService.ts` | 721 |
-| `suttaStudioPassRunners.ts` | 586 |
 | `imageGenerationService.ts` | 574 |
 | `telemetryService.ts` | 506 |
 | `suttaStudioPipelineCache.ts` | 472 |

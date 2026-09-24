@@ -1,3 +1,5 @@
+> Local investigation status (2026-09-25): see [active investigations](issues/README.md) and [archived resolutions](issues/ARCHIVE.md). The numbered observations below are historical and some numbers were later reused; the archive refers to the `issues/` dossiers.
+
 1) fix boot up time  ----ok let me be clear ---- 
 initializeStore.ts:62 
 (index)
