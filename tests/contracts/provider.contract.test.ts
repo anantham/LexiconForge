@@ -45,25 +45,19 @@ vi.mock('openai', () => ({ __esModule: true, default: openAiMocks.OpenAI }));
 
 const geminiMocks = vi.hoisted(() => {
   const generateContent = vi.fn();
-  const getGenerativeModel = vi.fn((_config?: Record<string, unknown>) => ({
-    generateContent: (...args: unknown[]) => generateContent(...args),
-  }));
   const ctor = vi.fn();
-  class GoogleGenerativeAI {
+  class GoogleGenAI {
+    models = { generateContent: (...args: unknown[]) => generateContent(...args) };
     constructor(...args: unknown[]) {
       ctor(args[0]);
     }
-    getGenerativeModel(config?: Record<string, unknown>) {
-      return getGenerativeModel(config);
-    }
   }
-  return { GoogleGenerativeAI, generateContent, getGenerativeModel, ctor };
+  return { GoogleGenAI, generateContent, ctor };
 });
 
-vi.mock('@google/generative-ai', () => ({
-  GoogleGenerativeAI: geminiMocks.GoogleGenerativeAI,
-  GenerateContentResult: Object,
-  SchemaType: {
+vi.mock('@google/genai', () => ({
+  GoogleGenAI: geminiMocks.GoogleGenAI,
+  Type: {
     OBJECT: 'OBJECT',
     ARRAY: 'ARRAY',
     STRING: 'STRING',
@@ -133,7 +127,6 @@ describe('Provider Contract (VCR replay-only)', () => {
     openAiMocks.create.mockReset();
     openAiMocks.ctor.mockClear();
     geminiMocks.generateContent.mockReset();
-    geminiMocks.getGenerativeModel.mockClear();
     geminiMocks.ctor.mockClear();
 
     rateLimitMock.mockClear();
@@ -205,10 +198,8 @@ describe('Provider Contract (VCR replay-only)', () => {
 
       calculateCostMock.mockResolvedValueOnce(cassette.expected.estimatedCost);
       geminiMocks.generateContent.mockResolvedValueOnce({
-        response: {
-          text: () => cassette.mock.responseText,
-          usageMetadata: cassette.mock.usageMetadata,
-        },
+        text: cassette.mock.responseText,
+        usageMetadata: cassette.mock.usageMetadata,
       });
 
       const adapter = new GeminiAdapter();
@@ -224,15 +215,15 @@ describe('Provider Contract (VCR replay-only)', () => {
       expect(rateLimitMock).toHaveBeenCalledWith(cassette.model, { signal: undefined });
       expect(calculateCostMock).toHaveBeenCalledWith(cassette.model, cassette.expected.promptTokens, cassette.expected.completionTokens);
 
-      expect(geminiMocks.ctor).toHaveBeenCalledWith('test-gemini-key');
-      expect(geminiMocks.getGenerativeModel).toHaveBeenCalledWith(expect.objectContaining({ model: cassette.model }));
+      expect(geminiMocks.ctor).toHaveBeenCalledWith({ apiKey: 'test-gemini-key' });
 
       const callArg = geminiMocks.generateContent.mock.calls[0]?.[0];
+      expect(callArg?.model).toBe(cassette.model);
       const promptText = callArg?.contents?.[0]?.parts?.[0]?.text;
       expect(typeof promptText).toBe('string');
       expect(promptText).toContain(cassette.request.title);
       expect(promptText).toContain(cassette.request.content);
-      expect(callArg?.generationConfig?.responseMimeType).toBe('application/json');
+      expect(callArg?.config?.responseMimeType).toBe('application/json');
     });
   });
 });

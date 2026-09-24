@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, GenerateContentResult } from '@google/generative-ai';
+import { GoogleGenAI, type GenerateContentConfig, type GenerateContentResponse } from '@google/genai';
 import type { TranslationProvider, TranslationRequest } from '../../services/translate/Translator';
 import type { ChatRequest, ChatResponse, Provider, ProviderName } from './Provider';
 import type { TranslationResult, AppSettings, HistoricalChapter } from '../../types';
@@ -51,6 +51,12 @@ const dlogFull = (message: string, ...args: any[]) => {
   }
 };
 
+// A blocked or truncated response has no text; surface why instead of a bare "empty".
+const emptyResponseError = (result: GenerateContentResponse): Error => {
+  const reason = result.promptFeedback?.blockReason ?? result.candidates?.[0]?.finishReason;
+  return new Error(`Empty response from Gemini API${reason ? ` (${reason})` : ''}`);
+};
+
 export class GeminiAdapter implements TranslationProvider, Provider {
   name: ProviderName = 'Gemini';
 
@@ -63,35 +69,30 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     // Check rate limits
     await rateLimitService.acquireRequestSlot(settings.model, { signal: abortSignal });
 
-    // Initialize client
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: settings.model });
+    const ai = new GoogleGenAI({ apiKey });
 
     // Build prompt
     const fullPrompt = this.buildPrompt(settings, title, content, history, fanTranslation);
     
-      dlog('Making API request', { model: settings.model });
+    dlog('Making API request', { model: settings.model });
 
     const startTime = performance.now();
-    let result: GenerateContentResult;
+    let result: GenerateContentResponse;
 
     try {
-      const schema = getTranslationOnlyResponseGeminiSchema();
-
-      // Make API call. Pass the signal in SingleRequestOptions so a Translator timeout actually
-      // CANCELS the in-flight request (review #3) — the SDK (@google/generative-ai ≥0.24) supports
-      // it natively; the previous "Gemini doesn't support native abort" note was outdated, so the
-      // signal was only checked AFTER the call returned, by which point the original was still
-      // running and billing while the retry fired.
-      result = await model.generateContent({
+      // Pass the signal so a Translator timeout actually CANCELS the in-flight request (review #3);
+      // otherwise the original keeps running while the retry fires.
+      result = await ai.models.generateContent({
+        model: settings.model,
         contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-        generationConfig: {
+        config: {
           temperature: settings.temperature,
           maxOutputTokens: settings.maxOutputTokens || 16384,
           responseMimeType: 'application/json',
-          responseSchema: schema
+          responseSchema: getTranslationOnlyResponseGeminiSchema(),
+          abortSignal,
         },
-      }, { signal: abortSignal });
+      });
 
       // Belt-and-braces: if the signal fired without the SDK surfacing an AbortError, bail here.
       if (abortSignal?.aborted) {
@@ -136,25 +137,26 @@ export class GeminiAdapter implements TranslationProvider, Provider {
 
     await rateLimitService.acquireRequestSlot(modelId, { signal: input.abortSignal });
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: modelId });
+    const ai = new GoogleGenAI({ apiKey });
 
     const startTime = performance.now();
-    let result: GenerateContentResult;
+    let result: GenerateContentResponse;
     try {
-      const generationConfig: any = {
+      const config: GenerateContentConfig = {
         temperature,
         maxOutputTokens: maxTokens,
         responseMimeType: 'application/json',
+        abortSignal: input.abortSignal,
       };
       if (input.schema && (input.structuredOutputs ?? true)) {
-        generationConfig.responseSchema = input.schema;
+        config.responseSchema = input.schema;
       }
 
-      result = await model.generateContent({
+      result = await ai.models.generateContent({
+        model: modelId,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig,
-      }, { signal: input.abortSignal });
+        config,
+      });
 
       if (input.abortSignal?.aborted) {
         throw new DOMException('Aborted', 'AbortError');
@@ -178,13 +180,13 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     }
 
     const endTime = performance.now();
-    const responseText = result.response.text();
+    const responseText = result.text;
     if (!responseText) {
-      throw new Error('Empty response from Gemini API');
+      throw emptyResponseError(result);
     }
 
-    const promptTokens = result.response.usageMetadata?.promptTokenCount || 0;
-    const completionTokens = result.response.usageMetadata?.candidatesTokenCount || 0;
+    const promptTokens = result.usageMetadata?.promptTokenCount || 0;
+    const completionTokens = result.usageMetadata?.candidatesTokenCount || 0;
     const totalTokens = promptTokens + completionTokens;
     let costUsd = 0;
     try {
@@ -261,14 +263,14 @@ export class GeminiAdapter implements TranslationProvider, Provider {
   }
 
   private async processResponse(
-    result: GenerateContentResult,
+    result: GenerateContentResponse,
     settings: AppSettings,
     startTime: number,
     endTime: number
   ): Promise<TranslationResult> {
-    const responseText = result.response.text();
+    const responseText = result.text;
     if (!responseText) {
-      throw new Error('Empty response from Gemini API');
+      throw emptyResponseError(result);
     }
 
     dlog('Raw response preview (first 500 chars):', responseText.slice(0, 500));
@@ -288,8 +290,8 @@ export class GeminiAdapter implements TranslationProvider, Provider {
     const safeIllustrations = safeArray(parsedResponse.suggestedIllustrations);
 
     // Extract token usage (Gemini provides this in different format)
-    const promptTokens = result.response.usageMetadata?.promptTokenCount || 0;
-    const completionTokens = result.response.usageMetadata?.candidatesTokenCount || 0;
+    const promptTokens = result.usageMetadata?.promptTokenCount || 0;
+    const completionTokens = result.usageMetadata?.candidatesTokenCount || 0;
     const totalTokens = promptTokens + completionTokens;
     const costUsd = await calculateCost(settings.model, promptTokens, completionTokens);
     const requestTime = (endTime - startTime) / 1000;

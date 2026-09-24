@@ -1,5 +1,4 @@
-import type { Schema } from '@google/generative-ai';
-import { SchemaType } from '@google/generative-ai';
+import { Type, type Schema } from '@google/genai';
 import prompts from '../../config/prompts.json';
 import type { AppSettings } from '../../types';
 
@@ -144,80 +143,80 @@ export const translationResponseJsonSchema = {
  * Mirrors the JSON schema above using the Gemini Schema DSL.
  */
 export const translationOnlyResponseGeminiSchema: Schema = {
-  type: SchemaType.OBJECT,
+  type: Type.OBJECT,
   properties: {
     translatedTitle: {
-      type: SchemaType.STRING,
+      type: Type.STRING,
       description: '' + prompts.translatedTitleDescription
     },
     translation: {
-      type: SchemaType.STRING,
+      type: Type.STRING,
       description: '' + prompts.translationHtmlRules
     },
     footnotes: {
-      type: SchemaType.ARRAY,
+      type: Type.ARRAY,
       nullable: true,
       description: 'Optional list of translator footnotes that clarify context',
       items: {
-        type: SchemaType.OBJECT,
+        type: Type.OBJECT,
         properties: {
-          marker: { type: SchemaType.STRING, description: '' + prompts.footnoteMarkerDescription },
-          text: { type: SchemaType.STRING, description: '' + prompts.footnoteTextDescription }
+          marker: { type: Type.STRING, description: '' + prompts.footnoteMarkerDescription },
+          text: { type: Type.STRING, description: '' + prompts.footnoteTextDescription }
         },
         required: ['marker', 'text']
       }
     },
     suggestedIllustrations: {
-      type: SchemaType.ARRAY,
+      type: Type.ARRAY,
       nullable: true,
       description: '' + prompts.illustrationsDescription,
       items: {
-        type: SchemaType.OBJECT,
+        type: Type.OBJECT,
         properties: {
           placementMarker: {
-            type: SchemaType.STRING,
+            type: Type.STRING,
             description: '' + prompts.illustrationPlacementMarkerDescription
           },
           imagePrompt: {
-            type: SchemaType.STRING,
+            type: Type.STRING,
             description: '' + prompts.illustrationImagePromptDescription
           },
           imagePlan: {
-            type: SchemaType.OBJECT,
+            type: Type.OBJECT,
             nullable: true,
             description: '' + prompts.illustrationImagePlanDescription,
             properties: {
-              subject: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanSubjectDescription },
+              subject: { type: Type.STRING, description: '' + prompts.illustrationPlanSubjectDescription },
               characters: {
-                type: SchemaType.ARRAY,
+                type: Type.ARRAY,
                 description: '' + prompts.illustrationPlanCharactersDescription,
-                items: { type: SchemaType.STRING }
+                items: { type: Type.STRING }
               },
-              scene: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanSceneDescription },
-              composition: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanCompositionDescription },
-              camera: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanCameraDescription },
-              lighting: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanLightingDescription },
-              style: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanStyleDescription },
-              mood: { type: SchemaType.STRING, description: '' + prompts.illustrationPlanMoodDescription },
+              scene: { type: Type.STRING, description: '' + prompts.illustrationPlanSceneDescription },
+              composition: { type: Type.STRING, description: '' + prompts.illustrationPlanCompositionDescription },
+              camera: { type: Type.STRING, description: '' + prompts.illustrationPlanCameraDescription },
+              lighting: { type: Type.STRING, description: '' + prompts.illustrationPlanLightingDescription },
+              style: { type: Type.STRING, description: '' + prompts.illustrationPlanStyleDescription },
+              mood: { type: Type.STRING, description: '' + prompts.illustrationPlanMoodDescription },
               details: {
-                type: SchemaType.ARRAY,
+                type: Type.ARRAY,
                 description: '' + prompts.illustrationPlanDetailsDescription,
-                items: { type: SchemaType.STRING }
+                items: { type: Type.STRING }
               },
               mustKeep: {
-                type: SchemaType.ARRAY,
+                type: Type.ARRAY,
                 description: '' + prompts.illustrationPlanMustKeepDescription,
-                items: { type: SchemaType.STRING }
+                items: { type: Type.STRING }
               },
               avoid: {
-                type: SchemaType.ARRAY,
+                type: Type.ARRAY,
                 description: '' + prompts.illustrationPlanAvoidDescription,
-                items: { type: SchemaType.STRING }
+                items: { type: Type.STRING }
               },
               negativePrompt: {
-                type: SchemaType.ARRAY,
+                type: Type.ARRAY,
                 description: '' + prompts.illustrationPlanNegativePromptDescription,
-                items: { type: SchemaType.STRING }
+                items: { type: Type.STRING }
               }
             },
             required: ['subject', 'characters', 'scene', 'composition', 'camera', 'lighting', 'style', 'mood', 'details', 'mustKeep', 'avoid', 'negativePrompt']
@@ -231,24 +230,24 @@ export const translationOnlyResponseGeminiSchema: Schema = {
 };
 
 const proposalGeminiProperty: Schema = {
-  type: SchemaType.OBJECT,
+  type: Type.OBJECT,
   nullable: true,
   description: '' + prompts.proposalDescription,
   properties: {
-    kind: { type: SchemaType.STRING, description: 'Whether the amendment targets the system prompt or glossary.' },
-    observation: { type: SchemaType.STRING, description: '' + prompts.proposalObservationDescription },
-    currentRule: { type: SchemaType.STRING, description: '' + prompts.proposalCurrentRuleDescription },
-    proposedChange: { type: SchemaType.STRING, description: '' + prompts.proposalProposedChangeDescription },
-    reasoning: { type: SchemaType.STRING, description: '' + prompts.proposalReasoningDescription },
-    glossaryOperation: { type: SchemaType.STRING, description: 'Required when kind is glossary.' },
+    kind: { type: Type.STRING, description: 'Whether the amendment targets the system prompt or glossary.' },
+    observation: { type: Type.STRING, description: '' + prompts.proposalObservationDescription },
+    currentRule: { type: Type.STRING, description: '' + prompts.proposalCurrentRuleDescription },
+    proposedChange: { type: Type.STRING, description: '' + prompts.proposalProposedChangeDescription },
+    reasoning: { type: Type.STRING, description: '' + prompts.proposalReasoningDescription },
+    glossaryOperation: { type: Type.STRING, description: 'Required when kind is glossary.' },
     glossaryEntry: {
-      type: SchemaType.OBJECT,
+      type: Type.OBJECT,
       nullable: true,
       description: 'Required when kind is glossary. The concrete glossary row to add or replace.',
       properties: {
-        source: { type: SchemaType.STRING },
-        target: { type: SchemaType.STRING },
-        note: { type: SchemaType.STRING },
+        source: { type: Type.STRING },
+        target: { type: Type.STRING },
+        note: { type: Type.STRING },
       },
       required: ['source', 'target']
     }
@@ -257,7 +256,7 @@ const proposalGeminiProperty: Schema = {
 };
 
 export const proposalResponseGeminiSchema: Schema = {
-  type: SchemaType.OBJECT,
+  type: Type.OBJECT,
   properties: {
     proposal: proposalGeminiProperty,
   },
@@ -289,7 +288,7 @@ export function getTranslationResponseJsonSchema(enableAmendments: boolean = fal
  * based on enableAmendments setting
  */
 type GeminiObjectSchema = Schema & {
-  type: SchemaType.OBJECT;
+  type: Type.OBJECT;
   properties?: Record<string, Schema>;
   required?: string[];
 };

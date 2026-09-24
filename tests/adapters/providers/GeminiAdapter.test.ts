@@ -24,10 +24,8 @@ const usageMetadata = {
 };
 
 const makeResponse = (payload: object) => ({
-  response: {
-    text: () => JSON.stringify(payload),
-    usageMetadata,
-  },
+  text: JSON.stringify(payload),
+  usageMetadata,
 });
 
 const settings: AppSettings = createMockAppSettings({
@@ -63,24 +61,21 @@ describe('GeminiAdapter internals', () => {
 
   it('processResponse throws when response text is empty', async () => {
     const adapter = new GeminiAdapter() as any;
-    const response = {
-      response: {
-        text: () => '',
-        usageMetadata,
-      },
-    };
+    const response = { text: '', usageMetadata };
 
     await expect(adapter.processResponse(response, settings, 0, 0)).rejects.toThrow(/Empty response/);
   });
 
+  it('processResponse names the block reason when Gemini returns no text', async () => {
+    const adapter = new GeminiAdapter() as any;
+    const response = { text: undefined, usageMetadata, promptFeedback: { blockReason: 'SAFETY' } };
+
+    await expect(adapter.processResponse(response, settings, 0, 0)).rejects.toThrow('Empty response from Gemini API (SAFETY)');
+  });
+
   it('processResponse throws when JSON parsing fails', async () => {
     const adapter = new GeminiAdapter() as any;
-    const response = {
-      response: {
-        text: () => 'not json',
-        usageMetadata,
-      },
-    };
+    const response = { text: 'not json', usageMetadata };
 
     await expect(adapter.processResponse(response, settings, 0, 0)).rejects.toThrow(/Failed to parse JSON response/);
   });
