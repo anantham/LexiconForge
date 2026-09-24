@@ -41,8 +41,9 @@ describe('Text model cost calculation', () => {
   it('falls back for date-suffixed models', async () => {
     const prompt = 1000;
     const completion = 500;
-    const base = await calculateCost('gpt-5', prompt, completion);
-    const withSuffix = await calculateCost('gpt-5-2025-01-12', prompt, completion);
+    // gemini-2.5-flash has no dated entry of its own, so this exercises the fallback.
+    const base = await calculateCost('gemini-2.5-flash', prompt, completion);
+    const withSuffix = await calculateCost('gemini-2.5-flash-2025-06-17', prompt, completion);
     expect(withSuffix).toBeCloseTo(base, 8);
     expect(withSuffix).toBeGreaterThan(0);
   });
