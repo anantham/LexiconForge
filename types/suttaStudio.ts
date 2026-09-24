@@ -162,6 +162,10 @@ export type MorphHint = {
   /** 'du' (dual) added per §2.1 — rare in Pāli but real. */
   number?: 'sg' | 'du' | 'pl';
   gender?: 'm' | 'f' | 'n';
+  /** Syntactic function in this clause, distinct from the inflected case. */
+  function?: 'agent' | 'patient' | 'recipient' | 'instrument' | 'possessor' | 'location' | 'temporal_frame' | 'membership';
+  /** Curator explanation when a coarse function label needs qualification. */
+  semanticRole?: string;
   note?: string;
   // Verb morphology (§2.1). All optional, all L1.
   person?: '1' | '2' | '3';
@@ -407,9 +411,11 @@ export type EnglishToken = {
  */
 export type Span = {
   id: string;
-  kind: 'quoted_speech' | 'cited_phrase' | 'parenthetical';
+  kind: 'quoted_speech' | 'cited_phrase' | 'parenthetical' | 'formula' | 'refrain';
   startWordId: string;
   endWordId: string;
+  /** Phrase recurrence; separate from phase- or whole-work parallels. */
+  parallels?: ParallelRef[];
   note?: string;
 };
 
@@ -547,6 +553,8 @@ export type DeepLoomPacket = {
   canonicalSegments: CanonicalSegment[];
   phases: PhaseView[];
   citations: Citation[];
+  /** Whole-work parallels, stored once rather than repeated on every phase. */
+  workParallels?: ParallelRef[];
   /**
    * Chain-of-custody for the source text. Per FEATURES.md §2.6.
    * Long-term replaced by TextGraph references (`TEXT_GRAPH.md`).

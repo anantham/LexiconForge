@@ -28,6 +28,15 @@
  *     for the ≥2-phase rule.
  */
 
+const morphFunctionProperties = {
+  function: {
+    type: 'string',
+    enum: ['agent', 'patient', 'recipient', 'instrument', 'possessor', 'location', 'temporal_frame', 'membership'],
+    description: 'Syntactic function in this clause; keep morphological case separate.',
+  },
+  semanticRole: { type: 'string', description: 'Explanation qualifying the syntactic function.' },
+};
+
 export const skeletonResponseSchema = {
   type: 'object',
   properties: {
@@ -92,6 +101,7 @@ export const anatomistResponseSchema = {
           morph: {
             type: 'object',
             properties: {
+              ...morphFunctionProperties,
               case: { type: 'string', enum: ['gen', 'dat', 'loc', 'ins', 'acc', 'nom', 'voc'] },
               number: { type: 'string', enum: ['sg', 'pl'] },
               note: { type: 'string' },
@@ -327,6 +337,7 @@ export const phaseResponseSchema = {
                 morph: {
                   type: 'object',
                   properties: {
+                    ...morphFunctionProperties,
                     case: { type: 'string', enum: ['gen', 'dat', 'loc', 'ins', 'acc', 'nom', 'voc'] },
                     number: { type: 'string', enum: ['sg', 'pl'] },
                     note: { type: 'string' },
@@ -430,6 +441,7 @@ export const morphResponseSchema = {
                 morph: {
                   type: 'object',
                   properties: {
+                    ...morphFunctionProperties,
                     case: { type: 'string', enum: ['gen', 'dat', 'loc', 'ins', 'acc', 'nom', 'voc'] },
                     number: { type: 'string', enum: ['sg', 'pl'] },
                     note: { type: 'string' },
