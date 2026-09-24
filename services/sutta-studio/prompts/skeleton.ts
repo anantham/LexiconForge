@@ -16,7 +16,7 @@
 import type { CanonicalSegment } from '../../../types/suttaStudio';
 import { SUTTA_STUDIO_BASE_CONTEXT, SUTTA_STUDIO_SKELETON_CONTEXT } from '../../../config/suttaStudioPromptContext';
 import { SUTTA_STUDIO_SKELETON_EXAMPLE_JSON } from '../../../config/suttaStudioExamples';
-import { buildBoundaryContext, type BoundaryNote } from '../../compiler/utils';
+import { buildBoundaryContext, type BoundaryNote } from '../utils';
 
 export const buildSkeletonPrompt = (
   segments: CanonicalSegment[],

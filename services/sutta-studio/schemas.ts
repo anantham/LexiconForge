@@ -7,8 +7,8 @@
  *   - services/compiler/* (legacy orchestrator — until Phase 4 fully migrates it)
  *   - scripts/sutta-studio/* (benchmark, run-phase-experiment)
  *
- * Both legacy locations (services/compiler/schemas.ts and the schemas
- * section of services/suttaStudioPassPrompts.ts) now re-export from here.
+ * The legacy re-export shims (services/compiler/schemas.ts and
+ * services/suttaStudioPassPrompts.ts) are retired; callers import from here.
  *
  * History: these schemas were duplicated for months — one copy in each
  * legacy location, with the bench-side copy gaining wordRange + refrainId

@@ -4,7 +4,7 @@
  * Single source of truth for the LLM transport used by the Sutta Studio
  * compiler — provider resolution, structured-output plumbing, pipeline-log
  * telemetry. The two legacy locations (services/suttaStudioLLM.ts and
- * services/compiler/llm.ts) are now thin re-export shims that forward here.
+ * services/compiler/llm.ts) are retired; callers import from here directly.
  *
  * Historical note (Phase 3): the two legacy files had drifted — the bench-side
  * file exposed CompilerLLMOptions/CompilerLLMResult types and a providerPreferences

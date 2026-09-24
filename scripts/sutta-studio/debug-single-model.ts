@@ -104,7 +104,7 @@ async function main() {
 }
 
 async function runAnatomist(phase: any, settings: any, _runConfig: BenchmarkRun) {
-  const { runAnatomistPass } = await import('../../services/suttaStudioPassRunners');
+  const { runAnatomistPass } = await import('../../services/sutta-studio/passes');
 
   const segments = phase.paliWords.map((w: any, i: number) => ({
     pali: w.surface,
@@ -163,7 +163,7 @@ async function runAnatomist(phase: any, settings: any, _runConfig: BenchmarkRun)
 }
 
 async function runWeaver(phase: any, settings: any, _runConfig: BenchmarkRun) {
-  const { runWeaverPass } = await import('../../services/suttaStudioPassRunners');
+  const { runWeaverPass } = await import('../../services/sutta-studio/passes');
 
   // Weaver needs anatomist output - use phase data as approximate proxy.
   // Demo packet shapes don't exactly match pass output types, so we cast
@@ -240,7 +240,7 @@ async function runWeaver(phase: any, settings: any, _runConfig: BenchmarkRun) {
 }
 
 async function runLexicographer(phase: any, settings: any, _runConfig: BenchmarkRun) {
-  const { runLexicographerPass } = await import('../../services/suttaStudioPassRunners');
+  const { runLexicographerPass } = await import('../../services/sutta-studio/passes');
 
   const anatomist: AnatomistPass = {
     id: phaseId,

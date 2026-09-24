@@ -1,8 +1,8 @@
 import type { AppSettings } from '../../types';
 import type { CanonicalSegment } from '../../types/suttaStudio';
 import { logPipelineEvent } from '../suttaStudioPipelineLog';
-import { callCompilerLLM } from './llm';
-import { buildSkeletonPrompt } from './prompts';
+import { callCompilerLLMText } from '../sutta-studio/llm';
+import { buildSkeletonPrompt } from '../sutta-studio/prompts';
 import { skeletonResponseSchema } from '../sutta-studio/schemas';
 import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../sutta-studio/passBudgets';
 import {
@@ -10,7 +10,7 @@ import {
   parseJsonResponse,
   type BoundaryNote,
   type SkeletonPhase,
-} from './utils';
+} from '../sutta-studio/utils';
 
 const log = (message: string, ...args: any[]) =>
   console.log(`[SuttaStudioCompiler] ${message}`, ...args);
@@ -61,7 +61,7 @@ export const runSkeletonPass = async ({
         allowCrossChapter: Boolean(allowCrossChapter),
       });
       await throttle?.(signal);
-      const raw = await callCompilerLLM(
+      const raw = await callCompilerLLMText(
         settings,
         [
           { role: 'system', content: 'Return JSON only.' },

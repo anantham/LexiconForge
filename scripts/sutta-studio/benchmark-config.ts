@@ -1,6 +1,6 @@
 import type { AppSettings } from '../../types';
 import { getEnvVar } from '../../services/env';
-import type { PassName } from '../../services/suttaStudioPassRunners';
+import type { PassName } from '../../services/sutta-studio/passes';
 
 export type BenchmarkModel = {
   id: string;

@@ -1,6 +1,6 @@
 import { PROXIES } from '../scraping/proxy';
 import { logPipelineEvent } from '../suttaStudioPipelineLog';
-import { getTimeoutSignal } from './utils';
+import { getTimeoutSignal } from '../sutta-studio/utils';
 
 const log = (message: string, ...args: any[]) =>
   console.log(`[SuttaStudioCompiler] ${message}`, ...args);
