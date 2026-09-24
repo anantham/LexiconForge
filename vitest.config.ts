@@ -7,12 +7,9 @@ import { readFileSync } from 'node:fs'
 const policy = JSON.parse(readFileSync('config/coverage-policy.json', 'utf8'))
 // Aggregate ('global') baselines are deliberately NOT fed into thresholds:
 // with perFile:true Vitest compares them per-file, which cannot represent an
-// accepted full-surface total that legitimately includes 0% islands. They get
-// a separate report-parser once the CI baseline is accepted
-// (docs/infrastructure/COVERAGE-BASELINE.md). Guard until then:
-if (Object.values(policy.global ?? {}).some((v: number) => v > 0)) {
-  throw new Error('coverage-policy: positive global floors need the aggregate enforcement mechanism (not yet built); keep them 0')
-}
+// accepted full-surface total that legitimately includes 0% islands. The
+// validator enforces them against the summed report instead
+// (docs/infrastructure/COVERAGE-BASELINE.md).
 const perFileThresholds = Object.fromEntries(
   (policy.entries ?? []).map(e => [e.glob, { lines: e.lines, functions: e.functions }])
 )

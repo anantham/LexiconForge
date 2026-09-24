@@ -58,3 +58,11 @@ Rules:
   class); CI's Node 24 result remains authoritative for `verify:test`.
 - Later stages must not lower thresholds or hide failures to reach green
   (programme-level rule from the same review).
+
+## Amendment 2026-09-24 — aggregate coverage floors enforced
+
+The `unit-coverage` job now enforces whole-surface floors (lines 60, statements
+58, functions 59, branches 47) through `verify:coverage-policy`, which sums the
+measured report. The job name and npm contract are unchanged. Floors follow the
+existing rule: earned by tests and never lowered to reach green. Baseline and
+method: `docs/infrastructure/COVERAGE-BASELINE.md`.

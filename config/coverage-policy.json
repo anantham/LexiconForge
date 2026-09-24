@@ -3,15 +3,16 @@
     "Coverage policy \u2014 single source of truth (CI PR-2, CORE-013 programme).",
     "Consumed by vitest.config.ts (thresholds) and scripts/ci/validate-coverage-policy.mjs.",
     "Rules: floors are EARNED by tests, never lowered to reach green.",
-    "'global' is baseline-only (0) until the full-surface measurement from CI",
-    "is accepted; raising it is an ADR-noteworthy event."
+    "'global' floors apply to the summed whole-surface total and are enforced by",
+    "the validator (not Vitest). Accepted 2026-09-24 at the measured baseline,",
+    "rounded down; raising them is an ADR-noteworthy event (CORE-013)."
   ],
   "perFile": true,
   "global": {
-    "lines": 0,
-    "functions": 0,
-    "branches": 0,
-    "statements": 0
+    "lines": 60,
+    "functions": 59,
+    "branches": 47,
+    "statements": 58
   },
   "entries": [
     {
