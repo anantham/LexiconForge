@@ -53,7 +53,7 @@ describe('SettingsModal Sidebar Navigation', () => {
     let closed = 0;
     render(<SettingsModal isOpen={true} onClose={() => { closed += 1; }} />);
 
-    fireEvent.keyDown(window, { key: 'Escape' });
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
     expect(closed).toBe(1);
   });
 });

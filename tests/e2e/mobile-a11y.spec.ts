@@ -180,3 +180,71 @@ for (const scheme of ['light', 'dark'] as const) {
     });
   }
 }
+
+/**
+ * Keyboard behaviour of the modal dialogs (WAI-ARIA dialog pattern): axe cannot
+ * see it. Opening moves focus in, Tab and Shift+Tab stay inside, Escape closes
+ * and returns focus to the control that opened the dialog.
+ */
+const expectFocusTrappedIn = async (page: Page, dialogName: string) => {
+  const dialog = page.getByRole('dialog', { name: dialogName });
+  const focusInDialog = () => dialog.evaluate((el) => el.contains(document.activeElement));
+  expect(await focusInDialog()).toBe(true);
+  const stops = await dialog.evaluate((el) => el.querySelectorAll('button, a[href], input, select, textarea').length);
+  for (const key of ['Tab', 'Shift+Tab']) {
+    for (let i = 0; i <= stops; i++) {
+      await page.keyboard.press(key);
+      expect(await focusInDialog(), `${key} #${i + 1} left the dialog`).toBe(true);
+    }
+  }
+};
+
+const expectEscapeReturnsFocus = async (page: Page, dialogName: string, opener: ReturnType<Page['locator']>) => {
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: dialogName })).toHaveCount(0);
+  await expect(opener).toBeFocused();
+};
+
+test.describe('modal dialog keyboard behaviour', () => {
+  test.describe('iPad landscape with a keyboard', () => {
+    test.use({ viewport: DEVICES['iPad landscape'], hasTouch: true });
+
+    test('settings keeps focus inside and returns it on Escape', async ({ page }) => {
+      await openReader(page);
+      const opener = page.getByRole('button', { name: 'Settings' }).first();
+      await opener.focus();
+      await page.keyboard.press('Enter');
+      await page.getByRole('dialog', { name: 'Settings' }).waitFor();
+
+      await expectFocusTrappedIn(page, 'Settings');
+      await expectEscapeReturnsFocus(page, 'Settings', opener);
+    });
+  });
+
+  test.describe('phone portrait', () => {
+    test.use({ viewport: DEVICES['phone portrait'], hasTouch: true, isMobile: true });
+
+    test('settings keeps focus inside and returns it on Escape', async ({ page }) => {
+      await openReader(page);
+      const opener = page.getByRole('button', { name: 'Settings' }).first();
+      await opener.focus();
+      await page.keyboard.press('Enter');
+      await page.getByRole('dialog', { name: 'Settings' }).waitFor();
+
+      await expectFocusTrappedIn(page, 'Settings');
+      await expectEscapeReturnsFocus(page, 'Settings', opener);
+    });
+
+    test('version picker keeps focus inside and returns it on Escape', async ({ page }) => {
+      await openReader(page);
+      const opener = page.locator('button[aria-haspopup="dialog"]').filter({ hasText: 'synthetic-fixture' }).first();
+      await opener.waitFor();
+      await opener.focus();
+      await page.keyboard.press('Enter');
+      await page.getByRole('dialog', { name: 'Select Version' }).waitFor();
+
+      await expectFocusTrappedIn(page, 'Select Version');
+      await expectEscapeReturnsFocus(page, 'Select Version', opener);
+    });
+  });
+});

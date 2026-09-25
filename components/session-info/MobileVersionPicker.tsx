@@ -4,13 +4,14 @@
  * Extracted from SessionInfo.tsx for better separation of concerns.
  */
 
-import React, { useEffect } from 'react';
+import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
   formatVersionLabelShort,
   formatVersionLabelLong,
 } from '../../utils/versionFormatting';
 import type { TranslationVersion } from './VersionSelector';
+import { useModalDialog } from '../../hooks/useModalDialog';
 
 interface MobileVersionPickerProps {
   versions: TranslationVersion[];
@@ -33,14 +34,8 @@ export const MobileVersionPicker: React.FC<MobileVersionPickerProps> = ({
 }) => {
   const currentVersion = versions.find(v => v.version === selectedVersion);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, onClose]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalDialog(dialogRef, isOpen, onClose);
   const buttonLabel = currentVersion ? formatVersionLabelShort(currentVersion) : 'Select version';
 
   return (
@@ -62,9 +57,11 @@ export const MobileVersionPicker: React.FC<MobileVersionPickerProps> = ({
           onClick={onClose}
         >
           <div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="mobile-version-picker-title"
+            tabIndex={-1}
             className="bg-white dark:bg-gray-800 rounded-t-lg md:rounded-lg shadow-xl w-full md:max-w-md md:mx-4 max-h-[80dvh] flex flex-col pb-[env(safe-area-inset-bottom)]"
             onClick={e => e.stopPropagation()}
           >
