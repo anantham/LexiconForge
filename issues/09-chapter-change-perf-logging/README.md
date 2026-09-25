@@ -2,7 +2,7 @@
 
 > Status: **FIXED — closing gate met 2026-09-25** (race-lookup 2026-05-15; L1–L3 verified; real-novel L4/L5 not re-run) · Last updated: 2026-09-25
 >
-> **2026-09-25 closure:** `tests/e2e/chapter-change-perf.spec.ts` seeds four translated chapters through the app's session import and times three Next clicks to painted text: 47–80 ms across three dev-server runs (Chromium, no CPU throttle), against the 500 ms budget; 2 `console.log` lines per change (budget 2). A deliberately lowered budget fails the test.
+> **2026-09-25 closure:** `tests/e2e/chapter-change-perf.spec.ts` seeds four translated chapters through the app's session import and times three Next clicks to painted text against the 500 ms budget: 47–80 ms in single dev-server runs (Chromium, no CPU throttle); 53–382 ms with five parallel workers; 30–75 ms in an independent Node 24 review. It also allows at most 2 `console.log` lines per change, counting only logs timestamped in the page between the click and the paint, after startup has been quiet for 1 s. Both AutoTranslateMediator lines ('State change detected', 'Translation already cached') are the 2 attributed lines. The first version counted every log in the window and was flaky (review saw 4, 5 and 12 from late startup logs); an injected burst of late startup logs no longer affects the count. A deliberately lowered time budget fails the test.
 >
 > **Fix:** `services/db/repositories/TranslationRepository.ts:266-296` — replaced serial URL-then-stableId fallback with `Promise.any` race. Both paths fire in parallel; first non-empty wins. Eliminates the ~330ms wasted URL lookup that always returned 0 for stableId-migrated data. Also strips 7 console.log calls from the hot path (runtime side of issue #8).
 >
@@ -215,7 +215,7 @@ This issue closes as `fixed` only when:
 
 ## 10. Status
 
-`fixed` — closing gate met 2026-09-25. Seeded-fixture chapter changes paint in 47–80 ms (dev server, unthrottled); the 2026-09-05 throttled production probe measured a 222 ms cached median. Not re-measured: a large real novel, background tabs, physical devices. Note: Playwright e2e does not run in CI yet, so the perf spec is a local gate (`npx playwright test tests/e2e/chapter-change-perf.spec.ts`).
+`fixed` — closing gate met 2026-09-25. Seeded-fixture chapter changes paint in 47–80 ms (dev server, unthrottled; up to 382 ms with five parallel workers); the 2026-09-05 throttled production probe measured a 222 ms cached median. Not re-measured: a large real novel, background tabs, physical devices. Note: Playwright e2e does not run in CI yet, so the perf spec is a local gate (`npx playwright test tests/e2e/chapter-change-perf.spec.ts`).
 
 ## 11. Open questions
 
