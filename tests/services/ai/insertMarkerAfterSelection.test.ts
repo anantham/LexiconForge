@@ -9,50 +9,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-
-/**
- * Re-implementation of the marker insertion logic for testing.
- * This mirrors the logic in translationsSlice.ts generateIllustrationForSelection
- */
-function insertMarkerIntoHtml(translation: string, selection: string, marker: string): string {
-  const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-  // Create pattern that allows optional HTML tags between any characters
-  const selectionChars = selection.split('');
-  const htmlTagPattern = '(?:<[^>]*>)*';
-  const regexPattern = selectionChars
-    .map((char, i) => {
-      const escaped = escapeRegex(char);
-      return i < selectionChars.length - 1 ? escaped + htmlTagPattern : escaped;
-    })
-    .join('');
-
-  try {
-    const regex = new RegExp(`(${regexPattern})`, 'i');
-    const match = translation.match(regex);
-
-    if (match && match.index !== undefined) {
-      const matchEnd = match.index + match[0].length;
-      return (
-        translation.slice(0, matchEnd) +
-        ` ${marker}` +
-        translation.slice(matchEnd)
-      );
-    }
-
-    // Fallback: simple replace
-    const simpleUpdated = translation.replace(selection, `${selection} ${marker}`);
-    if (simpleUpdated !== translation) {
-      return simpleUpdated;
-    }
-
-    // Neither approach worked
-    return translation;
-  } catch {
-    // Regex error fallback
-    return translation.replace(selection, `${selection} ${marker}`);
-  }
-}
+import { insertMarkerAfterSelection } from '../../../services/ai/illustrationMarkers';
 
 describe('Illustration Marker Insertion', () => {
   const marker = '[ILLUSTRATION-1]';
@@ -62,7 +19,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = 'The knight raised his sword.';
       const selection = 'raised his sword';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toBe('The knight raised his sword [ILLUSTRATION-1].');
     });
@@ -71,7 +28,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = 'The battle was fierce.';
       const selection = 'The battle was fierce.';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toBe('The battle was fierce. [ILLUSTRATION-1]');
     });
@@ -80,7 +37,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = 'Warriors clashed in the dawn.';
       const selection = 'Warriors clashed';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toBe('Warriors clashed [ILLUSTRATION-1] in the dawn.');
     });
@@ -91,7 +48,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>The knight raised his sword.</p>';
       const selection = 'raised his sword';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toBe('<p>The knight raised his sword [ILLUSTRATION-1].</p>');
     });
@@ -100,7 +57,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>First paragraph.</p><p>Second paragraph with the scene.</p>';
       const selection = 'the scene';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('the scene [ILLUSTRATION-1]');
     });
@@ -109,7 +66,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<div><p>The warrior stood tall.</p></div>';
       const selection = 'stood tall';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toBe('<div><p>The warrior stood tall [ILLUSTRATION-1].</p></div>');
     });
@@ -120,7 +77,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>The <em>knight</em> raised his sword.</p>';
       const selection = 'The knight raised';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('[ILLUSTRATION-1]');
       // The marker should be inserted after "raised"
@@ -131,7 +88,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>A <strong>fierce</strong> battle ensued.</p>';
       const selection = 'A fierce battle';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('[ILLUSTRATION-1]');
     });
@@ -140,7 +97,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>The <span class="highlight">ancient</span> sword gleamed.</p>';
       const selection = 'The ancient sword';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('[ILLUSTRATION-1]');
     });
@@ -149,7 +106,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>The <em>brave</em> and <strong>noble</strong> knight.</p>';
       const selection = 'brave and noble knight';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('[ILLUSTRATION-1]');
     });
@@ -160,7 +117,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>The cost was $100 (or more).</p>';
       const selection = '$100 (or more)';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('[ILLUSTRATION-1]');
     });
@@ -169,7 +126,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>See [Chapter 1] for details.</p>';
       const selection = '[Chapter 1]';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('[ILLUSTRATION-1]');
     });
@@ -178,7 +135,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>*Note* this important point.</p>';
       const selection = '*Note*';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('[ILLUSTRATION-1]');
     });
@@ -189,7 +146,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>Completely different text.</p>';
       const selection = 'nonexistent text';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toBe(translation); // Unchanged
       expect(result).not.toContain('[ILLUSTRATION-1]');
@@ -199,7 +156,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>Some text here.</p>';
       const selection = '';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       // Empty selection matches at position 0
       expect(result).toContain('[ILLUSTRATION-1]');
@@ -209,7 +166,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>THE WARRIOR STOOD TALL.</p>';
       const selection = 'the warrior';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('[ILLUSTRATION-1]');
     });
@@ -218,7 +175,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>Line one.<br>Line two continues.</p>';
       const selection = 'Line one.';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('Line one. [ILLUSTRATION-1]');
     });
@@ -227,7 +184,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>Before<br/>after the break.</p>';
       const selection = 'Before';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('Before [ILLUSTRATION-1]');
     });
@@ -237,10 +194,10 @@ describe('Illustration Marker Insertion', () => {
     it('should insert different markers for different selections', () => {
       let translation = '<p>First scene here. Second scene there.</p>';
 
-      const result1 = insertMarkerIntoHtml(translation, 'First scene', '[ILLUSTRATION-1]');
+      const result1 = insertMarkerAfterSelection(translation, 'First scene', '[ILLUSTRATION-1]');
       expect(result1).toContain('First scene [ILLUSTRATION-1]');
 
-      const result2 = insertMarkerIntoHtml(result1, 'Second scene', '[ILLUSTRATION-2]');
+      const result2 = insertMarkerAfterSelection(result1, 'Second scene', '[ILLUSTRATION-2]');
       expect(result2).toContain('First scene [ILLUSTRATION-1]');
       expect(result2).toContain('Second scene [ILLUSTRATION-2]');
     });
@@ -253,7 +210,7 @@ describe('Illustration Marker Insertion', () => {
 <p>"You have proven yourself worthy," he declared.</p>`;
       const selection = 'The emperor nodded slowly';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('The emperor nodded slowly [ILLUSTRATION-1]');
     });
@@ -262,7 +219,7 @@ describe('Illustration Marker Insertion', () => {
       const translation = '<p>"I understand," she whispered, <i>her voice trembling</i>.</p>';
       const selection = 'her voice trembling';
 
-      const result = insertMarkerIntoHtml(translation, selection, marker);
+      const result = insertMarkerAfterSelection(translation, selection, marker);
 
       expect(result).toContain('[ILLUSTRATION-1]');
     });

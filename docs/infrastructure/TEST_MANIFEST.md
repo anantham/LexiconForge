@@ -278,7 +278,8 @@
 
 | File | Description |
 |------|-------------|
-| tests/store/slices/illustration-marker-insertion.test.ts | Illustration marker insertion tests |
+| tests/services/ai/insertMarkerAfterSelection.test.ts | HTML-aware illustration marker insertion (production function) |
+| tests/store/slices/generateIllustrationForSelection.test.ts | Illustration action: chapter mutation, no mutation on rejected planning |
 | tests/store/slices/jobsSlice.test.ts | Jobs slice unit tests |
 
 ### tests/store/

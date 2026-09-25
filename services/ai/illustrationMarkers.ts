@@ -28,3 +28,32 @@ export const findIllustrationMarkers = (text: string): string[] =>
 /** Count of illustration markers in `text`. */
 export const countIllustrationMarkers = (text: string): number =>
   findIllustrationMarkers(text).length;
+
+const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Insert ` ${marker}` right after the reader's `selection` in a translation.
+ *
+ * The selection is plain text from the rendered view while the translation is
+ * HTML, so tags may sit between any two characters ("The knight" must match
+ * "The <em>knight</em>"). Falls back to an exact replace; returns the input
+ * unchanged when the selection cannot be found.
+ */
+export const insertMarkerAfterSelection = (translation: string, selection: string, marker: string): string => {
+  const htmlTagPattern = '(?:<[^>]*>)*';
+  const chars = selection.split('');
+  const pattern = chars
+    .map((char, i) => (i < chars.length - 1 ? escapeRegex(char) + htmlTagPattern : escapeRegex(char)))
+    .join('');
+
+  try {
+    const match = translation.match(new RegExp(`(${pattern})`, 'i'));
+    if (match && match.index !== undefined) {
+      const end = match.index + match[0].length;
+      return `${translation.slice(0, end)} ${marker}${translation.slice(end)}`;
+    }
+  } catch {
+    // An unrepresentable selection falls through to the exact replace.
+  }
+  return translation.replace(selection, `${selection} ${marker}`);
+};
