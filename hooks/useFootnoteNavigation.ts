@@ -1,7 +1,7 @@
 import { RefObject, useEffect } from 'react';
 
 export const useFootnoteNavigation = (
-  viewRef: RefObject<HTMLDivElement>,
+  viewRef: RefObject<HTMLDivElement | null>,
   viewMode: 'original' | 'fan' | 'english',
   currentChapterId: string | null
 ) => {

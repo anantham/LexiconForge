@@ -17,8 +17,8 @@ interface ChapterContentProps {
   isGlobalLoading: boolean;
   isTranslating: boolean;
   isHydrating: boolean;
-  editableContainerRef: React.RefObject<HTMLDivElement>;
-  contentRef: React.RefObject<HTMLDivElement>;
+  editableContainerRef: React.RefObject<HTMLDivElement | null>;
+  contentRef: React.RefObject<HTMLDivElement | null>;
   isEditing: boolean;
   editedContent: string;
   onEditChange: (value: string) => void;

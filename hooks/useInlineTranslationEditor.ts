@@ -21,7 +21,7 @@ interface InlineEditorDeps {
   settings: AppSettings;
   showNotification?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
   resolveChunkElement: (node: Node | null) => HTMLElement | null;
-  editableContainerRef: RefObject<HTMLDivElement>;
+  editableContainerRef: RefObject<HTMLDivElement | null>;
 }
 
 const clearWindowSelection = () => {

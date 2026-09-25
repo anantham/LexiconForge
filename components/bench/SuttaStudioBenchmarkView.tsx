@@ -88,6 +88,7 @@ type LeaderboardEntry = {
   gateDamagedPhases?: number;
   contentSemantic: number | null;
   judgeModel: string | null;
+  selfJudge?: boolean; // judge is the same model; absent on older boards
   paliWordCoverage: number;
   // legacy v1 aggregates (may be absent on new boards)
   coverageScore?: number;

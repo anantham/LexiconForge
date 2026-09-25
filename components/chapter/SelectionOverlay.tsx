@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FeedbackItem } from '../../types';
+import type { SelectionFeedback } from '../../types';
 import FeedbackPopover from '../FeedbackPopover';
 import { MobileSelectionSheet } from './MobileSelectionSheet';
 
@@ -17,9 +17,9 @@ interface SelectionOverlayProps {
   comparisonLoading: boolean;
   beginInlineEdit: () => void;
   handleCompareRequest: () => void;
-  handleFeedbackSubmit: (_feedback: { type: FeedbackItem['type']; selection: string; comment?: string }) => void;
+  handleFeedbackSubmit: (feedback: SelectionFeedback) => void;
   clearSelection: () => void;
-  viewRef: React.RefObject<HTMLDivElement>;
+  viewRef: React.RefObject<HTMLDivElement | null>;
   onSelfInsert?: () => void | Promise<void>;
   enableSillyTavern?: boolean;
 }

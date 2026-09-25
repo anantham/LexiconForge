@@ -7,16 +7,10 @@
 
 import React from 'react';
 import appConfig from '../../config/app.json';
+import type { ParameterSupportState } from './SettingsModalContext';
 
-type ParameterSupportStatus = boolean | undefined;
-
-interface ParameterSupport {
-  temperature?: ParameterSupportStatus;
-  topP?: ParameterSupportStatus;
-  seed?: ParameterSupportStatus;
-  frequencyPenalty?: ParameterSupportStatus;
-  presencePenalty?: ParameterSupportStatus;
-}
+// null: not yet known for this model.
+type ParameterSupportStatus = boolean | null | undefined;
 
 interface TranslationParametersSectionProps {
   // Current values
@@ -31,7 +25,7 @@ interface TranslationParametersSectionProps {
   includeHistoricalFanTranslationsInContext: boolean;
 
   // Parameter support for current model
-  parameterSupport: ParameterSupport | undefined;
+  parameterSupport: ParameterSupportState | undefined;
 
   // Change handlers
   onTemperatureChange: (value: number) => void;

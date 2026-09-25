@@ -15,6 +15,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   cycle,
   ghostOpacity,
   showGhosts = true,
+  showCycleDots = true,
 }: {
   phaseId: string;
   structure: EnglishToken;
@@ -25,6 +26,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   cycle: (wordId: string) => void;
   ghostOpacity: number;
   showGhosts?: boolean;
+  showCycleDots?: boolean;
 }) {
   let content = structure.label ?? '';
   let isActive = false;
@@ -192,7 +194,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
           {content}
         </motion.span>
       </AnimatePresence>
-      {senseCount > 1 && !isGhost && (
+      {showCycleDots && senseCount > 1 && !isGhost && (
         // Subtler than full opacity — present-but-quiet by default; brightens
         // when the parent word is hovered. The dots are an affordance hint,
         // not a primary visual element.

@@ -8,7 +8,7 @@ interface MarkerPosition {
 
 interface InlineCommentMarkersProps {
   feedback: FeedbackItem[];
-  contentRef: React.RefObject<HTMLDivElement>;
+  contentRef: React.RefObject<HTMLDivElement | null>;
   onScrollToText: (text: string) => void;
 }
 

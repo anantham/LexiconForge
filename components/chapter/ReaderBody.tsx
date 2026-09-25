@@ -11,10 +11,11 @@ import InterleavedReader from './InterleavedReader';
 import AudioPlayer from '../AudioPlayer';
 import { useAppStore } from '../../store';
 import { alignWords } from '../../services/wordAlignment';
-import type { Chapter, FeedbackItem } from '../../types';
+import type { FeedbackItem, SelectionFeedback } from '../../types';
+import type { EnhancedChapter } from '../../services/stableIdService';
 
 interface ReaderBodyProps {
-  chapter: Chapter | null;
+  chapter: EnhancedChapter | null;
   viewMode: 'original' | 'fan' | 'english';
   translationResult: any;
   feedbackForChapter: FeedbackItem[];
@@ -25,9 +26,9 @@ interface ReaderBodyProps {
   comparisonLoading: boolean;
   beginInlineEdit: () => void;
   handleCompareRequest: () => void;
-  handleFeedbackSubmit: (feedback: { type: FeedbackItem['type']; selection: string; comment?: string }) => void;
+  handleFeedbackSubmit: (feedback: SelectionFeedback) => void;
   clearSelection: () => void;
-  viewRef: React.RefObject<HTMLDivElement>;
+  viewRef: React.RefObject<HTMLDivElement | null>;
   chapterContentProps: React.ComponentProps<typeof ChapterContent>;
   comparisonPortalProps: Omit<React.ComponentProps<typeof ComparisonPortal>, 'viewMode'>;
   footerProps: React.ComponentProps<typeof FooterNavigation>;

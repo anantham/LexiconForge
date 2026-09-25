@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import type { FeedbackItem } from '../types';
+import type { FeedbackItem, SelectionFeedback } from '../types';
 import { useAppStore } from '../store';
 
 interface FeedbackSubmission extends Omit<FeedbackItem, 'id' | 'timestamp' | 'chapterId'> {}
@@ -37,7 +37,7 @@ export const useFeedbackActions = ({
   }, []);
 
   const handleFeedbackSubmit = useCallback(
-    (feedback: { type: FeedbackItem['type']; selection: string; comment?: string }) => {
+    (feedback: SelectionFeedback) => {
       if (!currentChapterId) return;
       if (feedback.type === '🎨') {
         handleIllustrationRequest(feedback.selection);
