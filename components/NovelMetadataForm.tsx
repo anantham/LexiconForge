@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import type { NovelMetadata } from '../types/novel';
 
+type PublicationStatus = NonNullable<NovelMetadata['publicationStatus']>;
+
 // Extended metadata interface that includes title, alternate titles, and version info
 interface NovelMetadataFormData extends NovelMetadata {
   title?: string;
@@ -31,7 +33,7 @@ export function NovelMetadataForm({ initialData, onChange }: NovelMetadataFormPr
     originalLanguage: initialData?.originalLanguage || '',
     genres: initialData?.genres?.join(', ') || '',
     tags: initialData?.tags?.join(', ') || '',
-    publicationStatus: initialData?.publicationStatus || 'Ongoing',
+    publicationStatus: (initialData?.publicationStatus || 'Ongoing') as PublicationStatus,
     originalPublicationDate: initialData?.originalPublicationDate || '',
     coverImageUrl: initialData?.coverImageUrl || '',
     chapterCount: initialData?.chapterCount?.toString() || '',
@@ -74,7 +76,7 @@ export function NovelMetadataForm({ initialData, onChange }: NovelMetadataFormPr
       description: formData.description,
       author: formData.author,
       coverImageUrl: formData.coverImageUrl || undefined,
-      publicationStatus: formData.publicationStatus as any,
+      publicationStatus: formData.publicationStatus,
       originalPublicationDate: formData.originalPublicationDate || undefined,
       // Empty field ⇒ undefined; the sole consumer (normalizeMetadataDefaults)
       // coerces a missing/non-finite count to a fallback, so we intentionally
@@ -321,7 +323,7 @@ export function NovelMetadataForm({ initialData, onChange }: NovelMetadataFormPr
             <select
               id="publicationStatus"
               value={formData.publicationStatus}
-              onChange={(e) => setFormData({ ...formData, publicationStatus: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, publicationStatus: e.target.value as PublicationStatus })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
             >
               <option value="Ongoing">Ongoing</option>

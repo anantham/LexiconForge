@@ -73,7 +73,6 @@ const ChapterView: React.FC = () => {
   const handleRetranslateCurrent = useAppStore(s => s.handleRetranslateCurrent);
   const cancelTranslation = useAppStore(s => s.cancelTranslation);
   const isTranslationActive = useAppStore(s => s.isTranslationActive);
-  const shouldEnableRetranslation = useAppStore(s => s.shouldEnableRetranslation);
   const imageGenerationMetrics = useAppStore(s => s.imageGenerationMetrics);
   const hydratingMap = useAppStore(s => s.hydratingChapters);
   const chapterAudioMap = useAppStore(s => s.chapterAudioMap);
@@ -84,7 +83,7 @@ const ChapterView: React.FC = () => {
   const handleTranslate = useAppStore(s => s.handleTranslate);
   const pendingTranslations = useAppStore(s => s.pendingTranslations);
   const editableContainerRef = useRef<HTMLDivElement>(null);
-    const chapter = currentChapterId ? chapters.get(currentChapterId) : null;
+    const chapter = (currentChapterId && chapters.get(currentChapterId)) || null;
   const translationResult = chapter?.translationResult;
   const feedbackForChapter = chapter?.feedback ?? [];
   const fanTranslation = (chapter as any)?.fanTranslation as string | undefined;
@@ -104,7 +103,6 @@ const ChapterView: React.FC = () => {
     feedbackCount: feedbackForChapter.length,
   });
 
-  const retranslateSettingsChanged = currentChapterId ? shouldEnableRetranslation(currentChapterId) : false;
   // Subscribe to activeTranslations state for reactive updates
   const activeTranslations = useAppStore(s => s.activeTranslations);
   const isRetranslationActive = currentChapterId ? (currentChapterId in activeTranslations || isTranslationActive(currentChapterId)) : false;
@@ -481,6 +479,8 @@ const ChapterView: React.FC = () => {
 
   useFootnoteNavigation(viewRef, viewMode, currentChapterId);
 
+  const prevUrl = chapter?.prevUrl;
+  const nextUrl = chapter?.nextUrl;
   const headerProps = {
     title: displayTitle,
     novelTitle,
@@ -492,8 +492,8 @@ const ChapterView: React.FC = () => {
     suttaStudioUrl,
     onToggleLanguage: handleToggleLanguage,
     onOpenLibrary: () => shelveActiveNovel(),
-    onNavigatePrev: chapter?.prevUrl ? () => handleNavigate(chapter.prevUrl) : undefined,
-    onNavigateNext: chapter?.nextUrl ? () => handleNavigate(chapter.nextUrl) : undefined,
+    onNavigatePrev: prevUrl ? () => handleNavigate(prevUrl) : undefined,
+    onNavigateNext: nextUrl ? () => handleNavigate(nextUrl) : undefined,
     prevDisabled: !chapter?.prevUrl || isLoading.fetching,
     nextDisabled: !chapter?.nextUrl || isLoading.fetching,
     showRetranslateButton: viewMode === 'english',
@@ -503,13 +503,9 @@ const ChapterView: React.FC = () => {
   };
 
   const statusProps = {
-    currentChapterId,
     viewMode,
     isLoading: isLoading.fetching,
     isTranslating: translationInProgress,
-    canManualRetranslate,
-    retranslateSettingsChanged,
-    isRetranslationActive,
     providerLabel: settings.provider,
     modelLabel: settings.model,
     usageMetrics: translationResult?.usageMetrics ?? null,

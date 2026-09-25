@@ -1,17 +1,12 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import TranslationStatusPanel from '../../../components/chapter/TranslationStatusPanel';
 
 const createProps = () => ({
-  currentChapterId: 'c1',
   viewMode: 'english' as const,
   isLoading: false,
   isTranslating: false,
-  canManualRetranslate: true,
-  retranslateSettingsChanged: false,
-  isRetranslationActive: false,
-  onRetranslateClick: vi.fn(),
   providerLabel: 'OpenAI',
   modelLabel: 'gpt-4o',
   usageMetrics: {
@@ -25,6 +20,7 @@ const createProps = () => ({
   } as any,
   showUsageMetrics: true,
   imageMetrics: {
+    chapterId: 'c1',
     count: 2,
     totalTime: 1.1,
     totalCost: 0.5,

@@ -2,11 +2,11 @@ import React from 'react';
 import ChapterHeader from './ChapterHeader';
 import TranslationStatusPanel from './TranslationStatusPanel';
 import ReaderBody from './ReaderBody';
-import type { Chapter } from '../../types';
+import type { EnhancedChapter } from '../../services/stableIdService';
 
 interface ReaderViewProps {
-  viewRef: React.RefObject<HTMLDivElement>;
-  chapter: Chapter | null;
+  viewRef: React.RefObject<HTMLDivElement | null>;
+  chapter: EnhancedChapter | null;
   headerProps: React.ComponentProps<typeof ChapterHeader>;
   statusProps: React.ComponentProps<typeof TranslationStatusPanel>;
   bodyProps: React.ComponentProps<typeof ReaderBody>;

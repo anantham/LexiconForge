@@ -21,7 +21,7 @@ interface Selection {
   rect: DOMRect;
 }
 
-export const useTextSelection = (ref: RefObject<HTMLElement>) => {
+export const useTextSelection = (ref: RefObject<HTMLElement | null>) => {
   const [selection, setSelection] = useState<Selection | null>(null);
 
   // Helpers

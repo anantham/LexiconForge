@@ -254,7 +254,8 @@ export const PublishWizard: React.FC<PublishWizardProps> = ({
                 Existing Book Found
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                <strong>{existingMetadata.title}</strong> by {existingMetadata.author}
+                <strong>{existingMetadata.title}</strong>
+                {existingMetadata.metadata.author && <> by {existingMetadata.metadata.author}</>}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
                 What would you like to do?

@@ -2,8 +2,9 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import ReaderFeedbackPanel from '../../../components/chapter/ReaderFeedbackPanel';
+import type { FeedbackItem } from '../../../types';
 
-const feedback = [
+const feedback: FeedbackItem[] = [
   { id: '1', type: '👍', selection: 'Line A', comment: 'Nice!', chapterId: 'c1', timestamp: 0, text: '', category: '' },
 ];
 

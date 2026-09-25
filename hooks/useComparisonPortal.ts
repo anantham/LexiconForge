@@ -24,7 +24,7 @@ interface UseComparisonPortalDeps {
   showNotification?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
   resolveChunkElement: (node: Node | null) => HTMLElement | null;
   repairedTranslation: string;
-  contentRef: RefObject<HTMLDivElement>;
+  contentRef: RefObject<HTMLDivElement | null>;
   clearSelection: () => void;
 }
 

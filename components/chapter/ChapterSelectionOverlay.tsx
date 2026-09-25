@@ -1,5 +1,6 @@
 import React from 'react';
 import { SelectionOverlay } from './SelectionOverlay';
+import type { SelectionFeedback } from '../../types';
 
 interface Props {
   selection: { text: string; rect: DOMRect } | null;
@@ -10,9 +11,9 @@ interface Props {
   comparisonLoading: boolean;
   beginInlineEdit: () => void;
   handleCompareRequest: () => void;
-  handleFeedbackSubmit: (feedback: { type: string; selection: string; comment?: string }) => void;
+  handleFeedbackSubmit: (feedback: SelectionFeedback) => void;
   clearSelection: () => void;
-  viewRef: React.RefObject<HTMLDivElement>;
+  viewRef: React.RefObject<HTMLDivElement | null>;
   onSelfInsert?: () => void;
   enableSillyTavern?: boolean;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FeedbackItem } from '../types';
+import type { SelectionFeedback } from '../types';
 import ThumbsUpIcon from './icons/ThumbsUpIcon';
 import ThumbsDownIcon from './icons/ThumbsDownIcon';
 import QuestionMarkIcon from './icons/QuestionMarkIcon';
@@ -12,8 +12,8 @@ import { debugLog } from '../utils/debug';
 interface FeedbackPopoverProps {
   selectionText: string;
   position: DOMRect;
-  positioningParentRef: React.RefObject<HTMLElement>;
-  onFeedback: (feedback: Omit<FeedbackItem, 'id'>) => void;
+  positioningParentRef: React.RefObject<HTMLElement | null>;
+  onFeedback: (feedback: SelectionFeedback) => void;
   onEdit: () => void;
   onCompare: () => void;
   canCompare: boolean;

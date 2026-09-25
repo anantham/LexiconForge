@@ -72,7 +72,15 @@ export interface FeedbackItem {
   chapterId: string;
   // Legacy fields for backward compatibility
   selection?: string;
-  type?: '👍' | '👎' | '?' | '🎨';
+  // ❤️ and 😂 come from the mobile selection sheet; they persist as 'suggestion'.
+  type?: '👍' | '👎' | '?' | '🎨' | '❤️' | '😂';
+  comment?: string;
+}
+
+/** What the selection UI reports when a reader reacts to highlighted text. */
+export interface SelectionFeedback {
+  type: FeedbackItem['type'];
+  selection: string;
   comment?: string;
 }
 

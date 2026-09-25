@@ -77,7 +77,7 @@ const AdvancedImageControls: React.FC<AdvancedImageControlsProps> = ({
           {/* Steering Image */}
           <div className="pt-3">
             <SteeringImageDropdown
-              value={selectedSteeringImage}
+              value={selectedSteeringImage ?? undefined}
               onChange={onSteeringImageChange}
             />
           </div>

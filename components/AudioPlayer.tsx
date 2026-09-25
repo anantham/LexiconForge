@@ -94,8 +94,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ chapterId, isVisible }) => {
     setTempSeekTime(newTime);
   };
   
-  const handleSeekEnd = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTime = parseFloat(e.target.value);
+  const handleSeekEnd = (e: React.MouseEvent<HTMLInputElement>) => {
+    const newTime = parseFloat(e.currentTarget.value);
     setIsDragging(false);
     setTempSeekTime(null);
 

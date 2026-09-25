@@ -12,7 +12,7 @@ export function useScrollProgress(
 ) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visible, setVisible] = useState(false);
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Track which phase sections are intersecting
   useEffect(() => {

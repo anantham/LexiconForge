@@ -29,7 +29,7 @@ const FootnotesPanel: React.FC<FootnotesPanelProps> = ({ chapterId, footnotes })
               className="text-gray-600 dark:text-gray-400"
             >
               {rendered.nodes.map((node, idx) => {
-                if (React.isValidElement(node)) {
+                if (React.isValidElement<Record<string, unknown>>(node)) {
                   const props: Record<string, any> = {
                     key: node.key ?? `${baseId}-node-${idx}`,
                   };
