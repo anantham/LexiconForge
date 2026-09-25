@@ -5,11 +5,14 @@ import { EnglishWordEngine } from '../../../components/sutta-studio/EnglishWord'
 import type { PaliWord } from '../../../types/suttaStudio';
 
 // A Pāli word with two senses: the English token linked to it gets one dot per sense.
-const paliWords = [{
+const paliWords: PaliWord[] = [{
   id: 'w1',
   segments: [],
-  senses: [{ english: 'thus' }, { english: 'in this way' }],
-}] as unknown as PaliWord[];
+  senses: [
+    { english: 'thus', nuance: 'manner of speaking' },
+    { english: 'in this way', nuance: 'manner of acting' },
+  ],
+}];
 
 const renderWord = (showCycleDots?: boolean) => render(
   <EnglishWordEngine
