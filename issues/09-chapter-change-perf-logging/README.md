@@ -1,13 +1,15 @@
 # Issue 9 — Chapter-change is slow — instrument and identify causes
 
-> Status: **FIX-IN-PLACE 2026-05-15** (race-lookup; L1+L2 verified, L3 deferred) · Last updated: 2026-05-15 · Investigator: Claude Opus 4.7 (1M)
+> Status: **FIXED — closing gate met 2026-09-25** (race-lookup 2026-05-15; L1–L3 verified; real-novel L4/L5 not re-run) · Last updated: 2026-09-25
+>
+> **2026-09-25 closure:** `tests/e2e/chapter-change-perf.spec.ts` seeds four translated chapters through the app's session import and times three Next clicks to painted text: 47–80 ms across three dev-server runs (Chromium, no CPU throttle), against the 500 ms budget; 2 `console.log` lines per change (budget 2). A deliberately lowered budget fails the test.
 >
 > **Fix:** `services/db/repositories/TranslationRepository.ts:266-296` — replaced serial URL-then-stableId fallback with `Promise.any` race. Both paths fire in parallel; first non-empty wins. Eliminates the ~330ms wasted URL lookup that always returned 0 for stableId-migrated data. Also strips 7 console.log calls from the hot path (runtime side of issue #8).
 >
 > **Verification ladder (§6a) achieved:**
 > - [x] L1 Static — confidence 0.95 (empirical trace `traces/ch1-to-ch2-timeline.txt` shows 574ms transition, 958ms data resolved; the URL fallback at 630-897ms is the waste)
 > - [x] L2 Unit-mechanical — 6 tests at `tests/services/db/TranslationRepository.raceLookup.test.ts`. Critical parallelism test FAILS on pre-fix serial code (verified via git stash); all 6 PASS post-fix.
-> - [ ] L3 Programmatic data-path — DEFERRED (Playwright cold-boot timing measurement; the original empirical trace at `traces/ch1-to-ch2-timeline.txt` was pre-fix evidence)
+> - [x] L3 Programmatic data-path — `tests/e2e/chapter-change-perf.spec.ts` (2026-09-25)
 > - [ ] L4 Real-event chain — DEFERRED (re-run the original chapter-change-timing instrumentation to confirm 574ms → expected <300ms)
 > - [ ] L5 User-driven manual — DEFERRED
 >
@@ -206,14 +208,14 @@ Gate the 9 navigation logs behind `DEBUG_NAV` flag. Defer until issue #8's ADR-0
 
 This issue closes as `fixed` only when:
 
-- [ ] `TranslationRepository.getTranslationVersionsByStableId` races the two paths (Promise.any).
-- [ ] Playwright perf test: chapter-change h1-mutation ≤ 500ms passes on seeded IDB.
-- [ ] All three regression tests from §6 written and passing.
-- [ ] Comment in perf test links to CORE-006's `< 500ms feature-loading` SLO statement (per template's `enforce_existing_ADR` requirement).
+- [x] `TranslationRepository.getTranslationVersionsByStableId` races the two paths (Promise.any).
+- [x] Playwright perf test: chapter-change paint ≤ 500ms passes on seeded IDB (`tests/e2e/chapter-change-perf.spec.ts`; measures painted translation text rather than the H1 alone).
+- [x] All three regression tests from §6 written and passing: the perf test above, `tests/services/db/TranslationRepository.raceLookup.test.ts` (parallel lookup), and the console budget, asserted in the same perf spec rather than a separate file.
+- [x] Comment in perf test links to CORE-006's `featureLoading: '< 500ms from trigger'` statement.
 
 ## 10. Status
 
-`investigated` — compound action `enforce_existing_ADR` + `fix_local`. Empirically measured at 574ms (target <500ms). Race-fix should close the gap with margin.
+`fixed` — closing gate met 2026-09-25. Seeded-fixture chapter changes paint in 47–80 ms (dev server, unthrottled); the 2026-09-05 throttled production probe measured a 222 ms cached median. Not re-measured: a large real novel, background tabs, physical devices. Note: Playwright e2e does not run in CI yet, so the perf spec is a local gate (`npx playwright test tests/e2e/chapter-change-perf.spec.ts`).
 
 ## 11. Open questions
 
