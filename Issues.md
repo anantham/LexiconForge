@@ -273,7 +273,7 @@ These are scoped follow-ups, not permission for a repository-wide rewrite. Claim
 - **Done when:** Delete the fixed title or read a verified title from the packet; do not infer a title from the ID. Check two different packets and a packet without title metadata.
 ### TEST-01 — Replace copied illustration-marker tests with production-path coverage
 
-- **Status:** Open; unclaimed.
+- **Status:** Fixed 2026-09-25 (branch `claude/test01-illustration-markers`). The insertion logic moved from `generateIllustrationForSelection` into `insertMarkerAfterSelection` in `services/ai/illustrationMarkers.ts`; the action calls it. The 21 existing cases now import it (`tests/services/ai/insertMarkerAfterSelection.test.ts`) and pass unchanged. `tests/store/slices/generateIllustrationForSelection.test.ts` runs the real action: marker + illustration entry on success, no chapter mutation or persistence when planning is rejected (fails if the action stops inserting).
 - **Evidence:** `tests/store/slices/illustration-marker-insertion.test.ts:14` implements its own `insertMarkerIntoHtml` and all assertions exercise that copy. It cannot detect changes to `store/slices/translationsSlice.ts`'s real action.
 - **Done when:** Remove the duplicated test implementation; retain only useful cases against the real action or a justified shared production function. Check actual chapter mutation and no mutation on rejected planning; do not add a wrapper solely to satisfy test counts.
 
