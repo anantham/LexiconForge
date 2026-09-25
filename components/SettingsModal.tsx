@@ -169,6 +169,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  // Escape closes the dialog like Cancel (keyboard users, including iPad keyboards).
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleCancel = () => {
@@ -184,9 +194,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-2 sm:p-4" onClick={handleCancel}>
-      <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md sm:max-w-2xl lg:max-w-3xl max-h-[95vh] sm:max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-modal-title"
+        className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md sm:max-w-2xl lg:max-w-3xl max-h-[95dvh] sm:max-h-[90dvh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         <header className="px-6 sm:px-8 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h2 id="settings-modal-title" className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
             Settings
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -195,7 +211,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         </header>
 
         <SettingsModalProvider value={modalContextValue}>
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-col sm:flex-row flex-1 min-h-0 overflow-hidden">
             <SettingsSidebar
               sections={sidebarSections}
               activeItem={activePanel}

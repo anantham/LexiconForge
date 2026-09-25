@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+/*
+ * Touch screens (phones, iPads without a trackpad): iOS Safari zooms the page
+ * into any focused text field smaller than 16px and leaves it zoomed. Unlayered
+ * so it wins over Tailwind's text-sm/text-xs utilities on form fields.
+ */
+@media (pointer: coarse) {
+  input:not([type='range']):not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  /* 44px minimum touch target (Apple HIG) for single-line fields. */
+  input:not([type='range']):not([type='checkbox']):not([type='radio']):not([type='file']),
+  select {
+    min-height: 44px;
+  }
+}

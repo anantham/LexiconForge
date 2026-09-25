@@ -39,7 +39,7 @@ const FootnotesPanel: React.FC<FootnotesPanelProps> = ({ chapterId, footnotes })
                 }
                 return node;
               })}{' '}
-              <a href={`#footnote-ref-${normalizedMarker}`} className="text-blue-500 hover:underline">
+              <a href={`#footnote-ref-${normalizedMarker}`} className="text-blue-700 dark:text-blue-400 hover:underline">
                 ↑
               </a>
             </li>

@@ -76,7 +76,7 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
           <div>
             <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
               Temperature:{' '}
-              <span className="font-bold text-blue-500 mx-1">{temperature}</span>
+              <span className="font-bold text-blue-700 dark:text-blue-400 mx-1">{temperature}</span>
               <SupportIndicator support={parameterSupport?.temperature} />
             </label>
             <input
@@ -95,7 +95,7 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
           <div>
             <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
               Top P:{' '}
-              <span className="font-bold text-blue-500 mx-1">{topP}</span>
+              <span className="font-bold text-blue-700 dark:text-blue-400 mx-1">{topP}</span>
               <SupportIndicator support={parameterSupport?.topP} />
             </label>
             <input
@@ -136,7 +136,7 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
           <div>
             <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
               Frequency Penalty:{' '}
-              <span className="font-bold text-blue-500 mx-1">{frequencyPenalty}</span>
+              <span className="font-bold text-blue-700 dark:text-blue-400 mx-1">{frequencyPenalty}</span>
               <SupportIndicator support={parameterSupport?.frequencyPenalty} />
             </label>
             <input
@@ -156,7 +156,7 @@ export const TranslationParametersSection: React.FC<TranslationParametersSection
           <div>
             <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
               Presence Penalty:{' '}
-              <span className="font-bold text-blue-500 mx-1">{presencePenalty}</span>
+              <span className="font-bold text-blue-700 dark:text-blue-400 mx-1">{presencePenalty}</span>
               <SupportIndicator support={parameterSupport?.presencePenalty} />
             </label>
             <input
