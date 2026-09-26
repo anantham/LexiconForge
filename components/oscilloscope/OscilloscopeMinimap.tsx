@@ -10,7 +10,7 @@ import React, { useRef, useEffect, useMemo } from 'react';
 import { useAppStore } from '../../store';
 import type { ThreadData } from '../../types/oscilloscope';
 
-const MINIMAP_HEIGHT = 40;
+const MINIMAP_HEIGHT = 44; // minimum touch target height
 
 const OscilloscopeMinimap: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -138,7 +138,7 @@ const OscilloscopeMinimap: React.FC = () => {
     ctx.fillStyle = '#6b7280';
     ctx.font = '10px Inter, sans-serif';
     ctx.textAlign = 'right';
-    ctx.fillText('Click to expand', width - padding - 4, height - 6);
+    ctx.fillText('Expand', width - padding - 4, height - 6);
   }, [prominentThread, totalChapters, currentChapterNumber]);
 
   // Handle resize
@@ -157,14 +157,22 @@ const OscilloscopeMinimap: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
+  // The canvas is decorative; the button carries the text for screen readers
+  // and keyboard users.
+  const label = prominentThread
+    ? `Semantic oscilloscope: ${prominentThread.label}. Expand graph`
+    : 'Semantic oscilloscope: no data yet. Expand graph';
+
   return (
-    <div
+    <button
+      type="button"
       onClick={() => setExpanded(true)}
-      className="cursor-pointer hover:opacity-90 transition-opacity"
+      aria-label={label}
+      className="block w-full cursor-pointer hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400"
       style={{ height: MINIMAP_HEIGHT }}
     >
-      <canvas ref={canvasRef} />
-    </div>
+      <canvas ref={canvasRef} aria-hidden="true" />
+    </button>
   );
 };
 

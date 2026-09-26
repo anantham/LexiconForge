@@ -1,32 +1,34 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import SettingsModal from '../../components/SettingsModal';
+
+const sidebar = () => within(screen.getByRole('navigation', { name: 'Settings sections' }));
 
 describe('SettingsModal Sidebar Navigation', () => {
   it('should render all sidebar sections and items', () => {
     render(<SettingsModal isOpen={true} onClose={() => {}} />);
 
-    // Check for sidebar section headers (Settings appears twice - header + sidebar)
-    expect(screen.getAllByText('Settings').length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByText('Features')).toBeInTheDocument();
-    expect(screen.getByText('Workspace')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Settings' })).toBeInTheDocument();
+    expect(sidebar().getByText('Settings')).toBeInTheDocument();
+    expect(sidebar().getByText('Features')).toBeInTheDocument();
+    expect(sidebar().getByText('Workspace')).toBeInTheDocument();
 
     // Check for sidebar items
-    expect(screen.getByText('Providers')).toBeInTheDocument();
-    expect(screen.getByText('Prompt')).toBeInTheDocument();
-    expect(screen.getByText('Advanced')).toBeInTheDocument();
-    expect(screen.getByText('Display')).toBeInTheDocument();
+    expect(sidebar().getByText('Providers')).toBeInTheDocument();
+    expect(sidebar().getByText('Prompt')).toBeInTheDocument();
+    expect(sidebar().getByText('Advanced')).toBeInTheDocument();
+    expect(sidebar().getByText('Display')).toBeInTheDocument();
     // Audio is hidden when enableAudio is false (default)
     expect(screen.queryByText('Audio')).not.toBeInTheDocument();
-    expect(screen.getByText('Templates')).toBeInTheDocument();
-    expect(screen.getByText('Metadata')).toBeInTheDocument();
-    expect(screen.getByText('Gallery')).toBeInTheDocument();
+    expect(sidebar().getByText('Templates')).toBeInTheDocument();
+    expect(sidebar().getByText('Metadata')).toBeInTheDocument();
+    expect(sidebar().getByText('Gallery')).toBeInTheDocument();
   });
 
   it('should switch to Metadata panel on click', () => {
     render(<SettingsModal isOpen={true} onClose={() => {}} />);
 
-    const metadataItem = screen.getByText('Metadata');
+    const metadataItem = sidebar().getByRole('button', { name: 'Metadata' });
     fireEvent.click(metadataItem);
 
     // Should show metadata form header
@@ -38,12 +40,20 @@ describe('SettingsModal Sidebar Navigation', () => {
     render(<SettingsModal isOpen={true} onClose={() => {}} />);
 
     // Find and click the Export item in the sidebar
-    const exportItems = screen.getAllByText('Export');
+    const exportItems = sidebar().getAllByText('Export');
     // Second one is the sidebar item (first is section header)
     fireEvent.click(exportItems[1]);
 
     // Check for current button text
     expect(screen.getByText('Quick Export (Session Only)')).toBeInTheDocument();
     expect(screen.getByText('Publish to Library')).toBeInTheDocument();
+  });
+
+  it('closes on Escape like Cancel', () => {
+    let closed = 0;
+    render(<SettingsModal isOpen={true} onClose={() => { closed += 1; }} />);
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    expect(closed).toBe(1);
   });
 });

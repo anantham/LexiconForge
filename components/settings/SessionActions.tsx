@@ -51,13 +51,13 @@ const SessionActions: React.FC<SessionActionsProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={handleImportClick}
-            className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition duration-300 ease-in-out"
+            className="px-4 py-2 pointer-coarse:min-h-11 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition duration-300 ease-in-out"
           >
             Import Session
           </button>
           <button
             onClick={onClear}
-            className="px-4 py-2 bg-red-600 text-white font-semibold rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition duration-300 ease-in-out"
+            className="px-4 py-2 pointer-coarse:min-h-11 bg-red-600 text-white font-semibold rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition duration-300 ease-in-out"
           >
             Clear Session
           </button>
@@ -65,13 +65,13 @@ const SessionActions: React.FC<SessionActionsProps> = ({
         <div className="flex items-center gap-4">
           <button
             onClick={onCancel}
-            className="px-6 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition"
+            className="px-6 py-2 pointer-coarse:min-h-11 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition"
           >
             Cancel
           </button>
           <button
             onClick={onSave}
-            className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition"
+            className="px-6 py-2 pointer-coarse:min-h-11 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition"
           >
             Save Changes
           </button>
@@ -79,16 +79,16 @@ const SessionActions: React.FC<SessionActionsProps> = ({
       </div>
 
       <div className="md:hidden space-y-3">
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <button
             onClick={handleImportClick}
-            className="px-3 py-2 bg-indigo-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-indigo-700 transition duration-300 ease-in-out"
+            className="px-3 py-2 pointer-coarse:min-h-11 bg-indigo-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-indigo-700 transition duration-300 ease-in-out"
           >
             Import Session
           </button>
           <button
             onClick={onClear}
-            className="px-3 py-2 bg-red-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-red-700 transition duration-300 ease-in-out"
+            className="px-3 py-2 pointer-coarse:min-h-11 bg-red-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-red-700 transition duration-300 ease-in-out"
           >
             Clear Session
           </button>
@@ -96,13 +96,13 @@ const SessionActions: React.FC<SessionActionsProps> = ({
         <div className="flex gap-2">
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium text-sm rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition"
+            className="flex-1 px-4 py-2 pointer-coarse:min-h-11 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium text-sm rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition"
           >
             Cancel
           </button>
           <button
             onClick={onSave}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-md hover:bg-blue-700 transition"
+            className="flex-1 px-4 py-2 pointer-coarse:min-h-11 bg-blue-600 text-white font-medium text-sm rounded-md hover:bg-blue-700 transition"
           >
             Save Changes
           </button>

@@ -254,7 +254,7 @@ const SessionInfo: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto -mt-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-b-xl shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-t border-gray-200 dark:border-gray-700">
+    <div className="w-full max-w-4xl mx-auto -mt-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-b-xl shadow-lg flex flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 border-t border-gray-200 dark:border-gray-700">
       <div className="flex-grow w-full sm:w-auto flex flex-col gap-2 min-w-0">
         {/* Chapter dropdown row */}
         <div className="flex items-center gap-2">
@@ -303,7 +303,7 @@ const SessionInfo: React.FC = () => {
             <button
               onClick={() => setShowExportModal(true)}
               disabled={sessionIsEmpty || isExporting}
-              className="px-3 py-1.5 bg-green-600 text-white text-sm font-semibold rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition duration-300 ease-in-out"
+              className="px-3 py-1.5 pointer-coarse:min-h-11 bg-green-700 text-white text-sm font-semibold rounded-md shadow-sm hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition duration-300 ease-in-out"
             >
               {isExporting ? 'Exporting...' : 'Export Book'}
             </button>
@@ -312,11 +312,12 @@ const SessionInfo: React.FC = () => {
       </div>
 
       {/* Settings button */}
-      <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-center sm:justify-end">
+      <div className="flex items-center gap-2 flex-shrink-0">
         <button
           onClick={() => setShowSettingsModal(true)}
-          className="p-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-full shadow-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+          className="p-2 pointer-coarse:min-h-11 pointer-coarse:min-w-11 inline-flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-full shadow-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition"
           title="Settings"
+          aria-label="Settings"
         >
           <SettingsIcon className="w-5 h-5" />
         </button>
