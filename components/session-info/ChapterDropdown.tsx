@@ -30,7 +30,7 @@ export const ChapterDropdown: React.FC<ChapterDropdownProps> = ({ currentChapter
   };
 
   if (summariesLoading) {
-    return <span className="text-sm text-gray-500 dark:text-gray-400 animate-pulse">Loading chapters…</span>;
+    return <span role="status" className="text-sm text-gray-600 dark:text-gray-300">Loading chapters…</span>;
   }
 
   if (sessionIsEmpty) {

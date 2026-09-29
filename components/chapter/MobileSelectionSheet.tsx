@@ -123,7 +123,7 @@ export const MobileSelectionSheet: React.FC<MobileSelectionSheetProps> = ({
                 }}
                 placeholder="Add a comment…"
                 aria-label="Reaction comment"
-                className="min-h-11 min-w-0 flex-1 rounded-xl bg-white/10 px-3 py-2 text-sm text-white outline-none placeholder:text-gray-400"
+                className="min-h-11 min-w-0 flex-1 rounded-xl bg-white/10 px-3 py-2 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-blue-400 placeholder:text-gray-400"
               />
             </div>
             <div className="grid grid-cols-2 gap-2">

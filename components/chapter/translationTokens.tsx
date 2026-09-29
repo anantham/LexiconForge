@@ -203,7 +203,7 @@ export const renderTranslationTokens = (tokens: TranslationToken[], keyPrefix = 
       case 'footnote':
         return (
           <sup key={key} id={`footnote-ref-${token.marker}`} data-lf-type="footnote" className="font-sans">
-            <a href={`#footnote-def-${token.marker}`} className="text-blue-500 hover:underline no-underline">[{token.marker}]</a>
+            <a href={`#footnote-def-${token.marker}`} className="text-blue-700 dark:text-blue-400 hover:underline no-underline">[{token.marker}]</a>
           </sup>
         );
       case 'illustration':

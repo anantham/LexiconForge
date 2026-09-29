@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { SettingsSidebar, type SidebarSection } from './SettingsSidebar';
@@ -25,6 +25,9 @@ const mockSections: SidebarSection[] = [
   },
 ];
 
+// The sidebar nav (tablet/desktop); phones get the native picker instead.
+const nav = () => within(screen.getByRole('navigation', { name: 'Settings sections' }));
+
 describe('SettingsSidebar', () => {
   it('renders all sections and items', () => {
     const onSelect = vi.fn();
@@ -36,10 +39,10 @@ describe('SettingsSidebar', () => {
       />
     );
 
-    expect(screen.getByText('Settings')).toBeInTheDocument();
-    expect(screen.getByText('Features')).toBeInTheDocument();
-    expect(screen.getByText('Providers')).toBeInTheDocument();
-    expect(screen.getByText('Audio')).toBeInTheDocument();
+    expect(nav().getByText('Settings')).toBeInTheDocument();
+    expect(nav().getByText('Features')).toBeInTheDocument();
+    expect(nav().getByText('Providers')).toBeInTheDocument();
+    expect(nav().getByText('Audio')).toBeInTheDocument();
   });
 
   it('calls onSelect when item clicked', async () => {
@@ -53,7 +56,7 @@ describe('SettingsSidebar', () => {
       />
     );
 
-    await user.click(screen.getByText('Audio'));
+    await user.click(nav().getByText('Audio'));
     expect(onSelect).toHaveBeenCalledWith('audio');
   });
 
@@ -67,7 +70,7 @@ describe('SettingsSidebar', () => {
       />
     );
 
-    const activeItem = screen.getByText('Providers').closest('button');
+    const activeItem = nav().getByText('Providers').closest('button');
     expect(activeItem).toHaveClass('bg-blue-600');
   });
 
@@ -83,19 +86,19 @@ describe('SettingsSidebar', () => {
     );
 
     // Initially all items are visible
-    expect(screen.getByText('Providers')).toBeInTheDocument();
+    expect(nav().getByText('Providers')).toBeInTheDocument();
 
     // Click Settings section header to collapse
-    await user.click(screen.getByText('Settings'));
+    await user.click(nav().getByText('Settings'));
 
     // Items should be hidden after collapse
-    expect(screen.queryByText('Providers')).not.toBeInTheDocument();
+    expect(nav().queryByText('Providers')).not.toBeInTheDocument();
 
     // Click again to expand
-    await user.click(screen.getByText('Settings'));
+    await user.click(nav().getByText('Settings'));
 
     // Items visible again
-    expect(screen.getByText('Providers')).toBeInTheDocument();
+    expect(nav().getByText('Providers')).toBeInTheDocument();
   });
 
   it('hides items marked as hidden', () => {
@@ -120,7 +123,30 @@ describe('SettingsSidebar', () => {
       />
     );
 
-    expect(screen.getByText('Visible')).toBeInTheDocument();
-    expect(screen.queryByText('Hidden')).not.toBeInTheDocument();
+    expect(nav().getByText('Visible')).toBeInTheDocument();
+    expect(nav().queryByText('Hidden')).not.toBeInTheDocument();
+  });
+
+  it('marks the active item and each section expanded state for assistive tech', async () => {
+    const user = userEvent.setup();
+    render(<SettingsSidebar sections={mockSections} activeItem="providers" onSelect={vi.fn()} />);
+
+    expect(nav().getByRole('button', { name: 'Providers' })).toHaveAttribute('aria-current', 'page');
+    expect(nav().getByRole('button', { name: 'Prompt' })).not.toHaveAttribute('aria-current');
+    const header = nav().getByRole('button', { name: /Settings/ });
+    expect(header).toHaveAttribute('aria-expanded', 'true');
+    await user.click(header);
+    expect(header).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('offers phones a labelled section picker that selects the chosen panel', async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    render(<SettingsSidebar sections={mockSections} activeItem="providers" onSelect={onSelect} />);
+
+    const picker = screen.getByRole('combobox', { name: 'Settings section' });
+    expect(picker).toHaveValue('providers');
+    await user.selectOptions(picker, 'audio');
+    expect(onSelect).toHaveBeenCalledWith('audio');
   });
 });

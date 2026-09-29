@@ -158,10 +158,10 @@ const InputBar: React.FC = () => {
   const isAnyLoading = isLoading || isImporting;
 
   const tabClass = (active: boolean) =>
-    `px-4 py-2 text-sm font-medium rounded-t-lg transition ${
+    `px-4 py-2 pointer-coarse:min-h-11 text-sm font-medium rounded-t-lg transition ${
       active
         ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-b-2 border-blue-500'
-        : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
     }`;
 
   return (
@@ -170,6 +170,7 @@ const InputBar: React.FC = () => {
       <div className="flex border-b border-gray-200 dark:border-gray-700 px-4 pt-3 gap-1">
         <button
           type="button"
+          aria-pressed={mode === 'url'}
           className={tabClass(mode === 'url')}
           onClick={() => setMode('url')}
           disabled={isAnyLoading}
@@ -178,6 +179,7 @@ const InputBar: React.FC = () => {
         </button>
         <button
           type="button"
+          aria-pressed={mode === 'paste'}
           className={tabClass(mode === 'paste')}
           onClick={() => setMode('paste')}
           disabled={isAnyLoading}
@@ -214,7 +216,7 @@ const InputBar: React.FC = () => {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isAnyLoading}
-                    className="px-4 py-2 bg-gray-600 text-white font-semibold rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
+                    className="px-4 py-2 pointer-coarse:min-h-11 bg-gray-600 text-white font-semibold rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-gray-800 disabled:bg-gray-400 dark:disabled:bg-gray-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
                     title="Import session from a JSON file on your computer"
                   >
                     📁 Import
@@ -222,7 +224,7 @@ const InputBar: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isAnyLoading || !url.trim()}
-                    className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
+                    className="px-4 py-2 pointer-coarse:min-h-11 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
                     title={url.trim() ? 'Fetch chapter or session from URL' : 'Enter a URL first'}
                   >
                     {isImporting ? 'Importing...' : isLoading ? 'Fetching...' : '🔗 Fetch'}
@@ -277,7 +279,7 @@ const InputBar: React.FC = () => {
                         href={site.homeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
+                        className="text-blue-700 dark:text-blue-400 underline underline-offset-2"
                         title={`Visit ${site.name} - ${category}`}
                         onClick={(e) => {
                           e.preventDefault();
@@ -290,7 +292,7 @@ const InputBar: React.FC = () => {
                     </React.Fragment>
                   ))}
                   {' '}
-                  <span className="text-gray-500">({category})</span>
+                  <span className="text-gray-600 dark:text-gray-400">({category})</span>
                   {categoryIndex < categories.length - 1 && '; '}
                 </React.Fragment>
               ))}
@@ -299,7 +301,7 @@ const InputBar: React.FC = () => {
                 href="https://t.me/webnovels"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
+                className="text-blue-700 dark:text-blue-400 underline underline-offset-2"
               >
                 request for us to add support for your fav website here!
               </a>
@@ -370,7 +372,7 @@ const InputBar: React.FC = () => {
                 type="button"
                 onClick={handlePasteSubmit}
                 disabled={isAnyLoading || !pasteContent.trim()}
-                className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
+                className="px-4 py-2 pointer-coarse:min-h-11 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition duration-300 ease-in-out"
               >
                 {isLoading ? 'Importing...' : 'Import Text'}
               </button>

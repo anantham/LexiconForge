@@ -33,6 +33,7 @@ export const VersionSelector: React.FC<VersionSelectorProps> = ({
   return (
     <div className="hidden md:flex items-center gap-2 min-w-0">
       <select
+        aria-label="Translation version"
         value={selectedVersion}
         onChange={onVersionSelect}
         className="px-2 py-1 text-xs text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded max-w-[22rem]"
@@ -50,7 +51,9 @@ export const VersionSelector: React.FC<VersionSelectorProps> = ({
       <button
         onClick={onDeleteVersion}
         disabled={!selectedVersion}
-        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        type="button"
+        aria-label="Delete selected version"
+        className="p-1.5 pointer-coarse:min-h-11 pointer-coarse:min-w-11 inline-flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         title="Delete selected version"
       >
         <TrashIcon className="w-4 h-4" />

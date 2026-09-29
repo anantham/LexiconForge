@@ -276,7 +276,7 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
         <div>
           <label htmlFor="contextDepth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Context Depth:{' '}
-            <span className="font-bold text-blue-500">{contextDepth}</span>
+            <span className="font-bold text-blue-700 dark:text-blue-400">{contextDepth}</span>
           </label>
           <input
             id="contextDepth"
@@ -302,10 +302,11 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
           <div className="flex mb-3">
             <button
               type="button"
-              className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-l border ${
+              aria-pressed={preloadMode === 'chapters'}
+              className={`flex-1 min-h-11 px-3 py-1.5 text-sm font-medium rounded-l border ${
                 preloadMode === 'chapters'
                   ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-transparent text-gray-400 border-gray-600 hover:text-gray-200'
+                  : 'bg-transparent text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:text-gray-900 dark:hover:text-white'
               }`}
               onClick={() => onPreloadModeChange('chapters')}
             >
@@ -313,10 +314,11 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
             </button>
             <button
               type="button"
-              className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-r border-t border-b border-r ${
+              aria-pressed={preloadMode === 'budget'}
+              className={`flex-1 min-h-11 px-3 py-1.5 text-sm font-medium rounded-r border-t border-b border-r ${
                 preloadMode === 'budget'
                   ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-transparent text-gray-400 border-gray-600 hover:text-gray-200'
+                  : 'bg-transparent text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:text-gray-900 dark:hover:text-white'
               }`}
               onClick={() => onPreloadModeChange('budget')}
             >
@@ -328,7 +330,7 @@ export const TranslationEngineSection: React.FC<TranslationEngineSectionProps> =
           {preloadMode === 'chapters' && (
             <>
               <div className="flex items-center gap-2 mb-1">
-                <span className={`text-sm font-bold ${preloadCount === 0 ? 'text-red-500' : 'text-blue-500'}`}>
+                <span className={`text-sm font-bold ${preloadCount === 0 ? 'text-red-600 dark:text-red-400' : 'text-blue-700 dark:text-blue-400'}`}>
                   {preloadCount === 0 ? 'DISABLED' : preloadCount}
                 </span>
               </div>

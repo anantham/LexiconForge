@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useModalDialog } from '../../hooks/useModalDialog';
 import { AVAILABLE_IMAGE_MODELS } from '../../config/constants';
 import type { AppSettings } from '../../types';
 import type { ImageGenerationOverrides } from '../../services/imageJobTypes';
@@ -35,13 +36,8 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
   const [discoveredModels, setDiscoveredModels] = useState<ImageModelOption[]>([]);
   const [catalogueWarning, setCatalogueWarning] = useState<string | null>(null);
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onCancel();
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [onCancel]);
+  const dialogRef = useRef<HTMLElement>(null);
+  useModalDialog(dialogRef, true, onCancel);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,9 +121,11 @@ export const IllustrationRouteDialog: React.FC<IllustrationRouteDialogProps> = (
       onMouseDown={event => { if (event.target === event.currentTarget) onCancel(); }}
     >
       <section
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="illustration-route-title"
+        tabIndex={-1}
         className="w-full max-w-xl rounded-t-2xl border border-gray-700 bg-gray-900 p-5 text-gray-100 shadow-2xl sm:rounded-2xl"
       >
         <h2 id="illustration-route-title" className="text-lg font-semibold">Generate illustration</h2>

@@ -27,15 +27,15 @@ interface ChapterHeaderProps {
 const languageButtonClasses = (
   isActive: boolean
 ) =>
-  `px-4 py-1 text-sm font-semibold rounded-full transition-colors ${
-    isActive ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'
+  `px-4 py-1 pointer-coarse:min-h-11 text-sm font-semibold rounded-full transition-colors ${
+    isActive ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-700 dark:text-gray-300'
   }`;
 
 const mobileLanguageButtonClasses = (
   isActive: boolean
 ) =>
-  `px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
-    isActive ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-600 dark:text-gray-400'
+  `px-3 py-1 pointer-coarse:min-h-11 text-xs font-semibold rounded-full transition-colors ${
+    isActive ? 'bg-white dark:bg-gray-900 text-gray-800 dark:text-white shadow' : 'text-gray-700 dark:text-gray-300'
   }`;
 
 const ChapterHeader: React.FC<ChapterHeaderProps> = ({
@@ -104,7 +104,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
         <button
           onClick={onNavigatePrev}
           disabled={prevDisabled}
-          className="px-5 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="px-5 py-2 pointer-coarse:min-h-11 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           &larr; Previous
         </button>
@@ -113,7 +113,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
           {onOpenLibrary && (
             <button
               onClick={onOpenLibrary}
-              className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition"
+              className="p-2 pointer-coarse:min-h-11 pointer-coarse:min-w-11 inline-flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition"
               title="Return to the novel library"
               aria-label="Return to library (home)"
             >
@@ -127,7 +127,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
               href={sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-500 hover:underline font-semibold text-sm"
+              className="text-blue-700 dark:text-blue-400 hover:underline font-semibold text-sm inline-flex items-center min-h-11 px-1"
               title="View original source"
             >
               Source
@@ -137,7 +137,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
             <a
               href={suttaStudioUrl}
               onClick={makeSpaClickHandler(suttaStudioUrl)}
-              className="w-9 h-9 rounded-full flex items-center justify-center border border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 transition"
+              className="w-9 h-9 pointer-coarse:w-11 pointer-coarse:h-11 rounded-full flex items-center justify-center border border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 transition"
               title="Open Sutta Studio"
               aria-label="Open Sutta Studio"
             >
@@ -154,7 +154,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
             <button
               onClick={onRetranslateClick}
               disabled={retranslateDisabled}
-              className={`p-2 rounded-full border transition-all duration-200 ${
+              className={`p-2 pointer-coarse:min-h-11 pointer-coarse:min-w-11 inline-flex items-center justify-center rounded-full border transition-all duration-200 ${
                 isRetranslationActive
                   ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40'
                   : retranslateDisabled
@@ -172,7 +172,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
           <button
             onClick={onNavigateNext}
             disabled={nextDisabled}
-            className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition"
+            className="px-5 py-2 pointer-coarse:min-h-11 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition"
           >
             Next &rarr;
           </button>
@@ -184,7 +184,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
           {onOpenLibrary && (
             <button
               onClick={onOpenLibrary}
-              className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition"
+              className="p-2 pointer-coarse:min-h-11 pointer-coarse:min-w-11 inline-flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-100 rounded-md hover:bg-amber-200 dark:hover:bg-amber-900/50 transition"
               title="Return to the novel library"
               aria-label="Return to library (home)"
             >
@@ -196,14 +196,14 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
           <button
             onClick={onNavigatePrev}
             disabled={prevDisabled}
-            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
+            className="px-4 py-2 pointer-coarse:min-h-11 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
           >
             &larr; Prev
           </button>
           <button
             onClick={onNavigateNext}
             disabled={nextDisabled}
-            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition text-sm"
+            className="px-4 py-2 pointer-coarse:min-h-11 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed transition text-sm"
           >
             Next &rarr;
           </button>
@@ -215,7 +215,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
                 <a
                   href={suttaStudioUrl}
                   onClick={makeSpaClickHandler(suttaStudioUrl)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center border border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 transition"
+                  className="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 rounded-full flex items-center justify-center border border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 transition"
                   title="Open Sutta Studio"
                   aria-label="Open Sutta Studio"
                 >
@@ -231,7 +231,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({
                 <button
                   onClick={onRetranslateClick}
                   disabled={retranslateDisabled}
-                  className={`p-2 rounded-full border transition-all duration-200 ${
+                  className={`p-2 pointer-coarse:min-h-11 pointer-coarse:min-w-11 inline-flex items-center justify-center rounded-full border transition-all duration-200 ${
                     isRetranslationActive
                       ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40'
                       : retranslateDisabled

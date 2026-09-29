@@ -150,7 +150,7 @@ export const ApiKeysSection: React.FC<ApiKeysSectionProps> = ({
             <button
               type="button"
               onClick={onRefreshDeepSeekBalance}
-              className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-md"
+              className="px-3 py-1 pointer-coarse:min-h-11 text-xs bg-gray-200 dark:bg-gray-700 rounded-md"
             >
               Refresh balance
             </button>
@@ -175,7 +175,7 @@ export const ApiKeysSection: React.FC<ApiKeysSectionProps> = ({
             <button
               type="button"
               onClick={onRefreshOpenRouterCredits}
-              className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-md"
+              className="px-3 py-1 pointer-coarse:min-h-11 text-xs bg-gray-200 dark:bg-gray-700 rounded-md"
             >
               Refresh credits
             </button>
@@ -218,7 +218,7 @@ export const ApiKeysSection: React.FC<ApiKeysSectionProps> = ({
             <button
               type="button"
               onClick={onRefreshPiApiBalance}
-              className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-md"
+              className="px-3 py-1 pointer-coarse:min-h-11 text-xs bg-gray-200 dark:bg-gray-700 rounded-md"
             >
               Refresh balance
             </button>

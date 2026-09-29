@@ -214,7 +214,7 @@ export function SuttaStudioFallback({
               <p className="text-xs text-slate-500">
                 Source language: {chapter.sourceLanguage}
                 {chapter.originalUrl && (
-                  <> · <a href={chapter.originalUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">source</a></>
+                  <> · <a href={chapter.originalUrl} target="_blank" rel="noopener noreferrer" className="text-blue-700 dark:text-blue-400 underline">source</a></>
                 )}
               </p>
             )}
