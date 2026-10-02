@@ -52,7 +52,9 @@ any persistence.
 
 Provider changes retain browser-local Settings credentials. Diff now uses the
 selected model and its cost, with no hidden `gpt-4o-mini` fallback. Existing
-comparison/explanation metrics use the translation category. Live native-model
+comparison/explanation metrics have distinct categories, preserving cost/history
+accounting while excluding newly recorded auxiliary durations from translation
+ETA samples. Historical mislabeled records are not inspected or rewritten. Live native-model
 quality is unverified. Pre-existing prompt/response diagnostic logging in diff and
 comparison is outside the enumerated server telemetry/bridge log findings and
 remains a separate privacy debt item.
@@ -76,10 +78,11 @@ final/baseline namespace directories now belong to the task. No original package
 bytes or other files were changed. The missing axe Playwright helper affects the unperformed browser
 audit, not these local unit/build/type gates.
 
-- Full suite plus coverage: **331 files, 9,828 passed, 347 skipped**. Untouched
+- Full suite plus coverage: **331 files, 9,832 passed, 347 skipped** after the metric follow-up
+  (initial integration: 9,828). Untouched
   scan baseline: 324 files, 9,610 passed, 347 skipped.
-- Coverage policy passes: lines62.04%, statements60.44%, functions59.99%,
-  branches48.80%; all per-file floors pass.
+- Coverage policy passes: lines62.16%, statements60.57%, functions60.15%,
+  branches48.88%; all per-file floors pass.
 - Bridge aggregate: **72 passed** after the Windows bootstrap follow-up below
   (initial integration: 69). Grounding synthetic workflow: **8 passed**.
 - Production build, client-artifact secret scan, extension packaging, repository
@@ -140,9 +143,10 @@ unperformed native/deployed acceptance and a fresh scan; those remain open.
    draft until a separately authorized readiness decision. Earlier publication
    attempts were rejected before execution; direct user authorization subsequently
    approved the original push/PR route. No rejection was bypassed.
-2. All five Test jobs passed for the initial published head `4376776`. Codex
-   returned one applicable Windows bootstrap P2, corrected in the follow-up below.
-   New-head CI and Codex review must cover that correction before readiness. The
+2. All five Test jobs passed for published heads `4376776` and `cf870477`.
+   Codex returned applicable Windows bootstrap and auxiliary metric P2 findings,
+   corrected in the follow-ups below. Final-head CI and Codex review must cover
+   both corrections before readiness. The
    supposed baseline TypeScript fixture failure is withdrawn: final and baseline
    type checks pass with complete React types. Fresh security scanning requires
    its own applicable cost/authorization envelope and was not run by this task.
@@ -219,3 +223,34 @@ Follow-up implementation began at 18:45 IST with a 10–15 minute estimate and
 confidence 0.97; the agent completed it in 8 minutes. Root integration and aggregate
 verification finished by 18:56 IST. New-head CI and the next Codex review depend on
 external job latency; prior review timing is evidence, not a completion guarantee.
+
+
+## Codex follow-up: auxiliary analysis metric categories
+
+The second Codex review on `cf870477ad2763d223a4435b9f6baf86af474f08`
+returned at19:07:47 IST, approximately4 minutes37 seconds after acknowledgement.
+It identified one applicable P2 introduced by adapter reuse: comparison and
+explanation requests were labeled `translation`, so their durations could enter
+model/provider/global chapter ETA samples and their costs appeared under the
+translation category. The source filter and both request call sites confirmed
+this regression; the privacy boundary itself remained intact.
+
+The correction uses distinct `comparison` and `explanation` metric categories in
+the requests and both populated/empty summary maps. Existing dynamic CSV/history
+exports preserve the new categories; no schema migration or inspection of user
+metric data is required. Regression tests exercise the real ETA helper and
+synthetic IndexedDB summary/history together with selected-provider request mocks.
+This is a bounded categorization correction, with no new telemetry collection.
+
+Implementation started at 19:09 IST with a 10–15 minute estimate, confidence 0.97,
+and the agent committed in approximately 5 minutes. Root integrated source at
+`2094691ca8cf145669021da893b6a1a6706ecc5f`. Focused 90 and relevant aggregate 262
+tests pass; replaying the old request labels produces 10 expected failures.
+Independent review passed and independently ran 71 focused tests. Root then reran
+the full suite/coverage: **331 files, 9,832 passed, 347 skipped**, coverage policy,
+type checking, production build and integrity all pass. Final corrected-head CI
+and Codex review remain pending at this checkpoint.
+
+The fix applies to newly recorded operations. Historical wrongly classified rows
+remain unchanged; no historical cleanup or deployed-runtime assurance is claimed.
+Native/deployed acceptance remains open.
