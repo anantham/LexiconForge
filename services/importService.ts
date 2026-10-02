@@ -2,11 +2,9 @@
  * Import Service - Handle session imports from URLs and files
  */
 
-/** Browser memory safety limit for session import downloads */
-const MAX_IMPORT_SIZE_BYTES = 500 * 1024 * 1024; // 500 MB
-
 import { useAppStore } from '../store';
-import type { SessionData } from '../types/session';
+import { downloadSession } from './import/downloadSession';
+import { IMPORT_LIMITS, ImportValidationError, SessionJsonValidator } from './import/sessionValidation';
 import type {
   AppSettings,
   Chapter,
@@ -204,124 +202,75 @@ export class ImportService {
         const attemptMsg = attempt > 0 ? ` (retry ${attempt}/${MAX_RETRIES})` : '';
         debugLog('import', 'summary', `[Import] Fetching from: ${fetchUrl}${attemptMsg}`);
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000);
+        const retryMsg = attempt > 0 ? ` (Retry ${attempt}/${MAX_RETRIES})` : '';
+        onProgress?.({
+          stage: 'downloading',
+          progress: 0,
+          message: `Starting download...${retryMsg}`,
+          retryAttempt: attempt,
+          maxRetries: MAX_RETRIES
+        });
 
-        try {
-          const retryMsg = attempt > 0 ? ` (Retry ${attempt}/${MAX_RETRIES})` : '';
+        const { chunks } = await downloadSession(fetchUrl, (receivedLength, total) => {
           onProgress?.({
             stage: 'downloading',
-            progress: 0,
-            message: `Starting download...${retryMsg}`,
-            retryAttempt: attempt,
-            maxRetries: MAX_RETRIES
+            progress: total ? Math.min((receivedLength / total) * 100, 99) : 50,
+            loaded: receivedLength,
+            ...(total ? { total } : {}),
+            message: `Downloading... ${(receivedLength / 1024 / 1024).toFixed(1)}MB`,
           });
+        });
 
-          const response = await fetch(fetchUrl, { signal: controller.signal });
-          clearTimeout(timeoutId);
+        onProgress?.({ stage: 'parsing', progress: 0, message: 'Parsing session data...' });
 
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-
-          const contentLength = response.headers.get('content-length');
-          const total = contentLength ? parseInt(contentLength) : 0;
-
-          if (total && total > MAX_IMPORT_SIZE_BYTES) {
-            throw new Error('Session file too large (>500MB)');
-          }
-
-          const reader = response.body?.getReader();
-          if (!reader) {
-            throw new Error('Response body is not readable');
-          }
-
-          let receivedLength = 0;
-          const chunks: Uint8Array[] = [];
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            chunks.push(value);
-            receivedLength += value.length;
-
-            if (total) {
-              const downloadProgress = Math.min((receivedLength / total) * 100, 99);
-              onProgress?.({
-                stage: 'downloading',
-                progress: downloadProgress,
-                loaded: receivedLength,
-                total,
-                message: `Downloading... ${(receivedLength / 1024 / 1024).toFixed(1)}MB / ${(total / 1024 / 1024).toFixed(1)}MB`
-              });
-            } else {
-              onProgress?.({
-                stage: 'downloading',
-                progress: 50,
-                loaded: receivedLength,
-                message: `Downloading... ${(receivedLength / 1024 / 1024).toFixed(1)}MB`
-              });
-            }
-          }
-
-          onProgress?.({ stage: 'parsing', progress: 0, message: 'Parsing session data...' });
-
-          const blob = new Blob(chunks);
-          const text = await blob.text();
-          if (isGitLfsPointer(text)) {
-            throw buildGitLfsPointerError(fetchUrl);
-          }
-          let sessionData = JSON.parse(text);
-
-          if (isBookTokiScrapePayload(sessionData)) {
-            sessionData = convertBookTokiToLexiconForgeFullPayload(sessionData);
-          }
-
-          if (typeof options.registryNovelId === 'string') {
-            sessionData = {
-              ...sessionData,
-              novelId: options.registryNovelId,
-              libraryVersionId: options.registryVersionId ?? null,
-            };
-          }
-
-          if (!sessionData.metadata?.format?.startsWith('lexiconforge')) {
-            throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
-          }
-
-          const current = useAppStore.getState();
-          if (current.activeNovelId !== activeNovelId || current.activeVersionId !== activeVersionId) {
-            debugLog('import', 'summary', '[Import] Reader selection changed during download; session not applied');
-            return sessionData;
-          }
-          if (sessionData.provenance) {
-            useAppStore.getState().setSessionProvenance(sessionData.provenance);
-          }
-          if (sessionData.version) {
-            useAppStore.getState().setSessionVersion(sessionData.version);
-          }
-
-          onProgress?.({ stage: 'importing', progress: 0, message: 'Importing to database...' });
-          await useAppStore.getState().importSessionData(sessionData);
-          onProgress?.({ stage: 'complete', progress: 100, message: 'Import complete!' });
-
-          debugLog('import', 'summary', `[Import] Successfully imported ${sessionData.chapters?.length || 0} chapters`);
-          return sessionData;
-        } catch (error) {
-          clearTimeout(timeoutId);
-          throw error;
+        const blob = new Blob(chunks);
+        const text = await blob.text();
+        if (isGitLfsPointer(text)) {
+          throw buildGitLfsPointerError(fetchUrl);
         }
+        let sessionData = JSON.parse(text);
+
+        if (isBookTokiScrapePayload(sessionData)) {
+          sessionData = convertBookTokiToLexiconForgeFullPayload(sessionData);
+        }
+
+        if (typeof options.registryNovelId === 'string') {
+          sessionData = {
+            ...sessionData,
+            novelId: options.registryNovelId,
+            libraryVersionId: options.registryVersionId ?? null,
+          };
+        }
+
+        if (!sessionData.metadata?.format?.startsWith('lexiconforge')) {
+          throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
+        }
+
+        const current = useAppStore.getState();
+        if (current.activeNovelId !== activeNovelId || current.activeVersionId !== activeVersionId) {
+          debugLog('import', 'summary', '[Import] Reader selection changed during download; session not applied');
+          return sessionData;
+        }
+        if (sessionData.provenance) {
+          useAppStore.getState().setSessionProvenance(sessionData.provenance);
+        }
+        if (sessionData.version) {
+          useAppStore.getState().setSessionVersion(sessionData.version);
+        }
+
+        onProgress?.({ stage: 'importing', progress: 0, message: 'Importing to database...' });
+        await useAppStore.getState().importSessionData(sessionData);
+        onProgress?.({ stage: 'complete', progress: 100, message: 'Import complete!' });
+
+        debugLog('import', 'summary', `[Import] Successfully imported ${sessionData.chapters?.length || 0} chapters`);
+        return sessionData;
+
       },
       {
         maxAttempts: MAX_RETRIES + 1,
         initialDelay: 2000,
-        // This fetch aborts ITSELF on an internal timeout, and retrying that
-        // self-abort is intended. The abort-retry opt-in lives here rather
-        // than in isNetworkError, whose contract must never retry a
-        // user-cancel AbortError.
-        isRetryable: (e) =>
-          isNetworkError(e) || (e instanceof DOMException && e.name === 'AbortError'),
+        // Resource/schema rejections are final. Only transport failures retry.
+        isRetryable: (e) => !(e instanceof ImportValidationError) && isNetworkError(e),
         onRetry: (attempt, delay) => {
           debugWarn('import', 'summary', `[Import] Network error on attempt ${attempt}. Retrying in ${delay}ms...`);
           onProgress?.({
@@ -545,204 +494,25 @@ export class ImportService {
           return available.splice(matchIndex, 1)[0];
         };
 
-        const response = await fetch(fetchUrl, {
-          headers: {
-            Accept: 'application/json',
-          },
+        // A rejected download must never leave earlier streamed chapters in
+        // the library. Stage validated bytes first, then keep the established
+        // chapter-at-a-time persistence and first-ready callback semantics.
+        const { chunks, validation } = await downloadSession(fetchUrl, (loaded, total) => {
+          onProgress?.({ stage: 'downloading', progress: total ? Math.min(99, loaded / total * 100) : 0,
+            loaded, ...(total ? { total } : {}), message: 'Downloading and validating session…', canStartReading: false });
+        }, (chapter) => {
+          const chapterUrl = chapter.url || chapter.canonicalUrl;
+          if (chapterUrl) getScopedChapterIdentity(chapter, registryNovelId, registryVersionId);
         });
-
-        if (!response.ok || !response.body) {
-          throw new Error(`Failed to fetch session (${response.status} ${response.statusText})`);
+        if (!validation.metadata?.format?.startsWith('lexiconforge')) {
+          throw new ImportValidationError('streaming requires a LexiconForge session');
         }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-
-        let buffer = '';
-        let metadataEmitted = false;
-        let chaptersStarted = false;
-        let chaptersCompleted = false;
-
-        const findMatchingBrace = (source: string, start: number): number => {
-          let depth = 0;
-          let inString = false;
-          let escaped = false;
-
-          for (let i = start; i < source.length; i++) {
-            const char = source[i];
-
-            if (escaped) {
-              escaped = false;
-              continue;
-            }
-
-            if (char === '\\') {
-              escaped = true;
-              continue;
-            }
-
-            if (char === '"') {
-              inString = !inString;
-              continue;
-            }
-
-            if (inString) continue;
-
-            if (char === '{') depth++;
-            if (char === '}') {
-              depth--;
-              if (depth === 0) {
-                return i;
-              }
-            }
-          }
-
-          return -1;
-        };
-
-        const trimLeadingSeparators = () => {
-          let index = 0;
-          while (index < buffer.length) {
-            const char = buffer[index];
-            if (char === ',' || char === '\n' || char === '\r' || char === '\t' || char === ' ') {
-              index++;
-              continue;
-            }
-            break;
-          }
-          if (index > 0) {
-            buffer = buffer.slice(index);
-          }
-        };
-
-        const extractObjectField = (source: string, key: string): Record<string, unknown> | undefined => {
-          const fieldKey = `"${key}"`;
-          const keyIndex = source.indexOf(fieldKey);
-          if (keyIndex === -1) return undefined;
-          const colonIndex = source.indexOf(':', keyIndex + fieldKey.length);
-          if (colonIndex === -1) return undefined;
-          const objectStart = source.indexOf('{', colonIndex + 1);
-          if (objectStart === -1) return undefined;
-          const objectEnd = findMatchingBrace(source, objectStart);
-          if (objectEnd === -1) return undefined;
-          const parsed = JSON.parse(source.slice(objectStart, objectEnd + 1));
-          return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : undefined;
-        };
-
-        const captureOscilloscopeIfReady = () => {
-          if (!chaptersCompleted || sessionOscilloscope !== undefined) return;
-          const fieldKey = '"oscilloscope"';
-          const keyIndex = buffer.indexOf(fieldKey);
-          if (keyIndex === -1) {
-            buffer = buffer.slice(-Math.max(0, fieldKey.length - 1));
-            return;
-          }
-          const colonIndex = buffer.indexOf(':', keyIndex + fieldKey.length);
-          if (colonIndex === -1) {
-            buffer = buffer.slice(keyIndex);
-            return;
-          }
-          const objectStart = buffer.indexOf('{', colonIndex + 1);
-          if (objectStart === -1) {
-            buffer = buffer.slice(keyIndex);
-            return;
-          }
-          const objectEnd = findMatchingBrace(buffer, objectStart);
-          if (objectEnd === -1) {
-            buffer = buffer.slice(keyIndex);
-            return;
-          }
-          sessionOscilloscope = JSON.parse(buffer.slice(objectStart, objectEnd + 1));
-          buffer = buffer.slice(objectEnd + 1);
-        };
-
-        const emitMetadataIfReady = () => {
-          if (!metadataEmitted && isGitLfsPointer(buffer)) {
-            throw buildGitLfsPointerError(fetchUrl);
-          }
-
-          if (metadataEmitted) return;
-
-          const metadataKey = buffer.indexOf('"metadata"');
-          if (metadataKey === -1) return;
-
-          const objectStart = buffer.indexOf('{', metadataKey);
-          if (objectStart === -1) return;
-
-          const objectEnd = findMatchingBrace(buffer, objectStart);
-          if (objectEnd === -1) return;
-
-          const metadataJson = buffer.slice(objectStart, objectEnd + 1);
-          try {
-            metadata = JSON.parse(metadataJson);
-          } catch (error) {
-            console.error('[StreamImport] Failed to parse metadata chunk', error);
-            throw error;
-          }
-          metadataEmitted = true;
-          totalChapters = metadata.chapterCount || 0;
-          debugLog('import', 'summary', '[StreamImport] Metadata loaded:', { totalChapters });
-
-          onProgress?.({
-            stage: 'streaming',
-            progress: 0,
-            chaptersLoaded: 0,
-            totalChapters,
-            message: `Starting stream... (${totalChapters || 'unknown'} chapters total)`,
-            canStartReading: false,
-          });
-
-          buffer = buffer.slice(objectEnd + 1);
-        };
-
-        const ensureChaptersArrayStarted = () => {
-          if (!metadataEmitted || chaptersStarted) return;
-
-          const chaptersKey = buffer.indexOf('"chapters"');
-          if (chaptersKey === -1) return;
-
-          const arrayStart = buffer.indexOf('[', chaptersKey);
-          if (arrayStart === -1) return;
-
-          sessionVersion = extractObjectField(buffer.slice(0, chaptersKey), 'version') ?? sessionVersion;
-          sessionOscilloscope = extractObjectField(buffer.slice(0, chaptersKey), 'oscilloscope') ?? sessionOscilloscope;
-          buffer = buffer.slice(arrayStart + 1);
-          chaptersStarted = true;
-        };
-
-        const extractNextChapter = (): any | null => {
-          trimLeadingSeparators();
-
-          if (!buffer.length) return 'incomplete';
-
-          const firstChar = buffer[0];
-
-          if (firstChar === ']') {
-            chaptersCompleted = true;
-            buffer = buffer.slice(1);
-            return null;
-          }
-
-          if (firstChar !== '{') {
-            buffer = buffer.slice(1);
-            return 'incomplete';
-          }
-
-          const endIndex = findMatchingBrace(buffer, 0);
-          if (endIndex === -1) {
-            return 'incomplete';
-          }
-
-          const chapterJson = buffer.slice(0, endIndex + 1);
-          buffer = buffer.slice(endIndex + 1);
-
-          try {
-            return JSON.parse(chapterJson);
-          } catch (error) {
-            console.error('[StreamImport] Failed to parse chapter JSON', error);
-            throw error;
-          }
-        };
+        metadata = validation.metadata;
+        sessionVersion = validation.version;
+        sessionOscilloscope = validation.oscilloscope;
+        totalChapters = metadata.chapterCount || validation.chapterCount;
+        onProgress?.({ stage: 'streaming', progress: 0, chaptersLoaded: 0, totalChapters,
+          message: `Starting import... (${totalChapters} chapters total)`, canStartReading: false });
 
         const processChapter = async (chapter: any) => {
           const chapterUrl: string | undefined = chapter.url || chapter.canonicalUrl;
@@ -987,47 +757,27 @@ export class ImportService {
         };
 
         try {
-          let done = false;
-          while (!done) {
-            const { value, done: chunkDone } = await reader.read();
-            done = chunkDone;
-            buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
-
-            emitMetadataIfReady();
-            ensureChaptersArrayStarted();
-
-            while (chaptersStarted && !chaptersCompleted) {
-              const nextChapter = extractNextChapter();
-              if (nextChapter === 'incomplete') break;
-              if (nextChapter === null) break;
-              await processChapter(nextChapter);
+          const readyChapters: Record<string, any>[] = [];
+          const localParser = new SessionJsonValidator((chapter) => { readyChapters.push(chapter); });
+          const decoder = new TextDecoder('utf-8', { fatal: true });
+          for (const chunk of chunks) {
+            for (let offset = 0; offset < chunk.byteLength; offset += 64 * 1024) {
+              localParser.feed(decoder.decode(chunk.subarray(offset, offset + 64 * 1024), { stream: true }));
+              for (const chapter of readyChapters.splice(0)) await processChapter(chapter);
             }
-            captureOscilloscopeIfReady();
           }
-
-          buffer += decoder.decode();
-
-          emitMetadataIfReady();
-          ensureChaptersArrayStarted();
-
-          while (chaptersStarted && !chaptersCompleted) {
-            const nextChapter = extractNextChapter();
-            if (nextChapter === 'incomplete') break;
-            if (nextChapter === null) break;
-            await processChapter(nextChapter);
-          }
-          captureOscilloscopeIfReady();
+          localParser.feed(decoder.decode());
+          localParser.finish();
+          for (const chapter of readyChapters.splice(0)) await processChapter(chapter);
         } catch (error) {
-          console.error('[StreamImport] Stream failed:', error);
-          reject(new Error(`Streaming import failed: ${error instanceof Error ? error.message : String(error)}`));
+          console.error('[StreamImport] Import failed:', error);
           telemetryService.capturePerformance('import:stream:error', now() - streamStart, {
             chaptersLoaded,
             totalChapters: totalChapters || null,
             reason: error instanceof Error ? error.message : String(error),
           });
+          reject(new Error(`Streaming import failed: ${error instanceof Error ? error.message : String(error)}`));
           return;
-        } finally {
-          reader.releaseLock();
         }
 
         if (!totalChapters) {
@@ -1254,7 +1004,11 @@ export class ImportService {
   static async importFromFile(file: File): Promise<any> {
     const { activeNovelId, activeVersionId } = useAppStore.getState();
     try {
+      if (file.size > IMPORT_LIMITS.bytes) throw new ImportValidationError('file too large (>500MB)');
       const text = await file.text();
+      const validation = new SessionJsonValidator();
+      for (let offset = 0; offset < text.length; offset += 64 * 1024) validation.feed(text.slice(offset, offset + 64 * 1024));
+      validation.finish();
       let sessionData = JSON.parse(text);
 
       // Allow BookToki scraper JSON payloads by converting them into a LexiconForge full export payload.
