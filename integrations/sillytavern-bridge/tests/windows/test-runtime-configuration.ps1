@@ -33,7 +33,7 @@ try {
         foreach ($name in $required) { [Environment]::SetEnvironmentVariable($name, 'test-placeholder', 'Process') }
         [Environment]::SetEnvironmentVariable($missing, $null, 'Process')
         $launcher = if ($missing -eq 'LF_ST_ROOT') { 'start-sillytavern.cmd' } else { 'start-bridge.cmd' }
-        $logName = if ($missing -eq 'LF_ST_ROOT') { 'sillytavern.log' } else { 'bridge.log' }
+        $logName = if ($missing -eq 'LF_ST_ROOT') { 'sillytavern.log' } else { 'bridge-startup.log' }
         $log = Join-Path $sandbox "logs/$logName"
         if (Test-Path -LiteralPath $log) { Clear-Content -LiteralPath $log }
         & $env:ComSpec /d /c (Join-Path $sandbox $launcher) | Out-Null

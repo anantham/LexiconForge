@@ -147,9 +147,15 @@ by a source checkout; review configuration migration before deployment.
 
 The checked-in launchers bind SillyTavern to `127.0.0.1:8000` and the bridge to
 `127.0.0.1:5001`. `install-startup-tasks.ps1` registers two narrowly named,
-current-user logon tasks disabled. Logs are append-only under
-`deploy/windows/logs/`; request content and card bodies are intentionally not
-logged.
+current-user logon tasks disabled. The bridge launcher stores runtime logs in
+`deploy/windows/logs/bridge.log` with a 2 MiB byte limit and three backups (at most
+8 MiB total); each UTF-8 record is capped at 4 KiB. Existing oversized bridge logs
+are reduced to their last 2 MiB on launcher startup. Fixed startup diagnostics
+are overwritten in `bridge-startup.log`. Uvicorn access logging is disabled, and
+rejected requests produce at most one record per error code per minute; suppressed
+counts are summarized on the next rejection after that interval. Request bodies
+and rejection messages stay out of those records. Foreground direct uvicorn
+commands and the separate SillyTavern launcher retain their own logging policy.
 
 Before cutover, run `apply-sillytavern-hardening.ps1 -SillyTavernRoot <directory>
 -AllowedDeviceIp <ip...> -Apply`. It requires the exact official upstream commit and complete tracked source bytes;
