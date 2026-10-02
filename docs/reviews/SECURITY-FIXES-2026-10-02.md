@@ -6,9 +6,11 @@ byte verification remain in task-local evidence. This receipt records validated
 source findings and synthetic evidence without novel prose or credentials.
 
 The user authorized implementation, tests, task branches, worktrees and local
-commits. Publication, merge, deployment, runtime settings, credential rotation,
-repository visibility and destructive history cleanup are excluded. No production
-change is represented by a local fix. Existing main/other worktrees were preserved.
+commits, then directly authorized publishing the reviewed branch and creating a
+draft PR with Codex review. Merge, production deployment, runtime settings,
+credential rotation, repository visibility and destructive history cleanup remain
+excluded. No production change is represented by a local fix. Existing main/other
+worktrees were preserved.
 
 ## Finding validation and disposition
 
@@ -78,7 +80,8 @@ audit, not these local unit/build/type gates.
   scan baseline: 324 files, 9,610 passed, 347 skipped.
 - Coverage policy passes: lines62.04%, statements60.44%, functions59.99%,
   branches48.80%; all per-file floors pass.
-- Bridge aggregate: **69 passed**. Grounding synthetic workflow: **8 passed**.
+- Bridge aggregate: **72 passed** after the Windows bootstrap follow-up below
+  (initial integration: 69). Grounding synthetic workflow: **8 passed**.
 - Production build, client-artifact secret scan, extension packaging, repository
   integrity and whitespace gates pass.
 - Whole-repository lint: **0 errors, 1,853 warnings**; warnings were not suppressed.
@@ -132,15 +135,17 @@ unperformed native/deployed acceptance and a fresh scan; those remain open.
 
 ## Remaining acceptance and approved-deployment sequence
 
-1. Parent reviews this grouped commit series and exact changed-file manifest.
-   Follow-on publication was requested after owner approval was recorded, but
-   automatic approval review rejected both attempts because it requires direct
-   user authorization in the child task. No push/PR, merge, deployment or runtime
-   activation was performed; the rejection was not bypassed.
-2. Run exact-head CI and the repository's external PR-review gate after
-   authorized publication. The supposed baseline TypeScript fixture failure is
-   withdrawn: final and baseline type checks pass with complete React types. Fresh security scanning requires its own applicable
-   cost/authorization envelope and was not run by this task.
+1. Parent reviews this grouped commit series and exact changed-file manifest in
+   [draft PR #193](https://github.com/anantham/LexiconForge/pull/193). Keep the PR
+   draft until a separately authorized readiness decision. Earlier publication
+   attempts were rejected before execution; direct user authorization subsequently
+   approved the original push/PR route. No rejection was bypassed.
+2. All five Test jobs passed for the initial published head `4376776`. Codex
+   returned one applicable Windows bootstrap P2, corrected in the follow-up below.
+   New-head CI and Codex review must cover that correction before readiness. The
+   supposed baseline TypeScript fixture failure is withdrawn: final and baseline
+   type checks pass with complete React types. Fresh security scanning requires
+   its own applicable cost/authorization envelope and was not run by this task.
 3. After merge/deployment approval, deploy the frontend and the serverless API
    together, verify safe proxy headers/limits in the deployed environment with
    controlled synthetic fixtures, and configure approved fleet-wide edge limits
@@ -166,14 +171,51 @@ is not a claim of deployed protection, compromise absence or all-project coverag
 The public repository identity, owner push/admin permission and remote base were
 verified. Outgoing additions exclude the private report, Library identifiers,
 local user paths and credential patterns. Two publication attempts were rejected
-before execution; no alternate route was used. Automatic review has therefore not
-been observed for this branch, and no manual review comment was sent. Draft-to-ready
-transition remains a separate parent decision. Existing GitHub workflow state was
-read without enabling or changing Actions; the scan-base Test run passed all five
-jobs. This is baseline CI evidence, not CI for the unpublished security head.
+before execution; no alternate route was used. A direct user instruction then
+authorized the original Git push and draft PR creation route, which succeeded at
+18:29 IST. Existing GitHub workflow settings were preserved. The existing Vercel
+integration created a preview automatically; no production promotion occurred.
+
+The initial published head `4376776e1b4c6a23429a096d927570a4dc184c2e`
+passed all five Test jobs in
+[run 37010007765](https://github.com/anantham/LexiconForge/actions/runs/37010007765).
+No automatic Codex review was observed on draft creation. One authorized
+[`@codex review` request](https://github.com/anantham/LexiconForge/pull/193#issuecomment-5952963975)
+was acknowledged at 18:32:46 IST; the
+[review](https://github.com/anantham/LexiconForge/pull/193#pullrequestreview-5392209451)
+returned at 18:44:23 IST, approximately 11 minutes 37 seconds later. Draft-to-ready
+transition was not performed.
 
 The original local TypeScript classification was incorrect. QA-01 detected absent
 React type declarations in the reused dependency installation. Restoring the exact
 locked types makes both baseline and final type checking pass without source edits.
 The historical test logs are retained with corrected-runtime logs and an explicit
 correction; they must not be described as baseline source defects.
+
+
+## Codex follow-up: trusted Windows parser bootstrap
+
+Codex identified one applicable P2: the normal Windows `bootstrap-bridge.ps1`
+workflow installed Python dependencies but omitted the new dedicated trusted YAML
+tooling lock. A clean Windows install would therefore fail closed when the
+hardener checked for its fixed tool-owned parser. This was validated from the
+bootstrap and configurator source rather than assumed to work from Mac tests.
+
+Bootstrap now resolves the existing npm executable, checks the trusted tooling
+manifest/lock, and installs that exact lock with `npm ci --ignore-scripts
+--no-audit --no-fund` from the fixed bridge-relative tooling directory and absolute
+prefix. Missing inputs, npm failure or absent parser stop before Python/uv setup;
+cwd restoration occurs in `finally`. No target SillyTavern dependency or lifecycle
+hook is executed. The README documents npm and the automatic step.
+
+Three new Python regressions cover sequencing, exact parser lock and a real offline
+npm invocation with synthetic lifecycle canaries and an untrusted starting cwd.
+All **72 bridge tests pass**; independent review found no actionable issues and
+independently passed **9 focused tests**. The disposable native PowerShell failure
+probe was inspected but remains **unexecuted on this Mac**. Its native acceptance
+is still a deployment prerequisite.
+
+Follow-up implementation began at 18:45 IST with a 10–15 minute estimate and
+confidence 0.97; the agent completed it in 8 minutes. Root integration and aggregate
+verification finished by 18:56 IST. New-head CI and the next Codex review depend on
+external job latency; prior review timing is evidence, not a completion guarantee.
