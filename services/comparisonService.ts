@@ -1,10 +1,7 @@
 import { AppSettings } from '../types';
 import prompts from '../config/prompts.json';
-import { OpenAI } from 'openai';
 import { debugLog } from '../utils/debug';
-import { getConfiguredApiKey, getOpenAICompatibleConfig } from './ai/providerCredentials';
-import { getChatCompletionRequestParameters } from './ai/openaiRequestParameters';
-import { buildOpenRouterRouting } from './openrouterRouting';
+import { requestWithSelectedProvider } from './ai/selectedProvider';
 
 const clog = (...args: any[]) => debugLog('comparison', 'summary', '[ComparisonService]', ...args);
 
@@ -119,11 +116,6 @@ export class ComparisonService {
       rawText: fullRawText || '(no raw text available)',
     });
 
-    const { apiKey, baseURL } = resolveApiConfig(settings);
-    if (!apiKey) {
-      throw new Error(`API key for ${settings.provider} is missing.`);
-    }
-
     clog('Focused comparison request', {
       chapterId,
       selectionLength: selectedTranslation?.length ?? 0,
@@ -133,24 +125,17 @@ export class ComparisonService {
       model: settings.model,
     });
 
-    const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true });
     const maxOutput = Math.max(256, Math.min((settings.maxOutputTokens ?? 4096), 200000));
-
-    const completion = await client.chat.completions.create({
-      model: settings.model,
+    const completion = await requestWithSelectedProvider({
+      settings,
       messages: [{ role: 'user', content: prompt }],
-      ...getChatCompletionRequestParameters(
-        settings.provider,
-        settings.model,
-        maxOutput,
-        { temperature: 0 }
-      ),
-      ...(settings.provider === 'OpenRouter'
-        ? { provider: buildOpenRouterRouting(settings, 'text') }
-        : {}),
+      maxTokens: maxOutput,
+      temperature: 0,
+      apiType: 'translation',
+      chapterId,
     });
 
-    const content = completion.choices[0]?.message?.content ?? '';
+    const content = completion.text;
     const jsonPayload = extractJsonPayload(content);
     if (!jsonPayload) {
       console.warn('[ComparisonService] Unable to locate JSON payload in response', { content });
@@ -185,27 +170,5 @@ export class ComparisonService {
     });
 
     return result;
-  }
-}
-
-function resolveApiConfig(settings: AppSettings): { apiKey?: string; baseURL?: string } {
-  switch (settings.provider) {
-    case 'OpenAI':
-    case 'DeepSeek':
-    case 'OpenRouter':
-      return getOpenAICompatibleConfig(settings, settings.provider);
-    case 'Gemini':
-    case 'Claude':
-      console.warn('[ComparisonService] Provider not directly supported, defaulting to OpenRouter.');
-      return {
-        apiKey: getConfiguredApiKey(settings, 'OpenRouter'),
-        baseURL: 'https://openrouter.ai/api/v1',
-      };
-    default:
-      console.warn('[ComparisonService] Unknown provider, defaulting to OpenRouter.');
-      return {
-        apiKey: getConfiguredApiKey(settings, 'OpenRouter'),
-        baseURL: 'https://openrouter.ai/api/v1',
-      };
   }
 }

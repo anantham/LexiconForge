@@ -161,10 +161,10 @@ export class GeminiAdapter implements TranslationProvider, Provider {
       const config: GenerateContentConfig = {
         temperature,
         maxOutputTokens: maxTokens,
-        responseMimeType: 'application/json',
+        responseMimeType: input.responseFormat === 'text' ? 'text/plain' : 'application/json',
         abortSignal: input.abortSignal,
       };
-      if (input.schema && (input.structuredOutputs ?? true)) {
+      if (input.responseFormat !== 'text' && input.schema && (input.structuredOutputs ?? true)) {
         config.responseSchema = input.schema;
       }
 
