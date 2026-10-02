@@ -135,8 +135,20 @@ fixture input, not a machine-specific default.
 
 Run `deploy/windows/bootstrap-bridge.ps1 -BasePython <python.exe>` first. It creates a standard Python
 3.12.13 environment, exports the checked-in lock with hashes, synchronizes it,
-and runs the bridge suite. The explicit base-Python path avoids uv's generated
+and runs the bridge suite. Node/npm must already be available. Bootstrap first
+installs the exact `deploy/tools/package-lock.json` into the trusted bridge
+checkout with lifecycle scripts disabled, then verifies the YAML parser exists.
+A failed tooling install stops bootstrap before Python synchronization or tests;
+it never installs dependencies in `LF_ST_ROOT` or loads a target YAML package.
+Use `-NpmExecutable <npm.cmd>` when npm is outside the executable search path.
+The explicit base-Python path avoids uv's generated
 Windows junction, which is rejected as an untrusted mount in an SSH session.
+
+Run `tests/windows/test-bootstrap-tooling.ps1` in a separate PowerShell process
+for an offline failure-path probe. It uses disposable command stubs to verify
+the trusted installation path and that installer failure, a missing parser or a
+missing tool lock stop bootstrap before Python/uv work. It installs no packages
+and starts no runtime or service.
 
 Set `LF_ST_ROOT`, `LF_PORTAL_VAULT_ROOT`, `LF_PORTAL_ST_PUBLIC_URL` and
 `LF_PORTAL_OWNER_LOGINS` in the runtime user's private environment before launching

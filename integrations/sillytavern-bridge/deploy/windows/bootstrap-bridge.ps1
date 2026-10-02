@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory = $true)]
     [string]$BasePython,
-    [string]$UvExecutable = 'uv'
+    [string]$UvExecutable = 'uv',
+    [string]$NpmExecutable = 'npm'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -9,14 +10,37 @@ $ErrorActionPreference = 'Stop'
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $bridgeRoot = (Resolve-Path (Join-Path $scriptDirectory '..\..')).Path
 $uv = (Get-Command $UvExecutable -CommandType Application -ErrorAction Stop).Source
+$npm = (Get-Command $NpmExecutable -CommandType Application -ErrorAction Stop).Source
+$toolsDirectory = Join-Path $bridgeRoot 'deploy\tools'
+$trustedParser = Join-Path $toolsDirectory 'node_modules\yaml\dist\index.js'
 $virtualEnvironment = Join-Path $bridgeRoot '.venv-native'
 $virtualPython = Join-Path $virtualEnvironment 'Scripts\python.exe'
 $requirements = Join-Path $bridgeRoot '.runtime-requirements.txt'
 
-foreach ($requiredFile in @($uv, $basePython)) {
+foreach ($requiredFile in @(
+    $uv, $basePython, $npm,
+    (Join-Path $toolsDirectory 'package.json'),
+    (Join-Path $toolsDirectory 'package-lock.json')
+)) {
     if (-not (Test-Path -LiteralPath $requiredFile -PathType Leaf)) {
-        throw "Required runtime executable is missing: $requiredFile"
+        throw "Required bootstrap input is missing: $requiredFile"
     }
+}
+
+# Provision only the tool-owned lock, never a target SillyTavern installation.
+# A fixed working directory also prevents an unrelated caller's .npmrc/package
+# from becoming the installation context.
+Push-Location $toolsDirectory
+try {
+    & $npm ci --ignore-scripts --no-audit --no-fund --prefix $toolsDirectory
+    if ($LASTEXITCODE -ne 0) {
+        throw "npm failed to install the frozen trusted tooling lock (exit $LASTEXITCODE)"
+    }
+    if (-not (Test-Path -LiteralPath $trustedParser -PathType Leaf)) {
+        throw "Trusted YAML parser is missing after tooling installation: $trustedParser"
+    }
+} finally {
+    Pop-Location
 }
 
 if (-not (Test-Path -LiteralPath $virtualPython -PathType Leaf)) {
