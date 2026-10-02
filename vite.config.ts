@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { defineConfig, type Plugin } from 'vite';
+import { findReportPacket, isSafeReportId } from './scripts/lib/dev-report-paths';
 
 /**
  * Plugin: local fetch proxy for scraping.
@@ -35,8 +36,9 @@ function localFetchProxyPlugin(): Plugin {
  * - GET /api/sutta-studio/reports - List available reports (sorted newest first)
  * - GET /api/sutta-studio/reports/:reportId/packet.json - Get assembled packet
  */
-function suttaStudioReportsPlugin(): Plugin {
-  const reportsDir = path.resolve(__dirname, 'reports/sutta-studio');
+export function suttaStudioReportsPlugin(
+  reportsDir = path.resolve(__dirname, 'reports/sutta-studio')
+): Plugin {
 
   return {
     name: 'sutta-studio-reports',
@@ -55,7 +57,7 @@ function suttaStudioReportsPlugin(): Plugin {
 
             const entries = fs.readdirSync(reportsDir, { withFileTypes: true });
             const reports = entries
-              .filter((e) => e.isDirectory())
+              .filter((e) => e.isDirectory() && isSafeReportId(e.name))
               .map((e) => e.name)
               .sort()
               .reverse(); // Newest first (ISO timestamps sort correctly)
@@ -73,19 +75,19 @@ function suttaStudioReportsPlugin(): Plugin {
         const packetMatch = url.match(/^\/api\/sutta-studio\/reports\/([^/]+)\/packet\.json$/);
         if (packetMatch) {
           const reportId = packetMatch[1];
-          const packetPath = path.join(reportsDir, reportId, 'outputs', 'gemini-3-flash', 'packet.json');
-
-          // Also check direct in report dir (fallback)
-          const altPacketPath = path.join(reportsDir, reportId, 'packet.json');
-          const finalPath = fs.existsSync(packetPath) ? packetPath : altPacketPath;
-
-          if (!fs.existsSync(finalPath)) {
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Packet not found' }));
+          if (!isSafeReportId(reportId)) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Invalid report ID' }));
             return;
           }
 
           try {
+            const finalPath = findReportPacket(reportsDir, reportId);
+            if (!finalPath) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Packet not found' }));
+              return;
+            }
             const content = fs.readFileSync(finalPath, 'utf8');
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(content);
@@ -104,6 +106,7 @@ function suttaStudioReportsPlugin(): Plugin {
 
 export default defineConfig({
   server: {
+    host: '127.0.0.1',
     port: 5180,
     strictPort: true,
   },
