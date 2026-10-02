@@ -32,3 +32,13 @@ it('development proxy returns inert source through the shared runtime handler', 
     expect(response.headers['Content-Disposition']).toContain('attachment');
   } finally { get.mockRestore(); }
 });
+
+it('loads both safety plugins through Vite’s actual ESM config bundler', async () => {
+  const { loadConfigFromFile } = await import('vite');
+  const { resolve } = await import('node:path');
+  const loaded = await loadConfigFromFile({ command: 'build', mode: 'production' }, resolve(__dirname, '../../../vite.config.ts'));
+  expect(loaded?.config.plugins?.map((entry: any) => entry.name)).toEqual([
+    'local-fetch-proxy', 'sutta-studio-reports',
+  ]);
+  expect(loaded?.config.server?.host).toBe('127.0.0.1');
+});

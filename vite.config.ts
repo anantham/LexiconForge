@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { defineConfig, type Plugin } from 'vite';
+import { createRequire } from 'node:module';
 import { findReportPacket, isSafeReportId } from './scripts/lib/dev-report-paths';
 
 /**
@@ -13,7 +14,9 @@ import { findReportPacket, isSafeReportId } from './scripts/lib/dev-report-paths
 // requires, so dev and prod proxies cannot drift (structure enforced by proxy-parity.test.ts).
 // services/scraping/allowedDomains.cjs is enforced by serverFetchProxy.
 
-import serverFetchProxy from './services/scraping/serverFetchProxy.cjs';
+// Load the Node-only policy without bundling its built-in requires into ESM.
+const requireFromConfig = createRequire(path.join(__dirname, 'vite.config.ts'));
+const serverFetchProxy = requireFromConfig('./services/scraping/serverFetchProxy.cjs') as typeof import('./services/scraping/serverFetchProxy.cjs');
 
 function localFetchProxyPlugin(): Plugin {
   const serve = serverFetchProxy.createFetchProxy({ source: 'local-fetch-proxy' });
