@@ -131,7 +131,7 @@ export class ComparisonService {
       messages: [{ role: 'user', content: prompt }],
       maxTokens: maxOutput,
       temperature: 0,
-      apiType: 'translation',
+      apiType: 'comparison',
       chapterId,
     });
 

@@ -23,7 +23,10 @@ vi.mock('openai', async (importOriginal) => {
 });
 vi.mock('../../services/ai/cost', () => ({ calculateCost: vi.fn(async () => 0) }));
 vi.mock('../../services/rateLimitService', () => ({ rateLimitService: { acquireRequestSlot: vi.fn(async () => undefined) } }));
-vi.mock('../../services/apiMetricsService', () => ({ apiMetricsService: { recordMetric: mocks.recordMetric } }));
+vi.mock('../../services/apiMetricsService', async (importOriginal) => ({
+  ...await importOriginal<typeof import('../../services/apiMetricsService')>(),
+  apiMetricsService: { recordMetric: mocks.recordMetric },
+}));
 vi.mock('../../store', () => ({ useAppStore: { getState: () => ({ settings: mocks.settings }) } }));
 vi.mock('../../services/db/operations', () => ({
   DiffOps: {
@@ -36,6 +39,7 @@ vi.mock('../../services/db/operations', () => ({
 import { ComparisonService } from '../../services/comparisonService';
 import { ExplanationService } from '../../services/explanationService';
 import { cleanupDiffTriggerService, handleTranslationComplete } from '../../services/diff/DiffTriggerService';
+import { estimateTranslationTime, type ApiCallMetric } from '../../services/apiMetricsService';
 
 const routes = [
   { provider: 'OpenAI', model: 'gpt-4o-mini', keyField: 'apiKeyOpenAI', host: 'api.openai.com', path: '/v1/chat/completions' },
@@ -127,6 +131,20 @@ describe.each(['comparison', 'explanation', 'diff'])('%s recipient boundary', (f
     expect(mocks.fetch).toHaveBeenCalledOnce();
     expect(requestedUrl().host).toBe(route.host);
     expect(requestedUrl().pathname).toBe(route.path);
+    expect(mocks.recordMetric).toHaveBeenCalledOnce();
+    const metric = mocks.recordMetric.mock.calls[0][0];
+    expect(metric).toMatchObject({
+      apiType: feature === 'diff' ? 'diff_analysis' : feature,
+      provider: route.provider,
+      model: route.model,
+      success: true,
+    });
+    expect(metric.duration).toBeGreaterThan(0);
+    expect(estimateTranslationTime([
+      { ...metric, id: 'synthetic-auxiliary-metric', timestamp: '2026-10-02T00:00:00Z' } as ApiCallMetric,
+    ], route.model, route.provider)).toEqual({
+      avgTimeSeconds: 30, sampleCount: 0, source: 'default', confidence: 'unknown',
+    });
     const request = mocks.fetch.mock.calls[0][1];
     const headers = new Headers(request.headers);
     const auth = headers.get('authorization') || headers.get('x-api-key') || headers.get('x-goog-api-key');
@@ -177,6 +195,11 @@ describe.each(['comparison', 'explanation', 'diff'])('%s recipient boundary', (f
     expect(mocks.fetch).toHaveBeenCalledOnce();
     expect(requestedUrl().host).toBe(route.host);
     expect(mocks.save).not.toHaveBeenCalled();
+    expect(mocks.recordMetric).toHaveBeenCalledWith(expect.objectContaining({
+      apiType: feature === 'diff' ? 'diff_analysis' : feature,
+      provider: route.provider,
+      success: false,
+    }));
   });
 
   it('fails closed on an unrecognized selected provider', async () => {

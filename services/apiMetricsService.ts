@@ -3,6 +3,7 @@
  *
  * Tracks ALL API calls across the application:
  * - Translation (OpenRouter, Gemini, DeepSeek, Claude, OpenAI)
+ * - Comparison and Explanation (selected text provider; separate from translation ETA)
  * - Image Generation (Imagen, Gemini, OpenRouter, PiAPI)
  * - Audio Generation (PiAPI)
  * - Diff Analysis (OpenRouter/Gemini)
@@ -13,7 +14,7 @@
  * - Export to CSV for accounting
  */
 
-export type ApiCallType = 'translation' | 'image' | 'audio' | 'diff_analysis' | 'sutta_studio' | 'library_search';
+export type ApiCallType = 'translation' | 'comparison' | 'explanation' | 'image' | 'audio' | 'diff_analysis' | 'sutta_studio' | 'library_search';
 
 export interface ApiCallMetric {
   id: string; // UUID, or a stable key for an idempotent recovered operation
@@ -406,6 +407,8 @@ class ApiMetricsService {
       totalCalls: metrics.length,
       byType: {
         translation: { cost: 0, calls: 0 },
+        comparison: { cost: 0, calls: 0 },
+        explanation: { cost: 0, calls: 0 },
         image: { cost: 0, calls: 0 },
         audio: { cost: 0, calls: 0 },
         diff_analysis: { cost: 0, calls: 0 },
@@ -441,6 +444,8 @@ class ApiMetricsService {
       totalCalls: 0,
       byType: {
         translation: { cost: 0, calls: 0 },
+        comparison: { cost: 0, calls: 0 },
+        explanation: { cost: 0, calls: 0 },
         image: { cost: 0, calls: 0 },
         audio: { cost: 0, calls: 0 },
         diff_analysis: { cost: 0, calls: 0 },

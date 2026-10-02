@@ -25,7 +25,7 @@ export class ExplanationService {
         maxTokens: maxOutput,
         temperature: 0.5,
         responseFormat: 'text',
-        apiType: 'translation',
+        apiType: 'explanation',
       });
 
       debugLog('translation', 'summary', '[ExplanationService] Explanation complete', {

@@ -164,6 +164,51 @@ describe('estimateTranslationTime — issue #13', () => {
     expect(r.sampleCount).toBe(1);
     expect(r.avgTimeSeconds).toBe(7);
   });
+
+  it.each([
+    { model: 'gemini-2.5-flash', provider: 'Gemini', source: 'model', duration: 20, samples: 1 },
+    { model: 'unseen-model', provider: 'Gemini', source: 'provider', duration: 30, samples: 2 },
+    { model: 'unseen-model', provider: 'OpenAI', source: 'global', duration: 30, samples: 2 },
+  ])('excludes auxiliary durations from the $source translation ETA', ({ model, provider, source, duration, samples }) => {
+    const metrics = [
+      mkMetric('gemini-2.5-flash', 'Gemini', 20),
+      mkMetric('gemini-2.0-flash', 'Gemini', 40),
+      mkMetric(model, provider, 1, { apiType: 'comparison' }),
+      mkMetric(model, provider, 1000, { apiType: 'explanation' }),
+    ];
+    expect(estimateTranslationTime(metrics, model, provider)).toMatchObject({
+      source, avgTimeSeconds: duration, sampleCount: samples,
+    });
+  });
+});
+
+describe('auxiliary metric accounting and history', () => {
+  it('preserves auxiliary costs/categories in session, lifetime and CSV without using their durations for ETA', async () => {
+    await apiMetricsService.clearAllMetrics();
+    const metrics = [
+      mkMetric('shared-model', 'Gemini', 60, { apiType: 'translation', costUsd: 0.25 }),
+      mkMetric('shared-model', 'Gemini', 1, { apiType: 'comparison', costUsd: 1.5 }),
+      mkMetric('shared-model', 'Gemini', 1000, { apiType: 'explanation', costUsd: 2.25 }),
+    ];
+    for (const { id: _id, timestamp: _timestamp, ...metric } of metrics) {
+      await apiMetricsService.recordMetric(metric);
+    }
+    const summary = await apiMetricsService.getCompleteSummary();
+    for (const totals of [summary.session, summary.lifetime]) {
+      expect(totals.totalCalls).toBe(3);
+      expect(totals.totalCost).toBe(4);
+      expect(totals.byType.translation).toEqual({ calls: 1, cost: 0.25 });
+      expect(totals.byType.comparison).toEqual({ calls: 1, cost: 1.5 });
+      expect(totals.byType.explanation).toEqual({ calls: 1, cost: 2.25 });
+    }
+    expect(await apiMetricsService.getAverageTranslationTime('shared-model', 'Gemini')).toEqual({
+      avgTimeSeconds: 60, sampleCount: 1, source: 'model', confidence: 'low',
+    });
+    const csv = await apiMetricsService.exportToCSV();
+    expect(csv).toContain(',comparison,Gemini,shared-model,1.5000,');
+    expect(csv).toContain(',explanation,Gemini,shared-model,2.2500,');
+    await apiMetricsService.clearAllMetrics();
+  });
 });
 
 describe('estimateImageGenerationTime — empirical image jobs', () => {
