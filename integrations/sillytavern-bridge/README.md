@@ -78,21 +78,29 @@ this repository. For a new installation, clone the official source once into an
 absent destination and select the reviewed release:
 
 ```bash
+npm ci --ignore-scripts --prefix deploy/tools
 : "${LF_ST_ROOT:?Set the approved installation directory}"
-git clone https://github.com/SillyTavern/SillyTavern.git "$LF_ST_ROOT"
+git clone --config core.autocrlf=false https://github.com/SillyTavern/SillyTavern.git "$LF_ST_ROOT"
 git -C "$LF_ST_ROOT" checkout --detach 51ad27fb86d39a3daca3adaa970375c9670c12df
 bash deploy/macos/prepare-sillytavern.sh --runtime-root "$LF_ST_ROOT" --apply
 bash deploy/macos/prepare-sillytavern.sh --runtime-root "$LF_ST_ROOT"
 ```
 
-Run these commands from this integration directory. For an existing checkout,
+Run these commands from this integration directory. The first command installs
+the fixed, tool-owned YAML parser in this trusted checkout. The configurator
+imports only that locked package; it never imports an inspected runtime's
+dependencies. Missing tooling fails before any target installation. For an existing checkout,
 skip cloning and start with the last command. Preparation requires the exact
 upstream commit and either the exact base or reviewed hardened manifest pair.
 `--apply` applies the overlay, runs `npm ci --ignore-scripts`, sets the whitelist
 to loopback only and installs the byte-verified extension. Without `--apply`, it
 checks source, the installed production dependency tree with `npm ls --all`,
 configuration and extension without installation or configuration writes.
-Unrelated changes, a changed extension, staged files and mixed manifests fail.
+Every tracked source file is checked against the reviewed commit, independently of
+Git's assume-unchanged/skip-worktree flags. Staged changes, unreviewed descendants,
+unknown imports, source symlinks, ignored executable additions, a changed extension
+and mixed manifests fail. Runtime data is excluded without reading its private bytes.
+Keep `core.autocrlf=false` so checkout bytes match reviewed Git blobs.
 A failed apply leaves its explicit checkout available for inspection and retry;
 it does not claim atomic installation or activate a service.
 
@@ -144,8 +152,9 @@ current-user logon tasks disabled. Logs are append-only under
 logged.
 
 Before cutover, run `apply-sillytavern-hardening.ps1 -SillyTavernRoot <directory>
--AllowedDeviceIp <ip...> -Apply`. It requires either the official upstream ancestry or exact reviewed
-committed v1.18.0 manifest/lock blob hashes, applies the Multer 2.2.0 overlay, installs
+-AllowedDeviceIp <ip...> -Apply`. It requires the exact official upstream commit and complete tracked source bytes;
+manifest-only imports and arbitrary descendants are rejected. It applies the
+Multer 2.2.0 overlay, installs
 the exact lock, verifies the installed version and integrity, and changes only
 SillyTavern's whitelist block. The list
 must contain loopback plus explicit owner-device Tailscale IPs; forwarded-IP
@@ -172,9 +181,10 @@ The probe stops at a hardening sentinel; it does not start services or alter rou
 
 Run `tests/windows/test-hardening-repeat.ps1 -SeedDirectory <fixture>` in a
 separate PowerShell process for the real overlay/configurator round trip. The
-fixture contains `package.json` and `package-lock.json` from upstream commit
-`51ad27fb86d39a3daca3adaa970375c9670c12df`, plus the extracted `yaml/` package
-from that lock (2.8.3, verified against its recorded integrity). This test creates
+fixture is a complete Git checkout at upstream commit
+`51ad27fb86d39a3daca3adaa970375c9670c12df`. Install the trusted deployment-tool
+lock in the bridge checkout first; target `yaml/` packages are never used.
+This test creates
 and removes its own temporary checkout, simulates npm's installed manifest, and
 checks repeat verification and rejection paths. It neither installs dependencies
 nor changes the live runtime, services or routes.
