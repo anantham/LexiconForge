@@ -67,8 +67,11 @@ Runtime: Node24.19.0 and Vitest4.0.16. Installed top-level package versions
 match the lockfile; this comparison originally missed absent React type packages.
 The exact locked React/React-DOM types and csstype were subsequently restored in
 task-owned storage with SHA-512 verification and no package scripts. Existing
-dependency bytes were reused without mutating the original checkout; Vite caches
-were isolated. The missing axe Playwright helper affects the unperformed browser
+dependency bytes and tracked source were preserved; Vite caches were isolated.
+The initial shared @types namespace accidentally placed two task-created symlinks
+in the source dependency directory. Those exact owned links were removed, and
+final/baseline namespace directories now belong to the task. No original package
+bytes or other files were changed. The missing axe Playwright helper affects the unperformed browser
 audit, not these local unit/build/type gates.
 
 - Full suite plus coverage: **331 files, 9,828 passed, 347 skipped**. Untouched
