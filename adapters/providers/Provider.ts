@@ -32,6 +32,8 @@ export interface ChatRequest {
   schema?: any;
   schemaName?: string;
   structuredOutputs?: boolean;
+  /** JSON remains the default; plain-text reader features opt out explicitly. */
+  responseFormat?: 'json' | 'text';
   abortSignal?: AbortSignal;
   apiType?: ApiCallType;
   chapterId?: string;

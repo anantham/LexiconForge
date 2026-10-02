@@ -3,6 +3,18 @@
  * Polyglotta-only (BookToki lane removed 2026-08-23 — source site shut down 2026-04-27)
  */
 
+function isAllowedPolyglottaUrl(value) {
+    try {
+        const url = new URL(value);
+        return (url.protocol === 'https:' || url.protocol === 'http:') &&
+            !url.username && !url.password && !url.port &&
+            (url.hostname === 'hf.uio.no' || url.hostname.endsWith('.hf.uio.no')) &&
+            url.pathname.startsWith('/polyglotta/');
+    } catch {
+        return false;
+    }
+}
+
 class LexiconForgeScraperPopup {
     constructor() {
         this.currentSite = null; // 'polyglotta' | null
@@ -42,8 +54,8 @@ class LexiconForgeScraperPopup {
         this.stopBtn?.addEventListener('click', () => this.stopScraping());
 
         // Listen for messages from content scripts
-        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-            this.handleMessage(message);
+        chrome.runtime.onMessage.addListener((message, sender) => {
+            void this.handleContentMessage(message, sender);
         });
     }
 
@@ -60,7 +72,7 @@ class LexiconForgeScraperPopup {
         console.log('[Popup] Site detection starting...');
         console.log('[Popup] Tab:', { id: tab?.id, url: tab?.url, status: tab?.status });
 
-        if (url.includes('polyglotta') || url.includes('hf.uio.no')) {
+        if (isAllowedPolyglottaUrl(url)) {
             this.currentSite = 'polyglotta';
             document.body.classList.add('site-polyglotta');
             this.siteIndicator.textContent = '🕉️ Polyglotta';
@@ -80,6 +92,10 @@ class LexiconForgeScraperPopup {
         const tab = await this.getCurrentTab();
 
         try {
+            if (!tab?.id || !isAllowedPolyglottaUrl(tab.url)) {
+                this.updateLog('⚠️ Select an allowed Polyglotta tab before scraping.');
+                return false;
+            }
             // First check if content script is loaded
             const pingResult = await this.pingContentScript(tab.id);
             if (!pingResult.success) {
@@ -136,7 +152,8 @@ class LexiconForgeScraperPopup {
 
             // Determine which script to inject based on URL
             let scriptFile = null;
-            if (tab.url?.includes('polyglotta') || tab.url?.includes('hf.uio.no')) {
+            const activeTab = await this.getCurrentTab();
+            if (tab.id === activeTab?.id && isAllowedPolyglottaUrl(tab.url)) {
                 scriptFile = 'content-polyglotta.js';
             }
 
@@ -281,16 +298,18 @@ class LexiconForgeScraperPopup {
 
     updateLog(message) {
         const timestamp = new Date().toLocaleTimeString();
-        this.logEl.innerHTML += `[${timestamp}] ${message}\n`;
+        this.logEl.textContent = (this.logEl.textContent + `[${timestamp}] ${String(message)}\n`).slice(-65536);
         this.logEl.scrollTop = this.logEl.scrollHeight;
     }
 
     updateStatus(status = 'ready', message = 'Ready to scrape') {
-        this.statusEl.className = `status ${status}`;
+        const allowedStatus = ['ready', 'working', 'error'].includes(status) ? status : 'ready';
+        this.statusEl.className = `status ${allowedStatus}`;
         this.statusEl.textContent = message;
     }
 
     updateProgress(step, total, stepName = '') {
+        if (!Number.isFinite(step) || !Number.isFinite(total) || total <= 0 || step < 0 || step > total) return;
         const percentage = (step / total) * 100;
         this.progressFill.style.width = `${percentage}%`;
         this.progressText.textContent = `${stepName} (${step}/${total})`;
@@ -306,7 +325,24 @@ class LexiconForgeScraperPopup {
         }
     }
 
+    async handleContentMessage(message, sender) {
+        // Only the top frame of the active allowed tab can update this popup.
+        if (sender?.id !== chrome.runtime.id || sender?.frameId !== 0 ||
+            !sender.tab?.id || !isAllowedPolyglottaUrl(sender.url) ||
+            !isAllowedPolyglottaUrl(sender.tab.url)) return;
+        try {
+            const activeTab = await this.getCurrentTab();
+            if (activeTab?.id !== sender.tab.id || !isAllowedPolyglottaUrl(activeTab.url) ||
+                new URL(activeTab.url).href !== new URL(sender.url).href) return;
+            this.handleMessage(message);
+        } catch {
+            // A tab that closed or navigated during receipt cannot update the UI.
+        }
+    }
+
     handleMessage(message) {
+        if (!message || typeof message !== 'object' ||
+            !message.data || typeof message.data !== 'object') return;
         const { type, data } = message;
 
         switch (type) {

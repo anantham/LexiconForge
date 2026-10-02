@@ -3,8 +3,8 @@ param(
     [string]$SourceDirectory = (Join-Path $PSScriptRoot '../../deploy/windows')
 )
 
-# Seed: exact upstream v1.18.0 package.json/package-lock.json and a yaml package
-# directory matching the lock (2.8.3). No download, real installation or activation.
+# Seed: complete checkout at the reviewed upstream commit. No download,
+# real installation, target dependency execution or activation.
 $ErrorActionPreference = 'Stop'
 $SeedDirectory = (Resolve-Path -LiteralPath $SeedDirectory).Path
 $SourceDirectory = (Resolve-Path -LiteralPath $SourceDirectory).Path
@@ -24,19 +24,11 @@ function Expect-Rejection([string]$Name, [string]$Expected) {
 }
 
 try {
-    New-Item -ItemType Directory -Path $sandbox | Out-Null
-    foreach ($name in @('package.json', 'package-lock.json')) {
-        Copy-Item -LiteralPath (Join-Path $SeedDirectory $name) -Destination $sandbox
-    }
-    Set-Content -LiteralPath (Join-Path $sandbox '.gitignore') -Value "node_modules/`nconfig.yaml"
-    & git -C $sandbox init --quiet
-    if ($LASTEXITCODE -ne 0) { throw 'Fixture git init failed.' }
-    & git -C $sandbox -c core.autocrlf=false add package.json package-lock.json .gitignore
-    if ($LASTEXITCODE -ne 0) { throw 'Fixture git add failed.' }
-    & git -C $sandbox -c user.name='LexiconForge QA' -c user.email='qa@example.invalid' -c commit.gpgsign=false -c core.hooksPath=NUL commit --quiet -m 'Public manifest fixture'
-    if ($LASTEXITCODE -ne 0) { throw 'Fixture git commit failed.' }
+    & git -c core.autocrlf=false clone --quiet --no-checkout --shared $SeedDirectory $sandbox
+    if ($LASTEXITCODE -ne 0) { throw 'Fixture clone failed.' }
+    & git -C $sandbox -c core.autocrlf=false checkout --quiet --detach '51ad27fb86d39a3daca3adaa970375c9670c12df'
+    if ($LASTEXITCODE -ne 0) { throw 'Fixture reviewed checkout failed.' }
     New-Item -ItemType Directory -Path (Join-Path $sandbox 'node_modules') | Out-Null
-    Copy-Item -LiteralPath (Join-Path $SeedDirectory 'yaml') -Destination (Join-Path $sandbox 'node_modules/yaml') -Recurse
     $configPath = Join-Path $sandbox 'config.yaml'
     Set-Content -LiteralPath $configPath -Encoding UTF8 -Value @'
 listen: false
@@ -79,16 +71,16 @@ whitelist:
     $packagePath = Join-Path $sandbox 'package.json'
     $packageBytes = [IO.File]::ReadAllBytes($packagePath)
     Copy-Item -LiteralPath (Join-Path $SeedDirectory 'package.json') -Destination $packagePath -Force
-    Expect-Rejection 'mixed manifest pair' 'neither the reviewed'
+    Expect-Rejection 'mixed manifest pair' 'Complete reviewed SillyTavern source verification failed'
     [IO.File]::WriteAllBytes($packagePath, $packageBytes)
     Add-Content -LiteralPath $packagePath -Value ' '
-    Expect-Rejection 'unreviewed manifest edit' 'neither the reviewed'
+    Expect-Rejection 'unreviewed manifest edit' 'Complete reviewed SillyTavern source verification failed'
     [IO.File]::WriteAllBytes($packagePath, $packageBytes)
 
     foreach ($name in @('unrelated.txt', 'config.yaml.lexiconforge-backup-invalid')) {
         $probe = Join-Path $sandbox $name
         Set-Content -LiteralPath $probe -Value 'synthetic probe'
-        Expect-Rejection $name 'unrelated uncommitted files'
+        Expect-Rejection $name 'Complete reviewed SillyTavern source verification failed'
         Remove-Item -LiteralPath $probe
     }
     $installed = Join-Path $sandbox 'node_modules/multer/package.json'
@@ -108,7 +100,7 @@ whitelist:
     foreach ($name in @('package.json', 'package-lock.json')) {
         Copy-Item -LiteralPath (Join-Path $SeedDirectory $name) -Destination $sandbox -Force
     }
-    Expect-Rejection 'pristine files over an unreviewed committed import' 'committed HEAD manifest blobs do not match'
+    Expect-Rejection 'pristine files over an unreviewed committed import' 'Complete reviewed SillyTavern source verification failed'
 
     [ordered]@{ PowerShell=$PSVersionTable.PSVersion.ToString(); Node=(& node --version); Cases=$probeState.Cases; InstallCalls=$probeState.InstallCalls; Limits='Disposable manifests and config; npm simulated, real git overlay and configurator. No live runtime or service changes.' } | ConvertTo-Json -Depth 3
 } finally {

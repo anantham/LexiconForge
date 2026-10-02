@@ -288,4 +288,20 @@ describe('ImportService', () => {
       )
     ).rejects.toThrow('Git LFS pointer instead of JSON');
   });
+
+  it.each(['url', 'file'])('rejects a %s schema before changing provenance, version or library', async source => {
+    const payload = { metadata: { format: 'lexiconforge-session' },
+      provenance: { contributors: [] }, version: { versionId: 'bad' },
+      chapters: [{ title: 'First', content: 'Valid' }, { title: 'Later', content: {} }] };
+    if (source === 'url') {
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, headers: new Headers(), body: createMockReadableStream(payload) });
+      await expect(ImportService.importFromUrl('https://example.test/bad.json')).rejects.toThrow('content must be a string');
+      expect(fetch).toHaveBeenCalledOnce();
+    } else {
+      await expect(ImportService.importFromFile(new File([JSON.stringify(payload)], 'bad.json'))).rejects.toThrow('content must be a string');
+    }
+    expect(mockSetSessionProvenance).not.toHaveBeenCalled();
+    expect(mockSetSessionVersion).not.toHaveBeenCalled();
+    expect(mockImportSessionData).not.toHaveBeenCalled();
+  });
 });

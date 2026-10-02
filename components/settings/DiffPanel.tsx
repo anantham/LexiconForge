@@ -133,7 +133,8 @@ export const DiffPanel: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Diff Heatmap</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Configure semantic diff markers that appear beside each paragraph while you read. Toggle entire categories on or off and re-run
-            the analysis when you need fresh markers.
+            the analysis when you need fresh markers. New analyses send source and translation text to your currently selected
+            text provider ({currentSettings.provider}) and model. Failures do not switch providers or models.
           </p>
         </div>
         <div className="space-y-3">

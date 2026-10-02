@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 
 from fastapi import Request
@@ -62,6 +63,19 @@ def self_insert_payload(chapter_number: int = 750) -> dict[str, object]:
         "chapterTranslation": "Full chapter.",
         "chapterTitle": f"Chapter {chapter_number}",
     }
+
+
+def test_rejected_traffic_is_aggregated_before_service_calls(tmp_path: Path, caplog) -> None:
+    client = make_client(tmp_path)
+    with caplog.at_level(logging.WARNING, logger="lexiconforge.portal"):
+        for _ in range(100):
+            response = client.post("/api/self-insert", content="private-synthetic-payload")
+            assert response.status_code == 401
+    records = [record for record in caplog.records if record.name == "lexiconforge.portal"]
+    assert len(records) == 1
+    assert "code=identity_required status=401" in records[0].getMessage()
+    assert "private-synthetic-payload" not in records[0].getMessage()
+    assert FakeService.calls == 0
 
 
 def test_health_contract_and_allowed_cors_origin(tmp_path: Path) -> None:

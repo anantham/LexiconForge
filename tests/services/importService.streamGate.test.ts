@@ -82,6 +82,7 @@ vi.mock('../../services/telemetryService', () => ({
 }));
 
 import { ImportService } from '../../services/importService';
+import { IMPORT_LIMITS } from '../../services/import/sessionValidation';
 
 const sessionWithOneChapter = {
   metadata: {
@@ -581,5 +582,73 @@ describe('streamImportFromUrl — idempotent resume', () => {
       expect.stringContaining('lf-library:'),
       2
     );
+  });
+});
+
+describe('streamImportFromUrl — rejected remote input preserves library state', () => {
+  beforeEach(() => {
+    translationOpsMock.store.mockReset();
+    translationOpsMock.setActiveByUrl.mockReset();
+    hydrationMocks.loadNovelIntoStore.mockReset();
+    importStoreState.chapters = new Map([['existing', { title: 'Existing chapter', content: 'Existing source' }]]);
+    importStoreState.currentChapterId = 'existing';
+    importStoreState.navigationHistory = ['existing'];
+  });
+
+  it.each(['truncated', 'trailing', 'late-shape', 'deep', 'large-field', 'too-many-chapters', 'late-scope'])(
+  'rejects %s input without any chapter, translation, hydration or ready call', async kind => {
+    const chapters = Array.from({ length: 5 }, (_, index) => ({ ...sessionWithOneChapter.chapters[0],
+      url: `https://example.test/${index}`, chapterNumber: index + 1, translations: [] }));
+    const payload: any = { ...sessionWithOneChapter, chapters };
+    if (kind === 'late-shape') payload.chapters.push({ title: 'Bad later chapter', content: [] });
+    if (kind === 'large-field') payload.chapters.push({ title: 'Huge later chapter', content: 'x'.repeat(IMPORT_LIMITS.fieldChars + 1) });
+    if (kind === 'too-many-chapters') payload.chapters = Array.from({ length: IMPORT_LIMITS.chapters + 1 }, () => ({}));
+    if (kind === 'late-scope') payload.chapters.push({ ...chapters[0], stableId: buildScopedStableId('wrong', 'another-book', 'v1') });
+    if (kind === 'deep') {
+      let nested: any = null;
+      for (let index = 0; index < IMPORT_LIMITS.depth + 1; index++) nested = [nested];
+      payload.extra = nested;
+    }
+    let text = JSON.stringify(payload);
+    if (kind === 'truncated') text = text.slice(0, -1);
+    if (kind === 'trailing') text += '{"metadata":{}}';
+    const bytes = new TextEncoder().encode(text);
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, headers: new Headers(), body: new ReadableStream({
+      start(controller) {
+        for (let offset = 0; offset < bytes.length; offset += 64 * 1024) controller.enqueue(bytes.subarray(offset, offset + 64 * 1024));
+        controller.close();
+      },
+    }) }));
+    const previousChapters = importStoreState.chapters;
+    const previousNavigation = importStoreState.navigationHistory;
+    const ready = vi.fn();
+    await expect(ImportService.streamImportFromUrl('https://example.test/session.json', undefined, ready,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1' })).rejects.toThrow();
+    expect(chapterOpsMock.store).not.toHaveBeenCalled();
+    expect(translationOpsMock.store).not.toHaveBeenCalled();
+    expect(translationOpsMock.setActiveByUrl).not.toHaveBeenCalled();
+    expect(hydrationMocks.loadNovelIntoStore).not.toHaveBeenCalled();
+    expect(ready).not.toHaveBeenCalled();
+    expect(importStoreState.chapters).toBe(previousChapters);
+    expect(importStoreState.navigationHistory).toBe(previousNavigation);
+    expect(importStoreState.currentChapterId).toBe('existing');
+    expect(fetch).toHaveBeenCalledOnce();
+  });
+
+  it('does not persist an earlier readable batch while a remote body is still unverified', async () => {
+    const text = JSON.stringify({ ...sessionWithOneChapter, metadata: { ...sessionWithOneChapter.metadata, chapterCount: 1 } });
+    const bytes = new TextEncoder().encode(text);
+    let controller!: ReadableStreamDefaultController<Uint8Array>;
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, headers: new Headers(), body: new ReadableStream({ start(value) {
+      controller = value; controller.enqueue(bytes.subarray(0, bytes.length - 1));
+    } }) }));
+    const ready = vi.fn();
+    const promise = ImportService.streamImportFromUrl('https://example.test/session.json', undefined, ready,
+      { registryNovelId: 'aithihyamala', registryVersionId: 'v1' });
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(chapterOpsMock.store).not.toHaveBeenCalled(); expect(ready).not.toHaveBeenCalled();
+    controller.close();
+    await expect(promise).rejects.toThrow('incomplete JSON document');
+    expect(chapterOpsMock.store).not.toHaveBeenCalled(); expect(ready).not.toHaveBeenCalled();
   });
 });
