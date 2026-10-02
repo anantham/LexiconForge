@@ -63,9 +63,13 @@ arbitrary descendants now reject and require a reviewed provenance update.
 
 ## Integrated validation and independent review
 
-Runtime: Node24.19.0, Vitest4.0.16 and dependencies matching every installed
-top-level package-lock version. Existing dependency bytes were reused without
-mutating the original checkout; Vite caches were isolated.
+Runtime: Node24.19.0 and Vitest4.0.16. Installed top-level package versions
+match the lockfile; this comparison originally missed absent React type packages.
+The exact locked React/React-DOM types and csstype were subsequently restored in
+task-owned storage with SHA-512 verification and no package scripts. Existing
+dependency bytes were reused without mutating the original checkout; Vite caches
+were isolated. The missing axe Playwright helper affects the unperformed browser
+audit, not these local unit/build/type gates.
 
 - Full suite plus coverage: **331 files, 9,828 passed, 347 skipped**. Untouched
   scan baseline: 324 files, 9,610 passed, 347 skipped.
@@ -75,9 +79,10 @@ mutating the original checkout; Vite caches were isolated.
 - Production build, client-artifact secret scan, extension packaging, repository
   integrity and whitespace gates pass.
 - Whole-repository lint: **0 errors, 1,853 warnings**; warnings were not suppressed.
-- Full TypeScript checking remains blocked by two TS2578 unused directives at
-  `tests/types/jsx-props.typecheck.tsx:8,11`, reproduced on untouched scan source.
-  Changed code and tests introduce no additional type diagnostics.
+- Full TypeScript checking passes on both the final source and untouched scan
+  source after restoring the exact locked React type declarations. The earlier
+  two TS2578 diagnostics were the QA guard detecting an incomplete local runtime,
+  not baseline source defects. No type fixture or application code was suppressed.
 
 Independent source review covered all groups and final integration, including
 per-provider recipient tests, staged-import validation, provenance checks,
@@ -124,12 +129,14 @@ unperformed native/deployed acceptance and a fresh scan; those remain open.
 
 ## Remaining acceptance and approved-deployment sequence
 
-1. Parent reviews this grouped commit series and exact changed-file manifest;
-   obtain explicit authorization before branch/PR publication. No push/PR,
-   merge, deployment or runtime activation was performed.
-2. Resolve or explicitly disposition the reproduced baseline TypeScript fixture
-   failures; run exact-head CI and the repository's external PR-review gate after
-   authorized publication. Fresh security scanning requires its own applicable
+1. Parent reviews this grouped commit series and exact changed-file manifest.
+   Follow-on publication was requested after owner approval was recorded, but
+   automatic approval review rejected both attempts because it requires direct
+   user authorization in the child task. No push/PR, merge, deployment or runtime
+   activation was performed; the rejection was not bypassed.
+2. Run exact-head CI and the repository's external PR-review gate after
+   authorized publication. The supposed baseline TypeScript fixture failure is
+   withdrawn: final and baseline type checks pass with complete React types. Fresh security scanning requires its own applicable
    cost/authorization envelope and was not run by this task.
 3. After merge/deployment approval, deploy the frontend and the serverless API
    together, verify safe proxy headers/limits in the deployed environment with
@@ -149,3 +156,21 @@ unperformed native/deployed acceptance and a fresh scan; those remain open.
 Keep all task worktrees/commits and evidence available for parent review. Existing
 production remains at its previous source/runtime state. Local regression success
 is not a claim of deployed protection, compromise absence or all-project coverage.
+
+
+## Follow-on publication and validation correction
+
+The public repository identity, owner push/admin permission and remote base were
+verified. Outgoing additions exclude the private report, Library identifiers,
+local user paths and credential patterns. Two publication attempts were rejected
+before execution; no alternate route was used. Automatic review has therefore not
+been observed for this branch, and no manual review comment was sent. Draft-to-ready
+transition remains a separate parent decision. Existing GitHub workflow state was
+read without enabling or changing Actions; the scan-base Test run passed all five
+jobs. This is baseline CI evidence, not CI for the unpublished security head.
+
+The original local TypeScript classification was incorrect. QA-01 detected absent
+React type declarations in the reused dependency installation. Restoring the exact
+locked types makes both baseline and final type checking pass without source edits.
+The historical test logs are retained with corrected-runtime logs and an explicit
+correction; they must not be described as baseline source defects.
