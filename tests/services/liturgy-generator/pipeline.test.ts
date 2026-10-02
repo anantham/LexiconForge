@@ -3,7 +3,7 @@ import fixture from '../../../test-fixtures/liturgy-generator/ti-sarana-mini.jso
 import threeRefugesPilot from '../../../test-fixtures/liturgy-generator/three-refuges-pilot.json';
 import threeRefugesGeneratedDraft from '../../../test-fixtures/liturgy-generator/three-refuges.generated.draft';
 import { buildLiturgyDraft } from '../../../services/liturgy-generator/pipeline';
-import { emitLiturgyDocModule } from '../../../services/liturgy-generator/emit';
+import { emitLiturgyDocModule, resolveExportName } from '../../../services/liturgy-generator/emit';
 import type { LiturgyGeneratorInput } from '../../../services/liturgy-generator/types';
 
 describe('liturgy generator pipeline', () => {
@@ -124,5 +124,26 @@ describe('liturgy generator pipeline', () => {
     expect(builtSection.segments[0].witnesses[0].tokenAlignTo).toEqual(
       witness.tokenAlignTo
     );
+  });
+});
+
+
+describe('liturgy module export names', () => {
+  it.each(['x; globalThis.injected = true; //', 'x\nexport const injected = 1;', 'x/*',
+    '1chapter', 'default', 'await', 'eval', 'LiturgyDoc', 'x'.repeat(129)])(
+    'rejects unsafe binding %s before building or emitting code', (exportName) => {
+      const input = { ...structuredClone(fixture), exportName } as LiturgyGeneratorInput;
+      expect(() => buildLiturgyDraft(input)).toThrow(/exportName/);
+      const doc = buildLiturgyDraft(fixture as LiturgyGeneratorInput).doc;
+      expect(() => emitLiturgyDocModule(doc, exportName)).toThrow(/exportName/);
+    }
+  );
+
+  it.each(['chant', '$chant_2', '_chant', ' chant2 '])('accepts a single binding %s', (name) => {
+    expect(resolveExportName({ slug: 'three-refuges' }, name)).toBe(name.trim());
+  });
+
+  it.each(['1chant', 'default', 'await', '---'])('emits a safe fallback for slug %s', (slug) => {
+    expect(resolveExportName({ slug })).toBe('generatedLiturgyDoc');
   });
 });
