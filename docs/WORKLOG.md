@@ -1,4 +1,10 @@
 ### [2026-10-19] [Agent: Codex]
+**Status:** PR #195 review correction.
+**Finding:** The publication test enforced exact keys at the document, panel and eye-step levels but omitted page-level analysis keys. Current exported page data already contained only the two authorized fields.
+**Change:** Extend the exact-key assertion to every page, preventing a future export with private working fields from passing the publication gate. No public data or runtime code changes.
+**Evidence:** Focused companion tests pass; a synthetic added page field is rejected by the same assertion. Prior independent runtime/code review remains applicable to unchanged code. Final-head Codex review and CI follow.
+
+### [2026-10-19] [Agent: Codex]
 **Status:** Implemented and locally verified — public editorial companion for The Occasion.
 **Owner / checkout:** This chat; `comic/publication/lexiconforge`, `feat/codex-comic-editorial`, from main `4e111ba`.
 **Outcome:** Library → individual comic picture → copy/silence rationale, predicted internal response and opt-in eye path → reading edition.

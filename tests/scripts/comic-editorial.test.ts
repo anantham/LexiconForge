@@ -62,6 +62,9 @@ describe('public editorial companion', () => {
 
   it('publishes only intentionally selected analysis and escapes copy and reasons', () => {
     expect(Object.keys(analysis).sort()).toEqual(['edition','pages','panels']);
+    for (const page of Object.values(analysis.pages) as any[]) {
+      expect(Object.keys(page).sort()).toEqual(['compositionReason','purpose']);
+    }
     for (const note of Object.values(analysis.panels) as any[]) {
       expect(Object.keys(note).sort()).toEqual(['copyReasons','eyePath','predictedReading','purpose']);
       for (const point of note.eyePath) expect(Object.keys(point).sort()).toEqual(['label','reason','x','y']);
