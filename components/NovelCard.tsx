@@ -2,6 +2,7 @@ import React from 'react';
 import { BookOpen } from 'lucide-react';
 import type { NovelEntry } from '../types/novel';
 import { NovelCoverImage } from './NovelCoverImage';
+import { getIllustratedBook } from '../services/library/illustratedBooks';
 
 interface NovelCardProps {
   novel: NovelEntry;
@@ -23,11 +24,15 @@ export const NovelCard: React.FC<NovelCardProps> = ({
   chapterCount,
 }) => {
   const genres = novel.metadata.genres.slice(0, 2);
+  const illustrated = getIllustratedBook(novel.id);
+  const Card = illustrated ? 'a' : 'div';
 
   return (
-    <div
+    <Card
+      href={illustrated?.href}
+      aria-label={illustrated ? `Read ${novel.title}` : undefined}
       className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-2xl hover:-translate-y-1 flex flex-col h-full border border-gray-200 dark:border-gray-700 cursor-pointer group"
-      onClick={() => (onSelect ?? onViewDetails)(novel)}
+      onClick={illustrated ? undefined : () => (onSelect ?? onViewDetails)(novel)}
     >
       {/* Cover Image - Portrait aspect ratio (140% height) */}
       <div className="relative pt-[140%] bg-gray-100 dark:bg-gray-900">
@@ -71,8 +76,10 @@ export const NovelCard: React.FC<NovelCardProps> = ({
         <div className="flex items-center mb-3 text-xs text-gray-600 dark:text-gray-400">
           <BookOpen className="h-3.5 w-3.5 mr-1" />
           <span>
-            {typeof translatedCount === 'number' && translatedCount > 0 ? `${translatedCount} / ` : ''}
-            {chapterCount ?? novel.metadata.chapterCount} chapters
+            {illustrated ? `${illustrated.pageCount} pages` : <>
+              {typeof translatedCount === 'number' && translatedCount > 0 ? `${translatedCount} / ` : ''}
+              {chapterCount ?? novel.metadata.chapterCount} chapters
+            </>}
           </span>
         </div>
 
@@ -94,6 +101,6 @@ export const NovelCard: React.FC<NovelCardProps> = ({
           ))}
         </div>
       </div>
-    </div>
+    </Card>
   );
 };

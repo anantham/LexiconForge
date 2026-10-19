@@ -1,3 +1,20 @@
+### [2026-10-19] [Agent: Codex]
+**Status:** PR #194 review correction.
+**Finding:** A failed lazy image showed a generic message without identifying its public asset.
+**Change:** The comic reader now logs the failing panel ID and public image path; its visible retry message remains concise. Both asynchronous failures and already-failed images use the same diagnostic. The authoring workspace renderer receives the same fix so the next export preserves it.
+**Validation:** A synthetic failed-image test checks exact diagnostic fields and visible retry state. No credentials, copy or private data are logged.
+
+### [2026-10-19] [Agent: Codex]
+**Status:** Implemented locally; independent review and PR checks pending — publish The Occasion in the existing library.
+**Task:** Add one original comic to the shelf and serve its complete 45-page/95-picture responsive reader at `/comics/the-occasion/`.
+**Worktree:** `comic/publication/lexiconforge`, branch `feat/codex-the-occasion`, based on production/main `9e79b03`.
+**Hypothesis (0.97):** A curated same-site reader link preserves comic composition and separate lettering without importing comic pictures into the prose translation/session model. Existing prose cards retain their detail/import behavior.
+**Files:** `services/library/illustratedBooks.ts`, registry and card integration, `public/comics/the-occasion/`, explicit static entry rewrite, focused publication/interaction checks.
+**Boundary:** Only selected publication art and render-required data are exported. Editorial notes, generation prompts, credentials, previous cuts and local reviews stay outside this repository. Raster assets are dimension-preserving WebP exports; text remains HTML/SVG. No translation/provider work is triggered.
+**Acceptance:** Shelf → complete reader → page navigation/enlargement → library on phone/tablet/laptop; missing/corrupt content fails visibly; prose behavior preserved; build and secret scan, eligible independent review and required PR checks before production verification.
+**Verification so far:** 25 focused tests pass; Node 24 TypeScript, production build and client-secret scan pass; repository lint has 0 errors (existing warnings). Browser shelf-to-reader, page 10 selection, device lettering and enlargement pass at 390/834/1512 widths with 45 pages/95 pictures, no horizontal overflow or hidden narration. WebP artwork totals 33,825,476 bytes.
+**Rollback:** Revert this publication commit and redeploy the prior production revision; no user data migrations.
+
 ### [2026-08-22 11:05 IST] [Agent: ox-alpha]
 **Status:** Complete — velocity cruft pattern ledger for this repo
 **Task:** Write docs/roadmaps/CRUFT-ACCRETION-PATTERNS.md: 20-pattern scorecard vs TemporalCoordination origin catalogue (12 PRESENT / 6 PARTIAL / 2 ABSENT), Part I imported patterns with local evidence, Part II eight repo-native classes (LXF-A..H), Part III clean negatives, Tier-B disposition queue.

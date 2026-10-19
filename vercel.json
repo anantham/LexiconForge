@@ -3,7 +3,21 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/comics/the-occasion",
+      "destination": "/comics/the-occasion/index.html"
+    },
+    {
+      "source": "/comics/the-occasion/",
+      "destination": "/comics/the-occasion/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

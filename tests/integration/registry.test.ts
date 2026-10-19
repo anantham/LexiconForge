@@ -80,11 +80,12 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
     const novels = await RegistryService.fetchAllNovelMetadata();
 
-    // +1 for the built-in MN10 entry
-    expect(novels).toHaveLength(3);
+    // MN10 and The Occasion accompany the two remote novels
+    expect(novels).toHaveLength(4);
     expect(novels[0].id).toBe('sutta-mn10');
     expect(novels[1].title).toBe('Test Novel 1');
     expect(novels[2].title).toBe('Test Novel 2');
+    expect(novels[3].id).toBe('the-occasion');
   });
 
   it('should handle partial failures gracefully', async () => {
@@ -129,8 +130,8 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
     const novels = await RegistryService.fetchAllNovelMetadata();
 
-    // 1 built-in (MN10) + 1 successful remote
-    expect(novels).toHaveLength(2);
+    // 2 built-in (MN10) + 1 successful remote
+    expect(novels).toHaveLength(3);
     expect(novels[0].id).toBe('sutta-mn10');
     expect(novels[1].title).toBe('Test Novel 1');
   });
@@ -277,8 +278,8 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
       const novels = await RegistryService.fetchAllNovelMetadata();
 
-      // 1 built-in + 1 remote
-      expect(novels).toHaveLength(2);
+      // 2 built-in + 1 remote
+      expect(novels).toHaveLength(3);
       expect(novels[1].title).toBe('Minimal Novel');
       expect(novels[1].metadata).toBeUndefined();
       expect(novels[1].versions).toBeUndefined();
@@ -303,8 +304,8 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
       const novels = await RegistryService.fetchAllNovelMetadata();
 
-      // 1 built-in + 1 valid remote (empty URL skipped)
-      expect(novels).toHaveLength(2);
+      // 2 built-in + 1 valid remote (empty URL skipped)
+      expect(novels).toHaveLength(3);
       expect(novels[1].id).toBe('valid');
     });
 
@@ -326,8 +327,8 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
       const novels = await RegistryService.fetchAllNovelMetadata();
 
-      // 1 built-in + 1 valid remote (missing URL skipped)
-      expect(novels).toHaveLength(2);
+      // 2 built-in + 1 valid remote (missing URL skipped)
+      expect(novels).toHaveLength(3);
       expect(novels[1].id).toBe('valid');
     });
 
@@ -392,8 +393,8 @@ describe('RegistryService (unit tests with mocked fetch)', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(customRegistryUrl);
       expect(global.fetch).toHaveBeenCalledWith('https://custom.example.com/novel.json');
-      // 1 built-in + 1 remote
-      expect(novels).toHaveLength(2);
+      // 2 built-in + 1 remote
+      expect(novels).toHaveLength(3);
       expect(novels[1].title).toBe('Custom Novel');
       expect(novels[1].metadata?.originalLanguage).toBe('Chinese');
       expect(novels[1].versions?.[0]?.versionId).toBe('custom-v1');

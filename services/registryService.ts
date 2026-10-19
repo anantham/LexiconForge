@@ -1,3 +1,4 @@
+import { ILLUSTRATED_BOOK_ENTRIES } from './library/illustratedBooks';
 import { toMediaGitHubUrl } from './library/artifactUrl';
 import type { Registry, NovelEntry } from '../types/novel';
 
@@ -193,7 +194,7 @@ export class RegistryService {
       }
     });
 
-    return [...BUILT_IN_ENTRIES, ...novels];
+    return [...BUILT_IN_ENTRIES, ...novels, ...ILLUSTRATED_BOOK_ENTRIES];
   }
 
   static resolveCompatibleVersion(
