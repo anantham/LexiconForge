@@ -24,7 +24,12 @@ const openAiMocks = vi.hoisted(() => {
 vi.mock('openai', () => ({
   __esModule: true,
   OpenAI: openAiMocks.MockOpenAI,
+  default: openAiMocks.MockOpenAI,
 }));
+
+vi.mock('../../services/ai/cost', () => ({ calculateCost: vi.fn(async () => 0) }));
+vi.mock('../../services/apiMetricsService', () => ({ apiMetricsService: { recordMetric: vi.fn(async () => undefined) } }));
+vi.mock('../../services/rateLimitService', () => ({ rateLimitService: { acquireRequestSlot: vi.fn(async () => undefined) } }));
 
 import { ComparisonService } from '../../services/comparisonService';
 

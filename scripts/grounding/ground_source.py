@@ -22,6 +22,7 @@ import argparse
 import json
 import os
 import sys
+from safe_paths import validate_chapter_ids, grounded_path, open_grounded, open_contained, contained_path
 
 
 def main():
@@ -31,14 +32,18 @@ def main():
     ap.add_argument("--out-dir", required=True, help="dir for per-unit grounded JSON")
     args = ap.parse_args()
 
-    import spacy
-
-    nlp = spacy.load(args.model)
     with open(args.session, encoding="utf-8") as f:
         session = json.load(f)
 
-    os.makedirs(args.out_dir, exist_ok=True)
     chapters = session.get("chapters", [])
+    validate_chapter_ids(chapters)
+    os.makedirs(args.out_dir, exist_ok=True)
+    contained_path(args.out_dir, "index.json")
+    # Validate every target before loading NLP or writing any unit.
+    for chapter in chapters:
+        grounded_path(args.out_dir, chapter["stableId"])
+    import spacy
+    nlp = spacy.load(args.model)
     print(f"Grounding {len(chapters)} units with {args.model}...")
 
     # Sentence-initial capitals defeat the lemmatizer (Stai -> "Stai" not "stare",
@@ -104,8 +109,8 @@ def main():
             "tokenCount": tok_total,
             "sentences": sentences,
         }
-        out_path = os.path.join(args.out_dir, f"{ch.get('stableId')}.grounded.json")
-        with open(out_path, "w", encoding="utf-8") as f:
+        out_path = grounded_path(args.out_dir, ch["stableId"])
+        with open_grounded(args.out_dir, ch["stableId"], "w") as f:
             json.dump(unit, f, ensure_ascii=False, indent=1)
         index.append({
             "unitId": unit["unitId"],
@@ -113,11 +118,11 @@ def main():
             "title": unit["title"],
             "sentenceCount": unit["sentenceCount"],
             "tokenCount": unit["tokenCount"],
-            "file": os.path.basename(out_path),
+            "file": out_path.name,
         })
         print(f"  u{unit['chapterNumber']:>2} {unit['tokenCount']:>5} tok  {unit['sentenceCount']:>4} sent  {str(unit['title'])[:40]}")
 
-    with open(os.path.join(args.out_dir, "index.json"), "w", encoding="utf-8") as f:
+    with open_contained(args.out_dir, "index.json", "w") as f:
         json.dump({"model": args.model, "units": index}, f, ensure_ascii=False, indent=1)
     total = sum(u["tokenCount"] for u in index)
     print(f"\nWrote {len(index)} grounded units ({total} tokens) to {args.out_dir}/")

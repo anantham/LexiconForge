@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import process from 'node:process';
-import { createRequire } from 'node:module';
+// Fixed tool-owned dependency. Never resolve code from the inspected installation.
+import * as yaml from '../tools/node_modules/yaml/dist/index.js';
 
 const fail = (message) => {
   throw new Error(`SillyTavern portal security check failed: ${message}`);
@@ -58,14 +59,15 @@ const configPath = path.join(root, 'config.yaml');
 if (!fs.existsSync(packageJsonPath)) fail(`package.json is missing under ${root}`);
 if (!fs.existsSync(configPath)) fail(`config.yaml is missing under ${root}`);
 
-const requireFromSillyTavern = createRequire(packageJsonPath);
-const yaml = requireFromSillyTavern('yaml');
+if (fs.lstatSync(configPath).isSymbolicLink() || !fs.lstatSync(configPath).isFile()) fail('config.yaml must be a regular file');
+if (fs.statSync(configPath).size > 1024 * 1024) fail('config.yaml exceeds the 1 MiB limit');
 const originalText = fs.readFileSync(configPath, 'utf8');
 const document = yaml.parseDocument(originalText);
 if (document.errors.length > 0) {
   fail(`config.yaml is invalid YAML: ${document.errors.map((error) => error.message).join('; ')}`);
 }
 const config = document.toJSON();
+if (config === null || typeof config !== 'object' || Array.isArray(config)) fail('config.yaml must be a mapping');
 
 assertBoolean(config, 'listen', false);
 assertBoolean(config, 'whitelistMode', true);

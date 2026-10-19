@@ -10,8 +10,9 @@ export const calculateTranslationStats = (chapters: ChapterForEpub[]): Translati
     totalTokens: 0,
     chapterCount: chapters.length,
     imageCount: 0,
-    providerBreakdown: {},
-    modelBreakdown: {}
+    // Imported provider/model labels must never resolve inherited object properties.
+    providerBreakdown: Object.create(null),
+    modelBreakdown: Object.create(null)
   };
 
   chapters.forEach(chapter => {

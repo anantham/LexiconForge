@@ -29,29 +29,11 @@ export interface ProxyHealthStatus {
 }
 
 /**
- * A curated list of CORS proxies sorted by reliability tier.
- * Dynamically re-sorted before each fetch attempt based on past performance.
+ * Automatic public CORS fallback is disabled. A failed first-party fetch may
+ * retry the requested site directly; it must not disclose the URL to unrelated
+ * recipients. Retain the configuration type/diagnostics for existing consumers.
  */
-export const PROXIES: ProxyConfig[] = [
-  // --- Tier 0: Our own Cloudflare Worker (most reliable) ---
-  { url: 'https://lexiconforge-cors-proxy.lexiconforge.workers.dev/?url=', type: 'param', responseFormat: 'html' },
-
-  // --- Tier 1: Modern & Obscure (Highest Priority Start) ---
-  { url: 'https://test.cors.workers.dev/', type: 'path', responseFormat: 'html' },
-  { url: 'https://proxy.cors.sh/', type: 'path', responseFormat: 'html' },
-  { url: 'https://api.codetabs.com/v1/proxy?quest=', type: 'param', responseFormat: 'html' },
-  { url: 'https://api.cors.lol/?url=', type: 'param', responseFormat: 'html' },
-
-  // --- Tier 2: Existing & Community Proxies (Mid Priority) ---
-  { url: 'https://everyorigin.jwvbremen.nl/?url=', type: 'param', responseFormat: 'json', contentKey: 'contents' },
-  { url: 'https://cors-anywhere.com/', type: 'path', responseFormat: 'html' },
-  { url: 'https://crossorigin.me/', type: 'path', responseFormat: 'html' },
-  { url: 'https://cors.x2u.in/', type: 'path', responseFormat: 'html' },
-
-  // --- Tier 3: Old Fallbacks (Lowest Priority) ---
-  { url: 'https://thingproxy.freeboard.io/fetch/', type: 'path', responseFormat: 'html' },
-  { url: 'https://api.allorigins.win/get?url=', type: 'param', responseFormat: 'json', contentKey: 'contents' },
-];
+export const PROXIES: ProxyConfig[] = [];
 
 // Global proxy health tracking (module-level singleton)
 const proxyHealthMap = new Map<string, ProxyHealthStatus>();

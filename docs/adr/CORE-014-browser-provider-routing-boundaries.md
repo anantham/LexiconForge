@@ -74,3 +74,17 @@ cloud providers.
 - [SEC-001](./SEC-001-browser-provider-credential-boundary.md)
 - [FEAT-003](./FEAT-003-image-service-architecture.md)
 - [CORE-012](./CORE-012-background-work-survives-navigation.md)
+
+## Reader feature routing correction — 2026-10-02
+
+Comparison, explanation, and enabled semantic diff analysis use the current
+selected text provider and its Settings key through the existing provider
+adapters. Unsupported providers, missing keys, request failures, and malformed
+responses never authorize a different recipient or model. Diff re-reads current
+Settings after its asynchronous cache lookup; translation-event metadata and old
+translation snapshots do not select its recipient. Cached results can still be
+displayed without a new provider request. Explanation explicitly requests plain
+text while the adapter default remains JSON for existing callers.
+
+Implementation: `services/ai/selectedProvider.ts`, `services/comparisonService.ts`,
+`services/explanationService.ts`, and `services/diff/{DiffTriggerService,SimpleLLMAdapter}.ts`.

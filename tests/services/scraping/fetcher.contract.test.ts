@@ -117,3 +117,42 @@ describe('fetcher.ts — dead VPS Playwright tier stays removed', () => {
     expect(proxySource).not.toMatch(/export\s+const\s+PLAYWRIGHT_PROXY_URL/);
   });
 });
+
+describe('scraping privacy: automatic fallback has no unrelated recipient', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.doMock('../../../services/scraping/siteAdapters', () => ({
+      SuttaCentralAdapter: class {}, FojinAdapter: class {},
+      getAdapter: () => ({ getRedirectUrl: () => null, extractTitle: () => 'Chapter 1', extractContent: () => 'Ordinary supported chapter text', getNextLink: () => null, getPrevLink: () => null }),
+    }));
+  });
+  it('ordinary scraping succeeds through the first-party proxy', async () => {
+    const fetch = vi.fn().mockResolvedValue(new Response('<article>' + 'source '.repeat(50) + '</article>'));
+    vi.stubGlobal('fetch', fetch);
+    const { fetchAndParseUrl } = await import('../../../services/scraping/fetcher');
+    const target = 'https://hetushu.com/book/1.html';
+    const chapter = await fetchAndParseUrl(target);
+    expect(chapter.title).toBe('Chapter 1');
+    expect(chapter.content).toContain('supported chapter');
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(fetch.mock.calls[0][0]).toBe(`/api/fetch-proxy?url=${encodeURIComponent(target)}`);
+  });
+  it('first-party failure retries only the requested site and fails closed', async () => {
+    const fetch = vi.fn().mockResolvedValue(new Response('Blocked', { status: 403 }));
+    vi.stubGlobal('fetch', fetch);
+    const { fetchAndParseUrl } = await import('../../../services/scraping/fetcher');
+    const target = 'https://hetushu.com/book/1.html?private=synthetic';
+    await expect(fetchAndParseUrl(target)).rejects.toThrow();
+    expect(fetch.mock.calls.map(([url]) => url)).toEqual([
+      `/api/fetch-proxy?url=${encodeURIComponent(target)}`, target,
+    ]);
+  });
+  it('dictionary failure sends its query to no public proxy', async () => {
+    const fetch = vi.fn().mockResolvedValue(new Response('Blocked', { status: 403 }));
+    vi.stubGlobal('fetch', fetch);
+    const { fetchJsonViaProxies } = await import('../../../services/compiler/dictionary');
+    const target = 'https://suttacentral.net/api/dictionary_full/synthetic';
+    await expect(fetchJsonViaProxies(target)).rejects.toThrow();
+    expect(fetch).toHaveBeenCalledOnce(); expect(fetch.mock.calls[0][0]).toBe(target);
+  });
+});

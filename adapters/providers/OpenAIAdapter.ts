@@ -179,7 +179,8 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
     // Request construction is local and deterministic. OpenRouter model metadata remains
     // advisory UI data; it must not hold an ordinary paid request behind its retry budget.
     // A real provider rejection is handled once below and remembered for this session.
-    const hasStructuredOutputs = Boolean(input.schema) &&
+    const wantsJson = input.responseFormat !== 'text';
+    const hasStructuredOutputs = wantsJson && Boolean(input.schema) &&
       shouldRequestStructuredOutputs(settings.provider, input.structuredOutputs ?? true) &&
       !hasRecordedParameterFailure(model, 'response_format');
 
@@ -213,7 +214,9 @@ export class OpenAIAdapter implements TranslationProvider, Provider {
         });
       }
     } else {
-      requestOptions = this.withJsonObjectResponse(requestOptions, input.schema);
+      if (wantsJson) {
+        requestOptions = this.withJsonObjectResponse(requestOptions, input.schema);
+      }
       // OpenRouter routing is independent of response-format support.
       if (settings.provider === 'OpenRouter') {
         requestOptions.provider = mergeOpenRouterRouting(settings, 'text', input.providerPreferences);

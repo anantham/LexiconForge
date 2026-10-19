@@ -1,8 +1,8 @@
 import path from 'path';
 import fs from 'fs';
-import http from 'http';
-import https from 'https';
 import { defineConfig, type Plugin } from 'vite';
+import { createRequire } from 'node:module';
+import { findReportPacket, isSafeReportId } from './scripts/lib/dev-report-paths';
 
 /**
  * Plugin: local fetch proxy for scraping.
@@ -12,95 +12,22 @@ import { defineConfig, type Plugin } from 'vite';
  */
 // Domain allowlist lives in ONE shared module (INV-3) — same file api/fetch-proxy.js
 // requires, so dev and prod proxies cannot drift (structure enforced by proxy-parity.test.ts).
-import { isDomainAllowed } from './services/scraping/allowedDomains.cjs';
+// services/scraping/allowedDomains.cjs is enforced by serverFetchProxy.
+
+// Load the Node-only policy without bundling its built-in requires into ESM.
+const requireFromConfig = createRequire(path.join(__dirname, 'vite.config.ts'));
+const serverFetchProxy = requireFromConfig('./services/scraping/serverFetchProxy.cjs') as typeof import('./services/scraping/serverFetchProxy.cjs');
 
 function localFetchProxyPlugin(): Plugin {
+  const serve = serverFetchProxy.createFetchProxy({ source: 'local-fetch-proxy' });
   return {
     name: 'local-fetch-proxy',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const reqUrl = req.url || '';
         if (!reqUrl.startsWith('/api/fetch-proxy?')) return next();
-
         const params = new URL(reqUrl, 'http://localhost').searchParams;
-        const targetUrl = params.get('url');
-
-        if (!targetUrl) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Missing ?url= parameter' }));
-          return;
-        }
-
-        let parsed: URL;
-        try {
-          parsed = new URL(targetUrl);
-        } catch {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Invalid URL' }));
-          return;
-        }
-
-        if (!isDomainAllowed(parsed.hostname)) {
-          res.writeHead(403, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: `Domain ${parsed.hostname} is not in the allowlist` }));
-          return;
-        }
-
-        const transport = parsed.protocol === 'https:' ? https : http;
-        const proxyReq = transport.get(targetUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
-          },
-          timeout: 20000,
-        }, (proxyRes) => {
-          // Follow redirects (3xx)
-          if (proxyRes.statusCode && proxyRes.statusCode >= 300 && proxyRes.statusCode < 400 && proxyRes.headers.location) {
-            const redirectUrl = new URL(proxyRes.headers.location, targetUrl).href;
-            // Re-issue as a redirect to ourselves
-            res.writeHead(302, { 'Location': `/api/fetch-proxy?url=${encodeURIComponent(redirectUrl)}` });
-            res.end();
-            return;
-          }
-
-          const chunks: Buffer[] = [];
-          proxyRes.on('data', (chunk: Buffer) => chunks.push(chunk));
-          proxyRes.on('end', () => {
-            const body = Buffer.concat(chunks);
-            // Detect charset from content-type header
-            const contentType = proxyRes.headers['content-type'] || 'text/html';
-            const charsetMatch = contentType.match(/charset=([^\s;]+)/i);
-            const charset = charsetMatch?.[1]?.toLowerCase() || 'utf-8';
-
-            let html: string;
-            try {
-              // Use TextDecoder for proper charset handling (gbk, gb2312, etc.)
-              html = new TextDecoder(charset, { fatal: false }).decode(body);
-            } catch {
-              html = body.toString('utf-8');
-            }
-
-            res.writeHead(proxyRes.statusCode || 200, {
-              'Content-Type': 'text/html; charset=utf-8',
-              'Access-Control-Allow-Origin': '*',
-              'X-Proxy-Source': 'local-fetch-proxy',
-            });
-            res.end(html);
-          });
-        });
-
-        proxyReq.on('error', (err) => {
-          console.error('[local-fetch-proxy] Error:', err.message);
-          res.writeHead(502, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: err.message }));
-        });
-
-        proxyReq.on('timeout', () => {
-          proxyReq.destroy();
-          res.writeHead(504, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Proxy request timed out' }));
-        });
+        void serve(req, res, params.get('url'));
       });
     },
   };
@@ -112,8 +39,9 @@ function localFetchProxyPlugin(): Plugin {
  * - GET /api/sutta-studio/reports - List available reports (sorted newest first)
  * - GET /api/sutta-studio/reports/:reportId/packet.json - Get assembled packet
  */
-function suttaStudioReportsPlugin(): Plugin {
-  const reportsDir = path.resolve(__dirname, 'reports/sutta-studio');
+export function suttaStudioReportsPlugin(
+  reportsDir = path.resolve(__dirname, 'reports/sutta-studio')
+): Plugin {
 
   return {
     name: 'sutta-studio-reports',
@@ -132,7 +60,7 @@ function suttaStudioReportsPlugin(): Plugin {
 
             const entries = fs.readdirSync(reportsDir, { withFileTypes: true });
             const reports = entries
-              .filter((e) => e.isDirectory())
+              .filter((e) => e.isDirectory() && isSafeReportId(e.name))
               .map((e) => e.name)
               .sort()
               .reverse(); // Newest first (ISO timestamps sort correctly)
@@ -150,19 +78,19 @@ function suttaStudioReportsPlugin(): Plugin {
         const packetMatch = url.match(/^\/api\/sutta-studio\/reports\/([^/]+)\/packet\.json$/);
         if (packetMatch) {
           const reportId = packetMatch[1];
-          const packetPath = path.join(reportsDir, reportId, 'outputs', 'gemini-3-flash', 'packet.json');
-
-          // Also check direct in report dir (fallback)
-          const altPacketPath = path.join(reportsDir, reportId, 'packet.json');
-          const finalPath = fs.existsSync(packetPath) ? packetPath : altPacketPath;
-
-          if (!fs.existsSync(finalPath)) {
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Packet not found' }));
+          if (!isSafeReportId(reportId)) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Invalid report ID' }));
             return;
           }
 
           try {
+            const finalPath = findReportPacket(reportsDir, reportId);
+            if (!finalPath) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Packet not found' }));
+              return;
+            }
             const content = fs.readFileSync(finalPath, 'utf8');
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(content);
@@ -181,6 +109,7 @@ function suttaStudioReportsPlugin(): Plugin {
 
 export default defineConfig({
   server: {
+    host: '127.0.0.1',
     port: 5180,
     strictPort: true,
   },

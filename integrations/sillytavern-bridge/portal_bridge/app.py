@@ -12,6 +12,7 @@ from pydantic import ValidationError
 from .config import Settings
 from .errors import BridgeError
 from .models import ErrorResponse, HealthResponse, SelfInsertRequest, SelfInsertSuccess
+from .logging_policy import RejectionLog
 from .request_control import CreationGate
 from .security import authorize_owner, require_idempotency_key
 from .service import PortalService
@@ -85,6 +86,7 @@ def create_app(
         cooldown_seconds=resolved_settings.creation_cooldown_seconds,
     )
     application = FastAPI(title="LexiconForge SillyTavern Bridge", version="0.1.0")
+    rejection_log = RejectionLog(LOGGER)
     application.add_middleware(
         CORSMiddleware,
         allow_origins=list(resolved_settings.allowed_origins),
@@ -95,7 +97,7 @@ def create_app(
 
     @application.exception_handler(BridgeError)
     async def bridge_error_handler(_request: Request, error: BridgeError) -> JSONResponse:
-        LOGGER.error("portal_request_failed code=%s message=%s", error.code, error.message)
+        rejection_log.record(error.code, error.status_code)
         payload = ErrorResponse(error=error.code, message=error.message)
         return JSONResponse(
             status_code=error.status_code,

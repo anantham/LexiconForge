@@ -73,7 +73,7 @@
 
     async function loadStats() {
       document.getElementById('loading').style.display = 'block';
-      document.getElementById('results').innerHTML = '';
+      document.getElementById('results').replaceChildren();
 
       try {
         const db = await openDB();
@@ -82,7 +82,7 @@
 
         displayResults(data);
       } catch (error) {
-        document.getElementById('results').innerHTML = `<div class="stats-box"><h2>❌ Error</h2><pre>${error.message}</pre></div>`;
+        displayError(error);
       } finally {
         document.getElementById('loading').style.display = 'none';
       }
@@ -164,104 +164,84 @@
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
+    function textElement(tag, value, className = '') {
+      const element = document.createElement(tag);
+      element.textContent = String(value ?? '');
+      if (className) element.className = className;
+      return element;
+    }
+
+    function statsBox(title) {
+      const box = document.createElement('div');
+      box.className = 'stats-box';
+      box.append(textElement('h2', title));
+      return box;
+    }
+
+    function displayError(error) {
+      const box = statsBox('❌ Error');
+      box.append(textElement('pre', error?.message ?? 'Unable to inspect database'));
+      document.getElementById('results').replaceChildren(box);
+    }
+
+    function appendTable(box, rows, headers = null) {
+      const table = document.createElement('table');
+      if (headers) {
+        const head = document.createElement('thead');
+        const row = document.createElement('tr');
+        headers.forEach(label => row.append(textElement('th', label)));
+        head.append(row);
+        table.append(head);
+      }
+      const body = document.createElement('tbody');
+      rows.forEach(values => {
+        const row = document.createElement('tr');
+        values.forEach((value, index) => row.append(textElement('td', value,
+          headers ? (index !== 2 && index !== 9 ? 'number' : '') : (index === 1 ? 'number' : ''))));
+        body.append(row);
+      });
+      table.append(body);
+      box.append(table);
+    }
+
     function displayResults(data) {
       const { chapterStats, totals } = data;
+      const overview = statsBox('📈 Database Overview');
+      appendTable(overview, [
+        ['Chapters', totals.chapters],
+        ['Translations', `${totals.translations} (${totals.activeTranslations} active)`],
+        ['Footnotes', totals.totalFootnotes],
+        ['Illustrations', totals.totalIllustrations],
+        ['Generated Images', `${totals.images} (${formatBytes(totals.totalImageSize)})`],
+        ['Audio Files', `${totals.audio} (${formatBytes(totals.totalAudioSize)})`],
+      ]);
 
-      let html = `
-        <div class="stats-box">
-          <h2>📈 Database Overview</h2>
-          <table>
-            <tr><td>Chapters</td><td class="number">${totals.chapters}</td></tr>
-            <tr><td>Translations</td><td class="number">${totals.translations} (${totals.activeTranslations} active)</td></tr>
-            <tr><td>Footnotes</td><td class="number">${totals.totalFootnotes}</td></tr>
-            <tr><td>Illustrations</td><td class="number">${totals.totalIllustrations}</td></tr>
-            <tr><td>Generated Images</td><td class="number">${totals.images} (${formatBytes(totals.totalImageSize)})</td></tr>
-            <tr><td>Audio Files</td><td class="number">${totals.audio} (${formatBytes(totals.totalAudioSize)})</td></tr>
-          </table>
-        </div>
+      const chapters = statsBox('📚 Chapter Details');
+      appendTable(chapters, chapterStats.map(ch => [
+        ch.number, ch.translations, ch.hasActive ? '✓' : '', ch.footnotes,
+        ch.illustrations, ch.images, formatBytes(ch.imageSize), ch.audio,
+        formatBytes(ch.audioSize), ch.title,
+      ]), ['#', 'Versions', 'Active', 'Footnotes', 'Illustrations', 'Images',
+        'Image Size', 'Audio', 'Audio Size', 'Title']);
 
-        <div class="stats-box">
-          <h2>📚 Chapter Details</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Versions</th>
-                <th>Active</th>
-                <th>Footnotes</th>
-                <th>Illustrations</th>
-                <th>Images</th>
-                <th>Image Size</th>
-                <th>Audio</th>
-                <th>Audio Size</th>
-                <th>Title</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      chapterStats.forEach(ch => {
-        html += `
-          <tr>
-            <td class="number">${ch.number}</td>
-            <td class="number">${ch.translations}</td>
-            <td>${ch.hasActive ? '<span class="checkmark">✓</span>' : ''}</td>
-            <td class="number">${ch.footnotes}</td>
-            <td class="number">${ch.illustrations}</td>
-            <td class="number">${ch.images}</td>
-            <td class="number">${formatBytes(ch.imageSize)}</td>
-            <td class="number">${ch.audio}</td>
-            <td class="number">${formatBytes(ch.audioSize)}</td>
-            <td>${ch.title}</td>
-          </tr>
-        `;
-      });
-
-      html += `
-            </tbody>
-          </table>
-        </div>
-
-        <div class="stats-box">
-          <h2>📊 Summary Statistics</h2>
-          <table>
-            <tr>
-              <td>Chapters with translations</td>
-              <td class="number">${chapterStats.filter(ch => ch.translations > 0).length}/${totals.chapters} (${((chapterStats.filter(ch => ch.translations > 0).length/totals.chapters)*100).toFixed(1)}%)</td>
-            </tr>
-            <tr>
-              <td>Chapters with footnotes</td>
-              <td class="number">${chapterStats.filter(ch => ch.footnotes > 0).length}/${totals.chapters} (${((chapterStats.filter(ch => ch.footnotes > 0).length/totals.chapters)*100).toFixed(1)}%)</td>
-            </tr>
-            <tr>
-              <td>Chapters with illustrations</td>
-              <td class="number">${chapterStats.filter(ch => ch.illustrations > 0).length}/${totals.chapters} (${((chapterStats.filter(ch => ch.illustrations > 0).length/totals.chapters)*100).toFixed(1)}%)</td>
-            </tr>
-            <tr>
-              <td>Chapters with images</td>
-              <td class="number">${chapterStats.filter(ch => ch.images > 0).length}/${totals.chapters} (${((chapterStats.filter(ch => ch.images > 0).length/totals.chapters)*100).toFixed(1)}%)</td>
-            </tr>
-            <tr>
-              <td>Average footnotes/chapter</td>
-              <td class="number">${(totals.totalFootnotes/totals.chapters).toFixed(1)}</td>
-            </tr>
-            <tr>
-              <td>Average illustrations/chapter</td>
-              <td class="number">${(totals.totalIllustrations/totals.chapters).toFixed(1)}</td>
-            </tr>
-            <tr>
-              <td>Average images/chapter</td>
-              <td class="number">${(totals.images/totals.chapters).toFixed(1)}</td>
-            </tr>
-            <tr>
-              <td>Average image size</td>
-              <td class="number">${totals.images > 0 ? formatBytes(totals.totalImageSize/totals.images) : '0 B'}</td>
-            </tr>
-          </table>
-        </div>
-      `;
-
-      document.getElementById('results').innerHTML = html;
+      const summary = statsBox('📊 Summary Statistics');
+      const countLabel = predicate => {
+        const count = chapterStats.filter(predicate).length;
+        const percent = totals.chapters ? (count / totals.chapters) * 100 : 0;
+        return `${count}/${totals.chapters} (${percent.toFixed(1)}%)`;
+      };
+      const average = total => (totals.chapters ? total / totals.chapters : 0).toFixed(1);
+      appendTable(summary, [
+        ['Chapters with translations', countLabel(ch => ch.translations > 0)],
+        ['Chapters with footnotes', countLabel(ch => ch.footnotes > 0)],
+        ['Chapters with illustrations', countLabel(ch => ch.illustrations > 0)],
+        ['Chapters with images', countLabel(ch => ch.images > 0)],
+        ['Average footnotes/chapter', average(totals.totalFootnotes)],
+        ['Average illustrations/chapter', average(totals.totalIllustrations)],
+        ['Average images/chapter', average(totals.images)],
+        ['Average image size', totals.images ? formatBytes(totals.totalImageSize / totals.images) : '0 B'],
+      ]);
+      document.getElementById('results').replaceChildren(overview, chapters, summary);
     }
 
     // Auto-load on page load

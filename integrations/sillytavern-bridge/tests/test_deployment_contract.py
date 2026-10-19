@@ -10,8 +10,13 @@ def read(relative_path: str) -> str:
 
 def test_bridge_launcher_binds_loopback_and_disables_proxy_header_trust() -> None:
     launcher = read("deploy/windows/start-bridge.cmd")
+    runner = read("portal_bridge/run_bridge.py")
 
-    assert "--host 127.0.0.1 --port 5001 --no-proxy-headers" in launcher
+    assert "-m portal_bridge.run_bridge" in launcher
+    assert 'host="127.0.0.1", port=5001' in runner
+    assert "proxy_headers=False, access_log=False, log_config=None" in runner
+    assert "rotating_handler" in runner
+    assert '>>"%LF_LOG_DIR%\\bridge.log"' not in launcher
     assert "if not defined LF_PORTAL_OWNER_LOGINS" in launcher
     assert "if not defined LF_PORTAL_ST_PUBLIC_URL" in launcher
     assert "LF_PORTAL_MAX_REQUEST_BYTES=4194304" in launcher
@@ -38,13 +43,14 @@ def test_cutover_is_exact_and_never_resets_unrelated_serve_routes() -> None:
 def test_multer_overlay_is_version_and_integrity_pinned() -> None:
     overlay = read("security/sillytavern-1.18.0-multer-2.2.0.patch")
     hardening = read("deploy/windows/apply-sillytavern-hardening.ps1")
+    verifier = read("deploy/windows/verify-sillytavern-source.mjs")
 
     assert '"multer": "^2.2.0"' in overlay
     assert '"version": "2.2.0"' in overlay
-    assert "51ad27fb86d39a3daca3adaa970375c9670c12df" in hardening
-    assert "rev-parse --verify --quiet" in hardening
-    assert "12c30fc061e38c0a35becca70fab9c6fb991a7f0" in hardening
-    assert "95b4dbc33c62829e2aff383f286889ebdcc15ffd" in hardening
+    assert "verify-sillytavern-source.mjs" in hardening
+    assert "51ad27fb86d39a3daca3adaa970375c9670c12df" in verifier
+    assert "12c30fc061e38c0a35becca70fab9c6fb991a7f0" in verifier
+    assert "95b4dbc33c62829e2aff383f286889ebdcc15ffd" in verifier
     assert "sha512-6rdyFg2kLrMh9Jee7/" in hardening
 
 

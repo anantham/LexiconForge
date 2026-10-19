@@ -24,11 +24,10 @@ for executable in git node npm diff; do
 done
 [[ "$(node -p 'Number(process.versions.node.split(".")[0])')" -ge 20 ]] \
   || fail 'SillyTavern 1.18.0 requires Node 20 or newer'
-[[ "$(git -C "$runtime_root" rev-parse --show-toplevel)" == "$runtime_root" ]] \
-  || fail 'runtime must be the Git checkout root'
-[[ "$(git -C "$runtime_root" rev-parse HEAD)" == '51ad27fb86d39a3daca3adaa970375c9670c12df' ]] \
-  || fail 'runtime must be the reviewed official SillyTavern 1.18.0 commit'
-git -C "$runtime_root" diff --cached --quiet || fail 'runtime contains staged changes'
+[[ -f "$bridge_root/deploy/tools/node_modules/yaml/dist/index.js" ]] \
+  || fail 'trusted parser missing; run npm ci --ignore-scripts --prefix deploy/tools in the trusted bridge checkout'
+node "$bridge_root/deploy/windows/verify-sillytavern-source.mjs" --root "$runtime_root" \
+  || fail 'complete reviewed source verification failed; no installation or configuration write is permitted'
 
 base_pair=$'12c30fc061e38c0a35becca70fab9c6fb991a7f0\n95b4dbc33c62829e2aff383f286889ebdcc15ffd'
 hardened_pair=$'47898a96d79c053a90acb5502283161ff8c49b16\nc4f410036f0dfe5194764ae56620eb76a362ea44'
@@ -43,22 +42,11 @@ if [[ -e "$extension_target" ]]; then
   diff -qr "$extension_source" "$extension_target" >/dev/null \
     || fail 'installed extension differs from the reviewed source; reconcile it before preparation'
 fi
-dirty="$(git -C "$runtime_root" status --porcelain --untracked-files=normal)"
-while IFS= read -r entry; do
-  [[ -n "$entry" ]] || continue
-  file="${entry:3}"
-  case "$file" in
-    package.json|package-lock.json|public/scripts/extensions/lexiconforge-portal/) continue ;;
-  esac
-  [[ "$file" =~ ^config\.yaml\.lexiconforge-backup-[0-9]+$ ]] \
-    || fail "unrelated uncommitted path: $file"
-done <<< "$dirty"
-
 if [[ "$manifest_pair" == "$base_pair" ]]; then
   [[ "$apply" == true ]] || fail 'reviewed Multer overlay is required; run with --apply'
   overlay="$bridge_root/security/sillytavern-1.18.0-multer-2.2.0.patch"
-  git -C "$runtime_root" apply --check "$overlay"
-  git -C "$runtime_root" apply "$overlay"
+  git -c core.fsmonitor=false -C "$runtime_root" apply --check "$overlay"
+  git -c core.fsmonitor=false -C "$runtime_root" apply "$overlay"
 fi
 [[ "$(cd "$runtime_root" && git hash-object -- package.json package-lock.json)" == "$hardened_pair" ]] \
   || fail 'overlay did not produce the exact reviewed hardened pair'

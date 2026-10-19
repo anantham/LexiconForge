@@ -13,7 +13,10 @@ const openAiMocks = vi.hoisted(() => {
   return { create, OpenAI };
 });
 
-vi.mock('openai', () => ({ OpenAI: openAiMocks.OpenAI }));
+vi.mock('openai', () => ({ OpenAI: openAiMocks.OpenAI, default: openAiMocks.OpenAI }));
+vi.mock('../../services/ai/cost', () => ({ calculateCost: vi.fn(async () => 0) }));
+vi.mock('../../services/apiMetricsService', () => ({ apiMetricsService: { recordMetric: vi.fn(async () => undefined) } }));
+vi.mock('../../services/rateLimitService', () => ({ rateLimitService: { acquireRequestSlot: vi.fn(async () => undefined) } }));
 
 import { ExplanationService } from '../../services/explanationService';
 
