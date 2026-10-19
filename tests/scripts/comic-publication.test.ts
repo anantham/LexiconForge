@@ -39,6 +39,25 @@ describe('published comic contract', () => {
     expect(() => select(book, book, { assets: {} })).toThrow(/image inventory/);
   });
 
+  it('identifies a failed picture without putting technical paths into the reader message', () => {
+    const errors: unknown[][] = [];
+    const status = { textContent: '', hidden: true };
+    const failureContext = vm.createContext({
+      window: {}, console: { error: (...args: unknown[]) => errors.push(args) },
+      document: { getElementById: () => status },
+    });
+    vm.runInContext(read('reader.js').replace(/initReader\(\);\s*$/, ''), failureContext);
+    const report = vm.runInContext('reportPictureFailure', failureContext);
+    report({ closest: () => ({ dataset: { panelId: 'v5-10-01' } }), getAttribute: () => '/comics/the-occasion/images/v5-10-01.webp' });
+    expect(errors).toEqual([['Comic picture failed to load:', {
+      panelId: 'v5-10-01', path: '/comics/the-occasion/images/v5-10-01.webp',
+    }]]);
+    expect(status.textContent).toBe('A picture could not load. Reload this page to try again.');
+    expect(status.hidden).toBe(false);
+    expect(read('reader.js')).toContain('img.onerror=()=>reportPictureFailure(img)');
+    expect(read('reader.js')).toContain('if(img.complete&&img.naturalWidth===0)reportPictureFailure(img)');
+  });
+
   it('ships reader data only and preserves separate lettering and the library return', () => {
     expect(readdirSync(root).sort()).toEqual(['book.json', 'cover.webp', 'images', 'index.html', 'metadata.json', 'picture-lettering.js', 'reader.css', 'reader.js']);
     expect(read('book.json')).not.toMatch(/"(?:artAssessment|expectedReading|eyePath|eyeRoute|reason|provenance|reviewBoundary|sourceIds|revisedPrompt)":/);

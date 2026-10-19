@@ -1,4 +1,10 @@
 ### [2026-10-19] [Agent: Codex]
+**Status:** PR #194 review correction.
+**Finding:** A failed lazy image showed a generic message without identifying its public asset.
+**Change:** The comic reader now logs the failing panel ID and public image path; its visible retry message remains concise. Both asynchronous failures and already-failed images use the same diagnostic. The authoring workspace renderer receives the same fix so the next export preserves it.
+**Validation:** A synthetic failed-image test checks exact diagnostic fields and visible retry state. No credentials, copy or private data are logged.
+
+### [2026-10-19] [Agent: Codex]
 **Status:** Implemented locally; independent review and PR checks pending — publish The Occasion in the existing library.
 **Task:** Add one original comic to the shelf and serve its complete 45-page/95-picture responsive reader at `/comics/the-occasion/`.
 **Worktree:** `comic/publication/lexiconforge`, branch `feat/codex-the-occasion`, based on production/main `9e79b03`.
