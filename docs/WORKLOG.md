@@ -1,4 +1,20 @@
 ### [2026-10-19] [Agent: Codex]
+**Status:** PR #195 review correction.
+**Finding:** The publication test enforced exact keys at the document, panel and eye-step levels but omitted page-level analysis keys. Current exported page data already contained only the two authorized fields.
+**Change:** Extend the exact-key assertion to every page, preventing a future export with private working fields from passing the publication gate. No public data or runtime code changes.
+**Evidence:** Focused companion tests pass; a synthetic added page field is rejected by the same assertion. Prior independent runtime/code review remains applicable to unchanged code. Final-head Codex review and CI follow.
+
+### [2026-10-19] [Agent: Codex]
+**Status:** Implemented and locally verified — public editorial companion for The Occasion.
+**Owner / checkout:** This chat; `comic/publication/lexiconforge`, `feat/codex-comic-editorial`, from main `4e111ba`.
+**Outcome:** Library → individual comic picture → copy/silence rationale, predicted internal response and opt-in eye path → reading edition.
+**Hypothesis (0.97):** An allowlisted static analysis companion can reuse all 95 public image assets and the shared lettering renderer without publishing local notebook storage or generation records. Eye coordinates must be mapped through each existing crop; predictions must not imply measured gaze.
+**Files:** Comic editorial HTML/CSS/JS/JSON, curated metadata, NovelCard, reader toolbar link, route rewrites and focused tests. No new dependencies or provider calls.
+**Acceptance:** Complete 45-page/95-picture analysis, default-off overlay, same picture/copy/crop, responsive and keyboard navigation, explicit errors/recovery, no private fields, unchanged prose cards, independent review and required PR CI, anonymous deployed journey.
+**Evidence:** All 95 actual picture/analysis joins validate; incomplete editions, missing analysis and bad gaze/copy data are refused. Browser library → companion → selected comic picture and page 45/history pass; 390/834/1512 layouts have no horizontal overflow. Shared crops and lettering preserved. Node 24 typecheck, build/client-secret scan and integrity pass; lint 0 errors (1,846 existing warnings). Gemini 4 Argon High independently reviewed the code-only packet: no supported findings. Required PR/Codex review and deployed verification follow.
+**Authority / recovery:** User explicitly requested publishing the editorial view in the existing library. Revert this scoped commit to remove it; no user data migration or change to local notes.
+
+### [2026-10-19] [Agent: Codex]
 **Status:** PR #194 review correction.
 **Finding:** A failed lazy image showed a generic message without identifying its public asset.
 **Change:** The comic reader now logs the failing panel ID and public image path; its visible retry message remains concise. Both asynchronous failures and already-failed images use the same diagnostic. The authoring workspace renderer receives the same fix so the next export preserves it.

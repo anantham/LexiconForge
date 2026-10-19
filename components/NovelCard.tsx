@@ -28,6 +28,7 @@ export const NovelCard: React.FC<NovelCardProps> = ({
   const Card = illustrated ? 'a' : 'div';
 
   return (
+    <div className="flex flex-col h-full">
     <Card
       href={illustrated?.href}
       aria-label={illustrated ? `Read ${novel.title}` : undefined}
@@ -102,5 +103,12 @@ export const NovelCard: React.FC<NovelCardProps> = ({
         </div>
       </div>
     </Card>
+    {illustrated && (
+      <a href={illustrated.editorialHref} aria-label={`Editorial companion for ${novel.title}`}
+        className="mt-2 min-h-11 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-blue-600">
+        Editorial companion
+      </a>
+    )}
+    </div>
   );
 };
