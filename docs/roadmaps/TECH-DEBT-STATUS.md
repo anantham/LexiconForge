@@ -1,6 +1,6 @@
 # Tech Debt Status
 
-**Last Updated:** September 7, 2026 (authority-policy precedence reconciled; scan metrics below remain the March 29 snapshot)
+**Last Updated:** October 22, 2026 (usable baseline recorded; scan metrics below remain the March 29 snapshot)
 **Last Surface Scan:** March 29, 2026 (v1.1.0, post-review corrected)
 
 ## Attentional Policy
@@ -77,6 +77,14 @@ When candidates remain tied, prefer the more reversible item with the clearer te
 Review this register before starting a dedicated debt initiative, after a security/data-integrity incident, and at least once per monthly planning cycle. Ordinary feature sessions need only check current ownership and capture new receipts; they do not need to re-triage the whole backlog.
 
 ## Completed Milestones ✅
+
+### Usable main + development checkout (Oct 2026)
+- **Outcome:** Local `main` is fast-forwarded to `origin/main` at `4e111ba`; one clean `codex/development-baseline` checkout is available for ongoing changes.
+- **Integration owner:** Aditya. **Authoritative checkout:** `/Users/aditya/Documents/Ongoing Local/code/LexiconForge` (`main`). **Development checkout:** `/Users/aditya/Documents/Ongoing Local/code/LexiconForge.worktrees/development` (`codex/development-baseline`).
+- **Acceptance:** Clean development checkout `npm run build` and `npm run typecheck` pass; library/settings/dialog tests pass 27/27; `tests/e2e/mobile-a11y.spec.ts` passes 37 with 6 inapplicable skips and 0 failures after two contrast corrections. Chromium emulation only.
+- **Runtime note:** Local Node was 26 while the project declares Node 24; dependency installation required `--engine-strict=false`. Warnings include stale caniuse-lite data and large chunks.
+- **Deferred:** Optional branch salvage and feature work. Production deployment, physical iPhone/iPad Safari acceptance, and the separate 24-hour observation period remain future milestones.
+- **Next evidence checkpoint:** Verify the committed baseline on Node 24 and real Safari devices before the separate production deployment and observation milestones.
 
 ### IndexedDB Decomposition (Nov 2025)
 - Monolithic `services/indexeddb.ts` (2000+ LOC) → Modular services

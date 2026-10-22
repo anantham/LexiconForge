@@ -1,3 +1,12 @@
+### [2026-10-22 13:30 UTC] [Agent: Codex]
+**Status:** Usable local baseline prepared; not pushed or deployed.
+**Outcome / owner:** One usable `main` plus one development checkout. Integration owner: Aditya. Authoritative checkout: `/Users/aditya/Documents/Ongoing Local/code/LexiconForge` (`main`). Development checkout: `/Users/aditya/Documents/Ongoing Local/code/LexiconForge.worktrees/development` (`codex/development-baseline`).
+**Baseline:** Local `main` was fast-forwarded to `origin/main` at `4e111ba`. The development checkout started from the same commit. Two missed contrast issues found by the mobile accessibility matrix were corrected: dark novel-language metadata and the light-theme structured-output status text.
+**Verification:** In the development checkout, production build and typecheck pass; library/settings/dialog tests pass 27/27; `tests/e2e/mobile-a11y.spec.ts` passes 37, skips 6 inapplicable cases, and fails 0. This is Chromium emulation, not iPhone/iPad Safari. Local Node 26 required `npm ci --engine-strict=false` because the project declares Node 24. Build warnings include stale caniuse-lite data and large chunks.
+**Independent review:** Prepared and hashed a clean two-file synthetic code packet. The preferred Gemini route returned no review output; Grok could not resolve its model service under the managed network sandbox and could not create its local session. No external review completed; the local axe matrix is the available evidence.
+**Worktree preservation:** The completed inactive `codex/pr186-followups` checkout was removed after its branch was saved and verified in `../LexiconForge.archives/codex-pr186-followups-20261022.bundle`. The Trimsika checkout and the comic publication checkout were retained intact. Optional branch salvage and other feature work are deferred.
+**Next evidence checkpoint:** Complete the local commit, then verify on Node 24 and physical Safari. Production deployment and 24-hour observation remain separate milestones; neither was performed here.
+
 ### [2026-10-19] [Agent: Codex]
 **Status:** PR #194 review correction.
 **Finding:** A failed lazy image showed a generic message without identifying its public asset.
