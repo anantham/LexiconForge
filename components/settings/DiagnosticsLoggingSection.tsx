@@ -5,9 +5,7 @@
  */
 
 import React from 'react';
-import type { DebugPipeline } from '../../utils/debug';
-
-type DebugLevel = 'off' | 'summary' | 'full';
+import type { DebugLevel, DebugPipeline } from '../../utils/debug';
 
 interface PipelineOption {
   id: DebugPipeline;

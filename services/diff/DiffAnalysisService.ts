@@ -1,5 +1,8 @@
 // services/diff/DiffAnalysisService.ts
-import type { DiffAnalysisRequest, DiffResult, DiffMarker, DiffReason, DiffColor } from './types';
+import type {
+  DiffAnalysisRequest, DiffResult, DiffMarker, DiffReason, DiffColor,
+  SimpleLLMProvider, SimpleLLMResponse,
+} from './types';
 import { DIFF_ALGO_VERSION, DIFF_DEFAULT_MODEL, DIFF_DEFAULT_PROVIDER, DIFF_TEMPERATURE } from './constants';
 import { computeDiffHash } from './hash';
 import { debugLog, debugWarn } from '../../utils/debug';
@@ -10,23 +13,6 @@ export class DiffAnalysisJsonParseError extends Error {
     super(message);
     this.name = 'DiffAnalysisJsonParseError';
   }
-}
-
-// Simple interface for LLM calls (to avoid complex Translator dependencies)
-interface SimpleLLMResponse {
-  translatedText: string;
-  cost?: number;
-  model?: string;
-}
-
-interface SimpleLLMProvider {
-  translate(options: {
-    text: string;
-    systemPrompt: string;
-    provider: string;
-    model: string;
-    temperature: number;
-  }): Promise<SimpleLLMResponse>;
 }
 
 export class DiffAnalysisService {

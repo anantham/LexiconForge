@@ -13,12 +13,9 @@
  */
 
 import { telemetryService } from './telemetryService';
+import type { ImageCacheKey } from '../types';
 
-export interface ImageCacheKey {
-  chapterId: string;
-  placementMarker: string;
-  version: number;  // Version number for tracking multiple generations (1-indexed)
-}
+export type { ImageCacheKey } from '../types';
 
 export interface ImageCacheStats {
   images: number;

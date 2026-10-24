@@ -1,7 +1,7 @@
-import type { AppSettings } from '../../types';
+import type { AppSettings, TranslationProvider } from '../../types';
 import type { ApiCallType } from '../../services/apiMetricsService';
 
-export type ProviderName = 'Gemini' | 'DeepSeek' | 'OpenRouter' | 'Claude' | 'OpenAI';
+export type ProviderName = TranslationProvider;
 
 export type ChatMessage = {
   role: 'system' | 'user' | 'assistant';

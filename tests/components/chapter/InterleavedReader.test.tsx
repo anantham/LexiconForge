@@ -20,7 +20,7 @@ vi.mock('../../../services/perWordTranslation', () => ({
 }));
 
 import InterleavedReader from '../../../components/chapter/InterleavedReader';
-import type { WordAlignment } from '../../../services/wordAlignment';
+import type { WordAlignment } from '../../../types/wordAlignment';
 
 const makeAlignment = (
   pairs: Array<Partial<WordAlignment['pairs'][number]>>,

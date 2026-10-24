@@ -1,4 +1,4 @@
-import type { AppSettings, TranslationResult } from '../../../types';
+import type { TranslationResult } from '../../../types';
 import type { TranslationRecord } from '../types';
 import type { TranslationSettingsSnapshot } from '../repositories/interfaces/ITranslationRepository';
 import { translationFacade } from '../repositories/translationFacade';
@@ -9,18 +9,7 @@ export interface ChapterRef {
 }
 
 const toSnapshot = (
-  settings: Pick<
-    AppSettings,
-    | 'provider'
-    | 'model'
-    | 'temperature'
-    | 'systemPrompt'
-    | 'enableAmendments'
-    | 'includeFanTranslationInPrompt'
-  > & {
-    promptId?: string;
-    promptName?: string;
-  }
+  settings: TranslationSettingsSnapshot
 ): TranslationSettingsSnapshot => ({
   provider: settings.provider,
   model: settings.model,
@@ -46,18 +35,7 @@ export class TranslationOps {
   }: {
     ref: ChapterRef;
     result: TranslationResult;
-    settings: Pick<
-      AppSettings,
-      | 'provider'
-      | 'model'
-      | 'temperature'
-      | 'systemPrompt'
-      | 'enableAmendments'
-      | 'includeFanTranslationInPrompt'
-    > & {
-      promptId?: string;
-      promptName?: string;
-    };
+    settings: TranslationSettingsSnapshot;
   }): Promise<TranslationRecord> {
     if (ref.url) {
       return translationFacade.storeByUrl(ref.url, result, toSnapshot(settings));
@@ -102,18 +80,7 @@ export class TranslationOps {
   static async storeByStableId(
     stableId: string,
     result: TranslationResult,
-    settings: Pick<
-      AppSettings,
-      | 'provider'
-      | 'model'
-      | 'temperature'
-      | 'systemPrompt'
-      | 'enableAmendments'
-      | 'includeFanTranslationInPrompt'
-    > & {
-      promptId?: string;
-      promptName?: string;
-    }
+    settings: TranslationSettingsSnapshot
   ): Promise<TranslationRecord> {
     // No pre-resolution here: the repository resolves the URL itself and has a
     // stableId:// fallback "so the translation is not lost". A getUrlForStableId

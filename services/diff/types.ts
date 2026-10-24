@@ -1,5 +1,21 @@
 // services/diff/types.ts
 
+export interface SimpleLLMResponse {
+  translatedText: string;
+  cost?: number;
+  model?: string;
+}
+
+export interface SimpleLLMProvider {
+  translate(options: {
+    text: string;
+    systemPrompt: string;
+    provider: string;
+    model: string;
+    temperature: number;
+  }): Promise<SimpleLLMResponse>;
+}
+
 /** Semantic difference categories */
 export type DiffColor = 'red' | 'orange' | 'blue' | 'purple' | 'grey' | 'green';
 

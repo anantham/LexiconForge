@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import appConfig from '../../config/app.json';
 import {
   KNOWN_DEBUG_PIPELINES,
+  type DebugLevel,
   type DebugPipeline,
   getDebugPipelines as readDebugPipelines,
   setDebugPipelines as writeDebugPipelines,
@@ -19,28 +20,12 @@ import { ImageCacheStore } from '../../services/imageCacheService';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { useAdvancedPanelStore } from '../../hooks/useAdvancedPanelStore';
 import type { AppSettings } from '../../types';
+import type { DiskDiagnostics } from './types';
 
 import DiagnosticsLoggingSection from './DiagnosticsLoggingSection';
 import ImageGenerationSection from './ImageGenerationSection';
 import TranslationParametersSection from './TranslationParametersSection';
 import StorageDiagnosticsSection from './StorageDiagnosticsSection';
-
-type DebugLevel = 'off' | 'summary' | 'full';
-
-type DiskDiagnostics = {
-  disk: {
-    totalChapters: number;
-    totalTranslations: number;
-    totalImages: number;
-    imagesInCache: number;
-    imagesLegacy: number;
-  };
-  quota: {
-    usedMB: number;
-    quotaMB: number;
-    percentUsed: number;
-  } | null;
-};
 
 const sortPipelineSelections = (values: DebugPipeline[]): DebugPipeline[] =>
   KNOWN_DEBUG_PIPELINES.filter((pipeline) => values.includes(pipeline));

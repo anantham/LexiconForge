@@ -1,5 +1,6 @@
 import type { DeepLoomPacket } from './types/suttaStudio';
 import type { ChapterArtifactReference } from './types/chapterManifest';
+import type { WordAlignment } from './types/wordAlignment';
 
 export interface Chapter {
   title: string;
@@ -22,7 +23,7 @@ export interface Chapter {
   // Issue #15 — word-level alignment between content (source) and translationResult.translation (target).
   // Computed on-demand via services/wordAlignment.ts; cached per (chapterId, translationResult.id).
   // Cleared when translationResult changes (handled by store action).
-  wordAlignment?: import('./services/wordAlignment').WordAlignment | null;
+  wordAlignment?: WordAlignment | null;
 }
 
 export interface ChapterSummary {

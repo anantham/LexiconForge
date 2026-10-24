@@ -1,5 +1,8 @@
 import type { NovelMetadata } from '../../types/novel';
 import type { ImageCacheKey } from '../../types';
+import type { ImageOps } from '../../services/db/operations/imageVersions';
+
+export type DiskDiagnostics = Awaited<ReturnType<typeof ImageOps.getStorageDiagnostics>>;
 
 /**
  * Cover image reference from the gallery

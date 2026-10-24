@@ -1,6 +1,9 @@
-import type { AppSettings, TranslationResult } from '../types';
+import type { TranslationResult } from '../types';
 import type { TranslationRecord } from './db/types';
+import type { TranslationSettingsSnapshot } from './db/repositories/interfaces/ITranslationRepository';
 import { TranslationOps } from './db/operations';
+
+export type { TranslationSettingsSnapshot } from './db/repositories/interfaces/ITranslationRepository';
 
 const log = (message: string, details?: Record<string, unknown>) => {
   console.log('[TranslationPersistence]', message, details ?? '');
@@ -78,19 +81,6 @@ const mergeOntoStoredRecord = (
       numberOr(usageMetrics?.requestTime, stored.requestTime)
     ),
   };
-};
-
-export type TranslationSettingsSnapshot = Pick<
-  AppSettings,
-  | 'provider'
-  | 'model'
-  | 'temperature'
-  | 'systemPrompt'
-  | 'enableAmendments'
-  | 'includeFanTranslationInPrompt'
-> & {
-  promptId?: string;
-  promptName?: string;
 };
 
 /**

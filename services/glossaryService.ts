@@ -6,19 +6,16 @@
  */
 
 import type { GlossaryEntry } from '../types';
+import type { GlossaryLayerRef } from '../types/novel';
+
+export type { GlossaryLayerRef } from '../types/novel';
 
 export interface GlossaryLayer {
   format: string;
-  tier: 'user' | 'genre' | 'book';
+  tier: GlossaryLayerRef['tier'];
   id?: string;
   inherits?: string[];
   entries: GlossaryEntry[];
-}
-
-export interface GlossaryLayerRef {
-  tier: 'user' | 'genre' | 'book';
-  id?: string;
-  url: string;
 }
 
 /**

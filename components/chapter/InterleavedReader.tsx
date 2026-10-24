@@ -12,7 +12,7 @@
  *  - Source/target chars OUTSIDE any pair render as plain text (gap fill)
  */
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import type { WordAlignment, WordPair } from '../../services/wordAlignment';
+import type { WordAlignment, WordPair } from '../../types/wordAlignment';
 import { lookupWord, type Sense } from '../../services/perWordTranslation';
 import type { GlossaryEntry } from '../../types';
 
