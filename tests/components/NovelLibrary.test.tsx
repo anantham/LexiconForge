@@ -285,7 +285,7 @@ describe('NovelLibrary', () => {
     }
     let finishStream!: () => void;
     const streamFinished = new Promise<void>(resolve => { finishStream = resolve; });
-    vi.mocked(ImportService.streamImportFromUrl).mockImplementation(async (_url, _progress, firstReady) => {
+    vi.mocked(ImportService.streamImportFromUrl).mockImplementation(async (_store, _url, _progress, firstReady) => {
       await firstReady?.();
       finishStream();
       return { chaptersLoaded: 1 };
@@ -447,6 +447,7 @@ describe('NovelLibrary', () => {
     expect(storeState.currentChapterId).toBe('ch-12');
     expect(storeState.setReaderReady).toHaveBeenCalled();
     expect(ImportService.streamImportFromUrl).toHaveBeenCalledWith(
+      useAppStoreMock,
       'https://example.com/alice.json',
       expect.any(Function),
       expect.any(Function),
@@ -813,6 +814,7 @@ describe('NovelLibrary', () => {
 
     await waitFor(() => {
       expect(ImportService.streamImportFromUrl).toHaveBeenCalledWith(
+        useAppStoreMock,
         'https://example.com/unknown-size.json',
         expect.any(Function),
         expect.any(Function),
@@ -902,7 +904,7 @@ describe('NovelLibrary', () => {
 
     // Drive the onFirstChaptersReady callback, then resolve (stream complete).
     vi.mocked(ImportService.streamImportFromUrl).mockImplementation(
-      async (_url: any, _onProgress: any, onFirstReady: any) => {
+      async (_store, _url, _onProgress, onFirstReady) => {
         await onFirstReady?.();
         return {} as any;
       }

@@ -66,7 +66,7 @@ it.each([null, 'v1'])('restores a departed graph for library selection %s and re
   expect(useAppStore.getState().chapters.size).toBe(2);
   cacheOscilloscope(useAppStore.getState());
   useAppStore.getState().resetOscilloscope();
-  const restored = await restoreCachedOscilloscope(new AbortController().signal);
+  const restored = await restoreCachedOscilloscope(useAppStore.getState, new AbortController().signal);
   expect(restored).toBe(true);
   expect(useAppStore.getState().threads.get('tone:trust')?.values).toEqual([0.2, 0.7]);
   const exported = await ExportService.generateQuickExport();
@@ -79,10 +79,26 @@ it.each([null, 'v1'])('restores a departed graph for library selection %s and re
   await loadNovelIntoStore('book-a', useAppStore.setState, { versionId: selection });
   const chapter = [...useAppStore.getState().chapters.values()][0];
   useAppStore.getState().updateChapter(chapter.id, { fanTranslation: 'changed', translationResult: null });
-  expect(await restoreCachedOscilloscope(new AbortController().signal)).toBe(false);
+  expect(await restoreCachedOscilloscope(useAppStore.getState, new AbortController().signal)).toBe(false);
   expect(useAppStore.getState().threads.size).toBe(0);
   useAppStore.setState({ activeVersionId: 'v2' });
-  expect(await restoreCachedOscilloscope(new AbortController().signal)).toBe(false);
+  expect(await restoreCachedOscilloscope(useAppStore.getState, new AbortController().signal)).toBe(false);
+});
+
+it.each(['abort', 'selection'])('does not restore a graph after %s changes during verification', async (change) => {
+  const session = await fixture();
+  await useAppStore.getState().importSessionData(session);
+  cacheOscilloscope(useAppStore.getState());
+  useAppStore.getState().resetOscilloscope();
+  const controller = new AbortController();
+  const restoring = restoreCachedOscilloscope(useAppStore.getState, controller.signal);
+
+  if (change === 'abort') controller.abort();
+  else useAppStore.setState({ activeNovelId: 'book-b' });
+
+  expect(await restoring).toBe(false);
+  expect(useAppStore.getState().isLoaded).toBe(false);
+  expect(useAppStore.getState().threads.size).toBe(0);
 });
 
 it('scopes quick, publish and fork exports before loading translations from other cached books', async () => {

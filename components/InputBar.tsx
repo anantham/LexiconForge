@@ -67,7 +67,7 @@ const InputBar: React.FC = () => {
         && useAppStore.getState().activeVersionId === importVersionId;
 
       try {
-        await ImportService.importFromUrl(trimmedUrl, (progress) => {
+        await ImportService.importFromUrl(useAppStore, trimmedUrl, (progress) => {
           if (stillSelected()) setImportProgress(progress);
         });
         setUrl('');
@@ -135,7 +135,7 @@ const InputBar: React.FC = () => {
         message: 'Importing from file...',
       });
 
-      await ImportService.importFromFile(file);
+      await ImportService.importFromFile(useAppStore, file);
 
       console.log('[InputBar] File import successful');
 

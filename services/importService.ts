@@ -5,7 +5,8 @@
 /** Browser memory safety limit for session import downloads */
 const MAX_IMPORT_SIZE_BYTES = 500 * 1024 * 1024; // 500 MB
 
-import { useAppStore } from '../store';
+import type { StoreApi } from 'zustand';
+import type { StoreState } from '../store/storeTypes';
 import type { SessionData } from '../types/session';
 import type {
   AppSettings,
@@ -178,16 +179,19 @@ const getScopedChapterIdentity = (
   };
 };
 
+type ImportStore = Pick<StoreApi<StoreState>, 'getState' | 'setState'>;
+
 export class ImportService {
   /**
    * Import session from URL with CORS handling and progress tracking
    */
   static async importFromUrl(
+    store: ImportStore,
     url: string,
     onProgress?: (progress: ImportProgress) => void,
     options: ImportOptions = {}
   ): Promise<any> {
-    const { activeNovelId, activeVersionId } = useAppStore.getState();
+    const { activeNovelId, activeVersionId } = store.getState();
     // Convert GitHub URLs to raw format
     let fetchUrl = normalizeImportUrl(url);
 
@@ -290,20 +294,20 @@ export class ImportService {
             throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
           }
 
-          const current = useAppStore.getState();
+          const current = store.getState();
           if (current.activeNovelId !== activeNovelId || current.activeVersionId !== activeVersionId) {
             debugLog('import', 'summary', '[Import] Reader selection changed during download; session not applied');
             return sessionData;
           }
           if (sessionData.provenance) {
-            useAppStore.getState().setSessionProvenance(sessionData.provenance);
+            store.getState().setSessionProvenance(sessionData.provenance);
           }
           if (sessionData.version) {
-            useAppStore.getState().setSessionVersion(sessionData.version);
+            store.getState().setSessionVersion(sessionData.version);
           }
 
           onProgress?.({ stage: 'importing', progress: 0, message: 'Importing to database...' });
-          await useAppStore.getState().importSessionData(sessionData);
+          await store.getState().importSessionData(sessionData);
           onProgress?.({ stage: 'complete', progress: 100, message: 'Import complete!' });
 
           debugLog('import', 'summary', `[Import] Successfully imported ${sessionData.chapters?.length || 0} chapters`);
@@ -341,6 +345,7 @@ export class ImportService {
    * Allows reading after the first chapter batch loads.
    */
   static async streamImportFromUrl(
+    store: ImportStore,
     url: string,
     onProgress?: (progress: ImportProgress) => void,
     onFirstChaptersReady?: () => void | Promise<void>,
@@ -350,11 +355,11 @@ export class ImportService {
     if (!registryNovelId) {
       throw new Error('Streaming requires a known novel scope; use importFromUrl for an unregistered session URL.');
     }
-    const { activeNovelId, activeVersionId } = useAppStore.getState();
-    const stillSelected = () => useAppStore.getState().activeNovelId === activeNovelId
-      && useAppStore.getState().activeVersionId === activeVersionId;
+    const { activeNovelId, activeVersionId } = store.getState();
+    const stillSelected = () => store.getState().activeNovelId === activeNovelId
+      && store.getState().activeVersionId === activeVersionId;
     const applyHydration: Parameters<typeof loadNovelIntoStore>[1] = (patch) => {
-      if (stillSelected()) useAppStore.setState(patch);
+      if (stillSelected()) store.setState(patch);
     };
     return new Promise(async (resolve, reject) => {
       debugLog('import', 'summary', '[StreamImport] Starting streaming import from:', url);
@@ -1102,7 +1107,7 @@ export class ImportService {
           resolve({ metadata, chaptersLoaded });
           return;
         }
-        const preHydrationState = useAppStore.getState();
+        const preHydrationState = store.getState();
         const openChapterBeforeHydration = preHydrationState.currentChapterId
           ? preHydrationState.chapters.get(preHydrationState.currentChapterId)
           : null;
@@ -1125,7 +1130,7 @@ export class ImportService {
           resolve({ metadata, chaptersLoaded });
           return;
         }
-        const hydratedState = useAppStore.getState();
+        const hydratedState = store.getState();
         const remappedOpenChapterId = openScopedChapterNumber === null
           ? null
           : Array.from(hydratedState.chapters.entries()).find(([, chapter]) =>
@@ -1153,7 +1158,7 @@ export class ImportService {
           );
         }
 
-        useAppStore.setState(state => {
+        store.setState(state => {
           const preservedCurrentChapterId =
             state.currentChapterId && state.chapters.has(state.currentChapterId)
               ? state.currentChapterId
@@ -1166,13 +1171,13 @@ export class ImportService {
           };
         });
 
-        const postHydrationState = useAppStore.getState();
+        const postHydrationState = store.getState();
         debugLog(
           'import',
           'summary',
           '[StreamImport] Post-hydration state snapshot',
           {
-            hydratedChapters: useAppStore.getState().chapters.size,
+            hydratedChapters: store.getState().chapters.size,
             currentChapterId: postHydrationState.currentChapterId,
           }
         );
@@ -1184,10 +1189,10 @@ export class ImportService {
             '[StreamImport] Selecting first chapter after hydration fallback',
             {
               firstStableId: firstChapterId,
-              totalHydrated: useAppStore.getState().chapters.size,
+              totalHydrated: store.getState().chapters.size,
             }
           );
-          useAppStore.setState({ currentChapterId: firstChapterId });
+          store.setState({ currentChapterId: firstChapterId });
         }
 
         const oscilloscopeCorpus = sessionOscilloscope && typeof sessionOscilloscope === 'object'
@@ -1210,7 +1215,7 @@ export class ImportService {
               version: { versionId },
               chapters: hydratedChapters,
             } as any);
-            const current = useAppStore.getState();
+            const current = store.getState();
             if (!stillSelected() || current.chapters !== postHydrationState.chapters
               || current.activeNovelId !== postHydrationState.activeNovelId
               || current.activeVersionId !== postHydrationState.activeVersionId) {
@@ -1226,7 +1231,7 @@ export class ImportService {
             }
           } catch (error) {
             console.error('[StreamImport] Ignoring invalid session oscilloscope data:', error);
-            const current = useAppStore.getState();
+            const current = store.getState();
             if (stillSelected() && current.chapters === postHydrationState.chapters
               && current.activeNovelId === postHydrationState.activeNovelId
               && current.activeVersionId === postHydrationState.activeVersionId) current.resetOscilloscope();
@@ -1251,8 +1256,8 @@ export class ImportService {
   /**
    * Import from File (existing behavior)
    */
-  static async importFromFile(file: File): Promise<any> {
-    const { activeNovelId, activeVersionId } = useAppStore.getState();
+  static async importFromFile(store: ImportStore, file: File): Promise<any> {
+    const { activeNovelId, activeVersionId } = store.getState();
     try {
       const text = await file.text();
       let sessionData = JSON.parse(text);
@@ -1267,23 +1272,23 @@ export class ImportService {
         throw new Error('Invalid session format. Expected lexiconforge export or BookToki scrape JSON.');
       }
 
-      const current = useAppStore.getState();
+      const current = store.getState();
       if (current.activeNovelId !== activeNovelId || current.activeVersionId !== activeVersionId) {
         debugLog('import', 'summary', '[Import] Reader selection changed during file read; session not applied');
         return sessionData;
       }
       // Extract and store provenance if present
       if (sessionData.provenance) {
-        useAppStore.getState().setSessionProvenance(sessionData.provenance);
+        store.getState().setSessionProvenance(sessionData.provenance);
       }
 
       // Extract and store version info if present
       if (sessionData.version) {
-        useAppStore.getState().setSessionVersion(sessionData.version);
+        store.getState().setSessionVersion(sessionData.version);
       }
 
       // Use store's import method which handles both IndexedDB AND store updates
-      await useAppStore.getState().importSessionData(sessionData);
+      await store.getState().importSessionData(sessionData);
 
       debugLog('import', 'summary', `[Import] Successfully imported from file: ${file.name}`);
 

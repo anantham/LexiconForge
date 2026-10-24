@@ -300,6 +300,7 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
 
         if (!stillSelected()) return;
         const importResult = await ImportService.streamImportFromUrl(
+          useAppStore,
           sessionJsonUrl,
           (progress) => {
             if (stillSelected()) setImportProgress(progress);

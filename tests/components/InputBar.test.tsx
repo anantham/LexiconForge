@@ -89,6 +89,7 @@ describe('InputBar guardrails', () => {
 
     expect(storeState.setReaderLoading).toHaveBeenCalledWith(null);
     expect(ImportService.importFromUrl).toHaveBeenCalledWith(
+      useAppStoreMock,
       'https://example.com/session.json',
       expect.any(Function)
     );
@@ -133,7 +134,7 @@ describe('InputBar guardrails', () => {
     });
 
     expect(storeState.setReaderLoading).toHaveBeenCalledWith(null);
-    expect(ImportService.importFromFile).toHaveBeenCalledWith(file);
+    expect(ImportService.importFromFile).toHaveBeenCalledWith(useAppStoreMock, file);
     expect(storeState.shelveActiveNovel.mock.invocationCallOrder[0]).toBeLessThan(
       storeState.setReaderLoading.mock.invocationCallOrder[0]
     );
