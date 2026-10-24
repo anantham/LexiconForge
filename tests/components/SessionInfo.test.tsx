@@ -17,7 +17,7 @@
  * They should remain valid after the component is split into smaller pieces.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
@@ -34,7 +34,6 @@ const {
   mockSetExportProgress,
   mockRemoveChapter,
   mockSetError,
-  mockGetChapterSummaries,
   mockGetChapterSummariesByScope,
 } = vi.hoisted(() => ({
   mockExportSessionData: vi.fn().mockResolvedValue(undefined),
@@ -47,7 +46,6 @@ const {
   mockSetExportProgress: vi.fn(),
   mockRemoveChapter: vi.fn(),
   mockSetError: vi.fn(),
-  mockGetChapterSummaries: vi.fn(),
   mockGetChapterSummariesByScope: vi.fn(),
 }));
 
@@ -167,11 +165,8 @@ vi.mock('../../services/exportService', () => ({
   },
 }));
 
-vi.mock('../../services/importTransformationService', () => ({
-  ImportTransformationService: {
-    getChapterSummaries: mockGetChapterSummaries,
-    getChapterSummariesByScope: mockGetChapterSummariesByScope,
-  },
+vi.mock('../../services/db/operations/summaries', () => ({
+  fetchChapterSummariesByScope: mockGetChapterSummariesByScope,
 }));
 
 vi.mock('../../services/imageCacheService', () => ({
@@ -192,7 +187,6 @@ describe('SessionInfo: Critical Flows', () => {
     mockStoreState = createMockStore();
     // Reset versions mock
     mockFetchTranslationVersions.mockResolvedValue(defaultVersions);
-    mockGetChapterSummaries.mockResolvedValue(mockChapterSummaries);
     mockGetChapterSummariesByScope.mockResolvedValue(mockChapterSummaries);
   });
 
@@ -650,7 +644,7 @@ describe('SessionInfo: Critical Flows', () => {
         expect(screen.queryByText('Loading chapters…')).not.toBeInTheDocument();
       });
 
-      expect(mockGetChapterSummariesByScope).toHaveBeenCalledWith('novel-1', 'v1');
+      expect(mockGetChapterSummariesByScope).toHaveBeenCalledWith({ novelId: 'novel-1', libraryVersionId: 'v1' });
       expect(screen.getByRole('option', { name: /El Comienzo/i })).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: /Wrong Novel/i })).not.toBeInTheDocument();
     });
@@ -659,7 +653,6 @@ describe('SessionInfo: Critical Flows', () => {
   describe('Empty State', () => {
     it('handles empty session gracefully', async () => {
       // Override to return empty chapters
-      mockGetChapterSummaries.mockResolvedValue([]);
       mockGetChapterSummariesByScope.mockResolvedValue([]);
       mockStoreState = createMockStore({
         currentChapterId: null,
@@ -676,7 +669,6 @@ describe('SessionInfo: Critical Flows', () => {
     });
 
     it('shows "No chapter loaded" when session is empty', async () => {
-      mockGetChapterSummaries.mockResolvedValue([]);
       mockGetChapterSummariesByScope.mockResolvedValue([]);
       mockStoreState = createMockStore({
         currentChapterId: null,
@@ -696,7 +688,6 @@ describe('SessionInfo: Critical Flows', () => {
     });
 
     it('hides Export Book button when no chapters exist', async () => {
-      mockGetChapterSummaries.mockResolvedValue([]);
       mockGetChapterSummariesByScope.mockResolvedValue([]);
       mockStoreState = createMockStore({
         currentChapterId: null,
@@ -727,7 +718,6 @@ describe('SessionInfo: Critical Flows', () => {
     });
 
     it('settings button is always visible regardless of session state', async () => {
-      mockGetChapterSummaries.mockResolvedValue([]);
       mockGetChapterSummariesByScope.mockResolvedValue([]);
       mockStoreState = createMockStore({
         currentChapterId: null,
@@ -1242,7 +1232,6 @@ describe('SessionInfo: Critical Flows', () => {
     });
 
     it('publish button is disabled when session is empty', async () => {
-      mockGetChapterSummaries.mockResolvedValue([]);
       mockStoreState = createMockStore({
         currentChapterId: null,
         chapters: new Map(),

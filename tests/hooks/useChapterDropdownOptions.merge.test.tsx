@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useChapterDropdownOptions } from '../../hooks/useChapterDropdownOptions';
 import { clearCatalogCache } from '../../services/chapterCatalog';
 import type { ChapterSummary } from '../../types';
@@ -58,11 +58,8 @@ vi.mock('../../services/library/chapterManifestService', () => ({
   fetchChapterManifest: fetchChapterManifestMock,
 }));
 
-vi.mock('../../services/importTransformationService', () => ({
-  ImportTransformationService: {
-    getChapterSummaries: vi.fn().mockResolvedValue([]),
-    getChapterSummariesByScope: getChapterSummariesByScopeMock,
-  },
+vi.mock('../../services/db/operations/summaries', () => ({
+  fetchChapterSummariesByScope: getChapterSummariesByScopeMock,
 }));
 
 vi.mock('../../services/telemetryService', () => ({
@@ -122,6 +119,7 @@ describe('useChapterDropdownOptions — virtual catalog merge', () => {
 
     // Registry should NOT be queried
     expect(fetchNovelByIdMock).not.toHaveBeenCalled();
+    expect(getChapterSummariesByScopeMock).not.toHaveBeenCalled();
     expect(result.current.options).toHaveLength(1);
     expect(result.current.options[0].chapterNumber).toBe(1);
   });
@@ -314,6 +312,63 @@ describe('useChapterDropdownOptions — virtual catalog merge', () => {
     // No virtual entries (catalog returned []), only the two real summaries
     expect(result.current.options).toHaveLength(2);
     expect(result.current.options.every((o) => !o.stableId.startsWith('virtual:'))).toBe(true);
+  });
+
+  it('preserves the catalog and current chapter when persisted summaries cannot be read', async () => {
+    const readError = new Error('IndexedDB unavailable');
+    storeState.activeNovelId = 'offline-novel';
+    storeState.activeVersionId = 'v1';
+    storeState.chapters = new Map([
+      ['current', {
+        id: 'current',
+        title: 'Current chapter',
+        chapterNumber: 1,
+        novelId: 'offline-novel',
+        libraryVersionId: 'v1',
+        originalUrl: 'https://example.com/chapter/1',
+      }],
+    ]);
+    fetchNovelByIdMock.mockResolvedValue({
+      id: 'offline-novel',
+      metadata: { chapterCount: 2 },
+      versions: [],
+    });
+    getChapterSummariesByScopeMock.mockRejectedValue(readError);
+
+    const { result } = renderHook(() => useChapterDropdownOptions());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(getChapterSummariesByScopeMock).toHaveBeenCalledWith({
+      novelId: 'offline-novel',
+      libraryVersionId: 'v1',
+    });
+    expect(result.current.options).toHaveLength(2);
+    expect(result.current.options[0]).toMatchObject({ stableId: 'current', availability: 'ready' });
+    expect(result.current.options[1]).toMatchObject({ chapterNumber: 2, availability: 'not-cached' });
+    expect(console.error).toHaveBeenCalledWith(expect.any(String), readError);
+  });
+
+  it('ignores summaries from a scope that was replaced while the read was pending', async () => {
+    storeState.activeNovelId = 'novel';
+    storeState.activeVersionId = 'old';
+    fetchNovelByIdMock.mockResolvedValue(null);
+    let resolveOldRead!: (_summaries: ChapterSummary[]) => void;
+    getChapterSummariesByScopeMock.mockImplementationOnce(() => new Promise<ChapterSummary[]>((resolve) => {
+      resolveOldRead = resolve;
+    }));
+
+    const { result, rerender } = renderHook(() => useChapterDropdownOptions());
+    await waitFor(() => expect(getChapterSummariesByScopeMock).toHaveBeenCalledTimes(1));
+    getChapterSummariesByScopeMock.mockResolvedValue([realSummary('new-version', 2)]);
+    storeState.activeVersionId = 'new';
+    rerender();
+    await waitFor(() => expect(result.current.options[0]?.stableId).toBe('new-version'));
+
+    await act(async () => {
+      resolveOldRead([realSummary('old-version', 1)]);
+    });
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.options.map((option) => option.stableId)).toEqual(['new-version']);
   });
 
   it('handles a 3500-chapter novel without crashing (FMC-shaped scale)', async () => {
