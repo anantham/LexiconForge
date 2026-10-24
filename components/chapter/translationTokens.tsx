@@ -1,6 +1,7 @@
 import React from 'react';
 import Illustration from '../Illustration';
 import { computeDiffHash } from '../../services/diff/hash';
+import { normalizeParagraphText, splitIntoParagraphSegments } from '../../services/diff/paragraphs';
 import {
   ILLUSTRATION_MARKER_PATTERN,
   ILLUSTRATION_MARKER_INNER,
@@ -41,7 +42,6 @@ const BOLD_HTML_RE = /^<b>[\s\S]*<\/b>$/;
 const EMPHASIS_RE = /^\*[\s\S]*\*$/;
 const BR_RE = /^<br\s*\/?>$/i;
 const HR_RE = /^<hr\s*\/?>$/i;
-const PARAGRAPH_BOUNDARY_REGEX = /(?:<br\s*\/?>\s*){2,}|<hr\s*\/?>|<\/p>\s*<p[^>]*>/gi;
 
 const findOpenedTags = (html: string): string[] => {
   const opened: string[] = [];
@@ -97,39 +97,6 @@ const balanceTagsAcrossSegments = (segments: Array<{ raw: string }>): Array<{ ra
 
     return { raw: balanced };
   });
-};
-
-const splitIntoParagraphSegments = (html: string): Array<{ raw: string }> => {
-  const segments: Array<{ raw: string }> = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = PARAGRAPH_BOUNDARY_REGEX.exec(html)) !== null) {
-    const rawSegment = html.slice(lastIndex, match.index);
-    segments.push({ raw: rawSegment });
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < html.length) {
-    segments.push({ raw: html.slice(lastIndex) });
-  }
-
-  return balanceTagsAcrossSegments(segments);
-};
-
-const normalizeParagraphText = (html: string): string => {
-  let output = html;
-  output = output.replace(/(<br\s*\/?>\s*){2,}/gi, '\n\n');
-  output = output.replace(/<br\s*\/?>/gi, '\n');
-  output = output.replace(/<hr\s*\/?>/gi, '\n\n');
-  output = output.replace(/<\/p>\s*<p[^>]*>/gi, '\n\n');
-  output = output.replace(/<\/?p[^>]*>/gi, '');
-  output = output.replace(/<\/?[^>]+>/g, '');
-  output = output.replace(/&nbsp;/gi, ' ');
-  output = output.replace(/\r\n/g, '\n');
-  output = output.replace(/\n{3,}/g, '\n\n');
-  output = output.replace(/[ \t]+\n/g, '\n');
-  return output;
 };
 
 const buildTranslationTokens = (text: string, baseId: string, counter: { value: number }): TranslationToken[] => {
@@ -225,7 +192,7 @@ export const renderTranslationTokens = (tokens: TranslationToken[], keyPrefix = 
 };
 
 export const tokenizeTranslation = (text: string, baseId: string): TokenizationResult => {
-  const segments = splitIntoParagraphSegments(text);
+  const segments = balanceTagsAcrossSegments(splitIntoParagraphSegments(text));
   const tokens: TranslationToken[] = [];
   const paragraphs: TranslationParagraph[] = [];
   const chunkIdPrefix = `para-${baseId}`;

@@ -83,6 +83,22 @@ beforeEach(() => {
     expect(handleSettingChange).toHaveBeenCalledWith('showDiffHeatmap', false);
   });
 
+  it('matches reader defaults and legacy raw visibility', () => {
+    renderPanel({
+      currentSettings: {
+        ...baseSettings,
+        diffMarkerVisibility: Object.assign(
+          { fan: true, rawLoss: true, rawGain: true, sensitivity: true, stylistic: false },
+          { raw: false },
+        ),
+      },
+    });
+    expect(screen.getByRole('checkbox', { name: /missing vs. raw/i })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /added beyond raw/i })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /fan translation divergence/i })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /stylistic diff markers/i })).not.toBeChecked();
+  });
+
   it('invokes invalidate handler and shows success notice', async () => {
     const user = userEvent.setup();
     renderPanel();

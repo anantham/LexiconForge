@@ -5,6 +5,7 @@ import type {
 } from './types';
 import { DIFF_ALGO_VERSION, DIFF_DEFAULT_MODEL, DIFF_DEFAULT_PROVIDER, DIFF_TEMPERATURE } from './constants';
 import { computeDiffHash } from './hash';
+import { normalizeParagraphText, splitIntoParagraphSegments } from './paragraphs';
 import { debugLog, debugWarn } from '../../utils/debug';
 import { applyDiffPromptVariables, getDefaultDiffPrompt } from './promptUtils';
 
@@ -517,12 +518,12 @@ export class DiffAnalysisService {
    * Normalises <br>, <hr>, and <p> tags so each chunk represents a paragraph.
    */
   private chunkAiTranslation(text: string): Array<{ id: string; text: string; start: number; end: number; position: number }> {
-    const segments = this.splitIntoParagraphSegments(text);
+    const segments = splitIntoParagraphSegments(text);
     const chunks: Array<{ id: string; text: string; start: number; end: number; position: number }> = [];
     let cumulativeLength = 0;
 
     for (const segment of segments) {
-      const normalised = this.normaliseChunkText(segment.raw);
+      const normalised = normalizeParagraphText(segment.raw);
       if (!normalised.trim()) {
         cumulativeLength += normalised.length;
         continue;
@@ -547,7 +548,7 @@ export class DiffAnalysisService {
 
     // Fallback: if no chunks identified, treat the entire text as one chunk.
     if (chunks.length === 0) {
-      const trimmed = this.normaliseChunkText(text);
+      const trimmed = normalizeParagraphText(text);
       const fallback = trimmed || text;
       return [{
         id: `para-0-${computeDiffHash(fallback).substring(0, 4)}`,
@@ -561,50 +562,4 @@ export class DiffAnalysisService {
     return chunks;
   }
 
-  private splitIntoParagraphSegments(text: string): Array<{ raw: string; start: number; end: number }> {
-    const segments: Array<{ raw: string; start: number; end: number }> = [];
-    const boundaryRegex = /(?:<br\s*\/?>\s*){2,}|<hr\s*\/?>|<\/p>\s*<p[^>]*>/gi;
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = boundaryRegex.exec(text)) !== null) {
-      const rawSegment = text.slice(lastIndex, match.index);
-      segments.push({ raw: rawSegment, start: lastIndex, end: match.index });
-      lastIndex = match.index + match[0].length;
-    }
-
-    if (lastIndex < text.length) {
-      segments.push({ raw: text.slice(lastIndex), start: lastIndex, end: text.length });
-    }
-
-    return segments;
-  }
-
-  private normaliseChunkText(html: string): string {
-    let output = html;
-
-    // Replace <br> sequences with line breaks.
-    output = output.replace(/(<br\s*\/?>\s*){2,}/gi, '\n\n');
-    output = output.replace(/<br\s*\/?>/gi, '\n');
-
-    // Replace horizontal rules with paragraph break.
-    output = output.replace(/<hr\s*\/?>/gi, '\n\n');
-
-    // Handle paragraph tags.
-    output = output.replace(/<\/p>\s*<p[^>]*>/gi, '\n\n');
-    output = output.replace(/<\/?p[^>]*>/gi, '');
-
-    // Strip remaining HTML tags.
-    output = output.replace(/<\/?[^>]+>/g, '');
-
-    // Decode minimal HTML entities.
-    output = output.replace(/&nbsp;/gi, ' ');
-
-    // Normalise whitespace.
-    output = output.replace(/\r\n/g, '\n');
-    output = output.replace(/\n{3,}/g, '\n\n');
-    output = output.replace(/[ \t]+\n/g, '\n');
-
-    return output;
-  }
 }
