@@ -26,13 +26,6 @@ const DEFAULT_EXPORT_OPTIONS = {
   includeImages: true,
 };
 
-export interface ExportProgress {
-  phase: 'preparing' | 'processing' | 'finalizing' | 'done';
-  current: number;
-  total: number;
-  message: string;
-}
-
 interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
