@@ -188,54 +188,46 @@ export class SessionManagementService {
    * Load prompt templates from IndexedDB
    */
   static async loadPromptTemplates(): Promise<{ templates: PromptTemplate[], activeTemplate: PromptTemplate | null }> {
-    try {
-      const templates = await TemplatesOps.getAll();
-      const activeTemplateRecord = await TemplatesOps.getDefault();
-      const activeTemplate = activeTemplateRecord
-        ? {
-            id: activeTemplateRecord.id,
-            name: activeTemplateRecord.name,
-            description: activeTemplateRecord.description,
-            content: activeTemplateRecord.content,
-            isDefault: activeTemplateRecord.isDefault,
-            createdAt: activeTemplateRecord.createdAt,
-            lastUsed: activeTemplateRecord.lastUsed,
-          }
-        : null;
-      
-      const normalizedTemplates = templates.map(template => ({
-        id: template.id,
-        name: template.name,
-        description: template.description,
-        content: template.content,
-        isDefault: template.isDefault,
-        createdAt: template.createdAt,
-        lastUsed: template.lastUsed,
-      }));
+    const templates = await TemplatesOps.getAll();
+    const activeTemplateRecord = await TemplatesOps.getDefault();
+    const activeTemplate = activeTemplateRecord
+      ? {
+          id: activeTemplateRecord.id,
+          name: activeTemplateRecord.name,
+          description: activeTemplateRecord.description,
+          content: activeTemplateRecord.content,
+          isDefault: activeTemplateRecord.isDefault,
+          createdAt: activeTemplateRecord.createdAt,
+          lastUsed: activeTemplateRecord.lastUsed,
+        }
+      : null;
 
-      const normalizedActive = activeTemplate
-        ? {
-            id: activeTemplate.id,
-            name: activeTemplate.name,
-            description: activeTemplate.description,
-            content: activeTemplate.content,
-            isDefault: activeTemplate.isDefault,
-            createdAt: activeTemplate.createdAt,
-            lastUsed: activeTemplate.lastUsed,
-          }
-        : null;
+    const normalizedTemplates = templates.map(template => ({
+      id: template.id,
+      name: template.name,
+      description: template.description,
+      content: template.content,
+      isDefault: template.isDefault,
+      createdAt: template.createdAt,
+      lastUsed: template.lastUsed,
+    }));
 
-      return {
-        templates: normalizedTemplates,
-        activeTemplate: normalizedActive,
-      };
-    } catch (error) {
-      console.error('[SessionManagement] Failed to load prompt templates:', error);
-      return {
-        templates: [],
-        activeTemplate: null
-      };
-    }
+    const normalizedActive = activeTemplate
+      ? {
+          id: activeTemplate.id,
+          name: activeTemplate.name,
+          description: activeTemplate.description,
+          content: activeTemplate.content,
+          isDefault: activeTemplate.isDefault,
+          createdAt: activeTemplate.createdAt,
+          lastUsed: activeTemplate.lastUsed,
+        }
+      : null;
+
+    return {
+      templates: normalizedTemplates,
+      activeTemplate: normalizedActive,
+    };
   }
 
   /**
@@ -248,49 +240,29 @@ export class SessionManagementService {
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      await TemplatesOps.store(template);
-      return template;
-    } catch (error) {
-      console.error('[SessionManagement] Failed to create prompt template:', error);
-      throw error;
-    }
+    await TemplatesOps.store(template);
+    return template;
   }
 
   /**
    * Update an existing prompt template
    */
   static async updatePromptTemplate(template: PromptTemplate): Promise<void> {
-    try {
-      await TemplatesOps.store(template);
-    } catch (error) {
-      console.error('[SessionManagement] Failed to update prompt template:', error);
-      throw error;
-    }
+    await TemplatesOps.store(template);
   }
 
   /**
    * Delete a prompt template
    */
   static async deletePromptTemplate(id: string): Promise<void> {
-    try {
-      await TemplatesOps.delete(id);
-    } catch (error) {
-      console.error('[SessionManagement] Failed to delete prompt template:', error);
-      throw error;
-    }
+    await TemplatesOps.delete(id);
   }
 
   /**
    * Set the active prompt template
    */
   static async setActivePromptTemplate(id: string): Promise<void> {
-    try {
-      await TemplatesOps.setDefault(id);
-    } catch (error) {
-      console.error('[SessionManagement] Failed to set active prompt template:', error);
-      throw error;
-    }
+    await TemplatesOps.setDefault(id);
   }
 
   /**
@@ -311,57 +283,51 @@ export class SessionManagementService {
       clearLocalStorage = true
     } = options;
 
-    try {
-      // Clear IndexedDB data if requested
-      if (clearIndexedDB) {
-        await MaintenanceOps.clearAllData();
+    // Clear IndexedDB data if requested
+    if (clearIndexedDB) {
+      await MaintenanceOps.clearAllData();
+    }
+
+    // Bootstrap a default prompt template if we cleared everything
+    if (clearIndexedDB && clearPromptTemplates) {
+      const defaultTemplate: PromptTemplate = {
+        id: crypto.randomUUID(),
+        name: 'Default',
+        description: 'Initial system prompt',
+        content: INITIAL_SYSTEM_PROMPT,
+        isDefault: true,
+        createdAt: new Date().toISOString(),
+        lastUsed: new Date().toISOString(),
+      };
+
+      try {
+        await TemplatesOps.store(defaultTemplate as any);
+        await TemplatesOps.setDefault(defaultTemplate.id);
+      } catch (e) {
+        console.warn('[SessionManagement] Failed to bootstrap default prompt template', e);
       }
+    }
 
-      // Bootstrap a default prompt template if we cleared everything
-      if (clearIndexedDB && clearPromptTemplates) {
-        const defaultTemplate: PromptTemplate = {
-          id: crypto.randomUUID(),
-          name: 'Default',
-          description: 'Initial system prompt',
-          content: INITIAL_SYSTEM_PROMPT,
-          isDefault: true,
-          createdAt: new Date().toISOString(),
-          lastUsed: new Date().toISOString(),
-        };
-
-        try {
-          await TemplatesOps.store(defaultTemplate as any);
-          await TemplatesOps.setDefault(defaultTemplate.id);
-        } catch (e) {
-          console.warn('[SessionManagement] Failed to bootstrap default prompt template', e);
-        }
+    // Clear localStorage settings if requested
+    if (clearLocalStorage && clearSettings) {
+      try {
+        localStorage.removeItem(settingsStorageKey);
+      } catch (e) {
+        console.warn('[SessionManagement] Failed to clear settings from localStorage:', e);
       }
+    }
 
-      // Clear localStorage settings if requested
-      if (clearLocalStorage && clearSettings) {
-        try {
-          localStorage.removeItem(settingsStorageKey);
-        } catch (e) {
-          console.warn('[SessionManagement] Failed to clear settings from localStorage:', e);
-        }
+    // Clear API debug flags
+    if (clearLocalStorage) {
+      try {
+        localStorage.removeItem('LF_AI_DEBUG');
+        localStorage.removeItem('LF_AI_DEBUG_FULL');
+        localStorage.removeItem('LF_AI_DEBUG_LEVEL');
+        localStorage.removeItem('store-debug');
+        localStorage.removeItem(RESUMABLE_IMAGE_JOBS_STORAGE_KEY);
+      } catch (e) {
+        console.warn('[SessionManagement] Failed to clear debug flags:', e);
       }
-
-      // Clear API debug flags
-      if (clearLocalStorage) {
-        try {
-          localStorage.removeItem('LF_AI_DEBUG');
-          localStorage.removeItem('LF_AI_DEBUG_FULL');
-          localStorage.removeItem('LF_AI_DEBUG_LEVEL');
-          localStorage.removeItem('store-debug');
-          localStorage.removeItem(RESUMABLE_IMAGE_JOBS_STORAGE_KEY);
-        } catch (e) {
-          console.warn('[SessionManagement] Failed to clear debug flags:', e);
-        }
-      }
-
-    } catch (error) {
-      console.error('[SessionManagement] Failed to clear session:', error);
-      throw error;
     }
   }
 
@@ -429,14 +395,9 @@ export class SessionManagementService {
    * Import session configuration
    */
   static importSessionConfig(config: any): void {
-    try {
-      if (config.settings) {
-        const mergedSettings = { ...defaultSettings, ...config.settings };
-        this.saveSettings(mergedSettings);
-      }
-    } catch (error) {
-      console.error('[SessionManagement] Failed to import session config:', error);
-      throw error;
+    if (config.settings) {
+      const mergedSettings = { ...defaultSettings, ...config.settings };
+      this.saveSettings(mergedSettings);
     }
   }
 }
