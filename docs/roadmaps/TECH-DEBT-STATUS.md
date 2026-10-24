@@ -1,6 +1,6 @@
 # Tech Debt Status
 
-**Last Updated:** October 22, 2026 (usable baseline recorded; scan metrics below remain the March 29 snapshot)
+**Last Updated:** October 24, 2026 (cleanup pass validated locally; historical debt tables below remain the March 29 snapshot)
 **Last Surface Scan:** March 29, 2026 (v1.1.0, post-review corrected)
 
 ## Attentional Policy
@@ -75,6 +75,42 @@ When candidates remain tied, prefer the more reversible item with the clearer te
 5. **Close or demote:** mark an item resolved only with validation evidence and a date. Return stale, disproved, or no-longer-actionable items to observation rather than carrying inherited priority indefinitely.
 
 Review this register before starting a dedicated debt initiative, after a security/data-integrity incident, and at least once per monthly planning cycle. Ordinary feature sessions need only check current ownership and capture new receipts; they do not need to re-triage the whole backlog.
+
+## Code quality milestone: local acceptance complete (October 24, 2026)
+
+- **Outcome:** Library/import/reader/settings behavior preserved while reducing duplicated logic, dead code, import cycles, weak internal types, redundant catches, obsolete paths and stale comments.
+- **Integration owner:** Codex root for Aditya. **Use:** `/Users/aditya/Documents/Ongoing Local/code/LexiconForge.worktrees/development`, branch `codex/development-baseline`. Validated code: `c386fd8`; unchanged main: `5408637`.
+- **Acceptance:** Node 24.19.0 typecheck, lint error gate, 9,690 tests (347 skipped), full coverage policy, production build/client-secret scan, exact-base integrity/extension checks and Malayalam invariant pass. Production-build Chromium library/reader/selection/settings/dialog matrix: 37 passed, 6 inapplicable skips, no retries. Three independent Gemini code reviews found no actionable findings. See the October 24 WORKLOG entry and local archive evidence.
+- **Recovery:** Focused local commits can be reverted individually. Eight temporary specialist checkouts were retired after a verified branch bundle; archive: `/Users/aditya/Documents/Ongoing Local/code/LexiconForge.archives/code-quality-20261024/`. Main, development, Trimsika and comic publication checkouts remain.
+- **Remaining dependency:** No dependency blocks this local cleanup pass. Publishing/remote merge, physical-device Safari acceptance, production deployment and 24-hour observation are separate future milestones.
+- **Forecast:** At 22:04 IST, remaining checks/review/cleanup was estimated at 10–20 minutes; acceptance and archives completed by 22:11 IST. No product regression required another implementation cycle.
+- **Next evidence checkpoint:** Review a chosen remaining debt slice against its actual callers before implementation; do not infer that all existing types, catches or export findings are now resolved.
+
+| Specialist | Delivered |
+|---|---|
+| 1. DRY/consolidation | Shared diff text/visibility, Sutta skeleton validation/grouping and three readers' preferences/settings; 110 focused tests |
+| 2. Shared types | Canonical translation snapshots, word alignment, diff, glossary and diagnostics contracts; emitted runtime code unchanged |
+| 3. Unused code/Knip | Checked app/API/extension/CLI/test entrypoints; removed unreachable files/helpers and unnecessary public exports; committed unsuppressed `knip.jsonc` |
+| 4. Dependency cycles/Madge | Extracted scoring primitives; explicit store dependencies for imports/cache restoration; all three runtime cycles removed |
+| 5. Strong types | 130 explicit any replacements in image/benchmark paths; actual SDK/domain types; fixed ignored Imagen resolution and blank golden word previews |
+| 6. Error handling | Removed nine redundant catches; template DB failures propagate without empty defaults or erasing loaded templates |
+| 7. Legacy/fallback paths | Removed unused importer facade and obsolete stable-session helpers; retained current import/migration/recovery contracts |
+| 8. Comments/stubs | Corrected 24 production files; identical emitted JS and 739 literals; no executable stub deletion was justified |
+
+### Measured changes and remaining scope
+
+| Measure | Baseline `5408637` | Validated `c386fd8` |
+|---|---:|---:|
+| Runtime import cycles (including async imports) | 3 | 0 |
+| All source import cycles (including type-only) | 54 | 14 |
+| Knip unused files | 4 | 0 |
+| Knip export / type findings | 206 / 163 | 175 / 157 |
+| ESLint warnings / errors | 1,846 / 0 | 1,679 / 0 |
+| Application-tree explicit any / assertions | 620 / 850 | 476 / 786 |
+| Application-tree catch clauses / lines | 576 / 188,177 | 554 / 186,862 |
+| Passing tests / skipped | 9,616 / 347 | 9,690 / 347 |
+
+Application-tree counts exclude `tests/`, `scripts/`, `public/` and archives, but include colocated tests. They measure syntax, not a claim that every remaining catch or weak type is unnecessary. Unknown-input narrowing increased where HTTP and thrown-error contracts needed validation. Knip retains 46 duplicate-export findings; a classification scan identifies 67 export findings and 116 type findings as live inside their modules. Remaining candidates include aliases/barrels, test scaffolding and diagnostics. Type-only cycles are store composition, bootstrap context and gallery contracts. Remaining type work includes translation/export/chapter services; DB mapping and metrics fallbacks need caller-specific treatment. Persisted-data compatibility and separate compiler orchestration remain intentional follow-ups.
 
 ## Completed Milestones ✅
 
