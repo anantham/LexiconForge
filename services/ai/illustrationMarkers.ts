@@ -14,7 +14,7 @@ export const ILLUSTRATION_MARKER_PATTERN = MARKER_SOURCE;
  * A global regex is stateful (`lastIndex` persists across `.test`/`.exec`), so hand out a
  * fresh one per call rather than sharing a module-level instance between callers.
  */
-export const illustrationMarkerRegex = (): RegExp => new RegExp(MARKER_SOURCE, 'g');
+const illustrationMarkerRegex = (): RegExp => new RegExp(MARKER_SOURCE, 'g');
 
 /** Every illustration marker in `text`, in order of appearance (duplicates included). */
 export const findIllustrationMarkers = (text: string): string[] =>

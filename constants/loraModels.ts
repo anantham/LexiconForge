@@ -184,10 +184,6 @@ export const LORA_MODELS: LoRAModel[] = [
 ];
 
 // Helper functions
-export const getLoRAModelById = (id: string): LoRAModel | undefined => {
-  return LORA_MODELS.find(model => model.id === id);
-};
-
 export const getLoRAModelsByCategory = (category: 'XLabs' | 'CivitAI'): LoRAModel[] => {
   return LORA_MODELS.filter(model => model.category === category);
 };

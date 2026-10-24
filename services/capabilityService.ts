@@ -320,7 +320,7 @@ export function hasRecordedParameterFailure(modelId: string, parameter: string):
 /**
  * Get full model metadata
  */
-export async function getModelMetadata(modelId: string): Promise<ModelMeta | null> {
+async function getModelMetadata(modelId: string): Promise<ModelMeta | null> {
   const { map: models } = await loadModels();
   return models.get(modelId) || null;
 }

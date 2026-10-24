@@ -152,7 +152,7 @@ const buildTranslationTokens = (text: string, baseId: string, counter: { value: 
   return tokens;
 };
 
-export const renderTranslationTokens = (tokens: TranslationToken[], keyPrefix = ''): React.ReactNode[] => {
+const renderTranslationTokens = (tokens: TranslationToken[], keyPrefix = ''): React.ReactNode[] => {
   return tokens.map((token, index) => {
     const key = `${keyPrefix}-${index}`;
     switch (token.type) {
@@ -244,22 +244,6 @@ export const updateTokenText = (tokens: TranslationToken[], chunkId: string, new
     }
   }
   return false;
-};
-
-export const findTokenText = (tokens: TranslationToken[], chunkId: string): string | null => {
-  for (const token of tokens) {
-    if (token.type === 'text' && token.chunkId === chunkId) {
-      return token.text;
-    }
-
-    if (token.type === 'italic' || token.type === 'bold' || token.type === 'emphasis') {
-      const result = findTokenText(token.children, chunkId);
-      if (result !== null) {
-        return result;
-      }
-    }
-  }
-  return null;
 };
 
 export const tokensToString = (tokens: TranslationToken[]): string => {

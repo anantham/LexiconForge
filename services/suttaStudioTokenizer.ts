@@ -73,11 +73,3 @@ export function buildTokenListForPrompt(tokens: EnglishTokenInput[]): string {
     .map((t) => `${t.index}:${t.text}`)
     .join(' ');
 }
-
-/**
- * Concatenate tokens back into the original text.
- * Useful for verification.
- */
-export function reconstructText(tokens: EnglishTokenInput[]): string {
-  return tokens.map((t) => t.text).join('');
-}
