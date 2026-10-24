@@ -3,6 +3,7 @@ import type { CanonicalSegment } from '../../types/suttaStudio';
 import { logPipelineEvent } from '../suttaStudioPipelineLog';
 import { callCompilerLLMText } from '../sutta-studio/llm';
 import { buildSkeletonPrompt } from '../sutta-studio/prompts';
+import { validateSkeletonPhases } from '../sutta-studio/skeletonPhases';
 import { skeletonResponseSchema } from '../sutta-studio/schemas';
 import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../sutta-studio/passBudgets';
 import {
@@ -81,42 +82,9 @@ export const runSkeletonPass = async ({
         }
       );
       const parsed = parseJsonResponse<{ phases?: SkeletonPhase[] }>(raw);
-      if (!parsed.phases || !parsed.phases.length) {
-        throw new Error('Skeleton chunk response missing phases.');
-      }
-
-      const filtered = parsed.phases
-        .map((phase) => ({
-          ...phase,
-          segmentIds: (phase.segmentIds || []).filter((id) => chunkSegmentIds.has(id)),
-        }))
-        .filter((phase) => phase.segmentIds.length > 0);
-
-      // Duplicate-claim handling: a phase WITH a wordRange legitimately
-      // re-claims a segment an earlier phase already owns — that is how one
-      // long segment becomes several sub-split phases (MN117's skeleton emits
-      // many of these). Only phases WITHOUT a wordRange lose duplicate ids
-      // (true LLM double-claims), and any phase left empty is dropped loudly
-      // so it can never reach the compiler as a zero-segment phase.
-      const seen = new Set<string>();
-      filtered.forEach((phase) => {
-        phase.segmentIds = phase.segmentIds.filter((id) => {
-          if (!seen.has(id)) {
-            seen.add(id);
-            return true;
-          }
-          return Boolean(phase.wordRange);
-        });
+      const nonEmpty = validateSkeletonPhases(parsed.phases, chunkSegmentIds, (phaseId) => {
+        warn(`Skeleton chunk ${chunkIndex + 1}: dropping ${phaseId} — every segmentId already claimed by an earlier phase and no wordRange.`);
       });
-      const nonEmpty = filtered.filter((phase) => {
-        if (phase.segmentIds.length > 0) return true;
-        warn(`Skeleton chunk ${chunkIndex + 1}: dropping ${phase.id} — every segmentId already claimed by an earlier phase and no wordRange.`);
-        return false;
-      });
-
-      if (seen.size !== chunkSegmentIds.size) {
-        throw new Error('Skeleton chunk missing or duplicate segments; falling back to chunking.');
-      }
 
       phases.push(...nonEmpty);
       logPipelineEvent({

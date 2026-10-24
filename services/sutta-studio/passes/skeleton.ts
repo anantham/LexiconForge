@@ -17,39 +17,12 @@
 import type { AppSettings } from '../../../types';
 import type { CanonicalSegment } from '../../../types/suttaStudio';
 import { buildSkeletonPrompt } from '../prompts';
-import { parseJsonResponse, type BoundaryNote, type SkeletonPhase } from '../utils';
+import { chunkPhases, parseJsonResponse, type BoundaryNote, type SkeletonPhase } from '../utils';
+import { validateSkeletonPhases } from '../skeletonPhases';
 import { skeletonResponseSchema } from '../schemas';
 import { defaultLLMCaller } from './_defaultCaller';
 import type { LLMCaller, SkeletonChunkResult, SkeletonRunResult } from './types';
 import { SUTTA_STUDIO_TOKEN_BUDGETS } from '../passBudgets';
-
-const fallbackChunkPhases = (
-  segments: CanonicalSegment[],
-  size = 8,
-  boundaryStarts?: Set<string>
-): SkeletonPhase[] => {
-  const phases: SkeletonPhase[] = [];
-  let buffer: CanonicalSegment[] = [];
-  const flush = () => {
-    if (!buffer.length) return;
-    phases.push({
-      id: `phase-${phases.length + 1}`,
-      title: undefined,
-      segmentIds: buffer.map((seg) => seg.ref.segmentId),
-    });
-    buffer = [];
-  };
-  for (let i = 0; i < segments.length; i++) {
-    const seg = segments[i];
-    if (boundaryStarts?.has(seg.ref.segmentId) && buffer.length) {
-      flush();
-    }
-    buffer.push(seg);
-    if (buffer.length >= size) flush();
-  }
-  flush();
-  return phases;
-};
 
 export const runSkeletonPass = async (params: {
   segments: CanonicalSegment[];
@@ -91,7 +64,7 @@ export const runSkeletonPass = async (params: {
 
     const schemaName = `sutta_studio_skeleton_${chunkIndex + 1}`;
     const requestName = 'skeleton';
-    const fallback = () => fallbackChunkPhases(chunkSegments, 8, fallbackBoundaryStarts);
+    const fallback = () => chunkPhases(chunkSegments, 8, fallbackBoundaryStarts);
 
     try {
       const skeletonPrompt = buildSkeletonPrompt(chunkSegments, {
@@ -121,42 +94,9 @@ export const runSkeletonPass = async (params: {
       });
 
       const parsed = parseJsonResponse<{ phases?: SkeletonPhase[] }>(llm.text);
-      if (!parsed.phases || !parsed.phases.length) {
-        throw new Error('Skeleton chunk response missing phases.');
-      }
-
-      const filtered = parsed.phases
-        .map((phase) => ({
-          ...phase,
-          segmentIds: (phase.segmentIds || []).filter((id) => chunkSegmentIds.has(id)),
-        }))
-        .filter((phase) => phase.segmentIds.length > 0);
-
-      // Duplicate-claim handling: a phase WITH a wordRange legitimately
-      // re-claims a segment an earlier phase already owns — that is how one
-      // long segment becomes several sub-split phases. Only phases WITHOUT a
-      // wordRange lose duplicate ids (true LLM double-claims), and any phase
-      // left empty is dropped loudly so it can never reach the compiler as a
-      // zero-segment phase. Mirrors services/compiler/skeleton.ts.
-      const seen = new Set<string>();
-      filtered.forEach((phase) => {
-        phase.segmentIds = phase.segmentIds.filter((id) => {
-          if (!seen.has(id)) {
-            seen.add(id);
-            return true;
-          }
-          return Boolean(phase.wordRange);
-        });
+      const nonEmpty = validateSkeletonPhases(parsed.phases, chunkSegmentIds, (phaseId) => {
+        console.warn(`[SuttaStudio] Skeleton chunk ${chunkIndex + 1}: dropping ${phaseId} — every segmentId already claimed by an earlier phase and no wordRange.`);
       });
-      const nonEmpty = filtered.filter((phase) => {
-        if (phase.segmentIds.length > 0) return true;
-        console.warn(`[SuttaStudio] Skeleton chunk ${chunkIndex + 1}: dropping ${phase.id} — every segmentId already claimed by an earlier phase and no wordRange.`);
-        return false;
-      });
-
-      if (seen.size !== chunkSegmentIds.size) {
-        throw new Error('Skeleton chunk missing or duplicate segments; falling back to chunking.');
-      }
 
       phases.push(...nonEmpty);
       chunks.push({
