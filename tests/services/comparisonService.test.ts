@@ -315,6 +315,23 @@ describe('ComparisonService.requestFocusedComparison', () => {
   });
 
   describe('malformed response handling', () => {
+    it.each([
+      'Private comparison response without JSON',
+      '{"fanExcerpt":"Private comparison response",}',
+    ])('rejects malformed content without dumping it into service logs: %s', async (content) => {
+      vi.mocked(console.warn).mockClear();
+      openAiMocks.createMock.mockResolvedValueOnce({
+        choices: [{ message: { content } }],
+      });
+
+      await expect(ComparisonService.requestFocusedComparison({
+        ...baseArgs,
+        settings: buildSettings(),
+      })).rejects.toThrow();
+
+      expect(console.warn).not.toHaveBeenCalled();
+    });
+
     it('throws on empty choices array', async () => {
       openAiMocks.createMock.mockResolvedValueOnce({
         choices: []

@@ -153,17 +153,10 @@ export class ComparisonService {
     const content = completion.choices[0]?.message?.content ?? '';
     const jsonPayload = extractJsonPayload(content);
     if (!jsonPayload) {
-      console.warn('[ComparisonService] Unable to locate JSON payload in response', { content });
       throw new Error('Comparison response did not contain valid JSON.');
     }
 
-    let parsed: any;
-    try {
-      parsed = JSON.parse(jsonPayload);
-    } catch (error) {
-      console.warn('[ComparisonService] Failed to parse comparison JSON', { content, jsonPayload });
-      throw error;
-    }
+    const parsed = JSON.parse(jsonPayload);
 
   const result: FocusedComparisonResult = {
     fanExcerpt: (toOptionalString(parsed?.fanExcerpt) ?? '').trim(),
