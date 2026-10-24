@@ -7,7 +7,7 @@
  * 3. Providing a transformation layer between import and storage
  */
 
-import { Chapter, TranslationResult, AppSettings, FeedbackItem, ImportedChapter } from '../types';
+import { Chapter, TranslationResult, AppSettings, FeedbackItem, ImportedChapter, TranslationSettingsSnapshot } from '../types';
 import { debugLog } from '../utils/debug';
 import { buildScopedStableId } from './libraryScope';
 import { isLibraryStorageUrl } from './libraryScope';
@@ -69,7 +69,7 @@ export interface EnhancedChapter extends Chapter {
   /** Display name of the source language ("Classical Chinese", "Pali", ...). */
   sourceLanguage?: string | null;
   translationResult?: TranslationResult | null;
-  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'topP' | 'frequencyPenalty' | 'presencePenalty' | 'seed' | 'contextDepth' | 'systemPrompt'>>;
+  translationSettingsSnapshot?: TranslationSettingsSnapshot;
   feedback?: FeedbackItem[];
   /** Set during hydration when translation load fails — distinguishes "never translated" from "load error" */
   _translationLoadError?: string;

@@ -1,14 +1,15 @@
 
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, type GenerateImagesResponse } from '@google/genai';
 import { AppSettings, GeneratedImageResult } from '../types';
 import { imageFileToBase64 } from './imageUtils';
+import { getImageErrorDetails } from './imageErrors';
 import { getConfiguredApiKey } from './ai/providerCredentials';
 import { apiMetricsService } from './apiMetricsService';
 import { debugPipelineEnabled, debugLog as _debugLog, debugWarn as _debugWarn } from '../utils/debug';
 
-const ilog = (...args: any[]) => { if (debugPipelineEnabled('image')) console.log(...args); };
-const iwarn = (...args: any[]) => { if (debugPipelineEnabled('image')) console.warn(...args); };
-const ierror = (...args: any[]) => { console.error(...args); };
+const ilog = (...args: Parameters<typeof console.log>) => { if (debugPipelineEnabled('image')) console.log(...args); };
+const iwarn = (...args: Parameters<typeof console.log>) => { if (debugPipelineEnabled('image')) console.warn(...args); };
+const ierror = (...args: Parameters<typeof console.log>) => { console.error(...args); };
 import { IMAGE_COSTS } from '../config/costs';
 import {
   buildOpenRouterImageRequestConfig,
@@ -76,12 +77,20 @@ interface ImageGenerationError extends Error {
   suggestedActions?: string[];
 }
 
-interface RetryableProviderError extends Error {
-  canRetry?: boolean;
-  retryable?: boolean;
-  errorType?: string;
-  fallbackEligible?: boolean;
+interface PiApiImageInput {
+  prompt: string;
+  width: number;
+  height: number;
+  negative_prompt?: string;
+  guidance_scale?: number;
+  lora_settings?: Array<{ lora_type: string; lora_strength: number }>;
+  image?: string;
 }
+
+const asRecord = (value: unknown): Record<string, unknown> | undefined =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined;
 
 // --- CONSTANTS ---
 // Using a cutting-edge model known for high-quality image generation.
@@ -282,7 +291,7 @@ export const generateImage = async (
             ilog('[ImageService] Using Imagen model:', imageModel);
             const apiKey = getConfiguredApiKey(settings, 'Gemini'); if (!apiKey) throw new Error('Gemini API key is missing. Cannot generate images with Imagen.');
             const ai = new GoogleGenAI({ apiKey });
-            let response: any;
+            let response: GenerateImagesResponse;
             if (imageModel.startsWith('imagen-4.0')) {
                 // Map to Imagen 4 parameters when available
                 const ratioVal = reqW/reqH;
@@ -297,10 +306,10 @@ export const generateImage = async (
                     prompt: `${prompt}. Target size ~${reqW}x${reqH}. Please generate this image in a dark, atmospheric, and highly detailed anime/manga style.`,
                     config: {
                         numberOfImages: 1,
-                        sampleImageSize: sampleImageSize,
+                        imageSize: sampleImageSize,
                         aspectRatio: aspectLabel,
                         abortSignal: AbortSignal.timeout(IMAGE_GENERATION_TIMEOUT_MS),
-                    } as any,
+                    },
                 }), IMAGE_GENERATION_TIMEOUT_MS, 'Imagen image generation');
             } else {
                 response = await withTimeout(ai.models.generateImages({
@@ -357,16 +366,18 @@ export const generateImage = async (
                     throw new Error("Failed to receive valid image data from Gemini API. The model may not support image generation or the prompt was rejected.");
                 }
                 base64Data = foundImageData;
-            } catch (err: any) {
+            } catch (caught) {
+                const err = getImageErrorDetails(caught);
+                const cause = getImageErrorDetails(err.cause);
                 // A timeout is a HANG, not a modality/safety rejection: the guidance wrapper
                 // below mentions "safety", which the outer handler would classify as
                 // SAFETY_FILTER — mislabeling a network stall as blocked content. Propagate it.
-                if (err?.name === 'ImageTimeoutError') throw err;
+                if (err.name === 'ImageTimeoutError') throw caught;
                 // Rich diagnostics for debugging (no auto-fallback)
                 try {
-                    ierror('[ImageService/Gemini] generateContent error (object):', err);
+                    ierror('[ImageService/Gemini] generateContent error (object):', caught);
                     if (err?.cause) ierror('[ImageService/Gemini] error.cause:', err.cause);
-                    const causeMsg = (err?.cause && err.cause.message) ? String(err.cause.message) : '';
+                    const causeMsg = cause.message ?? '';
                     const msg = String(err?.message || '');
                     ierror('[ImageService/Gemini] error.message:', msg);
                     if (causeMsg) ierror('[ImageService/Gemini] error.cause.message:', causeMsg);
@@ -377,10 +388,10 @@ export const generateImage = async (
                 const enhanced: ImageGenerationError = Object.assign(
                   new Error(`${err?.message || 'Image generation failed'}. ${guidance}`),
                   {
-                    errorType: /response_mime_type|requested combination of response modalities/i.test(String(err?.message || '') + String(err?.cause?.message || ''))
+                    errorType: /response_mime_type|requested combination of response modalities/i.test(String(err?.message || '') + String(cause.message || ''))
                       ? 'MODALITY_MISMATCH'
                       : 'GENERIC_ERROR',
-                    originalError: err,
+                    originalError: caught,
                     canRetry: false,
                     suggestedActions: [
                       'Open Settings → Image model and pick Imagen 3.0 or Gemini 2.5 Image Preview',
@@ -420,17 +431,14 @@ export const generateImage = async (
               if (appConfig.openrouter?.title) extraHeaders['X-Title'] = appConfig.openrouter.title;
             } catch {}
 
-            const reqBody: any = {
+            const imageConfig = buildOpenRouterImageRequestConfig(modelProfile, reqW, reqH);
+            const reqBody = {
               model: modelSlug,
               messages: [{ role: 'user', content: prompt }],
               modalities: modelProfile.requestModalities,
               provider: buildOpenRouterRouting(settings, 'image'),
+              ...(imageConfig ? { image_config: imageConfig } : {}),
             };
-
-            const imageConfig = buildOpenRouterImageRequestConfig(modelProfile, reqW, reqH);
-            if (imageConfig) {
-              reqBody.image_config = imageConfig;
-            }
 
             const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
               method: 'POST',
@@ -446,70 +454,84 @@ export const generateImage = async (
             const raw = await resp.text();
             if (!resp.ok) {
               let msg = `OpenRouter error ${resp.status}`;
-              try { const j = JSON.parse(raw); msg = j?.error?.message || j?.message || msg; } catch {}
+              try {
+                const payload: unknown = JSON.parse(raw);
+                const envelope = asRecord(payload);
+                const detail = asRecord(envelope?.error);
+                const candidate = detail?.message ?? envelope?.message;
+                if (typeof candidate === 'string' && candidate) msg = candidate;
+              } catch {}
               throw new Error(msg);
             }
-            let parsed: any = {};
-            try { parsed = JSON.parse(raw); } catch { throw new Error('Failed to parse OpenRouter response'); }
+            let payload: unknown;
+            try { payload = JSON.parse(raw); } catch { throw new Error('Failed to parse OpenRouter response'); }
+            const parsed = asRecord(payload) ?? {};
 
             // Enhanced debugging: log the actual response structure
             ilog('[OpenRouter Debug] Full response structure:', JSON.stringify(parsed, null, 2));
 
             // Extract token usage from response (for cost estimation from historical data)
-            if (parsed.usage) {
+            const usage = asRecord(parsed.usage);
+            if (usage) {
               imageTokenUsage = {
-                prompt: parsed.usage.prompt_tokens || 0,
-                completion: parsed.usage.completion_tokens || 0,
-                total: parsed.usage.total_tokens || 0
+                prompt: typeof usage.prompt_tokens === 'number' ? usage.prompt_tokens : 0,
+                completion: typeof usage.completion_tokens === 'number' ? usage.completion_tokens : 0,
+                total: typeof usage.total_tokens === 'number' ? usage.total_tokens : 0
               };
               ilog('[OpenRouter Debug] Token usage:', imageTokenUsage);
             }
 
-            const choice = parsed?.choices?.[0];
+            const choices = Array.isArray(parsed.choices) ? parsed.choices : [];
+            const choice = asRecord(choices[0]);
+            const message = asRecord(choice?.message);
+            const content = message?.content;
+            const contentObject = asRecord(content);
 
             // Check for error in response
             if (choice?.error) {
-              const errorMsg = choice.error.message || 'Unknown error from provider';
-              const errorCode = choice.error.code || 'UNKNOWN';
+              const providerError = asRecord(choice.error);
+              const errorMsg = typeof providerError?.message === 'string' ? providerError.message : 'Unknown error from provider';
+              const errorCode = providerError?.code || 'UNKNOWN';
               throw new Error(`OpenRouter provider error (${errorCode}): ${errorMsg}`);
             }
 
             // Try multiple possible locations for image data
             // 1. message.images (custom OpenRouter field)
-            let images = choice?.message?.images;
+            let images = message?.images;
 
             // 2. message.content as array (OpenAI format)
-            if (!images && Array.isArray(choice?.message?.content)) {
-              images = choice.message.content.filter((item: any) =>
-                item.type === 'image' || item.type === 'image_url' || item.image_url
-              );
+            if (!images && Array.isArray(content)) {
+              images = content.filter((value: unknown) => {
+                const item = asRecord(value);
+                return item?.type === 'image' || item?.type === 'image_url' || item?.image_url;
+              });
             }
 
             // 3. message.content as single object with image_url
-            if (!images && choice?.message?.content && typeof choice.message.content === 'object' &&
-                (choice.message.content.type === 'image' || choice.message.content.image_url)) {
-              images = [choice.message.content];
+            if (!images && content && typeof content === 'object' &&
+                (contentObject?.type === 'image' || contentObject?.image_url)) {
+              images = [content];
             }
 
             // 4. message.content as string (might be base64 or data URL directly)
-            if (!images && typeof choice?.message?.content === 'string' && choice.message.content.startsWith('data:image/')) {
-              images = [{ image_url: { url: choice.message.content } }];
+            if (!images && typeof content === 'string' && content.startsWith('data:image/')) {
+              images = [{ image_url: { url: content } }];
             }
 
             // 5. Check if content is directly an image object (no array wrapper)
-            if (!images && choice?.message?.content?.image_url) {
-              images = [choice.message.content];
+            if (!images && contentObject?.image_url) {
+              images = [content];
             }
 
             // Detailed diagnostic logging
             ilog('[OpenRouter Debug] Response analysis:', {
               hasChoices: !!parsed?.choices,
-              choicesLength: parsed?.choices?.length || 0,
+              choicesLength: choices.length,
               firstChoice: choice ? Object.keys(choice) : 'null',
               hasMessage: !!choice?.message,
-              messageKeys: choice?.message ? Object.keys(choice.message) : 'null',
-              contentType: typeof choice?.message?.content,
-              isContentArray: Array.isArray(choice?.message?.content),
+              messageKeys: message ? Object.keys(message) : 'null',
+              contentType: typeof content,
+              isContentArray: Array.isArray(content),
               hasImages: !!images,
               imagesType: Array.isArray(images) ? 'array' : typeof images,
               imagesLength: Array.isArray(images) ? images.length : 'n/a'
@@ -521,8 +543,8 @@ export const generateImage = async (
                 model: modelSlug,
                 responseKeys: Object.keys(parsed),
                 choiceStructure: choice ? Object.keys(choice) : null,
-                messageStructure: choice?.message ? Object.keys(choice.message) : null,
-                messageContent: choice?.message?.content,
+                messageStructure: message ? Object.keys(message) : null,
+                messageContent: content,
                 actualImages: images,
                 fullResponse: parsed
               };
@@ -530,13 +552,14 @@ export const generateImage = async (
               console.error('[OpenRouter Debug] Missing image data. Full diagnostic:', errorDetails);
               throw new Error(`OpenRouter response missing image data. Model: ${modelSlug}. Response structure: ${JSON.stringify(errorDetails, null, 2)}`);
             }
-            const first = images[0];
-            const dataUrl = first?.image_url?.url;
+            const first = asRecord(images[0]);
+            const imageUrl = asRecord(first?.image_url);
+            const dataUrl = imageUrl?.url;
             
             // Enhanced image format debugging
             ilog('[OpenRouter Debug] Image format analysis:', {
               firstImageKeys: first ? Object.keys(first) : 'null',
-              imageUrlStructure: first?.image_url ? Object.keys(first.image_url) : 'null', 
+              imageUrlStructure: imageUrl ? Object.keys(imageUrl) : 'null',
               dataUrlType: typeof dataUrl,
               dataUrlPrefix: typeof dataUrl === 'string' ? dataUrl.substring(0, 30) + '...' : dataUrl,
               isDataUrl: typeof dataUrl === 'string' && dataUrl.startsWith('data:image/'),
@@ -578,7 +601,7 @@ export const generateImage = async (
             ilog(`[PiAPI] Using ${taskType} with model ${modelForTask}`);
 
             // Prepare input object with advanced controls
-            let inputData: any = { 
+            const inputData: PiApiImageInput = {
                 prompt, 
                 width: piW, 
                 height: piH 
@@ -638,8 +661,9 @@ export const generateImage = async (
                 signal: AbortSignal.timeout(IMAGE_TASK_CREATE_TIMEOUT_MS),
             });
             const rawCreateText = await createResp.text().catch(() => '');
-            let created: any = {};
-            try { created = rawCreateText ? JSON.parse(rawCreateText) : {}; } catch {}
+            let createPayload: unknown;
+            try { createPayload = rawCreateText ? JSON.parse(rawCreateText) : {}; } catch {}
+            const created = asRecord(createPayload) ?? {};
 
             // Non-2xx? Show server text verbatim.
             if (!createResp.ok) {
@@ -648,7 +672,7 @@ export const generateImage = async (
 
             // Success wrappers that still carry an error or code
             if ((created && created.error) || (typeof created.code === 'number' && created.code >= 400)) {
-                const msg = created?.error?.message || created?.message || 'Unknown PiAPI error';
+                const msg = asRecord(created.error)?.message || created.message || 'Unknown PiAPI error';
                 throw new Error(`PiAPI create-task returned error: ${msg}\nBody: ${rawCreateText}`);
             }
 
@@ -749,14 +773,13 @@ export const generateImage = async (
             execution: { provider, model: imageModel },
         };
 
-    } catch (error: any) {
+    } catch (error) {
+        const details = getImageErrorDetails(error);
         console.error(`[ImageService] Image generation failed for prompt: "${prompt}"`, error);
 
         // Enhanced error handling with specific detection for common issues
-        let message = error.message || 'Unknown error occurred';
-        let errorType = typeof (error as RetryableProviderError).errorType === 'string'
-            ? (error as RetryableProviderError).errorType as string
-            : 'GENERIC_ERROR';
+        let message = details.message || 'Unknown error occurred';
+        let errorType = details.errorType ?? 'GENERIC_ERROR';
 
         if (error instanceof IndrasNetProviderError) {
             errorType = error.code;
@@ -809,12 +832,12 @@ export const generateImage = async (
           model: imageModel,
           canRetry: error instanceof IndrasNetProviderError
             ? error.retryable
-            : (error as RetryableProviderError).canRetry === true
-              || (error as RetryableProviderError).retryable === true
+            : details.canRetry === true
+              || details.retryable === true
               || ['RATE_LIMIT', 'SAFETY_FILTER'].includes(errorType),
           fallbackEligible: error instanceof IndrasNetProviderError
             ? error.fallbackEligible
-            : (error as RetryableProviderError).fallbackEligible,
+            : details.fallbackEligible,
           suggestedActions: getSuggestedActions(errorType, imageModel),
         });
 
@@ -1054,20 +1077,23 @@ async function pollPiApiTask(
                 signal: AbortSignal.timeout(8000),
             });
             const raw = await poll.text().catch(() => '');
-            let json: any = {};
-            try { json = raw ? JSON.parse(raw) : {}; } catch {}
+            let payload: unknown;
+            try { payload = raw ? JSON.parse(raw) : {}; } catch {}
+            const json = asRecord(payload) ?? {};
+            const data = asRecord(json.data);
+            const errorEnvelope = asRecord(json.error);
             if (!poll.ok) {
                 throw Object.assign(
                     new Error(`PiAPI get-task failed (${poll.status}): ${raw}`),
                     { errorType: `PIAPI_HTTP_${poll.status}`, canRetry: piApiTaskFailureCanRetry(poll.status) },
                 );
             }
-            const status = String(json.status || json.state || json.data?.status || json.data?.state || '').toLowerCase();
+            const status = String(json.status || json.state || data?.status || data?.state || '').toLowerCase();
             if ((json && json.error) || (typeof json.code === 'number' && json.code >= 400)) {
-                const message = json?.error?.message || json?.message || 'Unknown PiAPI polling error';
+                const message = errorEnvelope?.message || json?.message || 'Unknown PiAPI polling error';
                 const envelopeCode = typeof json.code === 'number'
                     ? json.code
-                    : typeof json?.error?.code === 'number' ? json.error.code : undefined;
+                    : typeof errorEnvelope?.code === 'number' ? errorEnvelope.code : undefined;
                 throw Object.assign(
                     new Error(`PiAPI get-task returned error: ${message}\nBody: ${raw}`),
                     {
@@ -1100,8 +1126,9 @@ async function pollPiApiTask(
                 onJobEvent?.({ type: 'submitted', externalTaskId: taskId, resumeKind: 'piapi' });
             }
             await new Promise(resolve => setTimeout(resolve, delays[Math.min(tries, delays.length - 1)]));
-        } catch (error: any) {
-            if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+        } catch (error) {
+            const details = getImageErrorDetails(error);
+            if (details.name === 'TimeoutError' || details.name === 'AbortError') {
                 console.warn(`[PiAPI] Poll timeout on attempt ${tries + 1}/60, retrying task ${taskId}.`);
                 continue;
             }
@@ -1143,85 +1170,70 @@ async function extractPiApiTaskImage(taskData: unknown): Promise<string> {
     return base64;
 }
 
-function extractTaskId(obj: any): string | null {
-    if (!obj || typeof obj !== 'object') return null;
-    // direct
-    if (typeof obj.id === 'string' && obj.id) return obj.id;
-    if (typeof obj.task_id === 'string' && obj.task_id) return obj.task_id;
-    if (typeof obj.taskId === 'string' && obj.taskId) return obj.taskId;
-    if (typeof obj.uuid === 'string' && obj.uuid) return obj.uuid;
-    // nested data
-    const d = obj.data;
-    if (d && typeof d === 'object') {
-        if (typeof d.id === 'string' && d.id) return d.id;
-        if (typeof d.task_id === 'string' && d.task_id) return d.task_id;
-        if (typeof d.taskId === 'string' && d.taskId) return d.taskId;
-        if (typeof d.uuid === 'string' && d.uuid) return d.uuid;
-        const t = (d as any).task;
-        if (t && typeof t === 'object') {
-            if (typeof t.id === 'string' && t.id) return t.id;
-            if (typeof t.task_id === 'string' && t.task_id) return t.task_id;
-            if (typeof t.uuid === 'string' && t.uuid) return t.uuid;
+function extractTaskId(value: unknown): string | null {
+    const obj = asRecord(value);
+    if (!obj) return null;
+    const data = asRecord(obj.data);
+    const task = asRecord(data?.task);
+    for (const [record, keys] of [
+        [obj, ['id', 'task_id', 'taskId', 'uuid']],
+        [data, ['id', 'task_id', 'taskId', 'uuid']],
+        [task, ['id', 'task_id', 'uuid']],
+    ] as const) {
+        for (const key of keys) {
+            const candidate = record?.[key];
+            if (typeof candidate === 'string' && candidate) return candidate;
         }
     }
-    // shallow scan for *id or *uuid
-    for (const [k, v] of Object.entries(obj)) {
-        if (typeof v === 'string' && v && /(^|[_-])(id|uuid)($|[_-])/i.test(k)) return v as string;
+    for (const [key, candidate] of Object.entries(obj)) {
+        if (typeof candidate === 'string' && candidate && /(^|[_-])(id|uuid)($|[_-])/i.test(key)) return candidate;
     }
     return null;
 }
 
-function extractPiAPIBase64(obj: any): string | null {
-    if (!obj || typeof obj !== 'object') return null;
-    const out = obj.output || obj.data || obj;
-    // Common shapes
-    if (Array.isArray(out?.images)) {
-        const first = out.images[0];
-        if (first?.b64_json) return first.b64_json;
-        if (first?.base64) return first.base64;
-        if (first?.image_base64) return first.image_base64;
+function extractPiAPIBase64(value: unknown): string | null {
+    const obj = asRecord(value);
+    if (!obj) return null;
+    const output = obj.output || obj.data || obj;
+    const out = asRecord(output) ?? {};
+    for (const list of [out.images, out.output]) {
+        const first = asRecord(Array.isArray(list) ? list[0] : undefined);
+        for (const key of ['b64_json', 'base64', 'image_base64']) {
+            const candidate = first?.[key];
+            if (typeof candidate === 'string' && candidate) return candidate;
+        }
     }
-    if (Array.isArray(out?.output)) {
-        const first = out.output[0];
-        if (first?.b64_json) return first.b64_json;
-        if (first?.base64) return first.base64;
-        if (first?.image_base64) return first.image_base64;
+    for (const record of [asRecord(out.output), out]) {
+        for (const key of ['image_base64', 'b64_json', 'base64']) {
+            const candidate = record?.[key];
+            if (typeof candidate === 'string' && candidate) return candidate;
+        }
     }
-    if (out?.output && typeof out.output === 'object') {
-        const o = out.output;
-        if (typeof o.image_base64 === 'string' && o.image_base64) return o.image_base64;
-        if (typeof o.b64_json === 'string' && o.b64_json) return o.b64_json;
-        if (typeof o.base64 === 'string' && o.base64) return o.base64;
-    }
-    if (typeof out?.image_base64 === 'string') return out.image_base64;
-    if (typeof out?.b64_json === 'string') return out.b64_json;
-    if (typeof out?.base64 === 'string') return out.base64;
-    // Deep-ish scan fallback up to 2 levels for a string value that looks like base64
-    const looksLikeB64 = (s: any) => typeof s === 'string' && /^[A-Za-z0-9+/=]{100,}$/.test(s);
-    const scan = (o: any, depth = 0): string | null => {
-        if (!o || typeof o !== 'object' || depth > 2) return null;
-        for (const v of Object.values(o)) {
-            if (looksLikeB64(v)) return v as string;
-            const nested = scan(v, depth + 1);
+    const scan = (entry: unknown, depth = 0): string | null => {
+        if (typeof entry !== 'object' || entry === null || depth > 2) return null;
+        const values: unknown[] = Object.values(entry);
+        for (const candidate of values) {
+            if (typeof candidate === 'string' && /^[A-Za-z0-9+/=]{100,}$/.test(candidate)) return candidate;
+            const nested = scan(candidate, depth + 1);
             if (nested) return nested;
         }
         return null;
     };
-    return scan(out, 0);
+    return scan(output);
 }
 
-function extractPiAPIImageUrl(obj: any): string | null {
-    if (!obj || typeof obj !== 'object') return null;
-    const out = obj.output || obj.data || obj;
-    if (typeof out?.image_url === 'string' && out.image_url) return out.image_url;
-    if (out?.output && typeof out.output === 'object' && typeof out.output.image_url === 'string' && out.output.image_url) return out.output.image_url;
-    if (Array.isArray(out?.images)) {
-        const first = out.images[0];
-        if (typeof first?.url === 'string' && first.url) return first.url;
+function extractPiAPIImageUrl(value: unknown): string | null {
+    const obj = asRecord(value);
+    if (!obj) return null;
+    const out = asRecord(obj.output || obj.data || obj);
+    if (!out) return null;
+    for (const record of [out, asRecord(out.output)]) {
+        const candidate = record?.image_url;
+        if (typeof candidate === 'string' && candidate) return candidate;
     }
-    if (Array.isArray(out?.output)) {
-        const first = out.output[0];
-        if (typeof first?.url === 'string' && first.url) return first.url;
+    for (const list of [out.images, out.output]) {
+        const candidate = asRecord(Array.isArray(list) ? list[0] : undefined)?.url;
+        if (typeof candidate === 'string' && candidate) return candidate;
     }
     return null;
 }
@@ -1237,7 +1249,7 @@ async function fetchImageAsBase64(url: string): Promise<string> {
     const chunkSize = 0x8000;
     for (let i = 0; i < bytes.length; i += chunkSize) {
         const chunk = bytes.subarray(i, i + chunkSize);
-        binary += String.fromCharCode.apply(null, Array.from(chunk) as any);
+        binary += String.fromCharCode.apply(null, Array.from(chunk));
     }
     const b64 = btoa(binary);
     // return raw base64 payload (without data: prefix) to match other code paths

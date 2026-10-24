@@ -11,11 +11,12 @@
 
 import type { StateCreator } from 'zustand';
 import type { StoreState } from '../storeTypes';
+import type { EnhancedChapter } from '../../services/stableIdService';
 import { ImageGenerationService, type ImageGenerationContext, type ImageState, type ImageGenerationMetrics } from '../../services/imageGenerationService';
 import { ImageCacheStore } from '../../services/imageCacheService';
 import { TranslationPersistenceService, type TranslationSettingsSnapshot } from '../../services/translationPersistenceService';
 import { debugLog } from '../../utils/debug';
-import type { GeneratedImageResult, ImageGenerationMetadata, ImagePlan, ImagePlanMode, ImageVersionStateEntry } from '../../types';
+import type { GeneratedImageResult, ImageGenerationMetadata, ImagePlan, ImagePlanMode, ImageVersionStateEntry, SuggestedIllustration, TranslationResult, TranslationSettingsSnapshot as ChapterSettingsSnapshot } from '../../types';
 import { ImageOps } from '../../services/db/operations';
 import { buildImagePlanFromCaption } from '../../services/imagePlanService';
 import { generateImagePlanFromCaption } from '../../services/imagePlanPlanner';
@@ -117,7 +118,7 @@ export const createImageSlice: StateCreator<
     chapterId: string,
     placementMarker: string
   ): number[] | null => {
-    const chapter = state.chapters.get(chapterId) as any;
+    const chapter = state.chapters.get(chapterId);
     const entry = chapter?.translationResult?.imageVersionState?.[placementMarker];
     if (!entry?.versions) return null;
     const versions = Object.keys(entry.versions)
@@ -127,11 +128,11 @@ export const createImageSlice: StateCreator<
     return versions.length ? versions : null;
   };
 
-  const buildPersistenceSnapshot = (chapter: any): TranslationSettingsSnapshot | null => {
+  const buildPersistenceSnapshot = (chapter: EnhancedChapter): TranslationSettingsSnapshot | null => {
     const storeState = get();
     const settings = storeState.settings;
     const promptTemplate = storeState.activePromptTemplate;
-    const chapterSnapshot = chapter?.translationSettingsSnapshot || {};
+    const chapterSnapshot: ChapterSettingsSnapshot = chapter.translationSettingsSnapshot || {};
 
     const provider = chapterSnapshot.provider ?? settings?.provider;
     const model = chapterSnapshot.model ?? settings?.model;
@@ -159,7 +160,7 @@ export const createImageSlice: StateCreator<
 
   const persistUpdatedIllustrations = async (
     chapterId: string,
-    updatedIllustrations: any[]
+    updatedIllustrations: SuggestedIllustration[]
   ): Promise<void> => {
     const state = get();
     const chapters = state.chapters;
@@ -182,9 +183,10 @@ export const createImageSlice: StateCreator<
     }
 
     const refreshedChapter = get().chapters?.get(chapterId) || chapter;
+    if (!refreshedChapter.translationResult) return;
     await TranslationPersistenceService.persistUpdatedTranslation(
       chapterId,
-      refreshedChapter.translationResult as any,
+      refreshedChapter.translationResult,
       {
         provider: settings?.provider,
         model: settings?.model,
@@ -273,7 +275,7 @@ export const createImageSlice: StateCreator<
     try {
       await TranslationPersistenceService.persistUpdatedTranslation(
         chapter.id,
-        updatedTranslationResult as any,
+        updatedTranslationResult,
         snapshot
       );
     } catch (error) {
@@ -336,7 +338,7 @@ export const createImageSlice: StateCreator<
 
     const jobIdsByMarker = new Map<string, string>();
     const ownedMarkers = new Set<string>();
-    chapter.translationResult.suggestedIllustrations.forEach((illustration: any) => {
+    chapter.translationResult.suggestedIllustrations.forEach((illustration) => {
       const marker = illustration?.placementMarker;
       if (!marker || illustration?.generatedImage) return;
       // A duplicate suggestion encountered after this loop created the marker's
@@ -444,7 +446,7 @@ export const createImageSlice: StateCreator<
       set(prevState => {
         const cleared = { ...prevState.generatedImages };
         if (chapter?.translationResult?.suggestedIllustrations) {
-          chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
+          chapter.translationResult.suggestedIllustrations.forEach((illust) => {
             const marker = illust?.placementMarker;
             if (!marker) return;
             const ck = `${chapterId}:${marker}`;
@@ -473,7 +475,7 @@ export const createImageSlice: StateCreator<
       const activeUpdates: Record<string, number> = {};
 
       if (chapter?.translationResult?.suggestedIllustrations) {
-        chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
+        chapter.translationResult.suggestedIllustrations.forEach((illust) => {
           const marker = illust?.placementMarker;
           if (!marker || !jobIdsByMarker.has(marker)) return;
           const key = `${chapterId}:${marker}`;
@@ -918,7 +920,7 @@ export const createImageSlice: StateCreator<
       const currentState = get();
       const persistenceSnapshot = buildPersistenceSnapshot(chapter);
 
-      chapter.translationResult.suggestedIllustrations.forEach((illust: any) => {
+      chapter.translationResult.suggestedIllustrations.forEach((illust) => {
         const legacyUrl = illust?.url;
         const hasCacheKey = !!illust?.generatedImage?.imageCacheKey;
         const marker = illust?.placementMarker;
@@ -945,8 +947,8 @@ export const createImageSlice: StateCreator<
                 loraModel: currentState.loraModels?.[`${chapterId}:${marker}`] ?? null,
                 loraStrength: currentState.loraStrengths?.[`${chapterId}:${marker}`],
                 steeringImage: currentState.steeringImages?.[`${chapterId}:${marker}`] ?? null,
-                provider: (currentState as any).settings?.provider ?? null,
-                model: (currentState as any).settings?.imageModel ?? null,
+                provider: currentState.settings?.provider ?? null,
+                model: currentState.settings?.imageModel ?? null,
                 generatedAt: new Date().toISOString()
               };
 
@@ -956,18 +958,18 @@ export const createImageSlice: StateCreator<
               // store's subscribers never saw a reference change and other codepaths
               // could read half-migrated state. Re-read the LIVE chapter inside the
               // updater so concurrent per-marker migrations compose.
-              let updatedTranslationResult: any | null = null;
+              let updatedTranslationResult: TranslationResult | null = null;
               set(prevState => {
                 const liveChapter = prevState.chapters?.get(chapterId);
                 if (!liveChapter?.translationResult?.suggestedIllustrations) return {};
                 const liveResult = liveChapter.translationResult;
                 const idx = liveResult.suggestedIllustrations.findIndex(
-                  (s: any) => s?.placementMarker === marker
+                  (s) => s?.placementMarker === marker
                 );
                 if (idx < 0) return {};
 
-                const liveIllust: any = liveResult.suggestedIllustrations[idx];
-                const migratedIllust: any = { ...liveIllust };
+                const liveIllust = liveResult.suggestedIllustrations[idx];
+                const migratedIllust = { ...liveIllust };
                 delete migratedIllust.url;
                 migratedIllust.generatedImage = liveIllust.generatedImage
                   ? { ...liveIllust.generatedImage, imageCacheKey: cacheKey, imageData: '' }
@@ -1055,7 +1057,7 @@ export const createImageSlice: StateCreator<
     const activeUpdates: Record<string, number> = {};
 
     if (chapterAfterMigration?.translationResult?.suggestedIllustrations) {
-      chapterAfterMigration.translationResult.suggestedIllustrations.forEach((illust: any) => {
+      chapterAfterMigration.translationResult.suggestedIllustrations.forEach((illust) => {
         const marker = illust?.placementMarker;
         if (!marker) return;
         const key = `${chapterId}:${marker}`;
@@ -1063,7 +1065,7 @@ export const createImageSlice: StateCreator<
         let version =
           versionState?.latestVersion ??
           illust?.generatedImage?.imageCacheKey?.version ??
-          (typeof (illust as any)?.url === 'string' ? 1 : undefined);
+          (typeof illust?.url === 'string' ? 1 : undefined);
 
         // If a version state exists but no concrete versions remain, keep a placeholder version so UI controls persist.
         if (versionState && (!version || version < 1)) {
@@ -1463,10 +1465,10 @@ export const createImageSlice: StateCreator<
     const totalVersions = hasKey ? state.imageVersions[key] : 0;
 
     if (totalVersions === 0) {
-      const chapters = state.chapters as Map<string, any> | undefined;
+      const chapters = state.chapters;
       const chapter = chapters?.get(chapterId);
       const hasIllustration = chapter?.translationResult?.suggestedIllustrations?.some(
-        (ill: any) => ill?.placementMarker === placementMarker
+        (ill) => ill?.placementMarker === placementMarker
       );
 
       if (!hasIllustration) return null;
@@ -1499,8 +1501,8 @@ export const createImageSlice: StateCreator<
 
       try {
         dbResult = await ImageOps.deleteImageVersion(chapterId, placementMarker, versionToDelete);
-      } catch (error: any) {
-        const message = typeof error?.message === 'string' ? error.message : '';
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '';
         const isMissingChapter =
           message.includes('Chapter not found') ||
           message.includes('No active translation') ||
@@ -1609,7 +1611,7 @@ export const createImageSlice: StateCreator<
           if (!chapterNow?.translationResult) return {};
           const newVersionStateMap = { ...(chapterNow.translationResult.imageVersionState ?? {}) };
           if (dbState.markerState) {
-            newVersionStateMap[placementMarker] = dbState.markerState as any;
+            newVersionStateMap[placementMarker] = dbState.markerState;
           } else {
             delete newVersionStateMap[placementMarker];
           }
@@ -1646,7 +1648,7 @@ export const createImageSlice: StateCreator<
       }
 
       const idx = chapter.translationResult.suggestedIllustrations.findIndex(
-        (s: any) => s.placementMarker === placementMarker
+        (s) => s.placementMarker === placementMarker
       );
       if (idx < 0) {
         console.warn(`[ImageSlice] Illustration with marker ${placementMarker} not found in chapter ${chapterId}`);
@@ -1695,7 +1697,7 @@ export const createImageSlice: StateCreator<
       }
 
       const idx = chapter.translationResult.suggestedIllustrations.findIndex(
-        (s: any) => s.placementMarker === placementMarker
+        (s) => s.placementMarker === placementMarker
       );
       if (idx < 0) {
         console.warn(`[ImageSlice] Illustration with marker ${placementMarker} not found in chapter ${chapterId}`);
@@ -1728,7 +1730,7 @@ export const createImageSlice: StateCreator<
       }
 
       const idx = chapter.translationResult.suggestedIllustrations.findIndex(
-        (s: any) => s.placementMarker === placementMarker
+        (s) => s.placementMarker === placementMarker
       );
       if (idx < 0) {
         console.warn(`[ImageSlice] Illustration with marker ${placementMarker} not found in chapter ${chapterId}`);

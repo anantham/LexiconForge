@@ -213,7 +213,7 @@ export interface ImageGenerationMetadata {
 
 export interface ImageVersionStateEntry {
   latestVersion: number;
-  activeVersion: number;
+  activeVersion: number | null;
   versions: Record<number, ImageGenerationMetadata>;
 }
 
