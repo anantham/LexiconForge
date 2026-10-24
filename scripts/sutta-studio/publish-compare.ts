@@ -67,6 +67,13 @@ type CompareWord = {
   judge: JudgeEntry | null;
 };
 
+export type CompareArtifact = {
+  model: string;
+  run: string;
+  scoreProvenance: { rubricVersion: string; verifiedAgainst: string };
+  phases: Array<NonNullable<ReturnType<typeof buildPhase>>>;
+};
+
 const SCORE_EPSILON = 1e-10;
 
 /**
@@ -123,7 +130,7 @@ function buildPhase(
   const oa: AnatomistPass | null = data.output?.anatomist ?? null;
   const gl: LexicographerPass | null = data.golden?.lexicographer ?? null;
   const ol: LexicographerPass | null = data.output?.lexicographer ?? null;
-  const pali = (data.segments || []).map((s: any) => s.pali).join(' ');
+  const pali = (data.segments || []).map((s) => s.pali).join(' ');
   if (!ga?.words?.length) return null; // only phases the golden grades
   if (!oa || !data.output?.lexicographer || !data.output?.weaver) {
     throw new Error(`[publish-compare] ${model}/${phaseId} has incomplete pipeline output.`);
@@ -249,7 +256,7 @@ async function main() {
       }
       if (!phases.length) continue;
       const outPath = path.join(OUT_DIR, `${model}.json`);
-      fs.writeFileSync(outPath, JSON.stringify({
+      const artifact: CompareArtifact = {
         model,
         run,
         scoreProvenance: {
@@ -257,7 +264,8 @@ async function main() {
           verifiedAgainst: 'quality-scores.json',
         },
         phases,
-      }, null, 2));
+      };
+      fs.writeFileSync(outPath, JSON.stringify(artifact, null, 2));
       console.log(`  ${model}: ${phases.length} phases → ${path.relative(REPO, outPath)}`);
       written++;
     }

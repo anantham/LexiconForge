@@ -123,7 +123,7 @@ export function chargeMissingGoldenPhases(
   return { phases, missing, completed: phases.length - missing.length };
 }
 
-type LeaderboardEntry = {
+export type LeaderboardEntry = {
   rank: number;
   modelId: string;
   modelName: string;
@@ -177,7 +177,7 @@ type LeaderboardEntry = {
   packetPath: string;
 };
 
-type Leaderboard = {
+export type Leaderboard = {
   generatedAt: string;
   promptVersion: string;
   rubricVersion: string;
