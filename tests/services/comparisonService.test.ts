@@ -315,6 +315,23 @@ describe('ComparisonService.requestFocusedComparison', () => {
   });
 
   describe('malformed response handling', () => {
+    it('normalizes structured JSON fields without a serialization fallback', async () => {
+      openAiMocks.createMock.mockResolvedValueOnce({
+        choices: [{ message: { content: JSON.stringify({
+          fanExcerpt: ['First', null, 'sentence'],
+          rawExcerpt: { text: 'Original', count: 2 },
+        }) } }],
+      });
+
+      const result = await ComparisonService.requestFocusedComparison({
+        ...baseArgs,
+        settings: buildSettings(),
+      });
+
+      expect(result.fanExcerpt).toBe('First  sentence');
+      expect(result.rawExcerpt).toBe('{"text":"Original","count":2}');
+    });
+
     it.each([
       'Private comparison response without JSON',
       '{"fanExcerpt":"Private comparison response",}',

@@ -79,11 +79,7 @@ const toOptionalString = (value: unknown): string | null => {
   if (value == null) return null;
   if (Array.isArray(value)) return value.map((item) => toOptionalString(item) ?? '').join(' ').trim() || null;
   if (typeof value === 'object') {
-    try {
-      return JSON.stringify(value);
-    } catch {
-      return String(value);
-    }
+    return JSON.stringify(value);
   }
   return String(value);
 };
