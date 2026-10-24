@@ -1,6 +1,5 @@
 /**
- * Rate limiting service to respect OpenRouter's per_request_limits
- * Prevents hitting API rate limits and ensures respectful usage
+ * Queues requests against the model's advertised per-minute rate limit.
  */
 
 import { getModelLimits } from './capabilityService';
@@ -33,12 +32,6 @@ class RateLimitService {
   /**
    * Acquire a slot under the model's rate limit. CONSUMES a slot on success,
    * or parks the caller in a queue until one frees (possibly minutes).
-   *
-   * This was previously named canMakeRequest and returned Promise<boolean> —
-   * a "check" that spent a slot as a side effect of asking and had no
-   * resolve(false) on any path, so `if (!await canMakeRequest())` branches
-   * were dead code. The name and signature now say what it does: backpressure
-   * is the wait, not a boolean.
    *
    * Parked callers always settle: an optional AbortSignal pulls them out of
    * the queue, and clearing/losing rate-limit state rejects the remaining

@@ -1,26 +1,8 @@
 /**
- * Translator-Bank — per-verse translator citations from SuttaCentral bilara-data.
- *
- * Phase 3 of docs/sutta-studio/GROUNDING.md. Complements ContestedTermProvider
- * (which is term-keyed) with verse-keyed translator renderings. Where the
- * contested-terms registry says "Bodhi renders satipaṭṭhāna as X across MN10",
- * this provider says "Bodhi translates MN10:3.2 as Y" — the actual prose, not
- * the term-level claim.
- *
- * Data source: SuttaCentral's bilara-data JSON API.
- *   GET https://suttacentral.net/api/bilarasuttas/{uid}/{translator}
- *   → { translation_text: { 'mn10:1.1': '...', 'mn10:1.2': '...', ... } }
- *
- * Supported translators (as of 2026-05-14):
- *   - sujato     — full MN coverage, bilara-native
- *   - bodhi      — partial coverage (200 OK on MN10; 404 on some other suttas)
- *   - anandajoti — partial coverage
- *
- * Anti-patterns this module refuses:
- *   - Synthetic citations: every translator rendering is fetched from the
- *     bilara API. If the fetch fails, no citation is emitted.
- *   - Cross-translator inference: we never "guess" what Bodhi says based on
- *     Sujato. Each translator's renderings come from their own API endpoint.
+ * Fetches per-verse translator renderings from SuttaCentral bilara-data.
+ * Complements term-level registry citations with the translation of each segment.
+ * Each translator has a separate endpoint; missing coverage or network failure
+ * returns no translation, and other HTTP failures reject the request.
  */
 
 import type { Citation, PhaseView } from '../../../types/suttaStudio';

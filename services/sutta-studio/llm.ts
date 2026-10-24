@@ -1,16 +1,7 @@
 /**
- * Canonical Sutta Studio LLM caller (Phase 3 of CONSOLIDATION.md).
- *
- * Single source of truth for the LLM transport used by the Sutta Studio
- * compiler — provider resolution, structured-output plumbing, pipeline-log
- * telemetry. The two legacy locations (services/suttaStudioLLM.ts and
- * services/compiler/llm.ts) are retired; callers import from here directly.
- *
- * Historical note (Phase 3): the two legacy files had drifted — the bench-side
- * file exposed CompilerLLMOptions/CompilerLLMResult types and a providerPreferences
- * pass-through that the compiler-side file lacked. Earlier task tracking marked
- * Phase 3 complete based on intent rather than scope; the 2026-05-16 doc audit
- * caught that and reopened the work. This module is the unified replacement.
+ * Shared LLM transport for Sutta Studio compilation and benchmarks.
+ * Resolves providers, applies structured-output options and bounded retries,
+ * and records pipeline telemetry.
  */
 import type { AppSettings } from '../../types';
 import type {
@@ -27,9 +18,8 @@ import { logPipelineEvent } from '../suttaStudioPipelineLog';
 import { withRetry } from '../../utils/retry';
 
 /**
- * Retry only TRANSIENT transport failures (the DNS/connection blips that were
- * killing whole benchmark models — "fetch failed", ENOTFOUND, timeouts, 429/5xx).
- * Never retry an abort (deliberate cancel) or a genuine 4xx (bad slug/auth).
+ * Retry transient transport failures, timeouts, and rate-limit/server errors.
+ * User cancellation and authentication or request errors are not retryable.
  */
 const isRetryableLLM = (signal?: AbortSignal) => (e: unknown): boolean => {
   if (signal?.aborted) return false;
@@ -38,9 +28,7 @@ const isRetryableLLM = (signal?: AbortSignal) => (e: unknown): boolean => {
   return /fetch failed|network|timeout|connection|enotfound|econnreset|econnrefused|socket|502|503|504|429|rate limit/.test(msg);
 };
 
-/** Per-call ceiling. A phase pass shouldn't take this long; a hung provider (kimi,
- *  gpt-oss have done this — no response, no error) would otherwise stall the whole
- *  benchmark since the circuit breaker only counts failures, not silent stalls. */
+/** Bound stalled requests; the circuit breaker only counts completed failures. */
 const LLM_CALL_TIMEOUT_MS = 90_000;
 
 const combineSignals = (external: AbortSignal | undefined, timeout: AbortSignal): AbortSignal => {
@@ -63,10 +51,8 @@ export type CompilerLLMResult = ChatResponse & {
   model: string;
   durationMs: number;
   /**
-   * True when the caller REQUESTED structured outputs (json_schema) but the
-   * provider rejected them and the call silently retried as json_object.
-   * Benchmark metrics use this to record the ACTUAL output mode a row ran
-   * under (integrity scan 2026-07, P2) — absent/undefined means no downgrade.
+   * True when the provider rejected json_schema and retried as json_object.
+   * Benchmarks record the actual output mode; absent means no downgrade.
    */
   structuredFallbackApplied?: boolean;
 };

@@ -4,18 +4,10 @@
  * Accepts optional DPD attestations via `dpdLookups`. When provided, the
  * prompt builder renders them as a structured block alongside the raw
  * SuttaCentral dictionary entries — and the LLM is prompted to wire
- * Sense.citationIds back to specific DPD entries (the schema-admitted field;
- * the older sourceCitationIds wire-back was never schema-admitted and is
- * retired for LLM output).
+ * Sense.citationIds back to specific DPD entries.
  *
- * NOTE: DPD wiring used to live ONLY in compiler/index.ts (the production
- * orchestrator). Phase 2 of CONSOLIDATION.md moves it INTO the lexicographer
- * pass where it belongs as a pass-level concern. Benchmark callers can now
- * also provide DPD context (previously only production could).
- *
- * NOT yet the production compile path (CONSOLIDATION Phase 4 pending) —
- * services/compiler/index.ts still orchestrates its own inline pass calls;
- * this module serves benchmark/experiment callers until the orchestrator port.
+ * Used by benchmark and experiment runners; production orchestration is in
+ * services/compiler/index.ts.
  */
 
 import type { AppSettings } from '../../../types';

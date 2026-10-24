@@ -5,12 +5,7 @@
  * each entry as a GroundedClaim. Each entry's translator renderings,
  * encyclopedic references, and primary scholarship URLs become Citation
  * objects with stable IDs.
- *
- * Per GROUNDING.md: this is the operational consumer of the registry.
- * Phase 1 seeded the registry; this provider is Phase 2's interpretation
- * layer. The previous `scripts/sutta-studio/apply-contested-terms.py`
- * does the same work as a one-shot script; this is the production version
- * that runs inside the compiler pass.
+
  */
 
 import type { Citation } from '../../../types/suttaStudio';
@@ -138,9 +133,7 @@ function collectCitationsForTerm(term: string, entry: RegistryEntry): Citation[]
         excerpt,
         provenance: 'manual',
         query: term,
-        // Only rows the curator actually verified carry a stamp. Rows without
-        // one get NO fetchedAt — the previous fallback ('2026-05-14') fabricated
-        // a fetch timestamp for unverified rows.
+        // Only curator-verified rows carry a timestamp.
         ...(verified ? { fetchedAt: verified } : {}),
         license,
       });

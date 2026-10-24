@@ -8,9 +8,7 @@
  * `isAnchor` field, all three of which the V2 amendments directly govern
  * (ARROW_EARNING_RULE, TOOLTIP_REGISTER, ANCHOR_SELECTION).
  *
- * Carries three worked examples (post-consolidation): the basic phase-a
- * opening formula, phase-b's morph-data-on-suffixes pattern, and the refrain
- * formula with `refrainId`. Production previously had only the first.
+ * Includes examples for opening formulas, suffix morphology, and refrains.
  */
 
 import type { CanonicalSegment } from '../../../types/suttaStudio';

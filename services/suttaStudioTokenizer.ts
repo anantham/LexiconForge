@@ -1,10 +1,6 @@
 /**
- * suttaStudioTokenizer.ts
- *
- * Tokenizes English text for the Weaver pass.
- * Splits on whitespace and punctuation, preserving both as separate tokens.
- *
- * This is Phase 3.4 from the Assembly-Line Roadmap.
+ * Tokenizes English text for the Weaver pass, preserving whitespace and
+ * punctuation as separate tokens.
  */
 
 export type EnglishTokenInput = {
@@ -36,8 +32,7 @@ export type EnglishTokenInput = {
 export function tokenizeEnglish(text: string): EnglishTokenInput[] {
   if (!text) return [];
 
-  // Split on whitespace and punctuation, capturing the delimiters
-  // This regex splits while keeping whitespace and punctuation as separate tokens
+  // Capture delimiters so token indices preserve the original text.
   const parts = text.split(/(\s+|[.,;:!?'"()—\-–…""''«»‹›])/);
 
   const tokens: EnglishTokenInput[] = [];
