@@ -1,6 +1,6 @@
 /**
  * fetchAndParseUrl — main entry point for fetching a web novel chapter.
- * Rotates through CORS proxies with health-based sorting and exponential backoff.
+ * Uses the first-party proxy and the requested site; no unrelated public fallback.
  */
 
 import { Chapter } from '../../types';
@@ -33,7 +33,7 @@ export const fetchAndParseUrl = async (
     });
   }
 
-  const isSuttaCentral = targetUrl.hostname.endsWith('suttacentral.net');
+  const isSuttaCentral = (targetUrl.hostname === 'suttacentral.net' || targetUrl.hostname.endsWith('.suttacentral.net'));
   const suttaAdapter = isSuttaCentral
     ? new SuttaCentralAdapter(url, new DOMParser().parseFromString('', 'text/html'))
     : null;
@@ -41,7 +41,7 @@ export const fetchAndParseUrl = async (
     console.log('[Fetch] SuttaCentral URL detected; using API fetch path.');
   }
 
-  const isFojin = targetUrl.hostname.endsWith('fojin.app');
+  const isFojin = (targetUrl.hostname === 'fojin.app' || targetUrl.hostname.endsWith('.fojin.app'));
   const fojinAdapter = isFojin
     ? new FojinAdapter(url, new DOMParser().parseFromString('', 'text/html'))
     : null;
@@ -218,7 +218,7 @@ export const fetchAndParseUrl = async (
       }
     }
 
-    if (attempt < MAX_RETRIES) {
+    if (sortedProxies.length > 0 && attempt < MAX_RETRIES) {
       const delay = 1000 * Math.pow(2, attempt - 1);
       console.log(`[Fetch] All proxies failed. Retrying in ${delay / 1000}s...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
@@ -298,7 +298,7 @@ export const fetchAndParseUrl = async (
       `Troubleshooting tips:\n` +
       `• Try again in a few minutes (proxies may be rate-limited)\n` +
       `• Check if the target website is accessible directly\n` +
-      `• Some proxies may be temporarily down - the system will learn and adapt\n` +
+      `• Public proxy fallback is disabled to protect the target URL\n` +
       `• If all proxies consistently fail, the target site may have enhanced anti-bot protection`;
 
     throw new AppError({

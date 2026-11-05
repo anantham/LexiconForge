@@ -13,12 +13,17 @@ set "LF_PORTAL_IDEMPOTENCY_MAX_ENTRIES=128"
 set "LF_PORTAL_CREATION_COOLDOWN_SECONDS=2"
 
 if not exist "%LF_LOG_DIR%" mkdir "%LF_LOG_DIR%"
-call :main >>"%LF_LOG_DIR%\bridge.log" 2>&1
+rem Fixed startup diagnostics are overwritten. Runtime logs have Python rotation.
+call :validate >"%LF_LOG_DIR%\bridge-startup.log" 2>&1
+set "LF_EXIT_CODE=%ERRORLEVEL%"
+if not "%LF_EXIT_CODE%"=="0" exit /b %LF_EXIT_CODE%
+cd /d "%LF_BRIDGE_ROOT%"
+"%LF_PYTHON%" -m portal_bridge.run_bridge
 set "LF_EXIT_CODE=%ERRORLEVEL%"
 echo [%DATE% %TIME%] Portal bridge exited with code %LF_EXIT_CODE%.
 exit /b %LF_EXIT_CODE%
 
-:main
+:validate
 echo [%DATE% %TIME%] Starting LexiconForge portal bridge from %LF_BRIDGE_ROOT%.
 if not defined LF_PORTAL_VAULT_ROOT (
   echo ERROR: Set LF_PORTAL_VAULT_ROOT in the runtime user's private environment.
@@ -40,5 +45,4 @@ if not exist "%LF_PYTHON%" (
   echo ERROR: Bridge virtual-environment Python is missing from %LF_PYTHON%. Run bootstrap-bridge.ps1.
   exit /b 2
 )
-cd /d "%LF_BRIDGE_ROOT%"
-"%LF_PYTHON%" -m uvicorn portal_bridge.app:app --host 127.0.0.1 --port 5001 --no-proxy-headers
+exit /b 0

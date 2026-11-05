@@ -23,6 +23,7 @@ Usage: python scripts/grounding/validate_alignment.py --payload data/calvino/rea
            --session out/calvino-session.json --grounded data/calvino
 """
 import argparse, json, math, os, re, sys
+from safe_paths import validate_chapter_ids, validate_stable_id, grounded_path, open_grounded
 
 _STOP = set(("the a an of to in on at is are was were be been being and or but it its this that "
              "these those with for as by from you your i me my he she they them we us not no so "
@@ -64,8 +65,13 @@ def main():
     def _pair_it_text(toks):
         return "".join(t["s"] + (" " if t.get("ws", True) else "") for t in toks).strip()
 
-    payload = json.load(open(args.payload, encoding="utf-8"))
-    session = json.load(open(args.session, encoding="utf-8"))
+    with open(args.payload, encoding="utf-8") as handle:
+        payload = json.load(handle)
+    with open(args.session, encoding="utf-8") as handle:
+        session = json.load(handle)
+    validate_chapter_ids(session["chapters"])
+    for unit in payload["units"]:
+        grounded_path(args.grounded, validate_stable_id(unit["id"]))
     en_of = {c["stableId"]: (c.get("fanTranslation") or "") for c in session["chapters"]}
 
     errors, warns = [], []
@@ -80,9 +86,10 @@ def main():
         pairs = [p for b in u["blocks"] for p in b["pairs"]]
 
         # ---- I1: token conservation vs the grounded stream ----
-        gp = os.path.join(args.grounded, f"{uid}.grounded.json")
+        gp = grounded_path(args.grounded, uid)
         if os.path.exists(gp):
-            g = json.load(open(gp, encoding="utf-8"))
+            with open_grounded(args.grounded, uid) as handle:
+                g = json.load(handle)
             src = [t["surface"] for s in g["sentences"] for t in s["tokens"]]
             got = [t["s"] for p in pairs for t in p["it"]]
             if src != got:

@@ -72,3 +72,17 @@ describe('INV-3: shared proxy domain allowlist', () => {
     });
   }
 });
+
+
+describe('shared proxy safety policy', () => {
+  it('both runtime consumers invoke the same bounded handler', () => {
+    for (const consumer of ['vite.config.ts', 'api/fetch-proxy.js']) {
+      const source = fs.readFileSync(path.join(root, consumer), 'utf8');
+      expect(source).toMatch(/(?:import .* from |requireFromConfig\()['"].*serverFetchProxy\.cjs['"]/);
+      expect(source).toContain('.createFetchProxy(');
+      expect(source).not.toContain('transport.get(');
+    }
+    const policy = fs.readFileSync(path.join(root, 'services/scraping/serverFetchProxy.cjs'), 'utf8');
+    expect(policy).toContain("require('./allowedDomains.cjs')");
+  });
+});

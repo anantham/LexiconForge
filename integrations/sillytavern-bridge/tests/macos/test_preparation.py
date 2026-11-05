@@ -94,11 +94,11 @@ exec "$LF_TEST_NPM" "$@"
         server = runtime / "server.js"
         original = server.read_bytes()
         server.write_bytes(original + b"\n// synthetic change\n")
-        invoke("unrelated tracked source", expected="unrelated uncommitted path")
+        invoke("unrelated tracked source", expected="unreviewed working source bytes")
         server.write_bytes(original)
         unknown = runtime / "unexpected-fixture.txt"
         unknown.write_text("synthetic")
-        invoke("unrelated untracked file", expected="unrelated uncommitted path")
+        invoke("unrelated untracked file", expected="unreviewed runtime path")
         unknown.unlink()
 
         extension = runtime / "public/scripts/extensions/lexiconforge-portal/manifest.json"

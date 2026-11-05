@@ -11,6 +11,7 @@ Usage:
     --session out/calvino-session.json --grounded data/calvino --out data/calvino/reader-payload.json
 """
 import argparse, glob, json, math, os, re
+from safe_paths import validate_chapter_ids, grounded_path, open_grounded, contained_path, open_contained
 
 # Split English prose into sentences: end punctuation, optional closing quote/bracket,
 # whitespace, then an opening capital/quote. Good enough for Weaver's prose.
@@ -447,12 +448,20 @@ def main():
         EMB = SentenceSim(args.embed_cache)
         print(f"embedding anchor ON (cache: {args.embed_cache})")
 
-    session = json.load(open(args.session, encoding="utf-8"))
+    with open(args.session, encoding="utf-8") as handle:
+        session = json.load(handle)
+    validate_chapter_ids(session["chapters"])
+    for chapter in session["chapters"]:
+        grounded_path(args.grounded, chapter["stableId"])
     english = {c["stableId"]: (c.get("fanTranslation") or "") for c in session["chapters"]}
     titles = {c["stableId"]: c.get("title") for c in session["chapters"]}
 
-    gloss_path = os.path.join(args.grounded, "glosses.json")
-    glosses = json.load(open(gloss_path, encoding="utf-8")) if os.path.exists(gloss_path) else {}
+    gloss_path = contained_path(args.grounded, "glosses.json")
+    if gloss_path.exists():
+        with open_contained(args.grounded, "glosses.json") as handle:
+            glosses = json.load(handle)
+    else:
+        glosses = {}
     if glosses:
         print(f"glosses: {len(glosses)} lemmas")
     else:
@@ -480,10 +489,11 @@ def main():
     units = []
     for ch in session["chapters"]:
         uid = ch["stableId"]
-        gp = os.path.join(args.grounded, f"{uid}.grounded.json")
+        gp = grounded_path(args.grounded, uid)
         toks = []
         if os.path.exists(gp):
-            g = json.load(open(gp, encoding="utf-8"))
+            with open_grounded(args.grounded, uid) as handle:
+                g = json.load(handle)
             for s in g["sentences"]:
                 for t in s["tokens"]:
                     tok = {"s": t["surface"], "ws": t.get("ws", True)}
@@ -619,7 +629,8 @@ def main():
         "units": units,
     }
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
-    json.dump(payload, open(args.out, "w", encoding="utf-8"), ensure_ascii=False)
+    with open(args.out, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, ensure_ascii=False)
     if EMB is not None:
         EMB.save()
     tot = sum(len(p["it"]) for u in units for b in u["blocks"] for p in b["pairs"])

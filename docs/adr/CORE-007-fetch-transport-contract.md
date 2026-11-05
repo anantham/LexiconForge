@@ -174,3 +174,42 @@ Each invariant maps to at least one test:
 | INV-3 | Allowlist in dev proxy | Matches prod allowlist exactly |
 | INV-4 | TOC URL via Playwright path | Calls getRedirectUrl(), follows redirect |
 | INV-5 | Any successful fetch | Result includes source + finalUrl |
+
+## Security amendment — 2026-10-02
+
+**Status:** Implemented locally for the maintained first-party transport; publication
+and deployment remain separate approvals. This amendment supersedes the historical
+public proxy cascade and the earlier rate-limiting non-goal. INV-5's proposed
+`FetchResult` interface remains unimplemented and is not claimed as acceptance.
+
+The anonymous API and development plugin now invoke the same
+`services/scraping/serverFetchProxy.cjs` handler and canonical domain allowlist.
+Every upstream hop requires HTTPS on the default port and no URL credentials.
+An operation allows four redirects, 4 MiB received bytes and one absolute
+20-second deadline spanning headers and body. Redirect bodies are closed without
+buffering. Unsupported binary/compressed representations fail closed; text
+charsets remain decoded for existing chapter adapters.
+
+Returned source is `text/plain` with attachment disposition, `nosniff`, a sandbox
+CSP and `no-store`, so navigating to fetched markup does not grant scripts the
+application origin. Browser fetchers continue to read the same source text and
+parse it in detached documents for chapter extraction. Public CORS fallback,
+including the old Worker route, is disabled: a first-party failure may contact
+only the originally requested site directly. SuttaCentral/FoJin direct API
+strategies remain intact. An inaccessible source now produces a visible failure
+rather than disclosing its complete URL to unrelated proxy operators.
+
+Application admission permits at most eight active operations/process, two per
+caller, 30 operations/caller/minute and 120 operations/process/minute, with a
+bounded caller registry. These limits constrain application work per worker;
+serverless fleet and invocation-cost limits require operator-owned edge rate
+rules. No such production setting was changed or independently verified here.
+
+**Implementation Notes:** `api/fetch-proxy.js`, `vite.config.ts`,
+`services/scraping/{serverFetchProxy,requestBudget}.cjs`, `proxy.ts` and `fetcher.ts`.
+Synthetic stream tests exercise actual-byte overflow, missing/lying length,
+slow/stalled bodies, redirect validation/loops, charset decoding and admission.
+API and actual Vite middleware tests verify inert headers while ordinary scraping
+and exact-recipient tests verify functional/privacy behavior without real network
+or provider requests. See `docs/reviews/SECURITY-FIXES-2026-10-02.md` for the complete
+finding receipt, validation limits and authorization boundary.

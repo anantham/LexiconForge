@@ -469,3 +469,14 @@ invalidation. Unused refresh state is deleted. Pickup: Issues.md 22.
 - **Evidence/friction:** Six predetermined highest/middle/lowest score samples for `love` and `betrayal` support related-passage retrieval, but intimacy, disputed accusations and enemy deception do not establish calibrated theme prevalence. The shared lowest sample uses Korean source text, leaving language/source effects confounded. Raw passages stay private. Mechanical passage cuts and missing chapter-level incremental reuse are recorded in the same pickup.
 - **Follow-up:** Expand blinded relevance and source-language checks against the unchanged baseline before changing scoring or chunking. Reuse unchanged chapter embeddings under exact revision identity; avoid new automatic compute scheduling.
 - **Pickup and completion criteria:** [Issues SEM-01](../../Issues.md#sem-01--evaluate-chapter-level-reuse-and-meaningful-passage-boundaries). The operator's work-in-progress clarification supersedes the September 6 completed-novel prerequisite above: verify all available selected-revision chapters without inventing missing coverage.
+
+## [2026-10-02] [DEBT][PRIVACY] Auxiliary analysis diagnostics
+
+**Found while:** Closing scan L05's unexpected provider recipient.
+**Files:** `services/diff/DiffAnalysisService.ts`, `services/comparisonService.ts`.
+**Evidence:** Existing console/debug diagnostics can include full prompts or model
+responses; provider-routing tests use synthetic text and this repair did not export
+private content. This is distinct from server telemetry/bridge log findings.
+**Follow-up:** Move payload logging behind an explicit private diagnostic contract
+or emit bounded non-content summaries; add redaction tests. No new diagnostic
+logging authorization or production change is implied by this receipt.

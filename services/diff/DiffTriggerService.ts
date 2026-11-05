@@ -5,13 +5,12 @@
  * It listens for 'translation:complete' events and saves the diff results to IndexedDB.
  */
 
-import { DiffAnalysisService, DiffAnalysisJsonParseError } from './DiffAnalysisService';
+import { DiffAnalysisService } from './DiffAnalysisService';
 import type { DiffResult } from './types';
 import { debugLog } from '../../utils/debug';
 import { createSimpleLLMAdapter } from './SimpleLLMAdapter';
-import { buildOpenRouterRouting } from '../openrouterRouting';
 import { computeDiffHash } from './hash';
-import { DIFF_ALGO_VERSION, DIFF_DEFAULT_PROVIDER } from './constants';
+import { DIFF_ALGO_VERSION } from './constants';
 import { useAppStore } from '../../store';
 import { DiffOps } from '../db/operations';
 import { getConfiguredApiKey } from '../ai/providerCredentials';
@@ -70,10 +69,7 @@ export async function handleTranslationComplete(event: Event): Promise<void> {
     fanTranslation,
     fanTranslationId,
     rawText,
-    previousVersionFeedback,
-    preferredProvider,
-    preferredModel,
-    preferredTemperature
+    previousVersionFeedback
   } = customEvent.detail;
 
   // Defense-in-depth: Check if diff heatmap is enabled in settings
@@ -125,7 +121,6 @@ export async function handleTranslationComplete(event: Event): Promise<void> {
     if (cachedResult) {
       debugLog('diff', 'summary', '[DiffTrigger] Cache hit for chapter:', {
         chapterId,
-        provider: DIFF_DEFAULT_PROVIDER,
         aiTranslationId,
         aiHash,
         hasFanInCache: !!cachedResult.fanHash,
@@ -142,69 +137,34 @@ export async function handleTranslationComplete(event: Event): Promise<void> {
       return;
     }
 
-    const openRouterApiKey = getConfiguredApiKey(currentSettings, 'OpenRouter');
-
-    if (!openRouterApiKey) {
+    if (!getConfiguredApiKey(currentSettings, currentSettings.provider)) {
       console.warn(
-        '[DiffTriggerService] No OpenRouter key in Settings; uncached diff analysis was skipped and no placeholder was saved'
+        `[DiffTriggerService] No ${currentSettings.provider} key in Settings; uncached diff analysis was skipped and no placeholder was saved`
       );
       return;
     }
 
     const diffService = new DiffAnalysisService();
-    diffService.setTranslator(createSimpleLLMAdapter(
-      openRouterApiKey,
-      buildOpenRouterRouting(currentSettings, 'text'),
-    ));
-    const diffPrompt = currentSettings.diffAnalysisPrompt ?? null;
+    diffService.setTranslator(createSimpleLLMAdapter(currentSettings));
 
-    const normalizedProvider = preferredProvider?.toLowerCase() ?? null;
-    const supportsRequestedProvider = normalizedProvider === 'openrouter';
-
-    const runAnalysis = async (forceDefault: boolean) => {
-      return diffService.analyzeDiff({
-        chapterId,
-        aiTranslation,
-        aiTranslationId: aiTranslationId ?? null,
-        aiHash,
-        fanTranslation: fanTranslation || null,
-        fanTranslationId: fanTranslationId ?? null,
-        fanHash,
-        rawText,
-        rawHash,
-        previousVersionFeedback,
-        llmProvider: !forceDefault && supportsRequestedProvider ? preferredProvider : undefined,
-        llmModel: !forceDefault && supportsRequestedProvider ? preferredModel : undefined,
-        llmTemperature: !forceDefault && typeof preferredTemperature === 'number' ? preferredTemperature : undefined,
-        promptOverride: diffPrompt,
-      });
-    };
-
-    let result;
-    let attemptedFallback = false;
-
-    if (!supportsRequestedProvider) {
-      debugLog('diff', 'summary', '[DiffTrigger] Using default diff model (unsupported provider)', {
-        chapterId,
-        preferredProvider,
-      });
-      result = await runAnalysis(true);
-    } else {
-      try {
-        result = await runAnalysis(false);
-      } catch (error) {
-        if (error instanceof DiffAnalysisJsonParseError && !attemptedFallback) {
-          attemptedFallback = true;
-          console.warn('[DiffTrigger] Preferred model failed strict JSON parse, falling back to default', {
-            chapterId,
-            preferredModel,
-          });
-          result = await runAnalysis(true);
-        } else {
-          throw error;
-        }
-      }
-    }
+    // Event metadata describes the old translation, not permission to select a recipient.
+    // A failed request or malformed response must not trigger another provider/model.
+    const result = await diffService.analyzeDiff({
+      chapterId,
+      aiTranslation,
+      aiTranslationId: aiTranslationId ?? null,
+      aiHash,
+      fanTranslation: fanTranslation || null,
+      fanTranslationId: fanTranslationId ?? null,
+      fanHash,
+      rawText,
+      rawHash,
+      previousVersionFeedback,
+      llmProvider: currentSettings.provider,
+      llmModel: currentSettings.model,
+      llmTemperature: currentSettings.temperature,
+      promptOverride: currentSettings.diffAnalysisPrompt ?? null,
+    });
 
     await DiffOps.save(result);
 

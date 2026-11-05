@@ -140,12 +140,11 @@ describe('DiffTriggerService credential boundary', () => {
 
     await handleTranslationComplete(translationCompleteEvent());
 
-    expect(mocks.createAdapter).toHaveBeenCalledWith('settings-openrouter-key', {
-      only: ['deepinfra'],
-      allow_fallbacks: false,
-      data_collection: 'deny',
-      zdr: true,
-    });
+    expect(mocks.createAdapter).toHaveBeenCalledWith(mocks.settings);
+    expect(analyzeSpy).toHaveBeenCalledWith(expect.objectContaining({
+      llmProvider: mocks.settings.provider,
+      llmModel: mocks.settings.model,
+    }));
     expect(analyzeSpy).toHaveBeenCalledOnce();
     expect(mocks.save).toHaveBeenCalledWith(cachedResult);
   });
