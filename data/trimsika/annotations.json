@@ -1,0 +1,3351 @@
+[
+  {
+    "verse": 1,
+    "title": "Attribution and transformation",
+    "brief": "The verse locates talk of selves and phenomena in transformations of consciousness; it does not yet explain the three transformations.",
+    "words": [
+      {
+        "text": "ātmadharmopacāro",
+        "english": "attribution of self and phenomena",
+        "note": "Ātman and dharma are joined inside a compound; upacāra is an applied or transferred designation, not proof of a substantial self.",
+        "alternative": "figurative designation of selves and phenomena",
+        "parts": [
+          "ātma",
+          "dharm",
+          "opacāro"
+        ]
+      },
+      {
+        "text": "hi",
+        "english": "indeed",
+        "note": "Hi gives a reason or emphasis; it does not introduce a separate entity.",
+        "functionWord": true
+      },
+      {
+        "text": "vividho",
+        "english": "varied",
+        "note": "Vividha qualifies the attribution as taking many forms."
+      },
+      {
+        "text": "yaḥ",
+        "english": "which",
+        "note": "The relative yaḥ introduces what is picked up by asau, “that,” later in the verse.",
+        "functionWord": true
+      },
+      {
+        "text": "pravartate",
+        "english": "proceeds",
+        "note": "The middle verb describes coming into operation or occurring.",
+        "alternative": "operates"
+      },
+      {
+        "text": "vijñānapariṇāme",
+        "english": "in transformation of consciousness",
+        "note": "The locative ending places attribution in vijñāna-pariṇāma; it need not mean a physical location.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 5,
+          "type": "location",
+          "label": "Operates IN"
+        }
+      },
+      {
+        "text": "'sau",
+        "english": "that",
+        "note": "Asau resumes the relative clause; its initial a is elided after the preceding e.",
+        "functionWord": true
+      },
+      {
+        "text": "pariṇāmaḥ",
+        "english": "transformation",
+        "note": "Pariṇāma denotes change or transformation; its mechanism is developed in the next verse."
+      },
+      {
+        "text": "sa",
+        "english": "that",
+        "note": "Sa refers back to transformation.",
+        "functionWord": true
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca connects the next statement.",
+        "functionWord": true
+      },
+      {
+        "text": "tridhā",
+        "english": "threefold",
+        "note": "Tridhā means in three ways, preparing the list in verse 2."
+      }
+    ],
+    "order": [
+      7,
+      3,
+      1,
+      4,
+      5,
+      2,
+      {
+        "ghost": "occurs",
+        "kind": "interpretive",
+        "layoutWith": 6
+      },
+      6,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      10,
+      9,
+      8,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      11
+    ],
+    "lineEnds": [
+      3,
+      7,
+      11
+    ]
+  },
+  {
+    "verse": 2,
+    "title": "The three transformations",
+    "brief": "Maturation, mentation, and presentation of an object are distinguished; the first is identified as all-seeded store consciousness.",
+    "words": [
+      {
+        "text": "vipāko",
+        "english": "maturation",
+        "note": "Vipāka is the ripening of prior causal activity, not a moral judgment on each present event.",
+        "alternative": "ripening"
+      },
+      {
+        "text": "mananākhyaś",
+        "english": "called mentation",
+        "note": "Manana names thinking or mentation; the compound says “known as manana.”",
+        "parts": [
+          "manan",
+          "ākhyaś"
+        ]
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca coordinates the three transformations.",
+        "functionWord": true
+      },
+      {
+        "text": "vijñaptir",
+        "english": "presentation",
+        "note": "Vijñapti is rendered presentation here; representation and manifestation are interpretive alternatives.",
+        "alternative": "representation"
+      },
+      {
+        "text": "viṣayasya",
+        "english": "of an object",
+        "note": "Viṣayasya specifies what is presented: an object or field of experience.",
+        "morph": {
+          "case": "gen",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 4,
+          "type": "ownership",
+          "label": "Presentation OF"
+        }
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca closes the list.",
+        "functionWord": true
+      },
+      {
+        "text": "tatrālayākhyaṃ",
+        "english": "among these, called store",
+        "note": "Tatra + ālaya + ākhyam identifies one item in the list. “Store” translates ālaya without making it a permanent container.",
+        "parts": [
+          "tatr",
+          "ālay",
+          "ākhyaṃ"
+        ]
+      },
+      {
+        "text": "vijñānaṃ",
+        "english": "consciousness",
+        "note": "Vijñāna names discriminative awareness; the verse distinguishes its functions."
+      },
+      {
+        "text": "vipākaḥ",
+        "english": "maturation",
+        "note": "The store consciousness is identified with the maturation transformation."
+      },
+      {
+        "text": "sarvabījakam",
+        "english": "containing all seeds",
+        "note": "Bīja, “seed,” is a causal metaphor for dispositions that can give rise to later experience.",
+        "alternative": "all-seeded",
+        "parts": [
+          "sarva",
+          "bījakam"
+        ]
+      }
+    ],
+    "order": [
+      1,
+      3,
+      {
+        "ghost": "that",
+        "kind": "interpretive"
+      },
+      2,
+      6,
+      4,
+      5,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      7,
+      8,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      9,
+      10
+    ],
+    "lineEnds": [
+      3,
+      6,
+      8,
+      10
+    ]
+  },
+  {
+    "verse": 3,
+    "title": "Unnoticed appropriation and constant companions",
+    "brief": "Two dense compounds describe store consciousness and its five constantly associated mental factors. Upādi is left open to closer philological review.",
+    "words": [
+      {
+        "text": "asaṃviditakopādisthānavijñaptikaṃ",
+        "english": "with unnoticed appropriation, location and presentation",
+        "note": "The long compound compresses asaṃviditaka, upādi, sthāna and vijñaptika. This draft takes the appropriation and place as not consciously noticed; the internal scope is philologically unsettled.",
+        "alternative": "whose appropriation and location are not distinctly known",
+        "parts": [
+          "asaṃviditak",
+          "opādi",
+          "sthāna",
+          "vijñaptikaṃ"
+        ]
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca continues the description.",
+        "functionWord": true
+      },
+      {
+        "text": "tat",
+        "english": "that",
+        "note": "Tat refers to the store consciousness of verse 2.",
+        "functionWord": true
+      },
+      {
+        "text": "sadā",
+        "english": "always",
+        "note": "Sadā qualifies the association with the following mental factors.",
+        "functionWord": true
+      },
+      {
+        "text": "sparśamanaskāravitsaṃjñācetanānvitam",
+        "english": "joined with contact, attention, feeling, recognition and volition",
+        "note": "Sparśa, manaskāra, vit, saṃjñā and cetanā are five factors. Vit is taken here as feeling, consistent with vedanā in verse 4; anvitam means accompanied by.",
+        "parts": [
+          "sparśa",
+          "manaskāra",
+          "vit",
+          "saṃjñā",
+          "cetan",
+          "ānvitam"
+        ]
+      }
+    ],
+    "order": [
+      3,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      1,
+      2,
+      4,
+      5
+    ],
+    "lineEnds": [
+      3,
+      5
+    ]
+  },
+  {
+    "verse": 4,
+    "title": "Neutral feeling and a flowing stream",
+    "brief": "The continuum is compared with a current; neither neutrality nor continuity establishes an unchanging self.",
+    "words": [
+      {
+        "text": "upekṣā",
+        "english": "equanimity",
+        "note": "Upekṣā here specifies neutral feeling, rather than praising a cultivated meditative attainment.",
+        "alternative": "neutrality"
+      },
+      {
+        "text": "vedanā",
+        "english": "feeling",
+        "note": "Vedanā is the feeling tone of experience, not emotion in general."
+      },
+      {
+        "text": "tatrānivṛtāvyākṛtaṃ",
+        "english": "there, unobscured and indeterminate",
+        "note": "Tatra + anivṛta + avyākṛtam: the store consciousness is not obscured by afflictions and is not classified as wholesome or unwholesome.",
+        "parts": [
+          "tatr",
+          "ānivṛt",
+          "āvyākṛtaṃ"
+        ]
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca links the characterization.",
+        "functionWord": true
+      },
+      {
+        "text": "tat",
+        "english": "that",
+        "note": "Tat points to the store consciousness.",
+        "functionWord": true
+      },
+      {
+        "text": "tathā",
+        "english": "likewise",
+        "note": "Tathā extends the characterization to its associated factors.",
+        "functionWord": true
+      },
+      {
+        "text": "sparśādayas",
+        "english": "contact and the others",
+        "note": "Sparśa stands for the five factors named in verse 3."
+      },
+      {
+        "text": "tac",
+        "english": "it",
+        "note": "Tac is tat before ca."
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca connects the final description.",
+        "functionWord": true
+      },
+      {
+        "text": "vartate",
+        "english": "continues",
+        "note": "Vartate describes ongoing occurrence, not a fixed substance."
+      },
+      {
+        "text": "srotasaughavat",
+        "english": "like a torrent",
+        "note": "The comparison with a flow stresses causal continuity through change.",
+        "alternative": "like a river current",
+        "parts": [
+          "srotas",
+          "aughavat"
+        ]
+      }
+    ],
+    "order": [
+      2,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      1,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      4,
+      5,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      3,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      6,
+      7,
+      {
+        "ghost": "are so",
+        "kind": "interpretive"
+      },
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      9,
+      8,
+      10,
+      11
+    ],
+    "lineEnds": [
+      2,
+      5,
+      7,
+      11
+    ]
+  },
+  {
+    "verse": 5,
+    "title": "The turning away and mentation",
+    "brief": "The first transformation ceases at arhatship; the account shifts to mind that both depends upon it and takes it as object.",
+    "words": [
+      {
+        "text": "tasya",
+        "english": "of that",
+        "note": "Tasya refers back to the store consciousness; how its cessation is understood needs commentarial study.",
+        "morph": {
+          "case": "gen",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 2,
+          "type": "ownership",
+          "label": "Cessation OF"
+        },
+        "functionWord": true
+      },
+      {
+        "text": "vyāvṛttir",
+        "english": "cessation",
+        "note": "Vyāvṛtti names a turning away or cessation. It is not the same word as parāvṛtti in verse 29.",
+        "alternative": "turning away"
+      },
+      {
+        "text": "arhattve",
+        "english": "at arhatship",
+        "note": "The locative arhattve specifies the condition at which cessation occurs.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 2,
+          "type": "location",
+          "label": "Cessation AT"
+        }
+      },
+      {
+        "text": "tad",
+        "english": "that",
+        "note": "Tad is the object of āśritya: the preceding consciousness.",
+        "functionWord": true
+      },
+      {
+        "text": "āśritya",
+        "english": "depending on",
+        "note": "Āśritya is a dependent verbal form: “having relied on.”"
+      },
+      {
+        "text": "pravartate",
+        "english": "proceeds",
+        "note": "Pravartate echoes the operation described in verse 1."
+      },
+      {
+        "text": "tadālambaṃ",
+        "english": "with that as object",
+        "note": "Tad-ālambam makes the same consciousness its cognitive support or object.",
+        "parts": [
+          "tad",
+          "ālambaṃ"
+        ]
+      },
+      {
+        "text": "manonāma",
+        "english": "called mind",
+        "note": "Manonāma gives the name manas, distinct here from the sixfold object awareness.",
+        "parts": [
+          "mano",
+          "nāma"
+        ]
+      },
+      {
+        "text": "vijñānaṃ",
+        "english": "consciousness",
+        "note": "The second transformation is still called vijñāna."
+      },
+      {
+        "text": "mananātmakam",
+        "english": "consisting in mentation",
+        "note": "Mananātmakam describes its activity, not a metaphysical self despite the word ātman inside the compound.",
+        "parts": [
+          "manan",
+          "ātmakam"
+        ]
+      }
+    ],
+    "order": [
+      2,
+      1,
+      {
+        "ghost": "occurs",
+        "kind": "interpretive"
+      },
+      3,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      5,
+      4,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      9,
+      8,
+      6,
+      7,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      {
+        "ghost": "and",
+        "kind": "interpretive"
+      },
+      10
+    ],
+    "lineEnds": [
+      3,
+      6,
+      10
+    ]
+  },
+  {
+    "verse": 6,
+    "title": "Four afflictions of mind",
+    "brief": "The second transformation is obscured but ethically indeterminate and accompanied by four forms of self-fixation.",
+    "words": [
+      {
+        "text": "kleśaiś",
+        "english": "afflictions",
+        "note": "The instrumental plural marks what accompanies this mind.",
+        "morph": {
+          "case": "ins",
+          "number": "pl"
+        },
+        "relation": {
+          "target": 3,
+          "type": "action",
+          "label": "Accompanied WITH"
+        }
+      },
+      {
+        "text": "caturbhiḥ",
+        "english": "four",
+        "note": "Caturbhiḥ agrees with kleśaiḥ: four afflictions.",
+        "morph": {
+          "case": "ins",
+          "number": "pl"
+        }
+      },
+      {
+        "text": "sahitaṃ",
+        "english": "accompanied",
+        "note": "Sahitam means together with, describing association."
+      },
+      {
+        "text": "nivṛtāvyākṛtaiḥ",
+        "english": "obscured and indeterminate",
+        "note": "Nivṛta is the obscured reading printed here; avyākṛta means not assigned to wholesome or unwholesome classes. Contrast verse 4’s anivṛta.",
+        "parts": [
+          "nivṛt",
+          "āvyākṛtaiḥ"
+        ]
+      },
+      {
+        "text": "sadā",
+        "english": "always",
+        "note": "Sadā marks their constant association with this afflicted mind.",
+        "functionWord": true
+      },
+      {
+        "text": "ātmadṛṣṭyātmamohātmamānātmasnehasaṃjñitaiḥ",
+        "english": "called self-view, self-delusion, self-conceit and self-love",
+        "note": "Four terms repeat ātma: dṛṣṭi, moha, māna and sneha. These designate afflictions, not the text’s endorsement of a self.",
+        "parts": [
+          "ātma",
+          "dṛṣṭy",
+          "ātma",
+          "moh",
+          "ātma",
+          "mān",
+          "ātma",
+          "sneha",
+          "saṃjñitaiḥ"
+        ]
+      }
+    ],
+    "order": [
+      {
+        "ghost": "It",
+        "kind": "interpretive"
+      },
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      5,
+      3,
+      {
+        "ghost": "with",
+        "kind": "preposition_from_case"
+      },
+      2,
+      1,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      4,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      6
+    ],
+    "lineEnds": [
+      5,
+      6
+    ]
+  },
+  {
+    "verse": 7,
+    "title": "Where afflicted mind is absent",
+    "brief": "The account specifies the shared sphere of associated factors and three conditions in which the second transformation is absent.",
+    "words": [
+      {
+        "text": "yatrajas",
+        "english": "born in whichever sphere",
+        "note": "Yatrajaḥ compresses “born where”; the sphere must be understood from context."
+      },
+      {
+        "text": "tanmayair",
+        "english": "with those of that kind",
+        "note": "Tanmayaiḥ describes the associated factors as having the corresponding character or sphere."
+      },
+      {
+        "text": "anyaiḥ",
+        "english": "with other",
+        "note": "Anyaiḥ qualifies the further factors accompanying mind."
+      },
+      {
+        "text": "sparśādyaiś",
+        "english": "contact and the rest",
+        "note": "The instrumental forms continue the list of accompanying factors."
+      },
+      {
+        "text": "cārhato",
+        "english": "and for an arhat",
+        "note": "Ca + arhataḥ; the genitive identifies the person for whom this afflicted mind is absent."
+      },
+      {
+        "text": "na",
+        "english": "not",
+        "note": "Na negates its occurrence for an arhat.",
+        "functionWord": true
+      },
+      {
+        "text": "tat",
+        "english": "that",
+        "note": "Tat refers to the afflicted mentation, not to all awareness.",
+        "functionWord": true
+      },
+      {
+        "text": "na",
+        "english": "not",
+        "note": "The second negation concerns the attainment of cessation.",
+        "functionWord": true
+      },
+      {
+        "text": "nirodhasamāpattau",
+        "english": "in the attainment of cessation",
+        "note": "Nirodha-samāpatti is a technical meditative attainment.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 7,
+          "type": "location",
+          "label": "Absent IN"
+        }
+      },
+      {
+        "text": "mārge",
+        "english": "on the path",
+        "note": "Mārge gives the setting for the third absence.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        }
+      },
+      {
+        "text": "lokottare",
+        "english": "supramundane",
+        "note": "Lokottara qualifies the path as beyond ordinary worldly cognition."
+      },
+      {
+        "text": "na",
+        "english": "not",
+        "note": "The third negation concerns the supramundane path.",
+        "functionWord": true
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca joins the final exception.",
+        "functionWord": true
+      }
+    ],
+    "order": [
+      {
+        "ghost": "It is",
+        "kind": "interpretive"
+      },
+      1,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      {
+        "ghost": "associated",
+        "kind": "interpretive"
+      },
+      3,
+      4,
+      2,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      5,
+      7,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      6,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      8,
+      9,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      13,
+      12,
+      10,
+      11
+    ],
+    "lineEnds": [
+      4,
+      7,
+      9,
+      13
+    ]
+  },
+  {
+    "verse": 8,
+    "title": "Sixfold object awareness",
+    "brief": "The second transformation concludes and the third begins: sixfold object apprehension classified in three ethical ways.",
+    "words": [
+      {
+        "text": "dvitīyaḥ",
+        "english": "second",
+        "note": "Dvitīya identifies the transformation just described in verses 5–7."
+      },
+      {
+        "text": "pariṇāmo",
+        "english": "transformation",
+        "note": "The same term pariṇāma links all three accounts."
+      },
+      {
+        "text": "'yaṃ",
+        "english": "this",
+        "note": "Ayam resumes the preceding description; the apostrophe marks elision.",
+        "functionWord": true
+      },
+      {
+        "text": "tṛtīyaḥ",
+        "english": "third",
+        "note": "The third transformation is now introduced."
+      },
+      {
+        "text": "ṣaḍvidhasya",
+        "english": "of six kinds",
+        "note": "Ṣaḍvidhasya qualifies the object field as sixfold."
+      },
+      {
+        "text": "yā",
+        "english": "that which",
+        "note": "Yā introduces the apprehension identified by sā.",
+        "functionWord": true
+      },
+      {
+        "text": "viṣayasyopalabdhiḥ",
+        "english": "apprehension of an object",
+        "note": "Viṣayasya + upalabdhiḥ joins the object and its apprehension in the written surface.",
+        "alternative": "cognition of an object",
+        "parts": [
+          "viṣayasy",
+          "opalabdhiḥ"
+        ]
+      },
+      {
+        "text": "sā",
+        "english": "that",
+        "note": "Sā resumes the feminine upalabdhiḥ.",
+        "functionWord": true
+      },
+      {
+        "text": "kuśalākuśalādvayā",
+        "english": "wholesome, unwholesome, or neither",
+        "note": "Advayā here means neither of these two ethical classes, not the nonduality of subject and object discussed later.",
+        "parts": [
+          "kuśal",
+          "ākuśal",
+          "ādvayā"
+        ]
+      }
+    ],
+    "order": [
+      3,
+      {
+        "ghost": "is the",
+        "kind": "copula"
+      },
+      1,
+      2,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      {
+        "ghost": "the",
+        "kind": "article",
+        "layoutWith": 4
+      },
+      4,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      6,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      7,
+      5,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      8,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      9
+    ],
+    "lineEnds": [
+      3,
+      7,
+      9
+    ]
+  },
+  {
+    "verse": 9,
+    "title": "Associated mental factors",
+    "brief": "Sixfold apprehension is described by groups of mental factors and three kinds of feeling.",
+    "words": [
+      {
+        "text": "sarvatragair",
+        "english": "with universal",
+        "note": "Sarvatraga means going everywhere: factors accompanying each instance in the relevant class."
+      },
+      {
+        "text": "viniyataiḥ",
+        "english": "with object-specific",
+        "note": "Viniyata identifies factors whose occurrence depends on a particular object or circumstance.",
+        "alternative": "with determined"
+      },
+      {
+        "text": "kuśalaiś",
+        "english": "with wholesome",
+        "note": "Kuśala marks the wholesome class of mental factors."
+      },
+      {
+        "text": "caitasair",
+        "english": "mental factors",
+        "note": "Caitasa means belonging to mind; it should not be confused with a separate consciousness."
+      },
+      {
+        "text": "asau",
+        "english": "that",
+        "note": "Asau refers to the sixfold apprehension of verse 8.",
+        "functionWord": true
+      },
+      {
+        "text": "saṃprayuktā",
+        "english": "is associated",
+        "note": "Saṃprayuktā expresses conjunction; the feminine form follows upalabdhiḥ."
+      },
+      {
+        "text": "tathā",
+        "english": "also",
+        "note": "Tathā extends the association to the remaining classes.",
+        "functionWord": true
+      },
+      {
+        "text": "kleśair",
+        "english": "with afflictions",
+        "note": "Kleśa names the primary afflictions listed in verses 11–12."
+      },
+      {
+        "text": "upakleśais",
+        "english": "with subsidiary afflictions",
+        "note": "Upakleśa introduces the further afflictive factors enumerated next."
+      },
+      {
+        "text": "trivedanā",
+        "english": "with three feelings",
+        "note": "Trivedanā indicates three feeling tones, rather than three separate selves or minds."
+      }
+    ],
+    "order": [
+      5,
+      6,
+      1,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      2,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      3,
+      4,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      7,
+      8,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      9,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      10
+    ],
+    "lineEnds": [
+      3,
+      6,
+      10
+    ]
+  },
+  {
+    "verse": 10,
+    "title": "Universal, specific and wholesome factors",
+    "brief": "The list moves quickly between categories; “the first” refers back to verse 9, and the wholesome list continues into verse 11.",
+    "words": [
+      {
+        "text": "ādyāḥ",
+        "english": "the first",
+        "note": "Ādyāḥ refers to the universal factors in the preceding verse."
+      },
+      {
+        "text": "sparśādayaś",
+        "english": "contact and the rest",
+        "note": "Sparśādayaḥ recalls the five factors of verse 3; “are” is supplied for English."
+      },
+      {
+        "text": "chandādhimokṣasmṛtayaḥ",
+        "english": "intention, resolve and recollection",
+        "note": "Chanda, adhimokṣa and smṛti begin the object-specific list. These glosses are contextual, not dictionary quotations.",
+        "alternative": "desire to act, determination and mindfulness",
+        "parts": [
+          "chand",
+          "ādhimokṣa",
+          "smṛtayaḥ"
+        ]
+      },
+      {
+        "text": "saha",
+        "english": "with",
+        "note": "Saha coordinates the next pair.",
+        "functionWord": true
+      },
+      {
+        "text": "samādhidhībhyāṃ",
+        "english": "concentration and discernment",
+        "note": "Samādhi and dhī are joined in an instrumental dual, completing five object-specific factors.",
+        "morph": {
+          "case": "ins",
+          "number": "du"
+        }
+      },
+      {
+        "text": "niyatāḥ",
+        "english": "the specific ones",
+        "note": "Niyatāḥ closes the class begun with chanda."
+      },
+      {
+        "text": "śraddhātha",
+        "english": "then trust",
+        "note": "Śraddhā + atha opens the wholesome factors; trust is not necessarily unexamined belief.",
+        "alternative": "then confidence"
+      },
+      {
+        "text": "hrīr",
+        "english": "moral self-respect",
+        "note": "Hrī is reluctance to do what one oneself regards as wrong, distinct from the next term.",
+        "alternative": "conscientious shame"
+      },
+      {
+        "text": "apatrapā",
+        "english": "regard for others",
+        "note": "Apatrapā is moral reserve in relation to others; its contrast with hrī is a contextual study gloss.",
+        "alternative": "moral concern"
+      }
+    ],
+    "order": [
+      1,
+      {
+        "ghost": "are",
+        "kind": "copula"
+      },
+      2,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      3,
+      4,
+      5,
+      {
+        "ghost": "are",
+        "kind": "copula"
+      },
+      6,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      7,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      8,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      9
+    ],
+    "lineEnds": [
+      2,
+      6,
+      9
+    ]
+  },
+  {
+    "verse": 11,
+    "title": "Wholesome and primary afflictive factors",
+    "brief": "The wholesome list finishes before kleśāḥ introduces afflictions; the first three wholesome roots are compressed as a triad.",
+    "words": [
+      {
+        "text": "alobhādi",
+        "english": "beginning with non-greed",
+        "note": "Alobhādi abbreviates a list starting with alobha; the standard contextual expansion is non-greed, non-hatred and non-delusion."
+      },
+      {
+        "text": "trayaṃ",
+        "english": "the triad",
+        "note": "Trayam signals three items; the preceding abbreviation is not just one factor."
+      },
+      {
+        "text": "vīryaṃ",
+        "english": "energy",
+        "note": "Vīrya here is effort or energetic engagement.",
+        "alternative": "diligence"
+      },
+      {
+        "text": "praśrabdhiḥ",
+        "english": "pliancy",
+        "note": "Praśrabdhi describes ease or adaptability of body and mind, not mere passivity."
+      },
+      {
+        "text": "sāpramādikā",
+        "english": "with heedfulness",
+        "note": "Sāpramādikā is read as sa-apramādikā, with non-negligence; the long ā matters."
+      },
+      {
+        "text": "ahiṃsā",
+        "english": "non-harming",
+        "note": "Ahiṃsā explicitly negates harm. Contrast vihiṃsā in verse 13."
+      },
+      {
+        "text": "kuśalāḥ",
+        "english": "wholesome",
+        "note": "Kuśalāḥ closes the wholesome list; the verb is supplied in English."
+      },
+      {
+        "text": "kleśā",
+        "english": "afflictions",
+        "note": "Kleśāḥ begins the next class; the next verse continues it."
+      },
+      {
+        "text": "rāgapratighamūḍhayaḥ",
+        "english": "attachment, aversion and delusion",
+        "note": "Rāga, pratigha and mūḍhi name the first three primary afflictions.",
+        "alternative": "passion, resistance and confusion",
+        "parts": [
+          "rāga",
+          "pratigha",
+          "mūḍhayaḥ"
+        ]
+      }
+    ],
+    "order": [
+      2,
+      1,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      3,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      4,
+      5,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      6,
+      {
+        "ghost": "are",
+        "kind": "copula"
+      },
+      7,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      8,
+      {
+        "ghost": "are",
+        "kind": "copula"
+      },
+      9
+    ],
+    "lineEnds": [
+      3,
+      7,
+      9
+    ]
+  },
+  {
+    "verse": 12,
+    "title": "From primary to subsidiary afflictions",
+    "brief": "Conceit, views and doubt complete the primary afflictions; anger and resentment begin the subsidiary list.",
+    "words": [
+      {
+        "text": "mānadṛgvicikitsāś",
+        "english": "conceit, views and doubt",
+        "note": "Māna, dṛś and vicikitsā complete the list begun in verse 11. “Views” is contextually afflictive here.",
+        "parts": [
+          "māna",
+          "dṛg",
+          "vicikitsāś"
+        ]
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca closes the primary list.",
+        "functionWord": true
+      },
+      {
+        "text": "krodhopanahane",
+        "english": "anger and resentment",
+        "note": "The dual krodhopanahane names two factors. Lévi’s spelling is retained; modern editions may print krodhopanāhane.",
+        "parts": [
+          "krodh",
+          "opanahane"
+        ]
+      },
+      {
+        "text": "punaḥ",
+        "english": "then",
+        "note": "Punaḥ marks a further group rather than repetition of the same factor.",
+        "functionWord": true
+      },
+      {
+        "text": "mrakṣaḥ",
+        "english": "concealment",
+        "note": "Mrakṣa is taken as concealing or denying faults; the exact technical scope needs review."
+      },
+      {
+        "text": "pradāśa",
+        "english": "hostility",
+        "note": "Pradāśa is a harsh, contentious attitude, not a new act of physical violence.",
+        "alternative": "spite"
+      },
+      {
+        "text": "īrṣyātha",
+        "english": "then envy",
+        "note": "Īrṣyā + atha joins the next item and a transition word."
+      },
+      {
+        "text": "mātsaryaṃ",
+        "english": "stinginess",
+        "note": "Mātsarya concerns unwillingness to share or let others benefit.",
+        "alternative": "miserliness"
+      },
+      {
+        "text": "saha",
+        "english": "with",
+        "note": "Saha links the following item.",
+        "functionWord": true
+      },
+      {
+        "text": "māyayā",
+        "english": "deceit",
+        "note": "Māyā here names deceptive presentation; “illusion” alone would obscure its ethical function."
+      }
+    ],
+    "order": [
+      2,
+      1,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      4,
+      3,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      5,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      6,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      7,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      8,
+      9,
+      10
+    ],
+    "lineEnds": [
+      2,
+      4,
+      7,
+      10
+    ]
+  },
+  {
+    "verse": 13,
+    "title": "Further subsidiary afflictions",
+    "brief": "This normalized transcription removes a misleading printed avagraha before vihiṃsā: harmfulness and shamelessness are two afflictions, not non-harming and shame.",
+    "words": [
+      {
+        "text": "śāṭhyaṃ",
+        "english": "duplicity",
+        "note": "Śāṭhya denotes crookedness or dissimulation in conduct.",
+        "alternative": "dishonesty"
+      },
+      {
+        "text": "mado",
+        "english": "intoxicated pride",
+        "note": "Mada is self-intoxication or conceited elation, distinct from māna in verse 12."
+      },
+      {
+        "text": "vihiṃsāhrīr",
+        "english": "harmfulness and shamelessness",
+        "note": "Read vihiṃsā + ahrīḥ. The source transcription explicitly emends the print’s misleading avagraha; do not read avihiṃsā + hrīḥ.",
+        "parts": [
+          "vihiṃs",
+          "āhrīr"
+        ]
+      },
+      {
+        "text": "atrapā",
+        "english": "lack of moral concern",
+        "note": "Atrapā negates the concern named apatrapā in verse 10."
+      },
+      {
+        "text": "styānam",
+        "english": "sluggishness",
+        "note": "Styāna describes mental heaviness or inertia.",
+        "alternative": "torpor"
+      },
+      {
+        "text": "uddhavaḥ",
+        "english": "agitation",
+        "note": "Lévi prints uddhavaḥ, retained here; the modern comparison has uddhataḥ. The draft gloss needs philological review.",
+        "alternative": "restlessness"
+      },
+      {
+        "text": "āśraddhyam",
+        "english": "lack of trust",
+        "note": "Āśraddhya is the counterpart of śraddhā in verse 10."
+      },
+      {
+        "text": "atha",
+        "english": "then",
+        "note": "Atha continues the list.",
+        "functionWord": true
+      },
+      {
+        "text": "kausīdyaṃ",
+        "english": "laziness",
+        "note": "Kausīdya is reluctance to engage effort; the spelling is retained from this edition."
+      },
+      {
+        "text": "pramādo",
+        "english": "heedlessness",
+        "note": "Pramāda is negligence, contrasting with apramāda in verse 11."
+      },
+      {
+        "text": "muṣitā",
+        "english": "lost",
+        "note": "Muṣitā qualifies smṛtiḥ: recollection that has been lost or stolen away."
+      },
+      {
+        "text": "smṛtiḥ",
+        "english": "recollection",
+        "note": "Together muṣitā smṛtiḥ names failure of recollection, not an additional wholesome factor.",
+        "alternative": "mindfulness"
+      }
+    ],
+    "order": [
+      1,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      2,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      3,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      4,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      5,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      6,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      7,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      8,
+      9,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      10,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      11,
+      12
+    ],
+    "lineEnds": [
+      3,
+      6,
+      9,
+      12
+    ]
+  },
+  {
+    "verse": 14,
+    "title": "Distraction and variable factors",
+    "brief": "The final two pairs have a twofold status. The classification and technical English for vitarka/vicāra remain interpretive.",
+    "words": [
+      {
+        "text": "vikṣepo",
+        "english": "distraction",
+        "note": "Vikṣepa is scattering of attention."
+      },
+      {
+        "text": "'saṃprajanyaṃ",
+        "english": "lack of clear awareness",
+        "note": "Asaṃprajanya starts with a negating a, elided after the preceding o."
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca completes these subsidiary factors.",
+        "functionWord": true
+      },
+      {
+        "text": "kaukṛtyaṃ",
+        "english": "regret",
+        "note": "Kaukṛtya is concern over what was done or left undone; its ethical value can vary.",
+        "alternative": "remorse"
+      },
+      {
+        "text": "middham",
+        "english": "sleepiness",
+        "note": "Middha is drowsiness or sleep, distinguished from the specific absence of cognition in verse 16."
+      },
+      {
+        "text": "eva",
+        "english": "indeed",
+        "note": "Eva emphasizes the grouping.",
+        "functionWord": true
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca coordinates the list.",
+        "functionWord": true
+      },
+      {
+        "text": "vitarkaś",
+        "english": "initial examination",
+        "note": "Vitarka is rendered as an initial directing or examination of thought; this is a debated technical term.",
+        "alternative": "applied thought"
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca joins the pair.",
+        "functionWord": true
+      },
+      {
+        "text": "vicāraś",
+        "english": "sustained examination",
+        "note": "Vicāra is rendered as continuing examination; its relation to vitarka depends on the interpretive tradition.",
+        "alternative": "sustained thought"
+      },
+      {
+        "text": "cety",
+        "english": "and thus",
+        "note": "Ca + iti closes the enumeration."
+      },
+      {
+        "text": "upakleśā",
+        "english": "subsidiary afflictions",
+        "note": "The wording groups the preceding material; the final pairs require the qualification that follows."
+      },
+      {
+        "text": "dvaye",
+        "english": "the two pairs",
+        "note": "Dvaye points to regret/sleepiness and initial/sustained examination."
+      },
+      {
+        "text": "dvidhā",
+        "english": "in two ways",
+        "note": "Dvidhā marks their variable ethical status; it does not mean four extra afflictions."
+      }
+    ],
+    "order": [
+      1,
+      3,
+      2,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      4,
+      7,
+      5,
+      6,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      8,
+      9,
+      10,
+      11,
+      12,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      13,
+      {
+        "ghost": "are",
+        "kind": "copula"
+      },
+      14
+    ],
+    "lineEnds": [
+      3,
+      7,
+      12,
+      14
+    ]
+  },
+  {
+    "verse": 15,
+    "title": "Sense consciousnesses as waves",
+    "brief": "The five sensory consciousnesses arise according to conditions, singly or together, dependent upon root consciousness.",
+    "words": [
+      {
+        "text": "pañcānāṃ",
+        "english": "of the five",
+        "note": "Pañcānām qualifies vijñānānām later in the verse; Sanskrit can separate agreeing words.",
+        "morph": {
+          "case": "gen",
+          "number": "pl"
+        }
+      },
+      {
+        "text": "mūlavijñāne",
+        "english": "in root consciousness",
+        "note": "The locative mūlavijñāne identifies the supporting consciousness described earlier.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        }
+      },
+      {
+        "text": "yathāpratyayam",
+        "english": "according to conditions",
+        "note": "Yathāpratyayam makes occurrence conditional, not arbitrary."
+      },
+      {
+        "text": "udbhavaḥ",
+        "english": "arising",
+        "note": "Udbhava names the coming forth of the sensory consciousnesses."
+      },
+      {
+        "text": "vijñānānāṃ",
+        "english": "consciousnesses",
+        "note": "The genitive plural belongs with “of the five.”",
+        "morph": {
+          "case": "gen",
+          "number": "pl"
+        }
+      },
+      {
+        "text": "saha",
+        "english": "together",
+        "note": "Saha allows simultaneous arising.",
+        "functionWord": true
+      },
+      {
+        "text": "na",
+        "english": "not",
+        "note": "Na combines with vā to allow non-simultaneous occurrence.",
+        "functionWord": true
+      },
+      {
+        "text": "vā",
+        "english": "or",
+        "note": "Vā marks the alternative.",
+        "functionWord": true
+      },
+      {
+        "text": "taraṅgāṇāṃ",
+        "english": "of waves",
+        "note": "Taraṅgāṇām supplies the image for the arising of consciousnesses.",
+        "morph": {
+          "case": "gen",
+          "number": "pl"
+        }
+      },
+      {
+        "text": "yathā",
+        "english": "like",
+        "note": "Yathā introduces the comparison, not a claim that consciousness is literally water."
+      },
+      {
+        "text": "jale",
+        "english": "in water",
+        "note": "Jale is locative: where waves arise.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 9,
+          "type": "location",
+          "label": "Waves IN"
+        }
+      }
+    ],
+    "order": [
+      {
+        "ghost": "There is",
+        "kind": "copula"
+      },
+      4,
+      1,
+      5,
+      2,
+      3,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      6,
+      8,
+      7,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      10,
+      {
+        "ghost": "the arising",
+        "kind": "interpretive"
+      },
+      9,
+      11
+    ],
+    "lineEnds": [
+      5,
+      8,
+      11
+    ]
+  },
+  {
+    "verse": 16,
+    "title": "When mental consciousness does not arise",
+    "brief": "The exceptions concern non-cognitive states; the qualification acittaka must not be stretched to all sleep or all fainting.",
+    "words": [
+      {
+        "text": "manovijñānasaṃbhūtiḥ",
+        "english": "arising of mental consciousness",
+        "note": "Manovijñāna is mental cognition, distinguished from the five sensory consciousnesses of verse 15.",
+        "parts": [
+          "mano",
+          "vijñāna",
+          "saṃbhūtiḥ"
+        ]
+      },
+      {
+        "text": "sarvadāsaṃjñikād",
+        "english": "always, apart from the non-percipient state",
+        "note": "Sarvadā + asaṃjñikāt compresses “always” and the first exception; the ablative goes with ṛte.",
+        "parts": [
+          "sarvad",
+          "āsaṃjñikād"
+        ]
+      },
+      {
+        "text": "ṛte",
+        "english": "except",
+        "note": "Ṛte governs the exceptions, whose endings mark exclusion.",
+        "functionWord": true
+      },
+      {
+        "text": "samāpattidvayān",
+        "english": "the two attainments",
+        "note": "The dual in samāpattidvaya refers contextually to the non-percipient and cessation attainments; the names are not spelled out here.",
+        "parts": [
+          "samāpatti",
+          "dvayān"
+        ]
+      },
+      {
+        "text": "middhān",
+        "english": "sleep",
+        "note": "Middhāt appears as middhān before the following m through sound combination."
+      },
+      {
+        "text": "mūrcchanād",
+        "english": "fainting",
+        "note": "Mūrcchanāt is another state in the exclusion list."
+      },
+      {
+        "text": "apy",
+        "english": "also",
+        "note": "Api continues the qualification.",
+        "functionWord": true
+      },
+      {
+        "text": "acittakāt",
+        "english": "when without cognition",
+        "note": "Acittakāt limits the relevant states to those without active cognition; this draft does not generalize the exception to every sleep state."
+      }
+    ],
+    "order": [
+      {
+        "ghost": "There is",
+        "kind": "copula"
+      },
+      1,
+      2,
+      3,
+      4,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      5,
+      {
+        "ghost": "and",
+        "kind": "interpretive"
+      },
+      6,
+      7,
+      8
+    ],
+    "lineEnds": [
+      2,
+      4,
+      8
+    ]
+  },
+  {
+    "verse": 17,
+    "title": "Constructing and what is constructed",
+    "brief": "The verse denies the constructed object as constructed. It should not be reduced without argument to a slogan denying every kind of reality.",
+    "words": [
+      {
+        "text": "vijñānapariṇāmo",
+        "english": "transformation of consciousness",
+        "note": "This takes up pariṇāma from verse 1 after completing the threefold account.",
+        "parts": [
+          "vijñāna",
+          "pariṇāmo"
+        ]
+      },
+      {
+        "text": "'yaṃ",
+        "english": "this",
+        "note": "Ayam identifies the transformation just described.",
+        "functionWord": true
+      },
+      {
+        "text": "vikalpo",
+        "english": "construction",
+        "note": "Vikalpa is discriminative construction; “imagination” alone can misleadingly suggest deliberate fantasy.",
+        "alternative": "act of discrimination",
+        "alternativeRipple": {
+          "label": "is an",
+          "ghostId": "v17g1"
+        }
+      },
+      {
+        "text": "yad",
+        "english": "what",
+        "note": "Yad introduces the object of construction.",
+        "functionWord": true
+      },
+      {
+        "text": "vikalpyate",
+        "english": "is constructed",
+        "note": "The passive vikalpyate distinguishes what is constructed from the constructing activity."
+      },
+      {
+        "text": "tena",
+        "english": "by it",
+        "note": "Tena refers to vikalpa as the agent or means of construction.",
+        "morph": {
+          "case": "ins",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 5,
+          "type": "action",
+          "label": "Constructed BY"
+        },
+        "functionWord": true
+      },
+      {
+        "text": "tan",
+        "english": "that",
+        "note": "Tan is tat before nāsti and resumes the constructed object.",
+        "functionWord": true
+      },
+      {
+        "text": "nāsti",
+        "english": "does not exist",
+        "note": "Na + asti denies that object in the asserted mode; the scope is philosophically contested."
+      },
+      {
+        "text": "tenedaṃ",
+        "english": "therefore this",
+        "note": "Tena + idam moves from the denial to the conclusion."
+      },
+      {
+        "text": "sarvaṃ",
+        "english": "all",
+        "note": "Sarvam scopes the conclusion across the field being discussed."
+      },
+      {
+        "text": "vijñaptimātrakam",
+        "english": "representation only",
+        "note": "Vijñaptimātrakam has short a after ñ, unlike a typo in the modern digital comparison. “Only” is the force of mātra.",
+        "alternative": "presentation only",
+        "parts": [
+          "vijñapti",
+          "mātrakam"
+        ]
+      }
+    ],
+    "order": [
+      2,
+      1,
+      {
+        "ghost": "is a",
+        "kind": "copula"
+      },
+      3,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      4,
+      5,
+      6,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      7,
+      8,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      9,
+      10,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      11
+    ],
+    "lineEnds": [
+      3,
+      6,
+      8,
+      11
+    ]
+  },
+  {
+    "verse": 18,
+    "title": "Seeds and reciprocal conditioning",
+    "brief": "All-seeded consciousness undergoes transformations through reciprocal influence, producing particular constructions.",
+    "words": [
+      {
+        "text": "sarvabījaṃ",
+        "english": "all-seeded",
+        "note": "Sarvabījam recalls the store consciousness in verse 2."
+      },
+      {
+        "text": "hi",
+        "english": "indeed",
+        "note": "Hi supports the causal explanation.",
+        "functionWord": true
+      },
+      {
+        "text": "vijñānaṃ",
+        "english": "consciousness",
+        "note": "Vijñāna is the subject of yāti."
+      },
+      {
+        "text": "pariṇāmas",
+        "english": "transformation",
+        "note": "The printed pariṇāmas is retained; its syntax with yāti merits philological review rather than silent normalization."
+      },
+      {
+        "text": "tathā",
+        "english": "in this way",
+        "note": "The repeated tathā distributes over different transformations.",
+        "functionWord": true
+      },
+      {
+        "text": "tathā",
+        "english": "and that way",
+        "note": "The repetition means various corresponding ways, not a redundant phrase to discard.",
+        "functionWord": true
+      },
+      {
+        "text": "yāty",
+        "english": "undergoes",
+        "note": "Yāti literally goes; here the draft takes it with transformation."
+      },
+      {
+        "text": "anyonyavaśād",
+        "english": "through mutual influence",
+        "note": "Anyonyavaśāt points to reciprocal dependence or control; the verse does not fully spell out every causal direction.",
+        "parts": [
+          "anyonya",
+          "vaśād"
+        ]
+      },
+      {
+        "text": "yena",
+        "english": "by which",
+        "note": "Yena links the transformation to the arising construction.",
+        "functionWord": true
+      },
+      {
+        "text": "vikalpaḥ",
+        "english": "construction",
+        "note": "Vikalpa repeats the key term from verse 17."
+      },
+      {
+        "text": "sa",
+        "english": "this",
+        "note": "Sa repeated with sa has a distributive force.",
+        "functionWord": true
+      },
+      {
+        "text": "sa",
+        "english": "and that",
+        "note": "The second sa contributes “each particular,” rather than a second entity.",
+        "functionWord": true
+      },
+      {
+        "text": "jāyate",
+        "english": "arises",
+        "note": "Jāyate describes coming into being under conditions."
+      }
+    ],
+    "order": [
+      1,
+      3,
+      2,
+      7,
+      4,
+      5,
+      6,
+      8,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      9,
+      11,
+      12,
+      10,
+      13
+    ],
+    "lineEnds": [
+      3,
+      7,
+      8,
+      13
+    ]
+  },
+  {
+    "verse": 19,
+    "title": "Impressions and renewed maturation",
+    "brief": "Impressions of action and of twofold grasping bring about a further maturation when the previous one is exhausted.",
+    "words": [
+      {
+        "text": "karmaṇo",
+        "english": "of action",
+        "note": "Karmaṇaḥ is genitive: whose impressions are involved.",
+        "morph": {
+          "case": "gen",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 2,
+          "type": "ownership",
+          "label": "Impressions OF"
+        }
+      },
+      {
+        "text": "vāsanā",
+        "english": "impressions",
+        "note": "Vāsanā names lasting conditioning or perfuming, not a consciously retained memory alone.",
+        "alternative": "latent impressions"
+      },
+      {
+        "text": "grāhadvayavāsanayā",
+        "english": "with impressions of twofold grasping",
+        "note": "Grāhadvaya is interpreted as the grasper/grasped duality; this is a contextual reading, not two literal hands.",
+        "parts": [
+          "grāha",
+          "dvaya",
+          "vāsanayā"
+        ]
+      },
+      {
+        "text": "saha",
+        "english": "together",
+        "note": "Saha marks the joint contribution of the two kinds of conditioning.",
+        "functionWord": true
+      },
+      {
+        "text": "kṣīṇe",
+        "english": "exhausted",
+        "note": "Kṣīṇe belongs with pūrvavipāke in a locative absolute: when the earlier maturation is spent.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        }
+      },
+      {
+        "text": "pūrvavipāke",
+        "english": "the previous maturation",
+        "note": "Pūrva points to the preceding causal result.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        }
+      },
+      {
+        "text": "'nyaṃ",
+        "english": "another",
+        "note": "Anyam qualifies the next maturation; initial a is elided after e."
+      },
+      {
+        "text": "vipākaṃ",
+        "english": "maturation",
+        "note": "Vipākam is the object of janayanti."
+      },
+      {
+        "text": "janayanti",
+        "english": "generate",
+        "note": "The plural verb fits the impressions as causal factors."
+      },
+      {
+        "text": "tat",
+        "english": "that",
+        "note": "Tat connects the resulting maturation with the consciousness under discussion; the precise construction deserves review.",
+        "functionWord": true
+      }
+    ],
+    "order": [
+      2,
+      1,
+      4,
+      3,
+      9,
+      7,
+      8,
+      {
+        "ghost": "of",
+        "kind": "interpretive"
+      },
+      10,
+      {
+        "ghost": "consciousness",
+        "kind": "interpretive"
+      },
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      6,
+      {
+        "ghost": "having become",
+        "kind": "auxiliary"
+      },
+      5
+    ],
+    "lineEnds": [
+      2,
+      4,
+      6,
+      10
+    ]
+  },
+  {
+    "verse": 20,
+    "title": "The imagined nature",
+    "brief": "The imagined nature is whatever object is fashioned by a particular construction; its existence as thus imagined is denied.",
+    "words": [
+      {
+        "text": "yena",
+        "english": "by whichever",
+        "note": "The doubled yena distributes over any particular construction.",
+        "functionWord": true
+      },
+      {
+        "text": "yena",
+        "english": "particular",
+        "note": "The repetition belongs with the first yena; this gloss renders its distributive force.",
+        "functionWord": true
+      },
+      {
+        "text": "vikalpena",
+        "english": "construction",
+        "note": "Vikalpena is instrumental, identifying the constructing activity."
+      },
+      {
+        "text": "yad",
+        "english": "whatever",
+        "note": "Yad repeated picks out any object.",
+        "functionWord": true
+      },
+      {
+        "text": "yad",
+        "english": "particular",
+        "note": "The second yad continues the distributive pattern.",
+        "functionWord": true
+      },
+      {
+        "text": "vastu",
+        "english": "object",
+        "note": "Vastu is what is taken as an object or thing, without deciding its final ontological status."
+      },
+      {
+        "text": "vikalpyate",
+        "english": "is constructed",
+        "note": "The passive repeats the structure in verse 17."
+      },
+      {
+        "text": "parikalpita",
+        "english": "imagined",
+        "note": "Parikalpita names the first of the three natures, often rendered imagined or fabricated.",
+        "alternative": "fabricated"
+      },
+      {
+        "text": "evāsau",
+        "english": "just that",
+        "note": "Eva + asau identifies the imagined object as this nature."
+      },
+      {
+        "text": "svabhāvo",
+        "english": "nature",
+        "note": "Svabhāva is a technical term here; “nature” must not silently imply an independent essence."
+      },
+      {
+        "text": "na",
+        "english": "not",
+        "note": "Na negates the following verb.",
+        "functionWord": true
+      },
+      {
+        "text": "sa",
+        "english": "that",
+        "note": "Sa refers to the imagined nature as such.",
+        "functionWord": true
+      },
+      {
+        "text": "vidyate",
+        "english": "found",
+        "note": "Vidyate means exists or is present; “is found” keeps the link to how the object is posited.",
+        "alternative": "existent"
+      }
+    ],
+    "order": [
+      4,
+      5,
+      6,
+      7,
+      1,
+      2,
+      3,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      9,
+      {
+        "ghost": "is the",
+        "kind": "copula"
+      },
+      8,
+      10,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      12,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      11,
+      {
+        "ghost": "to be",
+        "kind": "auxiliary"
+      },
+      13
+    ],
+    "lineEnds": [
+      3,
+      7,
+      10,
+      13
+    ]
+  },
+  {
+    "verse": 21,
+    "title": "Dependent and perfected natures",
+    "brief": "Construction arises dependently; the perfected is the dependent’s enduring absence of the previously described imagined nature.",
+    "words": [
+      {
+        "text": "paratantrasvabhāvas",
+        "english": "the dependent nature",
+        "note": "Paratantra means dependent on another; its dependence is explained by conditions.",
+        "parts": [
+          "paratantra",
+          "svabhāvas"
+        ]
+      },
+      {
+        "text": "tu",
+        "english": "but",
+        "note": "Tu marks the contrast with the imagined nature.",
+        "functionWord": true
+      },
+      {
+        "text": "vikalpaḥ",
+        "english": "construction",
+        "note": "Vikalpa is here identified under its dependent aspect."
+      },
+      {
+        "text": "pratyayodbhavaḥ",
+        "english": "arisen from conditions",
+        "note": "Pratyayodbhava specifies causal dependence; it is not an unconditioned absolute.",
+        "parts": [
+          "pratyay",
+          "odbhavaḥ"
+        ]
+      },
+      {
+        "text": "niṣpannas",
+        "english": "the perfected",
+        "note": "Niṣpanna abbreviates the perfected or fully accomplished nature.",
+        "alternative": "the accomplished"
+      },
+      {
+        "text": "tasya",
+        "english": "in that",
+        "note": "Tasya refers to the dependent nature. The genitive is rendered “in that” to express the dependent nature’s absence of the imagined, not the absence of the dependent itself.",
+        "morph": {
+          "case": "gen",
+          "number": "sg"
+        },
+        "functionWord": true
+      },
+      {
+        "text": "pūrveṇa",
+        "english": "of the earlier",
+        "note": "Pūrveṇa points to the imagined nature of verse 20, with rahitatā indicating absence of it."
+      },
+      {
+        "text": "sadā",
+        "english": "always",
+        "note": "Sadā qualifies the absence rather than a temporal event of destroying something real.",
+        "functionWord": true
+      },
+      {
+        "text": "rahitatā",
+        "english": "absence",
+        "note": "Rahitatā means being devoid of; it does not say that all dependent functioning disappears."
+      },
+      {
+        "text": "tu",
+        "english": "but",
+        "note": "Tu distinguishes the final characterization.",
+        "functionWord": true
+      },
+      {
+        "text": "yā",
+        "english": "which",
+        "note": "Yā relates the absence to the perfected nature.",
+        "functionWord": true
+      }
+    ],
+    "order": [
+      2,
+      1,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      3,
+      4,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      10,
+      5,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      {
+        "ghost": "that",
+        "kind": "interpretive"
+      },
+      11,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      8,
+      {
+        "ghost": "the",
+        "kind": "article"
+      },
+      9,
+      7,
+      6
+    ],
+    "lineEnds": [
+      4,
+      6,
+      11
+    ]
+  },
+  {
+    "verse": 22,
+    "title": "Neither different nor identical",
+    "brief": "The perfected and dependent are not separate things or simply identical. The final pronoun relation is a study interpretation pending specialist review.",
+    "words": [
+      {
+        "text": "ata",
+        "english": "for this reason",
+        "note": "Ataḥ draws an inference from the relation in verse 21.",
+        "functionWord": true
+      },
+      {
+        "text": "eva",
+        "english": "just",
+        "note": "Eva emphasizes this inference.",
+        "functionWord": true
+      },
+      {
+        "text": "sa",
+        "english": "it",
+        "note": "Sa is taken as the perfected nature.",
+        "functionWord": true
+      },
+      {
+        "text": "naivānyo",
+        "english": "not different",
+        "note": "Na + eva + anyaḥ rejects complete difference."
+      },
+      {
+        "text": "nānanyaḥ",
+        "english": "nor non-different",
+        "note": "Na + ananyaḥ rejects uncomplicated identity as well."
+      },
+      {
+        "text": "paratantrataḥ",
+        "english": "from the dependent",
+        "note": "Paratantrataḥ uses an ablative expression to name what it is compared with.",
+        "morph": {
+          "case": "abl"
+        }
+      },
+      {
+        "text": "anityatādivad",
+        "english": "like impermanence and so forth",
+        "note": "The analogy suggests a property and what has that property, without establishing a separate substance.",
+        "parts": [
+          "anityat",
+          "ādivad"
+        ]
+      },
+      {
+        "text": "vācyo",
+        "english": "to be stated",
+        "note": "Vācya marks the prescribed formulation."
+      },
+      {
+        "text": "nādṛṣṭe",
+        "english": "not before the seeing of",
+        "note": "Na + adṛṣṭe belongs to a locative absolute: while this has not been seen."
+      },
+      {
+        "text": "'smin",
+        "english": "this",
+        "note": "Asmin is read as the perfected nature; this identification is interpretive.",
+        "functionWord": true
+      },
+      {
+        "text": "sa",
+        "english": "that",
+        "note": "Sa is read as the dependent nature in the concluding clause.",
+        "functionWord": true
+      },
+      {
+        "text": "dṛśyate",
+        "english": "seen",
+        "note": "Dṛśyate is passive: becomes seen or discerned."
+      }
+    ],
+    "order": [
+      1,
+      2,
+      3,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      8,
+      {
+        "ghost": "as",
+        "kind": "interpretive"
+      },
+      4,
+      5,
+      6,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      7,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      11,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      12,
+      9,
+      10
+    ],
+    "lineEnds": [
+      3,
+      6,
+      8,
+      12
+    ]
+  },
+  {
+    "verse": 23,
+    "title": "Three kinds of absence of own-nature",
+    "brief": "The teaching that all phenomena lack own-nature is made with three distinct senses in view.",
+    "words": [
+      {
+        "text": "trividhasya",
+        "english": "of the threefold",
+        "note": "Trividhasya qualifies the set of natures, not three unrelated substances.",
+        "morph": {
+          "case": "gen",
+          "number": "sg"
+        }
+      },
+      {
+        "text": "svabhāvasya",
+        "english": "nature",
+        "note": "Svabhāvasya is the genitive corresponding to the three natures just explained.",
+        "morph": {
+          "case": "gen",
+          "number": "sg"
+        }
+      },
+      {
+        "text": "trividhāṃ",
+        "english": "threefold",
+        "note": "Trividhām qualifies absence of own-nature."
+      },
+      {
+        "text": "niḥsvabhāvatām",
+        "english": "absence of own-nature",
+        "note": "Niḥsvabhāvatā negates independent or intrinsic nature; its sense must be distinguished for each case.",
+        "parts": [
+          "niḥ",
+          "svabhāvatām"
+        ]
+      },
+      {
+        "text": "sandhāya",
+        "english": "with reference to",
+        "note": "Sandhāya means having in view or intending, explaining why one teaching has multiple senses.",
+        "alternative": "with in view"
+      },
+      {
+        "text": "sarvadharmāṇāṃ",
+        "english": "of all phenomena",
+        "note": "Sarvadharmāṇām gives the scope of the teaching.",
+        "morph": {
+          "case": "gen",
+          "number": "pl"
+        }
+      },
+      {
+        "text": "deśitā",
+        "english": "has been taught",
+        "note": "Deśitā is a past passive participle; the teacher is not named in this verse."
+      },
+      {
+        "text": "niḥsvabhāvatā",
+        "english": "absence of own-nature",
+        "note": "The repeated term states the general teaching whose differentiated intention is being explained.",
+        "parts": [
+          "niḥ",
+          "svabhāvatā"
+        ]
+      }
+    ],
+    "order": [
+      5,
+      3,
+      4,
+      1,
+      2,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      {
+        "ghost": "the",
+        "kind": "article",
+        "layoutWith": 8
+      },
+      8,
+      6,
+      7
+    ],
+    "lineEnds": [
+      2,
+      5,
+      8
+    ]
+  },
+  {
+    "verse": 24,
+    "title": "Character and independent arising",
+    "brief": "The first nature lacks own-nature by its supposed character; the next does not arise through itself. The compact wording should not erase this distinction.",
+    "words": [
+      {
+        "text": "prathamo",
+        "english": "the first",
+        "note": "Prathama refers to the imagined nature."
+      },
+      {
+        "text": "lakṣaṇenaiva",
+        "english": "by its very character",
+        "note": "Lakṣaṇena + eva explains the sense in which the first lacks own-nature.",
+        "parts": [
+          "lakṣaṇen",
+          "aiva"
+        ]
+      },
+      {
+        "text": "niḥsvabhāvo",
+        "english": "lacks own-nature",
+        "note": "Niḥsvabhāva predicates the absence, rather than naming another hidden essence."
+      },
+      {
+        "text": "'paraḥ",
+        "english": "the next",
+        "note": "Apara refers to the dependent nature, the second in the series."
+      },
+      {
+        "text": "punaḥ",
+        "english": "then",
+        "note": "Punaḥ marks a new sense of the teaching.",
+        "functionWord": true
+      },
+      {
+        "text": "na",
+        "english": "not",
+        "note": "Na denies independent arising.",
+        "functionWord": true
+      },
+      {
+        "text": "svayaṃbhāva",
+        "english": "self-arising",
+        "note": "Svayaṃbhāva is being or arising by itself; the dependent depends on conditions."
+      },
+      {
+        "text": "etasyety",
+        "english": "because of this",
+        "note": "Etasya + iti marks the reasoning about the second nature; the compressed syntax remains interpretive."
+      },
+      {
+        "text": "aparā",
+        "english": "another",
+        "note": "Aparā distinguishes this absence from the first kind."
+      },
+      {
+        "text": "niḥsvabhāvatā",
+        "english": "absence of own-nature",
+        "note": "The same phrase must be read with the distinct reason just given.",
+        "parts": [
+          "niḥ",
+          "svabhāvatā"
+        ]
+      }
+    ],
+    "order": [
+      1,
+      3,
+      2,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      5,
+      4,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      6,
+      7,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      8,
+      {
+        "ghost": "there is",
+        "kind": "copula"
+      },
+      9,
+      10
+    ],
+    "lineEnds": [
+      3,
+      7,
+      10
+    ]
+  },
+  {
+    "verse": 25,
+    "title": "Suchness and representation only",
+    "brief": "The ultimate meaning and suchness are linked with representation-only; “always so” describes suchness, not an eternal individual consciousness.",
+    "words": [
+      {
+        "text": "dharmāṇāṃ",
+        "english": "of phenomena",
+        "note": "Dharmāṇām qualifies the ultimate or highest sense.",
+        "morph": {
+          "case": "gen",
+          "number": "pl"
+        }
+      },
+      {
+        "text": "paramārthaś",
+        "english": "the ultimate",
+        "note": "Paramārtha may mean ultimate reality or highest meaning; the draft does not settle the whole doctrinal debate.",
+        "alternative": "the highest meaning"
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca continues the account of absence of own-nature.",
+        "functionWord": true
+      },
+      {
+        "text": "sa",
+        "english": "that",
+        "note": "Sa points back to the nature under discussion.",
+        "functionWord": true
+      },
+      {
+        "text": "yatas",
+        "english": "because",
+        "note": "Yataḥ introduces its identification as suchness.",
+        "functionWord": true
+      },
+      {
+        "text": "tathatāpi",
+        "english": "also suchness",
+        "note": "Tathatā + api names being just so, rather than a new object added to experience."
+      },
+      {
+        "text": "saḥ",
+        "english": "it",
+        "note": "Saḥ resumes the same referent.",
+        "functionWord": true
+      },
+      {
+        "text": "sarvakālaṃ",
+        "english": "at all times",
+        "note": "Sarvakālam qualifies being thus."
+      },
+      {
+        "text": "tathābhāvāt",
+        "english": "because of being thus",
+        "note": "Tathābhāvāt is ablative and supplies the reason for the name tathatā."
+      },
+      {
+        "text": "saiva",
+        "english": "that very",
+        "note": "Sā + eva emphasizes the identification."
+      },
+      {
+        "text": "vijñaptimātratā",
+        "english": "representation-only",
+        "note": "Vijñaptimātratā is the abstract noun corresponding to vijñaptimātra in verse 17.",
+        "alternative": "presentation-only",
+        "parts": [
+          "vijñapti",
+          "mātratā"
+        ]
+      }
+    ],
+    "order": [
+      3,
+      4,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      2,
+      1,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      5,
+      7,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      6,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      9,
+      8,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      10,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      11
+    ],
+    "lineEnds": [
+      4,
+      7,
+      9,
+      11
+    ]
+  },
+  {
+    "verse": 26,
+    "title": "The persistence of twofold grasping",
+    "brief": "The verse turns to practice: merely discussing representation-only does not remove the latent tendency to subject/object grasping.",
+    "words": [
+      {
+        "text": "yāvad",
+        "english": "as long as",
+        "note": "Yāvat pairs with tāvat to frame the condition and its continuing consequence.",
+        "functionWord": true
+      },
+      {
+        "text": "vijñaptimātratve",
+        "english": "in representation-only",
+        "note": "The locative ending names what consciousness has yet to become established in.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        }
+      },
+      {
+        "text": "vijñānaṃ",
+        "english": "consciousness",
+        "note": "Vijñānam is the subject; the printed wording is retained."
+      },
+      {
+        "text": "nāvatiṣṭhati",
+        "english": "does not become established",
+        "note": "Lévi prints nāvatiṣṭhati, retained here. A familiar modern reading is nāvatiṣṭhate; this draft does not silently substitute it."
+      },
+      {
+        "text": "grāhadvayasyānuśayas",
+        "english": "the latent tendency of twofold grasping",
+        "note": "Grāhadvayasya + anuśaya names the underlying tendency toward grasper and grasped, not only an explicit belief.",
+        "parts": [
+          "grāha",
+          "dvayasy",
+          "ānuśayas"
+        ]
+      },
+      {
+        "text": "tāvan",
+        "english": "so long",
+        "note": "Tāvat closes the temporal correlation begun by yāvat.",
+        "functionWord": true
+      },
+      {
+        "text": "na",
+        "english": "not",
+        "note": "Na negates the cessation of the tendency.",
+        "functionWord": true
+      },
+      {
+        "text": "vinivartate",
+        "english": "cease",
+        "note": "Vinivartate means turns back or comes to an end."
+      }
+    ],
+    "order": [
+      1,
+      3,
+      4,
+      2,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      6,
+      5,
+      {
+        "ghost": "does",
+        "kind": "auxiliary"
+      },
+      7,
+      8
+    ],
+    "lineEnds": [
+      4,
+      8
+    ]
+  },
+  {
+    "verse": 27,
+    "title": "The trap of making it an object",
+    "brief": "Holding up “representation only” as something graspable fails the very condition of establishment in it.",
+    "words": [
+      {
+        "text": "vijñaptimātram",
+        "english": "representation only",
+        "note": "Vijñaptimātram is the content of a thought being examined here.",
+        "parts": [
+          "vijñapti",
+          "mātram"
+        ]
+      },
+      {
+        "text": "evedam",
+        "english": "just this",
+        "note": "Eva + idam completes the quoted claim, “this is just representation.”"
+      },
+      {
+        "text": "ity",
+        "english": "thus",
+        "note": "Iti closes the quotation; it is not an extra object in the claim.",
+        "functionWord": true
+      },
+      {
+        "text": "api",
+        "english": "even",
+        "note": "Api shows that even this apparently correct formulation can remain reifying.",
+        "functionWord": true
+      },
+      {
+        "text": "hy",
+        "english": "indeed",
+        "note": "Hi introduces the reason.",
+        "functionWord": true
+      },
+      {
+        "text": "upalambhataḥ",
+        "english": "because of apprehension",
+        "note": "Upalambhataḥ identifies the problem as taking hold of something, not the bare use of words."
+      },
+      {
+        "text": "sthāpayann",
+        "english": "setting up",
+        "note": "Sthāpayan is a present participle: while placing or setting something before oneself."
+      },
+      {
+        "text": "agrataḥ",
+        "english": "before oneself",
+        "note": "Agrataḥ literally means in front; here it describes objectification."
+      },
+      {
+        "text": "kiṃcit",
+        "english": "something",
+        "note": "Kiṃcit leaves the object unspecified, including representation-only itself."
+      },
+      {
+        "text": "tanmātre",
+        "english": "in that alone",
+        "note": "Tanmātre refers to representation-only without installing a separate grasped object."
+      },
+      {
+        "text": "nāvatiṣṭhate",
+        "english": "does not abide",
+        "note": "Nāvatiṣṭhate denies successful establishment in the condition just asserted."
+      }
+    ],
+    "order": [
+      {
+        "ghost": "“",
+        "kind": "punctuation"
+      },
+      2,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      1,
+      {
+        "ghost": "”",
+        "kind": "punctuation"
+      },
+      3,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      4,
+      7,
+      9,
+      8,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      {
+        "ghost": "one",
+        "kind": "interpretive"
+      },
+      11,
+      10,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      5,
+      6
+    ],
+    "lineEnds": [
+      3,
+      6,
+      9,
+      11
+    ]
+  },
+  {
+    "verse": 28,
+    "title": "No grasped object, no grasping",
+    "brief": "Retain Lévi’s distinct wording: yadālambanaṃ vijñānaṃ and vijñānamātratve. It is not silently harmonized with the modern vijñaptimātratve reading.",
+    "words": [
+      {
+        "text": "yadālambanaṃ",
+        "english": "when an object-support",
+        "note": "Yadā + ālambanam. Lévi has this joined wording, without the modern inserted tu and with vijñānam in the next word.",
+        "parts": [
+          "yad",
+          "ālambanaṃ"
+        ]
+      },
+      {
+        "text": "vijñānaṃ",
+        "english": "consciousness",
+        "note": "Vijñānam is retained from Lévi; some modern texts read jñānam here."
+      },
+      {
+        "text": "naivopalabhate",
+        "english": "does not apprehend at all",
+        "note": "Na + eva + upalabhate negates taking hold of an object-support.",
+        "parts": [
+          "naiv",
+          "opalabhate"
+        ]
+      },
+      {
+        "text": "tadā",
+        "english": "then",
+        "note": "Tadā pairs with yadā at the start.",
+        "functionWord": true
+      },
+      {
+        "text": "sthitaṃ",
+        "english": "established",
+        "note": "Sthitam states the resulting condition; it is not an instruction to manufacture a new object."
+      },
+      {
+        "text": "vijñānamātratve",
+        "english": "in consciousness-only",
+        "note": "Lévi prints vijñānamātratve here; this differs from the familiar vijñaptimātratve. The distinction remains visible in the English.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        }
+      },
+      {
+        "text": "grāhyābhāve",
+        "english": "in the absence of the grasped",
+        "note": "Grāhya-abhāve is a locative expression; the scan supports grāhyābhāve, not the duplicated bhā in the digital comparison.",
+        "morph": {
+          "case": "loc",
+          "number": "sg"
+        }
+      },
+      {
+        "text": "tadagrahāt",
+        "english": "because it is not grasped",
+        "note": "Tad-agrahāt states the reason. This draft reads the absence of grasping in correlation with the absence of a grasped object; pronoun scope needs review."
+      }
+    ],
+    "order": [
+      1,
+      2,
+      3,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      4,
+      {
+        "ghost": "it",
+        "kind": "interpretive"
+      },
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      5,
+      6,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      7,
+      8
+    ],
+    "lineEnds": [
+      3,
+      6,
+      8
+    ]
+  },
+  {
+    "verse": 29,
+    "title": "Supramundane knowledge and transformation of basis",
+    "brief": "Non-apprehension is associated with supramundane knowledge and transformation of the basis through abandoning a twofold burden.",
+    "words": [
+      {
+        "text": "acitto",
+        "english": "without mind",
+        "note": "Acitta is a technical negation, not necessarily unconscious stupor. Its relation to the following knowledge requires care."
+      },
+      {
+        "text": "'nupalambho",
+        "english": "non-apprehension",
+        "note": "Anupalambha retains bh as visible in the scan; the digital comparison’s missing consonant is not followed."
+      },
+      {
+        "text": "'sau",
+        "english": "that",
+        "note": "Asau points to the condition described in verse 28.",
+        "functionWord": true
+      },
+      {
+        "text": "jñānaṃ",
+        "english": "knowledge",
+        "note": "Jñāna appears here, distinct in wording from vijñāna in the previous verse."
+      },
+      {
+        "text": "lokottaraṃ",
+        "english": "supramundane",
+        "note": "Lokottara characterizes the knowledge as beyond ordinary worldly cognition."
+      },
+      {
+        "text": "ca",
+        "english": "and",
+        "note": "Ca coordinates the characterization.",
+        "functionWord": true
+      },
+      {
+        "text": "tat",
+        "english": "that",
+        "note": "Tat resumes the knowledge or condition just described.",
+        "functionWord": true
+      },
+      {
+        "text": "āśrayasya",
+        "english": "of the basis",
+        "note": "Āśrayasya is genitive: the basis whose transformation is described.",
+        "morph": {
+          "case": "gen",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 9,
+          "type": "ownership",
+          "label": "Transformation OF"
+        }
+      },
+      {
+        "text": "parāvṛttir",
+        "english": "transformation",
+        "note": "Parāvṛtti names a turning about of the basis; it should not be conflated with an eternal substrate.",
+        "alternative": "turning about"
+      },
+      {
+        "text": "dvidhā",
+        "english": "in two ways",
+        "note": "Dvidhā qualifies the removal; the verse itself does not list both categories."
+      },
+      {
+        "text": "dauṣṭhulyahānitaḥ",
+        "english": "through abandoning the burden",
+        "note": "Dauṣṭhulya-hāni is removal of the encumbering or unfit condition. Identification with particular two-obstruction schemes is commentarial, not spelled out here.",
+        "parts": [
+          "dauṣṭhulya",
+          "hānitaḥ"
+        ]
+      }
+    ],
+    "order": [
+      3,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      1,
+      2,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      6,
+      7,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      5,
+      4,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      {
+        "ghost": "the",
+        "kind": "article",
+        "layoutWith": 9
+      },
+      9,
+      8,
+      {
+        "ghost": "comes",
+        "kind": "interpretive"
+      },
+      11,
+      10
+    ],
+    "lineEnds": [
+      3,
+      7,
+      9,
+      11
+    ]
+  },
+  {
+    "verse": 30,
+    "title": "The unobstructed element",
+    "brief": "The closing names are presented as the text’s claims; the draft does not turn them into an independent doctrinal verdict.",
+    "words": [
+      {
+        "text": "sa",
+        "english": "that",
+        "note": "Sa resumes the transformed condition or basis.",
+        "functionWord": true
+      },
+      {
+        "text": "evānāsravo",
+        "english": "precisely free of outflows",
+        "note": "Eva + anāsrava describes freedom from the afflictive outflows; “pure” alone would hide the technical term."
+      },
+      {
+        "text": "dhātur",
+        "english": "element",
+        "note": "Dhātu can mean element or domain; it need not be read as a material substance.",
+        "alternative": "domain"
+      },
+      {
+        "text": "acintyaḥ",
+        "english": "inconceivable",
+        "note": "Acintya denies that ordinary conceptual thought encompasses it."
+      },
+      {
+        "text": "kuśalo",
+        "english": "wholesome",
+        "note": "Kuśala returns from the earlier ethical lists in this final description."
+      },
+      {
+        "text": "dhruvaḥ",
+        "english": "steadfast",
+        "note": "Dhruva suggests stability; how this relates to impermanence is a doctrinal question, not resolved by this gloss.",
+        "alternative": "stable"
+      },
+      {
+        "text": "sukho",
+        "english": "blissful",
+        "note": "Sukha here is ease or well-being, not ordinary sensory gratification alone."
+      },
+      {
+        "text": "vimuktikāyo",
+        "english": "body of liberation",
+        "note": "Vimukti-kāya uses body in the sense of an achieved embodiment or collection, not necessarily a physical body.",
+        "parts": [
+          "vimukti",
+          "kāyo"
+        ]
+      },
+      {
+        "text": "'sau",
+        "english": "that",
+        "note": "Asau resumes the condition being named.",
+        "functionWord": true
+      },
+      {
+        "text": "dharmākhyo",
+        "english": "called Dharma",
+        "note": "Dharmākhya supplies the name Dharma; in context it can be read with kāya, “Dharma body.”"
+      },
+      {
+        "text": "'yaṃ",
+        "english": "this",
+        "note": "Ayam points to the same body or condition.",
+        "functionWord": true
+      },
+      {
+        "text": "mahāmuneḥ",
+        "english": "of the great sage",
+        "note": "Mahāmuneḥ is genitive, attributing this to the great sage, traditionally the Buddha.",
+        "morph": {
+          "case": "gen",
+          "number": "sg"
+        },
+        "relation": {
+          "target": 8,
+          "type": "ownership",
+          "label": "Body OF"
+        }
+      }
+    ],
+    "order": [
+      1,
+      {
+        "ghost": "is the",
+        "kind": "copula"
+      },
+      3,
+      2,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      4,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      5,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      6,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      7,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      9,
+      {
+        "ghost": "is the",
+        "kind": "copula"
+      },
+      8,
+      {
+        "ghost": ";",
+        "kind": "punctuation"
+      },
+      11,
+      {
+        "ghost": "is",
+        "kind": "copula"
+      },
+      10,
+      {
+        "ghost": ",",
+        "kind": "punctuation"
+      },
+      12
+    ],
+    "lineEnds": [
+      3,
+      6,
+      9,
+      12
+    ]
+  }
+]

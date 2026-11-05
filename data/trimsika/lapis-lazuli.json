@@ -1,0 +1,3459 @@
+{
+  "id": "lapis-lazuli-en",
+  "label": "Lapis Lazuli Texts · English from Chinese",
+  "language": "en",
+  "languageName": "English",
+  "script": "Latn",
+  "direction": "ltr",
+  "attribution": {
+    "publisher": "Lapis Lazuli Texts",
+    "edition": "Triṃśikā Vijñaptimātratā — English translation of Taishō Tripiṭaka vol. 31, no. 1586",
+    "url": "https://lapislazulitexts.com/tripitaka/T1586-LL-trimsika/",
+    "revision": "Retrieved 2026-10-19; passage SHA-256 3fbd01c545e0959c879d327850b635bde5cdcb9898e6f32d3f1eb62c56703e0d",
+    "license": "CC0 1.0 Universal (Public Domain), as linked by the publisher",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "normalization": "Publisher wording, spelling and punctuation preserved; HTML line breaks encoded as newlines. Original 1–30 numbering preserved. The page credits no individual English translator. Alignment is original curator work, not publisher-approved, and remains unreviewed; uncertain/unaligned clauses are explicit.",
+    "source": {
+      "language": "zh",
+      "witness": "Taishō Tripiṭaka volume 31, number 1586 (Chinese)"
+    }
+  },
+  "content": {
+    "kind": "translation",
+    "passages": [
+      {
+        "id": "ll-v1",
+        "label": "Lapis Lazuli v. 1",
+        "text": "From the delusion of self and dharmas,\nComes the conveyence of various manifestations;\nThese are supported and transformed by consciousness,\nAnd there are only three of these which may transform."
+      },
+      {
+        "id": "ll-v2",
+        "label": "Lapis Lazuli v. 2",
+        "text": "These are retribution, thought,\nAnd the perception of external objects.\nThe first of these is the Ālaya Consciousness,\nWhich is retribution as well as all the seeds."
+      },
+      {
+        "id": "ll-v3",
+        "label": "Lapis Lazuli v. 3",
+        "text": "Its grasping, location, and knowing are imperceivable,\nAnd it is always associated with mental contact,\nAttention, sensation, conception, and thought;\nIt is associated with neither pleasure nor pain."
+      },
+      {
+        "id": "ll-v4",
+        "label": "Lapis Lazuli v. 4",
+        "text": "It is undefiled and morally indeterminate;\nMental contact and the others are also like this.\nIts conveyence is like that of a flowing stream,\nAnd it is abandoned in the stage of the arhat."
+      },
+      {
+        "id": "ll-v5",
+        "label": "Lapis Lazuli v. 5",
+        "text": "Next is the second which is able to transform,\nAnd this consciousness is called Manas.\nIt is supported by the previous conveyence,\nAnd its character and nature are that of thought."
+      },
+      {
+        "id": "ll-v6",
+        "label": "Lapis Lazuli v. 6",
+        "text": "It is always associated with the four vexations,\nWhich are delusion of a self, perception of a self,\nIdentity with a self, and love of a self,\nAs well as mental contact and the others."
+      },
+      {
+        "id": "ll-v7",
+        "label": "Lapis Lazuli v. 7",
+        "text": "It is defiled and morally indeterminate,\nAnd its location is bound to that of life.\nIn the Nirodha Samāpatti of the arhats,\nAnd in the Supramundane Path, it does not exist."
+      },
+      {
+        "id": "ll-v8",
+        "label": "Lapis Lazuli v. 8",
+        "text": "Next is the third which is able to transform,\nWhich is distinguished into six different divisions;\nIts appearance and nature are perceiving external objects,\nAnd these may be good, bad, or indeterminate."
+      },
+      {
+        "id": "ll-v9",
+        "label": "Lapis Lazuli v. 9",
+        "text": "It is associated with omnipresent mental activities,\nWith the external objects, the good, the vexations,\nThe secondary vexations, and the undetermined,\nAnd it is associated with all three feelings."
+      },
+      {
+        "id": "ll-v10",
+        "label": "Lapis Lazuli v. 10",
+        "text": "Omnipresent mental activities are mental contact, etc.;\nNext are those with objects, which are desires,\nDetermination, mindfulness, samādhi, wisdom, etc.,\nAnd the object of each of these is not the same."
+      },
+      {
+        "id": "ll-v11",
+        "label": "Lapis Lazuli v. 11",
+        "text": "The good are faith, conscience, a sense of shame,\nThe three roots such as desirelessness, etc.,\nAnd also vigor, peacefulness, vigilance,\nEquanimity, and harmlessness."
+      },
+      {
+        "id": "ll-v12",
+        "label": "Lapis Lazuli v. 12",
+        "text": "The vexations are desire, hatred,\nDelusion, pride, doubt, and wrong views.\nThe secondary vexations are anger,\nHostility, obscuration, anger, jealousy, greed,"
+      },
+      {
+        "id": "ll-v13",
+        "label": "Lapis Lazuli v. 13",
+        "text": "Deceit, harmful flattery, arrogance,\nLack of shame, lack of conscience,\nActing upon agitations, torpor,\nA lack of faith, laziness,"
+      },
+      {
+        "id": "ll-v14",
+        "label": "Lapis Lazuli v. 14",
+        "text": "Negligence as well as forgetfulness,\nDistraction, and incorrect knowing.\nThe undetermined are remorse, sleep,\nAnd both types of initial and sustained thought."
+      },
+      {
+        "id": "ll-v15",
+        "label": "Lapis Lazuli v. 15",
+        "text": "With their basis in the root consciousness,\nThe five consciousnesses manifest according to conditions;\nThese manifestations may occur together or separately,\nJust as waves are formed upon the water."
+      },
+      {
+        "id": "ll-v16",
+        "label": "Lapis Lazuli v. 16",
+        "text": "The thought consciousness always manifests\nExcept for those born in the heavens of no-thought,\nFor those in the two samādhis without thought,\nAnd for those who are drowsy or unconsciousness."
+      },
+      {
+        "id": "ll-v17",
+        "label": "Lapis Lazuli v. 17",
+        "text": "These various consciousnesses are transformed\nAs discrimination and that which is discriminated,\nAnd with this basis they are all empty—\nThus they are all Consciousness Only."
+      },
+      {
+        "id": "ll-v18",
+        "label": "Lapis Lazuli v. 18",
+        "text": "Through the consciousness of all seeds,\nThere are such-and-such transformations,\nAnd from the power of this conveyence,\nThis-and-that are produced by discrimination."
+      },
+      {
+        "id": "ll-v19",
+        "label": "Lapis Lazuli v. 19",
+        "text": "Due to the habit energy of various actions,\nAlong with the habit energy of dualistic grasping,\nEven when earlier retributions are exhausted,\nStill the renewed arising of retribution occurs."
+      },
+      {
+        "id": "ll-v20",
+        "label": "Lapis Lazuli v. 20",
+        "text": "From this and that imagination,\nOne imagines all kinds of objects;\nThese pervasive imagined objects\nAre without actual self-nature."
+      },
+      {
+        "id": "ll-v21",
+        "label": "Lapis Lazuli v. 21",
+        "text": "From the self-nature of interdependence\nComes discrimination arising from conditions;\nThe perfection of the fruit comes from\nAlways being apart from the former nature."
+      },
+      {
+        "id": "ll-v22",
+        "label": "Lapis Lazuli v. 22",
+        "text": "Therefore in relation to the interdependent,\nIt is neither different nor is it not different,\nJust like the nature of impermanence, etc.,\nAnd when one is not perceived, the other is."
+      },
+      {
+        "id": "ll-v23",
+        "label": "Lapis Lazuli v. 23",
+        "text": "On the basis of the three kinds of self-nature\nIs established the threefold absence of self-nature;\nThus the Buddha spoke with the hidden intent\nThat all dharmas are without nature."
+      },
+      {
+        "id": "ll-v24",
+        "label": "Lapis Lazuli v. 24",
+        "text": "The first is the naturelessness of characteristics,\nThe next is the naturelessness of self-existence;\nThe last is the detachment from the first,\nWhen the natures of self and dharmas are grasped."
+      },
+      {
+        "id": "ll-v25",
+        "label": "Lapis Lazuli v. 25",
+        "text": "This is the ultimate truth of all dharmas,\nAnd it is also the same as True Suchness.\nBecause its nature is eternally so,\nIt is the true nature of Consciousness Only."
+      },
+      {
+        "id": "ll-v26",
+        "label": "Lapis Lazuli v. 26",
+        "text": "So long as one has not given rise to the consciousness\nWhich seeks to abide in the nature of Consciousness Only,\nThen regarding the two types of grasping dispositions,\nHe is still not yet able to subdue and extinguish them."
+      },
+      {
+        "id": "ll-v27",
+        "label": "Lapis Lazuli v. 27",
+        "text": "Setting up and establishing even something small\nAnd saying this is the nature of Consciousness Only,\nBecause there is still something which is grasped,\nIt is not truly abiding in Consciousness Only."
+      },
+      {
+        "id": "ll-v28",
+        "label": "Lapis Lazuli v. 28",
+        "text": "When one regards that which is conditioned\nWith the wisdom of total non-appropriation,\nThen at that time one abides in Consciousness Only,\nApart from the duality of grasping at appearances."
+      },
+      {
+        "id": "ll-v29",
+        "label": "Lapis Lazuli v. 29",
+        "text": "Without grasping and not conceptualizing—\nThis is the wisdom of the supramundane realm\nWhich abandons the coarseness of duality\nAnd naturally attains transformation of the basis."
+      },
+      {
+        "id": "ll-v30",
+        "label": "Lapis Lazuli v. 30",
+        "text": "This itself is the realm of no outflows,\nInconceivable, good, and eternal,\nThe peaceful and blissful body of liberation,\nAnd what the great Muni called the Dharma."
+      }
+    ],
+    "alignments": [
+      {
+        "id": "ll-v1-l1-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-1",
+            "wordIds": [
+              "v1w1",
+              "v1w2",
+              "v1w3",
+              "v1w4",
+              "v1w5"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v1",
+            "start": 0,
+            "end": 87
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-1",
+          "wordId": "v1w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The English delusion/manifestations wording interprets upacāra rather than providing an exact lexical equivalent. Do not rewrite the witness.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v1-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-1",
+            "wordIds": [
+              "v1w6",
+              "v1w7"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v1",
+            "start": 87,
+            "end": 141
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-1",
+          "wordId": "v1w6"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v1-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-1",
+            "wordIds": [
+              "v1w8",
+              "v1w9",
+              "v1w10",
+              "v1w11"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v1",
+            "start": 141,
+            "end": 195
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-1",
+          "wordId": "v1w8"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v2-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-2",
+            "wordIds": [
+              "v2w1",
+              "v2w2",
+              "v2w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v2",
+            "start": 0,
+            "end": 32
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-2",
+          "wordId": "v2w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v2-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-2",
+            "wordIds": [
+              "v2w4",
+              "v2w5",
+              "v2w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v2",
+            "start": 32,
+            "end": 72
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-2",
+          "wordId": "v2w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v2-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-2",
+            "wordIds": [
+              "v2w7",
+              "v2w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v2",
+            "start": 72,
+            "end": 119
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-2",
+          "wordId": "v2w7"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v2-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-2",
+            "wordIds": [
+              "v2w9",
+              "v2w10"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v2",
+            "start": 119,
+            "end": 165
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-2",
+          "wordId": "v2w9"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v3-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-3",
+            "wordIds": [
+              "v3w1",
+              "v3w2",
+              "v3w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v3",
+            "start": 0,
+            "end": 55
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-3",
+          "wordId": "v3w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Scope inside the large compound remains unresolved.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v3-l2-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-3",
+            "wordIds": [
+              "v3w4",
+              "v3w5"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v3",
+            "start": 55,
+            "end": 151
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-3",
+          "wordId": "v3w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v3-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-4",
+            "wordIds": [
+              "v4w1",
+              "v4w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v3",
+            "start": 151,
+            "end": 199
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-4",
+          "wordId": "v4w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Publisher v3 ends with neutral feeling; the corresponding Sanskrit clause begins v4. Numbering is preserved independently.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v4-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-4",
+            "wordIds": [
+              "v4w3",
+              "v4w4",
+              "v4w5"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v4",
+            "start": 0,
+            "end": 43
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-4",
+          "wordId": "v4w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v4-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-4",
+            "wordIds": [
+              "v4w6",
+              "v4w7"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v4",
+            "start": 43,
+            "end": 93
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-4",
+          "wordId": "v4w6"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v4-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-4",
+            "wordIds": [
+              "v4w8",
+              "v4w9",
+              "v4w10",
+              "v4w11"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v4",
+            "start": 93,
+            "end": 142
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-4",
+          "wordId": "v4w8"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v4-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-5",
+            "wordIds": [
+              "v5w1",
+              "v5w2",
+              "v5w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v4",
+            "start": 142,
+            "end": 188
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-5",
+          "wordId": "v5w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Arhat cessation is at Sanskrit v5 opening, not v4.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v5-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-8",
+            "wordIds": [
+              "v8w1",
+              "v8w2",
+              "v8w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v5",
+            "start": 0,
+            "end": 47
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-8",
+          "wordId": "v8w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The second-transformation identification occurs at Sanskrit v8 opening. The publisher places it before the manas description in its v5.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v5-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-5",
+            "wordIds": [
+              "v5w8",
+              "v5w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v5",
+            "start": 47,
+            "end": 87
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-5",
+          "wordId": "v5w8"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v5-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-5",
+            "wordIds": [
+              "v5w4",
+              "v5w5",
+              "v5w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v5",
+            "start": 87,
+            "end": 131
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-5",
+          "wordId": "v5w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Basis/dependence clause only. No precise counterpart is asserted here for tadālambam (v5w7).",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v5-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-5",
+            "wordIds": [
+              "v5w10"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v5",
+            "start": 131,
+            "end": 180
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-5",
+          "wordId": "v5w10"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v6-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-6",
+            "wordIds": [
+              "v6w1",
+              "v6w2",
+              "v6w3"
+            ]
+          },
+          {
+            "phaseId": "verse-6",
+            "wordIds": [
+              "v6w5"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v6",
+            "start": 0,
+            "end": 49
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-6",
+          "wordId": "v6w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v6-l2-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-6",
+            "wordIds": [
+              "v6w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v6",
+            "start": 49,
+            "end": 143
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-6",
+          "wordId": "v6w6"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The self-delusion/self-view order differs. One written Sanskrit compound spans both English lines; no internal morpheme mapping is claimed.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v6-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-7",
+            "wordIds": [
+              "v7w3",
+              "v7w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v6",
+            "start": 143,
+            "end": 184
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-7",
+          "wordId": "v7w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Contact and the other factors occur at Sanskrit v7 opening.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v7-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-6",
+            "wordIds": [
+              "v6w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v7",
+            "start": 0,
+            "end": 41
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-6",
+          "wordId": "v6w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The ethical classification is embedded in Sanskrit v6, not v7.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v7-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-7",
+            "wordIds": [
+              "v7w1",
+              "v7w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v7",
+            "start": 41,
+            "end": 84
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-7",
+          "wordId": "v7w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v7-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-7",
+            "wordIds": [
+              "v7w5",
+              "v7w6",
+              "v7w7",
+              "v7w8",
+              "v7w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v7",
+            "start": 84,
+            "end": 124
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-7",
+          "wordId": "v7w5"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The English combines arhat and cessation attainment grammatically, whereas the Sanskrit lists separate absences. This is a candidate broad correspondence, not exact equivalence.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v7-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-7",
+            "wordIds": [
+              "v7w10",
+              "v7w11",
+              "v7w12",
+              "v7w13"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v7",
+            "start": 124,
+            "end": 172
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-7",
+          "wordId": "v7w10"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v8-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-8",
+            "wordIds": [
+              "v8w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v8",
+            "start": 0,
+            "end": 46
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-8",
+          "wordId": "v8w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v8-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-8",
+            "wordIds": [
+              "v8w5"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v8",
+            "start": 46,
+            "end": 99
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-8",
+          "wordId": "v8w5"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v8-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-8",
+            "wordIds": [
+              "v8w6",
+              "v8w7",
+              "v8w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v8",
+            "start": 99,
+            "end": 158
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-8",
+          "wordId": "v8w6"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v8-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-8",
+            "wordIds": [
+              "v8w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v8",
+            "start": 158,
+            "end": 203
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-8",
+          "wordId": "v8w9"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v9-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-9",
+            "wordIds": [
+              "v9w1"
+            ]
+          },
+          {
+            "phaseId": "verse-9",
+            "wordIds": [
+              "v9w4",
+              "v9w5",
+              "v9w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v9",
+            "start": 0,
+            "end": 53
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-9",
+          "wordId": "v9w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v9-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-9",
+            "wordIds": [
+              "v9w2",
+              "v9w3"
+            ]
+          },
+          {
+            "phaseId": "verse-9",
+            "wordIds": [
+              "v9w7",
+              "v9w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v9",
+            "start": 53,
+            "end": 105
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-9",
+          "wordId": "v9w2"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The witness list combines categories from separated Sanskrit positions.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v9-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-9",
+            "wordIds": [
+              "v9w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v9",
+            "start": 105,
+            "end": 152
+          }
+        ],
+        "status": "aligned",
+        "relation": "expanded",
+        "displayAt": {
+          "phaseId": "verse-9",
+          "wordId": "v9w9"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The undetermined category is explicit in this Chinese-derived witness; no separate Sanskrit token for it is asserted in this verse.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v9-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-9",
+            "wordIds": [
+              "v9w10"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v9",
+            "start": 152,
+            "end": 197
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-9",
+          "wordId": "v9w10"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v10-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-10",
+            "wordIds": [
+              "v10w1",
+              "v10w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v10",
+            "start": 0,
+            "end": 56
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-10",
+          "wordId": "v10w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v10-l2-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-10",
+            "wordIds": [
+              "v10w3",
+              "v10w4",
+              "v10w5",
+              "v10w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v10",
+            "start": 56,
+            "end": 155
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-10",
+          "wordId": "v10w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v10-l4-4",
+        "sourceSpans": [],
+        "targetSpans": [
+          {
+            "passageId": "ll-v10",
+            "start": 155,
+            "end": 203
+          }
+        ],
+        "status": "unaligned",
+        "relation": "uncertain",
+        "displayAt": {
+          "phaseId": "verse-10",
+          "wordId": "v10w6"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The claim that their objects differ has no securely identified independent clause in this normalized Sanskrit verse.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v11-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-10",
+            "wordIds": [
+              "v10w7",
+              "v10w8",
+              "v10w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v11",
+            "start": 0,
+            "end": 50
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-10",
+          "wordId": "v10w7"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The wholesome list begins at Sanskrit v10 end; do not match publisher v11 to Sanskrit v11 wholesale.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v11-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-11",
+            "wordIds": [
+              "v11w1",
+              "v11w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v11",
+            "start": 50,
+            "end": 96
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-11",
+          "wordId": "v11w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v11-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-11",
+            "wordIds": [
+              "v11w3",
+              "v11w4",
+              "v11w5"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v11",
+            "start": 96,
+            "end": 137
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-11",
+          "wordId": "v11w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v11-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-11",
+            "wordIds": [
+              "v11w6",
+              "v11w7"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v11",
+            "start": 137,
+            "end": 166
+          }
+        ],
+        "status": "aligned",
+        "relation": "expanded",
+        "displayAt": {
+          "phaseId": "verse-11",
+          "wordId": "v11w6"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Harmlessness and the wholesome predication correspond broadly; equanimity is extra in the publisher wording relative to this retained Sanskrit list.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v12-l1-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-11",
+            "wordIds": [
+              "v11w8",
+              "v11w9"
+            ]
+          },
+          {
+            "phaseId": "verse-12",
+            "wordIds": [
+              "v12w1",
+              "v12w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v12",
+            "start": 0,
+            "end": 75
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-11",
+          "wordId": "v11w8"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The afflictions list starts in Sanskrit v11 and continues in v12; pride/views/doubt order differs.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v12-l3-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-12",
+            "wordIds": [
+              "v12w3",
+              "v12w4",
+              "v12w5",
+              "v12w6",
+              "v12w7",
+              "v12w8",
+              "v12w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v12",
+            "start": 75,
+            "end": 157
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-12",
+          "wordId": "v12w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The repeated English anger and the secondary-affliction heading are preserved. This maps the list broadly and does not assign each English item to an internal compound member.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v13-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-12",
+            "wordIds": [
+              "v12w10"
+            ]
+          },
+          {
+            "phaseId": "verse-13",
+            "wordIds": [
+              "v13w1",
+              "v13w2",
+              "v13w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v13",
+            "start": 0,
+            "end": 37
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-12",
+          "wordId": "v12w10"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Deceit crosses the Sanskrit v12/v13 boundary. Harmful flattery/arrogance do not support precise one-word correspondences; the compound shared with the next line remains intact.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v13-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-13",
+            "wordIds": [
+              "v13w3",
+              "v13w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v13",
+            "start": 37,
+            "end": 72
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-13",
+          "wordId": "v13w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. v13w3 contains both harmfulness and shamelessness in the emended Sanskrit; overlapping phrase spans preserve the whole token without asserting internal segmentation.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v13-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-13",
+            "wordIds": [
+              "v13w5",
+              "v13w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v13",
+            "start": 72,
+            "end": 104
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-13",
+          "wordId": "v13w5"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Agitation/torpor order differs; the retained uddhavaḥ reading remains unchanged.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v13-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-13",
+            "wordIds": [
+              "v13w7",
+              "v13w8",
+              "v13w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v13",
+            "start": 104,
+            "end": 130
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-13",
+          "wordId": "v13w7"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v14-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-13",
+            "wordIds": [
+              "v13w10",
+              "v13w11",
+              "v13w12"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v14",
+            "start": 0,
+            "end": 37
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-13",
+          "wordId": "v13w10"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Negligence/forgetfulness are at Sanskrit v13 end.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v14-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-14",
+            "wordIds": [
+              "v14w1",
+              "v14w2",
+              "v14w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v14",
+            "start": 37,
+            "end": 73
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-14",
+          "wordId": "v14w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v14-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-14",
+            "wordIds": [
+              "v14w4",
+              "v14w5",
+              "v14w6",
+              "v14w7"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v14",
+            "start": 73,
+            "end": 110
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-14",
+          "wordId": "v14w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The publisher explicitly calls these undetermined. Preserve that category without equating it uncritically to the Sanskrit classification.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v14-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-14",
+            "wordIds": [
+              "v14w8",
+              "v14w9",
+              "v14w10",
+              "v14w11",
+              "v14w12",
+              "v14w13",
+              "v14w14"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v14",
+            "start": 110,
+            "end": 158
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-14",
+          "wordId": "v14w8"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The two-pairs/twofold construction is compressed differently. Only a broad phrase correspondence is asserted provisionally.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v15-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-15",
+            "wordIds": [
+              "v15w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v15",
+            "start": 0,
+            "end": 44
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-15",
+          "wordId": "v15w2"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v15-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-15",
+            "wordIds": [
+              "v15w1"
+            ]
+          },
+          {
+            "phaseId": "verse-15",
+            "wordIds": [
+              "v15w3",
+              "v15w4",
+              "v15w5"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v15",
+            "start": 44,
+            "end": 103
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-15",
+          "wordId": "v15w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v15-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-15",
+            "wordIds": [
+              "v15w6",
+              "v15w7",
+              "v15w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v15",
+            "start": 103,
+            "end": 158
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-15",
+          "wordId": "v15w6"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v15-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-15",
+            "wordIds": [
+              "v15w9",
+              "v15w10",
+              "v15w11"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v15",
+            "start": 158,
+            "end": 198
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-15",
+          "wordId": "v15w9"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v16-l1-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-16",
+            "wordIds": [
+              "v16w1",
+              "v16w2",
+              "v16w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v16",
+            "start": 0,
+            "end": 95
+          }
+        ],
+        "status": "aligned",
+        "relation": "expanded",
+        "displayAt": {
+          "phaseId": "verse-16",
+          "wordId": "v16w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Heavens/birth makes the no-ideation exception explicit. The whole sarvadāsaṃjñikād token is retained across the two English lines.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v16-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-16",
+            "wordIds": [
+              "v16w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v16",
+            "start": 95,
+            "end": 142
+          }
+        ],
+        "status": "aligned",
+        "relation": "expanded",
+        "displayAt": {
+          "phaseId": "verse-16",
+          "wordId": "v16w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The witness supplies without thought for the two attainments; this is not an internal lexical correspondence claim.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v16-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-16",
+            "wordIds": [
+              "v16w5",
+              "v16w6",
+              "v16w7",
+              "v16w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v16",
+            "start": 142,
+            "end": 190
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-16",
+          "wordId": "v16w5"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The unusual publisher wording drowsy or unconsciousness is preserved; no spelling or doctrinal repair is applied.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v17-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-17",
+            "wordIds": [
+              "v17w1",
+              "v17w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v17",
+            "start": 0,
+            "end": 46
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-17",
+          "wordId": "v17w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v17-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-17",
+            "wordIds": [
+              "v17w3",
+              "v17w4",
+              "v17w5",
+              "v17w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v17",
+            "start": 46,
+            "end": 97
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-17",
+          "wordId": "v17w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v17-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-17",
+            "wordIds": [
+              "v17w7",
+              "v17w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v17",
+            "start": 97,
+            "end": 137
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-17",
+          "wordId": "v17w7"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The witness renders the denial through empty; this is interpretive rather than an exact lexical gloss for nāsti.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v17-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-17",
+            "wordIds": [
+              "v17w9",
+              "v17w10",
+              "v17w11"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v17",
+            "start": 137,
+            "end": 174
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-17",
+          "wordId": "v17w9"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v18-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-18",
+            "wordIds": [
+              "v18w1",
+              "v18w2",
+              "v18w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v18",
+            "start": 0,
+            "end": 40
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-18",
+          "wordId": "v18w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v18-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-18",
+            "wordIds": [
+              "v18w4",
+              "v18w5",
+              "v18w6",
+              "v18w7"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v18",
+            "start": 40,
+            "end": 81
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-18",
+          "wordId": "v18w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Retained Sanskrit edition syntax and the mutual-influence clause need philological review.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v18-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-18",
+            "wordIds": [
+              "v18w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v18",
+            "start": 81,
+            "end": 120
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-18",
+          "wordId": "v18w8"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Retained Sanskrit edition syntax and the mutual-influence clause need philological review.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v18-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-18",
+            "wordIds": [
+              "v18w9",
+              "v18w10",
+              "v18w11",
+              "v18w12",
+              "v18w13"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v18",
+            "start": 120,
+            "end": 165
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-18",
+          "wordId": "v18w9"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v19-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-19",
+            "wordIds": [
+              "v19w1",
+              "v19w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v19",
+            "start": 0,
+            "end": 44
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-19",
+          "wordId": "v19w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v19-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-19",
+            "wordIds": [
+              "v19w3",
+              "v19w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v19",
+            "start": 44,
+            "end": 95
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-19",
+          "wordId": "v19w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v19-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-19",
+            "wordIds": [
+              "v19w5",
+              "v19w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v19",
+            "start": 95,
+            "end": 141
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-19",
+          "wordId": "v19w5"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v19-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-19",
+            "wordIds": [
+              "v19w7",
+              "v19w8",
+              "v19w9",
+              "v19w10"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v19",
+            "start": 141,
+            "end": 189
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-19",
+          "wordId": "v19w7"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The final Sanskrit tat remains unresolved; whole-phrase mapping does not certify that pronoun.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v20-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-20",
+            "wordIds": [
+              "v20w1",
+              "v20w2",
+              "v20w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v20",
+            "start": 0,
+            "end": 32
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-20",
+          "wordId": "v20w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v20-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-20",
+            "wordIds": [
+              "v20w4",
+              "v20w5",
+              "v20w6",
+              "v20w7"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v20",
+            "start": 32,
+            "end": 67
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-20",
+          "wordId": "v20w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v20-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-20",
+            "wordIds": [
+              "v20w8",
+              "v20w9",
+              "v20w10"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v20",
+            "start": 67,
+            "end": 100
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-20",
+          "wordId": "v20w8"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v20-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-20",
+            "wordIds": [
+              "v20w11",
+              "v20w12",
+              "v20w13"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v20",
+            "start": 100,
+            "end": 131
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-20",
+          "wordId": "v20w11"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v21-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-21",
+            "wordIds": [
+              "v21w1",
+              "v21w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v21",
+            "start": 0,
+            "end": 40
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-21",
+          "wordId": "v21w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v21-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-21",
+            "wordIds": [
+              "v21w3",
+              "v21w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v21",
+            "start": 40,
+            "end": 86
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-21",
+          "wordId": "v21w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v21-l3-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-21",
+            "wordIds": [
+              "v21w5",
+              "v21w6",
+              "v21w7",
+              "v21w8",
+              "v21w9",
+              "v21w10",
+              "v21w11"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v21",
+            "start": 86,
+            "end": 167
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-21",
+          "wordId": "v21w5"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The publisher says perfection of the fruit; source niṣpanna/absence construction is not recast to match this interpretive wording.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v22-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-22",
+            "wordIds": [
+              "v22w1",
+              "v22w2",
+              "v22w3"
+            ]
+          },
+          {
+            "phaseId": "verse-22",
+            "wordIds": [
+              "v22w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v22",
+            "start": 0,
+            "end": 45
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-22",
+          "wordId": "v22w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v22-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-22",
+            "wordIds": [
+              "v22w4",
+              "v22w5"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v22",
+            "start": 45,
+            "end": 94
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-22",
+          "wordId": "v22w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v22-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-22",
+            "wordIds": [
+              "v22w7",
+              "v22w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v22",
+            "start": 94,
+            "end": 138
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-22",
+          "wordId": "v22w7"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v22-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-22",
+            "wordIds": [
+              "v22w9",
+              "v22w10",
+              "v22w11",
+              "v22w12"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v22",
+            "start": 138,
+            "end": 182
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-22",
+          "wordId": "v22w9"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The English polarity differs from the retained nādṛṣṭe…sa dṛśyate reading. Preserve the publisher text and flag the discrepancy; do not silently correct it.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v23-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-23",
+            "wordIds": [
+              "v23w1",
+              "v23w2"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v23",
+            "start": 0,
+            "end": 47
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-23",
+          "wordId": "v23w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v23-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-23",
+            "wordIds": [
+              "v23w3",
+              "v23w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v23",
+            "start": 47,
+            "end": 100
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-23",
+          "wordId": "v23w3"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v23-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-23",
+            "wordIds": [
+              "v23w5"
+            ]
+          },
+          {
+            "phaseId": "verse-23",
+            "wordIds": [
+              "v23w7"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v23",
+            "start": 100,
+            "end": 145
+          }
+        ],
+        "status": "aligned",
+        "relation": "expanded",
+        "displayAt": {
+          "phaseId": "verse-23",
+          "wordId": "v23w5"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Buddha is supplied in this witness; Sanskrit has the passive teaching/intent phrasing without naming that agent here.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v23-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-23",
+            "wordIds": [
+              "v23w6"
+            ]
+          },
+          {
+            "phaseId": "verse-23",
+            "wordIds": [
+              "v23w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v23",
+            "start": 145,
+            "end": 181
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-23",
+          "wordId": "v23w6"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v24-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-24",
+            "wordIds": [
+              "v24w1",
+              "v24w2",
+              "v24w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v24",
+            "start": 0,
+            "end": 52
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-24",
+          "wordId": "v24w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v24-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-24",
+            "wordIds": [
+              "v24w4",
+              "v24w5",
+              "v24w6",
+              "v24w7",
+              "v24w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v24",
+            "start": 52,
+            "end": 102
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-24",
+          "wordId": "v24w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v24-l3-4",
+        "sourceSpans": [],
+        "targetSpans": [
+          {
+            "passageId": "ll-v24",
+            "start": 102,
+            "end": 194
+          }
+        ],
+        "status": "unaligned",
+        "relation": "uncertain",
+        "displayAt": {
+          "phaseId": "verse-24",
+          "wordId": "v24w9"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The Chinese-derived detachment/self-and-dharmas clauses cannot yet be mapped reliably to Lévi v24–25. Placement is only a reading aid, not an asserted correspondence.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v25-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-25",
+            "wordIds": [
+              "v25w1",
+              "v25w2",
+              "v25w3",
+              "v25w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v25",
+            "start": 0,
+            "end": 43
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-25",
+          "wordId": "v25w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v25-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-25",
+            "wordIds": [
+              "v25w5",
+              "v25w6",
+              "v25w7"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v25",
+            "start": 43,
+            "end": 85
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-25",
+          "wordId": "v25w5"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v25-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-25",
+            "wordIds": [
+              "v25w8",
+              "v25w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v25",
+            "start": 85,
+            "end": 121
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-25",
+          "wordId": "v25w8"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v25-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-25",
+            "wordIds": [
+              "v25w10",
+              "v25w11"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v25",
+            "start": 121,
+            "end": 165
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-25",
+          "wordId": "v25w10"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v26-l1-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-26",
+            "wordIds": [
+              "v26w1",
+              "v26w2",
+              "v26w3",
+              "v26w4"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v26",
+            "start": 0,
+            "end": 113
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-26",
+          "wordId": "v26w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The witness introduces arising/seeking language. Do not equate that precisely to the Sanskrit not-abiding construction.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v26-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-26",
+            "wordIds": [
+              "v26w5"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v26",
+            "start": 113,
+            "end": 168
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-26",
+          "wordId": "v26w5"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v26-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-26",
+            "wordIds": [
+              "v26w6",
+              "v26w7",
+              "v26w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v26",
+            "start": 168,
+            "end": 223
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-26",
+          "wordId": "v26w6"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v27-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-27",
+            "wordIds": [
+              "v27w7",
+              "v27w8",
+              "v27w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v27",
+            "start": 0,
+            "end": 49
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-27",
+          "wordId": "v27w7"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Publisher order places establishing something before the quoted Consciousness Only claim; original witness order remains available in its disclosure.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v27-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-27",
+            "wordIds": [
+              "v27w1",
+              "v27w2",
+              "v27w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v27",
+            "start": 49,
+            "end": 102
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-27",
+          "wordId": "v27w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Publisher order places establishing something before the quoted Consciousness Only claim; original witness order remains available in its disclosure.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v27-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-27",
+            "wordIds": [
+              "v27w4",
+              "v27w5",
+              "v27w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v27",
+            "start": 102,
+            "end": 153
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-27",
+          "wordId": "v27w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Publisher order places establishing something before the quoted Consciousness Only claim; original witness order remains available in its disclosure.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v27-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-27",
+            "wordIds": [
+              "v27w10",
+              "v27w11"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v27",
+            "start": 153,
+            "end": 199
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-27",
+          "wordId": "v27w10"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Publisher order places establishing something before the quoted Consciousness Only claim; original witness order remains available in its disclosure.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v28-l1-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-28",
+            "wordIds": [
+              "v28w1",
+              "v28w2",
+              "v28w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v28",
+            "start": 0,
+            "end": 87
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-28",
+          "wordId": "v28w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Chinese-derived conditioned/wisdom wording differs from Lévi ālambana/vijñāna. Broad candidate correspondence only.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v28-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-28",
+            "wordIds": [
+              "v28w4",
+              "v28w5",
+              "v28w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v28",
+            "start": 87,
+            "end": 139
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-28",
+          "wordId": "v28w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The retained Sanskrit says vijñānamātratva here; do not normalize it to the witness terminology.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v28-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-28",
+            "wordIds": [
+              "v28w7",
+              "v28w8"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v28",
+            "start": 139,
+            "end": 189
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-28",
+          "wordId": "v28w7"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. The source absence/non-grasping/pronoun construction remains unresolved relative to the witness duality phrase.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v29-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-29",
+            "wordIds": [
+              "v29w1",
+              "v29w2",
+              "v29w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v29",
+            "start": 0,
+            "end": 42
+          }
+        ],
+        "status": "uncertain",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-29",
+          "wordId": "v29w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Nonconceptualizing and acitta are not treated as exact lexical equivalents.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v29-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-29",
+            "wordIds": [
+              "v29w4",
+              "v29w5",
+              "v29w6",
+              "v29w7"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v29",
+            "start": 42,
+            "end": 87
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-29",
+          "wordId": "v29w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v29-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-29",
+            "wordIds": [
+              "v29w10",
+              "v29w11"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v29",
+            "start": 87,
+            "end": 128
+          }
+        ],
+        "status": "aligned",
+        "relation": "reordered",
+        "displayAt": {
+          "phaseId": "verse-29",
+          "wordId": "v29w10"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v29-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-29",
+            "wordIds": [
+              "v29w8",
+              "v29w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v29",
+            "start": 128,
+            "end": 178
+          }
+        ],
+        "status": "aligned",
+        "relation": "expanded",
+        "displayAt": {
+          "phaseId": "verse-29",
+          "wordId": "v29w8"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. Naturally attains is the publisher wording; the Sanskrit nominal basis-transformation phrase does not independently attest those additions.",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v30-l1-1",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-30",
+            "wordIds": [
+              "v30w1",
+              "v30w2",
+              "v30w3"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v30",
+            "start": 0,
+            "end": 41
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-30",
+          "wordId": "v30w1"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v30-l2-2",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-30",
+            "wordIds": [
+              "v30w4",
+              "v30w5",
+              "v30w6"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v30",
+            "start": 41,
+            "end": 75
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-30",
+          "wordId": "v30w4"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v30-l3-3",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-30",
+            "wordIds": [
+              "v30w7",
+              "v30w8",
+              "v30w9"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v30",
+            "start": 75,
+            "end": 121
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-30",
+          "wordId": "v30w7"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      },
+      {
+        "id": "ll-v30-l4-4",
+        "sourceSpans": [
+          {
+            "phaseId": "verse-30",
+            "wordIds": [
+              "v30w10",
+              "v30w11",
+              "v30w12"
+            ]
+          }
+        ],
+        "targetSpans": [
+          {
+            "passageId": "ll-v30",
+            "start": 121,
+            "end": 163
+          }
+        ],
+        "status": "aligned",
+        "relation": "corresponds",
+        "displayAt": {
+          "phaseId": "verse-30",
+          "wordId": "v30w10"
+        },
+        "evidence": "Provisional curator comparison of the publisher's Chinese-derived English with the packet's normalized Lévi 1925 Sanskrit. Whole written-token / phrase correspondence only, not morpheme equivalence. ",
+        "review": {
+          "status": "unreviewed"
+        }
+      }
+    ]
+  }
+}
