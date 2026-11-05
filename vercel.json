@@ -8,6 +8,14 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/comics/the-occasion/editorial",
+      "destination": "/comics/the-occasion/editorial/index.html"
+    },
+    {
+      "source": "/comics/the-occasion/editorial/",
+      "destination": "/comics/the-occasion/editorial/index.html"
+    },
+    {
       "source": "/comics/the-occasion",
       "destination": "/comics/the-occasion/index.html"
     },

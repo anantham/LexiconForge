@@ -13,6 +13,10 @@ describe('illustrated book on the library shelf', () => {
     render(<NovelCard novel={ILLUSTRATED_BOOK_ENTRIES[0]} onViewDetails={onViewDetails} onSelect={onSelect} translatedCount={12} />);
     const link = screen.getByRole('link', { name: 'Read The Occasion' });
     expect(link).toHaveAttribute('href', '/comics/the-occasion/');
+    const editorial = screen.getByRole('link', { name: 'Editorial companion for The Occasion' });
+    expect(editorial).toHaveAttribute('href', '/comics/the-occasion/editorial/');
+    expect(editorial.closest('a a')).toBeNull();
+    expect(link.contains(editorial)).toBe(false);
     expect(screen.getByText('45 pages')).toBeInTheDocument();
     expect(screen.queryByText(/chapters/)).not.toBeInTheDocument();
     // Prevent navigation in the synthetic DOM; the real link is browser-tested.

@@ -58,8 +58,8 @@ describe('published comic contract', () => {
     expect(read('reader.js')).toContain('if(img.complete&&img.naturalWidth===0)reportPictureFailure(img)');
   });
 
-  it('ships reader data only and preserves separate lettering and the library return', () => {
-    expect(readdirSync(root).sort()).toEqual(['book.json', 'cover.webp', 'images', 'index.html', 'metadata.json', 'picture-lettering.js', 'reader.css', 'reader.js']);
+  it('keeps analysis separate from reader data and and preserves separate lettering and the library return', () => {
+    expect(readdirSync(root).sort()).toEqual(['book.json', 'cover.webp', 'editorial', 'editorial.css', 'editorial.js', 'editorial.json', 'images', 'index.html', 'metadata.json', 'picture-lettering.js', 'reader.css', 'reader.js']);
     expect(read('book.json')).not.toMatch(/"(?:artAssessment|expectedReading|eyePath|eyeRoute|reason|provenance|reviewBoundary|sourceIds|revisedPrompt)":/);
     expect(read('index.html')).toContain('<a href="/">Library</a>');
     expect(read('index.html')).not.toContain('Editorial desk');

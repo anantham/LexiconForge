@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Occasion · Editorial companion</title>
+<meta name="description" content="Explore the comic picture by picture: copy justification, predicted reader responses and eye paths.">
+<link rel="canonical" href="https://read.adityaarpitha.com/comics/the-occasion/editorial/">
+<link rel="stylesheet" href="/comics/the-occasion/editorial.css">
+<script src="/comics/the-occasion/picture-lettering.js" defer></script>
+<script src="/comics/the-occasion/editorial.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#workbench">Skip to picture and analysis</a>
+<button id="toolbar-toggle" aria-controls="toolbar" aria-expanded="true" aria-label="Hide editorial controls">Hide</button>
+<header id="toolbar">
+ <a href="/">Library</a><span class="identity">The Occasion <span> / Editorial</span></span>
+ <nav aria-label="Editorial controls"><button id="pages-toggle" aria-controls="page-list" aria-expanded="false" disabled>Pages</button><a id="read-comic" href="/comics/the-occasion/">Read comic</a></nav>
+</header>
+<div id="status" role="status">Loading the editorial companion…</div>
+<div class="desk">
+ <nav id="page-list" aria-label="Comic pages" hidden></nav>
+ <main id="workbench" tabindex="-1" hidden>
+  <div class="picture-heading"><h1 id="picture-title" tabindex="-1"></h1><nav id="picture-tabs" aria-label="Pictures on this page"></nav></div>
+  <div class="review-grid">
+   <section class="artwork" aria-label="Selected picture">
+    <div id="picture"></div>
+    <p id="lettering-notice" class="muted" hidden>At this size, read the full lettering in the copy section.</p>
+    <nav class="sequence-nav" aria-label="Picture navigation"><a id="previous">Previous</a><span id="position"></span><a id="next">Next</a></nav>
+   </section>
+   <aside id="analysis" aria-label="Editorial analysis">
+    <label class="eye-control"><input id="eye-toggle" type="checkbox" autocomplete="off"> Show predicted eye path</label>
+    <p class="prediction-note">Eye paths and reader thoughts are editorial hypotheses, not measured responses. Lettering may attract attention first.</p>
+    <section><h2>Why this picture</h2><p id="picture-purpose"></p></section>
+    <section><h2>Predicted internal monologue</h2><p class="muted">What a reader might infer</p><p id="predicted-reading"></p></section>
+    <section><h2>Why this copy</h2><div id="copy-reasons"></div></section>
+    <section><h2>How the eye might travel</h2><ol id="eye-steps"></ol></section>
+    <details><summary>This page’s place in the sequence</summary><p id="page-purpose"></p><p id="composition-reason"></p><a id="read-page">Read the sequence</a></details>
+   </aside>
+  </div>
+ </main>
+</div>
+<noscript><p>This companion needs JavaScript to select pictures and display their analysis.</p></noscript>
+</body></html>
