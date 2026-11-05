@@ -36,6 +36,7 @@ const GitaChapter2Page = lazyPage(() => import('./components/gita/GitaChapter2Pa
 const LOCAL_SUTTA_LOADERS: Record<string, () => Promise<{ default: unknown }>> = {
   mn10: () => import('./content/references/sutta/mn10.json'),
   mn117: () => import('./content/references/sutta/mn117.json'),
+  trimsika: () => import('./content/references/sutta/trimsika.json'),
 };
 
 const LazyLocalSutta: React.FC<{ uid: string }> = ({ uid }) => {
@@ -109,7 +110,7 @@ const AppRoutes: React.FC = () => {
   }
 
   const localSuttaMatch = (pathname === '/sutta/demo' ? '/sutta/mn10' : pathname)
-    .match(/^\/sutta\/([a-z0-9-]+)$/i);
+    .match(/^\/sutta\/([a-z0-9-]+)\/?$/i);
   if (localSuttaMatch) {
     const uid = localSuttaMatch[1].toLowerCase();
     if (Object.hasOwn(LOCAL_SUTTA_LOADERS, uid)) return <LazyLocalSutta key={uid} uid={uid} />;

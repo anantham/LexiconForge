@@ -135,6 +135,10 @@ export function NovelLibrary({ onSessionLoaded }: NovelLibraryProps) {
     startChapterNumber?: number
   ) => {
     // Special routing for built-in study entries (e.g., Sutta Studio)
+    if (novel.id === 'sutta-trimsika') {
+      window.location.assign('/sutta/trimsika');
+      return;
+    }
     if (novel.id === 'sutta-mn10') {
       window.location.href = '/sutta/demo';
       return;
