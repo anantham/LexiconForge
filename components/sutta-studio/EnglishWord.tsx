@@ -7,6 +7,7 @@ import { hasTextSelection, segmentIdToDomId, targetDomId } from './utils';
 
 export const EnglishWordEngine = memo(function EnglishWordEngine({
   phaseId,
+  wrapText = false,
   structure,
   paliWords,
   activeIndices,
@@ -18,6 +19,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
   showCycleDots = true,
 }: {
   phaseId: string;
+  wrapText?: boolean;
   structure: EnglishToken;
   paliWords: PaliWord[];
   activeIndices: Record<string, number>;
@@ -141,7 +143,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
       className={`
-        px-2 py-1 rounded transition-all border text-xl md:text-2xl lg:text-3xl
+        max-w-full px-2 py-1 rounded transition-all border text-xl md:text-2xl lg:text-3xl
         ${
           isGhost
             ? 'italic font-serif cursor-help border-transparent'
@@ -171,7 +173,7 @@ export const EnglishWordEngine = memo(function EnglishWordEngine({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -5 }}
           transition={{ duration: 0.15 }}
-          className={`block whitespace-nowrap ${
+          className={`block ${wrapText ? 'whitespace-normal break-words' : 'whitespace-nowrap'} ${
             // Per-kind ghost styling — implicit visual grammar, not a label.
             //   auxiliary           → soft solid underline  (English perfect 'have', modal 'will')
             //   pronoun_from_verb   → faint dotted line     ('I' supplied by 1sg verb ending)

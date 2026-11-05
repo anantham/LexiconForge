@@ -19,12 +19,15 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
   const [open, setOpen] = useState(false);
   const provenance = packet.provenance;
   const workId = packet.source?.workId ?? 'unknown';
+  const showUnknowns = provenance?.unknowns
+    ? provenance.unknowns.length > 0
+    : workId === 'mn10' || !provenance?.manuscripts?.length || !provenance?.firstWritten;
 
   // Compact chip text — the always-visible breadcrumb.
   const tradition = provenance?.oralLineage?.school;
-  const language = provenance?.oralLineage?.transmissionLanguage;
+  const language = packet.source.language === 'sa' ? 'Sanskrit' : (provenance?.oralLineage?.transmissionLanguage ?? 'Pāli');
   const editionShort = provenance?.edition?.council ?? provenance?.edition?.name;
-  const translator = provenance?.translation?.translator;
+  const translator = packet.translations ? undefined : provenance?.translation?.translator;
   const chipParts: string[] = [workId.toUpperCase()];
   if (language) chipParts.push(language);
   if (tradition) chipParts.push(tradition);
@@ -32,6 +35,8 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
 
   return (
     <div className="max-w-3xl mx-auto pl-6 pr-16 md:pr-6 pt-12 pb-4 text-slate-400">
+      {packet.source.title && <h1 className="text-xl font-serif text-slate-200 mb-3">{packet.source.title}</h1>}
+      {provenance?.reviewNote && <p className="text-sm text-amber-200/80 mb-3">{provenance.reviewNote}</p>}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -61,7 +66,7 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
               </h2>
 
               <Section label="Work">
-                {workId.toUpperCase()} — Satipaṭṭhāna Sutta (Foundations of Mindfulness).
+                {packet.source.title ?? (workId === 'mn10' ? 'MN10 — Satipaṭṭhāna Sutta (Foundations of Mindfulness).' : workId.toUpperCase())}
               </Section>
 
               {provenance?.oralLineage && (
@@ -114,7 +119,7 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
               )}
 
               {provenance?.translation && (
-                <Section label="Translation">
+                <Section label={packet.translations ? "Interlinear study draft" : "Translation"}>
                   {provenance.translation.url ? (
                     <ExternalLink url={provenance.translation.url}>{provenance.translation.translator}</ExternalLink>
                   ) : (
@@ -132,6 +137,9 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
                         <span className="text-slate-500">{provenance.translation.license}</span>
                       )}
                     </>
+                  )}
+                  {provenance.translation.methodology && (
+                    <p className="mt-1 text-xs text-slate-400">{provenance.translation.methodology}</p>
                   )}
                   {provenance.translation.institution && (
                     <span className="text-slate-500"> · via {provenance.translation.institution}</span>
@@ -160,10 +168,9 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
               )}
 
               <Section label="Annotation layer">
-                LexiconForge curated packet. Lexical glosses backed by Digital Pāli
-                Dictionary (DPD v0.4.20260501, CC BY-NC-SA 4.0) and SuttaCentral
-                aggregated dictionary entries. Curator-inferred grammatical claims
-                marked explicitly in tooltips.
+                {provenance?.annotationNote ?? (workId === 'mn10'
+                  ? 'LexiconForge curated packet. Lexical glosses backed by Digital Pāli Dictionary (DPD v0.4.20260501, CC BY-NC-SA 4.0) and SuttaCentral aggregated dictionary entries. Curator-inferred grammatical claims marked explicitly in tooltips.'
+                  : 'See this packet’s citations and notes for annotation sources.')}
               </Section>
 
               {provenance?.external && provenance.external.length > 0 && (
@@ -212,7 +219,7 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
 
               <Section label="Color & affordance guide">
                 <p className="text-xs text-slate-400 mb-3">
-                  The reader uses visual cues to teach Pāli grammar implicitly.
+                  The reader uses visual cues to teach {language} grammar implicitly.
                   No badges or labels — each cue means something specific.
                 </p>
                 <div className="space-y-3">
@@ -227,7 +234,7 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
                       </li>
                       <li>
                         <span className="text-slate-200 font-serif text-base">aaa</span>
-                        <span className="text-slate-400"> — function word (small connector — Pāli marks 'by/of/to' inline on the noun)</span>
+                        <span className="text-slate-400"> — function word (small connector — {language} marks 'by/of/to' inline on the noun)</span>
                       </li>
                       <li>
                         <span className="text-yellow-400 font-serif text-base">aaa</span>
@@ -261,7 +268,7 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
                       English scaffolding (ghost words)
                     </div>
                     <p className="text-xs text-slate-400 mb-1.5">
-                      English words rendered in italic + faded opacity are <em>supplied</em> — they have no direct Pāli source.
+                      English words rendered in italic + faded opacity are <em>supplied</em> — they have no direct {language} source.
                       Underline style names <em>why</em> they were added:
                     </p>
                     <ul className="space-y-1 text-xs text-slate-400">
@@ -271,7 +278,7 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
                       </li>
                       <li>
                         <em className="text-slate-400 border-b border-dotted border-slate-700/70">I</em>{' '}
-                        — pronoun supplied by a Pāli case-marker (e.g., the genitive <code className="text-slate-300">me</code>)
+                        — pronoun supplied by a {language} case-marker (e.g., the genitive <code className="text-slate-300">me</code>)
                       </li>
                       <li>
                         <em className="text-slate-400">expansion</em>{' '}
@@ -289,7 +296,7 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
                       Grammar arrows (study mode)
                     </div>
                     <p className="text-xs text-slate-400 mb-1.5">
-                      When grammar arrows are on, Pāli case-relations show colored arrows between segments:
+                      When grammar arrows are on, {language} case-relations show colored arrows between segments:
                     </p>
                     <ul className="space-y-1 text-xs">
                       <li>
@@ -313,7 +320,7 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
 
                   <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-500 leading-relaxed">
                     <p>
-                      Hover any Pāli segment for its tooltip; click to cycle through facets when more than one is available
+                      Hover any {language} segment for its tooltip; click to cycle through facets when more than one is available
                       (look for <span className="font-mono tabular-nums bg-slate-900 border border-slate-700 text-slate-400 rounded-full px-1 text-[9px]">1/2</span> indicator).
                       Settings (gear icon, top-right) toggles arrows, ghosts, grammar terms, and refrain colors independently.
                     </p>
@@ -321,25 +328,24 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
                 </div>
               </Section>
 
-              <Section label="Unknowns" tone="muted">
+              {showUnknowns && <Section label="Unknowns" tone="muted">
                 <ul className="list-disc list-outside ml-4 space-y-1 text-slate-500 text-xs">
+                  {provenance?.unknowns ? provenance.unknowns.map((note, i) => <li key={i}>{note}</li>) : <>
                   {(!provenance?.manuscripts || provenance.manuscripts.length === 0) && (
                     <li>
                       No single manuscript witness is attached to this packet. The
                       digital text is edition-derived (modern critical edition
-                      based on Pāli canonical recension), not a direct manuscript
+                      based on a textual recension), not a direct manuscript
                       facsimile.
                     </li>
                   )}
                   {!provenance?.firstWritten && (
                     <li>
                       First written attestation date and place are not recorded
-                      for this packet. Pāli canonical material was transmitted
-                      orally for centuries before being written down; later
-                      attempts to attribute a single first-writing event to MN10
-                      specifically should be treated as traditional, not attested.
+                      for this packet.
                     </li>
                   )}
+                  {workId === 'mn10' && <>
                   <li>
                     Per-segment variant readings (where witnesses disagree on the
                     Pāli wording) are available via SC bilara <code className="text-slate-400">variant-pli-ms</code>{' '}
@@ -351,8 +357,10 @@ export function AboutThisText({ packet }: { packet: DeepLoomPacket }) {
                     this packet; commentarial attestations cannot be surfaced for
                     these lines until that provider lands.
                   </li>
+                  </>}
+                  </>}
                 </ul>
-              </Section>
+              </Section>}
             </div>
           </motion.div>
         )}

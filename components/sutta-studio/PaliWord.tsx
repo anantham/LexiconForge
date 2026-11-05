@@ -7,10 +7,16 @@ import type { StudioSettings } from './SettingsPanel';
 import { REFRAIN_COLORS, RELATION_COLORS, RELATION_GLYPHS, RELATION_HOOK } from './palette';
 import { getWordColor, hasTextSelection, resolveSenseId, resolveSegmentTooltip, segDomId, segmentIdToDomId, stripEmoji, stripGrammarTerms, wordDomId } from './utils';
 import { Tooltip } from './Tooltip';
+import { SanskritReadingTooltip } from './SanskritReadingTooltip';
 
 export const PaliWordEngine = memo(function PaliWordEngine({
   phaseId,
   wordData,
+  wrapSegments = false,
+  sourceLanguage,
+  openReadingId,
+  onReadingToggle,
+  onReadingClose,
   activeIndex,
   activeSegmentIndices,
   tooltipFacetIndices,
@@ -23,6 +29,11 @@ export const PaliWordEngine = memo(function PaliWordEngine({
 }: {
   phaseId: string;
   wordData: PaliWord;
+  wrapSegments?: boolean;
+  sourceLanguage?: 'pli' | 'sa';
+  openReadingId?: string | null;
+  onReadingToggle?: (segmentDomId: string) => void;
+  onReadingClose?: () => void;
   activeIndex: number;
   activeSegmentIndices?: Record<string, number>;
   tooltipFacetIndices?: Record<string, number>;
@@ -35,12 +46,18 @@ export const PaliWordEngine = memo(function PaliWordEngine({
 }) {
   const wDomId = wordDomId(phaseId, wordData.id);
   const isWordFocused = hovered?.phaseId === phaseId && hovered?.wordId === wordData.id;
+  const isSanskrit = sourceLanguage === 'sa';
+  const writtenIast = wordData.segments.map(s => s.text).join('');
+  const readingPinned = Boolean(openReadingId && wordData.segments.some((seg, i) =>
+    openReadingId === (seg.id ? segmentIdToDomId(phaseId, seg.id) : segDomId(phaseId, wordData.id, i))));
+  const showReading = isSanskrit && (readingPinned || (!openReadingId && isWordFocused && hovered?.kind === 'segment' && settings.tooltips));
 
   // Refrain colors (for repeated formulas) - gated by settings
   const refrainStyle = wordData.refrainId && settings.refrainColors ? REFRAIN_COLORS[wordData.refrainId] : null;
 
   const onWordClick = () => {
     if (hasTextSelection()) return;
+    if (isSanskrit) return;
     cycle(wordData.id);
   };
 
@@ -57,15 +74,15 @@ export const PaliWordEngine = memo(function PaliWordEngine({
     <motion.div
       id={wDomId}
       data-interactive="true"
-      className={`flex flex-col items-center mx-1 md:mx-2 bg-slate-950 relative z-10 ${
+      className={`max-w-full flex flex-col items-center mx-1 md:mx-2 bg-slate-950 relative z-10 ${
         isWordFocused ? 'ring-1 ring-emerald-900/50 rounded' : ''
       } ${refrainStyle ? `border-b-2 ${refrainStyle.underline} pb-1` : ''} ${
         isAnchor && !refrainStyle ? 'border-b-2 border-amber-700/30 pb-0.5' : ''
       }`}
       onClick={onWordClick}
-      title="Click: rotate meaning"
+      title={isSanskrit ? undefined : 'Click: rotate meaning'}
     >
-      <div className={`text-3xl md:text-5xl lg:text-6xl font-serif flex items-end ${getWordColor(wordData.wordClass, wordData.color)} ${
+      <div className={`text-3xl md:text-5xl lg:text-6xl font-serif flex items-end ${wrapSegments ? 'flex-wrap justify-center max-w-full' : ''} ${getWordColor(wordData.wordClass, wordData.color)} ${
         isAnchor ? 'font-medium' : ''
       }`}>
         {wordData.segments.map((seg: WordSegment, i: number) => {
@@ -74,6 +91,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
             ? segmentIdToDomId(phaseId, seg.id)
             : segDomId(phaseId, wordData.id, i);
           const isHovered = hovered?.kind === 'segment' && hovered.segmentDomId === sDomId;
+          const focusSegment = () => setHovered({ kind: 'segment', phaseId, wordId: wordData.id, segmentId: seg.id, segmentIndex: i, segmentDomId: sDomId, data: seg });
 
           // Resolve active sense for this segment (segment-level senses take priority over word-level)
           const segKey = seg.id ? `${phaseId}-${seg.id}` : null;
@@ -115,7 +133,22 @@ export const PaliWordEngine = memo(function PaliWordEngine({
               key={i}
               id={sDomId}
               data-interactive="true"
-              className={`relative px-[2px] rounded transition-all duration-150 ${
+              data-sanskrit-reading={isSanskrit ? 'true' : undefined}
+              role={isSanskrit ? 'button' : undefined}
+              tabIndex={isSanskrit ? (i === 0 ? 0 : -1) : undefined}
+              aria-label={isSanskrit ? `Read ${writtenIast}` : undefined}
+              aria-expanded={isSanskrit ? openReadingId === sDomId : undefined}
+              onFocus={isSanskrit ? focusSegment : undefined}
+              onBlur={isSanskrit ? () => setHovered(null) : undefined}
+              onKeyDown={isSanskrit ? e => {
+                if (e.target !== e.currentTarget) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault(); e.stopPropagation(); onReadingToggle?.(sDomId);
+                } else if (e.key === 'Escape') {
+                  e.stopPropagation(); onReadingClose?.();
+                }
+              } : undefined}
+              className={`relative px-[2px] rounded transition-all duration-150 ${wrapSegments ? 'min-w-0 max-w-full break-words' : ''} ${
                 isHovered
                   ? 'bg-white/5 z-20 border-b-2 border-white/60 pb-1 -mb-1'
                   : 'border-b-2 border-transparent pb-0'
@@ -123,6 +156,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
               onClick={(e) => {
                 e.stopPropagation();
                 if (hasTextSelection()) return;
+                if (isSanskrit) { focusSegment(); onReadingToggle?.(sDomId); return; }
                 // Click cycles through the segment's tooltip facets (when
                 // there's more than one) and through segment-level senses
                 // (when the segment has its own senses). No pin side-effect;
@@ -148,7 +182,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
               onMouseLeave={() => {
                 setHovered(null);
               }}
-              title={settings.tooltips && !showTooltip ? 'Hover: details · Click: cycle facets' : ''}
+              title={isSanskrit ? 'Hover or tap: Devanāgarī and reading' : settings.tooltips && !showTooltip ? 'Hover: details · Click: cycle facets' : ''}
             >
               {seg.text}
 
@@ -169,7 +203,7 @@ export const PaliWordEngine = memo(function PaliWordEngine({
               </AnimatePresence>
 
               <AnimatePresence>
-                {showTooltip && tooltipText && (
+                {!isSanskrit && showTooltip && tooltipText && (
                   <Tooltip
                     text={tooltipText}
                     facetIndex={tooltipsArr.length > 1 ? tooltipFacetIdx % tooltipsArr.length : undefined}
@@ -181,6 +215,14 @@ export const PaliWordEngine = memo(function PaliWordEngine({
           );
         })}
       </div>
+      <AnimatePresence>
+        {showReading && <SanskritReadingTooltip
+          iast={writtenIast}
+          note={wordData.senses[activeIndex]?.notes ?? 'No word note supplied.'}
+          pinned={readingPinned}
+          onClose={() => onReadingClose?.()}
+        />}
+      </AnimatePresence>
     </motion.div>
   );
 });

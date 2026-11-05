@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 
 export function Tooltip({
   text,
   facetIndex,
   facetTotal,
+  children,
+  interactive = false,
 }: {
   text: string;
+  children?: ReactNode;
+  interactive?: boolean;
   /** 0-indexed facet currently shown. Only set when there are multiple facets. */
   facetIndex?: number;
   /** Total facet count for this segment. Only set when > 1. */
@@ -86,7 +90,7 @@ export function Tooltip({
       // translateX). Inline style wins over Tailwind for both.
       className={`absolute ${
         leftPx === null ? 'left-1/2 -translate-x-1/2' : ''
-      } ${flipBelow ? 'top-full mt-3' : 'bottom-full mb-3'} bg-slate-900/90 border border-slate-700 text-slate-200 text-xs leading-relaxed px-3 py-2 rounded shadow-xl whitespace-normal break-words text-left z-50 select-none pointer-events-none`}
+      } ${flipBelow ? 'top-full mt-3' : 'bottom-full mb-3'} bg-slate-900/90 border border-slate-700 text-slate-200 text-xs leading-relaxed px-3 py-2 rounded shadow-xl whitespace-normal break-words text-left z-50 select-none ${interactive ? 'pointer-events-auto' : 'pointer-events-none'}`}
       style={{
         // Inline maxWidth — Tailwind arbitrary-value parsing chokes on nested
         // CSS functions like `min(28rem, calc(100vw - 1rem))`. Inline style
@@ -103,7 +107,7 @@ export function Tooltip({
           {(facetIndex ?? 0) + 1}/{facetTotal}
         </span>
       )}
-      {text}
+      {children ?? text}
     </motion.div>
   );
 }

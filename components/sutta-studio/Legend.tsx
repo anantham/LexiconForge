@@ -33,7 +33,7 @@ export function Legend({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
           <div className="p-4 overflow-y-auto space-y-5 text-sm">
             {/* Word colors */}
             <section>
-              <div className="text-slate-500 text-xs uppercase tracking-wide mb-2">Word colors</div>
+              <div className="text-slate-500 text-xs uppercase tracking-wide mb-2">Word colors (Pāli examples)</div>
               <div className="space-y-1.5 font-serif">
                 <div className="flex items-baseline gap-3">
                   <span className="text-emerald-400 text-base w-20">bhagavā</span>
@@ -82,7 +82,7 @@ export function Legend({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             {/* Diacritics — lead with the English example readers already know,
                 technical name is parenthetical */}
             <section>
-              <div className="text-slate-500 text-xs uppercase tracking-wide mb-2">Diacritics — sound by example</div>
+              <div className="text-slate-500 text-xs uppercase tracking-wide mb-2">Pāli diacritics — sound by example</div>
               <div className="space-y-2 font-serif">
                 <div className="flex flex-col gap-0.5">
                   <div className="flex items-baseline gap-3">
@@ -167,8 +167,8 @@ export function Legend({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             {/* Audit panel reminder */}
             <section className="pt-2 border-t border-slate-800/50">
               <div className="text-slate-500 text-xs leading-relaxed">
-                Hover any Pāli word, then toggle <span className="text-slate-300">Audit panel</span> in
-                Settings to see senses, scholarly notes, pronunciation, and citations.
+                Click an English rendering, then toggle <span className="text-slate-300">Audit panel</span> in
+                Settings to see available senses, notes, pronunciation, and citations.
               </div>
             </section>
           </div>

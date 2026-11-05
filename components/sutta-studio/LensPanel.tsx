@@ -87,9 +87,11 @@ export function LensPanel({
   activeIndices,
   setActiveIndex,
   citations,
+  sourceLanguage = 'Pāli',
   showNotes = true,
   showCitationChips = true,
 }: {
+  sourceLanguage?: string;
   phase: PhaseView;
   pinned: Focus;
   onClose: () => void;
@@ -189,8 +191,8 @@ export function LensPanel({
               <div className="text-slate-200 font-semibold flex items-center gap-2 flex-wrap">
                 <span className={`${word.color ?? 'text-slate-200'} font-serif text-lg`}>{paliText}</span>
                 <CopyButton
-                  onCopy={() => copyText(paliText, 'Pāli')}
-                  title="Copy Pāli word"
+                  onCopy={() => copyText(paliText, sourceLanguage)}
+                  title={`Copy ${sourceLanguage} word`}
                 />
                 <span className="text-slate-600 text-xs">
                   {pinned.kind === 'segment' ? `segment ${pinned.segmentIndex + 1}` : 'word'}
