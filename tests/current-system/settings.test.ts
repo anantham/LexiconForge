@@ -3,8 +3,9 @@ import { useAppStore } from '../../store';
 import { defaultSettings } from '../../services/sessionManagementService';
 import { createMockStorage, applyStorageMock } from '../utils/storage-mocks';
 import type { EnhancedChapter } from '../../services/stableIdService';
-import type { AppSettings, TranslationResult } from '../../types';
+import type { AppSettings, PromptTemplate, TranslationResult } from '../../types';
 import { audioService } from '../../services/audio/AudioService';
+import { TemplatesOps } from '../../services/db/operations';
 
 const resetStoreState = () => {
   useAppStore.setState({
@@ -15,6 +16,9 @@ const resetStoreState = () => {
     urlIndex: new Map(),
     rawUrlIndex: new Map(),
     settings: { ...defaultSettings },
+    promptTemplates: [],
+    activePromptTemplate: null,
+    settingsError: null,
   });
 };
 
@@ -62,7 +66,31 @@ describe('Settings slice integration', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     resetStoreState();
+  });
+
+  it('keeps loaded prompt templates and exposes failed reloads in settings state', async () => {
+    const template: PromptTemplate = {
+      id: 'saved-template',
+      name: 'Saved template',
+      content: 'Translate precisely.',
+      createdAt: '2026-10-24T00:00:00.000Z',
+      isDefault: true,
+    };
+    useAppStore.setState({
+      promptTemplates: [template],
+      activePromptTemplate: template,
+      settingsError: null,
+    });
+    vi.spyOn(TemplatesOps, 'getAll').mockRejectedValueOnce(new Error('Database is unavailable'));
+
+    await expect(useAppStore.getState().loadPromptTemplates()).resolves.toBeUndefined();
+
+    const state = useAppStore.getState();
+    expect(state.promptTemplates).toEqual([template]);
+    expect(state.activePromptTemplate).toEqual(template);
+    expect(state.settingsError).toContain('Database is unavailable');
   });
 
   it('persists settings updates to localStorage', () => {

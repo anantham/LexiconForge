@@ -6,35 +6,13 @@
  */
 
 import React from 'react';
+import type { MemoryDiagnostics } from '../../store/slices/chaptersSlice';
+import type { DiskDiagnostics } from './types';
 
-interface RAMStats {
-  totalChapters: number;
-  chaptersWithTranslations: number;
-  chaptersWithImages: number;
-  imagesInCache: number;
-  imagesInRAM: number;
-  estimatedRAM: {
-    totalMB: number;
-    chapterContentBytes: number;
-    base64ImageBytes: number;
-  };
-  warnings?: string[];
-}
-
-interface DiskDiagnostics {
-  disk: {
-    totalChapters: number;
-    totalTranslations: number;
-    totalImages: number;
-    imagesInCache: number;
-    imagesLegacy: number;
-  };
-  quota: {
-    usedMB: number;
-    quotaMB: number;
-    percentUsed: number;
-  } | null;
-}
+type RAMStats = Omit<MemoryDiagnostics, 'estimatedRAM' | 'warnings'> & {
+  estimatedRAM: Omit<MemoryDiagnostics['estimatedRAM'], 'totalBytes'>;
+  warnings?: MemoryDiagnostics['warnings'];
+};
 
 interface StorageDiagnosticsSectionProps {
   expanded: boolean;

@@ -69,7 +69,7 @@ export const NovelCard: React.FC<NovelCardProps> = ({
         )}
 
         {/* Language Info */}
-        <p className="text-gray-500 dark:text-gray-500 text-xs mb-3">
+        <p className="text-gray-500 dark:text-gray-400 text-xs mb-3">
           {novel.metadata.originalLanguage}
         </p>
 

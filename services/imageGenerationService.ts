@@ -19,6 +19,7 @@ import type { EnhancedChapter } from './stableIdService';
 import { debugLog, debugWarn } from '../utils/debug';
 import { compileIllustrationPrompt, ensureIllustrationPlan } from './imagePlanService';
 import type { ImageJobLifecycleEvent } from './imageJobTypes';
+import { getImageErrorDetails } from './imageErrors';
 
 type ConsoleArgs = Parameters<typeof console.log>;
 const slog = (message: string, ...args: ConsoleArgs) => debugLog('image', 'summary', message, ...args);
@@ -96,9 +97,9 @@ export class ImageGenerationService {
     const imageStateUpdates: Record<string, ImageState> = {};
     let foundExistingImages = false;
 
-    translationResult.suggestedIllustrations.forEach((illust: any) => {
+    translationResult.suggestedIllustrations.forEach((illust) => {
       const generated = illust.generatedImage;
-      const url = (illust as any)?.url;
+      const url = illust?.url;
       const hasCacheKey = !!generated?.imageCacheKey;
       const base64Data = generated?.imageData && generated.imageData.length > 0 ? generated.imageData : null;
       const legacyData = typeof url === 'string' && url.trim().length > 0 ? url : null;
@@ -147,7 +148,7 @@ export class ImageGenerationService {
 
     // Initialize loading states for all illustrations
     const initialImageStates: Record<string, ImageState> = {};
-    translationResult.suggestedIllustrations.forEach((illust: any) => {
+    translationResult.suggestedIllustrations.forEach((illust) => {
       if (illust.generatedImage || context.excludedPlacementMarkers?.has(illust.placementMarker)) return;
       const key = `${chapterId}:${illust.placementMarker}`;
       initialImageStates[key] = { isLoading: true, data: null, error: null };
@@ -168,7 +169,7 @@ export class ImageGenerationService {
     // upstream; this is the defense-in-depth guard at the point where money is actually spent.
     const seenMarkers = new Set<string>();
     const illustrationsNeedingGeneration = translationResult.suggestedIllustrations.filter(
-      (illust: any) => {
+      (illust) => {
         if (context.excludedPlacementMarkers?.has(illust.placementMarker)) return false;
         if (illust.generatedImage) return false;
         if (seenMarkers.has(illust.placementMarker)) {
@@ -263,7 +264,7 @@ export class ImageGenerationService {
         // Store in chapter's translationResult for persistence
         if (chapter && chapter.translationResult) {
           const suggestionIndex = chapter.translationResult.suggestedIllustrations.findIndex(
-            (s: any) => s.placementMarker === illust.placementMarker
+            (s) => s.placementMarker === illust.placementMarker
           );
           
           if (suggestionIndex >= 0) {
@@ -306,7 +307,7 @@ export class ImageGenerationService {
             target.imagePlanSourceCaption = compiled.imagePlanSourceCaption;
             // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
             if (enrichedResult.imageData && enrichedResult.imageData.length > 0) {
-              (target as any).url = enrichedResult.imageData;
+              target.url = enrichedResult.imageData;
             }
 
             const currentState = chapter.translationResult.imageVersionState ?? {};
@@ -327,7 +328,7 @@ export class ImageGenerationService {
             try {
               await TranslationPersistenceService.persistUpdatedTranslation(
                 chapter.id,
-                chapter.translationResult as any,
+                chapter.translationResult,
                 {
                   provider: settings.provider,
                   model: settings.model,
@@ -363,8 +364,9 @@ export class ImageGenerationService {
         
         slog(`[ImageGen] Successfully generated and stored image for ${illust.placementMarker}`);
         
-      } catch (error: any) {
-        console.error(`[ImageGen] Failed to generate image for ${illust.placementMarker}:`, error);
+      } catch (caught) {
+        const error = getImageErrorDetails(caught);
+        console.error(`[ImageGen] Failed to generate image for ${illust.placementMarker}:`, caught);
         
         // Enhanced error message with suggestions
         let errorMessage = error.message || 'Image generation failed';
@@ -420,7 +422,7 @@ export class ImageGenerationService {
     const { chapters, settings, steeringImages, negativePrompts, guidanceScales, loraModels, loraStrengths } = context;
     const chapter = chapters.get(chapterId);
     const illust = chapter?.translationResult?.suggestedIllustrations?.find(
-      (i: any) => i.placementMarker === placementMarker
+      (i) => i.placementMarker === placementMarker
     );
 
     if (!illust) {
@@ -500,7 +502,7 @@ export class ImageGenerationService {
       // Update chapter translation and persist
       if (chapter && chapter.translationResult) {
         const suggestionIndex = chapter.translationResult.suggestedIllustrations.findIndex(
-          (s: any) => s.placementMarker === placementMarker
+          (s) => s.placementMarker === placementMarker
         );
         
         if (suggestionIndex >= 0) {
@@ -549,7 +551,7 @@ export class ImageGenerationService {
           target.imagePlanSourceCaption = compiled.imagePlanSourceCaption;
           // Write base64 into url so UI/exports can embed images (only for legacy base64, not cache keys)
           if (enrichedResult.imageData && enrichedResult.imageData.length > 0) {
-            (target as any).url = enrichedResult.imageData;
+            target.url = enrichedResult.imageData;
           }
 
           const currentState = chapter.translationResult.imageVersionState ?? {};
@@ -569,7 +571,7 @@ export class ImageGenerationService {
           try {
             await TranslationPersistenceService.persistUpdatedTranslation(
               chapter.id,
-              chapter.translationResult as any,
+              chapter.translationResult,
               {
                 provider: settings.provider,
                 model: settings.model,
@@ -604,8 +606,9 @@ export class ImageGenerationService {
         }
       };
 
-    } catch (error: any) {
-      console.error(`[ImageGen] Failed to retry image for ${placementMarker}:`, error);
+    } catch (caught) {
+      const error = getImageErrorDetails(caught);
+      console.error(`[ImageGen] Failed to retry image for ${placementMarker}:`, caught);
       const canRetry = error?.canRetry === true || error?.retryable === true;
       
       return {
@@ -677,7 +680,7 @@ export class ImageGenerationService {
       return false;
     }
 
-    return translationResult.suggestedIllustrations.some((illust: any) => !illust.generatedImage);
+    return translationResult.suggestedIllustrations.some((illust) => !illust.generatedImage);
   }
 
   /**
@@ -690,7 +693,7 @@ export class ImageGenerationService {
     }
 
     const total = translationResult.suggestedIllustrations.length;
-    const generated = translationResult.suggestedIllustrations.filter((illust: any) => illust.generatedImage).length;
+    const generated = translationResult.suggestedIllustrations.filter((illust) => illust.generatedImage).length;
     const pending = total - generated;
 
     return { total, generated, pending };

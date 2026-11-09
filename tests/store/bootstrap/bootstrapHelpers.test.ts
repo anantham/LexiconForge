@@ -675,6 +675,7 @@ describe('bootstrap helpers', () => {
       await initializeStore();
 
       expect(importServiceMock.importFromUrl).toHaveBeenCalledWith(
+        ctx.store,
         'https://example.com/orv/session.json',
         undefined,
         { registryNovelId: 'orv', registryVersionId: null }
@@ -777,6 +778,7 @@ describe('bootstrap helpers', () => {
       await initializeStore();
 
       expect(importServiceMock.importFromUrl).toHaveBeenCalledWith(
+        ctx.store,
         'https://example.com/orv-v2/session.json',
         undefined,
         { registryNovelId: 'orv', registryVersionId: 'v2' }
@@ -835,6 +837,7 @@ describe('bootstrap helpers', () => {
         'warning'
       );
       expect(importServiceMock.importFromUrl).toHaveBeenCalledWith(
+        ctx.store,
         'https://example.com/orv-v2/session.json',
         undefined,
         { registryNovelId: 'orv', registryVersionId: 'v2' }

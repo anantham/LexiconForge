@@ -1,5 +1,11 @@
 import React from 'react';
 import { DEMO_PACKET_MN10 } from '../sutta-studio/demoPacket';
+import type {
+  AnatomistPass, AnatomistWord, DeepLoomPacket, EnglishToken,
+  LexicographerEntry, PaliWord, TypesetterPass,
+} from '../../types/suttaStudio';
+import type { Leaderboard, LeaderboardEntry } from '../../scripts/sutta-studio/generate-leaderboard';
+import type { CompareArtifact } from '../../scripts/sutta-studio/publish-compare';
 
 type PassName = 'skeleton' | 'anatomist' | 'lexicographer' | 'weaver' | 'typesetter';
 
@@ -24,6 +30,23 @@ type ValidationMetrics = {
   hasErrors: boolean;
 };
 
+type PipelinePassOutputs = {
+  anatomist?: {
+    words: Array<Pick<AnatomistWord, 'id' | 'surface' | 'segmentIds'> & Pick<PaliWord, 'wordClass'>>;
+    segments: Array<Pick<AnatomistPass['segments'][number], 'id'>>;
+    relations?: Array<Pick<NonNullable<AnatomistPass['relations']>[number], 'type'>>;
+  };
+  lexicographer?: { senses: Array<Pick<LexicographerEntry, 'wordId' | 'senses'>> };
+  weaver?: {
+    tokens?: Array<Pick<EnglishToken, 'isGhost' | 'linkedPaliId' | 'linkedSegmentId'>>;
+    englishStructure?: Array<Pick<EnglishToken, 'isGhost' | 'linkedPaliId' | 'linkedSegmentId'>>;
+  };
+  typesetter?: Pick<TypesetterPass, 'layoutBlocks' | 'handoff'>;
+  errors?: Record<string, string | null>;
+};
+
+type CompareWord = CompareArtifact['phases'][number]['words'][number];
+
 type BenchEntry = {
   id: string;
   label: string;
@@ -35,15 +58,8 @@ type BenchEntry = {
   segments: SkeletonSegment[];
   phases: SkeletonPhase[];
   // Pipeline outputs per phase
-  pipelineOutputs?: Record<string, {
-    anatomist?: any;
-    lexicographer?: any;
-    weaver?: any;
-    typesetter?: any;
-    errors?: Record<string, string | null>;
-  }>;
-  // Full packet for preview
-  packet?: any;
+  pipelineOutputs?: Record<string, PipelinePassOutputs>;
+  packet?: DeepLoomPacket | null;
   // Validation metrics from packet.compiler.validationIssues
   validation?: ValidationMetrics;
 };
@@ -70,55 +86,6 @@ type BenchIndexEntry = {
 };
 
 type RunStatus = 'complete' | 'partial' | 'failed' | 'golden';
-
-type LeaderboardEntry = {
-  rank: number;
-  modelId: string;
-  modelName: string;
-  overallScore: number;
-  // v2.0 rubric (ADR SUTTA-009) + semantic judge (SUTTA-010)
-  fidelityScore: number;
-  segmentationFidelity: number;
-  contentFidelity: number;
-  // v2.2 ranked trio + score anatomy (optional: older deployed boards predate them)
-  factsCore?: number;
-  senseF1?: number;
-  knowledgeScore?: number;
-  gateKept?: number | null;
-  gateDamagedPhases?: number;
-  contentSemantic: number | null;
-  judgeModel: string | null;
-  selfJudge?: boolean; // judge is the same model; absent on older boards
-  paliWordCoverage: number;
-  // legacy v1 aggregates (may be absent on new boards)
-  coverageScore?: number;
-  validityScore?: number;
-  richnessScore?: number;
-  grammarScore?: number;
-  tokensTotal: number;
-  durationMs: number;
-  costUsd: number | null;
-  phasesCount: number;
-  runTimestamp: string;
-  runId: string;
-  packetPath: string;
-};
-
-type Leaderboard = {
-  generatedAt: string;
-  promptVersion: string;
-  rubricVersion?: string;
-  status?: string;
-  coverageNote?: string;
-  methodology: {
-    docsUrl: string;
-    rankingMetric: string;
-    aggregation: string;
-    description?: string;
-  };
-  excluded?: { models: string[]; reasons: string[] };
-  entries: LeaderboardEntry[];
-};
 
 // Derive status from entry metrics
 const getEntryStatus = (entry: BenchIndexEntry): RunStatus => {
@@ -193,7 +160,7 @@ const buildLabel = (entry: BenchIndexEntry) => {
 };
 
 // Extract validation metrics from packet
-const extractValidationMetrics = (packet: any): ValidationMetrics | undefined => {
+const extractValidationMetrics = (packet: DeepLoomPacket | null | undefined): ValidationMetrics | undefined => {
   const issues = packet?.compiler?.validationIssues;
   if (!issues || !Array.isArray(issues)) return undefined;
 
@@ -277,9 +244,9 @@ function PhaseStat({ label, value, tip }: { label: string; value: string; tip: s
 }
 
 /** The exact token diff the Content-F1 metric counted for one word — makes the score auditable. */
-function TokenDiffRow({ tokens }: { tokens: any }) {
+function TokenDiffRow({ tokens }: { tokens: CompareWord['tokens'] }) {
   if (!tokens) return null;
-  const n = (a: any[]) => a?.length || 0;
+  const n = (a: readonly string[]) => a?.length || 0;
   return (
     <details className="mt-1.5 rounded border border-gray-200 bg-white/70 px-2 py-1">
       <summary className="cursor-pointer select-none text-[11px] text-gray-500">
@@ -302,7 +269,7 @@ function TokenDiffRow({ tokens }: { tokens: any }) {
 }
 
 /** SUTTA-010 judge verdict for one word: score + verdict badge + one-line rationale. */
-function JudgeRow({ judge }: { judge: any }) {
+function JudgeRow({ judge }: { judge: CompareWord['judge'] }) {
   if (!judge) return null;
   const style = JUDGE_VERDICT_STYLE[judge.verdict] || 'bg-gray-100 text-gray-600';
   return (
@@ -324,7 +291,7 @@ function JudgeRow({ judge }: { judge: any }) {
  *  Data comes from public/benchmarks/compare/<modelId>.json (built by publish-compare.ts).
  *  Shows, per phase, how each pipeline stage did: Anatomist (morpheme split), Lexicographer
  *  (tooltips + senses, with the exact Content-F1 token diff), and the semantic judge. */
-function ComparePanel({ modelId, data, loading, onBack }: { modelId: string; data: any; loading: boolean; onBack: () => void }) {
+function ComparePanel({ modelId, data, loading, onBack }: { modelId: string; data: CompareArtifact | null; loading: boolean; onBack: () => void }) {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
@@ -346,7 +313,7 @@ function ComparePanel({ modelId, data, loading, onBack }: { modelId: string; dat
               <li><span className="font-medium">Judge (semantic)</span> — a neutral LLM reads golden vs model per word and scores <em>meaning</em>: correct-but-differently-worded ≈ 1.0, omission docked mildly, hallucination capped hard.</li>
             </ul>
           </div>
-          {data.phases.map((phase: any) => (
+          {data.phases.map((phase) => (
             <div key={phase.phaseId} className="rounded-lg border border-gray-200 p-3">
               <div className="mb-1 flex items-baseline gap-2">
                 <span className="text-[11px] uppercase tracking-wide text-gray-400">{phase.phaseId}</span>
@@ -367,7 +334,7 @@ function ComparePanel({ modelId, data, loading, onBack }: { modelId: string; dat
                 <div>Golden</div><div>{modelId}</div>
               </div>
               <div className="space-y-2">
-                {phase.words.map((w: any, i: number) => (
+                {phase.words.map((w, i: number) => (
                   <div key={i}>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="rounded bg-gray-50 p-2">
@@ -394,7 +361,7 @@ function ComparePanel({ modelId, data, loading, onBack }: { modelId: string; dat
                 ))}
               </div>
               {phase.unmatched?.length ? (
-                <div className="mt-2 text-xs text-gray-500"><span className="font-medium">Model-only words (no golden reference):</span> {phase.unmatched.map((u: any) => u.surface).join(', ')}</div>
+                <div className="mt-2 text-xs text-gray-500"><span className="font-medium">Model-only words (no golden reference):</span> {phase.unmatched.map((u) => u.surface).join(', ')}</div>
               ) : null}
             </div>
           ))}
@@ -412,20 +379,21 @@ const PASS_OPTIONS: { value: PassName; label: string }[] = [
   { value: 'typesetter', label: 'Typesetter (layout blocks)' },
 ];
 
-const PassOutput: React.FC<{ pass: PassName; data: any; phaseId: string }> = ({ pass, data, phaseId }) => {
-  if (!data) {
+const PassOutput: React.FC<{ pass: Exclude<PassName, 'skeleton'>; outputs: PipelinePassOutputs }> = ({ pass, outputs }) => {
+  if (!outputs[pass]) {
     return <div className="text-xs text-gray-400 italic">No {pass} output</div>;
   }
 
   if (pass === 'anatomist') {
-    const words = data.words || [];
-    const segments = data.segments || [];
-    const relations = data.relations || [];
+    const data = outputs.anatomist;
+    const words = data?.words || [];
+    const segments = data?.segments || [];
+    const relations = data?.relations || [];
     return (
       <div className="text-xs space-y-1">
         <div><span className="font-medium">Words:</span> {words.length}</div>
         <div className="pl-2 space-y-0.5">
-          {words.slice(0, 5).map((w: any) => (
+          {words.slice(0, 5).map((w) => (
             <div key={w.id} className="text-gray-600">
               {w.id}: {w.surface} ({w.wordClass}) → {w.segmentIds?.length || 0} segs
             </div>
@@ -439,14 +407,15 @@ const PassOutput: React.FC<{ pass: PassName; data: any; phaseId: string }> = ({ 
   }
 
   if (pass === 'lexicographer') {
-    const senses = data.senses || [];
+    const data = outputs.lexicographer;
+    const senses = data?.senses || [];
     return (
       <div className="text-xs space-y-1">
         <div><span className="font-medium">Senses:</span> {senses.length}</div>
         <div className="pl-2 space-y-0.5">
-          {senses.slice(0, 5).map((s: any, i: number) => (
+          {senses.slice(0, 5).map((s, i: number) => (
             <div key={i} className="text-gray-600">
-              {s.wordId}: {s.senses?.map((sense: any) => sense.english).join(', ') || '(none)'}
+              {s.wordId}: {s.senses?.map((sense) => sense.english).join(', ') || '(none)'}
             </div>
           ))}
           {senses.length > 5 && <div className="text-gray-400">...and {senses.length - 5} more</div>}
@@ -456,9 +425,10 @@ const PassOutput: React.FC<{ pass: PassName; data: any; phaseId: string }> = ({ 
   }
 
   if (pass === 'weaver') {
-    const tokens = data.tokens || data.englishStructure || [];
-    const ghosts = tokens.filter((t: any) => t.isGhost);
-    const linked = tokens.filter((t: any) => t.linkedPaliId || t.linkedSegmentId);
+    const data = outputs.weaver;
+    const tokens = data?.tokens || data?.englishStructure || [];
+    const ghosts = tokens.filter((t) => t.isGhost);
+    const linked = tokens.filter((t) => t.linkedPaliId || t.linkedSegmentId);
     return (
       <div className="text-xs space-y-1">
         <div><span className="font-medium">Tokens:</span> {tokens.length}</div>
@@ -469,7 +439,8 @@ const PassOutput: React.FC<{ pass: PassName; data: any; phaseId: string }> = ({ 
   }
 
   if (pass === 'typesetter') {
-    const blocks = data.layoutBlocks || [];
+    const data = outputs.typesetter;
+    const blocks = data?.layoutBlocks || [];
     return (
       <div className="text-xs space-y-1">
         <div><span className="font-medium">Layout Blocks:</span> {blocks.length}</div>
@@ -480,7 +451,7 @@ const PassOutput: React.FC<{ pass: PassName; data: any; phaseId: string }> = ({ 
             </div>
           ))}
         </div>
-        {data.handoff && (
+        {data?.handoff && (
           <div className="text-gray-500 mt-1">
             Confidence: {data.handoff.confidence}
           </div>
@@ -489,7 +460,7 @@ const PassOutput: React.FC<{ pass: PassName; data: any; phaseId: string }> = ({ 
     );
   }
 
-  return <pre className="text-xs overflow-auto max-h-32">{JSON.stringify(data, null, 2)}</pre>;
+  return null;
 };
 
 const ValidationBadges: React.FC<{ validation?: ValidationMetrics }> = ({ validation }) => {
@@ -535,7 +506,6 @@ const PhaseList: React.FC<{
     <div className="space-y-2">
       {phases.map((phase, index) => {
         const pipelineData = pipelineOutputs?.[phase.id];
-        const passData = pass === 'skeleton' ? null : pipelineData?.[pass];
         const passError = pipelineData?.errors?.[pass];
 
         return (
@@ -552,7 +522,7 @@ const PhaseList: React.FC<{
                 {passError ? (
                   <div className="text-xs text-red-600">Error: {passError}</div>
                 ) : (
-                  <PassOutput pass={pass} data={passData} phaseId={phase.id} />
+                  <PassOutput pass={pass} outputs={pipelineData ?? {}} />
                 )}
               </div>
             )}
@@ -712,7 +682,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
 
   // Golden-vs-model comparison panel (opened from the "View" link)
   const [compareModel, setCompareModel] = React.useState<string | null>(null);
-  const [compareData, setCompareData] = React.useState<any>(null);
+  const [compareData, setCompareData] = React.useState<CompareArtifact | null>(null);
   const [compareLoading, setCompareLoading] = React.useState<boolean>(false);
   React.useEffect(() => {
     if (!compareModel) { setCompareData(null); return; }
@@ -721,7 +691,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
     setCompareData(null);
     fetch(`/benchmarks/compare/${encodeURIComponent(compareModel)}.json?ts=${Date.now()}`, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (!cancelled) { setCompareData(d); setCompareLoading(false); } })
+      .then((d: CompareArtifact | null) => { if (!cancelled) { setCompareData(d); setCompareLoading(false); } })
       .catch(() => { if (!cancelled) { setCompareData(null); setCompareLoading(false); } });
     return () => { cancelled = true; };
   }, [compareModel]);
@@ -827,8 +797,8 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
       }
       const data = (await response.json()) as Leaderboard;
       setLeaderboard(data);
-    } catch (err: any) {
-      setLeaderboardError(err?.message || 'Failed to load leaderboard.');
+    } catch (err) {
+      setLeaderboardError(err instanceof Error ? err.message : 'Failed to load leaderboard.');
     } finally {
       setLeaderboardLoading(false);
     }
@@ -938,22 +908,22 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
         for (const phase of goldenPhases) {
           pipelineOutputs[phase.id] = {
             anatomist: {
-              words: phase.paliWords?.map((w: any) => ({
+              words: phase.paliWords?.map((w) => ({
                 id: w.id,
-                surface: w.surface,
+                surface: w.segments.map(segment => segment.text).join(''),
                 wordClass: w.wordClass,
-                segmentIds: w.segments?.map((s: any) => s.id) ?? [],
+                segmentIds: w.segments?.map((s) => s.id) ?? [],
               })) ?? [],
-              segments: phase.paliWords?.flatMap((w: any) => w.segments ?? []) ?? [],
-              relations: phase.paliWords?.flatMap((w: any) =>
-                (w.segments ?? []).filter((s: any) => s.relation).map((s: any) => ({
+              segments: phase.paliWords?.flatMap((w) => w.segments ?? []) ?? [],
+              relations: phase.paliWords?.flatMap((w) =>
+                (w.segments ?? []).flatMap((s) => s.relation ? [{
                   segmentId: s.id,
                   ...s.relation,
-                }))
+                }] : [])
               ) ?? [],
             },
             lexicographer: {
-              senses: phase.paliWords?.map((w: any) => ({
+              senses: phase.paliWords?.map((w) => ({
                 wordId: w.id,
                 senses: w.senses ?? [],
               })) ?? [],
@@ -976,7 +946,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
           model: 'golden (DEMO_PACKET_MN10)',
           provider: null,
           segments: [],
-          phases: goldenPhases.map((p: any) => ({
+          phases: goldenPhases.map((p) => ({
             id: p.id,
             title: p.title ?? null,
             segmentIds: p.canonicalSegmentIds ?? [],
@@ -995,7 +965,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
       if (!response.ok) {
         throw new Error(`Failed to load output: ${response.status}`);
       }
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as Pick<BenchEntry, 'segments' | 'phases' | 'model' | 'provider'>;
 
       // Try to load pipeline outputs for each phase
       const pipelineOutputs: BenchEntry['pipelineOutputs'] = {};
@@ -1010,7 +980,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
               { cache: 'no-store' }
             );
             if (pipelineResponse.ok) {
-              const pipelineData = await pipelineResponse.json();
+              const pipelineData = (await pipelineResponse.json()) as { output?: PipelinePassOutputs; errors?: PipelinePassOutputs['errors'] };
               pipelineOutputs[phase.id] = {
                 anatomist: pipelineData.output?.anatomist,
                 lexicographer: pipelineData.output?.lexicographer,
@@ -1026,13 +996,13 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
       );
 
       // Try to load the packet
-      let packet = null;
+      let packet: DeepLoomPacket | null = null;
       try {
         const packetResponse = await fetch(`${basePath}/packet.json?ts=${Date.now()}`, {
           cache: 'no-store',
         });
         if (packetResponse.ok) {
-          packet = await packetResponse.json();
+          packet = (await packetResponse.json()) as DeepLoomPacket;
         }
       } catch {
         // Ignore packet load errors
@@ -1078,10 +1048,10 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
       .then((result) => {
         if (!cancelled) setLeftEntry(result);
       })
-      .catch((err: any) => {
+      .catch((err: unknown) => {
         if (!cancelled) {
           setLeftEntry(null);
-          setError(err?.message || 'Failed to load left entry.');
+          setError(err instanceof Error ? err.message : 'Failed to load left entry.');
         }
       });
     return () => {
@@ -1099,10 +1069,10 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
       .then((result) => {
         if (!cancelled) setRightEntry(result);
       })
-      .catch((err: any) => {
+      .catch((err: unknown) => {
         if (!cancelled) {
           setRightEntry(null);
-          setError(err?.message || 'Failed to load right entry.');
+          setError(err instanceof Error ? err.message : 'Failed to load right entry.');
         }
       });
     return () => {
@@ -1190,15 +1160,15 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                     {leaderboard.coverageNote}
                   </div>
                 )}
-                {(leaderboard as any).grounding && (
+                {leaderboard.grounding && (
                   <details className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700">
                     <summary className="cursor-pointer select-none font-semibold">
                       Grounding &amp; provenance — whose authority backs each layer
-                      {(leaderboard as any).grounding.closedBook ? (
+                      {leaderboard.grounding.closedBook ? (
                         <span className="ml-2 rounded bg-slate-200 px-1.5 py-0.5 font-medium text-slate-700">closed-book</span>
                       ) : null}
                     </summary>
-                    <p className="mt-2 text-gray-600">{(leaderboard as any).grounding.closedBookNote}</p>
+                    <p className="mt-2 text-gray-600">{leaderboard.grounding.closedBookNote}</p>
                     <table className="mt-2 w-full text-left">
                       <thead>
                         <tr className="text-[10px] uppercase tracking-wide text-gray-400">
@@ -1206,7 +1176,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {(leaderboard as any).grounding.sources.map((s: any, i: number) => (
+                        {leaderboard.grounding.sources.map((s, i: number) => (
                           <tr key={i} className="border-t border-gray-200 align-top">
                             <td className="py-1 pr-2 font-medium">{s.name}</td>
                             <td className="py-1 pr-2 whitespace-nowrap">{s.authority}</td>
@@ -1217,7 +1187,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                     </table>
                     <p className="mt-2 font-semibold text-gray-600">Known circularity (disclosed, being worked down):</p>
                     <ul className="mt-1 list-disc pl-4 text-gray-600">
-                      {(leaderboard as any).grounding.knownCircularity.map((c: string, i: number) => <li key={i}>{c}</li>)}
+                      {leaderboard.grounding.knownCircularity.map((c: string, i: number) => <li key={i}>{c}</li>)}
                     </ul>
                   </details>
                 )}
@@ -1343,7 +1313,7 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                           >
                             <td className="px-3 py-2 font-medium">
                               {rankBadge || entry.rank}
-                              {(entry as any).tiedWithAbove ? (
+                              {entry.tiedWithAbove ? (
                                 <span className="ml-0.5 text-xs text-gray-400" title="Statistical tie: this model's 95% confidence interval overlaps the model above (30 phases, bootstrap). The order within a tie is not meaningful.">=</span>
                               ) : null}
                             </td>
@@ -1353,30 +1323,30 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                             </td>
                             <td className={`px-3 py-2 font-semibold ${scoreColor(entry.overallScore)}`}>
                               {entry.overallScore.toFixed(2)}
-                              {(entry as any).overallScoreCI ? (
-                                <span className="ml-1 text-[10px] font-normal text-gray-400" title={`95% bootstrap CI over per-phase scores: ${(entry as any).overallScoreCI[0].toFixed(2)}–${(entry as any).overallScoreCI[1].toFixed(2)}`}>
-                                  ±{(((entry as any).overallScoreCI[1] - (entry as any).overallScoreCI[0]) / 2).toFixed(2)}
+                              {entry.overallScoreCI ? (
+                                <span className="ml-1 text-[10px] font-normal text-gray-400" title={`95% bootstrap CI over per-phase scores: ${entry.overallScoreCI[0].toFixed(2)}–${entry.overallScoreCI[1].toFixed(2)}`}>
+                                  ±{((entry.overallScoreCI[1] - entry.overallScoreCI[0]) / 2).toFixed(2)}
                                 </span>
                               ) : null}
                             </td>
                             <td className={`px-3 py-2 ${scoreColor(entry.segmentationFidelity)}`}>
                               {entry.segmentationFidelity.toFixed(2)}
                             </td>
-                            <td className={`px-3 py-2 ${(entry as any).factsCore == null ? 'text-gray-300' : scoreColor((entry as any).factsCore)}`}>
-                              {(entry as any).factsCore == null ? '—' : (entry as any).factsCore.toFixed(2)}
+                            <td className={`px-3 py-2 ${entry.factsCore == null ? 'text-gray-300' : scoreColor(entry.factsCore)}`}>
+                              {entry.factsCore == null ? '—' : entry.factsCore.toFixed(2)}
                             </td>
-                            <td className={`px-3 py-2 ${(entry as any).senseF1 == null ? 'text-gray-300' : scoreColor((entry as any).senseF1)}`}>
-                              {(entry as any).senseF1 == null ? '—' : (entry as any).senseF1.toFixed(2)}
+                            <td className={`px-3 py-2 ${entry.senseF1 == null ? 'text-gray-300' : scoreColor(entry.senseF1)}`}>
+                              {entry.senseF1 == null ? '—' : entry.senseF1.toFixed(2)}
                             </td>
                             {/* Gate cell: % kept, amber under 95, red under 80. The tooltip is the
                                 per-model diagnosis — knowledge vs delivered, and how many phases bit. */}
-                            <td className={`px-3 py-2 ${(entry as any).gateKept == null ? 'text-gray-300' : (entry as any).gateKept < 0.8 ? 'text-red-600 font-medium' : (entry as any).gateKept < 0.95 ? 'text-amber-600' : 'text-gray-500'}`}>
-                              {(entry as any).gateKept == null ? '—' : (
+                            <td className={`px-3 py-2 ${entry.gateKept == null ? 'text-gray-300' : entry.gateKept < 0.8 ? 'text-red-600 font-medium' : entry.gateKept < 0.95 ? 'text-amber-600' : 'text-gray-500'}`}>
+                              {entry.gateKept == null ? '—' : (
                                 <span
                                   className="cursor-help"
-                                  title={`Knowledge ${(entry as any).knowledgeScore?.toFixed(2)} × Gate ${(((entry as any).gateKept) * 100).toFixed(0)}% ≈ Overall ${entry.overallScore.toFixed(2)}. ${(entry as any).gateDamagedPhases ? `${(entry as any).gateDamagedPhases} phase(s) with structural damage (textIntegrity < 0.9) — analysis that didn't anchor to the Pāli text.` : 'No structurally damaged phases.'}`}
+                                  title={`Knowledge ${entry.knowledgeScore?.toFixed(2)} × Gate ${((entry.gateKept) * 100).toFixed(0)}% ≈ Overall ${entry.overallScore.toFixed(2)}. ${entry.gateDamagedPhases ? `${entry.gateDamagedPhases} phase(s) with structural damage (textIntegrity < 0.9) — analysis that didn't anchor to the Pāli text.` : 'No structurally damaged phases.'}`}
                                 >
-                                  {(((entry as any).gateKept) * 100).toFixed(0)}%
+                                  {((entry.gateKept) * 100).toFixed(0)}%
                                 </span>
                               )}
                             </td>
@@ -1384,13 +1354,13 @@ export const SuttaStudioBenchmarkView: React.FC = () => {
                               {entry.contentFidelity.toFixed(2)}
                             </td>
                             <td className="px-3 py-2 text-gray-500">
-                              {(entry as any).contentPrecision == null ? '—' : (entry as any).contentPrecision.toFixed(2)}
+                              {entry.contentPrecision == null ? '—' : entry.contentPrecision.toFixed(2)}
                             </td>
                             <td className="px-3 py-2 text-gray-500">
-                              {(entry as any).contentRecall == null ? '—' : (entry as any).contentRecall.toFixed(2)}
+                              {entry.contentRecall == null ? '—' : entry.contentRecall.toFixed(2)}
                             </td>
-                            <td className={`px-3 py-2 ${(entry as any).hallucinationRate == null ? 'text-gray-300' : (entry as any).hallucinationRate > 0.1 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
-                              {(entry as any).hallucinationRate == null ? '—' : `${((entry as any).hallucinationRate * 100).toFixed(0)}%`}
+                            <td className={`px-3 py-2 ${entry.hallucinationRate == null ? 'text-gray-300' : entry.hallucinationRate > 0.1 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                              {entry.hallucinationRate == null ? '—' : `${(entry.hallucinationRate * 100).toFixed(0)}%`}
                             </td>
                             <td className={`px-3 py-2 ${entry.contentSemantic == null ? 'text-gray-300' : scoreColor(entry.contentSemantic)}`}>
                               {entry.contentSemantic == null ? '—' : entry.contentSemantic.toFixed(2)}

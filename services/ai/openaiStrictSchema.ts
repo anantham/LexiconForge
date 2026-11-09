@@ -1,26 +1,8 @@
 /**
- * OpenAI strict-schema dialect transformer.
- *
- * Probe-verified 2026-07-22 (verbatim provider error: "Missing 'isAnchor'",
- * code invalid_json_schema): OpenAI's strict json_schema validator requires
- *   - `required` to list EVERY key in `properties` — optionality must be
- *     expressed as a type union with null, not by omission from `required`
- *   - `additionalProperties: false` on every object
- * Anthropic/Google accept our schemas as written, so this transform is applied
- * only to direct OpenAI requests and OpenRouter openai/* slugs. Same logical
- * contract, provider-dialect compliance.
- *
- * HONESTY NOTE (2026-07-26 re-probe): the identical untransformed anatomist
- * schema now returns 200 on openai/gpt-5.4-mini — the provider relaxed or
- * fixed something in the intervening 4 days, so this transform is currently
- * DEFENSE, not a live bug fix. It is kept because it matches OpenAI's own
- * documented strict-mode requirements and is idempotent; if the strictness
- * returns, the benchmark does not silently lose a model again.
- *
- * MOVED 2026-07 from scripts/sutta-studio/openai-strict-schema.ts into
- * services/ai/ because the production compile pipeline (OpenAIAdapter.chatJSON)
- * now applies it too — not just the benchmark. The old path re-exports from
- * here so benchmark imports keep working.
+ * Adapts JSON schemas to OpenAI strict structured output. Every property becomes
+ * required, optional values admit null, and objects default to closed properties.
+ * Open maps such as ripples cannot be represented and are omitted (see isOpenMap).
+ * Applied by the direct OpenAI adapter and OpenRouter openai/* routes.
  */
 
 const withNull = (prop: any): any => {
@@ -28,7 +10,7 @@ const withNull = (prop: any): any => {
   // enum/const constrain the VALUE independently of `type` — a value must
   // satisfy both, so widening `type` alone still forbids null and would force
   // the model to fabricate an enum value for an optional field it wants to
-  // omit (codex review P1: optional morph.case/number, ghostKind, status).
+  // omit (for example, optional morphology or ghostKind fields).
   if (Array.isArray(prop.enum)) {
     const withNullEnum = prop.enum.includes(null) ? prop.enum : [...prop.enum, null];
     const base = { ...prop, enum: withNullEnum };

@@ -1,8 +1,6 @@
 /**
- * HtmlRepairService - Gracefully repairs common HTML formatting mistakes from AI models
- *
- * PHILOSOPHY: Be conservative. Only fix unambiguous errors.
- * Data-driven approach for easy auditing and toggling of rules.
+ * Repairs model-generated HTML with individually selectable pattern rules.
+ * Keep repairs bounded to avoid changing intentional formatting or source text.
  */
 
 import { ILLUSTRATION_MARKER_INNER } from '../ai/illustrationMarkers';
@@ -47,7 +45,6 @@ type RepairRule = SimpleRule | ComplexRule;
  * Avoid "helpful" fixes that might break intentional formatting.
  */
 const REPAIR_RULES: RepairRule[] = [
-  // Issue #1: Capital <I> tags (clearly wrong, AI never intends this)
   {
     name: 'lowercase-italic-tags',
     description: 'Convert capital <I> to lowercase <i>',
@@ -55,7 +52,6 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '<i>$1</i>'
   },
 
-  // Issue #2: Self-closing or malformed <hr> tags
   {
     name: 'normalize-hr',
     description: 'Normalize <hr /> and < hr > to <hr>',
@@ -63,9 +59,7 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '<hr>'
   },
 
-  // Issue #3: Bare illustration markers (missing brackets). Uses the canonical
-  // marker grammar — the previous private copy had no letter-suffix support, so
-  // a bare ILLUSTRATION-2b was mangled into [ILLUSTRATION-2]b.
+  // Preserve letter suffixes when bracketing markers such as ILLUSTRATION-2b.
   {
     name: 'bracket-illustrations',
     description: 'Wrap ILLUSTRATION-N in brackets',
@@ -73,7 +67,6 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '[$1]'
   },
 
-  // Issue #4: Triple dashes/asterisks for scene breaks
   {
     name: 'scene-break-dashes',
     description: 'Convert --- or *** on own line to <hr>',
@@ -81,7 +74,6 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '<hr>'
   },
 
-  // Issue #5: Extra spaces inside tags (< i > → <i>)
   {
     name: 'trim-tag-spaces',
     description: 'Remove spaces from < i > and < /i >',
@@ -89,7 +81,6 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: (match, openTag, closeTag) => openTag ? `<${openTag}>` : `</${closeTag}>`
   },
 
-  // Issue #6: Multiple consecutive <br> tags (excessive line breaks)
   {
     name: 'limit-br-tags',
     description: 'Reduce 3+ consecutive <br> to <br><br>',
@@ -97,7 +88,6 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '<br><br>'
   },
 
-  // Issue #7: Multiple consecutive <hr> tags (duplicates)
   {
     name: 'dedupe-hr-tags',
     description: 'Remove duplicate <hr> tags',
@@ -105,7 +95,6 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '<hr>'
   },
 
-  // Issue #8: Add spacing around <hr> tags that are touching text
   {
     name: 'space-hr-tags',
     description: 'Add line breaks before and after <hr> tags',
@@ -113,7 +102,6 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '$1<br><br><hr><br><br>$2'
   },
 
-  // Issue #9: Add spacing when <hr> is at start/end of line
   {
     name: 'space-hr-edges',
     description: 'Add line breaks around <hr> at line edges',
@@ -125,7 +113,6 @@ const REPAIR_RULES: RepairRule[] = [
     }
   },
 
-  // Issue #10: Dangling closing tags for short content (safe version with length limit)
   // Fixes patterns like </i>'Ding!'</i> → <i>'Ding!'</i>
   // Only matches content < 50 chars to avoid creating large unwanted italic chunks
   {
@@ -135,9 +122,7 @@ const REPAIR_RULES: RepairRule[] = [
     replacement: '<$1>$2</$1>'
   },
 
-  // DISABLED BY DEFAULT: HTML entity decoding
-  // This can be risky - might interfere with intentional escaping
-  // Enable by removing from disabledRules if needed
+  // Callers preserving intentional escaping must disable decode-html-entities.
   {
     name: 'decode-html-entities',
     description: 'Decode &lt; &gt; &amp; etc.',
@@ -169,13 +154,6 @@ const REPAIR_RULES: RepairRule[] = [
     }
   }
 ];
-
-// REMOVED AGGRESSIVE RULES:
-// - repairDanglingClosingTags: Original version was too aggressive, created unwanted large italic chunks
-//   → Replaced with fix-short-dangling-closers (Issue #8) that uses 50-char length limit for safety
-// - repairUnclosedTags: Risky pattern matching across content
-// - repairNestedSameTags: Edge case, might break intentional nesting
-// - repairBoldWithAsterisks: Conflicts with AI using * for emphasis
 
 export class HtmlRepairService {
   /**

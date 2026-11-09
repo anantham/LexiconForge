@@ -59,7 +59,7 @@ export function parseGroupedChapterNumber(chapterNumber: number): { group: numbe
 }
 
 /** The only grouping scheme currently supported: chapterNumber = group*1000 + item. */
-export const CHAPTER_VERSE_SCHEME = 'chapter-verse';
+const CHAPTER_VERSE_SCHEME = 'chapter-verse';
 
 /**
  * PRIMARY detection gate: is this novel explicitly marked as chapter-verse

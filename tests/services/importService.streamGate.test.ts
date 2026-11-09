@@ -82,6 +82,7 @@ vi.mock('../../services/telemetryService', () => ({
 }));
 
 import { ImportService } from '../../services/importService';
+import { useAppStore } from '../../store';
 
 const sessionWithOneChapter = {
   metadata: {
@@ -152,7 +153,7 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
   });
 
   it('rejects an unknown stream scope before fetching or storing chapters', async () => {
-    await expect(ImportService.streamImportFromUrl('https://example.com/session.json'))
+    await expect(ImportService.streamImportFromUrl(useAppStore, 'https://example.com/session.json'))
       .rejects.toThrow(/known novel scope/i);
     expect(fetch).not.toHaveBeenCalled();
     expect(chapterOpsMock.store).not.toHaveBeenCalled();
@@ -162,6 +163,7 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     const onFirstChaptersReady = vi.fn();
 
     await ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       onFirstChaptersReady,
@@ -188,6 +190,7 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
 
     const onFirstChaptersReady = vi.fn();
     await ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       onFirstChaptersReady,
@@ -205,6 +208,7 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
 
     const onFirstChaptersReady = vi.fn();
     await ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       onFirstChaptersReady,
@@ -251,7 +255,7 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
       ...(placement !== 'before' ? { oscilloscope } : {}),
     })));
 
-    await ImportService.streamImportFromUrl('https://example.com/session.json', undefined, undefined,
+    await ImportService.streamImportFromUrl(useAppStore, 'https://example.com/session.json', undefined, undefined,
       { registryNovelId: novelId, registryVersionId: 'v1' });
 
     if (placement === 'wrong-scope') {
@@ -291,6 +295,7 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     });
 
     const importPromise = ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       onFirstChaptersReady,
@@ -338,7 +343,7 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     });
     const onFirstChaptersReady = vi.fn();
 
-    await ImportService.streamImportFromUrl('https://example.com/session.json', undefined,
+    await ImportService.streamImportFromUrl(useAppStore, 'https://example.com/session.json', undefined,
       onFirstChaptersReady, { registryNovelId: 'aithihyamala', registryVersionId: 'v1' });
 
     expect(chapterOpsMock.store).toHaveBeenCalledTimes(1);
@@ -380,6 +385,7 @@ describe('streamImportFromUrl — first-chapters-ready gate', () => {
     });
 
     await ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       undefined,
@@ -406,6 +412,7 @@ describe('streamImportFromUrl — translation-loss telemetry (2026-07-28 race)',
 
     const onFirstChaptersReady = vi.fn();
     await ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       onFirstChaptersReady,
@@ -432,6 +439,7 @@ describe('streamImportFromUrl — translation-loss telemetry (2026-07-28 race)',
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     await ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       undefined,
@@ -468,6 +476,7 @@ describe('streamImportFromUrl — idempotent resume', () => {
 
   it('reuses an exact packaged translation instead of creating a duplicate version', async () => {
     await ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       undefined,
@@ -524,6 +533,7 @@ describe('streamImportFromUrl — idempotent resume', () => {
       .mockResolvedValueOnce([existingVersion, storedVersion]);
 
     await ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       undefined,
@@ -570,6 +580,7 @@ describe('streamImportFromUrl — idempotent resume', () => {
     translationOpsMock.getVersionsByStableId.mockReset().mockResolvedValue([divergedExactVersion]);
 
     await ImportService.streamImportFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       undefined,

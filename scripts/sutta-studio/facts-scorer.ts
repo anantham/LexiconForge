@@ -31,7 +31,7 @@
 
 import type { AnatomistPass, LexicographerPass } from '../../types/suttaStudio';
 import type { LexiconEntry } from '../../services/providers/types';
-import { alignWords, tokenize } from './quality-scorer';
+import { alignWords, tokenize } from './scoringPrimitives';
 
 // ── DPD helpers (lifted from verify-golden.ts, the #27 audit script) ─────────
 

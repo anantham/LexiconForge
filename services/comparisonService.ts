@@ -79,11 +79,7 @@ const toOptionalString = (value: unknown): string | null => {
   if (value == null) return null;
   if (Array.isArray(value)) return value.map((item) => toOptionalString(item) ?? '').join(' ').trim() || null;
   if (typeof value === 'object') {
-    try {
-      return JSON.stringify(value);
-    } catch {
-      return String(value);
-    }
+    return JSON.stringify(value);
   }
   return String(value);
 };
@@ -153,17 +149,10 @@ export class ComparisonService {
     const content = completion.choices[0]?.message?.content ?? '';
     const jsonPayload = extractJsonPayload(content);
     if (!jsonPayload) {
-      console.warn('[ComparisonService] Unable to locate JSON payload in response', { content });
       throw new Error('Comparison response did not contain valid JSON.');
     }
 
-    let parsed: any;
-    try {
-      parsed = JSON.parse(jsonPayload);
-    } catch (error) {
-      console.warn('[ComparisonService] Failed to parse comparison JSON', { content, jsonPayload });
-      throw error;
-    }
+    const parsed = JSON.parse(jsonPayload);
 
   const result: FocusedComparisonResult = {
     fanExcerpt: (toOptionalString(parsed?.fanExcerpt) ?? '').trim(),

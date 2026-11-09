@@ -1,19 +1,8 @@
 /**
- * services/perWordTranslation.ts — Issue #15 Phase 2
- *
- * Per-source-word lookup for the InterleavedReader hover tooltip.
- * Returns ordered alternative renderings (Sense[]) from multiple providers:
- *   - glossary: in-memory match against the active novel's GlossaryEntry[]
- *   - deepl: DeepL Free/Pro API
- *   - google: Google Cloud Translate API
- *
- * Cache: per-(sourceWord, sourceLang, targetLang, provider) tuple. In-memory
- * for now (Phase 2.5 will move to IDB-backed cache).
- *
- * Cost model: lookups are per-word-on-hover, not bulk. Typical word is
- * 1-3 chars in CJK or 1-12 chars in space-delimited languages. At DeepL
- * Pro rates (~$25/M chars) one word ≈ $0.000025. Per-user-session cost
- * stays in the cents.
+ * Alternative renderings for the InterleavedReader hover tooltip.
+ * Queries the active glossary, DeepL, and Google in the requested order.
+ * Network results are cached in memory by word, language pair, and provider;
+ * glossary results are recomputed so edits take effect immediately.
  */
 import type { GlossaryEntry } from '../types';
 
@@ -44,7 +33,6 @@ export interface PerWordRequest {
 const DEFAULT_PROVIDERS: SenseProvider[] = ['glossary', 'deepl', 'google'];
 
 // In-memory cache: key = `${provider}:${sourceLang}:${targetLang}:${sourceWord}`
-// Phase 2.5 will swap this for IDB persistence.
 const cache = new Map<string, Sense[]>();
 const cacheKey = (p: SenseProvider, sl: string, tl: string, w: string) => `${p}:${sl}:${tl}:${w}`;
 
@@ -75,7 +63,6 @@ const DEEPL_LANG_CODE: Record<string, string> = {
   en: 'EN',
   fr: 'FR',
   de: 'DE',
-  // Add more as needed
 };
 
 const lookupDeepL = async (

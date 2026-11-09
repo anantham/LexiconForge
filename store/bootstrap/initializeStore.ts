@@ -319,7 +319,7 @@ const handleNovelIntent = async (
     }
 
     const { ImportService } = await import('../../services/importService');
-    await ImportService.importFromUrl(sessionJsonUrl, undefined, {
+    await ImportService.importFromUrl(ctx.store, sessionJsonUrl, undefined, {
       registryNovelId: novel.id,
       registryVersionId: version?.versionId ?? null,
     });
@@ -365,7 +365,7 @@ const handleImportIntent = async (ctx: BootstrapContext, importUrl: string): Pro
 
   try {
     const { ImportService } = await import('../../services/importService');
-    await ImportService.importFromUrl(decodedUrl);
+    await ImportService.importFromUrl(ctx.store, decodedUrl);
     ctx.get().setReaderReady();
     ctx.get().showNotification('✅ Session imported successfully!', 'success');
     window.history.replaceState({}, '', window.location.pathname);

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "index.tsx",
+    "api/*.{js,ts}",
+    "chrome_extension/{background,content-polyglotta,popup}.js",
+    "integrations/sillytavern-bridge/st-extension/index.js",
+    // Invoked by the macOS and Windows deployment scripts, not JS imports.
+    "integrations/sillytavern-bridge/deploy/windows/*.mjs",
+    // Keep standalone maintenance/benchmark CLIs; shared script libraries are not entries.
+    "scripts/**/*.{js,cjs,mjs,ts}",
+    "!scripts/lib/**",
+    "!scripts/sutta-studio/lib/**",
+    "tests/**/*.{test,spec}.{ts,tsx,js}",
+    "**/*.{test,spec}.{ts,tsx,js}",
+    "tests/types/*.tsx",
+    "tests/manual/*.ts",
+    // Vite loads this module from tests/fixtures/mobile-selection-preview.html.
+    "tests/fixtures/mobile-selection-preview.tsx",
+    "*.config.{ts,js,mjs}",
+    "types/*.d.ts",
+    "env.d.ts"
+  ],
+  "project": [
+    "*.{ts,tsx,js,mjs,cjs}",
+    "{adapters,api,chrome_extension,components,config,constants,hooks,integrations,scripts,services,store,tests,types,utils}/**/*.{ts,tsx,js,mjs,cjs}",
+    "!**/node_modules/**",
+    "!**/.venv/**"
+  ],
+  // Poppler is an OS dependency used by the PDF import CLI.
+  "ignoreBinaries": ["pdftotext"],
+  // SillyTavern supplies these modules when it loads the extension.
+  "ignoreUnresolved": [
+    "../../../script.js",
+    "../../constants.js",
+    "../../extensions.js",
+    "../../group-chats.js",
+    "../../slash-commands/SlashCommandParser.js"
+  ]
+}

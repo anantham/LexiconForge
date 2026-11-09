@@ -708,7 +708,7 @@ function instantiateRepo(backend: Backend): Repo {
 }
 
 /**
- * New IndexedDB-based repository (placeholder for full implementation)
+ * Adapts IndexedDB operations to the repository interface.
  */
 function makeIdbRepo(): Repo {
   return {
@@ -769,9 +769,7 @@ export function makeRepo(backend?: BackendInput): Repo {
 }
 
 /**
- * Get the shared repo. The old signature took a ServiceName that was IGNORED
- * (nine registered names, zero routing) — decoration implying per-service
- * backends that never existed. All services share one backend preference.
+ * Get the shared repository using the application-wide backend preference.
  */
 export function getRepoForService(): Repo {
   return makeRepo();
@@ -802,9 +800,6 @@ export const dbUtils = {
     };
   },
 
-  // Named emergencyRollback until 2026-07-26 — but a "rollback" that switches
-  // TO 'modern' is a reset, not a rollback (the legacy backend it implied a
-  // return to was removed long ago).
   resetToModernBackend: () => {
     warnLegacyPreference('runtime');
     updatePreferredBackend('modern');

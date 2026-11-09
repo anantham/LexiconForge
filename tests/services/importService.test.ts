@@ -52,6 +52,21 @@ describe('ImportService', () => {
     mockImportSessionData.mockClear();
   });
 
+  it('applies a file to the supplied store without touching the application store', async () => {
+    const applySession = vi.fn().mockResolvedValue(undefined);
+    const suppliedStore = {
+      getState: () => ({ ...useAppStore.getState(), importSessionData: applySession }),
+      setState: useAppStore.setState,
+    };
+    const payload = { metadata: { format: 'lexiconforge-session' }, chapters: [] };
+    const file = new File([JSON.stringify(payload)], 'isolated-session.json');
+
+    await ImportService.importFromFile(suppliedStore, file);
+
+    expect(applySession).toHaveBeenCalledWith(payload);
+    expect(mockImportSessionData).not.toHaveBeenCalled();
+  });
+
   it.each(['file', 'url'])('does not apply a %s acquired after the reader selection changes', async (source) => {
     let state = { ...useAppStore.getState(), activeNovelId: 'book-a', activeVersionId: 'v1' };
     const getState = vi.spyOn(useAppStore, 'getState').mockImplementation(() => state);
@@ -62,13 +77,13 @@ describe('ImportService', () => {
       if (source === 'file') {
         const file = new File([JSON.stringify(payload)], 'session.json');
         vi.spyOn(file, 'text').mockImplementation(async () => { switchSelection(); return JSON.stringify(payload); });
-        await ImportService.importFromFile(file);
+        await ImportService.importFromFile(useAppStore, file);
       } else {
         global.fetch = vi.fn(async () => {
           switchSelection();
           return { ok: true, headers: new Headers(), body: createMockReadableStream(payload) } as Response;
         });
-        await ImportService.importFromUrl('https://example.com/session.json');
+        await ImportService.importFromUrl(useAppStore, 'https://example.com/session.json');
       }
       expect(mockImportSessionData).not.toHaveBeenCalled();
       expect(mockSetSessionProvenance).not.toHaveBeenCalled();
@@ -120,7 +135,7 @@ describe('ImportService', () => {
       body: createMockReadableStream(mockSessionData)
     });
 
-    const result = await ImportService.importFromUrl('https://example.com/session.json');
+    const result = await ImportService.importFromUrl(useAppStore, 'https://example.com/session.json');
 
     // Verify provenance is returned
     expect(result.provenance).toBeDefined();
@@ -151,7 +166,7 @@ describe('ImportService', () => {
       body: createMockReadableStream(legacySession)
     });
 
-    const result = await ImportService.importFromUrl('https://example.com/legacy.json');
+    const result = await ImportService.importFromUrl(useAppStore, 'https://example.com/legacy.json');
 
     // Verify no provenance
     expect(result.provenance).toBeUndefined();
@@ -182,6 +197,7 @@ describe('ImportService', () => {
     });
 
     await ImportService.importFromUrl(
+      useAppStore,
       'https://example.com/session.json',
       undefined,
       { registryNovelId: 'orv' }
@@ -222,7 +238,7 @@ describe('ImportService', () => {
       type: 'application/json',
     });
 
-    const result = await ImportService.importFromFile(file);
+    const result = await ImportService.importFromFile(useAppStore, file);
 
     expect(mockImportSessionData).toHaveBeenCalledTimes(1);
     const importedArg = mockImportSessionData.mock.calls[0][0];
@@ -255,6 +271,7 @@ describe('ImportService', () => {
     });
 
     await ImportService.importFromUrl(
+      useAppStore,
       'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels/fmc/session.json'
     );
 
@@ -284,6 +301,7 @@ describe('ImportService', () => {
 
     await expect(
       ImportService.importFromUrl(
+        useAppStore,
         'https://raw.githubusercontent.com/anantham/lexiconforge-novels/main/novels/fmc/session.json'
       )
     ).rejects.toThrow('Git LFS pointer instead of JSON');

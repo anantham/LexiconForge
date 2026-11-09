@@ -17,7 +17,7 @@
  */
 import type React from 'react';
 
-export function spaNavigate(url: string): void {
+function spaNavigate(url: string): void {
   if (typeof window === 'undefined') return;
   // Allow same-origin URLs only — defence against accidental external links.
   try {

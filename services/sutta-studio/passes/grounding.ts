@@ -1,20 +1,7 @@
 /**
- * Grounding pass — attaches verified citations to a compiled phase.
- *
- * Per docs/sutta-studio/GROUNDING.md Phase 2: replaces the one-shot
- * `scripts/sutta-studio/apply-contested-terms.py` script with a
- * production pass that runs after LLM compilation. Pure function:
- * same phase + same providers in, same citation wiring out.
- *
- * Anti-patterns this pass refuses to instantiate (per GROUNDING.md
- * §"Anti-patterns to guard against"):
- *   - LLM-as-DB-fallback: missing entries yield no citation. No
- *     fabrication, no "trust me bro" labels.
- *   - Citation theater: every attached citation carries a URL from the
- *     hand-curated registry. NOTE: this pass does NOT verify URLs — the
- *     registry's own per-row verification stamps (or needsVerification
- *     markers) are passed through as-is; verification is a curation-time
- *     responsibility, not a compile-time check.
+ * Attaches registry citations and optional translator renderings to a compiled phase.
+ * Missing entries produce no citations. Registry verification stamps pass through
+ * unchanged: URL verification belongs to curation, not compilation.
  */
 
 import type { PaliWord, PhaseView, Citation } from '../../../types/suttaStudio';
@@ -120,9 +107,7 @@ async function claimsForWord(
 export async function runGroundingPass(
   phase: PhaseView,
   providers: GroundingProvider[],
-  /** Phase 3 (translator-bank): per-verse Bodhi/Sujato/Anandajoti renderings
-   *  fetched from SuttaCentral bilara-data API. Empty array means
-   *  contested-terms-only grounding (Phase 1 behavior). */
+  /** Per-verse renderings from SuttaCentral. Empty means registry-only grounding. */
   verseBank: BilaraTranslation[] = []
 ): Promise<GroundingPassResult> {
   const citationsAdded: Citation[] = [];
@@ -130,9 +115,7 @@ export async function runGroundingPass(
   const citationIdsByWord = new Map<string, string[]>();
   const matches: GroundingPassResult['matches'] = [];
 
-  // Phase 3: phase-level verse citations from translator-bank. Attach to
-  // every word in the phase — reader exploring any word sees the per-verse
-  // translator rendering for context.
+  // Attach verse citations to every word so each lookup includes translation context.
   const verseCitations =
     verseBank.length > 0 ? buildPhaseVerseCitations(phase, verseBank) : [];
   for (const cite of verseCitations) {

@@ -3,9 +3,8 @@
  * Decomposes Pali surface forms into morpheme segments, assigns word
  * classes, generates tooltips, and proposes relations between words.
  *
- * NOT yet the production compile path (CONSOLIDATION Phase 4 pending) —
- * services/compiler/index.ts still orchestrates its own inline pass calls;
- * this module serves benchmark/experiment callers until the orchestrator port.
+ * Used by benchmark and experiment runners; production orchestration is in
+ * services/compiler/index.ts.
  */
 
 import type { AppSettings } from '../../../types';

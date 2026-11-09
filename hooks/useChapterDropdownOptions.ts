@@ -15,7 +15,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../store';
-import { ImportTransformationService } from '../services/importTransformationService';
+import { fetchChapterSummariesByScope } from '../services/db/operations/summaries';
 import { telemetryService } from '../services/telemetryService';
 import { buildVirtualCatalog, isVirtualStableId } from '../services/chapterCatalog';
 import type { ChapterSummary } from '../types';
@@ -158,7 +158,14 @@ export function useChapterDropdownOptions(): UseChapterDropdownOptionsResult {
         // 2. Load summaries from IndexedDB for the active library scope.
         // Ephemeral/manual sessions without an active novel rely on in-memory chapters only.
         const summaries = activeNovelId
-          ? await ImportTransformationService.getChapterSummariesByScope(activeNovelId, activeVersionId ?? null)
+          ? await fetchChapterSummariesByScope({
+              novelId: activeNovelId,
+              libraryVersionId: activeVersionId ?? null,
+            }).catch((error) => {
+              // Keep the catalog and current in-memory chapters available when IndexedDB fails.
+              console.error('[Dropdown] Failed to load persisted chapter summaries:', error);
+              return [];
+            })
           : [];
         if (cancelled) return;
 

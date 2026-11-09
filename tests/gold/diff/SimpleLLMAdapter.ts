@@ -9,22 +9,9 @@
 import { createHash } from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import type { SimpleLLMProvider, SimpleLLMResponse } from '../../../services/diff/types';
 
-interface SimpleLLMResponse {
-  translatedText: string;
-  cost?: number;
-  model?: string;
-}
-
-export interface SimpleLLMProvider {
-  translate(options: {
-    text: string;
-    systemPrompt: string;
-    provider: string;
-    model: string;
-    temperature: number;
-  }): Promise<SimpleLLMResponse>;
-}
+export type { SimpleLLMProvider } from '../../../services/diff/types';
 
 /**
  * Minimal cost calculator based on OpenRouter pricing
@@ -59,13 +46,7 @@ const ensureCassetteDir = () => {
 export class SimpleLLMAdapter implements SimpleLLMProvider {
   constructor(private apiKey: string) {}
 
-  async translate(options: {
-    text: string;
-    systemPrompt: string;
-    provider: string;
-    model: string;
-    temperature: number;
-  }): Promise<SimpleLLMResponse> {
+  async translate(options: Parameters<SimpleLLMProvider['translate']>[0]): Promise<SimpleLLMResponse> {
     const cassettePayload = {
       provider: options.provider,
       model: options.model,

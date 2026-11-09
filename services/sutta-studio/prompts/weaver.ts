@@ -8,8 +8,7 @@
  * which doesn't intersect with tooltip register, sense metadata, anchor
  * selection, or relations.
  *
- * Includes the duplicate-mapping anti-pattern guard (from benchmark prompts;
- * the production builder previously lacked this).
+ * Requires at most one English token per Pali segment to prevent duplicate text.
  */
 
 import type {

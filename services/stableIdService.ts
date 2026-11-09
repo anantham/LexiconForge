@@ -7,7 +7,7 @@
  * 3. Providing a transformation layer between import and storage
  */
 
-import { Chapter, TranslationResult, AppSettings, FeedbackItem, ImportedChapter } from '../types';
+import { Chapter, TranslationResult, FeedbackItem, ImportedChapter, TranslationSettingsSnapshot } from '../types';
 import { debugLog } from '../utils/debug';
 import { buildScopedStableId } from './libraryScope';
 import { isLibraryStorageUrl } from './libraryScope';
@@ -69,7 +69,7 @@ export interface EnhancedChapter extends Chapter {
   /** Display name of the source language ("Classical Chinese", "Pali", ...). */
   sourceLanguage?: string | null;
   translationResult?: TranslationResult | null;
-  translationSettingsSnapshot?: Partial<Pick<AppSettings, 'provider' | 'model' | 'temperature' | 'topP' | 'frequencyPenalty' | 'presencePenalty' | 'seed' | 'contextDepth' | 'systemPrompt'>>;
+  translationSettingsSnapshot?: TranslationSettingsSnapshot;
   feedback?: FeedbackItem[];
   /** Set during hydration when translation load fails — distinguishes "never translated" from "load error" */
   _translationLoadError?: string;
@@ -392,93 +392,4 @@ export const transformImportedChapters = (
       ) : null,
     navigationHistory: []
   };
-};
-
-/**
- * Converts stable session data back to legacy format for compatibility
- * Used when other parts of the system expect the old format
- */
-interface LegacySessionEntry {
-  chapter: {
-    title: string;
-    content: string;
-    originalUrl: string;
-    nextUrl?: string | null;
-    prevUrl?: string | null;
-    chapterNumber?: number;
-    fanTranslation: string | null;
-  };
-  translationResult: TranslationResult | null;
-}
-
-export const toLegacySessionData = (
-  stableData: StableSessionData
-): Record<string, LegacySessionEntry> => {
-  const legacyData: Record<string, LegacySessionEntry> = {};
-  
-  for (const [chapterId, chapter] of stableData.chapters) {
-    // Use canonical URL as the key for legacy compatibility
-    legacyData[chapter.canonicalUrl] = {
-      chapter: {
-        title: chapter.title,
-        content: chapter.content,
-        originalUrl: chapter.canonicalUrl,
-        nextUrl: chapter.nextUrl,
-        prevUrl: chapter.prevUrl,
-        chapterNumber: chapter.chapterNumber,
-        fanTranslation: chapter.fanTranslation ?? null,
-      },
-      translationResult: null, // This will be populated by the translation system
-    };
-  }
-  
-  return legacyData;
-};
-
-/**
- * Finds a chapter by any of its URL variants
- * This maintains compatibility with existing lookup patterns
- */
-export const findChapterByUrl = (
-  stableData: StableSessionData,
-  targetUrl: string
-): EnhancedChapter | null => {
-  // Try normalized URL first
-  const normalizedUrl = normalizeUrlAggressively(targetUrl);
-  if (normalizedUrl && stableData.urlIndex.has(normalizedUrl)) {
-    const chapterId = stableData.urlIndex.get(normalizedUrl)!;
-    return stableData.chapters.get(chapterId) || null;
-  }
-  
-  // Try raw URL
-  if (stableData.rawUrlIndex.has(targetUrl)) {
-    const chapterId = stableData.rawUrlIndex.get(targetUrl)!;
-    return stableData.chapters.get(chapterId) || null;
-  }
-  
-  return null;
-};
-
-/**
- * Gets chapters sorted by novel and chapter number
- * Returns data ready for React rendering with stable keys
- */
-export const getSortedChaptersForRendering = (
-  stableData: StableSessionData
-): Array<{ id: string; chapter: EnhancedChapter; canonicalUrl: string }> => {
-  const chaptersArray = Array.from(stableData.chapters.values());
-  
-  // Sort by chapter number, then by title as fallback
-  chaptersArray.sort((a, b) => {
-    if (a.chapterNumber !== b.chapterNumber) {
-      return (a.chapterNumber ?? 0) - (b.chapterNumber ?? 0);
-    }
-    return a.title.localeCompare(b.title);
-  });
-  
-  return chaptersArray.map(chapter => ({
-    id: chapter.id, // This is the stable ID for React keys!
-    chapter,
-    canonicalUrl: chapter.canonicalUrl
-  }));
 };

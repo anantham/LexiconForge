@@ -10,22 +10,7 @@ import { calculateCost } from '../ai/cost';
 import { apiMetricsService } from '../apiMetricsService';
 import { getChatCompletionOptionalParameters } from '../ai/openaiRequestParameters';
 import type { ProviderPreferences } from '../../adapters/providers/Provider';
-
-interface SimpleLLMResponse {
-  translatedText: string;
-  cost?: number;
-  model?: string;
-}
-
-interface SimpleLLMProvider {
-  translate(options: {
-    text: string;
-    systemPrompt: string;
-    provider: string;
-    model: string;
-    temperature: number;
-  }): Promise<SimpleLLMResponse>;
-}
+import type { SimpleLLMProvider, SimpleLLMResponse } from './types';
 
 /**
  * Create a SimpleLLMProvider that uses OpenAI SDK for API calls

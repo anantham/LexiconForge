@@ -1,5 +1,5 @@
 import { SettingsOps } from './db/operations/settings';
-import type { UiState } from '../store/slices/uiSlice';
+import type { StoreState } from '../store/storeTypes';
 import type { OscilloscopeState, SessionOscilloscopeData } from '../types/oscilloscope';
 import {
   computeSemanticCorpusIdentity,
@@ -12,7 +12,7 @@ const cacheKey = (novelId: string, versionId: string | null) =>
 let pendingWrite: Promise<unknown> = Promise.resolve();
 
 // Save only on book departure, not on graph hover/zoom or every store change.
-export const cacheOscilloscope = (state: OscilloscopeState & Pick<UiState, 'activeNovelId' | 'activeVersionId'>): void => {
+export const cacheOscilloscope = (state: OscilloscopeState & Pick<StoreState, 'activeNovelId' | 'activeVersionId'>): void => {
   if (!state.corpusIdentity || state.threads.size === 0 || state.activeNovelId !== state.corpusIdentity.corpusId) return;
   try {
     const data = createSessionOscilloscope(state.corpusIdentity, state.threads, state.activeThreadIds);
@@ -23,9 +23,11 @@ export const cacheOscilloscope = (state: OscilloscopeState & Pick<UiState, 'acti
   }
 };
 
-export const restoreCachedOscilloscope = async (signal: AbortSignal): Promise<boolean> => {
-  const { useAppStore } = await import('../store');
-  const state = useAppStore.getState();
+export const restoreCachedOscilloscope = async (
+  getState: () => StoreState,
+  signal: AbortSignal
+): Promise<boolean> => {
+  const state = getState();
   if (!state.activeNovelId || state.isLoaded) return false;
   try {
     await pendingWrite;
@@ -37,7 +39,7 @@ export const restoreCachedOscilloscope = async (signal: AbortSignal): Promise<bo
       chapters: Array.from(state.chapters.values()).filter((chapter) =>
         chapter.novelId === state.activeNovelId && (chapter.libraryVersionId ?? null) === state.activeVersionId),
     } as any);
-    const current = useAppStore.getState();
+    const current = getState();
     if (signal.aborted || current.chapters !== state.chapters || current.isLoaded
       || current.activeNovelId !== state.activeNovelId || current.activeVersionId !== state.activeVersionId) return false;
     current.loadSessionOscilloscope(parseSessionOscilloscope(data, corpus));

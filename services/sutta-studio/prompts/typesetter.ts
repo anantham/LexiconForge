@@ -7,9 +7,7 @@
  * The Typesetter pass receives no V2 amendments — its concern is visual layout,
  * which doesn't intersect with the protocol learnings.
  *
- * Includes the optional `logger` injection (from benchmark prompts; the
- * production builder previously called an inline `log` unconditionally,
- * spamming consoles for every Typesetter invocation).
+ * Diagnostics are emitted only when the caller supplies a logger.
  */
 
 import type {

@@ -126,7 +126,7 @@ const OscilloscopePanel: React.FC = () => {
   useEffect(() => {
     if (isLoaded || !activeNovelId) return;
     const controller = new AbortController();
-    void restoreCachedOscilloscope(controller.signal).catch((error) => {
+    void restoreCachedOscilloscope(useAppStore.getState, controller.signal).catch((error) => {
       if (!controller.signal.aborted) console.warn('[Oscilloscope] Cached graph unavailable:', error);
     });
     return () => controller.abort();

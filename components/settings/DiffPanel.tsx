@@ -5,14 +5,7 @@ import { DiffOps } from '../../services/db/operations';
 import { useSettingsModalContext } from './SettingsModalContext';
 import { useAppStore } from '../../store';
 import { useShallow } from 'zustand/react/shallow';
-
-const DEFAULT_DIFF_MARKER_VISIBILITY: DiffMarkerVisibilitySettings = {
-  fan: true,
-  rawLoss: true,
-  rawGain: true,
-  sensitivity: true,
-  stylistic: true,
-};
+import { DEFAULT_DIFF_MARKER_VISIBILITY, resolveMarkerVisibility } from '../chapter/diffVisibility';
 
 export const DiffPanel: React.FC = () => {
   const { currentSettings, handleSettingChange } = useSettingsModalContext();
@@ -26,21 +19,10 @@ export const DiffPanel: React.FC = () => {
   const [diffInvalidatePending, setDiffInvalidatePending] = useState(false);
   const defaultDiffPrompt = useMemo(() => getDefaultDiffPrompt(), []);
 
-  const markerVisibility: DiffMarkerVisibilitySettings = useMemo(() => {
-    const incoming = currentSettings.diffMarkerVisibility ?? {};
-    const normalized: DiffMarkerVisibilitySettings = {
-      ...DEFAULT_DIFF_MARKER_VISIBILITY,
-      ...(incoming as Record<string, boolean>),
-    };
-    if (Object.prototype.hasOwnProperty.call(incoming, 'raw')) {
-      const legacyRaw = (incoming as Record<string, boolean>).raw;
-      if (typeof legacyRaw === 'boolean') {
-        normalized.rawLoss = legacyRaw;
-        normalized.rawGain = legacyRaw;
-      }
-    }
-    return normalized;
-  }, [currentSettings.diffMarkerVisibility]);
+  const markerVisibility = useMemo(
+    () => resolveMarkerVisibility(currentSettings.diffMarkerVisibility),
+    [currentSettings.diffMarkerVisibility]
+  );
 
   const heatmapEnabled = currentSettings.showDiffHeatmap !== false;
 

@@ -1,51 +1,17 @@
 /**
- * services/wordAlignment.ts — Issue #15 Phase 1
- *
- * Produces word-level alignment between a source-language paragraph and its
- * English translation, via a single structured-output LLM call. Caches per
- * (chapterId, translationVersionId) tuple — alignment is a function of the
- * specific source+target text pair and never changes for that pair.
- *
- * Used by the InterleavedReader (Phase 3) to render aligned source↔target
- * tokens with hover-tooltip lookups.
- *
- * Cost model: ~$0.005 per chapter alignment (one structured-output call,
- * cached forever per translation version). Per-word lookups (Phase 2) are
- * separate and on-demand.
+ * Aligns source and translated text with one structured-output LLM call.
+ * Recomputes model-supplied character offsets against the input strings.
+ * The reader stores the result with its chapter and translation version;
+ * on-demand word lookups are handled by perWordTranslation.ts.
  */
 import type { AppSettings } from '../types';
+import type { WordAlignment, WordPair } from '../types/wordAlignment';
 import type { ChatMessage, ProviderName } from '../adapters/providers/Provider';
 import { initializeProviders } from '../adapters/providers';
 import { getProvider } from '../adapters/providers/registry';
 import { extractBalancedJson } from './ai/textUtils';
 
-export interface WordPair {
-  /** Source-language word/phrase (e.g., "李逍遥", "satipaṭṭhāna") */
-  source: string;
-  /** English (or target-language) rendering */
-  target: string;
-  /** Char offset in raw source text where this token begins */
-  sourceStart: number;
-  /** Char offset (exclusive) where this token ends */
-  sourceEnd: number;
-  /** Char offset in target translation where this token begins */
-  targetStart: number;
-  /** Char offset (exclusive) where this token ends */
-  targetEnd: number;
-}
-
-export interface WordAlignment {
-  pairs: WordPair[];
-  /** Translation version this alignment was computed against. Cache invalidates
-   *  when translationResult.id changes. */
-  translationVersionId: string | null;
-  /** ISO timestamp when alignment was computed */
-  alignedAt: string;
-  /** Model used for alignment LLM call */
-  modelUsed: string;
-  /** Number of pairs (cached for cheap UI access) */
-  pairCount: number;
-}
+export type { WordAlignment, WordPair } from '../types/wordAlignment';
 
 export interface AlignmentRequest {
   source: string;

@@ -1,13 +1,11 @@
 /**
- * Commentarial-Gloss Provider (GROUNDING Phase 4).
+ * Commentarial-Gloss Provider.
  *
  * Reads `data/sutta-studio/grounding/commentarial-glosses.json` (produced
  * by `scripts/sutta-studio/fetch-vism-glosses.ts` from the Eudoxos / edhamma
  * Visuddhimagga TEI glossary) and exposes each entry as a GroundedClaim.
  *
- * Per GROUNDING.md: deterministic lookups, no LLM, missing -> empty array.
- * The pass marks unmatched terms as interpretive rather than fabricating
- * commentarial backing.
+ * Deterministic registry lookups; unmatched terms return no claims.
  *
  * Each entry produces:
  *   - One citation linking to the Eudoxos glossary's hosted genindex page

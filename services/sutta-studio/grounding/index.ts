@@ -1,13 +1,6 @@
 /**
- * Grounding orchestration facade.
- *
- * Combines all grounding providers into a single lookup surface. The
- * `groundingPass` consumes this — providers themselves stay
- * single-responsibility (one registry / corpus per provider).
- *
- * Per GROUNDING.md: providers are deterministic, no LLM fallback. Missing
- * entries return `[]` and the pass marks the corresponding sense as
- * interpretive rather than fabricating a citation.
+ * Combines grounding providers into a single lookup. Each provider reads one
+ * registry or corpus; missing entries produce no claims or citations.
  */
 
 import { ContestedTermProvider, loadRegistry } from './contestedTermProvider';
@@ -23,9 +16,8 @@ export { CommentarialGlossProvider, loadCommentarialGlosses } from './commentari
  * MN10/DN22 vocabulary) + commentarial-glosses (909 Vism glossary entries
  * from Ñāṇamoli, via the Eudoxos / edhamma TEI corpus).
  *
- * Phase 3 (translator-bank via SC Bilara) is wired separately in the
- * compiler pass. Phase 4 (this provider) added 2026-05-14 via Eudoxos
- * find — see docs/sutta-studio/RESEARCH_RESULTS.md.
+ * Translator renderings from SuttaCentral Bilara are supplied separately to
+ * the grounding pass.
  */
 export async function buildDefaultProviders(): Promise<GroundingProvider[]> {
   const [registry, glossFile] = await Promise.all([

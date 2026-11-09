@@ -15,9 +15,10 @@ import type {
   WeaverPass,
   TypesetterPass,
 } from '../../types/suttaStudio';
-// facts-scorer imports alignWords/tokenize back from here; the cycle is safe because both sides
-// only use the other's exports at CALL time (inside functions), never at module init.
 import { scoreFactsDetail, scoreSenseFidelityDetail } from './facts-scorer';
+import { alignWords, normSurface, tokenize } from './scoringPrimitives';
+
+export { alignWords, tokenize } from './scoringPrimitives';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -101,26 +102,6 @@ export type QualityScore = {
 // ─────────────────────────────────────────────────────────────────────────────
 // TOKEN HELPERS (sense distinctness + golden fidelity)
 // ─────────────────────────────────────────────────────────────────────────────
-
-const SENSE_STOP = new Set([
-  'the', 'and', 'for', 'with', 'are', 'here', 'part', 'name', 'meaning', 'sense',
-  'word', 'term', 'its', 'this', 'that', 'not', 'but', 'than', 'from', 'one',
-  'what', 'about', 'marks', 'mark', 'used', 'refers', 'form', 'where', 'which',
-  'into', 'place', 'thing', 'something', 'usual', 'like', 'etc',
-]);
-
-/** Lowercase, strip punctuation (keep Pāli diacritics + √ root marker), drop stopwords/short. */
-export const tokenize = (text: string | undefined | null): string[] => {
-  if (!text) return [];
-  return text
-    .normalize('NFC') // fold decomposed diacritics FIRST, else a combining macron (not in
-                      // the whitelist below) gets split out and fractures the word (Gemini review)
-    .toLowerCase()
-    .replace(/[^a-zĀ-ſḀ-ỿ√]+/g, ' ')
-    .split(/\s+/)
-    .map(t => t.trim())
-    .filter(t => (t.length > 2 || t.startsWith('√')) && !SENSE_STOP.has(t));
-};
 
 const jaccard = (a: string[], b: string[]): number => {
   const sa = new Set(a), sb = new Set(b);
@@ -315,41 +296,6 @@ export function scoreGrammar(data: AnatomistPass): {
 // Match words across golden/model by surface form (their IDs differ), then
 // compare morpheme boundaries (segmentation) and etymology/gloss tokens (content).
 // ─────────────────────────────────────────────────────────────────────────────
-
-/** Normalized surface key for cross-pass word alignment (lowercase + Unicode NFC). */
-const normSurface = (s: string | undefined): string => (s || '').toLowerCase().normalize('NFC');
-
-/**
- * Align two word arrays by normalized surface via LCS sequence alignment, returning
- * matched [goldenIndex, modelIndex] pairs in order. Robust to drops / merges / repeats:
- * a dropped instance of a repeated word leaves ONE golden word unmatched with no cascade
- * — unlike positional Nth-to-Nth matching (Gemini review finding #1).
- */
-export const alignWords = (
-  gold: AnatomistPass['words'],
-  model: AnatomistPass['words']
-): Array<[number, number]> => {
-  const G = (gold || []).map(w => normSurface(w.surface));
-  const M = (model || []).map(w => normSurface(w.surface));
-  const n = G.length, m = M.length;
-  if (n === 0 || m === 0) return [];
-  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
-  for (let i = 1; i <= n; i++) {
-    for (let j = 1; j <= m; j++) {
-      dp[i][j] = G[i - 1] === M[j - 1]
-        ? dp[i - 1][j - 1] + 1
-        : Math.max(dp[i - 1][j], dp[i][j - 1]);
-    }
-  }
-  const pairs: Array<[number, number]> = [];
-  let i = n, j = m;
-  while (i > 0 && j > 0) {
-    if (G[i - 1] === M[j - 1]) { pairs.push([i - 1, j - 1]); i--; j--; }
-    else if (dp[i - 1][j] >= dp[i][j - 1]) i--;
-    else j--;
-  }
-  return pairs.reverse();
-};
 
 /** Internal cut offsets for a word's ordered morpheme segments (e.g. ni|gam|o → {2,5}). */
 const boundaryOffsets = (

@@ -472,7 +472,7 @@ const ProvidersPanel: React.FC<ProvidersPanelProps> = ({ isOpen }) => {
     const support = structuredOutputSupport[key];
     if (support === true) {
       return (
-        <div className="mt-2 flex items-center text-xs text-green-600 dark:text-green-400">
+        <div className="mt-2 flex items-center text-xs text-green-700 dark:text-green-400">
           <span className="mr-1">✅</span>
           This model supports structured outputs for better schema compliance
         </div>
