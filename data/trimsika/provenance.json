@@ -1,0 +1,50 @@
+{
+  "attribution": {
+    "speaker": "Vasubandhu",
+    "confidence": "traditional"
+  },
+  "edition": {
+    "name": "Sylvain Lévi (ed.), Vijñaptimātratāsiddhi: Deux traités de Vasubandhu, pp. 13–14",
+    "year": "1925",
+    "digitalSource": "Normalized IAST study transcription checked against the printed root verses; scan catalogued by BnF/Gallica",
+    "url": "https://gallica.bnf.fr/ark:/12148/bpt6k326626j",
+    "digitalSourceUrl": "http://prajnaquest.fr/downloads/BookofDzyan/Sanskrit%20Buddhist%20Texts/vijnaptimatratasiddhi_1925.pdf",
+    "license": "Public-domain 1925 Sanskrit edition. This study transcription includes disclosed normalization and one editorial emendation; it is not the GRETIL digitization."
+  },
+  "translation": {
+    "translator": "Codex — original unreviewed study draft",
+    "year": "2026",
+    "methodology": "Original interlinear English glosses, alternate phrasings and notes prepared for this study packet. No published modern English translation is reproduced. English is often literal; linked phrases are contextual renderings of source units. Free-standing additions are classified ghost words."
+  },
+  "annotationNote": "All English senses, compound display slices, morphology and relations are original Codex curator inferences pending Sanskrit and doctrinal review. Edition citations support the source wording only. No Digital Pāli Dictionary, Sanskrit dictionary, named translator or commentary is claimed as lexical attestation. Alternative senses are contextual draft phrasings, not equally attested doctrinal positions. IAST is the canonical source transcription. The contextual Devanāgarī is a deterministic display transliteration checked by exact reverse conversion. Its akṣaras are written sound units, not morphemes or metrical beats. No audio recording or generated speech is bundled. Alignment is at the full written-token level. A split compound still maps to its whole-token gloss; its display slices are not independently translated or precisely aligned morphemes.",
+  "reviewNote": "Sanskrit · all 30 verses · unreviewed study draft. Hover or tap Sanskrit for Devanāgarī and reading; click English to cycle available meanings.",
+  "unknowns": [
+    "This is a normalized study transcription, not a critical edition. The root-text pages were visually checked; all manuscript variants and Lévi’s 1932 corrigenda were not audited.",
+    "Verses 1–14 are on printed p. 13 (PDF spread 15, right); 15–30 on p. 14 (PDF spread 16, left). IAST, spaces, punctuation, anusvāra and sandhi layout are standardized. Metre markers are preserved in the source record and omitted from the word display. Verse 5 uses standard arhattve.",
+    "Explicit v. 13 emendation: printed mado ’vihiṃsāhrīr becomes mado vihiṃsāhrīr, removing a misleading avagraha. The intended parse is vihiṃsā + ahrīḥ (harmfulness + shamelessness), not avihiṃsā + hrīḥ (non-harming + shame).",
+    "Retained edition readings: v. 12 krodhopanahane, v. 13 uddhavaḥ and kausīdyaṃ, v. 26 nāvatiṣṭhati, v. 28 yadālambanaṃ vijñānaṃ and vijñānamātratve. These are not silently harmonized with familiar modern readings.",
+    "GRETIL/Buescher was consulted as a comparison, not imported as the source. Its CC BY-NC-SA 4.0 digitization is separately licensed. Scan checks avoid the digital comparison’s errors in v. 17 vijñaptimātrakam, v. 28 grāhyābhāve and v. 29 anupalambha.",
+    "Unresolved study questions include the internal scope of v. 3’s long compound, the syntax of v. 18 pariṇāmas and v. 19 tat, the pronouns in v. 22, and the edition-dependent interpretation of v. 28. Draft glosses preserve rather than settle these issues.",
+    "No manuscript witness, modern translator comparison, audio or exhaustive dictionary grounding is bundled. The displayed Devanāgarī is derived from the adopted IAST, not a separate manuscript witness. Source coverage is complete; scholarly curation is not complete."
+  ],
+  "references": [
+    {
+      "label": "Vasubandhu — root verses in Sylvain Lévi’s 1925 edition",
+      "url": "https://gallica.bnf.fr/ark:/12148/bpt6k326626j",
+      "note": "Vijñaptimātratāsiddhi: Deux traités de Vasubandhu. Paris: Honoré Champion, 1925, pp. 13–14. Source edition; wording subject to the disclosed normalization and v. 13 emendation.",
+      "category": "edition"
+    },
+    {
+      "label": "1925 edition — digitized scan mirror",
+      "url": "http://prajnaquest.fr/downloads/BookofDzyan/Sanskrit%20Buddhist%20Texts/vijnaptimatratasiddhi_1925.pdf",
+      "note": "Root text appears on PDF spreads 15–16. This link is HTTP because the HTTPS mirror returned server errors when checked.",
+      "category": "edition"
+    },
+    {
+      "label": "GRETIL — modern comparison based on Buescher 2007",
+      "url": "https://gretil.sub.uni-goettingen.de/gretil/corpustei/transformations/html/sa_vasubandhu-triMzikAvijJaptikArikA-comm.htm",
+      "note": "Comparison only. CC BY-NC-SA 4.0; neither its full digitization nor a modern English translation is bundled.",
+      "category": "scholarly-reference"
+    }
+  ]
+}

@@ -17,6 +17,9 @@ import { SuttaStudioDebugButton } from './SuttaStudioDebugButton';
 import { loadSettings, saveSettings, type StudioSettings } from './SettingsPanel';
 import { ScrollProgressBar } from './ScrollProgressBar';
 import { useScrollProgress } from './hooks/useScrollProgress';
+import { TranslationControls } from './TranslationControls';
+import { WitnessReading } from './WitnessReading';
+import { alignmentTouches, validateWitnesses } from '../../services/sutta-studio/witnesses';
 
 export function SuttaStudioView({
   packet,
@@ -26,8 +29,40 @@ export function SuttaStudioView({
   backToReaderUrl?: string | null;
 }) {
   const [hovered, setHovered] = useState<Focus | null>(null);
+  const [witnessSelection, setWitnessSelection] = useState<{ packetId: string; id: string; byLanguage: Record<string, string> } | null>(null);
+  const [activeAlignmentId, setActiveAlignmentId] = useState<string | null>(null);
+  const catalog = packet.translations;
+  const witnessId = witnessSelection?.packetId === packet.packetId ? witnessSelection.id : catalog?.defaultWitnessId;
+  const selectedWitness = catalog?.witnesses.find(w => w.id === witnessId);
+  const witnessIssues = useMemo(() => validateWitnesses(packet), [packet]);
+  const witnessUnavailable = Boolean(catalog && (!selectedWitness || witnessIssues.length));
+  const useInterlinear = !catalog || (!witnessUnavailable && selectedWitness?.content.kind === 'legacy-interlinear');
+  const selectWitness = (id: string) => {
+    const witness = catalog?.witnesses.find(w => w.id === id);
+    if (!witness) return;
+    setWitnessSelection(previous => ({
+      packetId: packet.packetId, id,
+      byLanguage: {
+        ...(previous?.packetId === packet.packetId ? previous.byLanguage : {}),
+        ...(selectedWitness ? { [selectedWitness.language]: selectedWitness.id } : {}),
+        [witness.language]: witness.id,
+      },
+    }));
+    setActiveAlignmentId(null);
+    setHovered(null);
+    setOpenReadingId(null);
+  };
+  const selectLanguage = (language: string) => {
+    const remembered = witnessSelection?.packetId === packet.packetId ? witnessSelection.byLanguage[language] : undefined;
+    const witness = catalog?.witnesses.find(w => w.language === language && w.id === remembered)
+      ?? catalog?.witnesses.find(w => w.language === language);
+    if (witness) selectWitness(witness.id);
+  };
+  const activeAlignment = selectedWitness?.content.kind === 'translation'
+    ? selectedWitness.content.alignments.find(a => a.id === activeAlignmentId && a.status === 'aligned') : undefined;
   const [hoveredRelation, setHoveredRelation] = useState<string | null>(null);
   const [activeIndices, setActiveIndices] = useState<Record<string, number>>({});
+  const [openReadingId, setOpenReadingId] = useState<string | null>(null);
   // Audit panel target — set by CLICK on a Pāli/English word, not by hover.
   // Hover gives a tooltip (ephemeral); click commits to the deeper audit view
   // (persistent until ✕ clicked). Two interaction tiers, one gesture each.
@@ -60,6 +95,20 @@ export function SuttaStudioView({
   const showAlignmentArrows = settings.alignmentLines;
   const ghostOpacity = packet.renderDefaults?.ghostOpacity ?? 0.3;
   const englishVisible = packet.renderDefaults?.englishVisible ?? true;
+  const isSanskrit = packet.source.language === 'sa';
+  useEffect(() => {
+    if (!openReadingId) return;
+    const closeOutside = (e: PointerEvent) => {
+      if (!(e.target instanceof Element) || !e.target.closest('[data-sanskrit-reading]')) {
+        setOpenReadingId(null);
+        setHovered(current => current?.kind === 'segment' ? null : current);
+      }
+    };
+    const closeEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') { setOpenReadingId(null); setHovered(null); } };
+    document.addEventListener('pointerdown', closeOutside);
+    document.addEventListener('keydown', closeEscape);
+    return () => { document.removeEventListener('pointerdown', closeOutside); document.removeEventListener('keydown', closeEscape); };
+  }, [openReadingId]);
 
   // Honest progress count: a phase is "fully renderable" only when its
   // English alignment pass has populated englishStructure. The pipeline
@@ -156,7 +205,11 @@ export function SuttaStudioView({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't capture when typing in inputs
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return;
+      if (e.target instanceof Element && e.target.closest('[data-witness-controls], [data-witness-reading]')) return;
+      // Sanskrit reading disclosures use native focus/activation independently
+      // of English sense cycling. Keep the legacy Pāli keyboard path intact.
+      if (isSanskrit && (e.key === 'Tab' || (e.target instanceof Element && e.target.closest('[data-sanskrit-reading]')))) return;
 
       if (e.key === 'Tab') {
         e.preventDefault();
@@ -184,6 +237,7 @@ export function SuttaStudioView({
       }
 
       if (e.key === 'Enter' || e.key === ' ') {
+        if (!useInterlinear) return;
         e.preventDefault();
         if (hovered?.kind === 'segment' && hovered.segmentId) {
           cycleSegment(hovered.phaseId, hovered.segmentId);
@@ -226,11 +280,11 @@ export function SuttaStudioView({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [hovered, segmentList, visiblePhases, settings, handleSettingsChange]);
+  }, [hovered, segmentList, visiblePhases, settings, handleSettingsChange, isSanskrit, useInterlinear]);
 
   useLayoutEffect(() => {
     setLayoutTick((tick) => tick + 1);
-  }, [settings, visiblePhases.length]);
+  }, [settings, visiblePhases.length, witnessId]);
 
   // Returns position info for arrow rendering
   type ArrowGeometry = {
@@ -394,7 +448,9 @@ export function SuttaStudioView({
     tokens.forEach((token, idx) => {
       const linked = getLinkedWordId(token);
       if (linked) lastLinked = linked;
-      const targetId = linked || lastLinked || nextLinked[idx];
+      const ghostAnchor = token.isGhost && token.layoutWordId && blockIndex.has(token.layoutWordId)
+        ? token.layoutWordId : null;
+      const targetId = linked || ghostAnchor || lastLinked || nextLinked[idx];
       const idxBlock = targetId && blockIndex.has(targetId) ? blockIndex.get(targetId)! : 0;
       blocksOut[idxBlock].push(token);
     });
@@ -424,6 +480,15 @@ export function SuttaStudioView({
       />
 
       <AboutThisText packet={packet} />
+      {catalog && selectedWitness && <TranslationControls catalog={catalog} selected={selectedWitness}
+        onSelect={selectWitness} onLanguage={selectLanguage} />}
+      {witnessUnavailable && <div role="alert" className="max-w-3xl mx-auto px-4 py-3 text-amber-300">
+        Selected translation cannot be displayed. {witnessIssues.join(' ') || `Witness ${witnessId} is unavailable.`}
+        {!selectedWitness && catalog?.witnesses.some(w => w.id === catalog.defaultWitnessId) && <button type="button"
+          data-witness-controls onClick={() => selectWitness(catalog.defaultWitnessId)} className="block underline mt-2">
+          Select the default witness
+        </button>}
+      </div>}
 
       <Xwrapper>
         <XarrowUpdater
@@ -434,6 +499,8 @@ export function SuttaStudioView({
             hovered?.wordId,
             hovered?.kind === 'segment' ? hovered.segmentDomId : '',
             JSON.stringify(activeIndices),
+            witnessId,
+            activeAlignmentId,
             visiblePhases.length,
           ]}
         />
@@ -442,7 +509,7 @@ export function SuttaStudioView({
           {visiblePhases.map((phase) => {
               const phaseId = phase.id;
               const blocks = resolveBlocks(phase);
-              const englishBlocks = assignEnglishBlocks(phase, blocks);
+              const englishBlocks = useInterlinear ? assignEnglishBlocks(phase, blocks) : [];
               // Partial phase: Pali extracted but English alignment hasn't run yet.
               // englishStructure is empty so per-block English rows would render
               // as empty wrappers (visible blank space). Detect once per phase
@@ -464,6 +531,7 @@ export function SuttaStudioView({
                   id={phaseId}
                   className="w-full mb-12"
                 >
+                  {phase.title && <h2 className="text-center text-sm text-slate-400 font-serif">{phase.title}</h2>}
                   {blocks.map((block, blockIdx) => {
                     const blockWords = block
                       .map((id) => phase.paliWords.find((w) => w.id === id))
@@ -471,11 +539,19 @@ export function SuttaStudioView({
                     const englishTokens = englishBlocks[blockIdx] || [];
 
                     return (
-                      <div key={`${phaseId}-block-${blockIdx}`} className="flex flex-col items-center w-full">
+                      <div key={`${phaseId}-block-${blockIdx}`} data-layout-block={`${phaseId}-${blockIdx}`} className="flex flex-col items-center w-full">
                         <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-16 relative z-10 pt-10 overflow-visible">
                           {blockWords.map((word) => (
-                            <div key={word.id} id={`${phaseId}-${word.id}`} className="relative">
+                            <div key={word.id} className={`relative max-w-full rounded ${activeAlignment && alignmentTouches(activeAlignment, phaseId, word.id) ? 'ring-1 ring-emerald-700' : ''}`}>
                               <PaliWordEngine
+                                wrapSegments={packet.source.language === 'sa'}
+                                sourceLanguage={packet.source.language}
+                                openReadingId={openReadingId}
+                                onReadingToggle={id => {
+                                  setOpenReadingId(openReadingId === id ? null : id);
+                                  if (openReadingId === id) setHovered(null);
+                                }}
+                                onReadingClose={() => { setOpenReadingId(null); setHovered(null); }}
                                 phaseId={phaseId}
                                 wordData={word}
                                 activeIndex={activeIndices[`${phaseId}-${word.id}`] ?? 0}
@@ -585,11 +661,18 @@ export function SuttaStudioView({
                           ))}
                         </div>
 
-                        {englishVisible && englishTokens.length > 0 && (
+                        {englishVisible && !witnessUnavailable && selectedWitness?.content.kind === 'translation' && (
+                          <WitnessReading witness={selectedWitness} phaseId={phaseId} words={block}
+                            activeId={activeAlignmentId} onActive={setActiveAlignmentId}
+                            hoveredSource={hovered ? { phaseId: hovered.phaseId, wordId: hovered.wordId } : null}
+                            showArrows={showAlignmentArrows} />
+                        )}
+                        {englishVisible && useInterlinear && englishTokens.length > 0 && (
                           <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 w-full pb-8 border-b border-slate-900/50">
                             {englishTokens.map((item, i) => (
-                              <div key={`${item.id}-${blockIdx}-${i}`} className="relative">
+                              <div key={`${item.id}-${blockIdx}-${i}`} className="relative max-w-full">
                                 <EnglishWordEngine
+                                  wrapText={packet.source.language === 'sa'}
                                   phaseId={phaseId}
                                   structure={item}
                                   paliWords={phase.paliWords}
@@ -636,7 +719,7 @@ export function SuttaStudioView({
                     );
                   })}
 
-                  {englishVisible && isPartialPhase && fallbackEnglish && (
+                  {englishVisible && useInterlinear && isPartialPhase && fallbackEnglish && (
                     <div
                       className="mt-2 px-4 pb-8 border-b border-slate-900/50 text-slate-400 italic opacity-70 text-base text-center max-w-3xl mx-auto"
                       title="Source English (alignment pass still running)"
@@ -668,6 +751,7 @@ export function SuttaStudioView({
           }
           return (
             <LensPanel
+              sourceLanguage={packet.source.language === 'sa' ? 'Sanskrit' : 'Pāli'}
               phase={auditPhase}
               pinned={pinnedForAudit}
               onClose={() => setPinnedForAudit(null)}

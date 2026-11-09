@@ -22,6 +22,23 @@ const BUILT_IN_ENTRIES: NovelEntry[] = [
     },
     // No sessionJsonUrl — this entry routes to /sutta/demo instead
   },
+  {
+    id: 'sutta-trimsika',
+    title: 'Triṃśikā-vijñaptimātratā',
+    alternateTitles: ['Thirty Verses on Representation Only', 'Trimsika'],
+    metadata: {
+      originalLanguage: 'Sanskrit',
+      targetLanguage: 'English',
+      chapterCount: 30,
+      genres: ['Buddhist Philosophy', 'Study'],
+      description: 'Vasubandhu’s thirty verses in the MN10 study reader: Sanskrit IAST, aligned English, word glosses and notes. Original AI-assisted English and annotations; scholarly review pending.',
+      author: 'Vasubandhu',
+      tags: ['sanskrit', 'yogacara', 'study-tool', 'draft'],
+      publicationStatus: 'Completed' as const,
+      lastUpdated: '2026-10-19',
+    },
+    // Complete root-text coverage; annotation review status is disclosed above.
+  },
 ];
 
 // Local QA may supply a registry served by its own server; production defaults to GitHub.

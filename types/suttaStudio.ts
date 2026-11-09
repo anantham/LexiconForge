@@ -1,3 +1,5 @@
+import type { TranslationWitnessSet } from './suttaStudioWitness';
+
 export type RelationType = 'ownership' | 'direction' | 'location' | 'action';
 
 /**
@@ -50,7 +52,7 @@ export type Citation = {
   fetchedAt?: string;
 };
 
-export type SourceProvider = 'suttacentral';
+export type SourceProvider = 'suttacentral' | 'local-edition';
 
 
 export type ParallelType = 'full' | 'resembling' | 'mention';
@@ -102,6 +104,7 @@ export type SourceRef = {
 export type CanonicalSegment = {
   ref: SourceRef;
   order: number;
+  /** Legacy wire key for source text; language is declared by packet.source.language. */
   pali: string;
   baseEnglish?: string;
 };
@@ -403,6 +406,8 @@ export type EnglishToken = {
   /** True if this token has no Pali equivalent (articles, copula, etc.) */
   isGhost?: boolean;
   ghostKind?: GhostKind;
+  /** Optional ghost-only layout anchor. Places scaffolding beside this word without asserting a translation link. */
+  layoutWordId?: string;
 };
 
 /**
@@ -439,6 +444,7 @@ export type PhaseView = {
   title?: string;
   sourceSpan?: SourceRef[];
   layoutBlocks?: string[][];
+  /** Legacy wire key for annotated source words, including local Sanskrit editions. */
   paliWords: PaliWord[];
   englishStructure: EnglishToken[];
   /** True if this phase failed compilation and shows raw text only */
@@ -458,6 +464,10 @@ export type PhaseView = {
  * reference graph nodes instead of embedding this object.
  */
 export type Provenance = {
+  /** Packet-specific annotation provenance; never infer dictionary support. */
+  annotationNote?: string;
+  reviewNote?: string;
+  unknowns?: string[];
   attribution?: {
     speaker?: string;
     audience?: string;
@@ -549,10 +559,19 @@ export type DeepLoomPacket = {
    * See FEATURES.md §4.
    */
   version?: string;
-  source: { provider: SourceProvider; workId: string; workIds?: string[] };
+  source: {
+    provider: SourceProvider;
+    workId: string;
+    workIds?: string[];
+    /** Absent on legacy SuttaCentral packets means Pāli. No compiler is implied. */
+    language?: 'pli' | 'sa';
+    title?: string;
+  };
   canonicalSegments: CanonicalSegment[];
   phases: PhaseView[];
   citations: Citation[];
+  /** Named target witnesses; absent preserves the legacy interlinear reader. */
+  translations?: TranslationWitnessSet;
   /** Whole-work parallels, stored once rather than repeated on every phase. */
   workParallels?: ParallelRef[];
   /**

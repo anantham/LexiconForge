@@ -3,6 +3,15 @@ import { RegistryService } from '../../services/registryService';
 import type { Registry, NovelEntry } from '../../types/novel';
 
 describe('RegistryService', () => {
+  it('includes the complete Sanskrit draft study entry alongside MN10', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ version: '2.0', novels: [] }) });
+    const entries = await RegistryService.fetchAllNovelMetadata();
+    const entry = entries.find(n => n.id === 'sutta-trimsika');
+    expect(entry?.metadata).toMatchObject({ originalLanguage: 'Sanskrit', targetLanguage: 'English', chapterCount: 30 });
+    expect(entry?.metadata.description).toContain('scholarly review pending');
+    expect(entry?.sessionJsonUrl).toBeUndefined();
+    expect(entries.some(n => n.id === 'sutta-mn10')).toBe(true);
+  });
   it('should fetch registry from URL', async () => {
     const mockRegistry: Registry = {
       version: '2.0',

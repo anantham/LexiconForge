@@ -1,0 +1,1060 @@
+[
+  {
+    "verse": 1,
+    "groups": [
+      {
+        "wordIds": [
+          "v1w1",
+          "v1w2",
+          "v1w3"
+        ],
+        "text": "ആത്മാവും ധർമ്മങ്ങളും എന്ന ഉപചാരപ്രയോഗം പലവിധത്തിലുണ്ട്;",
+        "note": "Malayalam working translation, AI-assisted and not yet independently reviewed. Original Codex draft (2026), based directly on the project’s normalized Sanskrit transcription of Sylvain Lévi’s 1925 edition, not attributed to any named scholar. Upacāra is a transferred designation, not an assertion of a substantial self. All mappings are phrase-level, not word-for-word or morphological analyses."
+      },
+      {
+        "wordIds": [
+          "v1w4",
+          "v1w5",
+          "v1w6",
+          "v1w7"
+        ],
+        "text": "അങ്ങനെ നടക്കുന്നത് വിജ്ഞാനപരിണാമത്തിലാണ്.",
+        "note": "The Sanskrit relative-correlative yaḥ/asau is rendered idiomatically as a resumed statement. Sanskrit token order and identity remain unchanged."
+      },
+      {
+        "wordIds": [
+          "v1w8",
+          "v1w9",
+          "v1w10",
+          "v1w11"
+        ],
+        "text": "ആ പരിണാമമാകട്ടെ മൂന്നു വിധമാണ്.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 2,
+    "groups": [
+      {
+        "wordIds": [
+          "v2w1",
+          "v2w2",
+          "v2w3"
+        ],
+        "text": "വിപാകവും മനനം എന്നു വിളിക്കപ്പെടുന്നതും,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v2w4",
+          "v2w5",
+          "v2w6"
+        ],
+        "text": "വിഷയത്തിന്റെ വിജ്ഞപ്തിയും.",
+        "note": "Vijñapti is retained as വിജ്ഞപ്തി; it is not silently equated with vijñāna (വിജ്ഞാനം)."
+      },
+      {
+        "wordIds": [
+          "v2w7",
+          "v2w8"
+        ],
+        "text": "ഇവയിൽ ആലയം എന്നു വിളിക്കപ്പെടുന്ന വിജ്ഞാനം",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v2w9",
+          "v2w10"
+        ],
+        "text": "സകലബീജങ്ങളുമുള്ള വിപാകമാണ്.",
+        "note": "Bīja is a causal-dispositional metaphor. No permanent receptacle is asserted by the wording."
+      }
+    ]
+  },
+  {
+    "verse": 3,
+    "groups": [
+      {
+        "wordIds": [
+          "v3w1",
+          "v3w2",
+          "v3w3"
+        ],
+        "text": "അതിന്റെ ഉപാദിയും സ്ഥാനവും വിജ്ഞപ്തിയും വ്യക്തമായി അറിയപ്പെടാത്തവയാണ്;",
+        "note": "UNREVIEWED / UNCERTAIN: the internal scope of asaṃviditaka-upādi-sthāna-vijñaptika is unresolved. This provisional reading lists upādi, location and presentation as not distinctly known; an alternative attaches the unperceived quality to presentation of appropriation and location. Upādi is retained without fixing its exact sense. No independent lexical attestation is claimed.",
+        "uncertain": true
+      },
+      {
+        "wordIds": [
+          "v3w4",
+          "v3w5"
+        ],
+        "text": "എപ്പോഴും സ്പർശം, മനസ്കാരം, വേദന, സംജ്ഞ, ചേതന എന്നിവയോടുകൂടിയതുമാണ്.",
+        "note": "Vit is provisionally rendered as feeling (വേദന), in light of vedanā in v4. Manaskāra, saṃjñā and cetanā remain technical factors; cetanā is volition, not consciousness in general."
+      }
+    ]
+  },
+  {
+    "verse": 4,
+    "groups": [
+      {
+        "wordIds": [
+          "v4w1",
+          "v4w2"
+        ],
+        "text": "വേദന ഇവിടെ സുഖമോ ദുഃഖമോ അല്ലാത്തതാണ്;",
+        "note": "Vedanā means feeling tone, not pain alone. Upekṣā here is neutral feeling, not an independently asserted meditative achievement."
+      },
+      {
+        "wordIds": [
+          "v4w3",
+          "v4w4",
+          "v4w5"
+        ],
+        "text": "അതാകട്ടെ ക്ലേശാവരണമില്ലാത്തതും കുശലമോ അകുശലമോ ആയി നിർണയിക്കപ്പെടാത്തതുമാണ്.",
+        "note": "Anivṛta/avyākṛta are rendered descriptively: unobscured by afflictions and ethically indeterminate. The edition reading is retained."
+      },
+      {
+        "wordIds": [
+          "v4w6",
+          "v4w7"
+        ],
+        "text": "സ്പർശാദികളും അങ്ങനെതന്നെ;",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v4w8",
+          "v4w9",
+          "v4w10",
+          "v4w11"
+        ],
+        "text": "അതൊരു നദീപ്രവാഹംപോലെ തുടരുന്നു.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 5,
+    "groups": [
+      {
+        "wordIds": [
+          "v5w1",
+          "v5w2",
+          "v5w3"
+        ],
+        "text": "അർഹത്ത്വത്തിൽ അതിന്റെ നിവൃത്തി സംഭവിക്കുന്നു.",
+        "note": "Vyāvṛtti is rendered as നിവൃത്തി; its doctrinal interpretation at arhatship remains open. It is not silently identified with parāvṛtti in v29."
+      },
+      {
+        "wordIds": [
+          "v5w4",
+          "v5w5",
+          "v5w6"
+        ],
+        "text": "അതിനെ ആശ്രയിച്ച് പ്രവർത്തിക്കുന്നു—",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v5w7",
+          "v5w8",
+          "v5w9",
+          "v5w10"
+        ],
+        "text": "അതിനെത്തന്നെ ആലംബനമാക്കുന്ന, മനസ് എന്നു പേരുള്ള, മനനസ്വഭാവമായ വിജ്ഞാനം.",
+        "note": "The subject of the preceding Malayalam clause follows here, matching the Sanskrit movement. Manas is distinguished from manovijñāna in v16."
+      }
+    ]
+  },
+  {
+    "verse": 6,
+    "groups": [
+      {
+        "wordIds": [
+          "v6w1",
+          "v6w2",
+          "v6w3",
+          "v6w4",
+          "v6w5"
+        ],
+        "text": "ആവൃതവും അവ്യാകൃതവുമായ നാല് ക്ലേശങ്ങളോടുകൂടിയാണ് അത് എപ്പോഴും:",
+        "note": "Nivṛta and avyākṛta qualify the four kleśas in the Sanskrit instrumental phrase. The draft does not turn ethical indeterminacy into an absence of affliction."
+      },
+      {
+        "wordIds": [
+          "v6w6"
+        ],
+        "text": "ആത്മദൃഷ്ടി, ആത്മമോഹം, ആത്മമാനം, ആത്മസ്നേഹം എന്നു പേരുള്ളവയോട്.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 7,
+    "groups": [
+      {
+        "wordIds": [
+          "v7w1",
+          "v7w2",
+          "v7w3",
+          "v7w4"
+        ],
+        "text": "ഏതു ഭൂമിയിൽ ജനിക്കുന്നുവോ, അതിനൊത്ത മറ്റു സ്പർശാദികളോടും കൂടിയതാണ്;",
+        "note": "ഭൂമി renders the contextual sphere implied by yatrajaḥ. The Sanskrit does not name a particular realm. The association continues from v6."
+      },
+      {
+        "wordIds": [
+          "v7w5",
+          "v7w6",
+          "v7w7"
+        ],
+        "text": "അർഹത്വം നേടിയവനിൽ അതില്ല;",
+        "note": "The absent referent is the afflicted manas just described, not all awareness of an arhat."
+      },
+      {
+        "wordIds": [
+          "v7w8",
+          "v7w9"
+        ],
+        "text": "നിരോധസമാപത്തിയിലും ഇല്ല;",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v7w10",
+          "v7w11",
+          "v7w12",
+          "v7w13"
+        ],
+        "text": "ലോകോത്തരമാർഗ്ഗത്തിലും അതില്ല.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 8,
+    "groups": [
+      {
+        "wordIds": [
+          "v8w1",
+          "v8w2",
+          "v8w3"
+        ],
+        "text": "ഇതാണ് രണ്ടാമത്തെ പരിണാമം.",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v8w4",
+          "v8w5",
+          "v8w6",
+          "v8w7"
+        ],
+        "text": "ആറുവിധ വിഷയങ്ങളെ ഗ്രഹിക്കുന്നതാണ് മൂന്നാമത്തേത്;",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v8w8",
+          "v8w9"
+        ],
+        "text": "അത് കുശലമോ അകുശലമോ രണ്ടുമല്ലാത്തതോ ആണ്.",
+        "note": "Advayā here means neither wholesome nor unwholesome; it is not translated as the later subject-object nonduality."
+      }
+    ]
+  },
+  {
+    "verse": 9,
+    "groups": [
+      {
+        "wordIds": [
+          "v9w1",
+          "v9w2",
+          "v9w3"
+        ],
+        "text": "സാർവത്രികവും വിഷയനിയതവും കുശലവുമായ",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v9w4",
+          "v9w5",
+          "v9w6"
+        ],
+        "text": "ചൈതസികങ്ങളോട് അത് സംയുക്തമാണ്;",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v9w7",
+          "v9w8",
+          "v9w9",
+          "v9w10"
+        ],
+        "text": "അതുപോലെ ക്ലേശങ്ങളോടും ഉപക്ലേശങ്ങളോടും; മൂന്നു വിധ വേദനകളോടുകൂടിയതുമാണ്.",
+        "note": "Three kinds of feeling are a classification, not a claim that all three occur simultaneously."
+      }
+    ]
+  },
+  {
+    "verse": 10,
+    "groups": [
+      {
+        "wordIds": [
+          "v10w1",
+          "v10w2"
+        ],
+        "text": "ആദ്യവിഭാഗം സ്പർശാദികളാണ്;",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v10w3",
+          "v10w4",
+          "v10w5",
+          "v10w6"
+        ],
+        "text": "ഛന്ദം, അധിമോക്ഷം, സ്മൃതി എന്നിവയും സമാധി, ധീ എന്നിവയും വിഷയനിയതങ്ങളാണ്.",
+        "note": "Contextual study glosses: chanda = intention/desire to act; adhimokṣa = resolve; smṛti = recollection/mindfulness; samādhi = concentration; dhī = discernment. Technical Malayalam usage needs specialist review."
+      },
+      {
+        "wordIds": [
+          "v10w7",
+          "v10w8",
+          "v10w9"
+        ],
+        "text": "തുടർന്ന് വിശ്വാസവും ധാർമ്മിക ലജ്ജയും അന്യരെ മാനിച്ചുള്ള സംകോചവും;",
+        "note": "Hrī and apatrapā are provisionally distinguished as moral shame and restraint with regard for others. These are draft renderings, not quotations from a Malayalam Buddhist lexicon. The wholesome list continues in v11."
+      }
+    ]
+  },
+  {
+    "verse": 11,
+    "groups": [
+      {
+        "wordIds": [
+          "v11w1",
+          "v11w2",
+          "v11w3"
+        ],
+        "text": "അലോഭാദികളായ മൂന്നും വീര്യവും,",
+        "note": "The Sanskrit abbreviates the three roots as alobhādi trayam. The text does not insert the other two roots; their familiar expansion (non-hatred and non-delusion) belongs in commentary."
+      },
+      {
+        "wordIds": [
+          "v11w4",
+          "v11w5",
+          "v11w6",
+          "v11w7"
+        ],
+        "text": "അപ്രമാദത്തോടുകൂടിയ പ്രശ്രബ്ധിയും അഹിംസയും കുശലങ്ങളാണ്.",
+        "note": "Praśrabdhi is retained as പ്രശ്രബ്ധി (ease/pliancy of body and mind). Sāpramādikā is read sa-apramādikā, with heedfulness, not with negligence."
+      },
+      {
+        "wordIds": [
+          "v11w8",
+          "v11w9"
+        ],
+        "text": "ക്ലേശങ്ങളാകട്ടെ രാഗം, പ്രതിഘം, മോഹം,",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 12,
+    "groups": [
+      {
+        "wordIds": [
+          "v12w1",
+          "v12w2"
+        ],
+        "text": "അഭിമാനവും ദൃഷ്ടികളും സംശയവും കൂടി;",
+        "note": "Dṛṣṭi is afflictive in this list; the translation does not condemn every view indiscriminately."
+      },
+      {
+        "wordIds": [
+          "v12w3",
+          "v12w4"
+        ],
+        "text": "പിന്നെ ക്രോധവും പകയും,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v12w5",
+          "v12w6",
+          "v12w7"
+        ],
+        "text": "കുറ്റം മറച്ചുവയ്ക്കലും വിദ്വേഷവും അസൂയയും,",
+        "note": "Mrakṣa and pradāśa are provisional contextual renderings (concealment of faults and hostility). Their technical Malayalam equivalents need review."
+      },
+      {
+        "wordIds": [
+          "v12w8",
+          "v12w9",
+          "v12w10"
+        ],
+        "text": "പിശുക്കും വഞ്ചനയും കൂടെ;",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 13,
+    "groups": [
+      {
+        "wordIds": [
+          "v13w1",
+          "v13w2",
+          "v13w3"
+        ],
+        "text": "കപടത, മദം, ഹിംസാശീലം, ധാർമ്മിക ലജ്ജയില്ലായ്മ,",
+        "note": "Follows the declared source emendation vihiṃsā + ahrīḥ: harmfulness and shamelessness. It must not be read as ahiṃsā and hrī."
+      },
+      {
+        "wordIds": [
+          "v13w4",
+          "v13w5",
+          "v13w6"
+        ],
+        "text": "അന്യരെക്കുറിച്ചുള്ള ധാർമ്മിക കരുതലില്ലായ്മ, മനസ്സിന്റെ മന്ദത, അസ്വസ്ഥത,",
+        "note": "Uddhavaḥ is the retained edition reading; അസ്വസ്ഥത is provisional. Atrapā is distinguished from ahrīḥ through relation to others, pending review."
+      },
+      {
+        "wordIds": [
+          "v13w7",
+          "v13w8",
+          "v13w9"
+        ],
+        "text": "വിശ്വാസമില്ലായ്മയും പിന്നെ അലസതയും,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v13w10",
+          "v13w11",
+          "v13w12"
+        ],
+        "text": "അശ്രദ്ധയും സ്മൃതിനഷ്ടവും;",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 14,
+    "groups": [
+      {
+        "wordIds": [
+          "v14w1",
+          "v14w2",
+          "v14w3"
+        ],
+        "text": "ചിതറലും വ്യക്തമായ അവബോധമില്ലായ്മയും,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v14w4",
+          "v14w5",
+          "v14w6",
+          "v14w7"
+        ],
+        "text": "പശ്ചാത്താപവും നിദ്രയും കൂടി,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v14w8",
+          "v14w9",
+          "v14w10",
+          "v14w11",
+          "v14w12"
+        ],
+        "text": "വിതർക്കവും വിചാരവും—ഇവ ഉപക്ലേശങ്ങളാണ്;",
+        "note": "Vitarka and vicāra are retained as technical terms. Applied/initial and sustained examination are possible explanatory glosses, not established here as uniquely correct."
+      },
+      {
+        "wordIds": [
+          "v14w13",
+          "v14w14"
+        ],
+        "text": "ആ രണ്ടു ജോഡികൾക്കാകട്ടെ രണ്ടുവിധ നിലകളുണ്ട്.",
+        "note": "The two pairs are regret/sleep and vitarka/vicāra. Dvidhā is kept open as a twofold status; the draft does not impose one classification scheme or label all four intrinsically unwholesome."
+      }
+    ]
+  },
+  {
+    "verse": 15,
+    "groups": [
+      {
+        "wordIds": [
+          "v15w1",
+          "v15w2",
+          "v15w3",
+          "v15w4",
+          "v15w5"
+        ],
+        "text": "അഞ്ചു വിജ്ഞാനങ്ങളും മൂലവിജ്ഞാനത്തിൽ പ്രത്യയങ്ങളനുസരിച്ച് ഉദിക്കുന്നു,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v15w6",
+          "v15w7",
+          "v15w8"
+        ],
+        "text": "ഒരുമിച്ചോ അല്ലാതെയോ,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v15w9",
+          "v15w10",
+          "v15w11"
+        ],
+        "text": "ജലത്തിൽ തിരമാലകൾ എന്നപോലെ.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 16,
+    "groups": [
+      {
+        "wordIds": [
+          "v16w1",
+          "v16w2",
+          "v16w3",
+          "v16w4"
+        ],
+        "text": "മനോവിജ്ഞാനം എല്ലായ്പ്പോഴും ഉദിക്കുന്നു—അസംജ്ഞികാവസ്ഥയും രണ്ടു സമാപത്തികളും ഒഴികെ;",
+        "note": "MERGED ADJACENT BLOCKS 1–2: sarvadāsaṃjñikāt contains both “always” and the first exception, governed by ṛte in the next block. One phrase mapping avoids falsely separating the exception from its governor. The Sanskrit layout remains unchanged. The two attainments are not individually named in this verse."
+      },
+      {
+        "wordIds": [
+          "v16w5",
+          "v16w6",
+          "v16w7",
+          "v16w8"
+        ],
+        "text": "ചിത്തപ്രവർത്തനമില്ലാത്ത നിദ്രയും മൂർഛയും കൂടി ഒഴികെ.",
+        "note": "Acittaka restricts the relevant sleep/fainting states to those without active cognition. The draft does not say all sleep or fainting lacks cognition."
+      }
+    ]
+  },
+  {
+    "verse": 17,
+    "groups": [
+      {
+        "wordIds": [
+          "v17w1",
+          "v17w2",
+          "v17w3"
+        ],
+        "text": "വിജ്ഞാനത്തിന്റെ ഈ പരിണാമം വികൽപമാണ്;",
+        "note": "Vikalpa is retained as വികൽപം: discriminative/conceptual construction, not merely deliberate fantasy."
+      },
+      {
+        "wordIds": [
+          "v17w4",
+          "v17w5",
+          "v17w6"
+        ],
+        "text": "അതുവഴി കൽപിക്കപ്പെടുന്നതെന്തോ,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v17w7",
+          "v17w8"
+        ],
+        "text": "അത് നിലനിൽക്കുന്നില്ല.",
+        "note": "The denial concerns what is constructed as constructed. No additional thesis denying every possible sense of reality is inserted."
+      },
+      {
+        "wordIds": [
+          "v17w9",
+          "v17w10",
+          "v17w11"
+        ],
+        "text": "അതിനാൽ ഇതെല്ലാം വിജ്ഞപ്തിമാത്രമാണ്.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 18,
+    "groups": [
+      {
+        "wordIds": [
+          "v18w1",
+          "v18w2",
+          "v18w3"
+        ],
+        "text": "സർവബീജകമായ വിജ്ഞാനം",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v18w4",
+          "v18w5",
+          "v18w6",
+          "v18w7"
+        ],
+        "text": "പലപലവിധ പരിണാമങ്ങളിലൂടെ കടന്നുപോകുന്നു,",
+        "note": "UNREVIEWED / UNCERTAIN: Lévi’s nominative-looking pariṇāmas with yāti is retained in the Sanskrit. The Malayalam gives a provisional contextual reading, “passes through various transformations,” without silently correcting the source to an accusative form. Philological review is required.",
+        "uncertain": true
+      },
+      {
+        "wordIds": [
+          "v18w8"
+        ],
+        "text": "പരസ്പരാധീനതയാൽ;",
+        "note": "Mutual influence is retained without specifying every causal direction or identifying each relatum; the Sanskrit here does not do so."
+      },
+      {
+        "wordIds": [
+          "v18w9",
+          "v18w10",
+          "v18w11",
+          "v18w12",
+          "v18w13"
+        ],
+        "text": "അതുവഴി അതതു വികൽപങ്ങൾ ഉദിക്കുന്നു.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 19,
+    "groups": [
+      {
+        "wordIds": [
+          "v19w1",
+          "v19w2"
+        ],
+        "text": "കർമ്മത്തിന്റെ വാസനകൾ,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v19w3",
+          "v19w4"
+        ],
+        "text": "ദ്വയഗ്രഹണത്തിന്റെ വാസനയോടുചേർന്ന്,",
+        "note": "Grāhadvaya is retained as ദ്വയഗ്രഹണം. Subject/object or grasper/grasped is the contextual explanation, not two literal grasping acts."
+      },
+      {
+        "wordIds": [
+          "v19w5",
+          "v19w6"
+        ],
+        "text": "മുൻവിപാകം ക്ഷയിക്കുമ്പോൾ,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v19w7",
+          "v19w8",
+          "v19w9",
+          "v19w10"
+        ],
+        "text": "അങ്ങനെ മറ്റൊരു വിപാകം ജനിപ്പിക്കുന്നു.",
+        "note": "UNREVIEWED / UNCERTAIN: final tat has no securely assigned referent in this draft. The Malayalam uses the connective അങ്ങനെ without asserting a separate entity or precise one-token correspondence; this is an interpretive concession requiring review. Token coverage alone does not prove an exact rendering of that pronoun.",
+        "uncertain": true
+      }
+    ]
+  },
+  {
+    "verse": 20,
+    "groups": [
+      {
+        "wordIds": [
+          "v20w1",
+          "v20w2",
+          "v20w3"
+        ],
+        "text": "ഏതേതു വികൽപത്താൽ",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v20w4",
+          "v20w5",
+          "v20w6",
+          "v20w7"
+        ],
+        "text": "ഏതേതു വസ്തു കൽപിക്കപ്പെടുന്നുവോ,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v20w8",
+          "v20w9",
+          "v20w10"
+        ],
+        "text": "അതു തന്നെയാണ് പരികൽപിതസ്വഭാവം;",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v20w11",
+          "v20w12",
+          "v20w13"
+        ],
+        "text": "അതിന് അസ്തിത്വമില്ല.",
+        "note": "Sa refers to the parikalpita nature as posited. The denial is not expanded here into a claim about all dependent functioning."
+      }
+    ]
+  },
+  {
+    "verse": 21,
+    "groups": [
+      {
+        "wordIds": [
+          "v21w1",
+          "v21w2",
+          "v21w3",
+          "v21w4"
+        ],
+        "text": "പ്രത്യയങ്ങളിൽനിന്ന് ഉദിക്കുന്ന വികൽപമോ പരതന്ത്രസ്വഭാവമാണ്.",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v21w5",
+          "v21w6",
+          "v21w7",
+          "v21w8",
+          "v21w9",
+          "v21w10",
+          "v21w11"
+        ],
+        "text": "അതിൽ മുൻപറഞ്ഞത് സദാ ഇല്ലാതിരിക്കുന്നതാണ് പരിനിഷ്പന്നം.",
+        "note": "MERGED ADJACENT BLOCKS 2–3: niṣpannas tasya and the following absence clause form one predication whose natural Malayalam order is reversed. “The earlier” is kept as മുൻപറഞ്ഞത്; context points to the parikalpita of v20. This asserts absence of that imagined nature in the dependent, not disappearance of dependent functioning."
+      }
+    ]
+  },
+  {
+    "verse": 22,
+    "groups": [
+      {
+        "wordIds": [
+          "v22w1",
+          "v22w2",
+          "v22w3"
+        ],
+        "text": "ഇതുകൊണ്ടുതന്നെ അത്",
+        "note": "The first sa is provisionally understood as the perfected nature, following v21; the Malayalam retains the pronoun."
+      },
+      {
+        "wordIds": [
+          "v22w4",
+          "v22w5",
+          "v22w6"
+        ],
+        "text": "പരതന്ത്രത്തിൽനിന്ന് ഭിന്നവുമല്ല, അഭിന്നവുമല്ല.",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v22w7",
+          "v22w8"
+        ],
+        "text": "അനിത്യത മുതലായവയെപ്പോലെ പറയേണ്ടതാണ്;",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v22w9",
+          "v22w10",
+          "v22w11",
+          "v22w12"
+        ],
+        "text": "ഇതു കാണാതെ അത് കാണപ്പെടുന്നില്ല.",
+        "note": "UNREVIEWED / UNCERTAIN: asmin and sa are deliberately retained as “this” and “that.” The common contextual reading takes this as perfected and that as dependent, but the translation does not hide the pronoun-resolution question.",
+        "uncertain": true
+      }
+    ]
+  },
+  {
+    "verse": 23,
+    "groups": [
+      {
+        "wordIds": [
+          "v23w1",
+          "v23w2"
+        ],
+        "text": "മൂന്നുവിധ സ്വഭാവങ്ങളുടെ",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v23w3",
+          "v23w4",
+          "v23w5"
+        ],
+        "text": "മൂന്നുവിധ നിഃസ്വഭാവതയെ ഉദ്ദേശിച്ചാണ്",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v23w6",
+          "v23w7",
+          "v23w8"
+        ],
+        "text": "സകല ധർമ്മങ്ങളുടെയും നിഃസ്വഭാവത ഉപദേശിക്കപ്പെട്ടത്.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 24,
+    "groups": [
+      {
+        "wordIds": [
+          "v24w1",
+          "v24w2",
+          "v24w3"
+        ],
+        "text": "ആദ്യത്തേത് ലക്ഷണംകൊണ്ടുതന്നെ നിഃസ്വഭാവമാണ്.",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v24w4",
+          "v24w5",
+          "v24w6",
+          "v24w7",
+          "v24w8",
+          "v24w9",
+          "v24w10"
+        ],
+        "text": "അടുത്തത് സ്വയം ഉദിക്കുന്നതല്ലാത്തതിനാൽ നിഃസ്വഭാവമാണ്; മറ്റൊരു നിഃസ്വഭാവതയുമുണ്ട്—",
+        "note": "MERGED ADJACENT BLOCKS 2–3: etasya belongs with the preceding denial of self-arising. “Is without own-nature” is supplied for the second nature from the preceding predication. The final phrase preserves the further aparā niḥsvabhāvatā transition into v25. Whether this introduces the third mode rather than merely restates the second must be reviewed; the earlier English annotation should not decide it silently.",
+        "uncertain": true
+      }
+    ]
+  },
+  {
+    "verse": 25,
+    "groups": [
+      {
+        "wordIds": [
+          "v25w1",
+          "v25w2",
+          "v25w3",
+          "v25w4"
+        ],
+        "text": "അത് ധർമ്മങ്ങളുടെ പരമാർത്ഥവുമാണ്;",
+        "note": "Paramārtha is retained as പരമാർത്ഥം; “ultimate reality” and “highest meaning” are not adjudicated here. This continues the compressed v24–25 argument."
+      },
+      {
+        "wordIds": [
+          "v25w5",
+          "v25w6",
+          "v25w7"
+        ],
+        "text": "അത് തഥതയുമാണ്,",
+        "note": "Yataḥ is absorbed into the explanatory sequence completed by the following because-clause, rather than assigned an isolated Malayalam word. Tathatā is retained as തഥത."
+      },
+      {
+        "wordIds": [
+          "v25w8",
+          "v25w9"
+        ],
+        "text": "എല്ലാകാലവും അങ്ങനെതന്നെ ഇരിക്കുന്നതിനാൽ;",
+        "note": "Always being thus explains tathatā; it does not assert an eternal personal consciousness."
+      },
+      {
+        "wordIds": [
+          "v25w10",
+          "v25w11"
+        ],
+        "text": "അതുതന്നെയാണ് വിജ്ഞപ്തിമാത്രത.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 26,
+    "groups": [
+      {
+        "wordIds": [
+          "v26w1",
+          "v26w2",
+          "v26w3",
+          "v26w4"
+        ],
+        "text": "വിജ്ഞാനം വിജ്ഞപ്തിമാത്രതയിൽ നിലകൊള്ളാത്തിടത്തോളം,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v26w5",
+          "v26w6",
+          "v26w7",
+          "v26w8"
+        ],
+        "text": "ദ്വയഗ്രഹണത്തിന്റെ അനുശയം നിവൃത്തമാകുന്നില്ല.",
+        "note": "Anuśaya is retained as അനുശയം: a latent tendency, not merely an explicit belief."
+      }
+    ]
+  },
+  {
+    "verse": 27,
+    "groups": [
+      {
+        "wordIds": [
+          "v27w1",
+          "v27w2",
+          "v27w3"
+        ],
+        "text": "“ഇത് വിജ്ഞപ്തിമാത്രം തന്നെയാണ്” എന്ന്",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v27w4",
+          "v27w5",
+          "v27w6"
+        ],
+        "text": "കരുതിയാലും, ഗ്രഹിച്ചുപിടിക്കുന്നതിനാൽ,",
+        "note": "കരുതിയാലും (“even if one thinks”) is an idiomatic connective supplied across the quotation and api. This is a phrase mapping, not an assertion that a separate Sanskrit word means “thinks.” Upalambha is rendered as grasping hold."
+      },
+      {
+        "wordIds": [
+          "v27w7",
+          "v27w8",
+          "v27w9"
+        ],
+        "text": "മുന്നിൽ എന്തെങ്കിലുമൊന്ന് സ്ഥാപിക്കുന്നവൻ",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v27w10",
+          "v27w11"
+        ],
+        "text": "ആ മാത്രതയിൽ നിലകൊള്ളുന്നില്ല.",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "verse": 28,
+    "groups": [
+      {
+        "wordIds": [
+          "v28w1",
+          "v28w2",
+          "v28w3"
+        ],
+        "text": "വിജ്ഞാനം ആലംബനത്തെ ഒട്ടും ഗ്രഹിക്കാതിരിക്കുമ്പോൾ,",
+        "note": "UNREVIEWED / UNCERTAIN: follows Lévi’s yadā-ālambanam and vijñānam without inserting the modern tu or substituting jñānam. The scope of non-apprehension remains doctrinally contested.",
+        "uncertain": true
+      },
+      {
+        "wordIds": [
+          "v28w4",
+          "v28w5",
+          "v28w6"
+        ],
+        "text": "അപ്പോൾ അത് വിജ്ഞാനമാത്രതയിൽ നിലകൊള്ളുന്നു;",
+        "note": "Retains vijñānamātratva as വിജ്ഞാനമാത്രത, distinct from വിജ്ഞപ്തിമാത്രത elsewhere. Do not normalize the two expressions into one witness reading."
+      },
+      {
+        "wordIds": [
+          "v28w7",
+          "v28w8"
+        ],
+        "text": "ഗ്രാഹ്യമില്ലാത്തപ്പോൾ അതിനെ ഗ്രഹിക്കാത്തതിനാൽ.",
+        "note": "UNREVIEWED / UNCERTAIN: Malayalam provisionally renders tad-agrahāt as “because [it/one] does not grasp it,” without resolving the implicit agent or the pronoun’s referent. The relation to the absence of a grasped object requires philological/doctrinal review; no unconsciousness claim is added.",
+        "uncertain": true
+      }
+    ]
+  },
+  {
+    "verse": 29,
+    "groups": [
+      {
+        "wordIds": [
+          "v29w1",
+          "v29w2",
+          "v29w3"
+        ],
+        "text": "ആ ഗ്രഹണമില്ലായ്മ ചിത്തരഹിതമാണ്;",
+        "note": "Acitta is rendered literally as ചിത്തരഹിതം, but is immediately coordinated with knowledge. It must not be read uncritically as unconscious stupor; the technical interpretation remains open."
+      },
+      {
+        "wordIds": [
+          "v29w4",
+          "v29w5",
+          "v29w6",
+          "v29w7"
+        ],
+        "text": "അതാകട്ടെ ലോകോത്തരജ്ഞാനവുമാണ്.",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v29w8",
+          "v29w9"
+        ],
+        "text": "ആശ്രയത്തിന്റെ പരാവൃത്തിയാണ് അത്,",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v29w10",
+          "v29w11"
+        ],
+        "text": "ദൗഷ്ഠുല്യം രണ്ടുവിധത്തിൽ ഉപേക്ഷിക്കുന്നതിലൂടെ.",
+        "note": "Dauṣṭhulya is retained as ദൗഷ്ഠുല്യം (encumbering unfitness). The text says removal is twofold without naming two obstructions; those identifications belong in commentary."
+      }
+    ]
+  },
+  {
+    "verse": 30,
+    "groups": [
+      {
+        "wordIds": [
+          "v30w1",
+          "v30w2",
+          "v30w3"
+        ],
+        "text": "അതുതന്നെയാണ് അനാസ്രവധാതു:",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v30w4",
+          "v30w5",
+          "v30w6"
+        ],
+        "text": "അചിന്ത്യവും കുശലവും ധ്രുവവുമായത്;",
+        "note": "Dhruva is retained as ധ്രുവം. Its doctrinal relation to impermanence is not settled by this draft."
+      },
+      {
+        "wordIds": [
+          "v30w7",
+          "v30w8",
+          "v30w9"
+        ],
+        "text": "അതു സുഖമാണ്, വിമുക്തികായമാണ്;",
+        "note": ""
+      },
+      {
+        "wordIds": [
+          "v30w10",
+          "v30w11",
+          "v30w12"
+        ],
+        "text": "മഹാമുനിയുടെ ധർമ്മകായം എന്നു വിളിക്കപ്പെടുന്നതാണിത്.",
+        "note": "Kāya is carried contextually from vimuktikāya into dharmākhya. The Malayalam ധർമ്മകായം is thus a phrase-level interpretation, not an extra Sanskrit word or a new morphological segment."
+      }
+    ]
+  }
+]
